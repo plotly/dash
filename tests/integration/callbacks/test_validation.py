@@ -1,10 +1,6 @@
 import pytest
 
-import dash_html_components as html
-
-from dash import Dash
-
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, html
 from dash.exceptions import InvalidCallbackReturnValue, IncorrectTypeException
 
 
@@ -23,17 +19,6 @@ def test_cbva001_callback_dep_types():
             html.Div(id="out3"),
         ]
     )
-
-    with pytest.raises(IncorrectTypeException) as err:
-
-        @app.callback([[Output("out1", "children")]], [Input("in1", "children")])
-        def f(i):
-            return i
-
-        pytest.fail("extra output nesting")
-
-    assert "must be `Output`, `Input`, or `State`" in err.value.args[0]
-    assert "[<Output `out1.children`>]" in err.value.args[0]
 
     with pytest.raises(IncorrectTypeException) as err:
 
@@ -62,7 +47,7 @@ def test_cbva001_callback_dep_types():
         Input("in2", "children"),
         State("state2", "children"),
     )
-    def f2(i):
+    def f3(i):
         return i
 
     # all OK with lists
@@ -71,7 +56,7 @@ def test_cbva001_callback_dep_types():
         [Input("in3", "children")],
         [State("state3", "children")],
     )
-    def f3(i):
+    def f4(i):
         return i
 
 
@@ -92,10 +77,12 @@ def test_cbva002_callback_return_validation():
     def single(a):
         return set([1])
 
+    single_wrapped = app.callback_map["b.children"]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         # outputs_list (normally callback_context.outputs_list) is provided
         # by the dispatcher from the request.
-        single("aaa", outputs_list={"id": "b", "property": "children"})
+        single_wrapped("aaa", outputs_list={"id": "b", "property": "children"})
         pytest.fail("not serializable")
 
     @app.callback(
@@ -104,12 +91,14 @@ def test_cbva002_callback_return_validation():
     def multi(a):
         return [1, set([2])]
 
+    multi_wrapped = app.callback_map["..c.children...d.children.."]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "c", "property": "children"},
             {"id": "d", "property": "children"},
         ]
-        multi("aaa", outputs_list=outputs_list)
+        multi_wrapped("aaa", outputs_list=outputs_list)
         pytest.fail("nested non-serializable")
 
     @app.callback(
@@ -118,12 +107,14 @@ def test_cbva002_callback_return_validation():
     def multi2(a):
         return ["abc"]
 
+    multi2_wrapped = app.callback_map["..e.children...f.children.."]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "e", "property": "children"},
             {"id": "f", "property": "children"},
         ]
-        multi2("aaa", outputs_list=outputs_list)
+        multi2_wrapped("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
 
 
@@ -147,8 +138,7 @@ def test_cbva003_list_single_output(dash_duo):
 
 
 @pytest.mark.parametrize("named_out", [True, False])
-@pytest.mark.parametrize("named_in", [True, False])
-@pytest.mark.parametrize("named_state", [True, False])
+@pytest.mark.parametrize("named_in,named_state", [(True, True), (False, False)])
 def test_cbva004_named_args(named_out, named_in, named_state, dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(

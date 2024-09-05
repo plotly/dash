@@ -1,0 +1,46 @@
+{
+    "extends": [
+        ":onlyNpm",
+        "schedule:daily"
+    ],
+    "enabledManagers": [
+        "npm"
+    ],
+    "groupName": "all dependencies",
+    "groupSlug": "all",
+    "lockFileMaintenance": {
+        "enabled": false
+    },
+    "packageRules": [
+        {
+            "packagePatterns": [
+                "*"
+            ],
+            "depTypeList": [
+                "dependencies",
+                "devDependencies"
+            ],
+            "groupName": "all dependencies",
+            "groupSlug": "all"
+        },
+        {
+            "packagePatterns": [
+                "rc-slider",
+                "react-dates",
+                "react-dropzone",
+                "react-syntax-highlighter",
+                "react-virtualized-select"
+            ],
+            "enabled": false
+        },
+        {
+            "depTypeList": [
+                "peerDependencies",
+                "engines"
+            ],
+            "enabled": false
+        }
+    ],
+    "rangeStrategy": "bump",
+    "separateMajorMinor": false
+}

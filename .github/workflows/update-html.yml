@@ -1,0 +1,30 @@
+name: update-html
+run-name: Update dash html components attributes
+on:
+  schedule:
+    - cron: 10 0 1 * *
+  workflow_dispatch:
+    inputs:
+      name:
+        description: Name of the run
+        required: false
+        type: string
+
+jobs:
+  update-attributes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: dev
+      - uses: actions/setup-node@v3
+      - name: Extract elements
+        working-directory: ./components/dash-html-components
+        run: |
+          npm ci
+          npm run extract
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Update Dash HTML elements & attributes.
+          body: Automated HTML attributes update.

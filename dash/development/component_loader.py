@@ -1,6 +1,8 @@
 import collections
 import json
 import os
+import warnings
+
 
 from ._py_components_generation import (
     generate_class_file,
@@ -13,7 +15,7 @@ from .base_component import ComponentRegistry
 
 def _get_metadata(metadata_path):
     # Start processing
-    with open(metadata_path) as data_file:
+    with open(metadata_path, encoding="utf-8") as data_file:
         json_string = data_file.read()
         data = json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(
             json_string
@@ -34,7 +36,13 @@ def load_components(metadata_path, namespace="default_namespace"):
     components -- a list of component objects with keys
     `type`, `valid_kwargs`, and `setup`.
     """
-
+    warnings.warn(
+        DeprecationWarning(
+            "Dynamic components loading has been deprecated and will be removed"
+            " in dash 3.0.\n"
+            f"Update {namespace} to generate components with dash-generate-components"
+        )
+    )
     # Register the component lib for index include.
     ComponentRegistry.registry.add(namespace)
     components = []
@@ -52,7 +60,7 @@ def load_components(metadata_path, namespace="default_namespace"):
         # the name of the component atm.
         name = componentPath.split("/").pop().split(".")[0]
         component = generate_class(
-            name, componentData["props"], componentData["description"], namespace
+            name, componentData["props"], componentData["description"], namespace, None
         )
 
         components.append(component)

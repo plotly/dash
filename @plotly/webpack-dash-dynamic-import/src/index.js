@@ -78,10 +78,11 @@ class WebpackDashDynamicImport {
     apply(compiler) {
         compiler.hooks.compilation.tap('WebpackDashDynamicImport', compilation => {
             compilation.mainTemplate.hooks.requireExtensions.tap('WebpackDashDynamicImport > RequireExtensions', (source, chunk, hash) => {
-                return [
-                    source,
-                    resolveImportSource()
-                ]
+                // Prevent CSS chunks from having JS appended to them
+                if (chunk.name === 'mini-css-extract-plugin') {
+                    return source;
+                }
+                return source + resolveImportSource();
             });
         });
     }

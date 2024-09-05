@@ -1,18 +1,16 @@
 from time import sleep
 import requests
 
-import dash_html_components as html
-import dash
-from dash.dependencies import Output, Input
+from dash import Dash, Output, Input, html, callback_context
 
 
 def test_dvct001_callback_timing(dash_thread_server):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div()
 
     @app.callback(Output("x", "p"), Input("y", "q"))
     def x(y):
-        dash.callback_context.record_timing("pancakes", 1.23)
+        callback_context.record_timing("pancakes", 1.23)
         sleep(0.5)
         return y
 

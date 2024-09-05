@@ -1,8 +1,6 @@
 import json
-import dash_html_components as html
-import dash
 from dash.testing import wait
-from dash.dependencies import Input, Output, State, ALL, MATCH
+from dash import Dash, Input, Output, State, ALL, MATCH, html
 
 
 def wait_for_queue(dash_duo):
@@ -13,7 +11,7 @@ def wait_for_queue(dash_duo):
 
 
 def test_cbmi001_all_missing_inputs(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -82,7 +80,7 @@ def test_cbmi001_all_missing_inputs(dash_duo):
 
 
 def test_cbmi002_follow_on_to_two_skipped_callbacks(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Button("click", id="btn"),
@@ -129,7 +127,7 @@ def test_cbmi002_follow_on_to_two_skipped_callbacks(dash_duo):
 
 def test_cbmi003_some_missing_inputs(dash_duo):
     # this one is an error!
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -170,7 +168,7 @@ def test_cbmi003_some_missing_inputs(dash_duo):
 
 
 def test_cbmi004_some_missing_outputs(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Button("click", id="btn"),
@@ -208,7 +206,7 @@ def test_cbmi004_some_missing_outputs(dash_duo):
 def test_cbmi005_all_multi_wildcards_with_output(dash_duo):
     # if all the inputs are multi wildcards, AND there's an output,
     # we DO fire the callback
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -254,7 +252,7 @@ def test_cbmi005_all_multi_wildcards_with_output(dash_duo):
 def test_cbmi006_all_multi_wildcards_no_outputs(dash_duo):
     # if all the inputs are multi wildcards, but there's NO output,
     # we DO NOT fire the callback
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -298,7 +296,7 @@ def test_cbmi006_all_multi_wildcards_no_outputs(dash_duo):
 def test_cbmi007_all_multi_wildcards_some_outputs(dash_duo):
     # same as above (cbmi006) but multi-output, some outputs present some missing.
     # Again we DO NOT fire the callback
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -350,7 +348,7 @@ def test_cbmi007_all_multi_wildcards_some_outputs(dash_duo):
 def test_cbmi008_multi_wildcards_and_simple_all_missing(dash_duo):
     # if only SOME of the inputs are multi wildcards, even with an output,
     # we DO NOT fire the callback
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id="title"),
@@ -399,7 +397,7 @@ def test_cbmi008_multi_wildcards_and_simple_all_missing(dash_duo):
 def test_cbmi009_match_wildcards_all_missing(dash_duo):
     # Kind of contrived - MATCH will always be 0. Just want to make sure
     # that this behaves the same as cbmi001
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             html.Div("Title", id={"i": 0, "id": "title"}),

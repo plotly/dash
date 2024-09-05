@@ -1,0 +1,37 @@
+{
+    "extends": [
+        ":onlyNpm",
+        "schedule:daily"
+    ],
+    "enabledManagers": ["npm"],
+    "groupName": "all dependencies",
+    "groupSlug": "all",
+    "lockFileMaintenance": {
+        "enabled": false
+    },
+    "packageRules": [{
+        "packageNames": [
+            "react-select", 
+            "@types/react-select"
+        ],
+        "allowedVersions": "<2.0.0"
+    }, {
+        "packagePatterns": [
+            "*"
+        ],
+        "depTypeList": [
+            "dependencies",
+            "devDependencies"
+        ],
+        "groupName": "all dependencies",
+        "groupSlug": "all"
+    }, {
+        "depTypeList": [
+            "peerDependencies",
+            "engines"
+        ],
+        "enabled": false
+    }],
+    "rangeStrategy": "bump",
+    "separateMajorMinor": false
+}

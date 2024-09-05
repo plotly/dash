@@ -1,0 +1,4 @@
+# Dependencies used for development new Dash components
+coloredlogs>=15.0.1
+fire>=0.4.0
+PyYAML>=5.4.1

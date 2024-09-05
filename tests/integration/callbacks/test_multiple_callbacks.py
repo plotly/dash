@@ -1,25 +1,25 @@
 import time
-from multiprocessing import Value
+from multiprocessing import Value, Lock
 
 import pytest
 
-import dash_html_components as html
-import dash_core_components as dcc
-import dash_table
-import dash
-from dash.dependencies import Input, Output, State
+from dash import Dash, Input, Output, State, callback_context, html, dcc, dash_table
 from dash.exceptions import PreventUpdate
+
+import dash.testing.wait as wait
 
 
 def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
-    app = dash.Dash(__name__)
-    app.layout = html.Div([html.Button(id="input", n_clicks=0), html.Div(id="output")])
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button("Click", id="input", n_clicks=0), html.Div(id="output")]
+    )
 
     call_count = Value("i", 0)
 
     @app.callback(Output("output", "children"), [Input("input", "n_clicks")])
     def update_output(n_clicks):
-        call_count.value = call_count.value + 1
+        call_count.value += 1
         if n_clicks == 1:
             time.sleep(1)
         return n_clicks
@@ -33,15 +33,12 @@ def test_cbmt001_called_multiple_times_and_out_of_order(dash_duo):
     assert dash_duo.find_element("#output").text == "3", "clicked button 3 times"
 
     assert not dash_duo.redux_state_is_loading
-
-    dash_duo.percy_snapshot(
-        name="test_callbacks_called_multiple_times_and_out_of_order"
-    )
+    assert dash_duo.get_logs() == []
 
 
 def test_cbmt002_canceled_intermediate_callback(dash_duo):
     # see https://github.com/plotly/dash/issues/1053
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="a", value="x"),
@@ -77,7 +74,7 @@ def test_cbmt002_canceled_intermediate_callback(dash_duo):
 
 def test_cbmt003_chain_with_table(dash_duo):
     # see https://github.com/plotly/dash/issues/1071
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Div(id="a1"),
@@ -130,7 +127,7 @@ def test_cbmt003_chain_with_table(dash_duo):
 
 @pytest.mark.parametrize("MULTI", [False, True])
 def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("Button", id="button"),
@@ -197,7 +194,7 @@ def test_cbmt004_chain_with_sliders(MULTI, dash_duo):
 
 
 def test_cbmt005_multi_converging_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("Button 1", id="b1"),
@@ -213,10 +210,10 @@ def test_cbmt005_multi_converging_chain(dash_duo):
         [Input("b1", "n_clicks"), Input("b2", "n_clicks")],
     )
     def update_sliders(button1, button2):
-        if not dash.callback_context.triggered:
+        if not callback_context.triggered:
             raise PreventUpdate
 
-        if dash.callback_context.triggered[0]["prop_id"] == "b1.n_clicks":
+        if callback_context.triggered[0]["prop_id"] == "b1.n_clicks":
             return -1, -1
         else:
             return 1, 1
@@ -239,7 +236,7 @@ def test_cbmt005_multi_converging_chain(dash_duo):
 
 
 def test_cbmt006_derived_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Div(id="output"), html.Button("click", id="btn"), dcc.Store(id="store")]
     )
@@ -265,7 +262,7 @@ def test_cbmt006_derived_props(dash_duo):
 
 
 def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(id="content")
 
     @app.callback(Output("content", "children"), [Input("content", "style")])
@@ -308,7 +305,7 @@ def test_cbmt007_early_preventupdate_inputs_above_below(dash_duo):
 
 
 def test_cbmt008_direct_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="input-1", value="input 1"),
@@ -357,7 +354,7 @@ def test_cbmt008_direct_chain(dash_duo):
 
 
 def test_cbmt009_branched_chain(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="grandparent", value="input 1"),
@@ -418,7 +415,7 @@ def test_cbmt009_branched_chain(dash_duo):
 
 
 def test_cbmt010_shared_grandparent(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [
@@ -468,7 +465,7 @@ def test_cbmt010_shared_grandparent(dash_duo):
 
 
 def test_cbmt011_callbacks_triggered_on_generated_output(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
 
     call_counts = {"tab1": Value("i", 0), "tab2": Value("i", 0)}
 
@@ -524,7 +521,7 @@ def test_cbmt011_callbacks_triggered_on_generated_output(dash_duo):
 
 @pytest.mark.parametrize("generate", [False, True])
 def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=generate)
+    app = Dash(__name__, suppress_callback_exceptions=generate)
     block = html.Div(
         [
             html.Div(id="input-1", children="input-1"),
@@ -583,3 +580,91 @@ def test_cbmt012_initialization_with_overlapping_outputs(generate, dash_duo):
         assert call_counts[outputid].value == 1
 
     assert call_counts["container"].value == (1 if generate else 0)
+
+
+def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
+    all_options = {
+        "America": ["New York City", "San Francisco", "Cincinnati"],
+        "Canada": ["Montreal", "Toronto", "Ottawa"],
+    }
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.RadioItems(
+                id="countries-radio",
+                options=[{"label": k, "value": k} for k in all_options.keys()],
+                value="America",
+            ),
+            html.Hr(),
+            dcc.RadioItems(id="cities-radio"),
+            html.Hr(),
+            html.Div(id="display-selected-values"),
+        ]
+    )
+
+    opts_call_count = Value("i", 0)
+    city_call_count = Value("i", 0)
+    out_call_count = Value("i", 0)
+    out_lock = Lock()
+
+    @app.callback(Output("cities-radio", "options"), Input("countries-radio", "value"))
+    def set_cities_options(selected_country):
+        opts_call_count.value += 1
+        return [{"label": i, "value": i} for i in all_options[selected_country]]
+
+    @app.callback(Output("cities-radio", "value"), Input("cities-radio", "options"))
+    def set_cities_value(available_options):
+        city_call_count.value += 1
+        return available_options[0]["value"]
+
+    @app.callback(
+        Output("display-selected-values", "children"),
+        Input("countries-radio", "value"),
+        Input("cities-radio", "value"),
+    )
+    def set_display_children(selected_country, selected_city):
+        # this may actually be the key to this whole test:
+        # these inputs should never be out of sync.
+        assert selected_city in all_options[selected_country]
+
+        out_call_count.value += 1
+        with out_lock:
+            return "{} is a city in {}".format(
+                selected_city,
+                selected_country,
+            )
+
+    dash_duo.start_server(app)
+
+    new_york_text = "New York City is a city in America"
+    canada_text = "Montreal is a city in Canada"
+
+    # If we get to the correct initial state with only one call of each callback,
+    # then there mustn't have been any intermediate changes to the output text
+    dash_duo.wait_for_text_to_equal("#display-selected-values", new_york_text)
+    assert opts_call_count.value == 1
+    assert city_call_count.value == 1
+    assert out_call_count.value == 1
+
+    all_labels = dash_duo.find_elements("label")
+    canada_opt = next(
+        i for i in all_labels if i.text == "Canada"
+    ).find_element_by_tag_name("input")
+
+    with out_lock:
+        canada_opt.click()
+
+        # all three callbacks have fired once more, but since we haven't allowed the
+        # last one to execute, the output hasn't been changed
+        wait.until(lambda: out_call_count.value == 2, timeout=3)
+        assert opts_call_count.value == 2
+        assert city_call_count.value == 2
+        assert dash_duo.find_element("#display-selected-values").text == new_york_text
+
+    dash_duo.wait_for_text_to_equal("#display-selected-values", canada_text)
+    assert opts_call_count.value == 2
+    assert city_call_count.value == 2
+    assert out_call_count.value == 2
+
+    assert dash_duo.get_logs() == []

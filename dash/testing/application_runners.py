@@ -1,7 +1,6 @@
-from __future__ import print_function
-
 import sys
 import os
+import time
 import uuid
 import shlex
 import threading
@@ -9,15 +8,22 @@ import shutil
 import subprocess
 import logging
 import inspect
+import ctypes
 
 import runpy
-import future.utils as utils
-import flask
 import requests
+import psutil
 
-from dash.testing.errors import NoAppFoundError, TestingTimeoutError, ServerCloseError
-import dash.testing.wait as wait
+# pylint: disable=no-member
+import multiprocess
 
+from dash.testing.errors import (
+    NoAppFoundError,
+    TestingTimeoutError,
+    ServerCloseError,
+    DashAppLoadingError,
+)
+from dash.testing import wait
 
 logger = logging.getLogger(__name__)
 
@@ -42,18 +48,22 @@ def import_app(app_file, application_name="app"):
     try:
         app_module = runpy.run_module(app_file)
         app = app_module[application_name]
-    except KeyError:
+    except KeyError as app_name_missing:
         logger.exception("the app name cannot be found")
-        raise NoAppFoundError("No dash `app` instance was found in {}".format(app_file))
+        raise NoAppFoundError(
+            f"No dash `app` instance was found in {app_file}"
+        ) from app_name_missing
     return app
 
 
-class BaseDashRunner(object):
+class BaseDashRunner:
     """Base context manager class for running applications."""
 
-    def __init__(self, keep_open, stop_timeout):
-        self.scheme = "http"
-        self.host = "localhost"
+    _next_port = 58050
+
+    def __init__(self, keep_open, stop_timeout, scheme="http", host="localhost"):
+        self.scheme = scheme
+        self.host = host
         self.port = 8050
         self.started = None
         self.keep_open = keep_open
@@ -85,16 +95,16 @@ class BaseDashRunner(object):
             try:
                 logger.info("killing the app runner")
                 self.stop()
-            except TestingTimeoutError:
+            except TestingTimeoutError as cannot_stop_server:
                 raise ServerCloseError(
-                    "Cannot stop server within {}s timeout".format(self.stop_timeout)
-                )
+                    f"Cannot stop server within {self.stop_timeout}s timeout"
+                ) from cannot_stop_server
         logger.info("__exit__ complete")
 
     @property
     def url(self):
         """The default server url."""
-        return "{}://{}:{}".format(self.scheme, self.host, self.port)
+        return f"{self.scheme}://{self.host}:{self.port}"
 
     @property
     def is_windows(self):
@@ -105,6 +115,29 @@ class BaseDashRunner(object):
         return self._tmp_app_path
 
 
+class KillerThread(threading.Thread):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._old_threads = list(threading._active.keys())  # pylint: disable=W0212
+
+    def kill(self):
+        # Kill all the new threads.
+        for thread_id in list(threading._active):  # pylint: disable=W0212
+            if thread_id in self._old_threads:
+                continue
+
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                ctypes.c_long(thread_id), ctypes.py_object(SystemExit)
+            )
+            if res == 0:
+                raise ValueError(f"Invalid thread id: {thread_id}")
+            if res > 1:
+                ctypes.pythonapi.PyThreadState_SetAsyncExc(
+                    ctypes.c_long(thread_id), None
+                )
+                raise SystemExit("Stopping thread failure")
+
+
 class ThreadedRunner(BaseDashRunner):
     """Runs a dash application in a thread.
 
@@ -112,56 +145,121 @@ class ThreadedRunner(BaseDashRunner):
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(ThreadedRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
-        self.stop_route = "/_stop-{}".format(uuid.uuid4().hex)
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.thread = None
 
-    @staticmethod
-    def _stop_server():
-        # https://werkzeug.palletsprojects.com/en/0.15.x/serving/#shutting-down-the-server
-        stopper = flask.request.environ.get("werkzeug.server.shutdown")
-        if stopper is None:
-            raise RuntimeError("Not running with the Werkzeug Server")
-        stopper()
-        return "Flask server is shutting down"
+    def running_and_accessible(self, url):
+        if self.thread.is_alive():
+            return self.accessible(url)
+        raise DashAppLoadingError("Thread is not alive.")
 
     # pylint: disable=arguments-differ
-    def start(self, app, **kwargs):
+    def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
-        app.server.add_url_rule(self.stop_route, self.stop_route, self._stop_server)
-
-        def _handle_error():
-            self._stop_server()
-
-        app.server.errorhandler(500)(_handle_error)
 
         def run():
             app.scripts.config.serve_locally = True
             app.css.config.serve_locally = True
-            if "port" not in kwargs:
-                kwargs["port"] = self.port
-            else:
-                self.port = kwargs["port"]
-            app.run_server(threaded=True, **kwargs)
 
-        self.thread = threading.Thread(target=run)
-        self.thread.daemon = True
-        try:
-            self.thread.start()
-        except RuntimeError:  # multiple call on same thread
-            logger.exception("threaded server failed to start")
-            self.started = False
+            options = kwargs.copy()
+
+            if "port" not in kwargs:
+                options["port"] = self.port = BaseDashRunner._next_port
+                BaseDashRunner._next_port += 1
+            else:
+                self.port = options["port"]
+
+            try:
+                app.run(threaded=True, **options)
+            except SystemExit:
+                logger.info("Server stopped")
+            except Exception as error:
+                logger.exception(error)
+                raise error
+
+        retries = 0
+
+        while not self.started and retries < 3:
+            try:
+                if self.thread:
+                    if self.thread.is_alive():
+                        self.stop()
+                    else:
+                        self.thread.kill()
+
+                self.thread = KillerThread(target=run)
+                self.thread.daemon = True
+                self.thread.start()
+                # wait until server is able to answer http request
+                wait.until(
+                    lambda: self.running_and_accessible(self.url), timeout=start_timeout
+                )
+                self.started = self.thread.is_alive()
+            except Exception as err:  # pylint: disable=broad-except
+                logger.exception(err)
+                self.started = False
+                retries += 1
+                time.sleep(1)
 
         self.started = self.thread.is_alive()
-
-        # wait until server is able to answer http request
-        wait.until(lambda: self.accessible(self.url), timeout=1)
+        if not self.started:
+            raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
-        requests.get("{}{}".format(self.url, self.stop_route))
+        self.thread.kill()
+        self.thread.join()
         wait.until_not(self.thread.is_alive, self.stop_timeout)
+        self.started = False
+
+
+class MultiProcessRunner(BaseDashRunner):
+    def __init__(self, keep_open=False, stop_timeout=3):
+        super().__init__(keep_open, stop_timeout)
+        self.proc = None
+
+    # pylint: disable=arguments-differ
+    def start(self, app, start_timeout=3, **kwargs):
+        self.port = kwargs.get("port", 8050)
+
+        def target():
+            app.scripts.config.serve_locally = True
+            app.css.config.serve_locally = True
+
+            options = kwargs.copy()
+
+            try:
+                app.run(threaded=True, **options)
+            except SystemExit:
+                logger.info("Server stopped")
+                raise
+            except Exception as error:
+                logger.exception(error)
+                raise error
+
+        self.proc = multiprocess.Process(target=target)  # pylint: disable=not-callable
+        self.proc.start()
+
+        wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
+        self.started = True
+
+    def stop(self):
+        process = psutil.Process(self.proc.pid)
+
+        for proc in process.children(recursive=True):
+            try:
+                proc.kill()
+            except psutil.NoSuchProcess:
+                pass
+
+        try:
+            process.kill()
+        except psutil.NoSuchProcess:
+            pass
+
+        try:
+            process.wait(1)
+        except (psutil.TimeoutExpired, psutil.NoSuchProcess):
+            pass
 
 
 class ProcessRunner(BaseDashRunner):
@@ -171,9 +269,7 @@ class ProcessRunner(BaseDashRunner):
     """
 
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(ProcessRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -195,16 +291,14 @@ class ProcessRunner(BaseDashRunner):
         args = shlex.split(
             raw_command
             if raw_command
-            else "waitress-serve --listen=0.0.0.0:{} {}:{}.server".format(
-                port, app_module, application_name
-            ),
+            else f"waitress-serve --listen=0.0.0.0:{port} {app_module}:{application_name}.server",
             posix=not self.is_windows,
         )
 
         logger.debug("start dash process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
             # wait until server is able to answer http request
@@ -226,15 +320,11 @@ class ProcessRunner(BaseDashRunner):
                 if self.tmp_app_path and os.path.exists(self.tmp_app_path):
                     logger.debug("removing temporary app path %s", self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
-                if utils.PY3:
-                    # pylint:disable=no-member
-                    _except = subprocess.TimeoutExpired
-                    # pylint: disable=unexpected-keyword-arg
-                    self.proc.communicate(timeout=self.stop_timeout)
-                else:
-                    _except = Exception
-                    logger.info("ruthless kill the process to avoid zombie")
-                    self.proc.kill()
+
+                _except = subprocess.TimeoutExpired  # pylint:disable=no-member
+                self.proc.communicate(
+                    timeout=self.stop_timeout  # pylint: disable=unexpected-keyword-arg
+                )
             except _except:
                 logger.exception(
                     "subprocess terminate not success, trying to kill "
@@ -247,7 +337,7 @@ class ProcessRunner(BaseDashRunner):
 
 class RRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(RRunner, self).__init__(keep_open=keep_open, stop_timeout=stop_timeout)
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -276,7 +366,7 @@ class RRunner(ProcessRunner):
             logger.debug("content of the dashR app")
             logger.debug("%s", app)
 
-            with open(path, "w") as fp:
+            with open(path, "w", encoding="utf-8") as fp:
                 fp.write(app)
 
             app = path
@@ -319,13 +409,13 @@ class RRunner(ProcessRunner):
         logger.info("Run dashR app with Rscript => %s", app)
 
         args = shlex.split(
-            "Rscript -e 'source(\"{}\")'".format(os.path.realpath(app)),
+            f"Rscript -e 'source(\"{os.path.realpath(app)}\")'",
             posix=not self.is_windows,
         )
         logger.debug("start dash process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -344,9 +434,7 @@ class RRunner(ProcessRunner):
 
 class JuliaRunner(ProcessRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
-        super(JuliaRunner, self).__init__(
-            keep_open=keep_open, stop_timeout=stop_timeout
-        )
+        super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.proc = None
 
     # pylint: disable=arguments-differ
@@ -375,7 +463,7 @@ class JuliaRunner(ProcessRunner):
             logger.debug("content of the Dash.jl app")
             logger.debug("%s", app)
 
-            with open(path, "w") as fp:
+            with open(path, "w", encoding="utf-8") as fp:
                 fp.write(app)
 
             app = path
@@ -420,12 +508,12 @@ class JuliaRunner(ProcessRunner):
         logger.info("Run Dash.jl app with julia => %s", app)
 
         args = shlex.split(
-            "julia {}".format(os.path.realpath(app)), posix=not self.is_windows,
+            f"julia --project {os.path.realpath(app)}", posix=not self.is_windows
         )
         logger.debug("start Dash.jl process with %s", args)
 
         try:
-            self.proc = subprocess.Popen(
+            self.proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

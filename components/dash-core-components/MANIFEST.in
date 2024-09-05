@@ -1,0 +1,7 @@
+include dash_core_components/*.js
+include dash_core_components/*.js.map
+include dash_core_components/metadata.json
+include dash_core_components/package-info.json
+include README.md
+include LICENSE.txt
+include package.json

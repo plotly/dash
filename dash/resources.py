@@ -24,12 +24,10 @@ class Resources:
             if "async" in s:
                 if "dynamic" in s:
                     raise exceptions.ResourceException(
-                        """
+                        f"""
                         Can't have both 'dynamic' and 'async'.
-                        {}
-                        """.format(
-                            json.dumps(filtered_resource)
-                        )
+                        {json.dumps(filtered_resource)}
+                        """
                     )
 
                 # Async assigns a value dynamically to 'dynamic'
@@ -63,23 +61,21 @@ class Resources:
                 warnings.warn(
                     (
                         "You have set your config to `serve_locally=True` but "
-                        "A local version of {} is not available.\n"
+                        f"A local version of {s['external_url']} is not available.\n"
                         "If you added this file with "
                         "`app.scripts.append_script` "
                         "or `app.css.append_css`, use `external_scripts` "
                         "or `external_stylesheets` instead.\n"
-                        "See https://dash.plot.com/external-resources"
-                    ).format(s["external_url"])
+                        "See https://dash.plotly.com/external-resources"
+                    )
                 )
                 continue
             else:
                 raise exceptions.ResourceException(
+                    f"""
+                    {json.dumps(filtered_resource)} does not have a
+                    relative_package_path, absolute_path, or an external_url.
                     """
-                    {} does not have a relative_package_path, absolute_path,
-                    or an external_url.
-                    """.format(
-                        json.dumps(filtered_resource)
-                    )
                 )
 
             filtered_resources.append(filtered_resource)
@@ -88,6 +84,12 @@ class Resources:
 
     def get_all_resources(self, dev_bundles=False):
         lib_resources = ComponentRegistry.get_resources(self.resource_name)
+        all_resources = lib_resources + self._resources
+
+        return self._filter_resources(all_resources, dev_bundles)
+
+    def get_library_resources(self, libraries, dev_bundles=False):
+        lib_resources = ComponentRegistry.get_resources(self.resource_name, libraries)
         all_resources = lib_resources + self._resources
 
         return self._filter_resources(all_resources, dev_bundles)
@@ -111,6 +113,9 @@ class Css:
     def get_all_css(self):
         return self._resources.get_all_resources()
 
+    def get_library_css(self, libraries):
+        return self._resources.get_library_resources(libraries)
+
 
 class Scripts:
     def __init__(self, serve_locally, eager):
@@ -122,3 +127,6 @@ class Scripts:
 
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
+
+    def get_library_scripts(self, libraries, dev_bundles=False):
+        return self._resources.get_library_resources(libraries, dev_bundles)

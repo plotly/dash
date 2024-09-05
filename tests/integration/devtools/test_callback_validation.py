@@ -1,10 +1,7 @@
 import flask
 import pytest
 
-import dash_core_components as dcc
-import dash_html_components as html
-from dash import Dash
-from dash.dependencies import Input, Output, State, MATCH, ALL, ALLSMALLER
+from dash import Dash, Input, Output, State, MATCH, ALL, ALLSMALLER, html, dcc
 from dash.testing import wait
 
 debugging = dict(
@@ -73,10 +70,6 @@ def test_dvcv001_blank(dash_duo):
         dash_duo,
         [
             ["A callback is missing Inputs", ["there are no `Input` elements."]],
-            [
-                "A callback is missing Outputs",
-                ["Please provide an output for this callback:"],
-            ],
         ],
     )
 

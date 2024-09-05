@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 
 const CollapseComponent = props => (<Fragment>
-    {display ? props.children : null}
+    {props.display ? props.children : null}
 </Fragment>);
 
 CollapseComponent.propTypes = {

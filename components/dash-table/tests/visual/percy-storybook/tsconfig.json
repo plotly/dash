@@ -1,0 +1,10 @@
+{
+    "extends": "./../../../tsconfig.base.json",
+    "compilerOptions": {
+        "baseUrl": "./../../..",
+        "paths": {
+            "core/*": ["src/core/*"],
+            "dash-table/*": ["src/dash-table/*"]
+        }
+    }
+}

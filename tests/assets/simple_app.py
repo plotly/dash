@@ -1,8 +1,6 @@
 # pylint: disable=missing-docstring
-import dash_core_components as dcc
-import dash_html_components as html
 import dash
-from dash.dependencies import Output, Input
+from dash import html, dcc, Output, Input
 from dash.exceptions import PreventUpdate
 
 

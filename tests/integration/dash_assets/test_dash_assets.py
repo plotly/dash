@@ -1,10 +1,7 @@
 import json
 import itertools
 
-import dash_html_components as html
-import dash_core_components as dcc
-
-from dash import Dash
+from dash import Dash, html, dcc
 
 
 def test_dada001_assets(dash_duo):
@@ -44,24 +41,22 @@ def test_dada001_assets(dash_duo):
     tested = json.loads(dash_duo.wait_for_element("#tested").text)
 
     order = [
-        u"load_first",
-        u"load_after",
-        u"load_after1",
-        u"load_after10",
-        u"load_after11",
-        u"load_after2",
-        u"load_after3",
-        u"load_after4",
+        "load_first",
+        "load_after",
+        "load_after1",
+        "load_after10",
+        "load_after11",
+        "load_after2",
+        "load_after3",
+        "load_after4",
     ]
 
     assert order == tested, "the content and order is expected"
-    dash_duo.percy_snapshot("test assets includes")
 
 
 def test_dada002_external_files_init(dash_duo):
     js_files = [
         "https://www.google-analytics.com/analytics.js",
-        {"src": "https://cdn.polyfill.io/v2/polyfill.min.js"},
         {
             "src": "https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js",
             "integrity": "sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=",
@@ -117,7 +112,7 @@ def test_dada002_external_files_init(dash_duo):
         (("//script[@src='{}']", x) for x in js_urls),
         (("//link[@href='{}']", x) for x in css_urls),
     ):
-        dash_duo.driver.find_element_by_xpath(fmt.format(url))
+        dash_duo.find_element(fmt.format(url), attribute="XPATH")
 
     assert (
         dash_duo.find_element("#btn").value_of_css_property("height") == "18px"

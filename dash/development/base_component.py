@@ -1,24 +1,45 @@
 import abc
+import collections
 import inspect
 import sys
-from future.utils import with_metaclass
+import uuid
+import random
+import warnings
+import textwrap
 
-from .._utils import patch_collections_abc, _strings, stringify_id
+from .._utils import patch_collections_abc, stringify_id, OrderedSet
 
 MutableSequence = patch_collections_abc("MutableSequence")
+
+rd = random.Random(0)
+
+_deprecated_components = {
+    "dash_core_components": {
+        "LogoutButton": textwrap.dedent(
+            """
+        The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
+        eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
+    """
+        )
+    }
+}
 
 
 # pylint: disable=no-init,too-few-public-methods
 class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
-    registry = set()
+    registry = OrderedSet()
+    children_props = collections.defaultdict(dict)
+    namespace_to_package = {}
 
     @classmethod
-    def get_resources(cls, resource_name):
+    def get_resources(cls, resource_name, includes=None):
         resources = []
 
         for module_name in cls.registry:
+            if includes is not None and module_name not in includes:
+                continue
             module = sys.modules[module_name]
             resources.extend(getattr(module, resource_name, []))
 
@@ -37,7 +58,12 @@ class ComponentMeta(abc.ABCMeta):
             # as it doesn't have the namespace.
             return component
 
+        _namespace = attributes.get("_namespace", module)
+        ComponentRegistry.namespace_to_package[_namespace] = module
         ComponentRegistry.registry.add(module)
+        ComponentRegistry.children_props[_namespace][name] = attributes.get(
+            "_children_props"
+        )
 
         return component
 
@@ -59,8 +85,11 @@ def _check_if_has_indexable_children(item):
         raise KeyError
 
 
-class Component(with_metaclass(ComponentMeta, object)):
-    class _UNDEFINED(object):
+class Component(metaclass=ComponentMeta):
+    _children_props = []
+    _base_nodes = ["children"]
+
+    class _UNDEFINED:
         def __repr__(self):
             return "undefined"
 
@@ -69,7 +98,7 @@ class Component(with_metaclass(ComponentMeta, object)):
 
     UNDEFINED = _UNDEFINED()
 
-    class _REQUIRED(object):
+    class _REQUIRED:
         def __repr__(self):
             return "required"
 
@@ -79,67 +108,116 @@ class Component(with_metaclass(ComponentMeta, object)):
     REQUIRED = _REQUIRED()
 
     def __init__(self, **kwargs):
+        self._validate_deprecation()
+        import dash  # pylint: disable=import-outside-toplevel, cyclic-import
+
         # pylint: disable=super-init-not-called
         for k, v in list(kwargs.items()):
             # pylint: disable=no-member
             k_in_propnames = k in self._prop_names
             k_in_wildcards = any(
-                [k.startswith(w) for w in self._valid_wildcard_attributes]
+                k.startswith(w) for w in self._valid_wildcard_attributes
             )
             # e.g. "The dash_core_components.Dropdown component (version 1.6.0)
             # with the ID "my-dropdown"
+            id_suffix = f' with the ID "{kwargs["id"]}"' if "id" in kwargs else ""
             try:
-                error_string_prefix = "The `{}.{}` component (version {}){}".format(
-                    self._namespace,
-                    self._type,
-                    getattr(__import__(self._namespace), "__version__", "unknown"),
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                # Get fancy error strings that have the version numbers
+                error_string_prefix = "The `{}.{}` component (version {}){}"
+                # These components are part of dash now, so extract the dash version:
+                dash_packages = {
+                    "dash_html_components": "html",
+                    "dash_core_components": "dcc",
+                    "dash_table": "dash_table",
+                }
+                if self._namespace in dash_packages:
+                    error_string_prefix = error_string_prefix.format(
+                        dash_packages[self._namespace],
+                        self._type,
+                        dash.__version__,
+                        id_suffix,
+                    )
+                else:
+                    # Otherwise import the package and extract the version number
+                    error_string_prefix = error_string_prefix.format(
+                        self._namespace,
+                        self._type,
+                        getattr(__import__(self._namespace), "__version__", "unknown"),
+                        id_suffix,
+                    )
             except ImportError:
                 # Our tests create mock components with libraries that
                 # aren't importable
-                error_string_prefix = "The `{}` component{}".format(
-                    self._type,
-                    ' with the ID "{}"'.format(kwargs["id"]) if "id" in kwargs else "",
-                )
+                error_string_prefix = f"The `{self._type}` component{id_suffix}"
 
             if not k_in_propnames and not k_in_wildcards:
+                allowed_args = ", ".join(
+                    sorted(self._prop_names)
+                )  # pylint: disable=no-member
                 raise TypeError(
-                    "{} received an unexpected keyword argument: `{}`".format(
-                        error_string_prefix, k
-                    )
-                    + "\nAllowed arguments: {}".format(  # pylint: disable=no-member
-                        ", ".join(sorted(self._prop_names))
-                    )
+                    f"{error_string_prefix} received an unexpected keyword argument: `{k}`"
+                    f"\nAllowed arguments: {allowed_args}"
                 )
 
-            if k != "children" and isinstance(v, Component):
+            if k not in self._base_nodes and isinstance(v, Component):
                 raise TypeError(
                     error_string_prefix
                     + " detected a Component for a prop other than `children`\n"
+                    + f"Prop {k} has value {v!r}\n\n"
                     + "Did you forget to wrap multiple `children` in an array?\n"
-                    + "Prop {} has value {}\n".format(k, repr(v))
+                    + 'For example, it must be html.Div(["a", "b", "c"]) not html.Div("a", "b", "c")\n'
                 )
 
             if k == "id":
                 if isinstance(v, dict):
                     for id_key, id_val in v.items():
-                        if not isinstance(id_key, _strings):
+                        if not isinstance(id_key, str):
                             raise TypeError(
                                 "dict id keys must be strings,\n"
-                                + "found {!r} in id {!r}".format(id_key, v)
+                                + f"found {id_key!r} in id {v!r}"
                             )
-                        if not isinstance(id_val, _strings + (int, float, bool)):
+                        if not isinstance(id_val, (str, int, float, bool)):
                             raise TypeError(
                                 "dict id values must be strings, numbers or bools,\n"
-                                + "found {!r} in id {!r}".format(id_val, v)
+                                + f"found {id_val!r} in id {v!r}"
                             )
-                elif not isinstance(v, _strings):
-                    raise TypeError(
-                        "`id` prop must be a string or dict, not {!r}".format(v)
-                    )
+                elif not isinstance(v, str):
+                    raise TypeError(f"`id` prop must be a string or dict, not {v!r}")
 
             setattr(self, k, v)
+
+    def _set_random_id(self):
+
+        if hasattr(self, "id"):
+            return getattr(self, "id")
+
+        kind = f"`{self._namespace}.{self._type}`"  # pylint: disable=no-member
+
+        if getattr(self, "persistence", False):
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID with the `persistence` prop.
+                This is prohibited because persistence is tied to component IDs and
+                auto-generated IDs can easily change.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+        if "dash_snapshots" in sys.modules:
+            raise RuntimeError(
+                f"""
+                Attempting to use an auto-generated ID in an app with `dash_snapshots`.
+                This is prohibited because snapshots saves the whole app layout,
+                including component IDs, and auto-generated IDs can easily change.
+                Callbacks referencing the new IDs will not work with old snapshots.
+
+                Please assign an explicit ID to this {kind} component.
+                """
+            )
+
+        v = str(uuid.UUID(int=rd.randint(0, 2**128)))
+        setattr(self, "id", v)
+        return v
 
     def to_plotly_json(self):
         # Add normal properties
@@ -181,10 +259,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if self.children.id == id:
                     if operation == "get":
                         return self.children
-                    elif operation == "set":
+                    if operation == "set":
                         self.children = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         self.children = None
                         return
 
@@ -192,10 +270,10 @@ class Component(with_metaclass(ComponentMeta, object)):
             try:
                 if operation == "get":
                     return self.children.__getitem__(id)
-                elif operation == "set":
+                if operation == "set":
                     self.children.__setitem__(id, new_item)
                     return
-                elif operation == "delete":
+                if operation == "delete":
                     self.children.__delitem__(id)
                     return
             except KeyError:
@@ -208,10 +286,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                 if getattr(item, "id", None) == id:
                     if operation == "get":
                         return item
-                    elif operation == "set":
+                    if operation == "set":
                         self.children[i] = new_item
                         return
-                    elif operation == "delete":
+                    if operation == "delete":
                         del self.children[i]
                         return
 
@@ -221,10 +299,10 @@ class Component(with_metaclass(ComponentMeta, object)):
                     try:
                         if operation == "get":
                             return item.__getitem__(id)
-                        elif operation == "set":
+                        if operation == "set":
                             item.__setitem__(id, new_item)
                             return
-                        elif operation == "delete":
+                        if operation == "delete":
                             item.__delitem__(id)
                             return
                     except KeyError:
@@ -265,7 +343,7 @@ class Component(with_metaclass(ComponentMeta, object)):
     @staticmethod
     def _id_str(component):
         id_ = stringify_id(getattr(component, "id", ""))
-        return id_ and " (id={:s})".format(id_)
+        return id_ and f" (id={id_:s})"
 
     def _traverse_with_paths(self):
         """Yield each item with its path in the tree."""
@@ -283,9 +361,7 @@ class Component(with_metaclass(ComponentMeta, object)):
         # children is a list of components
         elif isinstance(children, (tuple, MutableSequence)):
             for idx, i in enumerate(children):
-                list_path = "[{:d}] {:s}{}".format(
-                    idx, type(i).__name__, self._id_str(i)
-                )
+                list_path = f"[{idx:d}] {type(i).__name__:s}{self._id_str(i)}"
                 yield list_path, i
 
                 if isinstance(i, Component):
@@ -337,14 +413,18 @@ class Component(with_metaclass(ComponentMeta, object)):
         ]
         if any(p != "children" for p in props_with_values):
             props_string = ", ".join(
-                "{prop}={value}".format(prop=p, value=repr(getattr(self, p)))
-                for p in props_with_values
+                f"{p}={getattr(self, p)!r}" for p in props_with_values
             )
         else:
             props_string = repr(getattr(self, "children", None))
-        return "{type}({props_string})".format(
-            type=self._type, props_string=props_string
-        )
+        return f"{self._type}({props_string})"
+
+    def _validate_deprecation(self):
+        _type = getattr(self, "_type", "")
+        _ns = getattr(self, "_namespace", "")
+        deprecation_message = _deprecated_components.get(_ns, {}).get(_type)
+        if deprecation_message:
+            warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)))
 
 
 def _explicitize_args(func):
@@ -356,7 +436,7 @@ def _explicitize_args(func):
         varnames = func.__code__.co_varnames
 
     def wrapper(*args, **kwargs):
-        if "_explicit_args" in kwargs.keys():
+        if "_explicit_args" in kwargs:
             raise Exception("Variable _explicit_args should not be set.")
         kwargs["_explicit_args"] = list(
             set(list(varnames[: len(args)]) + [k for k, _ in kwargs.items()])

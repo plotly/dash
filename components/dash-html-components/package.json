@@ -1,0 +1,63 @@
+{
+  "name": "dash-html-components",
+  "version": "2.0.19",
+  "description": "Vanilla HTML components for Dash",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plotly/dash.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plotly/dash/issues"
+  },
+  "homepage": "https://github.com/plotly/dash",
+  "scripts": {
+    "clean": "rimraf --glob ./src/* && mkdirp ./src/components",
+    "prebuild": "cd scripts && sh generate-all.sh && cd ../../",
+    "extract": "cd scripts && sh extract-all.sh",
+    "lint": "eslint src scripts",
+    "build:js": "webpack --mode production",
+    "build:backends": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html' --r-suggests 'dash,dashCoreComponents' --jl-prefix 'html' && black dash_html_components",
+    "build": "npm run build:js && npm run build:backends",
+    "postbuild": "es-check es5 dash_html_components/*.js",
+    "build:watch": "watch 'npm run build' src",
+    "test:py": "pytest --nopercyfinalize --headless tests/test_dash_html_components.py tests/test_integration.py",
+    "test": "run-s -c test:py lint"
+  },
+  "author": "Chris Parmer <chris@plotly.com>",
+  "maintainer": "Alex Johnson <alex@plotly.com>",
+  "dependencies": {
+    "prop-types": "^15.8.1",
+    "ramda": "^0.30.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.6",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@babel/preset-react": "^7.24.7",
+    "babel-loader": "^9.1.3",
+    "cheerio": "^0.22.0",
+    "cross-env": "^7.0.3",
+    "es-check": "^7.1.1",
+    "eslint": "^8.41.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
+    "mkdirp": "^0.5.1",
+    "npm-run-all": "^4.1.5",
+    "react": "^16.14.0",
+    "react-docgen": "^5.4.3",
+    "react-dom": "^16.14.0",
+    "request": "^2.88.2",
+    "rimraf": "^5.0.5",
+    "string": "^3.3.3",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "files": [
+    "/dash_html_components/*{.js,.map}"
+  ],
+  "browserslist": [
+    "last 9 years and not dead"
+  ]
+}

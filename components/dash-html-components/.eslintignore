@@ -1,0 +1,16 @@
+.tox
+build/
+dist/
+node_modules/
+.npm
+vv/
+venv/
+*.pyc
+*.egg-info
+*.log
+.DS_Store
+lib/bundle.js
+lib/bundle.js.map
+lib/metadata.json
+.idea
+dash_html_components/

@@ -1,17 +1,15 @@
 from time import sleep
+import flask
 
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output
+from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
 from dash_test_components import WidthComponent
-from ...assets.todo_app import todo_app
+from tests.assets.todo_app import todo_app
 
 
 def test_dvui001_disable_props_check_config(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.P(id="tcid", children="Hello Props Check"),
@@ -39,7 +37,7 @@ def test_dvui001_disable_props_check_config(dash_duo):
 
 
 def test_dvui002_disable_ui_config(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.P(id="tcid", children="Hello Disable UI"),
@@ -65,7 +63,6 @@ def test_dvui002_disable_ui_config(dash_duo):
     assert not dash_duo.find_elements(
         ".dash-debug-menu"
     ), "the debug menu icon should NOT show up"
-    dash_duo.percy_snapshot("devtools - disable dev tools UI - no debug menu")
 
 
 def test_dvui003_callback_graph(dash_duo):
@@ -128,7 +125,7 @@ def test_dvui003_callback_graph(dash_duo):
 
 
 def test_dvui004_width_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         [html.Button(["Click me!"], id="btn"), WidthComponent(id="width")]
@@ -176,7 +173,7 @@ def test_dvui005_undo_redo(dash_duo):
         for el, text in zip(els, texts):
             assert el.text == text
 
-    app = dash.Dash(__name__, show_undo_redo=True)
+    app = Dash(__name__, show_undo_redo=True)
     app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
 
     @app.callback(Output("b", "children"), Input("a", "value"))
@@ -211,7 +208,7 @@ def test_dvui005_undo_redo(dash_duo):
 
 
 def test_dvui006_no_undo_redo(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([dcc.Input(id="a"), html.Div(id="b")])
 
     @app.callback(Output("b", "children"), Input("a", "value"))
@@ -224,3 +221,38 @@ def test_dvui006_no_undo_redo(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#b", "xyz")
     dash_duo.wait_for_no_elements("._dash-undo-redo")
+
+
+def test_dvui007_other_before_request_func(dash_thread_server, dash_br):
+    # won't use `bash_br`, because it expects an dash app, but it gets an static html page.
+    # we take only the selenium driver from `bash_br`, this driver has already been set-up.
+    driver = dash_br.driver
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.P(id="just_an_id", children="You should never see this")]
+    )
+
+    # create alternative response, for the endpoint '/'
+    # servering an alternative response, will disable further `before_request` functions e.g. those by dash
+    @app.server.before_request
+    def create_an_alternative_response():
+        if flask.request.endpoint == "/":
+            return flask.Response(
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
+                "<title>Alternative repsonse</title>\n"
+                '<h1 id="alternative_id">Alternative response header</h1>\n',
+                200,
+                mimetype="text/html",
+            )
+
+    dash_thread_server.start(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+
+    driver.get(dash_thread_server.url)
+    dash_br.find_element("#alternative_id")

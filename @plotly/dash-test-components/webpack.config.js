@@ -17,8 +17,10 @@ module.exports = {
         path: path.resolve(__dirname, dashLibraryName),
         chunkFilename: '[name].js',
         filename: `${dashLibraryName}.js`,
-        library: dashLibraryName,
-        libraryTarget: 'window',
+        library: {
+            name: dashLibraryName,
+            type: 'window',
+        }
     },
     module: {
         rules: [
@@ -34,7 +36,7 @@ module.exports = {
     optimization: {
         splitChunks: {
             chunks: 'async',
-            name: true,
+            name: '[name].js',
             cacheGroups: {
                 async: {
                     chunks: 'async',

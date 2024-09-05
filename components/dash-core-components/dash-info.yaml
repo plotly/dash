@@ -1,0 +1,759 @@
+pkg_help_description: >-
+    'Dash' ships with supercharged components for
+    interactive user interfaces. A core set of components,
+    written and maintained by the 'Dash' team, is available in
+    the 'dashCoreComponents' package. The source for this package
+    is on GitHub: plotly/dash-core-components.
+pkg_help_title: >-
+    Core Interactive UI Components for 'Dash'
+pkg_authors: >-
+    c(person("Chris", "Parmer", email = "chris@plotly.com", role = c("aut")), person("Ryan Patrick", "Kyle", email = "ryan@plotly.com", role = c("cre"), comment = c(ORCID = "0000-0002-4958-2844")), person(family = "Plotly Technologies, Inc.", role = "cph"))
+pkg_copyright: >-
+    Plotly Technologies, Inc.
+r_examples:
+    - name: dccChecklist
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+              library(dash)
+
+              app <- Dash$new()
+
+              app$layout(
+                dccChecklist(
+                  id = "checklist-input",
+                  options=list(
+                    list("label" = "New York City", "value" = "NYC"),
+                    list("label" = "Montreal", "value" = "MTL"),
+                    list("label" = "San Francisco", "value" = "SF")
+                   ),
+                  value=list("MTL", "SF")
+                 )
+              )
+
+              app$run_server()
+            }
+    - name: dccInterval
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+                library(plotly)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(list(
+                    htmlH2('3 Second Updates'),
+                    dccInterval(id = '3s-interval',
+                                interval= 3*1000,
+                                n_intervals = 0),
+                    htmlDiv(list(
+                        dccGraph(id = 'live-graph')
+                      )
+                    )
+                    )
+                  )
+                )
+
+                app$callback(
+                  output = list(
+                    output('live-graph', 'figure')
+                  ),
+                  params = list(
+                    input('3s-interval', 'n_intervals')
+                  ),
+
+                  update_graph <- function(n_intervals) {
+                    df <- data.frame(
+                      'time' = c(1:8),
+                      'value' = sample(1:8, 8),
+                      'value-2' = sample(1:8, 8)
+                    )
+
+                    bar <- animation_opts(plot_ly(
+                      data = df, x=~time, y=~value, type = "bar"),
+                      1000, easing = "cubic-in-out"
+                    )
+
+                    return(list(bar))
+                  }
+                )
+
+               app$run_server()
+            }
+    - name: dccSlider
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    list(
+                      dccSlider(
+                        id = "slider-input",
+                        min = -5,
+                        max = 10,
+                        step = 0.5,
+                        value = -3
+                      ),
+                      htmlDiv(
+                        id = "slider-output",
+                        children = "Make a selection on the slider to see the value appear here."
+                      )
+                    )
+                  )
+                )
+
+                app$callback(
+                  output("slider-output", "children"),
+                  list(input("slider-input", "value")),
+                  function(value) {
+                    return(paste0("You have chosen ", value, " on the slider above."))
+                  }
+                )
+
+               app$run_server()
+            }
+    - name: dccConfirmDialog
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    list(
+                      dccConfirmDialog(
+                        id='confirm',
+                        message='Danger danger! Are you sure you want to continue?'),
+                      dccDropdown(
+                        options=lapply(list('Safe', 'Danger!!'),function(x){list('label'= x, 'value'= x)}),
+                        id='dropdown'
+                      ),
+                      htmlDiv(id='output-confirm1')
+                    )
+                  )
+                )
+
+                app$callback(
+                  output = list(id = 'confirm', property = 'displayed'),
+                  params=list(input(id = 'dropdown', property = 'value')),
+                  function(value){
+                    if(value == 'Danger!!'){
+                      return(TRUE)}
+                    else{
+                      return(FALSE)}
+                  })
+
+              app$run_server()
+            }
+    - name: dccLink
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                          # represents the URL bar, doesn't render anything
+                          dccLocation(id = 'url', refresh=FALSE),
+                          dccLink('Navigate to "/"', href='/'),
+                          htmlBr(),
+                          dccLink('Navigate to "/page-2"', href='/page-2'),
+                          # content will be rendered in this element
+                          htmlDiv(id='page-content')
+                        )
+                    )
+                )
+
+                app$callback(output=list(id='page-content', property='children'),
+                             params=list(
+                          input(id='url', property='pathname')),
+                          function(pathname) {
+                          paste0('You are on page ', pathname)
+                          }
+                )
+
+              app$run_server()
+            }
+    - name: dccStore
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                  # The memory store reverts to the default on every page refresh
+                  dccStore(id='memory'),
+                  # The local store will take the initial data
+                  # only the first time the page is loaded
+                  # and keep it until it is cleared.
+                  dccStore(id='local', storage_type='local'),
+                  # Same as the local store but will lose the data
+                  # when the browser/tab closes.
+                  dccStore(id='session', storage_type='session'),
+                  htmlTable(list(
+                    htmlThead(list(
+                      htmlTr(htmlTh('Click to store in:', colSpan='3')),
+                      htmlTr(list(
+                        htmlTh(htmlButton('memory', id='memory-button')),
+                        htmlTh(htmlButton('localStorage', id='local-button')),
+                        htmlTh(htmlButton('sessionStorage', id='session-button'))
+                      )),
+                      htmlTr(list(
+                        htmlTh('Memory clicks'),
+                        htmlTh('Local clicks'),
+                        htmlTh('Session clicks')
+                      ))
+                    )),
+                    htmlTbody(list(
+                      htmlTr(list(
+                        htmlTd(0, id='memory-clicks'),
+                        htmlTd(0, id='local-clicks'),
+                        htmlTd(0, id='session-clicks')
+                      ))
+                    ))
+                  ))
+                )))
+
+                for (i in c('memory', 'local', 'session')) {
+                  app$callback(
+                    output(id = i, property = 'data'),
+                    params = list(
+                      input(id = paste0(i, '-button'), property = 'n_clicks'),
+                      state(id = i, property = 'data')
+                    ),
+                    function(n_clicks, data){
+                      if(is.null(n_clicks)){
+                        return()
+                      }
+                      if(is.null(data[[1]])){
+                        data = list('clicks' = 0)
+                      } else{
+                        data = data
+                      }
+                      data['clicks'] = data$clicks + 1
+                      return(data)
+                    }
+                  )
+                }
+
+                for (i in c('memory', 'local', 'session')) {
+                  app$callback(
+                    output(id = paste0(i, '-clicks'), property = 'children'),
+                    params = list(
+                      input(id = i, property = 'modified_timestamp'),
+                      state(id = i, property = 'data')
+                    ),
+                    function(ts, data){
+                      if(is.null(ts)){
+                        return()
+                      }
+                      if(is.null(data[[1]])){
+                        data = list()
+                      } else {
+                        data = data
+                      }
+                      return(data$clicks[[1]])
+                    }
+                  )
+                }
+
+              app$run_server()
+            }
+    - name: dccConfirmDialogProvider
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                  dccConfirmDialogProvider(
+                    children=htmlButton(
+                      'Click Me',
+                      n_clicks = 0
+                    ),
+                    id='danger-danger-provider',
+                    message='Danger danger! Are you sure you want to continue?',
+                    submit_n_clicks=NULL
+                  ),
+                  htmlDiv(id='output-provider',
+                          children='Click the button to submit')
+                )))
+
+                app$callback(
+                  output = list(id = 'output-provider', property = 'children'),
+                  params=list(input(id = 'danger-danger-provider', property = 'submit_n_clicks')),
+                  function(submit_n_clicks) {
+                    if (is.null(unlist(submit_n_clicks))) {
+                      return('')
+                    } else {
+                      paste0('That was a dangerous choice! Submitted ', submit_n_clicks, ' times.')
+                    }
+                    }
+
+                )
+
+              app$run_server()
+            }
+    - name: dccLoading
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(
+                  children=list(
+                    htmlH3("Edit text input to see loading state"),
+                    dccInput(id="input-1", value='Input triggers local spinner'),
+                    dccLoading(id="loading-1", children=list(htmlDiv(id="loading-output-1")), type="default"),
+                    htmlDiv(
+                      list(
+                        dccInput(id="input-2", value='Input triggers nested spinner'),
+                        dccLoading(
+                          id="loading-2",
+                          children=list(htmlDiv(list(htmlDiv(id="loading-output-2")))),
+                          type="circle"
+                        )
+                      )
+                    )
+                  )
+                ))
+
+                app$callback(
+                  output = list(id='loading-output-1', property = 'children'),
+                  params = list(input(id = 'input-1', property = 'value')),
+                  function(value){
+                    Sys.sleep(1)
+                    return(value)
+                  }
+                )
+
+                app$callback(
+                  output = list(id='loading-output-2', property = 'children'),
+                  params = list(input(id = 'input-2', property = 'value')),
+                  function(value){
+                    Sys.sleep(1)
+                    return(value)
+                  }
+                )
+
+              app$run_server()
+            }
+    - name: dccTab
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                  dccTabs(id="tabs", value='tab-1', children=list(
+                    dccTab(label='Tab one', value='tab-1'),
+                    dccTab(label='Tab two', value='tab-2')
+                    )
+                  ),
+                  htmlDiv(id='tabs-content')
+                  )
+                  )
+                )
+
+                app$callback(output('tabs-content', 'children'),
+                    params = list(input('tabs', 'value')),
+                function(tab){
+                  if(tab == 'tab-1'){
+                  return(htmlDiv(list(
+                    htmlH3('Tab content 1')
+                    )))}
+                  else if(tab == 'tab-2'){
+                  return(htmlDiv(list(
+                    htmlH3('Tab content 2')
+                    )))}
+                  }
+                )
+
+              app$run_server()
+            }
+    - name: dccDatePickerRange
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  dccDatePickerRange(
+                    id = "date-picker-range",
+                    start_date = as.Date("1997/5/10"),
+                    end_date_placeholder_text="Select a date!"
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccLocation
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                          # represents the URL bar, doesn't render anything
+                          dccLocation(id = 'url', refresh=FALSE),
+                          dccLink('Navigate to "/"', href='/'),
+                          htmlBr(),
+                          dccLink('Navigate to "/page-2"', href='/page-2'),
+
+                          # content will be rendered in this element
+                          htmlDiv(id='page-content')
+                        )
+                    )
+                )
+
+                app$callback(output=list(id='page-content', property='children'),
+                            params=list(
+                          input(id='url', property='pathname')),
+                          function(pathname)
+                          {
+                          paste0('You are on page ', pathname)
+                          }
+                )
+
+              app$run_server()
+            }
+    - name: dccTabs
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                  dccTabs(id="tabs", value='tab-1', children=list(
+                    dccTab(label='Tab one', value='tab-1'),
+                    dccTab(label='Tab two', value='tab-2')
+                    )
+                  ),
+                  htmlDiv(id='tabs-content')
+                  )
+                  )
+                )
+
+                app$callback(output('tabs-content', 'children'),
+                    params = list(input('tabs', 'value')),
+                function(tab){
+                  if(tab == 'tab-1'){
+                  return(htmlDiv(list(
+                    htmlH3('Tab content 1')
+                    )))}
+                  else if(tab == 'tab-2'){
+                  return(htmlDiv(list(
+                    htmlH3('Tab content 2')
+                    )))}
+                  }
+                )
+
+              app$run_server()
+            }
+    - name: dccDatePickerSingle
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  dccDatePickerSingle(
+                    id = "date-picker-single",
+                    date = as.Date("1997/5/10")
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccLogoutButton
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  dccLogoutButton(logout_url='/custom-auth/logout')
+                )
+
+              app$run_server()
+            }
+    - name: dccTextarea
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    dccTextarea(
+                      placeholder = 'Enter a value...',
+                      value = 'This is a TextArea component'
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccDropdown
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    dccDropdown(
+                      options=list(
+                        list(label = "New York City", value = "NYC"),
+                        list(label = "Montreal", value = "MTL"),
+                        list(label = "San Francisco", value = "SF")
+                      ),
+                      value="MTL"
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccMarkdown
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$title("dccMarkdown Syntax Highlighting Demo")
+
+                # dccMarkdown leverages Highlight.js, which allows
+                # app developers to specify the language inline
+                # and highlight its syntax properly:
+                app$layout(
+                  htmlDiv(
+                    list(
+                      htmlDiv(htmlH2("Syntax markdown demo:")),
+                      dccMarkdown(children = "
+                      ```r
+                      library(dash)
+
+                      app <- Dash$new()
+                      app$layout(htmlDiv('Dash app code wrapped within an app'))
+                      app$run_server()
+                      ```")
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccUpload
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+                library(jsonlite)
+
+                app <- Dash$new()
+
+                app$layout(htmlDiv(list(
+                  dccUpload(
+                    id='upload-image',
+                    children=htmlDiv(list(
+                      'Drag and Drop or ',
+                      htmlA('Select Files')
+                    )),
+                    style=list(
+                      'height'= '60px',
+                      'lineHeight'= '60px',
+                      'borderWidth'= '1px',
+                      'borderStyle'= 'dashed',
+                      'borderRadius'= '5px',
+                      'textAlign'= 'center',
+                      'margin'= '10px'
+                    ),
+                    # Allow multiple files to be uploaded
+                    multiple=TRUE
+                  ),
+                  htmlDiv(id='output-image-upload')
+                )))
+
+                parse_content = function(contents, filename, date) {
+                  return(htmlDiv(list(
+                    htmlH5(filename),
+                    htmlH6(as.POSIXct(date, origin="1970-01-01")),
+                    htmlImg(src=contents),
+                    htmlHr(),
+                    htmlDiv('Raw Content'),
+                    htmlPre(paste(substr(toJSON(contents), 1, 100), "..."), style=list(
+                      'whiteSpace'= 'pre-wrap',
+                      'wordBreak'= 'break-all'
+                    ))
+                  )))
+                }
+
+                app$callback(
+                  output = list(id='output-image-upload', property = 'children'),
+                  params = list(input(id = 'upload-image', property = 'contents'),
+                                state(id = 'upload-image', property = 'filename'),
+                                state(id = 'upload-image', property = 'last_modified')),
+                  function(list_of_contents, list_of_names, list_of_dates) {
+                    if (!is.null(list_of_contents) && !is.null(list_of_names) && !is.null(list_of_dates[[1]])) {
+                      children = lapply(1:length(list_of_contents), function(x){
+                        parse_content(list_of_contents[[x]], list_of_names[[x]], list_of_dates[[x]])
+                      })
+                    }
+                    else {
+                      children = "Upload a file to see the raw data."
+                    }
+                    return(children)
+                  }
+                )
+
+              app$run_server()
+            }
+    - name: dccGraph
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+                library(plotly)
+                app <- Dash$new()
+
+                year <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+                  2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012)
+
+                worldwide <- c(219, 146, 112, 127, 124, 180, 236, 207, 236, 263,
+                  350, 430, 474, 526, 488, 537, 500, 439)
+
+                china <- c(16, 13, 10, 11, 28, 37, 43, 55, 56, 88, 105, 156, 270,
+                  299, 340, 403, 549, 499)
+
+                data <- data.frame(year, worldwide, china)
+
+                app$layout(
+                  htmlDiv(
+                    dccGraph(
+                      figure = layout(
+                                add_trace(
+                                  plot_ly(data,
+                                          x = ~year,
+                                          y = ~worldwide,
+                                          type = "bar",
+                                          name = "Worldwide",
+                                          marker = list(color = "rgb(55, 83, 109)")
+                                          ),
+                                          y = ~china,
+                                          name = "China",
+                                          marker = list(color = "rgb(26, 118, 255)")
+                                  ),
+                                  yaxis = list(title = "Count"),
+                                  xaxis = list(title = "Year"),
+                                  barmode = "group",
+                                  title="US Export of Plastic Scrap"),
+                                  style = list("height" = 300),
+                                  id = "my_graph"
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccRadioItems
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    dccRadioItems(
+                      options=list(
+                        list("label" = "New York City", "value" = "NYC"),
+                        list("label" = "Montreal", "value" = "MTL"),
+                        list("label" = "San Francisco", "value" = "SF")
+                      ),
+                      value = "MTL"
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccInput
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    dccInput(
+                      placeholder = "Enter a value...",
+                      type = "text",
+                      value = ""
+                    )
+                  )
+                )
+
+              app$run_server()
+            }
+    - name: dccRangeSlider
+      dontrun: FALSE
+      code: |
+            if (interactive()) {
+                library(dash)
+
+                app <- Dash$new()
+
+                app$layout(
+                  htmlDiv(
+                    dccRangeSlider(
+                      count = 1,
+                      min = -5,
+                      max = 10,
+                      step = 0.5,
+                      value = list(-3, 7),
+                      marks = as.list(
+                        setNames(-5:10, as.character(-5:10))
+                      )
+                    )
+                  )
+                )
+
+              app$run_server()
+            }

@@ -63,6 +63,12 @@ window.dash_clientside.clientside = {
         return triggered.map(t => `${t.prop_id} = ${t.value}`).join(', ');
     },
 
+    triggered_id_to_str: function(n_clicks0, n_clicks1) {
+        const triggered = dash_clientside.callback_context.triggered_id;
+        const triggered_id = typeof triggered === "string" ? triggered : triggered.btn1
+        return triggered_id
+    },
+
     inputs_to_str: function(n_clicks0, n_clicks1) {
         const inputs = dash_clientside.callback_context.inputs;
         const keys = Object.keys(inputs);
@@ -98,5 +104,27 @@ window.dash_clientside.clientside = {
         }
         window.callCount += 1;
         return inputValue.toString();
-    }
+    },
+
+    chained_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                resolve(inputValue + "-chained");
+            }, 100);
+        });
+    },
+
+    delayed_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            window.callbackDone = function (deferredValue) {
+                resolve("clientside-" + inputValue + "-" + deferredValue);
+            };
+        });
+    },
+
+    non_delayed_promise: function (inputValue) {
+        return new Promise(function (resolve) {
+            resolve("clientside-" + inputValue);
+        });
+    },
 };

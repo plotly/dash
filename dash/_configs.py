@@ -1,4 +1,5 @@
 import os
+import flask
 
 # noinspection PyCompatibility
 from . import exceptions
@@ -47,7 +48,7 @@ def get_combined_config(name, val, default=None):
     if val is not None:
         return val
 
-    env = load_dash_env_vars().get("DASH_{}".format(name.upper()))
+    env = load_dash_env_vars().get(f"DASH_{name.upper()}")
     if env is None:
         return default
 
@@ -117,9 +118,20 @@ def pathname_configs(
         raise exceptions.InvalidConfig(
             "`requests_pathname_prefix` needs to start with `/`"
         )
-    if not requests_pathname_prefix.endswith(routes_pathname_prefix):
-        raise exceptions.InvalidConfig(
-            "`requests_pathname_prefix` needs to ends with `routes_pathname_prefix`."
-        )
 
     return url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
+
+
+def pages_folder_config(name, pages_folder, use_pages):
+    if not pages_folder:
+        return None
+    is_custom_folder = str(pages_folder) != "pages"
+    pages_folder_path = os.path.join(flask.helpers.get_root_path(name), pages_folder)
+    if (use_pages or is_custom_folder) and not os.path.isdir(pages_folder_path):
+        error_msg = f"""
+        A folder called `{pages_folder}` does not exist. If a folder for pages is not
+        required in your application, set `pages_folder=""`. For example:
+        `app = Dash(__name__,  pages_folder="")`
+        """
+        raise exceptions.InvalidConfig(error_msg)
+    return pages_folder_path

@@ -3,10 +3,7 @@ from multiprocessing import Value
 from copy import copy
 from selenium.webdriver.common.keys import Keys
 
-import dash_core_components as dcc
-import dash_html_components as html
-from dash import Dash, no_update
-from dash.dependencies import Input, Output, State
+from dash import Dash, no_update, Input, Output, State, html, dcc
 from dash.exceptions import PreventUpdate
 
 from dash.testing.wait import until
@@ -87,7 +84,7 @@ def test_cbpu002_multi_output_no_update(dash_duo):
         [Input("btn", "n_clicks")],
     )
     def show_clicks(n):
-        # partial or complete cancelation of updates via no_update
+        # partial or complete cancellation of updates via no_update
         return [
             no_update if n and n > 4 else n,
             no_update if n and n > 2 else n,
@@ -97,7 +94,7 @@ def test_cbpu002_multi_output_no_update(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.multiple_click("#btn", 10)
+    dash_duo.multiple_click("#btn", 10, 0.2)
 
     dash_duo.wait_for_text_to_equal("#n1", "4")
     dash_duo.wait_for_text_to_equal("#n2", "2")

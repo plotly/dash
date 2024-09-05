@@ -1,5 +1,14 @@
 include README.md
 include LICENSE
-include requires-*.txt
+include requirements/*.txt
 include dash/favicon.ico
 include dash/extract-meta.js
+include dash/deps/*.js
+include dash/deps/*.map
+include dash/dcc/*
+include dash/html/*
+include dash/dash_table/*
+include dash/dash-renderer/build/*.js
+include dash/dash-renderer/build/*.map
+include dash/labextension/dist/dash-jupyterlab.tgz
+include dash/labextension/package.json

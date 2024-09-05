@@ -5,11 +5,7 @@ import time
 from selenium.webdriver.common.keys import Keys
 
 import dash
-from dash.dependencies import Input, Output, State, MATCH
-
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table as dt
+from dash import Dash, Input, Output, State, MATCH, dcc, html, dash_table as dt
 
 from dash_test_components import MyPersistedComponent
 from dash_test_components import MyPersistedComponentNested
@@ -40,7 +36,7 @@ def simple_table(names=("a", "b"), **props_override):
 
 
 def reloadable_app(**props_override):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.persistence = Value("i", 1)
 
     def layout():
@@ -174,7 +170,7 @@ def test_rdps003_memory_reload(dash_duo):
 
 
 def test_rdps004_show_hide(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button("Show/Hide", id="toggle-table"), html.Div(id="container")]
     )
@@ -211,7 +207,7 @@ def test_rdps004_show_hide(dash_duo):
 
 
 def test_rdps005_persisted_props(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             html.Button("toggle persisted_props", id="toggle-table"),
@@ -241,7 +237,7 @@ def test_rdps005_persisted_props(dash_duo):
 
 
 def test_rdps006_move_on_page(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button("move table", id="move-table"), html.Div(id="container")]
     )
@@ -274,7 +270,7 @@ def test_rdps006_move_on_page(dash_duo):
 
 
 def test_rdps007_one_prop_changed(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button("hide/show cols", id="hide-cols"), html.Div(id="container")]
     )
@@ -299,7 +295,7 @@ def test_rdps007_one_prop_changed(dash_duo):
 
 
 def test_rdps008_unsaved_part_changed(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button("toggle deletable", id="deletable"), html.Div(id="container")]
     )
@@ -329,7 +325,7 @@ def test_rdps008_unsaved_part_changed(dash_duo):
 
 
 def test_rdps009_clear_prop_callback(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [html.Button("reset name edits", id="reset-names"), simple_table()]
     )
@@ -357,7 +353,7 @@ def test_rdps010_toggle_persistence(dash_duo):
     def make_input(persistence):
         return dcc.Input(id="persisted", value="a", persistence=persistence)
 
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div(
         [
             dcc.Input(id="persistence-val", value=""),
@@ -549,7 +545,7 @@ def test_rdps013_persisted_props_nested(dash_duo):
         return MyPersistedComponent(id="component-propName", persistence=True)
 
     @app.callback(Output("container2", "children"), [Input("btn", "n_clicks")])
-    def update_container(n_clicks):
+    def update_container2(n_clicks):
         return MyPersistedComponentNested(id="component-propPart", persistence=True)
 
     dash_duo.start_server(app)

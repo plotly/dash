@@ -1,6 +1,4 @@
-from __future__ import absolute_import
-from __future__ import print_function
-
+# pylint: disable=consider-using-f-string
 import os
 import sys
 import shutil
@@ -16,7 +14,8 @@ from ._py_components_generation import reorder_props
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
-r_component_string = """{funcname} <- function({default_argtext}{wildcards}) {{
+r_component_string = """#' @export
+{funcname} <- function({default_argtext}{wildcards}) {{
     {wildcard_declaration}
     props <- list({default_paramtext}{wildcards})
     if (length(props) > 0) {{
@@ -426,7 +425,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
     # textwrap.fill, starting from the beginning of the usage string
 
     file_path = os.path.join("man", file_name)
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(
             help_string.format(
                 funcname=funcname,
@@ -448,13 +447,18 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                 "examples",
                 wrap("dontrun" if the_ex.get("dontrun") else "", the_ex["code"]),
             )
-            with open(file_path, "a+") as fa:
+            with open(file_path, "a+", encoding="utf-8") as fa:
                 fa.write(result + "\n")
 
 
 # pylint: disable=too-many-arguments
 def write_class_file(
-    name, props, description, project_shortname, prefix=None, rpkg_data=None
+    name,
+    props,
+    description,
+    project_shortname,
+    prefix=None,
+    rpkg_data=None,
 ):
     props = reorder_props(props=props)
 
@@ -471,7 +475,7 @@ def write_class_file(
     file_name = format_fn_name(prefix, name) + ".R"
 
     file_path = os.path.join("R", file_name)
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(import_string)
         f.write(class_string)
 
@@ -500,7 +504,7 @@ def write_js_metadata(pkg_data, project_shortname, has_wildcards):
         os.makedirs("R")
 
     file_path = os.path.join("R", file_name)
-    with open(file_path, "w") as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         f.write(function_string)
         if has_wildcards:
             f.write(wildcard_helper)
@@ -683,12 +687,12 @@ def generate_rpkg(
     # this avoids having to generate an RData file from within Python.
     write_js_metadata(pkg_data, project_shortname, has_wildcards)
 
-    with open("NAMESPACE", "w+") as f:
+    with open("NAMESPACE", "w+", encoding="utf-8") as f:
         f.write(import_string)
         f.write(export_string)
         f.write(packages_string)
 
-    with open(".Rbuildignore", "w+") as f2:
+    with open(".Rbuildignore", "w+", encoding="utf-8") as f2:
         f2.write(rbuild_ignore_string)
 
     description_string = description_template.format(
@@ -707,7 +711,7 @@ def generate_rpkg(
         vignette_builder=vignette_builder,
     )
 
-    with open("DESCRIPTION", "w+") as f3:
+    with open("DESCRIPTION", "w+", encoding="utf-8") as f3:
         f3.write(description_string)
 
     if rpkg_data is not None:
@@ -719,7 +723,7 @@ def generate_rpkg(
                 lib_name=lib_name,
                 maintainer=maintainer,
             )
-            with open(pkghelp_stub_path, "w") as f4:
+            with open(pkghelp_stub_path, "w", encoding="utf-8") as f4:
                 f4.write(pkghelp)
 
 
@@ -803,7 +807,7 @@ def make_namespace_exports(components, prefix):
             rfilelist += [os.path.join("R", script)]
 
     for rfile in rfilelist:
-        with open(rfile, "r") as script:
+        with open(rfile, "r", encoding="utf-8") as script:
             s = script.read()
 
             # remove comments
@@ -925,7 +929,7 @@ def get_r_type(type_object, is_flow_type=False, indent_num=0):
         or type_object.get("type", "") == "function"
     ):
         return ""
-    elif js_type_name in js_to_r_types:
+    if js_type_name in js_to_r_types:
         prop_type = js_to_r_types[js_type_name]()
         return prop_type
     return ""

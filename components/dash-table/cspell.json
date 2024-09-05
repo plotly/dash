@@ -1,0 +1,44 @@
+{
+    "allowCompoundWords": true,
+    "ignorePaths": [
+        "**/package.json",
+        "**/package-lock.json",
+        "**/packages/**",
+        "**/node_modules/**",
+        "**/vscode-extension/**",
+        "**/.git/**",
+        ".vscode",
+        "typings"
+    ],
+    "ignoreRegExpList": [
+        "'"
+    ],
+    "language": "en",
+    "diagnosticLevel": "Error",
+    "languageSettings": [
+        { "languageId": "*", "dictionaries": ["fonts", "css", "html", "npm", "typescript", "python"]}
+    ],
+    "words": [
+        "Paginator",
+        "atto",
+        "corejs",
+        "deletable",
+        "femto",
+        "giga",
+        "ints",
+        "memoizer",
+        "milli",
+        "nully",
+        "peta",
+        "pico",
+        "plotly",
+        "selectable",
+        "tera",
+        "tooltips",
+        "uneditable",
+        "yocto",
+        "yotta",
+        "zepto",
+        "zetta"
+    ]
+}

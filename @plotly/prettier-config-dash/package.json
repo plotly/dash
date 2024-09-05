@@ -1,0 +1,8 @@
+{
+  "name": "@plotly/prettier-config-dash",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "author": "Marc-André Rivet",
+  "license": "MIT"
+}

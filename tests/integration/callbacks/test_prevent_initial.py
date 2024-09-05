@@ -1,9 +1,8 @@
 import json
 import pytest
+from flaky import flaky
 
-import dash_html_components as html
-import dash
-from dash.dependencies import Input, Output, MATCH
+from dash import Dash, Input, Output, MATCH, html
 from dash.exceptions import PreventUpdate
 
 # parametrize all the tests, but no need to do all 8 combinations, 5 is enough!
@@ -20,7 +19,7 @@ def make_app(flavor):
     kwargs = {}
     if flavor["global"]:
         kwargs["prevent_initial_callbacks"] = True
-    return dash.Dash(__name__, **kwargs)
+    return Dash(__name__, **kwargs)
 
 
 def content_callback(app, flavor, layout):
@@ -176,6 +175,7 @@ def test_cbpi001_prevent_initial_call(flavor, dash_duo):
     dash_duo.wait_for_text_to_equal("#a", "Click")
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize("flavor", flavors)
 def test_cbpi002_pattern_matching(flavor, dash_duo):
     # a clone of cbpi001 just throwing it through the pattern-matching machinery
@@ -336,7 +336,7 @@ def test_cbpi003_multi_outputs(flavor, dash_duo):
 
 
 def test_cbpi004_positional_arg(dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
     app.layout = html.Div([html.Button("click", id="btn"), html.Div(id="out")])
 
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"), True)

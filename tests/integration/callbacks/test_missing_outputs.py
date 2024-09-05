@@ -1,11 +1,8 @@
 import pytest
 from multiprocessing import Lock, Value
 
-
-import dash_html_components as html
-import dash_core_components as dcc
 import dash
-from dash.dependencies import Input, Output, ALL, MATCH
+from dash import Dash, Input, Output, ALL, MATCH, html, dcc
 
 from dash.testing.wait import until
 
@@ -16,7 +13,7 @@ debugging = dict(
 
 @pytest.mark.parametrize("with_simple", (False, True))
 def test_cbmo001_all_output(with_simple, dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         children=[
@@ -91,7 +88,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
 
 @pytest.mark.parametrize("with_simple", (False, True))
 def test_cbmo002_all_and_match_output(with_simple, dash_duo):
-    app = dash.Dash(__name__)
+    app = Dash(__name__)
 
     app.layout = html.Div(
         children=[
@@ -265,7 +262,7 @@ def test_cbmo003_multi_all(dash_duo):
 
 
 def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
-    app = dash.Dash(__name__, suppress_callback_exceptions=True)
+    app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
         [
             dcc.RadioItems(

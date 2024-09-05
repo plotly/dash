@@ -1,0 +1,115 @@
+.dash-spreadsheet .Select,
+.dash-spreadsheet .Select-control {
+    border: none;
+    cursor: pointer;
+    height: 30px;  /* matches the td height and line-height */
+    border: none;
+}
+
+.dash-spreadsheet .Select-placeholder,
+.dash-spreadsheet .Select--single > .Select-control .Select-value {
+    height: 100%;
+    line-height: inherit;
+}
+
+.dash-spreadsheet .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+.dash-spreadsheet .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+    color: var(--text-color);
+}
+
+.dash-spreadsheet .Select:hover,
+.dash-spreadsheet .Select-control:hover {
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.dash-spreadsheet .Select-menu-outer {
+    z-index: 100;
+}
+
+.dash-spreadsheet .Select-arrow {
+    border-top-color: var(--faded-dropdown);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.dash-spreadsheet .Select-control:hover .Select-arrow {
+    border-top-color: var(--accent);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.dash-spreadsheet .is-open > .Select-control .Select-arrow {
+    border-bottom-color: var(--background-color-8-react-select);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-top-color: transparent;
+}
+
+.dash-spreadsheet .Select--multi .Select-value,
+.dash-spreadsheet .Select--multi a.Select-value-label {
+    color: var(--color-8-react-select);
+}
+
+.dash-spreadsheet .Select {
+    border-radius: 0;
+}
+
+.dash-spreadsheet .Select.is-disabled > .Select-control {
+    border: none;
+}
+
+.dash-spreadsheet .Select--multi .Select-value-icon:hover,
+.dash-spreadsheet .Select--multi .Select-value-icon:focus {
+    font-weight: bold;
+}
+
+.dash-spreadsheet .Select.is-disabled .Select-control {
+    cursor: not-allowed;
+}
+
+.dash-spreadsheet .Select-menu-outer {
+    background-color: white;
+    border: none;
+    border-bottom: thin var(--border) solid;
+    border-radius: 0;
+    border-top: none;
+}
+
+.dash-spreadsheet .Select-option {
+    background-color: inherit;
+    color: var(--accent);
+}
+
+.dash-spreadsheet .Select-option:hover {
+    font-weight: bold;
+    color: var(--accent);
+    background-color: var(--hover);
+}
+
+.dash-spreadsheet .Select.is-focused:not(.is-open) > .Select-control {
+    border: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: #fff;
+}
+
+.dash-spreadsheet .Select-option.is-focused {
+    background-color: white;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.dash-spreadsheet .Select-clear {
+    color: transparent;
+}
+.dash-spreadsheet .Select:hover .Select-clear {
+    color: var(--accent);
+}
+
+.dash-spreadsheet .Select-control {
+    padding-left: 2px;
+}

@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "emitDecoratorMetadata": false,
+        "experimentalDecorators": true,
+        "jsx": "react",
+        "lib": ["esnext", "dom", "es2018.promise"],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "sourceMap": false,
+        "strict": true,
+        "strictBindCallApply": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        "target": "esnext",
+        "traceResolution": false
+    }
+}

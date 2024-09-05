@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import os
 import sys
 import json
@@ -8,8 +6,9 @@ import shutil
 import logging
 import coloredlogs
 import fire
+import requests
 
-from .._utils import run_command_with_process, compute_md5, job
+from .._utils import run_command_with_process, compute_hash, job
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(
@@ -17,23 +16,24 @@ coloredlogs.install(
 )
 
 
-class BuildProcess(object):
+class BuildProcess:
     def __init__(self, main, deps_info):
         self.logger = logger
         self.main = main
+        self.build_folder = self._concat(self.main, "build")
         self.deps_info = deps_info
         self.npm_modules = self._concat(self.main, "node_modules")
         self.package_lock = self._concat(self.main, "package-lock.json")
         self.package = self._concat(self.main, "package.json")
         self._parse_package(path=self.package)
-        self.asset_paths = (self.build_folder, self.npm_modules)
+        self.asset_paths = (self.deps_folder, self.npm_modules)
 
     def _parse_package(self, path):
-        with open(path, "r") as fp:
+        with open(path, "r", encoding="utf-8") as fp:
             package = json.load(fp)
             self.version = package["version"]
             self.name = package["name"]
-            self.build_folder = self._concat(self.main, self.name.replace("-", "_"))
+            self.deps_folder = self._concat(self.main, os.pardir, "deps")
             self.deps = package["dependencies"]
 
     @staticmethod
@@ -79,20 +79,27 @@ class BuildProcess(object):
 
     @job("compute the hash digest for assets")
     def digest(self):
-        copies = tuple(
-            _
-            for _ in os.listdir(self.build_folder)
-            if os.path.splitext(_)[-1] in {".js", ".map"}
-        )
-        logger.info("bundles in %s %s", self.build_folder, copies)
+        if not os.path.exists(self.deps_folder):
+            try:
+                os.makedirs(self.deps_folder)
+            except OSError:
+                logger.exception("🚨 having issues manipulating %s", self.deps_folder)
+                sys.exit(1)
 
         payload = {self.name: self.version}
-        for copy in copies:
-            payload["MD5 ({})".format(copy)] = compute_md5(
-                self._concat(self.build_folder, copy)
-            )
 
-        with open(self._concat(self.main, "digest.json"), "w") as fp:
+        for folder in (self.deps_folder, self.build_folder):
+            copies = tuple(
+                _
+                for _ in os.listdir(folder)
+                if os.path.splitext(_)[-1] in {".js", ".map"}
+            )
+            logger.info("bundles in %s %s", folder, copies)
+
+            for copy in copies:
+                payload[f"SHA256 ({copy})"] = compute_hash(self._concat(folder, copy))
+
+        with open(self._concat(self.main, "digest.json"), "w", encoding="utf-8") as fp:
             json.dump(payload, fp, sort_keys=True, indent=4, separators=(",", ":"))
         logger.info(
             "bundle digest in digest.json:\n%s",
@@ -100,12 +107,12 @@ class BuildProcess(object):
         )
 
     @job("copy and generate the bundles")
-    def bundles(self, build=None):
-        if not os.path.exists(self.build_folder):
+    def bundles(self, build=None):  # pylint:disable=too-many-locals
+        if not os.path.exists(self.deps_folder):
             try:
-                os.makedirs(self.build_folder)
+                os.makedirs(self.deps_folder)
             except OSError:
-                logger.exception("🚨 having issues manipulating %s", self.build_folder)
+                logger.exception("🚨 having issues manipulating %s", self.deps_folder)
                 sys.exit(1)
 
         self._parse_package(self.package_lock)
@@ -116,48 +123,59 @@ class BuildProcess(object):
             "version": self.version,
             "package": self.name.replace(" ", "_").replace("-", "_"),
         }
-        for scope, name, subfolder, filename, target in self.deps_info:
+
+        for scope, name, subfolder, filename, extras in self.deps_info:
             version = self.deps["/".join(filter(None, [scope, name]))]["version"]
-            versions[name.replace("-", "").replace(".", "")] = version
+            name_squashed = name.replace("-", "").replace(".", "")
+            versions[name_squashed] = version
 
             logger.info("copy npm dependency => %s", filename)
             ext = "min.js" if "min" in filename.split(".") else "js"
-            target = (
-                target.format(version)
-                if target
-                else "{}@{}.{}".format(name, version, ext)
-            )
+            target = f"{name}@{version}.{ext}"
+
             shutil.copyfile(
                 self._concat(self.npm_modules, scope, name, subfolder, filename),
-                self._concat(self.build_folder, target),
+                self._concat(self.deps_folder, target),
             )
+
+            if extras:
+                extras_str = '", "'.join(extras)
+                versions[f"extra_{name_squashed}_versions"] = f'"{extras_str}"'
+
+                for extra_version in extras:
+                    url = f"https://unpkg.com/{name}@{extra_version}/umd/{filename}"
+                    res = requests.get(url)
+                    extra_target = f"{name}@{extra_version}.{ext}"
+                    extra_path = self._concat(self.deps_folder, extra_target)
+                    with open(extra_path, "wb") as fp:
+                        fp.write(res.content)
 
         _script = "build:dev" if build == "local" else "build:js"
         logger.info("run `npm run %s`", _script)
         os.chdir(self.main)
-        run_command_with_process("npm run {}".format(_script))
+        run_command_with_process(f"npm run {_script}")
 
         logger.info("generate the `__init__.py` from template and versions")
-        with open(self._concat(self.main, "init.template")) as fp:
+        with open(self._concat(self.main, "init.template"), encoding="utf-8") as fp:
             t = string.Template(fp.read())
 
-        with open(self._concat(self.build_folder, "__init__.py"), "w") as fp:
+        renderer_init = self._concat(self.deps_folder, os.pardir, "_dash_renderer.py")
+        with open(renderer_init, "w", encoding="utf-8") as fp:
             fp.write(t.safe_substitute(versions))
 
 
 class Renderer(BuildProcess):
     def __init__(self):
         """dash-renderer's path is binding with the dash folder hierarchy."""
-        super(Renderer, self).__init__(
-            self._concat(
-                os.path.dirname(__file__), os.pardir, os.pardir, "dash-renderer"
-            ),
+        extras = ["18.2.0"]  # versions to include beyond what's in package.json
+        super().__init__(
+            self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
             (
                 ("@babel", "polyfill", "dist", "polyfill.min.js", None),
-                (None, "react", "umd", "react.production.min.js", None),
-                (None, "react", "umd", "react.development.js", None),
-                (None, "react-dom", "umd", "react-dom.production.min.js", None),
-                (None, "react-dom", "umd", "react-dom.development.js", None),
+                (None, "react", "umd", "react.production.min.js", extras),
+                (None, "react", "umd", "react.development.js", extras),
+                (None, "react-dom", "umd", "react-dom.production.min.js", extras),
+                (None, "react-dom", "umd", "react-dom.development.js", extras),
                 (None, "prop-types", None, "prop-types.min.js", None),
                 (None, "prop-types", None, "prop-types.js", None),
             ),

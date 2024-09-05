@@ -1,8 +1,7 @@
-import dash_core_components as dcc
-import dash_html_components as html
-from dash_table import DataTable
-import dash
-from dash.dependencies import Input, Output
+import pytest
+
+from dash import Dash, Input, Output, html, dcc
+from dash.dash_table import DataTable
 
 
 test_cases = {
@@ -10,19 +9,13 @@ test_cases = {
         "fail": True,
         "name": 'simple "not a boolean" check',
         "component": dcc.Input,
-        "props": {"debounce": 0},
+        "props": {"multiple": 0},
     },
     "missing-required-nested-prop": {
         "fail": True,
         "name": 'missing required "value" inside options',
         "component": dcc.Checklist,
         "props": {"options": [{"label": "hello"}], "value": ["test"]},
-    },
-    "invalid-nested-prop": {
-        "fail": True,
-        "name": "invalid nested prop",
-        "component": dcc.Checklist,
-        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
     },
     "invalid-arrayOf": {
         "fail": True,
@@ -116,6 +109,12 @@ test_cases = {
             "columns": [{"id": "id", "name": "name", "format": {"prefix": "asdf"}}]
         },
     },
+    "allow-nested-prop": {
+        "fail": False,
+        "name": "allow nested prop",
+        "component": dcc.Checklist,
+        "props": {"options": [{"label": "hello", "value": True}], "value": ["test"]},
+    },
     "allow-null": {
         "fail": False,
         "name": "nested null",
@@ -132,6 +131,7 @@ test_cases = {
     },
     "allow-null-3": {
         "fail": False,
+        "logs": True,
         "name": "allow null in properties",
         "component": dcc.Input,
         "props": {"value": None},
@@ -175,8 +175,11 @@ test_cases = {
 }
 
 
+@pytest.mark.skip(
+    reason="Flaky error on CI: https://github.com/plotly/dash/issues/2654"
+)
 def test_dvpc001_prop_check_errors_with_path(dash_duo):
-    app = dash.Dash(__name__, eager_loading=True)
+    app = Dash(__name__, eager_loading=True)
 
     app.layout = html.Div([html.Div(id="content"), dcc.Location(id="location")])
 
@@ -201,13 +204,20 @@ def test_dvpc001_prop_check_errors_with_path(dash_duo):
         route_url = "{}/{}".format(dash_duo.server_url, tc)
         dash_duo.wait_for_page(url=route_url)
 
-        if test_cases[tc]["fail"]:
+        fail = test_cases[tc]["fail"]
+        logs = test_cases[tc].get("logs", fail)
+
+        if fail:
             dash_duo.wait_for_element(".test-devtools-error-toggle").click()
+            dash_duo.wait_for_element(".dash-fe-error__info")
             dash_duo.percy_snapshot(
                 "devtools validation exception: {}".format(test_cases[tc]["name"])
             )
         else:
             dash_duo.wait_for_element("#new-component")
-            dash_duo.percy_snapshot(
-                "devtools validation no exception: {}".format(test_cases[tc]["name"])
-            )
+            dash_duo.wait_for_no_elements(".test-devtools-error-toggle")
+
+        if logs:
+            assert dash_duo.get_logs(), tc
+        else:
+            assert dash_duo.get_logs() == [], tc

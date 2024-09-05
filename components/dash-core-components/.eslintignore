@@ -1,0 +1,17 @@
+build/
+dist/
+lib/
+lib/bundle.js*
+coverage/
+node_modules/
+packages/
+.npm
+vv/
+venv/
+*.pyc
+*.egg-info
+*.log
+.idea/
+.DS_Store
+dash_core_components/
+config/

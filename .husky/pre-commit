@@ -1,0 +1,3 @@
+npm run lint && \
+(cd components/dash-core-components && npm run lint) && \
+(cd components/dash-table && npm run lint)
