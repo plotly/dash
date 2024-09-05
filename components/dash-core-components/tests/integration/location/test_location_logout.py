@@ -1,47 +1,30 @@
-from dash.exceptions import PreventUpdate
 from dash import Dash, Input, Output, dcc, html
-import flask
+import pytest
 import time
 
 
-def test_llgo001_location_logout(dash_dcc):
+@pytest.mark.parametrize("add_initial_logout_button", [False, True])
+def test_llgo001_location_logout(dash_dcc, add_initial_logout_button):
+    # FIXME: Logout button is deprecated, remove this test for dash 3.0
     app = Dash(__name__)
 
-    @app.server.route("/_logout", methods=["POST"])
-    def on_logout():
-        rep = flask.redirect("/logged-out")
-        rep.set_cookie("logout-cookie", "", 0)
-        return rep
-
-    app.layout = html.Div(
-        [html.H2("Logout test"), dcc.Location(id="location"), html.Div(id="content")]
-    )
-
-    @app.callback(Output("content", "children"), [Input("location", "pathname")])
-    def on_location(location_path):
-        if location_path is None:
-            raise PreventUpdate
-
-        if "logged-out" in location_path:
-            return "Logged out"
+    with pytest.warns(
+        DeprecationWarning,
+        match="The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.",
+    ):
+        app.layout = [
+            html.H2("Logout test"),
+            html.Div(id="content"),
+        ]
+        if add_initial_logout_button:
+            app.layout.append(dcc.LogoutButton())
         else:
 
-            @flask.after_this_request
-            def _insert_cookie(rep):
-                rep.set_cookie("logout-cookie", "logged-in")
-                return rep
+            @app.callback(Output("content", "children"), Input("content", "id"))
+            def on_location(location_path):
+                return dcc.LogoutButton(id="logout-btn", logout_url="/_logout")
 
-            return dcc.LogoutButton(id="logout-btn", logout_url="/_logout")
+            dash_dcc.start_server(app)
+            time.sleep(1)
 
-    dash_dcc.start_server(app)
-    time.sleep(1)
-    dash_dcc.percy_snapshot("Core Logout button")
-
-    assert dash_dcc.driver.get_cookie("logout-cookie")["value"] == "logged-in"
-
-    dash_dcc.wait_for_element("#logout-btn").click()
-    dash_dcc.wait_for_text_to_equal("#content", "Logged out")
-
-    assert not dash_dcc.driver.get_cookie("logout-cookie")
-
-    assert dash_dcc.get_logs() == []
+            assert dash_dcc.get_logs() == []
