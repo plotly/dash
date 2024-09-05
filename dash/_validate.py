@@ -1,6 +1,8 @@
 import sys
+from collections import defaultdict
 from collections.abc import MutableSequence
 import re
+import warnings
 from textwrap import dedent
 from keyword import iskeyword
 import flask
@@ -422,6 +424,21 @@ def validate_layout(layout, layout_value):
     component_ids = set()
 
     def _validate(value):
+        def _validate_type(comp):
+            deprecated_components = defaultdict(lambda: defaultdict(dict))
+            deprecated_components["dash_core_components"][
+                "LogoutButton"
+            ] = """
+                The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
+                eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
+            """
+
+            _type = getattr(comp, "_type", "")
+            _ns = getattr(comp, "_namespace", "")
+            deprecation_message = deprecated_components[_ns][_type]
+            if deprecation_message:
+                warnings.warn(dedent(deprecation_message), DeprecationWarning)
+
         def _validate_id(comp):
             component_id = stringify_id(getattr(comp, "id", None))
             if component_id and component_id in component_ids:
@@ -432,9 +449,11 @@ def validate_layout(layout, layout_value):
                 )
             component_ids.add(component_id)
 
+        _validate_type(value)
         _validate_id(value)
 
         for component in value._traverse():  # pylint: disable=protected-access
+            _validate_type(component)
             _validate_id(component)
 
     if isinstance(layout_value, (list, tuple)):
