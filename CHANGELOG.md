@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Fixed
+
+- [#2987](https://github.com/plotly/dash/pull/2987) Fix multioutput requiring same number of no_update. Fixes [#2986](https://github.com/plotly/dash/issues/2986)
+
 ## Deprecated
 
 - [#2985](https://github.com/plotly/dash/pull/2985) Deprecate dynamic component loader.
