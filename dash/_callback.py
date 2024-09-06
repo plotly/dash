@@ -509,10 +509,7 @@ def register_callback(
 
                         # If the error returns nothing, automatically puts NoUpdate for response.
                         if output_value is None:
-                            if not multi:
-                                output_value = NoUpdate()
-                            else:
-                                output_value = [NoUpdate() for _ in output_spec]
+                            output_value = NoUpdate()
                     else:
                         raise err
 
