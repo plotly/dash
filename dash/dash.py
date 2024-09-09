@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Dict, Optional, Union, List, Any
+from typing import Any, Callable, Dict, Optional, Union, List
 
 import flask
 
@@ -369,6 +369,10 @@ class Dash:
 
     :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
 
+    :param on_error: Global callback error handler to call when
+        an exception is raised. Receives the exception object as first argument.
+        The callback_context can be used to access the original callback inputs,
+        states and output.
     """
 
     _plotlyjs_url: str
@@ -413,6 +417,7 @@ class Dash:
         hooks: Optional[RendererHooks] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
         description: Optional[str] = None,
+        on_error: Optional[Callable[[Exception], Any]] = None,
         **obsolete,
     ):
         _validate.check_obsolete(obsolete)
@@ -524,6 +529,7 @@ class Dash:
         self._layout = None
         self._layout_is_function = False
         self.validation_layout = None
+        self._on_error = on_error
         self._extra_components = []
 
         self._setup_dev_tools()
@@ -712,31 +718,9 @@ class Dash:
             and not self.config.suppress_callback_exceptions
         ):
 
-            def simple_clone(c, children=None):
-                cls = type(c)
-                # in Py3 we can use the __init__ signature to reduce to just
-                # required args and id; in Py2 this doesn't work so we just
-                # empty out children.
-                sig = getattr(cls.__init__, "__signature__", None)
-                props = {
-                    p: getattr(c, p)
-                    for p in c._prop_names  # pylint: disable=protected-access
-                    if hasattr(c, p)
-                    and (
-                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
-                    )
-                }
-                if props.get("children", children):
-                    props["children"] = children or []
-                return cls(**props)
-
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
-            self.validation_layout = simple_clone(
-                # pylint: disable=protected-access
-                layout_value,
-                [simple_clone(c) for c in layout_value._traverse_ids()],
-            )
+            self.validation_layout = layout_value
 
     @property
     def index_string(self):
@@ -809,15 +793,14 @@ class Dash:
             }
         )
 
-    def serve_dist(self):
-        libraries = flask.request.get_json()
+    def get_dist(self, libraries):
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
             srcs = self._collect_and_register_resources(resources, False)
             for src in srcs:
                 dists.append(dict(type=dist_type, url=src))
-        return flask.jsonify(dists)
+        return dists
 
     def _collect_and_register_resources(self, resources, include_async=True):
         # now needs the app context.
@@ -1270,10 +1253,9 @@ class Dash:
             **_kwargs,
         )
 
+    # pylint: disable=R0915
     def dispatch(self):
         body = flask.request.get_json()
-
-        nlibs = len(ComponentRegistry.registry)
 
         g = AttributeDict({})
 
@@ -1284,7 +1266,7 @@ class Dash:
             "state", []
         )
         output = body["output"]
-        outputs_list = body.get("outputs") or split_callback_id(output)
+        outputs_list = body.get("outputs")
         g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
 
         g.input_values = (  # pylint: disable=assigning-non-slot
@@ -1304,7 +1286,6 @@ class Dash:
 
         try:
             cb = self.callback_map[output]
-            _allow_dynamic = cb.get("allow_dynamic_callbacks", False)
             func = cb["callback"]
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
@@ -1315,6 +1296,12 @@ class Dash:
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = inputs + state
             inputs_state = convert_to_AttributeDict(inputs_state)
+
+            if cb.get("no_output"):
+                outputs_list = []
+            elif not outputs_list:
+                # FIXME Old renderer support?
+                split_callback_id(output)
 
             # update args_grouping attributes
             for s in inputs_state:
@@ -1344,14 +1331,21 @@ class Dash:
             else:
                 flat_outputs = outputs_list
 
-            outputs_grouping = map_grouping(
-                lambda ind: flat_outputs[ind], outputs_indices
-            )
-            g.outputs_grouping = outputs_grouping  # pylint: disable=assigning-non-slot
-            g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
-                not isinstance(outputs_indices, int)
-                and outputs_indices != list(range(grouping_len(outputs_indices)))
-            )
+            if len(flat_outputs) > 0:
+                outputs_grouping = map_grouping(
+                    lambda ind: flat_outputs[ind], outputs_indices
+                )
+                g.outputs_grouping = (
+                    outputs_grouping  # pylint: disable=assigning-non-slot
+                )
+                g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
+                    not isinstance(outputs_indices, int)
+                    and outputs_indices != list(range(grouping_len(outputs_indices)))
+                )
+            else:
+                g.outputs_grouping = []
+                g.using_outputs_grouping = []
+            g.updated_props = {}
 
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
@@ -1367,15 +1361,11 @@ class Dash:
                     outputs_list=outputs_list,
                     long_callback_manager=self._background_manager,
                     callback_context=g,
+                    app=self,
+                    app_on_error=self._on_error,
                 )
             )
         )
-
-        if not _allow_dynamic and nlibs != len(ComponentRegistry.registry):
-            print(
-                "Warning: component library imported during callback, move to top-level for full support.",
-                file=sys.stderr,
-            )
         return response
 
     def _setup_server(self):
@@ -1971,9 +1961,9 @@ class Dash:
 
     def run(
         self,
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=os.getenv("PORT", "8050"),
-        proxy=os.getenv("DASH_PROXY", None),
+        host="127.0.0.1",
+        port="8050",
+        proxy=None,
         debug=None,
         jupyter_mode: JupyterDisplayMode = None,
         jupyter_width="100%",
@@ -2098,6 +2088,12 @@ class Dash:
             dev_tools_silence_routes_logging,
             dev_tools_prune_errors,
         )
+
+        # Evaluate the env variables at runtime
+
+        host = os.getenv("HOST", host)
+        port = os.getenv("PORT", port)
+        proxy = os.getenv("DASH_PROXY", proxy)
 
         # Verify port value
         try:
@@ -2264,4 +2260,9 @@ class Dash:
 
         See `app.run` for usage information.
         """
+        warnings.warn(
+            DeprecationWarning(
+                "Dash.run_server is deprecated and will be removed in Dash 3.0"
+            )
+        )
         self.run(*args, **kwargs)

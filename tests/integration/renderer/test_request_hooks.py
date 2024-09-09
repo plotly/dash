@@ -3,6 +3,8 @@ import functools
 import flask
 import pytest
 
+from flaky import flaky
+
 from dash import Dash, Output, Input, html, dcc
 from dash.types import RendererHooks
 from werkzeug.exceptions import HTTPException
@@ -95,6 +97,7 @@ def test_rdrh001_request_hooks(dash_duo):
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
+        "parsedChangedPropsIds": ["input.value"],
         "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
@@ -102,6 +105,7 @@ def test_rdrh001_request_hooks(dash_duo):
         "output": "output-1.children",
         "outputs": {"id": "output-1", "property": "children"},
         "changedPropIds": ["input.value"],
+        "parsedChangedPropsIds": ["input.value"],
         "inputs": [{"id": "input", "property": "value", "value": "fire request hooks"}],
     }
 
@@ -196,6 +200,7 @@ def test_rdrh002_with_custom_renderer_interpolated(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize("expiry_code", [401, 400])
 def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
     app = Dash(__name__)

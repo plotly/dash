@@ -51,6 +51,9 @@ class BaseLongCallbackManager(ABC):
     def get_result(self, key, job):
         raise NotImplementedError
 
+    def get_updated_props(self, key):
+        raise NotImplementedError
+
     def build_cache_key(self, fn, args, cache_args_to_ignore):
         fn_source = inspect.getsource(fn)
 
@@ -99,9 +102,16 @@ class BaseLongCallbackManager(ABC):
         return key + "-progress"
 
     @staticmethod
+    def _make_set_props_key(key):
+        return f"{key}-set_props"
+
+    @staticmethod
     def hash_function(fn, callback_id=""):
-        fn_source = inspect.getsource(fn)
-        fn_str = fn_source
+        try:
+            fn_source = inspect.getsource(fn)
+            fn_str = fn_source
+        except OSError:  # pylint: disable=too-broad-exception
+            fn_str = getattr(fn, "__name__", "")
         return hashlib.sha256(
             callback_id.encode("utf-8") + fn_str.encode("utf-8")
         ).hexdigest()

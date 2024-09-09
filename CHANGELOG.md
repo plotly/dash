@@ -4,6 +4,52 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Fixed
+
+- [#2987](https://github.com/plotly/dash/pull/2987) Fix multioutput requiring same number of no_update. Fixes [#2986](https://github.com/plotly/dash/issues/2986)
+- [2988](https://github.com/plotly/dash/pull/2988) Fix error handler and grouped outputs. Fixes [#2983](https://github.com/plotly/dash/issues/2983)
+
+## Deprecated
+
+- [#2985](https://github.com/plotly/dash/pull/2985) Deprecate dynamic component loader.
+- [#2985](https://github.com/plotly/dash/pull/2985) Deprecate `run_server`, use `run` instead.
+- [#2899](https://github.com/plotly/dash/pull/2899) Deprecate `dcc.LogoutButton`, can be replaced with a `html.Button` or `html.A`. eg: `html.A(href=os.getenv('DASH_LOGOUT_URL'))` on a Dash Enterprise instance.
+
+## [2.18.0] - 2024-09-04
+
+## Added
+
+- [#2881](https://github.com/plotly/dash/pull/2881) Add outputs_list to window.dash_clientside.callback_context. Fixes [#2877](https://github.com/plotly/dash/issues/2877).
+- [#2903](https://github.com/plotly/dash/pull/2903) Add callback on_error handler, either globally on Dash init or per callback basis. Receives the exception as first argument, can return output(s) or None for `no_update`. Access to original callback context is preserved and `set_props` works inside the error handler.
+- [#2936](https://github.com/plotly/dash/pull/2936) Adds support for TypeScript 5.5+.
+- [#2789](https://github.com/plotly/dash/pull/2789) Add library loading capacity to `_allow_dynamic_callbacks`
+
+## Fixed
+
+- [#2898](https://github.com/plotly/dash/pull/2898) Fix error thrown when using non-existent components in callback running keyword. Fixes [#2897](https://github.com/plotly/dash/issues/2897).
+- [#2892](https://github.com/plotly/dash/pull/2860) Fix ensures dcc.Dropdown menu maxHeight option works with Datatable. Fixes [#2529](https://github.com/plotly/dash/issues/2529) [#2225](https://github.com/plotly/dash/issues/2225)
+- [#2896](https://github.com/plotly/dash/pull/2896) The tabIndex parameter of Div can accept number or string type. Fixes [#2891](https://github.com/plotly/dash/issues/2891)
+- [#2900](https://github.com/plotly/dash/pull/2900) Allow strings in layout list. Fixes [#2890](https://github.com/plotly/dash/issues/2890)
+- [#2908](https://github.com/plotly/dash/pull/2908) Fix when environment variables are ignored by Dash.run() at runtime. Fixes [#2902](https://github.com/plotly/dash/issues/2902)
+- [#2888](https://github.com/plotly/dash/pull/2888) Add id to dcc.Loading DOM. Fixes [#2878](https://github.com/plotly/dash/issues/2878)
+- [#2922](https://github.com/plotly/dash/pull/2922) Fix background callback hash_function when source is unavailable. Fixes [#1885](https://github.com/plotly/dash/issues/1885)
+- [#2915](https://github.com/plotly/dash/pull/2915) Fix 'AttributeError' when layout is a function that returns a list of components. Fixes [#2905](https://github.com/plotly/dash/issues/2905)
+- [#2956](https://github.com/plotly/dash/pull/2956) Add missing useEffect dependency to dcc.Loading component.
+- [#2909](https://github.com/plotly/dash/pull/2909) Rehighlights dcc.Markdown when it is updated, fixes [#2895](https://github.com/plotly/dash/issues/2895)
+
+## [2.17.1] - 2024-06-12
+
+## Fixed
+
+- [#2860](https://github.com/plotly/dash/pull/2860) Fix dcc.Loading to apply overlay_style only to the children and not the spinner. Fixes [#2858](https://github.com/plotly/dash/issues/2858)
+- [#2854](https://github.com/plotly/dash/pull/2854) Fix dcc.Dropdown resetting empty values to null and triggering callbacks. Fixes [#2850](https://github.com/plotly/dash/issues/2850)
+- [#2859](https://github.com/plotly/dash/pull/2859) Fix base patch operators. fixes [#2855](https://github.com/plotly/dash/issues/2855)
+- [#2856](https://github.com/plotly/dash/pull/2856) Fix multiple consecutive calls with same id to set_props only keeping the last props. Fixes [#2852](https://github.com/plotly/dash/issues/2852)
+- [#2867](https://github.com/plotly/dash/pull/2867) Fix clientside no output callback. Fixes [#2866](https://github.com/plotly/dash/issues/2866)
+- [#2876](https://github.com/plotly/dash/pull/2876) Fix pattern matching in callback running argument. Fixes [#2863](https://github.com/plotly/dash/issues/2863)
+
+## [2.17.0] - 2024-05-03
+
 ## Added
 
 - [#2832](https://github.com/plotly/dash/pull/2832) Add dash startup route setup on Dash init.
@@ -17,10 +63,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `custom_spinner`  enables using a custom component for loading messages instead of built-in spinners
   - `display`  overrides the loading status with options for "show," "hide," or "auto"
 
+- [#2822](https://github.com/plotly/dash/pull/2822) Support no output callbacks. Fixes [#1549](https://github.com/plotly/dash/issues/1549)
+- [#2822](https://github.com/plotly/dash/pull/2822) Add global set_props. Fixes [#2803](https://github.com/plotly/dash/issues/2803)
+
 ## Fixed
 
 - [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
 - [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764) 
+- [#2822](https://github.com/plotly/dash/pull/2822) Fix side update (running/progress/cancel) dict ids. Fixes [#2111](https://github.com/plotly/dash/issues/2111)
+- [#2817](https://github.com/plotly/dash/pull/2817) Change hashing algorithm from md5 to sha256, Fixes [#2697](https://github.com/plotly/dash/issues/2697).
+- [#2816](https://github.com/plotly/dash/pull/2816) Fix dcc.Dropdown value not updated when option is removed. Fixes [#2733](https://github.com/plotly/dash/issues/2733).
+- [#2823](https://github.com/plotly/dash/pull/2823) Fix None in "wait" methods causing incorrectly passing tests. Fixes [#2818](https://github.com/plotly/dash/issues/2818)
 
 ## [2.16.1] - 2024-03-06
 

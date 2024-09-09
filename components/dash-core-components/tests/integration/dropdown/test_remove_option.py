@@ -2,9 +2,10 @@ import json
 
 import pytest
 
-from dash import Dash, html, dcc, Output, Input, State
+from dash import Dash, html, dcc, Output, Input, State, Patch
 from dash.exceptions import PreventUpdate
 
+from selenium.webdriver.common.keys import Keys
 
 sample_dropdown_options = [
     {"label": "New York City", "value": "NYC"},
@@ -147,3 +148,44 @@ def test_ddro003_remove_option_multiple_dropdowns(dash_dcc):
     btn.click()
     dash_dcc.wait_for_text_to_equal("#value-output", '["NYC"]')
     dash_dcc.wait_for_text_to_equal("#options-output", '["MTL", "NYC"]')
+
+
+def test_ddro004_empty_string_not_updated(dash_dcc):
+    # The value should stay as empty string and not null.
+    app = Dash()
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(["a", "b", "c"], value="", id="drop"),
+            html.Div(id="output"),
+            dcc.Store(data={"count": 0}, id="count"),
+            html.Div(id="count-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Output("count", "data"),
+        Input("drop", "value"),
+    )
+    def on_value(value):
+        count = Patch()
+        count.count += 1
+        if value is None:
+            return "Value is none", count
+        return f"Value={value}", count
+
+    app.clientside_callback(
+        "data => data.count", Output("count-output", "children"), Input("count", "data")
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#output", "Value=")
+
+    dash_dcc.wait_for_text_to_equal("#count-output", "1")
+
+    select_input = dash_dcc.find_element("#drop input")
+    select_input.send_keys("a")
+    select_input.send_keys(Keys.ENTER)
+
+    dash_dcc.wait_for_text_to_equal("#output", "Value=a")
+    dash_dcc.wait_for_text_to_equal("#count-output", "2")
