@@ -714,31 +714,9 @@ class Dash:
             and not self.config.suppress_callback_exceptions
         ):
 
-            def simple_clone(c, children=None):
-                cls = type(c)
-                # in Py3 we can use the __init__ signature to reduce to just
-                # required args and id; in Py2 this doesn't work so we just
-                # empty out children.
-                sig = getattr(cls.__init__, "__signature__", None)
-                props = {
-                    p: getattr(c, p)
-                    for p in c._prop_names  # pylint: disable=protected-access
-                    if hasattr(c, p)
-                    and (
-                        p == "id" or not sig or sig.parameters[p].default == c.REQUIRED
-                    )
-                }
-                if props.get("children", children):
-                    props["children"] = children or []
-                return cls(**props)
-
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
-            self.validation_layout = simple_clone(
-                # pylint: disable=protected-access
-                layout_value,
-                [simple_clone(c) for c in layout_value._traverse_ids()],
-            )
+            self.validation_layout = layout_value
 
     @property
     def index_string(self):
@@ -811,15 +789,14 @@ class Dash:
             }
         )
 
-    def serve_dist(self):
-        libraries = flask.request.get_json()
+    def get_dist(self, libraries):
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
             srcs = self._collect_and_register_resources(resources, False)
             for src in srcs:
                 dists.append(dict(type=dist_type, url=src))
-        return flask.jsonify(dists)
+        return dists
 
     def _collect_and_register_resources(self, resources, include_async=True):
         # now needs the app context.
@@ -1276,8 +1253,6 @@ class Dash:
     def dispatch(self):
         body = flask.request.get_json()
 
-        nlibs = len(ComponentRegistry.registry)
-
         g = AttributeDict({})
 
         g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
@@ -1307,7 +1282,6 @@ class Dash:
 
         try:
             cb = self.callback_map[output]
-            _allow_dynamic = cb.get("allow_dynamic_callbacks", False)
             func = cb["callback"]
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
@@ -1383,16 +1357,11 @@ class Dash:
                     outputs_list=outputs_list,
                     long_callback_manager=self._background_manager,
                     callback_context=g,
+                    app=self,
                     app_on_error=self._on_error,
                 )
             )
         )
-
-        if not _allow_dynamic and nlibs != len(ComponentRegistry.registry):
-            print(
-                "Warning: component library imported during callback, move to top-level for full support.",
-                file=sys.stderr,
-            )
         return response
 
     def _setup_server(self):
@@ -2287,4 +2256,9 @@ class Dash:
 
         See `app.run` for usage information.
         """
+        warnings.warn(
+            DeprecationWarning(
+                "Dash.run_server is deprecated and will be removed in Dash 3.0"
+            )
+        )
         self.run(*args, **kwargs)

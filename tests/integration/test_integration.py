@@ -366,7 +366,7 @@ def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
     until(lambda: '"label": 3' in dash_duo.find_element("#graph2_info").text, timeout=3)
 
 
-def test_inin027_multi_page_without_pages_folder(dash_duo):
+def test_inin027_multi_page_without_pages_folder(dash_duo, clear_pages_state):
     app = Dash(__name__, pages_folder="")
 
     # test for storing arbitrary keyword arguments: An `id` prop is defined for every page
@@ -473,7 +473,7 @@ def test_inin028_layout_as_list(dash_duo):
     dash_duo.wait_for_text_to_equal("#nested-output", "Clicked 1 times")
 
 
-def test_inin029_layout_as_list_with_pages(dash_duo):
+def test_inin029_layout_as_list_with_pages(dash_duo, clear_pages_state):
     app = Dash(use_pages=True, pages_folder="")
 
     dash.register_page(
