@@ -1,7 +1,6 @@
 import collections
 import json
 import os
-import warnings
 
 from ._py_components_generation import (
     generate_class_file,
@@ -35,14 +34,6 @@ def load_components(metadata_path, namespace="default_namespace"):
     components -- a list of component objects with keys
     `type`, `valid_kwargs`, and `setup`.
     """
-
-    warnings.warn(
-        DeprecationWarning(
-            "Dynamic components loading has been deprecated and will be removed"
-            " in dash 3.0.\n"
-            f"Update {namespace} to generate components with dash-generate-components"
-        )
-    )
 
     # Register the component lib for index include.
     ComponentRegistry.registry.add(namespace)
