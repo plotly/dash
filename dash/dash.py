@@ -2258,4 +2258,9 @@ class Dash:
 
         See `app.run` for usage information.
         """
+        warnings.warn(
+            DeprecationWarning(
+                "Dash.run_server is deprecated and will be removed in Dash 3.0"
+            )
+        )
         self.run(*args, **kwargs)

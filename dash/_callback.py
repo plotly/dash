@@ -509,10 +509,7 @@ def register_callback(
 
                         # If the error returns nothing, automatically puts NoUpdate for response.
                         if output_value is None:
-                            if not multi:
-                                output_value = NoUpdate()
-                            else:
-                                output_value = [NoUpdate() for _ in output_spec]
+                            output_value = NoUpdate()
                     else:
                         raise err
 
@@ -528,12 +525,16 @@ def register_callback(
                         # list or tuple
                         output_value = list(output_value)
 
-                    # Flatten grouping and validate grouping structure
-                    flat_output_values = flatten_grouping(output_value, output)
+                    if NoUpdate.is_no_update(output_value):
+                        flat_output_values = [output_value]
+                    else:
+                        # Flatten grouping and validate grouping structure
+                        flat_output_values = flatten_grouping(output_value, output)
 
-                _validate.validate_multi_return(
-                    output_spec, flat_output_values, callback_id
-                )
+                if not NoUpdate.is_no_update(output_value):
+                    _validate.validate_multi_return(
+                        output_spec, flat_output_values, callback_id
+                    )
 
                 for val, spec in zip(flat_output_values, output_spec):
                     if NoUpdate.is_no_update(val):

@@ -61,7 +61,9 @@ class BaseDashRunner:
 
     _next_port = 58050
 
-    def __init__(self, keep_open, stop_timeout):
+    def __init__(self, keep_open, stop_timeout, scheme="http", host="localhost"):
+        self.scheme = scheme
+        self.host = host
         self.port = 8050
         self.started = None
         self.keep_open = keep_open
@@ -102,7 +104,7 @@ class BaseDashRunner:
     @property
     def url(self):
         """The default server url."""
-        return f"http://localhost:{self.port}"
+        return f"{self.scheme}://{self.host}:{self.port}"
 
     @property
     def is_windows(self):
