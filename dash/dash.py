@@ -16,10 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Dict, Optional, Union
-from typing import List, Dict, Union, Optional
-
-# from typing import List, Dict, Union
+from typing import Dict, Optional, Union, List, Any
 
 import flask
 
@@ -378,6 +375,7 @@ class Dash:
     STARTUP_ROUTES: list = []
 
     def __init__(  # pylint: disable=too-many-statements
+        self,
         name: Optional[str] = None,
         server: Union[bool, flask.Flask] = True,
         assets_folder: str = "assets",
