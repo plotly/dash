@@ -175,11 +175,13 @@ def _get_traceback(secret, error: Exception):
 
     # werkzeug<2.1.0
     if hasattr(tbtools, "get_current_traceback"):
-        return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
+        return tbtools.get_current_traceback(  # type: ignore
+            skip=_get_skip(error)
+        ).render_full()
 
     if hasattr(tbtools, "DebugTraceback"):
         # pylint: disable=no-member
-        return tbtools.DebugTraceback(
+        return tbtools.DebugTraceback(  # type: ignore
             error, skip=_get_skip(error)
         ).render_debugger_html(True, secret, True)
 
@@ -378,6 +380,8 @@ class Dash:
     _plotlyjs_url: str
     STARTUP_ROUTES: list = []
 
+    server: flask.Flask
+
     def __init__(  # pylint: disable=too-many-statements
         self,
         name: Optional[str] = None,
@@ -404,7 +408,7 @@ class Dash:
         prevent_initial_callbacks: bool = False,
         show_undo_redo: bool = False,
         extra_hot_reload_paths: Optional[List[str]] = None,
-        plugins: Optional[List[Dict[str, Any]]] = None,
+        plugins: Optional[list] = None,
         title: str = "Dash",
         update_title: str = "Updating...",
         long_callback_manager: Optional[
@@ -432,7 +436,7 @@ class Dash:
                 name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
             name = name if name else caller_name
-            self.server = flask.Flask(name) if server else None
+            self.server = flask.Flask(name) if server else None  # type: ignore
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -444,7 +448,7 @@ class Dash:
             name=name,
             assets_folder=os.path.join(
                 flask.helpers.get_root_path(name), assets_folder
-            ),
+            ),  # type: ignore
             assets_url_path=assets_url_path,
             assets_ignore=assets_ignore,
             assets_external_path=get_combined_config(
@@ -550,7 +554,9 @@ class Dash:
         if not self.logger.handlers and add_log_handler:
             self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
-        if isinstance(plugins, patch_collections_abc("Iterable")):
+        if plugins is not None and isinstance(
+            plugins, patch_collections_abc("Iterable")
+        ):
             for plugin in plugins:
                 plugin.plug(self)
 
@@ -1965,7 +1971,7 @@ class Dash:
         port="8050",
         proxy=None,
         debug=None,
-        jupyter_mode: JupyterDisplayMode = None,
+        jupyter_mode: Optional[JupyterDisplayMode] = None,
         jupyter_width="100%",
         jupyter_height=650,
         jupyter_server_url=None,
@@ -2100,7 +2106,7 @@ class Dash:
             port = int(port)
             assert port in range(1, 65536)
         except Exception as e:
-            e.args = [f"Expecting an integer from 1 to 65535, found port={repr(port)}"]
+            e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)
             raise
 
         # so we only see the "Running on" message once with hot reloading
