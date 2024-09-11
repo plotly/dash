@@ -547,6 +547,13 @@ class Dash:
 
         self._assets_files = []
         self._long_callback_count = 0
+        if long_callback_manager:
+            warnings.warn(
+                DeprecationWarning(
+                    "`long_callback_manager` is deprecated and will be remove in dash 3.0, "
+                    "use `background_callback_manager` instead."
+                )
+            )
         self._background_manager = background_callback_manager or long_callback_manager
 
         self.logger = logging.getLogger(__name__)
