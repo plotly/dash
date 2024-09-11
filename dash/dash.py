@@ -566,8 +566,8 @@ class Dash:
         ):
             warnings.warn(
                 DeprecationWarning(
-                    "plugins will be removed from Dash init in dash 3.0 and will be replaced by"
-                    " a new system."
+                    "The `plugins` keyword will be removed from Dash init in Dash 3.0 "
+                    "and replaced by a new hook system."
                 )
             )
             for plugin in plugins:
