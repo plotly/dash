@@ -15,6 +15,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2985](https://github.com/plotly/dash/pull/2985) Deprecate dynamic component loader.
 - [#2985](https://github.com/plotly/dash/pull/2985) Deprecate `run_server`, use `run` instead.
 - [#2899](https://github.com/plotly/dash/pull/2899) Deprecate `dcc.LogoutButton`, can be replaced with a `html.Button` or `html.A`. eg: `html.A(href=os.getenv('DASH_LOGOUT_URL'))` on a Dash Enterprise instance.
+- [#2995](https://github.com/plotly/dash/pull/2995) Deprecate `Dash.__init__` keywords:
+  - The `plugins` keyword will be removed.
+  - Old `long_callback_manager` keyword will be removed, can use `background_callback_manager` instead.
 
 ## [2.18.0] - 2024-09-04
 
