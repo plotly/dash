@@ -550,7 +550,7 @@ class Dash:
         if long_callback_manager:
             warnings.warn(
                 DeprecationWarning(
-                    "`long_callback_manager` is deprecated and will be remove in dash 3.0, "
+                    "`long_callback_manager` is deprecated and will be remove in Dash 3.0, "
                     "use `background_callback_manager` instead."
                 )
             )
