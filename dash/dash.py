@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, List
 
 import flask
 
@@ -175,11 +175,13 @@ def _get_traceback(secret, error: Exception):
 
     # werkzeug<2.1.0
     if hasattr(tbtools, "get_current_traceback"):
-        return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
+        return tbtools.get_current_traceback(  # type: ignore
+            skip=_get_skip(error)
+        ).render_full()
 
     if hasattr(tbtools, "DebugTraceback"):
         # pylint: disable=no-member
-        return tbtools.DebugTraceback(
+        return tbtools.DebugTraceback(  # type: ignore
             error, skip=_get_skip(error)
         ).render_debugger_html(True, secret, True)
 
@@ -378,41 +380,47 @@ class Dash:
     _plotlyjs_url: str
     STARTUP_ROUTES: list = []
 
+    server: flask.Flask
+
     def __init__(  # pylint: disable=too-many-statements
         self,
-        name=None,
-        server=True,
-        assets_folder="assets",
-        pages_folder="pages",
-        use_pages=None,
-        assets_url_path="assets",
-        assets_ignore="",
-        assets_external_path=None,
-        eager_loading=False,
-        include_assets_files=True,
-        include_pages_meta=True,
-        url_base_pathname=None,
-        requests_pathname_prefix=None,
-        routes_pathname_prefix=None,
-        serve_locally=True,
-        compress=None,
-        meta_tags=None,
-        index_string=_default_index,
-        external_scripts=None,
-        external_stylesheets=None,
-        suppress_callback_exceptions=None,
-        prevent_initial_callbacks=False,
-        show_undo_redo=False,
-        extra_hot_reload_paths=None,
-        plugins=None,
-        title="Dash",
-        update_title="Updating...",
-        long_callback_manager=None,
-        background_callback_manager=None,
-        add_log_handler=True,
-        hooks: Union[RendererHooks, None] = None,
+        name: Optional[str] = None,
+        server: Union[bool, flask.Flask] = True,
+        assets_folder: str = "assets",
+        pages_folder: str = "pages",
+        use_pages: Optional[bool] = None,
+        assets_url_path: str = "assets",
+        assets_ignore: str = "",
+        assets_external_path: Optional[str] = None,
+        eager_loading: bool = False,
+        include_assets_files: bool = True,
+        include_pages_meta: bool = True,
+        url_base_pathname: Optional[str] = None,
+        requests_pathname_prefix: Optional[str] = None,
+        routes_pathname_prefix: Optional[str] = None,
+        serve_locally: bool = True,
+        compress: Optional[bool] = None,
+        meta_tags: Optional[List[Dict[str, Any]]] = None,
+        index_string: str = _default_index,
+        external_scripts: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        external_stylesheets: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        suppress_callback_exceptions: Optional[bool] = None,
+        prevent_initial_callbacks: bool = False,
+        show_undo_redo: bool = False,
+        extra_hot_reload_paths: Optional[List[str]] = None,
+        plugins: Optional[list] = None,
+        title: str = "Dash",
+        update_title: str = "Updating...",
+        long_callback_manager: Optional[
+            Any
+        ] = None,  # Type should be specified if possible
+        background_callback_manager: Optional[
+            Any
+        ] = None,  # Type should be specified if possible
+        add_log_handler: bool = True,
+        hooks: Optional[RendererHooks] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
-        description=None,
+        description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         **obsolete,
     ):
@@ -428,7 +436,7 @@ class Dash:
                 name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
             name = name if name else caller_name
-            self.server = flask.Flask(name) if server else None
+            self.server = flask.Flask(name) if server else None  # type: ignore
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -440,7 +448,7 @@ class Dash:
             name=name,
             assets_folder=os.path.join(
                 flask.helpers.get_root_path(name), assets_folder
-            ),
+            ),  # type: ignore
             assets_url_path=assets_url_path,
             assets_ignore=assets_ignore,
             assets_external_path=get_combined_config(
@@ -539,6 +547,13 @@ class Dash:
 
         self._assets_files = []
         self._long_callback_count = 0
+        if long_callback_manager:
+            warnings.warn(
+                DeprecationWarning(
+                    "`long_callback_manager` is deprecated and will be remove in Dash 3.0, "
+                    "use `background_callback_manager` instead."
+                )
+            )
         self._background_manager = background_callback_manager or long_callback_manager
 
         self.logger = logging.getLogger(__name__)
@@ -546,7 +561,15 @@ class Dash:
         if not self.logger.handlers and add_log_handler:
             self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
 
-        if isinstance(plugins, patch_collections_abc("Iterable")):
+        if plugins is not None and isinstance(
+            plugins, patch_collections_abc("Iterable")
+        ):
+            warnings.warn(
+                DeprecationWarning(
+                    "The `plugins` keyword will be removed from Dash init in Dash 3.0 "
+                    "and replaced by a new hook system."
+                )
+            )
             for plugin in plugins:
                 plugin.plug(self)
 
@@ -1961,7 +1984,7 @@ class Dash:
         port="8050",
         proxy=None,
         debug=None,
-        jupyter_mode: JupyterDisplayMode = None,
+        jupyter_mode: Optional[JupyterDisplayMode] = None,
         jupyter_width="100%",
         jupyter_height=650,
         jupyter_server_url=None,
@@ -2096,7 +2119,7 @@ class Dash:
             port = int(port)
             assert port in range(1, 65536)
         except Exception as e:
-            e.args = [f"Expecting an integer from 1 to 65535, found port={repr(port)}"]
+            e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)
             raise
 
         # so we only see the "Running on" message once with hot reloading
@@ -2256,4 +2279,9 @@ class Dash:
 
         See `app.run` for usage information.
         """
+        warnings.warn(
+            DeprecationWarning(
+                "Dash.run_server is deprecated and will be removed in Dash 3.0"
+            )
+        )
         self.run(*args, **kwargs)
