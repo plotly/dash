@@ -2,6 +2,24 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.18.1] - 2024-09-12
+
+## Fixed
+
+- [#2987](https://github.com/plotly/dash/pull/2987) Fix multioutput requiring same number of no_update. Fixes [#2986](https://github.com/plotly/dash/issues/2986)
+- [2988](https://github.com/plotly/dash/pull/2988) Fix error handler and grouped outputs. Fixes [#2983](https://github.com/plotly/dash/issues/2983)
+- [#2841](https://github.com/plotly/dash/pull/2841) Fix typing on Dash init.
+- [#1548](https://github.com/plotly/dash/pull/1548) Enable changing of selenium url, fix for selenium grid support.
+
+## Deprecated
+
+- [#2985](https://github.com/plotly/dash/pull/2985) Deprecate dynamic component loader.
+- [#2985](https://github.com/plotly/dash/pull/2985) Deprecate `run_server`, use `run` instead.
+- [#2899](https://github.com/plotly/dash/pull/2899) Deprecate `dcc.LogoutButton`, can be replaced with a `html.Button` or `html.A`. eg: `html.A(href=os.getenv('DASH_LOGOUT_URL'))` on a Dash Enterprise instance.
+- [#2995](https://github.com/plotly/dash/pull/2995) Deprecate `Dash.__init__` keywords:
+  - The `plugins` keyword will be removed.
+  - Old `long_callback_manager` keyword will be removed, can use `background_callback_manager` instead.
+
 ## [2.18.0] - 2024-09-04
 
 ## Added
