@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#2994](https://github.com/plotly/dash/pull/2994) Keep generated doc-string order for shape or exact props. Fixes [#2990](https://github.com/plotly/dash/issues/2990)
+
 ## [2.18.1] - 2024-09-12
 
 ## Fixed
