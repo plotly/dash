@@ -547,6 +547,13 @@ class Dash:
 
         self._assets_files = []
         self._long_callback_count = 0
+        if long_callback_manager:
+            warnings.warn(
+                DeprecationWarning(
+                    "`long_callback_manager` is deprecated and will be remove in Dash 3.0, "
+                    "use `background_callback_manager` instead."
+                )
+            )
         self._background_manager = background_callback_manager or long_callback_manager
 
         self.logger = logging.getLogger(__name__)
@@ -557,6 +564,12 @@ class Dash:
         if plugins is not None and isinstance(
             plugins, patch_collections_abc("Iterable")
         ):
+            warnings.warn(
+                DeprecationWarning(
+                    "The `plugins` keyword will be removed from Dash init in Dash 3.0 "
+                    "and replaced by a new hook system."
+                )
+            )
             for plugin in plugins:
                 plugin.plug(self)
 
