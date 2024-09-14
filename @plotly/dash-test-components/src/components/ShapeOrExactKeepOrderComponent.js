@@ -7,7 +7,8 @@ const ShapeOrExactKeepOrderComponent = (props) => {
     return (
         <div id={id} />
     );
-}
+};
+
 ShapeOrExactKeepOrderComponent.propTypes = {
     id: PropTypes.string,
     /**
@@ -44,6 +45,6 @@ ShapeOrExactKeepOrderComponent.propTypes = {
          */
         y: PropTypes.string
     }),
-}
+};
 
 export default ShapeOrExactKeepOrderComponent;
