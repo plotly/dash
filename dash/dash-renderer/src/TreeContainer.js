@@ -322,7 +322,7 @@ class BaseTreeContainer extends Component {
                     });
 
                     node = rpath(frontPath, props);
-                    if (node === undefined || !node.length) {
+                    if (node === undefined || !node?.length) {
                         continue;
                     }
                     const firstNode = rpath(backPath, node[0]);
