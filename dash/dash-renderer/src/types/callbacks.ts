@@ -105,6 +105,7 @@ export type CallbackResponseData = {
     running?: CallbackResponse;
     runningOff?: CallbackResponse;
     cancel?: ICallbackProperty[];
+    dist?: any;
     sideUpdate?: any;
 };
 

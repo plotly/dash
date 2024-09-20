@@ -557,7 +557,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
                 default=prop.get("defaultValue"),
                 indent_num=indent_num + 2,
             )
-            for prop_name, prop in sorted(list(type_object["value"].items()))
+            for prop_name, prop in type_object["value"].items()
         )
 
     def array_of():

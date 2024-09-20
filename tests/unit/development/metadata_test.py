@@ -51,6 +51,8 @@ Keyword arguments:
 
     - color (string; optional)
 
+    - fontSize (number; optional)
+
     - figure (dict; optional):
         Figure is a plotly graph object.
 
@@ -61,8 +63,6 @@ Keyword arguments:
 
         - layout (dict; optional):
             layout describes the rest of the figure.
-
-    - fontSize (number; optional)
 
 - optionalObjectWithShapeAndNestedDescription (dict; optional)
 
@@ -70,6 +70,8 @@ Keyword arguments:
 
     - color (string; optional)
 
+    - fontSize (number; optional)
+
     - figure (dict; optional):
         Figure is a plotly graph object.
 
@@ -80,8 +82,6 @@ Keyword arguments:
 
         - layout (dict; optional):
             layout describes the rest of the figure.
-
-    - fontSize (number; optional)
 
 - optionalString (string; default 'hello world')
 

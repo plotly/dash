@@ -24,6 +24,7 @@ const Loading = ({
     loading_state,
     display,
     color,
+    id,
     className,
     style,
     parent_className,
@@ -121,7 +122,7 @@ const Loading = ({
                 }
             }
         }
-    }, [delay_hide, delay_show, loading_state, display]);
+    }, [delay_hide, delay_show, loading_state, display, showSpinner]);
 
     const Spinner = showSpinner && getSpinner(spinnerType);
 
@@ -144,7 +145,7 @@ const Loading = ({
             >
                 {children}
             </div>
-            <div style={showSpinner ? coveringSpinner : {}}>
+            <div id={id} style={showSpinner ? coveringSpinner : {}}>
                 {showSpinner &&
                     (custom_spinner || (
                         <Spinner

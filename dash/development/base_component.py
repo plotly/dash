@@ -4,12 +4,25 @@ import inspect
 import sys
 import uuid
 import random
+import warnings
+import textwrap
 
 from .._utils import patch_collections_abc, stringify_id, OrderedSet
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
 rd = random.Random(0)
+
+_deprecated_components = {
+    "dash_core_components": {
+        "LogoutButton": textwrap.dedent(
+            """
+        The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
+        eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
+    """
+        )
+    }
+}
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -95,6 +108,7 @@ class Component(metaclass=ComponentMeta):
     REQUIRED = _REQUIRED()
 
     def __init__(self, **kwargs):
+        self._validate_deprecation()
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
         # pylint: disable=super-init-not-called
@@ -404,6 +418,13 @@ class Component(metaclass=ComponentMeta):
         else:
             props_string = repr(getattr(self, "children", None))
         return f"{self._type}({props_string})"
+
+    def _validate_deprecation(self):
+        _type = getattr(self, "_type", "")
+        _ns = getattr(self, "_namespace", "")
+        deprecation_message = _deprecated_components.get(_ns, {}).get(_type)
+        if deprecation_message:
+            warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)))
 
 
 def _explicitize_args(func):
