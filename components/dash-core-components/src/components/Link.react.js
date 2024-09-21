@@ -32,7 +32,7 @@ CustomEvent.prototype = window.Event.prototype;
  * For links with destinations outside the current app, `html.A` is a better
  * component to use.
  */
-const Link = props => {
+const Link = ({refresh = false, ...props}) => {
     const {
         className,
         style,
@@ -42,7 +42,6 @@ const Link = props => {
         children,
         title,
         target,
-        refresh,
         setProps,
     } = props;
     const cleanUrl = window.dash_clientside.clean_url;
@@ -155,7 +154,4 @@ Link.propTypes = {
     setProps: PropTypes.func,
 };
 
-Link.defaultProps = {
-    refresh: false,
-};
 export default Link;
