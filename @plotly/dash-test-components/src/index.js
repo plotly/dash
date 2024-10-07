@@ -11,6 +11,8 @@ import ComponentAsProp from './components/ComponentAsProp';
 import DrawCounter from './components/DrawCounter';
 import AddPropsComponent from "./components/AddPropsComponent";
 import ReceivePropsComponent from "./components/ReceivePropsComponent";
+import ShapeOrExactKeepOrderComponent from "./components/ShapeOrExactKeepOrderComponent";
+import ArrayOfExactOrShapeWithNodePropAssignNone from './components/ArrayOfExactOrShapeWithNodePropAssignNone';
 
 
 export {
@@ -25,5 +27,7 @@ export {
     ComponentAsProp,
     DrawCounter,
     AddPropsComponent,
-    ReceivePropsComponent
+    ReceivePropsComponent,
+    ShapeOrExactKeepOrderComponent,
+    ArrayOfExactOrShapeWithNodePropAssignNone
 };

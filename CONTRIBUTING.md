@@ -1,38 +1,134 @@
 # Contributor Guide
 
 ## Getting Started
+Glad that you decided to make your contribution in Dash. This guide provides instructions to set up and build the Dash repository and describes best practices when contributing to the Dash repository. 
 
-Glad that you decided to make your contribution in Dash, to set up your development environment, run the following commands:
+### Fork the Dash repository
+When contributing to the Dash repository you should always work in your own copy of the Dash repository. Create a fork of the `dev`-branch, to create a copy of the Dash repository in your own GitHub account. See official instructions for [creating a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) if needed.
 
+Clone the forked repository (either option will work). Replace `<your_user_name>` with your user name. 
+```
+git clone https://github.com/<your_user_name>/dash.git
+```
+or
+```
+git clone git@github.com:<your_user_name>/dash.git
+```
+
+When working on a new feature, always create a new branch and create the feature in that branch. For more best practices, read the [Git section](#git).
+
+### Configuring your system
+
+<details>
+  <summary>For JavaScript beginners: What are nvm, npm and Node?</summary>
+  
+  If you are new to JavaScript, many aspects of setting up a working environment and working with the new ecosystem can be a bit overwhelming. Especially if Plotly Dash is your first experience with the JavaScript ecosystem. This section explains common terms that are used when working with JavaScript environments: `nvm`, `Node`, and `npm`
+  - `nvm` stands for Node Version Manager. This is a tool that allows you to manage Node installations. Quite convenient if you are working on multiple tools that require different versions of Node.js. `nvm` allows you to switch between Node installations with a single command. 
+  - `Node.js` is the actual JavaScript runtime environment. Visit the [official site](https://nodejs.org/en) for more info. Don't download Node just yet, install it through `nvm`.
+  - `npm` stands for Node Package Manager. This is the largest software registry for JavaScript packages. Check the [official site](https://docs.npmjs.com/about-npm) for more info.
+
+  ---
+</details>
+
+<details>
+  
+<summary>Installing JavaScript on your system</summary>
+
+  > **For Windows users**: `nvm` is not integrated in Windows so a third-party tool needs to be used. If you don't have one yet, you can start with [NVM for Windows](https://github.com/coreybutler/nvm-windows) (`nvm-windows`). This version manager is widely used and is well recommended.
+  >
+  > Carefully follow the installation instructions listed on the GitHub page. As recommended by the installation instructions there: uninstall any pre-existsing Node installations. You will run into permission errors otherwise.
+
+  With `nvm` available from the command line open any terminal of your preference and install Node and npm:
+  ```
+  nvm install latest
+  ```
+  After installation is complete, activate the Node environment (**admin access required**)
+  ```
+  nvm use latest
+  ```
+  Confirm that the activation was successfull
+  ```
+  node -v
+  npm -v
+  ```
+  If these commands are not recognized, close the terminal, re-open a new instance and retry. If the commands return a version number, you have set up your JavaScript environment successfully!
+  
+  ---
+</details>
+
+## Building Dash
+### For Windows users: use a Bash terminal
+The scripts that run during the build process are designed for a Bash terminal. The default terminals on Windows systems are either PowerShell or Command Prompt. However, the build process will fail (potentially bricking your Node environment) when using these terminals. 
+
+The listed commands should be executed from a Bash terminal, e.g. you can use the Git Bash terminal (which is normally installed when installing Git using the default settings). Otherwise, you need to find another way to access a Bash terminal. 
+
+### Build process
+The build process is mostly the same for Windows and Linux systems. Wherever there are differences between the operating systems, it is marked. 
+
+<details>
+  <summary> Pycharm automatically loads Python environments! </summary>
+  
+  If you work in Pycharm you can open the Dash repo directory as a project (`File -> Open` then browse for the `dash` directory containing your dash repo, and open the directory as a project). You can configure your Python virtual environment using the Python Interpreter tool. 
+  
+  Secondly, you can open the Git Bash terminal in Pycharm and it will automatically activate your selected Python Interpreter in the terminal. You can verify this by executing `pip --version` in the Git Bash terminal, it will show you the path from where pip is run, which is the path where your virtual environment is installed. If you follow these steps, you can skip the first few steps in the overview below.
+  
+  ---
+</details>
+
+Open a Bash terminal in the `dash` repository, Git Bash terminal for example on Windows. Create and activate virtual environment (skip this part if you manage the Python Interpreter via Pycharm):
+- Linux/Mac:
+
+  On some Linux/Mac environments, use `.` instead of `source`
+  ```bash
+  $ python3 -m venv .venv/dev
+  $ source .venv/dev/bin/activate
+  ```
+- Windows:
+  ```bash
+  $ python -m venv .venv/dev
+  $ source .venv/dev/scripts/activate
+  ```
+
+Install dash and dependencies:
 ```bash
-# in your working directory
-$ git clone git@github.com:plotly/dash.git
-$ cd dash
-$ python3 -m venv .venv/dev
-# activate the virtualenv
-# on windows `.venv\dev\scripts\activate`
-# on some linux / mac environments, use `.` instead of `source`
-$ source .venv/dev/bin/activate
-# install dash and dependencies
 $ pip install -e .[ci,dev,testing,celery,diskcache]  # in some shells you need \ to escape []
 $ npm ci
-# this script will build the dash-core-components, dash-html-components, dash-table,
-# and renderer bundles; this will build all bundles from source code in their
-# respective directories. The only true source of npm version is defined
-# in package.json for each package.
-#
-$ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
-# build and install components used in tests
-# on windows, the developer will need to use `npm run first-build` this performs additional first steps
-#
-# Alternatively one could run part of the build process e.g.
+```
+`npm ci` does a clean install of all packages listed in package-lock.json. Package versions will be exactly like stated in the file.
+
+Next, build dash-core-components, dash-html-components, dash-table, and renderer bundles. This will build all bundles from source code in their respective directories. The only true source of npm version is defined in package.json for each package:
+- Linux/Mac:
+  ```bash
+  $ npm run build  # runs `renderer build` and `npm build` in dcc, html, table
+  ```
+
+- Windows:
+  
+  On Windows the build is done via the first-build script. This adds extra steps that are automatically applied on Linux systems, but not on Windows systems:
+  ```bash
+  $ npm run first-build
+  ```
+
+When you first clone the repository, and check out a new branch, you must run the full build as above. Later on, when you only work in one part of the library, you could run part of the build process e.g.
+```bash
 $ dash-update-components "dash-core-components"
-# to only build dcc when developing dcc
-# But when you first clone check out a new branch, you must run the full build as above.
-#
+
+```
+to only build dcc when developing dcc.
+
+Build and install components used in tests:
+```bash
 $ npm run setup-tests.py # or npm run setup-tests.R
-# you should see dash points to a local source repo
+```
+
+Finally, check that the installation succeeded by checking the output of this command:
+```bash
 $ pip list | grep dash
+```
+
+The output should look like this:
+```bash
+dash                            <version number>                     /path/to/local/dash/repo/
 ```
 
 ### Dash-Renderer Beginner Guide
