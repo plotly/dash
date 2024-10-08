@@ -508,7 +508,7 @@ def register_callback(
                         output_value = error_handler(err)
 
                         # If the error returns nothing, automatically puts NoUpdate for response.
-                        if output_value is None:
+                        if output_value is None and has_output:
                             output_value = NoUpdate()
                     else:
                         raise err
