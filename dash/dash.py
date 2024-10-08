@@ -573,6 +573,8 @@ class Dash:
             for plugin in plugins:
                 plugin.plug(self)
 
+        self._setup_hooks()
+
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
 
@@ -587,6 +589,25 @@ class Dash:
                 "See https://dash.plotly.com/dash-in-jupyter for more details."
             )
         self.setup_startup_routes()
+
+    def _setup_hooks(self):
+        # pylint: disable=import-outside-toplevel
+        from ._hooks import HooksManager
+
+        self._hooks = HooksManager
+        self._hooks.register_setuptools()
+
+        for setup in self._hooks.get_hooks("setup"):
+            setup(self)
+
+        for callback_args, callback_kwargs, callback in self._hooks.get_hooks(
+            "callback"
+        ):
+            self.callback(*callback_args, **callback_kwargs)(callback)
+
+        error_handler = self._hooks.get_hooks("error")
+        if error_handler:
+            self._on_error = self._hooks.HookErrorHandler(self._on_error, error_handler)
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -688,6 +709,9 @@ class Dash:
                 "_alive_" + jupyter_dash.alive_token, jupyter_dash.serve_alive
             )
 
+        for name, func, methods in self._hooks.get_hooks("routes"):
+            self._add_url(name, func, methods)
+
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
@@ -753,6 +777,9 @@ class Dash:
 
     def serve_layout(self):
         layout = self._layout_value()
+
+        for hook in self._hooks.get_hooks("layout"):
+            layout = hook(layout)
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
