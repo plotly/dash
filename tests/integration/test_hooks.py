@@ -7,6 +7,7 @@ from dash import Dash, Input, Output, html, hooks, set_props
 
 @pytest.fixture(scope="module", autouse=True)
 def hook_cleanup():
+    yield
     hooks._ns["layout"] = []
     hooks._ns["setup"] = []
     hooks._ns["route"] = []
