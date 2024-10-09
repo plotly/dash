@@ -1,4 +1,7 @@
 import typing as _t
+from importlib import metadata as _importlib_metadata
+
+import flask as _f
 
 _ns = {
     "setup": [],
@@ -26,12 +29,12 @@ def setup(func):
     return func
 
 
-def route(name=None, methods=("GET",)):
+def route(name: _t.Optional[str] = None, methods: _t.Sequence[str] = ("GET",)):
     """
     Add a route to the Dash server.
     """
 
-    def wrap(func):
+    def wrap(func: _t.Callable[[], _f.Response]):
         _name = name or func.__name__
         _ns["routes"].append((_name, func, methods))
         return func
@@ -62,9 +65,8 @@ class HooksManager:
 
     # pylint: disable=too-few-public-methods
     class HookErrorHandler:
-        def __init__(self, original, hooks):
+        def __init__(self, original):
             self.original = original
-            self.hooks = hooks
 
         def __call__(self, err: Exception):
             result = None
@@ -84,9 +86,7 @@ class HooksManager:
         if cls._registered:
             return
 
-        import importlib.metadata  # pylint: disable=import-outside-toplevel
-
-        for dist in importlib.metadata.distributions():
+        for dist in _importlib_metadata.distributions():
             for entry in dist.entry_points:
                 if entry.group != "dash":
                     continue

@@ -605,9 +605,8 @@ class Dash:
         ):
             self.callback(*callback_args, **callback_kwargs)(callback)
 
-        error_handler = self._hooks.get_hooks("error")
-        if error_handler:
-            self._on_error = self._hooks.HookErrorHandler(self._on_error, error_handler)
+        if self._hooks.get_hooks("error"):
+            self._on_error = self._hooks.HookErrorHandler(self._on_error)
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
