@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "lib": ["es2015", "dom"],
+    "lib": ["es2018", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
@@ -10,7 +10,7 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": false,
-    "target": "es2015",
+    "target": "es2018",
     "types": [],
     "esModuleInterop": true
   },
