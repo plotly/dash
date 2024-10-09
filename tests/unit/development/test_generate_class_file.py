@@ -8,15 +8,9 @@ import pytest
 from dash.development._py_components_generation import (
     generate_class_string,
     generate_class_file,
+    import_string,
 )
 from . import _dir, has_trailing_space
-
-# Import string not included in generated class string
-import_string = (
-    "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-    + "from dash.development.base_component import"
-    + " Component, _explicitize_args\n\n\n"
-)
 
 
 @pytest.fixture

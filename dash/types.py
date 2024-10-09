@@ -1,7 +1,7 @@
 from typing_extensions import TypedDict, NotRequired
 
 
-class RendererHooks(TypedDict):
+class RendererHooks(TypedDict):  # pylint: disable=too-many-ancestors
     layout_pre: NotRequired[str]
     layout_post: NotRequired[str]
     request_pre: NotRequired[str]

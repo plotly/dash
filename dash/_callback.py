@@ -1,7 +1,7 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any
+from typing import Callable, Optional, Any, List, Tuple
 
 import flask
 
@@ -9,6 +9,7 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    Input,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
@@ -62,14 +63,14 @@ GLOBAL_INLINE_SCRIPTS = []
 # pylint: disable=too-many-locals
 def callback(
     *_args,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
+    background: bool = False,
+    interval: int = 1000,
+    progress: Optional[Output] = None,
+    progress_default: Any = None,
+    running: Optional[List[Tuple[Output, Any, Any]]] = None,
+    cancel: Optional[List[Input]] = None,
+    manager: Optional[BaseLongCallbackManager] = None,
+    cache_args_to_ignore: Optional[list] = None,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
@@ -156,7 +157,7 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        long_spec = {
+        long_spec: Any = {
             "interval": interval,
         }
 
