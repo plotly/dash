@@ -564,12 +564,6 @@ class Dash:
         if plugins is not None and isinstance(
             plugins, patch_collections_abc("Iterable")
         ):
-            warnings.warn(
-                DeprecationWarning(
-                    "The `plugins` keyword will be removed from Dash init in Dash 3.0 "
-                    "and replaced by a new hook system."
-                )
-            )
             for plugin in plugins:
                 plugin.plug(self)
 
