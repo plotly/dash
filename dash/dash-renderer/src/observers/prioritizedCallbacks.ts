@@ -1,4 +1,4 @@
-import {find, flatten, map, partition, pluck, sort, uniq} from 'ramda';
+import {find, flatten, map, partition, sort} from 'ramda';
 
 import {IStoreState} from '../store';
 
@@ -53,13 +53,16 @@ const getStash = (
     return {allOutputs, allPropIds};
 };
 
-const getIds = (cb: ICallback, paths: any) =>
-    uniq(
-        pluck('id', [
-            ...flatten(cb.getInputs(paths)),
-            ...flatten(cb.getState(paths))
-        ])
-    );
+const getIds = (cb: ICallback, paths: any) => {
+    const items = [
+        ...flatten(cb.getInputs(paths)),
+        ...flatten(cb.getState(paths))
+    ];
+
+    const uniqueIds = new Map(items.map(item => [stringifyId(item.id), item]));
+    const uniqueItems = Array.from(uniqueIds.values());
+    return uniqueItems;
+};
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: async ({dispatch, getState}) => {
