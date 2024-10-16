@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3025](https://github.com/plotly/dash/pull/3025) Fix no output callback with error handler setting the response to NoUpdate and triggering an error.
 - [#3034](https://github.com/plotly/dash/pull/3034) Remove whitespace from `metadata.json` files to reduce package size.
 - [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
+- [3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
 
 ## [2.18.1] - 2024-09-12
 
