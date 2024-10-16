@@ -122,7 +122,7 @@ const Loading = ({
                 }
             }
         }
-    }, [delay_hide, delay_show, loading_state, display]);
+    }, [delay_hide, delay_show, loading_state, display, showSpinner]);
 
     const Spinner = showSpinner && getSpinner(spinnerType);
 
