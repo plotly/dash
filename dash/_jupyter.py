@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 
+from typing import Optional
 from typing_extensions import Literal
 
 from werkzeug.serving import make_server
@@ -228,7 +229,7 @@ class JupyterDash:
     def run_app(
         self,
         app,
-        mode: JupyterDisplayMode = None,
+        mode: Optional[JupyterDisplayMode] = None,
         width="100%",
         height=650,
         host="127.0.0.1",
@@ -266,7 +267,7 @@ class JupyterDash:
                 f"    Received value of type {type(mode)}: {repr(mode)}"
             )
         else:
-            mode = mode.lower()
+            mode = mode.lower()  # type: ignore
             if mode not in valid_display_values:
                 raise ValueError(
                     f"Invalid display argument {mode}\n"
