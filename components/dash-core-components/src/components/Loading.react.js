@@ -22,8 +22,8 @@ const getSpinner = spinnerType =>
 const Loading = ({
     children,
     loading_state,
-    display,
-    color,
+    display = 'auto',
+    color = '#119DFF',
     id,
     className,
     style,
@@ -32,10 +32,10 @@ const Loading = ({
     overlay_style,
     fullscreen,
     debug,
-    show_initially,
+    show_initially = true,
     type: spinnerType,
-    delay_hide,
-    delay_show,
+    delay_hide = 0,
+    delay_show = 0,
     target_components,
     custom_spinner,
 }) => {
@@ -163,15 +163,6 @@ const Loading = ({
 };
 
 Loading._dashprivate_isLoadingComponent = true;
-
-Loading.defaultProps = {
-    type: 'default',
-    color: '#119DFF',
-    delay_show: 0,
-    delay_hide: 0,
-    show_initially: true,
-    display: 'auto',
-};
 
 Loading.propTypes = {
     /**
