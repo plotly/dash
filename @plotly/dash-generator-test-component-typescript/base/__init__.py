@@ -16,7 +16,11 @@ _js_dist = [
     dict(
         relative_package_path='dash_generator_test_component_typescript.js',
         namespace='dash_generator_test_component_typescript'
-    )
+    ),
+    {
+        "dev_package_path": "proptypes.js",
+        "namespace": 'dash_generator_test_component_typescript'
+    }
 ]
 
 for _component in __all__:
