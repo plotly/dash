@@ -101,3 +101,7 @@ class PageError(DashException):
 
 class ImportedInsideCallbackError(DashException):
     pass
+
+
+class HookError(DashException):
+    pass

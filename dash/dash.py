@@ -600,10 +600,9 @@ class Dash:
         for setup in self._hooks.get_hooks("setup"):
             setup(self)
 
-        for callback_args, callback_kwargs, callback in self._hooks.get_hooks(
-            "callback"
-        ):
-            self.callback(*callback_args, **callback_kwargs)(callback)
+        for hook in self._hooks.get_hooks("callback"):
+            callback_args, callback_kwargs = hook.data
+            self.callback(*callback_args, **callback_kwargs)(hook.func)
 
         if self._hooks.get_hooks("error"):
             self._on_error = self._hooks.HookErrorHandler(self._on_error)
@@ -708,8 +707,8 @@ class Dash:
                 "_alive_" + jupyter_dash.alive_token, jupyter_dash.serve_alive
             )
 
-        for name, func, methods in self._hooks.get_hooks("routes"):
-            self._add_url(name, func, methods)
+        for hook in self._hooks.get_hooks("routes"):
+            self._add_url(hook.data["name"], hook.func, hook.data["methods"])
 
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)

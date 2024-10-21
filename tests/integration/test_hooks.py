@@ -5,7 +5,7 @@ import pytest
 from dash import Dash, Input, Output, html, hooks, set_props
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture
 def hook_cleanup():
     yield
     hooks._ns["layout"] = []
@@ -15,8 +15,8 @@ def hook_cleanup():
     hooks._ns["callback"] = []
 
 
-def test_hook001_layout(dash_duo):
-    @hooks.layout
+def test_hook001_layout(hook_cleanup, dash_duo):
+    @hooks.layout()
     def on_layout(layout):
         return [html.Div("Header", id="header")] + layout
 
@@ -29,10 +29,10 @@ def test_hook001_layout(dash_duo):
     dash_duo.wait_for_text_to_equal("#body", "Body")
 
 
-def test_hook002_setup():
+def test_hook002_setup(hook_cleanup):
     setup_title = None
 
-    @hooks.setup
+    @hooks.setup()
     def on_setup(app: Dash):
         nonlocal setup_title
         setup_title = app.title
@@ -43,7 +43,7 @@ def test_hook002_setup():
     assert setup_title == "setup-test"
 
 
-def test_hook003_route(dash_duo):
+def test_hook003_route(hook_cleanup, dash_duo):
     @hooks.route(methods=("POST",))
     def hook_route():
         return jsonify({"success": True})
@@ -57,8 +57,8 @@ def test_hook003_route(dash_duo):
     assert data["success"]
 
 
-def test_hook004_error(dash_duo):
-    @hooks.error
+def test_hook004_error(hook_cleanup, dash_duo):
+    @hooks.error()
     def on_error(error):
         set_props("error", {"children": str(error)})
 
@@ -74,7 +74,7 @@ def test_hook004_error(dash_duo):
     dash_duo.wait_for_text_to_equal("#error", "hook error")
 
 
-def test_hook005_callback(dash_duo):
+def test_hook005_callback(hook_cleanup, dash_duo):
     @hooks.callback(
         Output("output", "children"),
         Input("start", "n_clicks"),
@@ -92,3 +92,41 @@ def test_hook005_callback(dash_duo):
     dash_duo.start_server(app)
     dash_duo.wait_for_element("#start").click()
     dash_duo.wait_for_text_to_equal("#output", "clicked 1")
+
+
+def test_hook006_priority_final(hook_cleanup, dash_duo):
+    @hooks.layout(final=True)
+    def hook_final(layout):
+        return html.Div([html.Div("final")] + [layout], id="final-wrapper")
+
+    @hooks.layout()
+    def hook1(layout):
+        layout.children.append(html.Div("first"))
+        return layout
+
+    @hooks.layout()
+    def hook2(layout):
+        layout.children.append(html.Div("second"))
+        return layout
+
+    @hooks.layout()
+    def hook3(layout):
+        layout.children.append(html.Div("third"))
+        return layout
+
+    @hooks.layout(priority=6)
+    def hook4(layout):
+        layout.children.insert(0, html.Div("Prime"))
+        return layout
+
+    app = Dash()
+
+    app.layout = html.Div([html.Div("layout")], id="body")
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#final-wrapper > div:first-child", "final")
+    dash_duo.wait_for_text_to_equal("#body > div:first-child", "Prime")
+    dash_duo.wait_for_text_to_equal("#body > div:nth-child(2)", "layout")
+    dash_duo.wait_for_text_to_equal("#body > div:nth-child(3)", "first")
+    dash_duo.wait_for_text_to_equal("#body > div:nth-child(4)", "second")
+    dash_duo.wait_for_text_to_equal("#body > div:nth-child(5)", "third")
