@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- [#2939](https://github.com/plotly/dash/pull/2939) Fixes bug with whitespace on DataTable when `merge_duplicate_header=True`. Fixes [#2870](https://github.com/plotly/dash/issues/2870)
 - [#2994](https://github.com/plotly/dash/pull/2994) Keep generated doc-string order for shape or exact props. Fixes [#2990](https://github.com/plotly/dash/issues/2990)
 - [#3011](https://github.com/plotly/dash/pull/3011) Fixed an exception error caused by assigning `None` to array properties with `exact` or `shape` element types. Fixes [#3010](https://github.com/plotly/dash/issues/3010)
 - [#2991](https://github.com/plotly/dash/pull/2991) Add support for URL decoding of the search parameter for pages.
