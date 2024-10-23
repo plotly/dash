@@ -411,6 +411,8 @@ def register_callback(
 
                     ctx_value = AttributeDict(**context_value.get())
                     ctx_value.ignore_register_page = True
+                    ctx_value.pop("background_callback_manager")
+                    ctx_value.pop("dash_response")
 
                     job = callback_manager.call_job_fn(
                         cache_key,
