@@ -1360,6 +1360,12 @@ class Dash:
                 g.using_outputs_grouping = []
             g.updated_props = {}
 
+            g.cookies = dict(**flask.request.cookies)
+            g.headers = dict(**flask.request.headers)
+            g.path = flask.request.full_path
+            g.remote = flask.request.remote_addr
+            g.origin = flask.request.origin
+
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
             raise KeyError(msg) from missing_callback_function

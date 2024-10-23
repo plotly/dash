@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3034](https://github.com/plotly/dash/pull/3034) Remove whitespace from `metadata.json` files to reduce package size.
 - [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
 - [3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
+- [#3051](https://github.com/plotly/dash/pull/3051) Add missing request data to callback context. Fix [#2235](https://github.com/plotly/dash/issues/2235).
 
 ## [2.18.1] - 2024-09-12
 
