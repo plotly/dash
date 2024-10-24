@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
 - [#3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
 - [#2926](https://github.com/plotly/dash/pull/2926) Fix components defaultProps with react 18.3.1
+- [#3051](https://github.com/plotly/dash/pull/3051) Add missing request data to callback context. Fix [#2235](https://github.com/plotly/dash/issues/2235).
 
 ## [2.18.1] - 2024-09-12
 
