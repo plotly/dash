@@ -4,7 +4,7 @@ from importlib import metadata as _importlib_metadata
 import flask as _f
 
 from .exceptions import HookError
-
+from .resources import ResourceType
 
 if _t.TYPE_CHECKING:
     from .dash import Dash
@@ -38,7 +38,12 @@ class _Hooks:
             "routes": [],
             "error": [],
             "callback": [],
+            "script": [],
+            "stylesheet": [],
+            "index": [],
         }
+        self._js_dist = []
+        self._css_dist = []
         self._finals = {}
 
     def add_hook(
@@ -59,7 +64,7 @@ class _Hooks:
         hks.append(_Hook(func, priority=priority, data=data))
         self._ns[hook] = sorted(hks, reverse=True, key=lambda h: h.priority)
 
-    def get_hooks(self, hook: str):
+    def get_hooks(self, hook: str) -> _t.List[_Hook]:
         final = self._finals.get(hook, None)
         if final:
             final = [final]
@@ -135,6 +140,28 @@ class _Hooks:
                 priority=priority,
                 final=final,
                 data=(list(args), dict(kwargs)),
+            )
+            return func
+
+        return wrap
+
+    def script(self, distribution: _t.List[ResourceType]):
+        """Add js scripts to the page."""
+        self._js_dist.extend(distribution)
+
+    def stylesheet(self, distribution: _t.List[ResourceType]):
+        """Add stylesheets to the page."""
+        self._css_dist.extend(distribution)
+
+    def index(self, priority=None, final=False):
+        """Modify the index of the apps."""
+
+        def wrap(func):
+            self.add_hook(
+                "index",
+                func,
+                priority=priority,
+                final=final,
             )
             return func
 

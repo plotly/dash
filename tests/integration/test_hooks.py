@@ -130,3 +130,34 @@ def test_hook006_priority_final(hook_cleanup, dash_duo):
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(3)", "first")
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(4)", "second")
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(5)", "third")
+
+
+def test_hook007_hook_index(hook_cleanup, dash_duo):
+    @hooks.index()
+    def hook_index(index: str):
+        body = "<body>"
+        ib = index.find(body) + len(body)
+        injected = '<div id="hooked">Hooked</div>'
+        new_index = index[ib:] + injected + index[: ib + 1]
+        return new_index
+
+    app = Dash()
+    app.layout = html.Div(["index"])
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#hooked", "Hooked")
+
+
+def test_hook008_hook_distributions(hook_cleanup, dash_duo):
+    js_uri = "https://example.com/none.js"
+    css_uri = "https://example.com/none.css"
+    hooks.script([{"external_url": js_uri, "external_only": True}])
+    hooks.stylesheet([{"external_url": css_uri, "external_only": True}])
+
+    app = Dash()
+    app.layout = html.Div("distribute")
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.find_element(f'script[src="{js_uri}"]')
+    assert dash_duo.find_element(f'link[href="{css_uri}"]')
