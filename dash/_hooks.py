@@ -169,10 +169,12 @@ class HooksManager:
     @classmethod
     def register_setuptools(cls):
         if cls._registered:
+            # Only have to register once.
             return
 
         for dist in _importlib_metadata.distributions():
             for entry in dist.entry_points:
-                if entry.group != "dash":
+                # Look for setup.py entry points named `dash-hooks`
+                if entry.group != "dash-hooks":
                     continue
                 entry.load()
