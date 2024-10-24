@@ -298,7 +298,7 @@ ${customImport}
  * For detailed attribute info see:
  * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}
  */
-const ${Component} = (props) => {
+const ${Component} = ({n_clicks = 0, n_clicks_timestamp = -1, ...props}) => {
     const extraProps = {};
     if(props.loading_state && props.loading_state.is_loading) {
         extraProps['data-dash-is-loading'] = true;
@@ -310,7 +310,7 @@ ${customCode}
         <${element}
             {...(!isStatic && {onClick:
             () => props.setProps({
-                n_clicks: props.n_clicks + 1,
+                n_clicks: n_clicks + 1,
                 n_clicks_timestamp: Date.now()
             })
             })}
@@ -322,10 +322,6 @@ ${customCode}
     );
 };
 
-${Component}.defaultProps = {
-    n_clicks: 0,
-    n_clicks_timestamp: -1,
-};
 
 ${Component}.propTypes = {${propTypes}
 };
