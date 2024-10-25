@@ -591,7 +591,7 @@ class Dash:
         self.setup_startup_routes()
 
     def _setup_hooks(self):
-        # pylint: disable=import-outside-toplevel
+        # pylint: disable=import-outside-toplevel,protected-access
         from ._hooks import HooksManager
 
         self._hooks = HooksManager
@@ -603,6 +603,21 @@ class Dash:
         for hook in self._hooks.get_hooks("callback"):
             callback_args, callback_kwargs = hook.data
             self.callback(*callback_args, **callback_kwargs)(hook.func)
+
+        for (
+            clientside_function,
+            args,
+            kwargs,
+        ) in self._hooks.hooks._clientside_callbacks:
+            _callback.register_clientside_callback(
+                self._callback_list,
+                self.callback_map,
+                self.config.prevent_initial_callbacks,
+                self._inline_scripts,
+                clientside_function,
+                *args,
+                **kwargs,
+            )
 
         if self._hooks.get_hooks("error"):
             self._on_error = self._hooks.HookErrorHandler(self._on_error)

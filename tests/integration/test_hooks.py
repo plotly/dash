@@ -17,6 +17,7 @@ def hook_cleanup():
     hooks._css_dist = []
     hooks._js_dist = []
     hooks._finals = {}
+    hooks._clientside_callbacks = []
 
 
 def test_hook001_layout(hook_cleanup, dash_duo):
@@ -165,3 +166,23 @@ def test_hook008_hook_distributions(hook_cleanup, dash_duo):
 
     assert dash_duo.find_element(f'script[src="{js_uri}"]')
     assert dash_duo.find_element(f'link[href="{css_uri}"]')
+
+
+def test_hook009_hook_clientside_callback(hook_cleanup, dash_duo):
+    hooks.clientside_callback(
+        "(n) => `Called ${n}`",
+        Output("hook-output", "children"),
+        Input("hook-start", "n_clicks"),
+        prevent_initial_call=True,
+    )
+
+    app = Dash()
+    app.layout = [
+        html.Button("start", id="hook-start"),
+        html.Div(id="hook-output"),
+    ]
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#hook-start").click()
+    dash_duo.wait_for_text_to_equal("#hook-output", "Called 1")

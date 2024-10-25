@@ -1,10 +1,13 @@
 import typing as _t
+
 from importlib import metadata as _importlib_metadata
 
+import typing_extensions as _tx
 import flask as _f
 
 from .exceptions import HookError
 from .resources import ResourceType
+from ._callback import ClientsideFuncType
 
 if _t.TYPE_CHECKING:
     from .dash import Dash
@@ -18,9 +21,12 @@ else:
     Dash = None
 
 
+HookDataType = _tx.TypeVar("HookDataType")
+
+
 # pylint: disable=too-few-public-methods
-class _Hook:
-    def __init__(self, func, priority, final=False, data=None):
+class _Hook(_tx.Generic[HookDataType]):
+    def __init__(self, func, priority, final=False, data: HookDataType = None):
         self.func = func
         self.final = final
         self.data = data
@@ -42,6 +48,9 @@ class _Hooks:
         }
         self._js_dist = []
         self._css_dist = []
+        self._clientside_callbacks: _t.List[
+            _t.Tuple[ClientsideFuncType, _t.Any, _t.Any]
+        ] = []
         self._finals = {}
 
     def add_hook(
@@ -142,6 +151,14 @@ class _Hooks:
             return func
 
         return wrap
+
+    def clientside_callback(
+        self, clientside_function: ClientsideFuncType, *args, **kwargs
+    ):
+        """
+        Add a callback to all the apps with the hook installed.
+        """
+        self._clientside_callbacks.append((clientside_function, args, kwargs))
 
     def script(self, distribution: _t.List[ResourceType]):
         """Add js scripts to the page."""
