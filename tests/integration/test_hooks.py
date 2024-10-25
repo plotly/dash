@@ -16,6 +16,7 @@ def hook_cleanup():
     hooks._ns["index"] = []
     hooks._css_dist = []
     hooks._js_dist = []
+    hooks._finals = {}
 
 
 def test_hook001_layout(hook_cleanup, dash_duo):
