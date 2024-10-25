@@ -2,7 +2,7 @@ from dash.resources import Resources, ResourceConfig
 
 
 def test_resources_eager():
-    resource = Resources("js_test", ResourceConfig(True, False))
+    resource = Resources("js_test", ResourceConfig(False, True))
 
     filtered = resource._filter_resources(
         [
