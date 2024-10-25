@@ -38,8 +38,6 @@ class _Hooks:
             "routes": [],
             "error": [],
             "callback": [],
-            "script": [],
-            "stylesheet": [],
             "index": [],
         }
         self._js_dist = []

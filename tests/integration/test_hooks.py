@@ -13,6 +13,9 @@ def hook_cleanup():
     hooks._ns["route"] = []
     hooks._ns["error"] = []
     hooks._ns["callback"] = []
+    hooks._ns["index"] = []
+    hooks._css_dist = []
+    hooks._js_dist = []
 
 
 def test_hook001_layout(hook_cleanup, dash_duo):
