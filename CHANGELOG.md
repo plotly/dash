@@ -6,12 +6,15 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- [#2939](https://github.com/plotly/dash/pull/2939) Fixes bug with whitespace on DataTable when `merge_duplicate_header=True`. Fixes [#2870](https://github.com/plotly/dash/issues/2870)
 - [#2994](https://github.com/plotly/dash/pull/2994) Keep generated doc-string order for shape or exact props. Fixes [#2990](https://github.com/plotly/dash/issues/2990)
 - [#3011](https://github.com/plotly/dash/pull/3011) Fixed an exception error caused by assigning `None` to array properties with `exact` or `shape` element types. Fixes [#3010](https://github.com/plotly/dash/issues/3010)
 - [#2991](https://github.com/plotly/dash/pull/2991) Add support for URL decoding of the search parameter for pages.
 - [#3025](https://github.com/plotly/dash/pull/3025) Fix no output callback with error handler setting the response to NoUpdate and triggering an error.
 - [#3034](https://github.com/plotly/dash/pull/3034) Remove whitespace from `metadata.json` files to reduce package size.
 - [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
+- [3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
+- [#3051](https://github.com/plotly/dash/pull/3051) Add missing request data to callback context. Fix [#2235](https://github.com/plotly/dash/issues/2235).
 
 ## [2.18.1] - 2024-09-12
 
