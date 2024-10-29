@@ -26,7 +26,7 @@ HookDataType = _tx.TypeVar("HookDataType")
 
 # pylint: disable=too-few-public-methods
 class _Hook(_tx.Generic[HookDataType]):
-    def __init__(self, func, priority, final=False, data: HookDataType = None):
+    def __init__(self, func, priority=0, final=False, data: HookDataType = None):
         self.func = func
         self.final = final
         self.data = data
@@ -51,24 +51,32 @@ class _Hooks:
         self._clientside_callbacks: _t.List[
             _t.Tuple[ClientsideFuncType, _t.Any, _t.Any]
         ] = []
+
+        # final hooks are a single hook added to the end of regular hooks.
         self._finals = {}
 
     def add_hook(
-        self, hook: str, func: _t.Callable, priority=None, final=False, data=None
+        self,
+        hook: str,
+        func: _t.Callable,
+        priority: _t.Optional[int] = None,
+        final=False,
+        data=None,
     ):
         if final:
             existing = self._finals.get(hook)
             if existing:
                 raise HookError("Final hook already present")
-            self._finals[hook] = _Hook(func, priority, final, data=data)
+            self._finals[hook] = _Hook(func, final, data=data)
             return
         hks = self._ns.get(hook, [])
+
+        p = 0
         if not priority and len(hks):
             priority_max = max(h.priority for h in hks)
-            priority = priority_max - 1
-        elif not priority:
-            priority = 0
-        hks.append(_Hook(func, priority=priority, data=data))
+            p = priority_max - 1
+
+        hks.append(_Hook(func, priority=p, data=data))
         self._ns[hook] = sorted(hks, reverse=True, key=lambda h: h.priority)
 
     def get_hooks(self, hook: str) -> _t.List[_Hook]:
@@ -106,7 +114,7 @@ class _Hooks:
         self,
         name: _t.Optional[str] = None,
         methods: _t.Sequence[str] = ("GET",),
-        priority=None,
+        priority: _t.Optional[int] = None,
         final=False,
     ):
         """
@@ -126,7 +134,7 @@ class _Hooks:
 
         return wrap
 
-    def error(self, priority=None, final=False):
+    def error(self, priority: _t.Optional[int] = None, final=False):
         """Automatically add an error handler to the dash app."""
 
         def _error(func: _t.Callable[[Exception], _t.Any]):
@@ -135,7 +143,7 @@ class _Hooks:
 
         return _error
 
-    def callback(self, *args, priority=None, final=False, **kwargs):
+    def callback(self, *args, priority: _t.Optional[int] = None, final=False, **kwargs):
         """
         Add a callback to all the apps with the hook installed.
         """
@@ -168,7 +176,7 @@ class _Hooks:
         """Add stylesheets to the page."""
         self._css_dist.extend(distribution)
 
-    def index(self, priority=None, final=False):
+    def index(self, priority: _t.Optional[int] = None, final=False):
         """Modify the index of the apps."""
 
         def wrap(func):
@@ -187,6 +195,7 @@ hooks = _Hooks()
 
 
 class HooksManager:
+    # Flag to only run `register_setuptools` once
     _registered = False
     hooks = hooks
 
