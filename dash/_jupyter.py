@@ -382,7 +382,7 @@ class JupyterDash:
                     url = f"http://{host}:{port}"
                     raise OSError(
                         f"Address '{url}' already in use.\n"
-                        "    Try passing a different port to run_server."
+                        "    Try passing a different port to run."
                     )
             except requests.ConnectionError as err:
                 _get_error()

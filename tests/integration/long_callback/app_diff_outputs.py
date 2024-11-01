@@ -33,4 +33,4 @@ for i in range(1, 3):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)

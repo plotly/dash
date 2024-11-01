@@ -2272,16 +2272,3 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-    def run_server(self, *args, **kwargs):
-        """`run_server` is a deprecated alias of `run` and may be removed in a
-        future version. We recommend using `app.run` instead.
-
-        See `app.run` for usage information.
-        """
-        warnings.warn(
-            DeprecationWarning(
-                "Dash.run_server is deprecated and will be removed in Dash 3.0"
-            )
-        )
-        self.run(*args, **kwargs)

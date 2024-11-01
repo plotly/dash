@@ -413,7 +413,7 @@ def validate_layout(layout, layout_value):
     if layout is None:
         raise exceptions.NoLayoutException(
             """
-            The layout was `None` at the time that `run_server` was called.
+            The layout was `None` at the time that `run` was called.
             Make sure to set the `layout` attribute of your application
             before running the server.
             """
