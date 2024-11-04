@@ -63,14 +63,14 @@ class Slider(Component):
             sets the _origin_ of the tooltip, so e.g. `topLeft` will in
             reality appear to be on the top right of the handle.
 
-        - style (dict; optional):
-            Custom style for the tooltip.
-
         - template (string; optional):
             Template string to display the tooltip in. Must contain
             `{value}`, which will be replaced with either the default
             string representation of the value or the result of the
             transform function if there is one.
+
+        - style (dict; optional):
+            Custom style for the tooltip.
 
         - transform (string; optional):
             Reference to a function in the `window.dccFunctions`
@@ -109,14 +109,14 @@ class Slider(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted

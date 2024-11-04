@@ -28,9 +28,9 @@ class Tooltip(Component):
 
         - x0 (number; optional)
 
-        - x1 (number; optional)
-
         - y0 (number; optional)
+
+        - x1 (number; optional)
 
         - y1 (number; optional)
 
@@ -49,14 +49,14 @@ class Tooltip(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - loading_text (string; default 'Loading...'):
         The text displayed in the tooltip while loading.

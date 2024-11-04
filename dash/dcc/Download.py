@@ -22,14 +22,14 @@ class Download(Component):
 
         `data` is a dict with keys:
 
-        - base64 (boolean; optional):
-            Set to True, when data is base64 encoded.
+        - filename (string; required):
+            Suggested filename in the download dialogue.
 
         - content (string; required):
             File content.
 
-        - filename (string; required):
-            Suggested filename in the download dialogue.
+        - base64 (boolean; optional):
+            Set to True, when data is base64 encoded.
 
         - type (string; optional):
             Blob type, usually a MIME-type.

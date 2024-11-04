@@ -47,32 +47,20 @@ class Graph(Component):
 
         `config` is a dict with keys:
 
-        - autosizable (boolean; optional):
-            DO autosize once regardless of layout.autosize (use default
-            width or height values otherwise).
+        - staticPlot (boolean; optional):
+            No interactivity, for export or image generation.
 
-        - displayModeBar (a value equal to: true, false, 'hover'; optional):
-            Display the mode bar (True, False, or 'hover').
-
-        - displaylogo (boolean; optional):
-            Add the plotly logo on the end of the mode bar.
-
-        - doubleClick (a value equal to: false, 'reset', 'autosize', 'reset+autosize'; optional):
-            Double click interaction (False, 'reset', 'autosize' or
-            'reset+autosize').
-
-        - doubleClickDelay (number; optional):
-            Delay for registering a double-click event in ms. The minimum
-            value is 100 and the maximum value is 1000. By default this is
-            300.
-
-        - editSelection (boolean; optional):
-            Enables moving selections.
+        - plotlyServerURL (string; optional):
+            Base URL for a Plotly cloud instance, if `showSendToCloud` is
+            enabled.
 
         - editable (boolean; optional):
             We can edit titles, move annotations, etc - sets all pieces of
             `edits` unless a separate `edits` config item overrides
             individual parts.
+
+        - editSelection (boolean; optional):
+            Enables moving selections.
 
         - edits (dict; optional):
             A set of editable properties.
@@ -106,6 +94,16 @@ class Graph(Component):
             - titleText (boolean; optional):
                 The global `layout.title`.
 
+        - autosizable (boolean; optional):
+            DO autosize once regardless of layout.autosize (use default
+            width or height values otherwise).
+
+        - responsive (boolean; optional):
+            Whether to change layout size when the window size changes.
+
+        - queueLength (number; optional):
+            Set the length of the undo/redo queue.
+
         - fillFrame (boolean; optional):
             If we DO autosize, do we fill the container or the screen?.
 
@@ -113,31 +111,51 @@ class Graph(Component):
             If we DO autosize, set the frame margins in percents of plot
             size.
 
+        - scrollZoom (boolean; optional):
+            Mousewheel or two-finger scroll zooms the plot.
+
+        - doubleClick (a value equal to: false, 'reset', 'autosize', 'reset+autosize'; optional):
+            Double click interaction (False, 'reset', 'autosize' or
+            'reset+autosize').
+
+        - doubleClickDelay (number; optional):
+            Delay for registering a double-click event in ms. The minimum
+            value is 100 and the maximum value is 1000. By default this is
+            300.
+
+        - showTips (boolean; optional):
+            New users see some hints about interactivity.
+
+        - showAxisDragHandles (boolean; optional):
+            Enable axis pan/zoom drag handles.
+
+        - showAxisRangeEntryBoxes (boolean; optional):
+            Enable direct range entry at the pan/zoom drag points (drag
+            handles must be enabled above).
+
+        - showLink (boolean; optional):
+            Link to open this plot in plotly.
+
+        - sendData (boolean; optional):
+            If we show a link, does it contain data or just link to a
+            plotly file?.
+
         - linkText (string; optional):
             Text appearing in the sendData link.
 
-        - locale (string; optional):
-            The locale to use. Locales may be provided with the plot
-            (`locales` below) or by loading them on the page, see:
-            https://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization.
+        - displayModeBar (a value equal to: true, false, 'hover'; optional):
+            Display the mode bar (True, False, or 'hover').
 
-        - locales (dict; optional):
-            Localization definitions, if you choose to provide them with
-            the plot rather than registering them globally.
+        - showSendToCloud (boolean; optional):
+            Should we include a modebar button to send this data to a
+            Plotly Cloud instance, linked by `plotlyServerURL`. By default
+            this is False.
 
-        - mapboxAccessToken (boolean | number | string | dict | list; optional):
-            Mapbox access token (required to plot mapbox trace types) If
-            using an Mapbox Atlas server, set this option to '', so that
-            plotly.js won't attempt to authenticate to the public Mapbox
-            server.
-
-        - modeBarButtons (boolean | number | string | dict | list; optional):
-            Fully custom mode bar buttons as nested array, where the outer
-            arrays represents button groups, and the inner arrays have
-            buttons config objects or names of default buttons.
-
-        - modeBarButtonsToAdd (list; optional):
-            Add mode bar button using config objects.
+        - showEditInChartStudio (boolean; optional):
+            Should we show a modebar button to send this data to a Plotly
+            Chart Studio plot. If both this and showSendToCloud are
+            selected, only showEditInChartStudio will be honored. By
+            default this is False.
 
         - modeBarButtonsToRemove (list; optional):
             Remove mode bar button by name. All modebar button names at
@@ -151,63 +169,27 @@ class Graph(Component):
             zoomOutGeo, resetGeo, hoverClosestGeo; hoverClosestGl2d,
             hoverClosestPie, toggleHover, resetViews.
 
-        - plotGlPixelRatio (number; optional):
-            Increase the pixel ratio for Gl plot images.
+        - modeBarButtonsToAdd (list; optional):
+            Add mode bar button using config objects.
 
-        - plotlyServerURL (string; optional):
-            Base URL for a Plotly cloud instance, if `showSendToCloud` is
-            enabled.
-
-        - queueLength (number; optional):
-            Set the length of the undo/redo queue.
-
-        - responsive (boolean; optional):
-            Whether to change layout size when the window size changes.
-
-        - scrollZoom (boolean; optional):
-            Mousewheel or two-finger scroll zooms the plot.
-
-        - sendData (boolean; optional):
-            If we show a link, does it contain data or just link to a
-            plotly file?.
-
-        - showAxisDragHandles (boolean; optional):
-            Enable axis pan/zoom drag handles.
-
-        - showAxisRangeEntryBoxes (boolean; optional):
-            Enable direct range entry at the pan/zoom drag points (drag
-            handles must be enabled above).
-
-        - showEditInChartStudio (boolean; optional):
-            Should we show a modebar button to send this data to a Plotly
-            Chart Studio plot. If both this and showSendToCloud are
-            selected, only showEditInChartStudio will be honored. By
-            default this is False.
-
-        - showLink (boolean; optional):
-            Link to open this plot in plotly.
-
-        - showSendToCloud (boolean; optional):
-            Should we include a modebar button to send this data to a
-            Plotly Cloud instance, linked by `plotlyServerURL`. By default
-            this is False.
-
-        - showTips (boolean; optional):
-            New users see some hints about interactivity.
-
-        - staticPlot (boolean; optional):
-            No interactivity, for export or image generation.
+        - modeBarButtons (boolean | number | string | dict | list; optional):
+            Fully custom mode bar buttons as nested array, where the outer
+            arrays represents button groups, and the inner arrays have
+            buttons config objects or names of default buttons.
 
         - toImageButtonOptions (dict; optional):
             Modifications to how the toImage modebar button works.
 
             `toImageButtonOptions` is a dict with keys:
 
+            - format (a value equal to: 'jpeg', 'png', 'webp', 'svg'; optional):
+                The file format to create.
+
             - filename (string; optional):
                 The name given to the downloaded file.
 
-            - format (a value equal to: 'jpeg', 'png', 'webp', 'svg'; optional):
-                The file format to create.
+            - width (number; optional):
+                Width of the downloaded file, in px.
 
             - height (number; optional):
                 Height of the downloaded file, in px.
@@ -216,14 +198,32 @@ class Graph(Component):
                 Extra resolution to give the file after rendering it with
                 the given width and height.
 
-            - width (number; optional):
-                Width of the downloaded file, in px.
+        - displaylogo (boolean; optional):
+            Add the plotly logo on the end of the mode bar.
+
+        - watermark (boolean; optional):
+            Add the plotly logo even with no modebar.
+
+        - plotGlPixelRatio (number; optional):
+            Increase the pixel ratio for Gl plot images.
 
         - topojsonURL (string; optional):
             URL to topojson files used in geo charts.
 
-        - watermark (boolean; optional):
-            Add the plotly logo even with no modebar.
+        - mapboxAccessToken (boolean | number | string | dict | list; optional):
+            Mapbox access token (required to plot mapbox trace types) If
+            using an Mapbox Atlas server, set this option to '', so that
+            plotly.js won't attempt to authenticate to the public Mapbox
+            server.
+
+        - locale (string; optional):
+            The locale to use. Locales may be provided with the plot
+            (`locales` below) or by loading them on the page, see:
+            https://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization.
+
+        - locales (dict; optional):
+            Localization definitions, if you choose to provide them with
+            the plot rather than registering them globally.
 
     - extendData (list | dict; optional):
         Data that should be appended to existing traces. Has the form
@@ -244,9 +244,9 @@ class Graph(Component):
 
         - data (list of dicts; optional)
 
-        - frames (list of dicts; optional)
-
         - layout (dict; optional)
+
+        - frames (list of dicts; optional)
 
     - hoverData (dict; optional):
         Data from latest hover event. Read-only.
@@ -257,14 +257,14 @@ class Graph(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - mathjax (boolean; default False):
         If True, loads mathjax v3 (tex-svg) into the page and use it in

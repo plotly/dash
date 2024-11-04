@@ -30,6 +30,57 @@ class DataTable(Component):
 
         `columns` is a list of dicts with keys:
 
+        - id (string; required):
+            The `id` of the column. The column `id` is used to match cells
+            in data with particular columns. The `id` is not visible in
+            the table.
+
+        - name (string | list of strings; required):
+            The `name` of the column, as it appears in the column header.
+            If `name` is a list of strings, then the columns will render
+            with multiple headers rows.
+
+        - type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional):
+            The data-type provides support for per column typing and
+            allows for data validation and coercion. 'numeric': represents
+            both floats and ints. 'text': represents a string. 'datetime':
+            a string representing a date or date-time, in the form:
+            'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years
+            must   have 4 digits, unless you use `validation.allow_YY:
+            True`. Also   accepts 'T' or 't' between date and time, and
+            allows timezone info   at the end. To convert these strings to
+            Python `datetime` objects,   use `dateutil.parser.isoparse`.
+            In R use `parse_iso_8601` from the   `parsedate` library.
+            WARNING: these parsers do not work with 2-digit years, if you
+            use   `validation.allow_YY: True` and do not coerce to 4-digit
+            years.   And parsers that do work with 2-digit years may make
+            a different   guess about the century than we make on the
+            front end. 'any': represents any type of data. Defaults to
+            'any' if undefined.
+
+        - presentation (a value equal to: 'input', 'dropdown', 'markdown'; optional):
+            The `presentation` to use to display data. Markdown can be
+            used on columns with type 'text'.  See 'dropdown' for more
+            info. Defaults to 'input' for ['datetime', 'numeric', 'text',
+            'any'].
+
+        - selectable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
+            If True, the user can select the column by clicking on the
+            checkbox or radio button in the column. If there are multiple
+            header rows, True will display the input on each row. If
+            `last`, the input will only appear on the last header row. If
+            `first` it will only appear on the first header row. These are
+            respectively shortcut equivalents to `[False, ..., False,
+            True]` and `[True, False, ..., False]`. If there are merged,
+            multi-header columns then you can choose which column header
+            row to display the input in by supplying an array of booleans.
+            For example, `[True, False]` will display the `selectable`
+            input on the first row, but now on the second row. If the
+            `selectable` input appears on a merged columns, then clicking
+            on that input will select *all* of the merged columns
+            associated with it. The table-level prop `column_selectable`
+            is used to determine the type of column selection to use.
+
         - clearable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
             If True, the user can clear the column by clicking on the
             `clear` action button on the column. If there are multiple
@@ -73,6 +124,38 @@ class DataTable(Component):
             flag is set it overrides the table-level `editable` flag for
             that column.
 
+        - hideable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
+            If True, the user can hide the column by clicking on the
+            `hide` action button on the column. If there are multiple
+            header rows, True will display the action button on each row.
+            If `last`, the `hide` action button will only appear on the
+            last header row. If `first` it will only appear on the first
+            header row. These are respectively shortcut equivalents to
+            `[False, ..., False, True]` and `[True, False, ..., False]`.
+            If there are merged, multi-header columns then you can choose
+            which column header row to display the `hide` action button in
+            by supplying an array of booleans. For example, `[True,
+            False]` will display the `hide` action button on the first
+            row, but not the second row. If the `hide` action button
+            appears on a merged column, then clicking on that button will
+            hide *all* of the merged columns associated with it.
+
+        - renamable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
+            If True, the user can rename the column by clicking on the
+            `rename` action button on the column. If there are multiple
+            header rows, True will display the action button on each row.
+            If `last`, the `rename` action button will only appear on the
+            last header row. If `first` it will only appear on the first
+            header row. These are respectively shortcut equivalents to
+            `[False, ..., False, True]` and `[True, False, ..., False]`.
+            If there are merged, multi-header columns then you can choose
+            which column header row to display the `rename` action button
+            in by supplying an array of booleans. For example, `[True,
+            False]` will display the `rename` action button on the first
+            row, but not the second row. If the `rename` action button
+            appears on a merged column, then clicking on that button will
+            rename *all* of the merged columns associated with it.
+
         - filter_options (dict; optional):
             There are two `filter_options` props in the table. This is the
             column-level filter_options prop and there is also the
@@ -108,6 +191,13 @@ class DataTable(Component):
 
                 `locale` is a dict with keys:
 
+                - symbol (list of strings; optional):
+                    (default: ['$', '']).  A list of two strings
+                    representing the  prefix and suffix symbols. Typically
+                    used for currency, and implemented using d3's
+                    currency format, but you can use this for other
+                    symbols such as measurement units.
+
                 - decimal (string; optional):
                     (default: '.').  The string used for the decimal
                     separator.
@@ -132,13 +222,6 @@ class DataTable(Component):
                     (default: True). Separates integers with 4-digits or
                     less.
 
-                - symbol (list of strings; optional):
-                    (default: ['$', '']).  A list of two strings
-                    representing the  prefix and suffix symbols. Typically
-                    used for currency, and implemented using d3's
-                    currency format, but you can use this for other
-                    symbols such as measurement units.
-
             - nully (boolean | number | string | dict | list; optional):
                 A value that will be used in place of the Noney value
                 during formatting.   If the value type matches the column
@@ -152,32 +235,6 @@ class DataTable(Component):
             - specifier (string; optional):
                 (default: '').  Represents the d3 rules to apply when
                 formatting the number.
-
-        - hideable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
-            If True, the user can hide the column by clicking on the
-            `hide` action button on the column. If there are multiple
-            header rows, True will display the action button on each row.
-            If `last`, the `hide` action button will only appear on the
-            last header row. If `first` it will only appear on the first
-            header row. These are respectively shortcut equivalents to
-            `[False, ..., False, True]` and `[True, False, ..., False]`.
-            If there are merged, multi-header columns then you can choose
-            which column header row to display the `hide` action button in
-            by supplying an array of booleans. For example, `[True,
-            False]` will display the `hide` action button on the first
-            row, but not the second row. If the `hide` action button
-            appears on a merged column, then clicking on that button will
-            hide *all* of the merged columns associated with it.
-
-        - id (string; required):
-            The `id` of the column. The column `id` is used to match cells
-            in data with particular columns. The `id` is not visible in
-            the table.
-
-        - name (string | list of strings; required):
-            The `name` of the column, as it appears in the column header.
-            If `name` is a list of strings, then the columns will render
-            with multiple headers rows.
 
         - on_change (dict; optional):
             The `on_change` behavior of the column for user-initiated
@@ -199,80 +256,16 @@ class DataTable(Component):
                 `validation.default`;  'reject': do not modify the
                 existing value.
 
-        - presentation (a value equal to: 'input', 'dropdown', 'markdown'; optional):
-            The `presentation` to use to display data. Markdown can be
-            used on columns with type 'text'.  See 'dropdown' for more
-            info. Defaults to 'input' for ['datetime', 'numeric', 'text',
-            'any'].
-
-        - renamable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
-            If True, the user can rename the column by clicking on the
-            `rename` action button on the column. If there are multiple
-            header rows, True will display the action button on each row.
-            If `last`, the `rename` action button will only appear on the
-            last header row. If `first` it will only appear on the first
-            header row. These are respectively shortcut equivalents to
-            `[False, ..., False, True]` and `[True, False, ..., False]`.
-            If there are merged, multi-header columns then you can choose
-            which column header row to display the `rename` action button
-            in by supplying an array of booleans. For example, `[True,
-            False]` will display the `rename` action button on the first
-            row, but not the second row. If the `rename` action button
-            appears on a merged column, then clicking on that button will
-            rename *all* of the merged columns associated with it.
-
-        - selectable (a value equal to: 'first', 'last' | boolean | list of booleans; optional):
-            If True, the user can select the column by clicking on the
-            checkbox or radio button in the column. If there are multiple
-            header rows, True will display the input on each row. If
-            `last`, the input will only appear on the last header row. If
-            `first` it will only appear on the first header row. These are
-            respectively shortcut equivalents to `[False, ..., False,
-            True]` and `[True, False, ..., False]`. If there are merged,
-            multi-header columns then you can choose which column header
-            row to display the input in by supplying an array of booleans.
-            For example, `[True, False]` will display the `selectable`
-            input on the first row, but now on the second row. If the
-            `selectable` input appears on a merged columns, then clicking
-            on that input will select *all* of the merged columns
-            associated with it. The table-level prop `column_selectable`
-            is used to determine the type of column selection to use.
-
         - sort_as_null (list of string | number | booleans; optional):
             An array of string, number and boolean values that are treated
             as `None` (i.e. ignored and always displayed last) when
             sorting. This value overrides the table-level `sort_as_None`.
-
-        - type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional):
-            The data-type provides support for per column typing and
-            allows for data validation and coercion. 'numeric': represents
-            both floats and ints. 'text': represents a string. 'datetime':
-            a string representing a date or date-time, in the form:
-            'YYYY-MM-DD HH:MM:SS.ssssss' or some truncation thereof. Years
-            must   have 4 digits, unless you use `validation.allow_YY:
-            True`. Also   accepts 'T' or 't' between date and time, and
-            allows timezone info   at the end. To convert these strings to
-            Python `datetime` objects,   use `dateutil.parser.isoparse`.
-            In R use `parse_iso_8601` from the   `parsedate` library.
-            WARNING: these parsers do not work with 2-digit years, if you
-            use   `validation.allow_YY: True` and do not coerce to 4-digit
-            years.   And parsers that do work with 2-digit years may make
-            a different   guess about the century than we make on the
-            front end. 'any': represents any type of data. Defaults to
-            'any' if undefined.
 
         - validation (dict; optional):
             The `validation` options for user input processing that can
             accept, reject or apply a default value.
 
             `validation` is a dict with keys:
-
-            - allow_YY (boolean; optional):
-                This is for `datetime` columns only.  Allow 2-digit years
-                (default: False).   If True, we interpret years as ranging
-                from now-70 to now+29 - in 2019   this is 1949 to 2048 but
-                in 2020 it will be different. If used with   `action:
-                'coerce'`, will convert user input to a 4-digit year.
 
             - allow_null (boolean; optional):
                 Allow the use of Noney values. (undefined, None, NaN)
@@ -281,6 +274,13 @@ class DataTable(Component):
             - default (boolean | number | string | dict | list; optional):
                 The default value to apply with on_change.failure =
                 'default'. (default: None).
+
+            - allow_YY (boolean; optional):
+                This is for `datetime` columns only.  Allow 2-digit years
+                (default: False).   If True, we interpret years as ranging
+                from now-70 to now+29 - in 2019   this is 1949 to 2048 but
+                in 2020 it will be different. If used with   `action:
+                'coerce'`, will convert user input to a 4-digit year.
 
     - editable (boolean; default False):
         If True, then the data in all of the cells is editable. When
@@ -375,13 +375,13 @@ class DataTable(Component):
 
         `active_cell` is a dict with keys:
 
-        - column (number; optional)
-
-        - column_id (string; optional)
-
         - row (number; optional)
 
+        - column (number; optional)
+
         - row_id (string | number; optional)
+
+        - column_id (string; optional)
 
     - selected_cells (list of dicts; optional):
         `selected_cells` represents the set of cells that are selected, as
@@ -392,13 +392,13 @@ class DataTable(Component):
 
         `selected_cells` is a list of dicts with keys:
 
-        - column (number; optional)
-
-        - column_id (string; optional)
-
         - row (number; optional)
 
+        - column (number; optional)
+
         - row_id (string | number; optional)
+
+        - column_id (string; optional)
 
     - selected_rows (list of numbers; optional):
         `selected_rows` contains the indices of rows that are selected via
@@ -423,13 +423,13 @@ class DataTable(Component):
 
         `start_cell` is a dict with keys:
 
-        - column (number; optional)
-
-        - column_id (string; optional)
-
         - row (number; optional)
 
+        - column (number; optional)
+
         - row_id (string | number; optional)
+
+        - column_id (string; optional)
 
     - end_cell (dict; optional):
         When selecting multiple cells (via clicking on a cell and then
@@ -440,13 +440,13 @@ class DataTable(Component):
 
         `end_cell` is a dict with keys:
 
-        - column (number; optional)
-
-        - column_id (string; optional)
-
         - row (number; optional)
 
+        - column (number; optional)
+
         - row_id (string | number; optional)
+
+        - column_id (string; optional)
 
     - data_previous (list of dicts; optional):
         The previous state of `data`. `data_previous` has the same
@@ -548,9 +548,9 @@ class DataTable(Component):
         `filter_action` is a a value equal to: 'custom', 'native', 'none'
         | dict with keys:
 
-        - operator (a value equal to: 'and', 'or'; optional)
-
         - type (a value equal to: 'custom', 'native'; required)
+
+        - operator (a value equal to: 'and', 'or'; optional)
 
     - filter_options (dict; optional):
         There are two `filter_options` props in the table. This is the
@@ -855,6 +855,12 @@ class DataTable(Component):
 
         `locale_format` is a dict with keys:
 
+        - symbol (list of strings; optional):
+            (default: ['$', '']). A  list of two strings representing the
+            prefix and suffix symbols. Typically used for currency, and
+            implemented using d3's   currency format, but you can use this
+            for other symbols such as measurement units.
+
         - decimal (string; optional):
             (default: '.'). The string used for the decimal separator.
 
@@ -874,12 +880,6 @@ class DataTable(Component):
         - separate_4digits (boolean; optional):
             (default: True). Separate integers with 4-digits or less.
 
-        - symbol (list of strings; optional):
-            (default: ['$', '']). A  list of two strings representing the
-            prefix and suffix symbols. Typically used for currency, and
-            implemented using d3's   currency format, but you can use this
-            for other symbols such as measurement units.
-
     - style_as_list_view (boolean; default False):
         If True, then the table will be styled like a list view and not
         have borders between the columns.
@@ -896,17 +896,17 @@ class DataTable(Component):
 
         `markdown_options` is a dict with keys:
 
-        - html (boolean; optional):
-            (default: False)  If True, html may be used in markdown cells
-            Be careful enabling html if the content being rendered can
-            come from an untrusted user, as this may create an XSS
-            vulnerability.
-
         - link_target (string | a value equal to: '_blank', '_parent', '_self', '_top'; optional):
             (default: '_blank').  The link's behavior (_blank opens the
             link in a new tab, _parent opens the link in the parent frame,
             _self opens the link in the current tab, and _top opens the
             link in the top frame) or a string.
+
+        - html (boolean; optional):
+            (default: False)  If True, html may be used in markdown cells
+            Be careful enabling html if the content being rendered can
+            come from an untrusted user, as this may create an XSS
+            vulnerability.
 
     - css (list of dicts; optional):
         The `css` property is a way to embed CSS selectors and rules onto
@@ -916,9 +916,9 @@ class DataTable(Component):
 
         `css` is a list of dicts with keys:
 
-        - rule (string; required)
-
         - selector (string; required)
+
+        - rule (string; required)
 
     - style_table (dict; optional):
         CSS styles to be applied to the outer `table` container. This is
@@ -966,17 +966,17 @@ class DataTable(Component):
 
             `if` is a dict with keys:
 
-            - column_editable (boolean; optional)
-
             - column_id (string | list of strings; optional)
 
             - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
 
             - filter_query (string; optional)
 
+            - state (a value equal to: 'active', 'selected'; optional)
+
             - row_index (number | a value equal to: 'odd', 'even' | list of numbers; optional)
 
-            - state (a value equal to: 'active', 'selected'; optional)
+            - column_editable (boolean; optional)
 
     - style_filter_conditional (list of dicts; optional):
         Conditional CSS styles for the filter cells. This can be used to
@@ -988,11 +988,11 @@ class DataTable(Component):
 
             `if` is a dict with keys:
 
-            - column_editable (boolean; optional)
-
             - column_id (string | list of strings; optional)
 
             - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
+
+            - column_editable (boolean; optional)
 
     - style_header_conditional (list of dicts; optional):
         Conditional CSS styles for the header cells. This can be used to
@@ -1004,13 +1004,13 @@ class DataTable(Component):
 
             `if` is a dict with keys:
 
-            - column_editable (boolean; optional)
-
             - column_id (string | list of strings; optional)
 
             - column_type (a value equal to: 'any', 'numeric', 'text', 'datetime'; optional)
 
             - header_index (number | list of numbers | a value equal to: 'odd', 'even'; optional)
+
+            - column_editable (boolean; optional)
 
     - virtualization (boolean; default False):
         This property tells the table to use virtualization when
@@ -1100,14 +1100,14 @@ class DataTable(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted

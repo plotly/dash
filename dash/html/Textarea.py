@@ -86,14 +86,14 @@ class Textarea(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - maxLength (string | number; optional):
         Defines the maximum number of characters allowed in the element.

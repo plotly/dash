@@ -18,21 +18,21 @@ class RadioItems(Component):
         `options` is a list of string | number | booleans | dict | list of
         dicts with keys:
 
-        - disabled (boolean; optional):
-            If True, this option is disabled and cannot be selected.
-
         - label (a list of or a singular dash component, string or number; required):
             The option's label.
+
+        - value (string | number | boolean; required):
+            The value of the option. This value corresponds to the items
+            specified in the `value` property.
+
+        - disabled (boolean; optional):
+            If True, this option is disabled and cannot be selected.
 
         - title (string; optional):
             The HTML 'title' attribute for the option. Allows for
             information on hover. For more information on this attribute,
             see
             https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title.
-
-        - value (string | number | boolean; required):
-            The value of the option. This value corresponds to the items
-            specified in the `value` property.
 
     - value (string | number | boolean; optional):
         The currently selected value.
@@ -72,14 +72,14 @@ class RadioItems(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted

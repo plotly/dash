@@ -45,6 +45,10 @@ class Geolocation(Component):
 
         `position` is a dict with keys:
 
+        - lat (number; optional)
+
+        - lon (number; optional)
+
         - accuracy (number; optional)
 
         - alt (number; optional)
@@ -52,10 +56,6 @@ class Geolocation(Component):
         - alt_accuracy (number; optional)
 
         - heading (number; optional)
-
-        - lat (number; optional)
-
-        - lon (number; optional)
 
         - speed (number; optional)
 
