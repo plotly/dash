@@ -33,15 +33,16 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^2.0.0 || ^3.0.0",
-    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0",
-    "@jupyterlab/console": "^2.0.0 || ^3.0.0"
+    "@jupyterlab/application": "^2.0.0 || ^3.0.0 || ^4.0.0",
+    "@jupyterlab/console": "^2.0.0 || ^3.0.0 || ^4.0.0",
+    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
+    "@types/json-schema": "^7.0.15",
+    "mkdirp": "^0.5.1",
     "prettier": "2.0.5",
     "rimraf": "3.0.2",
-    "typescript": "3.9.3",
-    "mkdirp": "^0.5.1"
+    "typescript": "5.6.2"
   },
   "jupyterlab": {
     "extension": true

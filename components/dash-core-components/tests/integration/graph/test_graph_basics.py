@@ -81,6 +81,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
 
+    dash_dcc.wait_for_element("#graph .js-plotly-plot")
     wait.until(lambda: dash_dcc.driver.title == "Dash", timeout=2)
     sleep(1)
     # TODO: not sure 2 calls actually makes sense here, shouldn't it be 1?

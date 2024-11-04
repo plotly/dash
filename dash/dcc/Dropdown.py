@@ -24,17 +24,15 @@ class Dropdown(Component):
         `options` is a list of string | number | booleans | dict | list of
         dicts with keys:
 
-        - disabled (boolean; optional):
-            If True, this option is disabled and cannot be selected.
-
         - label (a list of or a singular dash component, string or number; required):
             The option's label.
 
-        - search (string; optional):
-            Optional search value for the option, to use if the label is a
-            component or provide a custom search value different from the
-            label. If no search value and the label is a component, the
-            `value` will be used for search.
+        - value (string | number | boolean; required):
+            The value of the option. This value corresponds to the items
+            specified in the `value` property.
+
+        - disabled (boolean; optional):
+            If True, this option is disabled and cannot be selected.
 
         - title (string; optional):
             The HTML 'title' attribute for the option. Allows for
@@ -42,9 +40,11 @@ class Dropdown(Component):
             see
             https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title.
 
-        - value (string | number | boolean; required):
-            The value of the option. This value corresponds to the items
-            specified in the `value` property.
+        - search (string; optional):
+            Optional search value for the option, to use if the label is a
+            component or provide a custom search value different from the
+            label. If no search value and the label is a component, the
+            `value` will be used for search.
 
     - value (string | number | boolean | list of string | number | booleans; optional):
         The value of the input. If `multi` is False (the default) then
@@ -98,14 +98,14 @@ class Dropdown(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted

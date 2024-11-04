@@ -564,12 +564,6 @@ class Dash:
         if plugins is not None and isinstance(
             plugins, patch_collections_abc("Iterable")
         ):
-            warnings.warn(
-                DeprecationWarning(
-                    "The `plugins` keyword will be removed from Dash init in Dash 3.0 "
-                    "and replaced by a new hook system."
-                )
-            )
             for plugin in plugins:
                 plugin.plug(self)
 
@@ -1365,6 +1359,12 @@ class Dash:
                 g.outputs_grouping = []
                 g.using_outputs_grouping = []
             g.updated_props = {}
+
+            g.cookies = dict(**flask.request.cookies)
+            g.headers = dict(**flask.request.headers)
+            g.path = flask.request.full_path
+            g.remote = flask.request.remote_addr
+            g.origin = flask.request.origin
 
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"

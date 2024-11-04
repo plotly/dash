@@ -79,14 +79,14 @@ class Video(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - loop (a value equal to: 'loop', 'LOOP' | boolean; optional):
         Indicates whether the media should start playing from the start

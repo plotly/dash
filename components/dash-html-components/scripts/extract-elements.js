@@ -21,7 +21,8 @@ function extractElements($) {
         'image', 'dir', 'tt', 'applet', 'noembed', 'bgsound', 'menu', 'menuitem',
         'noframes',
         // experimental, don't add yet
-        'portal'
+        'portal',
+        'fencedframe'
     ];
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [

@@ -31,11 +31,11 @@ class Tabs(Component):
 
         `colors` is a dict with keys:
 
-        - background (string; optional)
-
         - border (string; optional)
 
         - primary (string; optional)
+
+        - background (string; optional)
 
     - content_className (string; optional):
         Appends a class to the Tab content container holding the children
@@ -51,14 +51,14 @@ class Tabs(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - mobile_breakpoint (number; default 800):
         Breakpoint at which tabs are rendered full width (can be 0 if you

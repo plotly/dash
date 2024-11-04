@@ -52,14 +52,14 @@ class Loading(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - overlay_style (dict; optional):
         Additional CSS styling for the spinner overlay. This is applied to
@@ -87,7 +87,7 @@ class Loading(Component):
         example: `{\"output-container\": \"children\", \"grid\":
         [\"rowData\", \"columnDefs]}`.
 
-    - type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; default 'default'):
+    - type (a value equal to: 'graph', 'cube', 'circle', 'dot', 'default'; optional):
         Property that determines which built-in spinner to show one of
         'graph', 'cube', 'circle', 'dot', or 'default'."""
 

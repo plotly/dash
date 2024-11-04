@@ -28,7 +28,7 @@ class Tab(Component):
     - disabled_className (string; optional):
         Appends a class to the Tab component when it is disabled.
 
-    - disabled_style (dict; default {    color: '#d6d6d6',}):
+    - disabled_style (dict; default {color: '#d6d6d6'}):
         Overrides the default (inline) styles when disabled.
 
     - label (string; optional):
@@ -40,14 +40,14 @@ class Tab(Component):
 
         `loading_state` is a dict with keys:
 
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
         - is_loading (boolean; optional):
             Determines if the component is loading or not.
 
         - prop_name (string; optional):
             Holds which property is loading.
+
+        - component_name (string; optional):
+            Holds the name of the component that is loading.
 
     - selected_className (string; optional):
         Appends a class to the Tab component when it is selected.

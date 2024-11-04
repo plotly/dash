@@ -402,7 +402,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         if (fixed_columns || fixed_rows) {
             const widths = Array.from(
                 r1c1.querySelectorAll(
-                    'table.cell-table > tbody > tr:first-of-type > *'
+                    'table.cell-table > tbody > tr:last-of-type > *'
                 )
             ).map(c => c.getBoundingClientRect().width);
 
