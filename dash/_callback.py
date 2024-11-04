@@ -409,23 +409,16 @@ def register_callback(
 
                     job_fn = callback_manager.func_registry.get(long_key)
 
+                    ctx_value = AttributeDict(**context_value.get())
+                    ctx_value.ignore_register_page = True
+                    ctx_value.pop("background_callback_manager")
+                    ctx_value.pop("dash_response")
+
                     job = callback_manager.call_job_fn(
                         cache_key,
                         job_fn,
                         func_args if func_args else func_kwargs,
-                        AttributeDict(
-                            args_grouping=callback_ctx.args_grouping,
-                            using_args_grouping=callback_ctx.using_args_grouping,
-                            outputs_grouping=callback_ctx.outputs_grouping,
-                            using_outputs_grouping=callback_ctx.using_outputs_grouping,
-                            inputs_list=callback_ctx.inputs_list,
-                            states_list=callback_ctx.states_list,
-                            outputs_list=callback_ctx.outputs_list,
-                            input_values=callback_ctx.input_values,
-                            state_values=callback_ctx.state_values,
-                            triggered_inputs=callback_ctx.triggered_inputs,
-                            ignore_register_page=True,
-                        ),
+                        ctx_value,
                     )
 
                     data = {
@@ -508,7 +501,7 @@ def register_callback(
                         output_value = error_handler(err)
 
                         # If the error returns nothing, automatically puts NoUpdate for response.
-                        if output_value is None:
+                        if output_value is None and has_output:
                             output_value = NoUpdate()
                     else:
                         raise err
