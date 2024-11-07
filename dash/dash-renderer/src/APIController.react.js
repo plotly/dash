@@ -1,8 +1,8 @@
 import {batch, connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
-import React, {useEffect, useRef, useState, createContext} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+
 import PropTypes from 'prop-types';
-import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
 import {
     dispatchError,
@@ -19,11 +19,9 @@ import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
-import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
 import isSimpleComponent from './isSimpleComponent';
-
-export const DashContext = createContext({});
+import DashWrapper from './wrapper/DashWrapper';
 
 /**
  * Fire off API calls for initialization
@@ -37,8 +35,7 @@ const UnconnectedContainer = props => {
         dependenciesRequest,
         error,
         layoutRequest,
-        layout,
-        loadingMap
+        layout
     } = props;
 
     const [errorLoading, setErrorLoading] = useState(false);
@@ -48,18 +45,6 @@ const UnconnectedContainer = props => {
         events.current = new EventEmitter();
     }
     const renderedTree = useRef(false);
-
-    const propsRef = useRef({});
-    propsRef.current = props;
-
-    const provider = useRef({
-        fn: () => ({
-            _dashprivate_config: propsRef.current.config,
-            _dashprivate_dispatch: propsRef.current.dispatch,
-            _dashprivate_graphs: propsRef.current.graphs,
-            _dashprivate_loadingMap: propsRef.current.loadingMap
-        })
-    });
 
     useEffect(storeEffect.bind(null, props, events, setErrorLoading));
 
@@ -97,46 +82,26 @@ const UnconnectedContainer = props => {
         renderedTree.current = true;
 
         content = (
-            <DashContext.Provider value={provider.current}>
+            <>
                 {Array.isArray(layout) ? (
                     layout.map((c, i) =>
                         isSimpleComponent(c) ? (
                             c
                         ) : (
-                            <TreeContainer
+                            <DashWrapper
                                 _dashprivate_error={error}
-                                _dashprivate_layout={c}
-                                _dashprivate_loadingState={getLoadingState(
-                                    c,
-                                    [i],
-                                    loadingMap
-                                )}
-                                _dashprivate_loadingStateHash={getLoadingHash(
-                                    [i],
-                                    loadingMap
-                                )}
-                                _dashprivate_path={`[${i}]`}
+                                _dashprivate_path={[i]}
                                 key={i}
                             />
                         )
                     )
                 ) : (
-                    <TreeContainer
+                    <DashWrapper
                         _dashprivate_error={error}
-                        _dashprivate_layout={layout}
-                        _dashprivate_loadingState={getLoadingState(
-                            layout,
-                            [],
-                            loadingMap
-                        )}
-                        _dashprivate_loadingStateHash={getLoadingHash(
-                            [],
-                            loadingMap
-                        )}
-                        _dashprivate_path={'[]'}
+                        _dashprivate_path={[]}
                     />
                 )}
-            </DashContext.Provider>
+            </>
         );
     } else {
         content = <div className='_dash-loading'>Loading...</div>;
@@ -242,7 +207,6 @@ UnconnectedContainer.propTypes = {
     hooks: PropTypes.object,
     layoutRequest: PropTypes.object,
     layout: PropTypes.any,
-    loadingMap: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,
     config: PropTypes.object
@@ -256,7 +220,6 @@ const Container = connect(
         hooks: state.hooks,
         layoutRequest: state.layoutRequest,
         layout: state.layout,
-        loadingMap: state.loadingMap,
         graphs: state.graphs,
         history: state.history,
         error: state.error,

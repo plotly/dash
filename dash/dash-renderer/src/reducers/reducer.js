@@ -26,6 +26,18 @@ export const apiRequests = [
     'loginRequest'
 ];
 
+function callbackNum(state = 0, action) {
+    // With the refactor of TreeContainer to DashWrapper
+    // The props are updated partially and no longer
+    // trigger the selectors on change.
+    // By changing this store value we circumvent
+    // the issue.
+    if (action.type === 'ON_PROP_CHANGE') {
+        return state + 1;
+    }
+    return state;
+}
+
 function mainReducer() {
     const parts = {
         appLifecycle,
@@ -40,7 +52,8 @@ function mainReducer() {
         isLoading,
         layout,
         loadingMap,
-        paths
+        paths,
+        callbackNum
     };
     forEach(r => {
         parts[r] = createApiReducer(r);

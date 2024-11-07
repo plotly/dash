@@ -1,4 +1,5 @@
-import {path, type, has} from 'ramda';
+import React from 'react';
+import {mergeRight, type, has, path} from 'ramda';
 
 import Registry from '../registry';
 import {stringifyId} from '../actions/dependencies';
@@ -8,7 +9,29 @@ function isLoadingComponent(layout: any) {
     return (Registry.resolve(layout) as any)._dashprivate_isLoadingComponent;
 }
 
-const NULL_LOADING_STATE = false;
+export function createElement(
+    element: any,
+    props: any,
+    extraProps: any,
+    children: any
+) {
+    const allProps = mergeRight(props, extraProps);
+    if (Array.isArray(children)) {
+        return React.createElement(element, allProps, ...children);
+    }
+    return React.createElement(element, allProps, children);
+}
+
+export function isDryComponent(obj: any) {
+    return (
+        type(obj) === 'Object' &&
+        has('type', obj) &&
+        has('namespace', obj) &&
+        has('props', obj)
+    );
+}
+
+const NULL_LOADING_STATE = {is_loading: false};
 
 export function getLoadingState(
     componentLayout: any,
@@ -46,16 +69,6 @@ export function getLoadingState(
 
     return NULL_LOADING_STATE;
 }
-
-export const getLoadingHash = (componentPath: any, loadingMap: any) =>
-    (
-        ((loadingMap &&
-            (path(componentPath, loadingMap) as any)
-                ?.__dashprivate__idprops__) ??
-            []) as any[]
-    )
-        .map(({id, property}) => `${id}.${property}`)
-        .join(',');
 
 export function validateComponent(componentDefinition: any) {
     if (type(componentDefinition) === 'Array') {
