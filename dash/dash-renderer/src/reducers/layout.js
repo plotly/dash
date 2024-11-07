@@ -4,6 +4,9 @@ import {getAction} from '../actions/constants';
 
 const layout = (state = {}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
+        if (Array.isArray(action.payload)) {
+            return [...action.payload];
+        }
         return {...action.payload};
     } else if (
         includes(action.type, [
