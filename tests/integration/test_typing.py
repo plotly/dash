@@ -103,7 +103,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "dict[Any, Any]" cannot be assigned to parameter "array_string" '
-                    'of type "Sequence[str] | Tuple[Unknown, ...] | None"'
+                    'of type "Sequence[str] | None"'
                 ],
             },
         ),
