@@ -41,6 +41,8 @@ from .dash import (  # noqa: F401,E402
 from ._patch import Patch  # noqa: F401,E402
 from ._jupyter import jupyter_dash  # noqa: F401,E402
 
+from ._hooks import hooks  # noqa: F401,E402
+
 ctx = callback_context
 
 

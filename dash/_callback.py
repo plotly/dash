@@ -1,7 +1,9 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any, List, Tuple
+
+from typing import Callable, Optional, Any, List, Tuple, Union
+
 
 import flask
 
@@ -9,6 +11,7 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    ClientsideFunction,
     Input,
 )
 from .development.base_component import ComponentRegistry
@@ -210,7 +213,10 @@ def validate_long_inputs(deps):
             )
 
 
-def clientside_callback(clientside_function, *args, **kwargs):
+ClientsideFuncType = Union[str, ClientsideFunction]
+
+
+def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs):
     return register_clientside_callback(
         GLOBAL_CALLBACK_LIST,
         GLOBAL_CALLBACK_MAP,
@@ -597,7 +603,7 @@ def register_clientside_callback(
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-    clientside_function,
+    clientside_function: ClientsideFuncType,
     *args,
     **kwargs,
 ):
