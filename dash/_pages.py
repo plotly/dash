@@ -6,7 +6,7 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from os.path import isfile, join
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, unquote
 
 import flask
 
@@ -113,6 +113,7 @@ def _infer_module_name(page_path):
 
 
 def _parse_query_string(search):
+    search = unquote(search)
     if search and len(search) > 0 and search[0] == "?":
         search = search[1:]
     else:

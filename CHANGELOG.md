@@ -2,18 +2,38 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.18.2] - 2024-11-04
+
+## Fixed
+
+- [#2939](https://github.com/plotly/dash/pull/2939) Fixes bug with whitespace on DataTable when `merge_duplicate_header=True`. Fixes [#2870](https://github.com/plotly/dash/issues/2870)
+- [#2994](https://github.com/plotly/dash/pull/2994) Keep generated doc-string order for shape or exact props. Fixes [#2990](https://github.com/plotly/dash/issues/2990)
+- [#3011](https://github.com/plotly/dash/pull/3011) Fixed an exception error caused by assigning `None` to array properties with `exact` or `shape` element types. Fixes [#3010](https://github.com/plotly/dash/issues/3010)
+- [#2991](https://github.com/plotly/dash/pull/2991) Add support for URL decoding of the search parameter for pages.
+- [#3025](https://github.com/plotly/dash/pull/3025) Fix no output callback with error handler setting the response to NoUpdate and triggering an error.
+- [#3034](https://github.com/plotly/dash/pull/3034) Remove whitespace from `metadata.json` files to reduce package size.
+- [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
+- [#3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
+- [#2926](https://github.com/plotly/dash/pull/2926) Fix components defaultProps with react 18.3.1
+- [#3051](https://github.com/plotly/dash/pull/3051) Add missing request data to callback context. Fix [#2235](https://github.com/plotly/dash/issues/2235).
+
+## [2.18.1] - 2024-09-12
 
 ## Fixed
 
 - [#2987](https://github.com/plotly/dash/pull/2987) Fix multioutput requiring same number of no_update. Fixes [#2986](https://github.com/plotly/dash/issues/2986)
 - [2988](https://github.com/plotly/dash/pull/2988) Fix error handler and grouped outputs. Fixes [#2983](https://github.com/plotly/dash/issues/2983)
+- [#2841](https://github.com/plotly/dash/pull/2841) Fix typing on Dash init.
+- [#1548](https://github.com/plotly/dash/pull/1548) Enable changing of selenium url, fix for selenium grid support.
 
 ## Deprecated
 
 - [#2985](https://github.com/plotly/dash/pull/2985) Deprecate dynamic component loader.
 - [#2985](https://github.com/plotly/dash/pull/2985) Deprecate `run_server`, use `run` instead.
 - [#2899](https://github.com/plotly/dash/pull/2899) Deprecate `dcc.LogoutButton`, can be replaced with a `html.Button` or `html.A`. eg: `html.A(href=os.getenv('DASH_LOGOUT_URL'))` on a Dash Enterprise instance.
+- [#2995](https://github.com/plotly/dash/pull/2995) Deprecate `Dash.__init__` keywords:
+  - The `plugins` keyword will be removed.
+  - Old `long_callback_manager` keyword will be removed, can use `background_callback_manager` instead.
 
 ## [2.18.0] - 2024-09-04
 
