@@ -1,7 +1,9 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any, Union
+
+from typing import Callable, Optional, Any, List, Tuple, Union
+
 
 import flask
 
@@ -10,6 +12,7 @@ from .dependencies import (
     handle_grouped_callback_args,
     Output,
     ClientsideFunction,
+    Input,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
@@ -63,14 +66,14 @@ GLOBAL_INLINE_SCRIPTS = []
 # pylint: disable=too-many-locals
 def callback(
     *_args,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
+    background: bool = False,
+    interval: int = 1000,
+    progress: Optional[Output] = None,
+    progress_default: Any = None,
+    running: Optional[List[Tuple[Output, Any, Any]]] = None,
+    cancel: Optional[List[Input]] = None,
+    manager: Optional[BaseLongCallbackManager] = None,
+    cache_args_to_ignore: Optional[list] = None,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
@@ -157,7 +160,7 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        long_spec = {
+        long_spec: Any = {
             "interval": interval,
         }
 
@@ -413,23 +416,16 @@ def register_callback(
 
                     job_fn = callback_manager.func_registry.get(long_key)
 
+                    ctx_value = AttributeDict(**context_value.get())
+                    ctx_value.ignore_register_page = True
+                    ctx_value.pop("background_callback_manager")
+                    ctx_value.pop("dash_response")
+
                     job = callback_manager.call_job_fn(
                         cache_key,
                         job_fn,
                         func_args if func_args else func_kwargs,
-                        AttributeDict(
-                            args_grouping=callback_ctx.args_grouping,
-                            using_args_grouping=callback_ctx.using_args_grouping,
-                            outputs_grouping=callback_ctx.outputs_grouping,
-                            using_outputs_grouping=callback_ctx.using_outputs_grouping,
-                            inputs_list=callback_ctx.inputs_list,
-                            states_list=callback_ctx.states_list,
-                            outputs_list=callback_ctx.outputs_list,
-                            input_values=callback_ctx.input_values,
-                            state_values=callback_ctx.state_values,
-                            triggered_inputs=callback_ctx.triggered_inputs,
-                            ignore_register_page=True,
-                        ),
+                        ctx_value,
                     )
 
                     data = {

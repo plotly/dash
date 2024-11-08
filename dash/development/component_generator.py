@@ -138,7 +138,7 @@ def generate_components(
     with open(
         os.path.join(project_shortname, "metadata.json"), "w", encoding="utf-8"
     ) as f:
-        json.dump(metadata, f, indent=2)
+        json.dump(metadata, f, separators=(",", ":"))
 
     generate_imports(project_shortname, components)
 
