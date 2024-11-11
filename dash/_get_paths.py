@@ -66,6 +66,9 @@ def get_relative_path(path):
         if page_name == "page-2":
             return chapters.page_2
     ```
+
+    `dash.get_relative_path` is not compatible with Dash Snapshots. Use
+    `get_relative_path` on the app instance instead: `app.get_relative_path`.
     """
     return app_get_relative_path(CONFIG.requests_pathname_prefix, path)
 
