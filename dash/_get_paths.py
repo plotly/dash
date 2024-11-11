@@ -5,6 +5,13 @@ CONFIG = AttributeDict()
 
 
 def get_asset_url(path):
+    """
+    Return the URL for the provided `path` in the assets directory.
+
+    `dash.get_asset_url` is not compatible with Dash Snapshots.
+    Use `get_asset_url` on the app instance instead: `app.get_asset_url`.
+    See `app.get_asset_url` for more information.
+    """
     return app_get_asset_url(CONFIG, path)
 
 

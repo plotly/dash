@@ -1547,6 +1547,35 @@ class Dash:
         ]
 
     def get_asset_url(self, path):
+        """
+        Return the URL for the provided `path` in the assets directory.
+
+        If `assets_external_path` is set, `get_asset_url` returns
+        `assets_external_path` + `assets_url_path` + `path`, where
+        `path` is the path passed to `get_asset_url`.
+
+        Otherwise, `get_asset_url` returns
+        `requests_pathname_prefix` + `assets_url_path` + `path`, where
+        `path` is the path passed to `get_asset_url`.
+
+        Use `get_asset_url` in an app to access assets at the correct location
+        in different environments. `requests_pathname_prefix` in a deployed app
+        on Dash Enterprise includes the app name.
+
+        For an app on Dash Enterprise called "my-app",
+        `app.get_asset_url("image.png")` would return:
+
+        ```
+        /my-app/assets/image.png
+        ```
+
+        While the same app running locally,
+        without `requests_pathname_prefix` set would return:
+
+        ```
+        /assets/image.png
+        ```
+        """
         return _get_paths.app_get_asset_url(self.config, path)
 
     def get_relative_path(self, path):
