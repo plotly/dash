@@ -1559,18 +1559,16 @@ class Dash:
         `path` is the path passed to `get_asset_url`.
 
         Use `get_asset_url` in an app to access assets at the correct location
-        in different environments. `requests_pathname_prefix` in a deployed app
-        on Dash Enterprise includes the app name.
-
-        For an app on Dash Enterprise called "my-app",
+        in different environments. In a deployed app on Dash Enterprise,
+        `requests_pathname_prefix` is the app name. For an app called "my-app",
         `app.get_asset_url("image.png")` would return:
 
         ```
         /my-app/assets/image.png
         ```
 
-        While the same app running locally,
-        without `requests_pathname_prefix` set would return:
+        While the same app running locally, without
+        `requests_pathname_prefix` set, would return:
 
         ```
         /assets/image.png
