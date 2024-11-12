@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [2.18.2] - 2024-11-04
 
 ## Fixed
 
@@ -13,7 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3025](https://github.com/plotly/dash/pull/3025) Fix no output callback with error handler setting the response to NoUpdate and triggering an error.
 - [#3034](https://github.com/plotly/dash/pull/3034) Remove whitespace from `metadata.json` files to reduce package size.
 - [#3009](https://github.com/plotly/dash/pull/3009) Performance improvement on (pattern-matching) callbacks.
-- [3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
+- [#3028](https://github.com/plotly/dash/pull/3028) Fix jupyterlab v4 support.
+- [#2926](https://github.com/plotly/dash/pull/2926) Fix components defaultProps with react 18.3.1
 - [#3051](https://github.com/plotly/dash/pull/3051) Add missing request data to callback context. Fix [#2235](https://github.com/plotly/dash/issues/2235).
 
 ## [2.18.1] - 2024-09-12

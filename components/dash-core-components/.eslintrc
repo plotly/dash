@@ -29,6 +29,7 @@
     "react",
     "import"
   ],
+  "parser": "@babel/eslint-parser",
   "rules": {
     "accessor-pairs": ["error"],
     "block-scoped-var": ["error"],
@@ -43,7 +44,7 @@
     "import/named": ["off"],
     "import/namespace": ["off"],
     "import/no-duplicates": ["error"],
-    "import/no-named-as-default": ["error"],
+    "import/no-named-as-default": ["off"],
     "import/no-unresolved": ["off"],
     "new-cap": ["error", {
       "capIsNewExceptionPattern": "Immutable\\.*"

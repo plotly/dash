@@ -727,6 +727,14 @@ function gatherComponents(sources, components = {}) {
             let props;
 
             if (propsType) {
+                if (
+                    propsType.valueDeclaration && 
+                    propsType.valueDeclaration.name &&
+                    propsType.valueDeclaration.name.elements &&
+                    propsType.valueDeclaration.name.elements.length
+                ) {
+                    defaultProps = getDefaultPropsValues(propsType.valueDeclaration.name.elements);
+                }
                 props = getPropInfo(propsType, defaultProps);
             } else {
                 defaultProps = getDefaultPropsForClassComponent(type, source);
