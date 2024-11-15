@@ -1475,7 +1475,9 @@ class Dash:
         ignore_path_list = self.config.assets_path_ignore
         ignore_filter = re.compile(ignore_str) if ignore_str else None
         ignore_path_filters = [
-            re.compile(ignore_path) for ignore_path in ignore_path_list if ignore_path
+            re.compile(ignore_path)
+            for ignore_path in (ignore_path_list or [])
+            if ignore_path
         ]
 
         for current, _, files in sorted(os.walk(walk_dir)):
