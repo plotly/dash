@@ -6,7 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
-- [#2994](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
+- [#3077](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
 
 ## [2.18.2] - 2024-11-04
 
