@@ -19,6 +19,7 @@ _js_dist = [
     ),
     {
         "dev_package_path": "proptypes.js",
+        "dev_only": True,
         "namespace": 'dash_generator_test_component_typescript'
     }
 ]
