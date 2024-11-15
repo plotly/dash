@@ -1,7 +1,9 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any
+
+from typing import Callable, Optional, Any, List, Tuple, Union
+
 
 import flask
 
@@ -9,6 +11,8 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    ClientsideFunction,
+    Input,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
@@ -62,14 +66,14 @@ GLOBAL_INLINE_SCRIPTS = []
 # pylint: disable=too-many-locals
 def callback(
     *_args,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
+    background: bool = False,
+    interval: int = 1000,
+    progress: Optional[Output] = None,
+    progress_default: Any = None,
+    running: Optional[List[Tuple[Output, Any, Any]]] = None,
+    cancel: Optional[List[Input]] = None,
+    manager: Optional[BaseLongCallbackManager] = None,
+    cache_args_to_ignore: Optional[list] = None,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
@@ -156,7 +160,7 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        long_spec = {
+        long_spec: Any = {
             "interval": interval,
         }
 
@@ -209,7 +213,10 @@ def validate_long_inputs(deps):
             )
 
 
-def clientside_callback(clientside_function, *args, **kwargs):
+ClientsideFuncType = Union[str, ClientsideFunction]
+
+
+def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs):
     return register_clientside_callback(
         GLOBAL_CALLBACK_LIST,
         GLOBAL_CALLBACK_MAP,
@@ -596,7 +603,7 @@ def register_clientside_callback(
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-    clientside_function,
+    clientside_function: ClientsideFuncType,
     *args,
     **kwargs,
 ):
