@@ -1355,7 +1355,9 @@ class Dash:
                 outputs_grouping = map_grouping(
                     lambda ind: flat_outputs[ind], outputs_indices
                 )
-                g.outputs_grouping = outputs_grouping  # pylint: disable=assigning-non-slot
+                g.outputs_grouping = (
+                    outputs_grouping  # pylint: disable=assigning-non-slot
+                )
                 g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
                     not isinstance(outputs_indices, int)
                     and outputs_indices != list(range(grouping_len(outputs_indices)))
@@ -2276,7 +2278,9 @@ class Dash:
                     ]
                     + [
                         # pylint: disable=not-callable
-                        self.layout() if callable(self.layout) else self.layout
+                        self.layout()
+                        if callable(self.layout)
+                        else self.layout
                     ]
                 )
                 if _ID_CONTENT not in self.validation_layout:
