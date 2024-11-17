@@ -762,7 +762,7 @@ function gatherComponents(sources, components = {}) {
                         fullText
                             .slice(r.pos + 4, r.end - 3)
                             .split('\n')
-                            .map(s => s.slice(3, s.length))
+                            .map(s => s.replace(/^(\s*\*?\s+)/, ''))
                             .filter(e => e)
                             .join('\n')
                     )
