@@ -34,7 +34,8 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
 
         dash_duo.driver.switch_to.frame(dash_duo.find_element("iframe"))
         assert (
-            "dash.exceptions.LongCallbackError: An error occurred inside a long callback:"
+            "dash.exceptions.BackgroundCallbackError: "
+            "An error occurred inside a background callback:"
             in dash_duo.wait_for_element(".errormsg").text
         )
         dash_duo.driver.switch_to.default_content()
