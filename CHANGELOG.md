@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#3080](https://github.com/plotly/dash/pull/3080) Fix docstring generation for components using single-line or nonstandard-indent leading comments
+
 ## [2.18.2] - 2024-11-04
 
 ## Fixed
@@ -89,7 +95,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#2362](https://github.com/plotly/dash/pull/2362) Global namespace not polluted any more when loading clientside callbacks.
-- [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764) 
+- [#2833](https://github.com/plotly/dash/pull/2833) Allow data url in link props. Fixes [#2764](https://github.com/plotly/dash/issues/2764)
 - [#2822](https://github.com/plotly/dash/pull/2822) Fix side update (running/progress/cancel) dict ids. Fixes [#2111](https://github.com/plotly/dash/issues/2111)
 - [#2817](https://github.com/plotly/dash/pull/2817) Change hashing algorithm from md5 to sha256, Fixes [#2697](https://github.com/plotly/dash/issues/2697).
 - [#2816](https://github.com/plotly/dash/pull/2816) Fix dcc.Dropdown value not updated when option is removed. Fixes [#2733](https://github.com/plotly/dash/issues/2733).
@@ -116,7 +122,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 - [#2762](https://github.com/plotly/dash/pull/2762) Add dynamic loading of component libraries.
   - Add `dynamic_loading=True` to dash init.
-  - Add `preloaded_libraries=[]` to dash init, included libraries names will be loaded on the index like before. 
+  - Add `preloaded_libraries=[]` to dash init, included libraries names will be loaded on the index like before.
 - [#2758](https://github.com/plotly/dash/pull/2758)
   - exposing `setProps` to `dash_clientside.clientSide_setProps` to allow for JS code to interact directly with the dash eco-system
 - [#2730](https://github.com/plotly/dash/pull/2721) Load script files with `.mjs` ending as js modules
