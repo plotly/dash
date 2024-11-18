@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Parmer"
+  given-names: "Chris"
+- family-names: "Duval"
+  given-names: "Philippe"
+- family-names: "Johnson"
+  given-names: "Alex"
+  orcid: https://orcid.org/0000-0003-4623-4147
+title: "A data and analytics web app framework for Python, no JavaScript required."
+version: 2.18.2
+doi: 10.5281/zenodo.14182630
+date-released: 2024-11-04
+url: https://github.com/plotly/dash
