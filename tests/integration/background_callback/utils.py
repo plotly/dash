@@ -35,7 +35,7 @@ def get_background_callback_manager():
     Get the long callback mangaer configured by environment variables
     """
     if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery":
-        from dash.background_callback import CeleryLongCallbackManager
+        from dash.background_callback import CeleryManager
         from celery import Celery
         import redis
 
@@ -44,7 +44,7 @@ def get_background_callback_manager():
             broker=os.environ.get("CELERY_BROKER"),
             backend=os.environ.get("CELERY_BACKEND"),
         )
-        background_callback_manager = CeleryLongCallbackManager(celery_app)
+        background_callback_manager = CeleryManager(celery_app)
         redis_conn = redis.Redis(host="localhost", port=6379, db=1)
         background_callback_manager.test_lock = redis_conn.lock("test-lock")
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "diskcache":
@@ -112,7 +112,8 @@ def setup_background_callback_app(manager_name, app_name):
                 break
             lines.append(line)
         else:
-            raise RuntimeError("celery failed to start: " + {"\n".join(lines)})
+            error = "\n".join(lines)
+            raise RuntimeError(f"celery failed to start: {error}")
 
         try:
             yield import_app(f"tests.integration.background_callback.{app_name}")
