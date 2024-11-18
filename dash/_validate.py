@@ -364,6 +364,10 @@ def check_obsolete(kwargs):
                 file=sys.stderr,
             )
             continue
+        if key in ["long_callback_manager"]:
+            raise exceptions.ObsoleteKwargException(
+                "long_callback_manager is obsolete, use background_callback_manager instead"
+            )
         # any other kwarg mimic the built-in exception
         raise TypeError(f"Dash() got an unexpected keyword argument '{key}'")
 
@@ -522,9 +526,9 @@ def validate_module_name(module):
     return module
 
 
-def validate_long_callbacks(callback_map):
-    # Validate that long callback side output & inputs are not circular
-    # If circular, triggering a long callback would result in a fatal server/computer crash.
+def validate_background_callbacks(callback_map):
+    # Validate that background callback side output & inputs are not circular
+    # If circular, triggering a background callback would result in a fatal server/computer crash.
     all_outputs = set()
     input_indexed = {}
     for callback in callback_map.values():
@@ -535,21 +539,21 @@ def validate_long_callbacks(callback_map):
             input_indexed[o].update(coerce_to_list(callback["raw_inputs"]))
 
     for callback in (x for x in callback_map.values() if x.get("long")):
-        long_info = callback["long"]
-        progress = long_info.get("progress", [])
-        running = long_info.get("running", [])
+        bg_info = callback["long"]
+        progress = bg_info.get("progress", [])
+        running = bg_info.get("running", [])
 
-        long_inputs = coerce_to_list(callback["raw_inputs"])
+        bg_inputs = coerce_to_list(callback["raw_inputs"])
         outputs = set([x[0] for x in running] + progress)
         circular = [
             x
             for x in set(k for k, v in input_indexed.items() if v.intersection(outputs))
-            if x in long_inputs
+            if x in bg_inputs
         ]
 
         if circular:
-            raise exceptions.LongCallbackError(
-                f"Long callback circular error!\n{circular} is used as input for a long callback"
+            raise exceptions.BackgroundCallbackError(
+                f"Background callback circular error!\n{circular} is used as input for a background callback"
                 f" but also used as output from an input that is updated with progress or running argument."
             )
 

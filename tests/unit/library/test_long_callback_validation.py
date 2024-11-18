@@ -1,8 +1,8 @@
 import pytest
 
-from dash.exceptions import LongCallbackError
+from dash.exceptions import BackgroundCallbackError
 from dash.dependencies import Input, Output
-from dash._validate import validate_long_callbacks
+from dash._validate import validate_background_callbacks
 
 
 def test_circular_long_callback_progress():
@@ -21,6 +21,6 @@ def test_circular_long_callback_progress():
         },
     }
 
-    with pytest.raises(LongCallbackError):
+    with pytest.raises(BackgroundCallbackError):
 
-        validate_long_callbacks(callback_map)
+        validate_background_callbacks(callback_map)
