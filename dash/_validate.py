@@ -538,8 +538,8 @@ def validate_background_callbacks(callback_map):
             input_indexed.setdefault(o, set())
             input_indexed[o].update(coerce_to_list(callback["raw_inputs"]))
 
-    for callback in (x for x in callback_map.values() if x.get("long")):
-        bg_info = callback["long"]
+    for callback in (x for x in callback_map.values() if x.get("background")):
+        bg_info = callback["background"]
         progress = bg_info.get("progress", [])
         running = bg_info.get("running", [])
 

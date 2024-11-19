@@ -1308,7 +1308,7 @@ class Dash:
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
             )
-            g.ignore_register_page = cb.get("long", False)
+            g.ignore_register_page = cb.get("background", False)
 
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
@@ -1436,7 +1436,7 @@ class Dash:
         cancels = {}
 
         for callback in self.callback_map.values():
-            background = callback.get("long")
+            background = callback.get("background")
             if not background:
                 continue
             if "cancel_inputs" in background:

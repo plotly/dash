@@ -197,7 +197,7 @@ def callback(
         config_prevent_initial_callbacks,
         *_args,
         **_kwargs,
-        long=background_spec,
+        background=background_spec,
         manager=manager,
         running=running,
         on_error=on_error,
@@ -241,7 +241,7 @@ def insert_callback(
     state,
     inputs_state_indices,
     prevent_initial_call,
-    long=None,
+    background=None,
     manager=None,
     running=None,
     dynamic_creator: Optional[bool] = False,
@@ -263,9 +263,9 @@ def insert_callback(
         # prevent_initial_call can be a string "initial_duplicates"
         # which should not prevent the initial call.
         "prevent_initial_call": prevent_initial_call is True,
-        "long": long
+        "background": background
         and {
-            "interval": long["interval"],
+            "interval": background["interval"],
         },
         "dynamic_creator": dynamic_creator,
         "no_output": no_output,
@@ -278,7 +278,7 @@ def insert_callback(
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
-        "long": long,
+        "background": background,
         "output": output,
         "raw_inputs": inputs,
         "manager": manager,
@@ -320,7 +320,7 @@ def register_callback(
         multi = True
         has_output = len(output) > 0
 
-    background = _kwargs.get("long")
+    background = _kwargs.get("background")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
     on_error = _kwargs.get("on_error")
@@ -344,7 +344,7 @@ def register_callback(
         flat_state,
         inputs_state_indices,
         prevent_initial_call,
-        long=background,
+        background=background,
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
