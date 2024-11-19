@@ -18,6 +18,7 @@ from ._py_components_generation import generate_imports
 from ._py_components_generation import generate_classes_files
 from ._jl_components_generation import generate_struct_file
 from ._jl_components_generation import generate_module
+from ._generate_prop_types import generate_prop_types
 
 reserved_words = [
     "UNDEFINED",
@@ -134,6 +135,8 @@ def generate_components(
         )
 
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
+
+    generate_prop_types(metadata, project_shortname)
 
     with open(
         os.path.join(project_shortname, "metadata.json"), "w", encoding="utf-8"
