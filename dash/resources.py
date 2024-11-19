@@ -82,7 +82,7 @@ class Resources:
                 s.get("external_only") or not self.config.serve_locally
             ):
                 filtered_resource["external_url"] = s["external_url"]
-            elif "dev_package_path" in s and dev_bundles:
+            elif "dev_package_path" in s and (dev_bundles or s.get("dev_only")):
                 filtered_resource["relative_package_path"] = s["dev_package_path"]
             elif "relative_package_path" in s:
                 filtered_resource["relative_package_path"] = s["relative_package_path"]
