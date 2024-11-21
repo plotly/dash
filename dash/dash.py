@@ -2356,8 +2356,7 @@ class Dash:
                     Output(_ID_CONTENT, "children"),
                     Output(_ID_STORE, "data"),
                     inputs=inputs,
-                    prevent_initial_call=True,
-                    use_async=True
+                    prevent_initial_call=True
                 )
                 async def update(pathname_, search_, **states):
                     """
