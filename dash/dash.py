@@ -2357,6 +2357,7 @@ class Dash:
                     Output(_ID_STORE, "data"),
                     inputs=inputs,
                     prevent_initial_call=True,
+                    use_async=True
                 )
                 async def update(pathname_, search_, **states):
                     """
@@ -2383,37 +2384,37 @@ class Dash:
                         layout = page.get("layout", "")
                         title = page["title"]
 
-                        if callable(layout):
-                            layout = await execute_async_function(layout,
-                                                                  **{**(path_variables or {}), **query_parameters, **states}
-                                                                  )
-                        if callable(title):
-                            title = await execute_async_function(title,
-                                                                 **(path_variables or {})
-                                                                 )
+                    if callable(layout):
+                        layout = await execute_async_function(layout,
+                                                              **{**(path_variables or {}), **query_parameters, **states}
+                                                              )
+                    if callable(title):
+                        title = await execute_async_function(title,
+                                                             **(path_variables or {})
+                                                             )
 
-                        return layout, {"title": title}
+                    return layout, {"title": title}
 
-                    _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
-                    _validate.validate_registry(_pages.PAGE_REGISTRY)
+                _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+                _validate.validate_registry(_pages.PAGE_REGISTRY)
 
-                    # Set validation_layout
-                    if not self.config.suppress_callback_exceptions:
-                        self.validation_layout = html.Div(
-                            [
-                                asyncio.run(execute_async_function(page["layout"])) if callable(page["layout"]) else page[
-                                    "layout"]
-                                for page in _pages.PAGE_REGISTRY.values()
-                            ]
-                        + [
-                            # pylint: disable=not-callable
-                            self.layout()
-                            if callable(self.layout)
-                            else self.layout
+                # Set validation_layout
+                if not self.config.suppress_callback_exceptions:
+                    self.validation_layout = html.Div(
+                        [
+                            asyncio.run(execute_async_function(page["layout"])) if callable(page["layout"]) else page[
+                                "layout"]
+                            for page in _pages.PAGE_REGISTRY.values()
                         ]
-                    )
-                    if _ID_CONTENT not in self.validation_layout:
-                        raise Exception("`dash.page_container` not found in the layout")
+                    + [
+                        # pylint: disable=not-callable
+                        self.layout()
+                        if callable(self.layout)
+                        else self.layout
+                    ]
+                )
+                if _ID_CONTENT not in self.validation_layout:
+                    raise Exception("`dash.page_container` not found in the layout")
             else:
                 @self.callback(
                     Output(_ID_CONTENT, "children"),
@@ -2446,35 +2447,35 @@ class Dash:
                         layout = page.get("layout", "")
                         title = page["title"]
 
-                        if callable(layout):
-                            layout = layout(**{**(path_variables or {}), **query_parameters,
-                                                                     **states})
-                        if callable(title):
-                            title = title(**(path_variables or {}))
+                    if callable(layout):
+                        layout = layout(**{**(path_variables or {}), **query_parameters,
+                                                                 **states})
+                    if callable(title):
+                        title = title(**(path_variables or {}))
 
-                        return layout, {"title": title}
+                    return layout, {"title": title}
 
-                    _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
-                    _validate.validate_registry(_pages.PAGE_REGISTRY)
+                _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+                _validate.validate_registry(_pages.PAGE_REGISTRY)
 
-                    # Set validation_layout
-                    if not self.config.suppress_callback_exceptions:
-                        self.validation_layout = html.Div(
-                            [
-                                page["layout"]() if callable(page["layout"]) else
-                                page[
-                                    "layout"]
-                                for page in _pages.PAGE_REGISTRY.values()
-                            ]
-                            + [
-                                # pylint: disable=not-callable
-                                self.layout()
-                                if callable(self.layout)
-                                else self.layout
-                            ]
-                        )
-                    if _ID_CONTENT not in self.validation_layout:
-                        raise Exception("`dash.page_container` not found in the layout")
+                # Set validation_layout
+                if not self.config.suppress_callback_exceptions:
+                    self.validation_layout = html.Div(
+                        [
+                            page["layout"]() if callable(page["layout"]) else
+                            page[
+                                "layout"]
+                            for page in _pages.PAGE_REGISTRY.values()
+                        ]
+                        + [
+                            # pylint: disable=not-callable
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
+                        ]
+                    )
+                if _ID_CONTENT not in self.validation_layout:
+                    raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(

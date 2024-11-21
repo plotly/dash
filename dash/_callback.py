@@ -80,6 +80,7 @@ def callback(
     manager=None,
     cache_args_to_ignore=None,
     on_error: Optional[Callable[[Exception], Any]] = None,
+    use_async=False,
     **_kwargs,
 ):
     """
@@ -154,6 +155,8 @@ def callback(
             Function to call when the callback raises an exception. Receives the
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
+        :param use_async:
+            Tells the system to await for this async callback.
     """
 
     long_spec = None
@@ -204,6 +207,7 @@ def callback(
         manager=manager,
         running=running,
         on_error=on_error,
+        use_async=use_async
     )
 
 
@@ -324,7 +328,7 @@ def register_callback(
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
     on_error = _kwargs.get("on_error")
-    use_async = _kwargs.get("app_use_async")
+    use_async = _kwargs.get("use_async")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
