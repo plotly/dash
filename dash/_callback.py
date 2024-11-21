@@ -4,6 +4,7 @@ from functools import wraps
 from typing import Callable, Optional, Any
 
 import flask
+import asyncio
 
 from .dependencies import (
     handle_callback_args,
@@ -39,8 +40,13 @@ from .long_callback.managers import BaseLongCallbackManager
 from ._callback_context import context_value
 
 
-def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
-    return func(*args, **kwargs)  # %% callback invoked %%
+async def _invoke_callback(func, *args, **kwargs):
+    # Check if the function is a coroutine function
+    if asyncio.iscoroutinefunction(func):
+        return await func(*args, **kwargs)
+    else:
+        # If the function is not a coroutine, call it directly
+        return func(*args, **kwargs)
 
 
 class NoUpdate:
@@ -353,7 +359,7 @@ def register_callback(
             )
 
         @wraps(func)
-        def add_context(*args, **kwargs):
+        async def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
             app_callback_manager = kwargs.pop("long_callback_manager", None)
 
@@ -493,7 +499,7 @@ def register_callback(
                     return to_json(response)
             else:
                 try:
-                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                    output_value = await _invoke_callback(func, *func_args, **func_kwargs)
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught

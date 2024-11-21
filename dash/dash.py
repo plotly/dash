@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, List
 
 import flask
+import asyncio
 
 from importlib_metadata import version as _get_distribution_version
 
@@ -190,6 +191,14 @@ def _get_traceback(secret, error: Exception):
 
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
+
+async def execute_async_function(func, *args, **kwargs):
+    # Check if the function is a coroutine function
+    if asyncio.iscoroutinefunction(func):
+        return await func(*args, **kwargs)
+    else:
+        # If the function is not a coroutine, call it directly
+        return func(*args, **kwargs)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -1267,7 +1276,7 @@ class Dash:
         )
 
     # pylint: disable=R0915
-    def dispatch(self):
+    async def dispatch(self):
         body = flask.request.get_json()
 
         g = AttributeDict({})
@@ -1371,19 +1380,27 @@ class Dash:
             raise KeyError(msg) from missing_callback_function
 
         ctx = copy_context()
+        # Create a partial function with the necessary arguments
         # noinspection PyArgumentList
+        partial_func = functools.partial(
+            execute_async_function,
+            func,
+            *args,
+            outputs_list=outputs_list,
+            long_callback_manager=self._background_manager,
+            callback_context=g,
+            app=self,
+            app_on_error=self._on_error,
+        )
+
+        response_data = await ctx.run(partial_func)
+
+        # Check if the response is a coroutine
+        if asyncio.iscoroutine(response_data):
+            response_data = await response_data
+
         response.set_data(
-            ctx.run(
-                functools.partial(
-                    func,
-                    *args,
-                    outputs_list=outputs_list,
-                    long_callback_manager=self._background_manager,
-                    callback_context=g,
-                    app=self,
-                    app_on_error=self._on_error,
-                )
-            )
+            response_data
         )
         return response
 
@@ -2206,7 +2223,7 @@ class Dash:
                 inputs=inputs,
                 prevent_initial_call=True,
             )
-            def update(pathname_, search_, **states):
+            async def update(pathname_, search_, **states):
                 """
                 Updates dash.page_container layout on page navigation.
                 Updates the stored page title which will trigger the clientside callback to update the app title
@@ -2231,27 +2248,28 @@ class Dash:
                     layout = page.get("layout", "")
                     title = page["title"]
 
-                if callable(layout):
-                    layout = (
-                        layout(**path_variables, **query_parameters, **states)
-                        if path_variables
-                        else layout(**query_parameters, **states)
-                    )
-                if callable(title):
-                    title = title(**path_variables) if path_variables else title()
+                    if callable(layout):
+                        layout = await execute_async_function(layout,
+                                                              **{**(path_variables or {}), **query_parameters, **states}
+                                                              )
+                    if callable(title):
+                        title = await execute_async_function(title,
+                                                             **(path_variables or {})
+                                                             )
 
-                return layout, {"title": title}
+                    return layout, {"title": title}
 
-            _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
-            _validate.validate_registry(_pages.PAGE_REGISTRY)
+                _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+                _validate.validate_registry(_pages.PAGE_REGISTRY)
 
-            # Set validation_layout
-            if not self.config.suppress_callback_exceptions:
-                self.validation_layout = html.Div(
-                    [
-                        page["layout"]() if callable(page["layout"]) else page["layout"]
-                        for page in _pages.PAGE_REGISTRY.values()
-                    ]
+                # Set validation_layout
+                if not self.config.suppress_callback_exceptions:
+                    self.validation_layout = html.Div(
+                        [
+                            asyncio.run(execute_async_function(page["layout"])) if callable(page["layout"]) else page[
+                                "layout"]
+                            for page in _pages.PAGE_REGISTRY.values()
+                        ]
                     + [
                         # pylint: disable=not-callable
                         self.layout()
