@@ -5,19 +5,19 @@ from dash.dependencies import Input, Output
 from dash._validate import validate_background_callbacks
 
 
-def test_circular_long_callback_progress():
+def test_circular_background_callback_progress():
     callback_map = {
         "side": {
             "output": [Output("side-progress", "children")],
             "raw_inputs": [Input("progress", "children")],
         },
-        "long": {
+        "background": {
             "output": [Output("result", "children")],
             "raw_inputs": [
                 Input("click", "n_clicks"),
                 Input("side-progress", "children"),
             ],
-            "long": {"progress": [Output("progress", "children")]},
+            "background": {"progress": [Output("progress", "children")]},
         },
     }
 
