@@ -192,6 +192,7 @@ def _get_traceback(secret, error: Exception):
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
+
 async def execute_async_function(func, *args, **kwargs):
     # Check if the function is a coroutine function
     if asyncio.iscoroutinefunction(func):
@@ -1409,9 +1410,7 @@ class Dash:
         if asyncio.iscoroutine(response_data):
             response_data = await response_data
 
-        response.set_data(
-            response_data
-        )
+        response.set_data(response_data)
         return response
 
     def dispatch(self):
@@ -1528,14 +1527,12 @@ class Dash:
             callback_context=g,
             app=self,
             app_on_error=self._on_error,
-            app_use_async=self._use_async
+            app_use_async=self._use_async,
         )
 
         response_data = ctx.run(partial_func)
 
-        response.set_data(
-            response_data
-        )
+        response.set_data(response_data)
         return response
 
     def _setup_server(self):
@@ -2352,11 +2349,12 @@ class Dash:
             inputs.update(self.routing_callback_inputs)
 
             if self._use_async:
+
                 @self.callback(
                     Output(_ID_CONTENT, "children"),
                     Output(_ID_STORE, "data"),
                     inputs=inputs,
-                    prevent_initial_call=True
+                    prevent_initial_call=True,
                 )
                 async def update(pathname_, search_, **states):
                     """
@@ -2384,13 +2382,14 @@ class Dash:
                         title = page["title"]
 
                     if callable(layout):
-                        layout = await execute_async_function(layout,
-                                                              **{**(path_variables or {}), **query_parameters, **states}
-                                                              )
+                        layout = await execute_async_function(
+                            layout,
+                            **{**(path_variables or {}), **query_parameters, **states},
+                        )
                     if callable(title):
-                        title = await execute_async_function(title,
-                                                             **(path_variables or {})
-                                                             )
+                        title = await execute_async_function(
+                            title, **(path_variables or {})
+                        )
 
                     return layout, {"title": title}
 
@@ -2401,20 +2400,22 @@ class Dash:
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            asyncio.run(execute_async_function(page["layout"])) if callable(page["layout"]) else page[
-                                "layout"]
+                            asyncio.run(execute_async_function(page["layout"]))
+                            if callable(page["layout"])
+                            else page["layout"]
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
-                    + [
-                        # pylint: disable=not-callable
-                        self.layout()
-                        if callable(self.layout)
-                        else self.layout
-                    ]
-                )
+                        + [
+                            # pylint: disable=not-callable
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
+                        ]
+                    )
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")
             else:
+
                 @self.callback(
                     Output(_ID_CONTENT, "children"),
                     Output(_ID_STORE, "data"),
@@ -2447,8 +2448,9 @@ class Dash:
                         title = page["title"]
 
                     if callable(layout):
-                        layout = layout(**{**(path_variables or {}), **query_parameters,
-                                                                 **states})
+                        layout = layout(
+                            **{**(path_variables or {}), **query_parameters, **states}
+                        )
                     if callable(title):
                         title = title(**(path_variables or {}))
 
@@ -2461,9 +2463,9 @@ class Dash:
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            page["layout"]() if callable(page["layout"]) else
-                            page[
-                                "layout"]
+                            page["layout"]()
+                            if callable(page["layout"])
+                            else page["layout"]
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + [

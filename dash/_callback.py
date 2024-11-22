@@ -48,6 +48,7 @@ async def _async_invoke_callback(func, *args, **kwargs):
         # If the function is not a coroutine, call it directly
         return func(*args, **kwargs)
 
+
 def _invoke_callback(func, *args, **kwargs):
     return func(*args, **kwargs)
 
@@ -503,7 +504,9 @@ def register_callback(
                     return to_json(response)
             else:
                 try:
-                    output_value = await _async_invoke_callback(func, *func_args, **func_kwargs)
+                    output_value = await _async_invoke_callback(
+                        func, *func_args, **func_kwargs
+                    )
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
