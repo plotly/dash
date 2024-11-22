@@ -551,7 +551,6 @@ jobs:
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - run:
