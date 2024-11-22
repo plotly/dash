@@ -18,8 +18,8 @@ import traceback
 from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, List
 
-import flask
 import asyncio
+import flask
 
 from importlib_metadata import version as _get_distribution_version
 
@@ -205,9 +205,8 @@ async def execute_async_function(func, *args, **kwargs):
     # Check if the function is a coroutine function
     if asyncio.iscoroutinefunction(func):
         return await func(*args, **kwargs)
-    else:
-        # If the function is not a coroutine, call it directly
-        return func(*args, **kwargs)
+    # If the function is not a coroutine, call it directly
+    return func(*args, **kwargs)
 
 
 # pylint: disable=too-many-instance-attributes

@@ -3,8 +3,8 @@ import hashlib
 from functools import wraps
 from typing import Callable, Optional, Any
 
-import flask
 import asyncio
+import flask
 
 from .dependencies import (
     handle_callback_args,
@@ -46,9 +46,8 @@ async def _async_invoke_callback(
     # Check if the function is a coroutine function
     if asyncio.iscoroutinefunction(func):
         return await func(*args, **kwargs)  # %% callback invoked %%
-    else:
-        # If the function is not a coroutine, call it directly
-        return func(*args, **kwargs)  # %% callback invoked %%
+    # If the function is not a coroutine, call it directly
+    return func(*args, **kwargs)  # %% callback invoked %%
 
 
 def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
@@ -83,7 +82,6 @@ def callback(
     manager=None,
     cache_args_to_ignore=None,
     on_error: Optional[Callable[[Exception], Any]] = None,
-    use_async=False,
     **_kwargs,
 ):
     """
