@@ -443,9 +443,25 @@ class Dash:
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
         description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
-        use_async: Optional[bool] = False,
+        use_async: Optional[bool] = None,
         **obsolete,
     ):
+
+        if use_async is None:
+            try:
+                import asgiref
+
+                use_async = True
+            except ImportError:
+                pass
+        elif use_async:
+            try:
+                import asgiref
+            except ImportError:
+                raise Exception(
+                    "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"
+                )
+
         _validate.check_obsolete(obsolete)
 
         caller_name = None if name else get_caller_name()
@@ -1538,6 +1554,11 @@ class Dash:
         )
 
         response_data = ctx.run(partial_func)
+
+        if asyncio.iscoroutine(response_data):
+            raise Exception(
+                "You are trying to use a coroutine without dash[async], please install the dependencies via `pip install dash[async]` and make sure you arent passing `use_async=False` to the app."
+            )
 
         response.set_data(response_data)
         return response
