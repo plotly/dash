@@ -540,7 +540,7 @@ jobs:
   table-visual-test:
     working_directory: ~/dash/components/dash-table
     docker:
-      - image: cimg/node:16.13-browsers
+      - image: cimg/node:lts-browsers
         environment:
           PERCY_TOKEN: $PERCY_TOKEN_TABLE
 
@@ -551,7 +551,6 @@ jobs:
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - run:
