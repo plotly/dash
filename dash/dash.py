@@ -150,6 +150,7 @@ def _get_traceback(secret, error: Exception):
     def _get_skip(error):
         from dash._callback import (  # pylint: disable=import-outside-toplevel
             _invoke_callback,
+            _async_invoke_callback,
         )
 
         tb = error.__traceback__
@@ -157,7 +158,10 @@ def _get_traceback(secret, error: Exception):
         while tb.tb_next is not None:
             skip += 1
             tb = tb.tb_next
-            if tb.tb_frame.f_code is _invoke_callback.__code__:
+            if tb.tb_frame.f_code in [
+                _invoke_callback.__code__,
+                _async_invoke_callback.__code__,
+            ]:
                 return skip
 
         return skip
@@ -165,11 +169,15 @@ def _get_traceback(secret, error: Exception):
     def _do_skip(error):
         from dash._callback import (  # pylint: disable=import-outside-toplevel
             _invoke_callback,
+            _async_invoke_callback,
         )
 
         tb = error.__traceback__
         while tb.tb_next is not None:
-            if tb.tb_frame.f_code is _invoke_callback.__code__:
+            if tb.tb_frame.f_code in [
+                _invoke_callback.__code__,
+                _async_invoke_callback.__code__,
+            ]:
                 return tb.tb_next
             tb = tb.tb_next
         return error.__traceback__

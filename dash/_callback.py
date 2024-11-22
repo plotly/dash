@@ -40,17 +40,19 @@ from .long_callback.managers import BaseLongCallbackManager
 from ._callback_context import context_value
 
 
-async def _async_invoke_callback(func, *args, **kwargs):
+async def _async_invoke_callback(
+    func, *args, **kwargs
+):  # used to mark the frame for the debugger
     # Check if the function is a coroutine function
     if asyncio.iscoroutinefunction(func):
-        return await func(*args, **kwargs)
+        return await func(*args, **kwargs)  # %% callback invoked %%
     else:
         # If the function is not a coroutine, call it directly
-        return func(*args, **kwargs)
+        return func(*args, **kwargs)  # %% callback invoked %%
 
 
-def _invoke_callback(func, *args, **kwargs):
-    return func(*args, **kwargs)
+def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
+    return func(*args, **kwargs)  # %% callback invoked %%
 
 
 class NoUpdate:
