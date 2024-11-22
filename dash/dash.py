@@ -449,14 +449,14 @@ class Dash:
 
         if use_async is None:
             try:
-                import asgiref
+                import asgiref # pylint: disable=unused-import
 
                 use_async = True
             except ImportError:
                 pass
         elif use_async:
             try:
-                import asgiref
+                import asgiref # pylint: disable=unused-import
             except ImportError:
                 raise Exception(
                     "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"
