@@ -38,7 +38,7 @@
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
     "prepare": "husky install",
-    "lint": "run-s private::lint.*",
+    "lint": "run-s private::lint.* --continue-on-error",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
