@@ -16,7 +16,7 @@
     "postbuild": "es-check es2015 ../deps/*.js build/*.js",
     "test": "karma start karma.conf.js --single-run",
     "format": "run-s private::format.*",
-    "lint": "run-s private::lint.*"
+    "lint": "run-s private::lint.* --continue-on-error"
   },
   "author": "chriddyp",
   "license": "MIT",
