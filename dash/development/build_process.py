@@ -169,7 +169,7 @@ class Renderer(BuildProcess):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         extras = [
             "18.2.0",
-            "18.3.1",
+            "16.14.0",
         ]  # versions to include beyond what's in package.json
         super().__init__(
             self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
