@@ -11,6 +11,4 @@ AsyncComponent.propTypes = {
     value: PropTypes.string
 };
 
-AsyncComponent.defaultProps = {};
-
 export default AsyncComponent;
