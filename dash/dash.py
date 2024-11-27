@@ -349,9 +349,6 @@ class Dash:
     want to control the document.title through a separate component or
     clientside callback.
 
-    :param long_callback_manager: Deprecated, use ``background_callback_manager``
-        instead.
-
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
@@ -411,9 +408,6 @@ class Dash:
         plugins: Optional[list] = None,
         title: str = "Dash",
         update_title: str = "Updating...",
-        long_callback_manager: Optional[
-            Any
-        ] = None,  # Type should be specified if possible
         background_callback_manager: Optional[
             Any
         ] = None,  # Type should be specified if possible
@@ -546,15 +540,8 @@ class Dash:
         )
 
         self._assets_files = []
-        self._long_callback_count = 0
-        if long_callback_manager:
-            warnings.warn(
-                DeprecationWarning(
-                    "`long_callback_manager` is deprecated and will be remove in Dash 3.0, "
-                    "use `background_callback_manager` instead."
-                )
-            )
-        self._background_manager = background_callback_manager or long_callback_manager
+
+        self._background_manager = background_callback_manager
 
         self.logger = logging.getLogger(__name__)
 
@@ -1284,38 +1271,6 @@ class Dash:
             **_kwargs,
         )
 
-    def long_callback(
-        self,
-        *_args,
-        manager=None,
-        interval=1000,
-        running=None,
-        cancel=None,
-        progress=None,
-        progress_default=None,
-        cache_args_to_ignore=None,
-        **_kwargs,
-    ):
-        """
-        Deprecated: long callbacks are now supported natively with regular callbacks,
-        use `background=True` with `dash.callback` or `app.callback` instead.
-        """
-        return _callback.callback(
-            *_args,
-            background=True,
-            manager=manager,
-            interval=interval,
-            progress=progress,
-            progress_default=progress_default,
-            running=running,
-            cancel=cancel,
-            cache_args_to_ignore=cache_args_to_ignore,
-            callback_map=self.callback_map,
-            callback_list=self._callback_list,
-            config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
-            **_kwargs,
-        )
-
     # pylint: disable=R0915
     def dispatch(self):
         body = flask.request.get_json()
@@ -1353,7 +1308,7 @@ class Dash:
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
             )
-            g.ignore_register_page = cb.get("long", False)
+            g.ignore_register_page = cb.get("background", False)
 
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
@@ -1428,7 +1383,7 @@ class Dash:
                     func,
                     *args,
                     outputs_list=outputs_list,
-                    long_callback_manager=self._background_manager,
+                    background_callback_manager=self._background_manager,
                     callback_context=g,
                     app=self,
                     app_on_error=self._on_error,
@@ -1476,18 +1431,18 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        _validate.validate_long_callbacks(self.callback_map)
+        _validate.validate_background_callbacks(self.callback_map)
 
         cancels = {}
 
         for callback in self.callback_map.values():
-            long = callback.get("long")
-            if not long:
+            background = callback.get("background")
+            if not background:
                 continue
-            if "cancel_inputs" in long:
-                cancel = long.pop("cancel_inputs")
+            if "cancel_inputs" in background:
+                cancel = background.pop("cancel_inputs")
                 for c in cancel:
-                    cancels[c] = long.get("manager")
+                    cancels[c] = background.get("manager")
 
         if cancels:
             for cancel_input, manager in cancels.items():
@@ -2349,16 +2304,3 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-    def run_server(self, *args, **kwargs):
-        """`run_server` is a deprecated alias of `run` and may be removed in a
-        future version. We recommend using `app.run` instead.
-
-        See `app.run` for usage information.
-        """
-        warnings.warn(
-            DeprecationWarning(
-                "Dash.run_server is deprecated and will be removed in Dash 3.0"
-            )
-        )
-        self.run(*args, **kwargs)
