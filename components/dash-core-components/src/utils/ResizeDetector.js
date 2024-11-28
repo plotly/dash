@@ -1,15 +1,26 @@
-import React, {createRef, useEffect, useMemo} from 'react';
+import React, {createRef, useEffect, useCallback, useMemo} from 'react';
 import PropTypes from 'prop-types';
 
+// Debounce 50 ms
+const DELAY = 50;
+
+let resizeTimeout;
+
 const ResizeDetector = props => {
-    const {onResize, autosize, children, targets} = props;
+    const {onResize, children, targets} = props;
     const ref = createRef();
 
+    const debouncedResizeHandler = useCallback(() => {
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+        resizeTimeout = setTimeout(() => {
+            onResize(true); // Force on resize.
+        }, DELAY);
+    }, [onResize]);
+
     const observer = useMemo(
-        () =>
-            new ResizeObserver(() => {
-                onResize();
-            }),
+        () => new ResizeObserver(debouncedResizeHandler),
         [onResize]
     );
 
@@ -19,30 +30,15 @@ const ResizeDetector = props => {
         }
         targets.forEach(target => observer.observe(target.current));
         observer.observe(ref.current);
-        const windowResizedHandled = -1;
-        // if (autosize) {
-        //     windowResizedHandled = window.addEventListener(
-        //         'resize',
-        //         onResize
-        //     );
-        // }
         return () => {
             observer.disconnect();
-            if (autosize) {
-                window.removeEventListener(windowResizedHandled);
-            }
         };
     }, [ref.current]);
 
-    return (
-        <div ref={ref} style={{width: '100%'}}>
-            {children}
-        </div>
-    );
+    return <div ref={ref}>{children}</div>;
 };
 
 ResizeDetector.propTypes = {
-    autosize: PropTypes.bool,
     onResize: PropTypes.func,
     children: PropTypes.node,
     targets: PropTypes.any,

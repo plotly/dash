@@ -516,7 +516,7 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state, responsive} = this.props;
+        const {className, id, style, loading_state} = this.props;
 
         return (
             <div
@@ -532,7 +532,6 @@ class PlotlyGraph extends Component {
                 <ResizeDetector
                     onResize={this.graphResize}
                     targets={[this.parentElement, this.gd]}
-                    autosize={!!responsive}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
             </div>
