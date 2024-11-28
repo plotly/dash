@@ -148,6 +148,8 @@ class PlotlyGraph extends Component {
         this._prevGd = null;
         this._queue = Promise.resolve();
 
+        this.parentElement = React.createRef();
+
         this.bindEvents = this.bindEvents.bind(this);
         this.getConfig = this.getConfig.bind(this);
         this.getConfigOverride = this.getConfigOverride.bind(this);
@@ -514,7 +516,7 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
+        const {className, id, style, loading_state, responsive} = this.props;
 
         return (
             <div
@@ -525,8 +527,13 @@ class PlotlyGraph extends Component {
                 }
                 className={className}
                 style={style}
+                ref={this.parentElement}
             >
-                <ResizeDetector onResize={this.graphResize} />
+                <ResizeDetector
+                    onResize={this.graphResize}
+                    targets={[this.parentElement, this.gd]}
+                    autosize={!!responsive}
+                />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
             </div>
         );
