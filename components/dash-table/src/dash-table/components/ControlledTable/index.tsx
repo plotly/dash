@@ -54,7 +54,15 @@ type Refs = {
     r1: React.RefObject<HTMLDivElement>;
 };
 
-const tableRefNames = ['table', 'tooltip', 'r0c0', 'r0c1', 'r1c0', 'r1c1'];
+const tableRefNames = [
+    'table',
+    'tooltip',
+    'r0c0',
+    'r0c1',
+    'r1c0',
+    'r1c1',
+    'r1'
+];
 
 const DEFAULT_STYLE = {
     width: '100%'
