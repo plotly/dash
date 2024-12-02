@@ -786,6 +786,25 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         });
     };
 
+    getColumnRef(rowIndex: number, colIndex: number) {
+        if (rowIndex === 0) {
+            if (colIndex === 0) {
+                return this.tableRefs.r0c0;
+            }
+            if (colIndex === 1) {
+                return this.tableRefs.r0c1;
+            }
+        }
+        if (rowIndex == 1) {
+            if (colIndex === 0) {
+                return this.tableRefs.r1c0;
+            }
+            if (colIndex === 1) {
+                return this.tableRefs.r1c1;
+            }
+        }
+    }
+
     getNextCell = (event: any, {restrictToSelection, currentCell}: any) => {
         const {selected_cells, viewport, visibleColumns} = this.props;
 
@@ -1078,13 +1097,10 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                                             key={columnIndex}
                                             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                             // @ts-ignore
-                                            ref={
-                                                rowIndex < 2 && columnIndex < 2
-                                                    ? this.tableRefs[
-                                                          `r${rowIndex}c${columnIndex}`
-                                                      ]
-                                                    : undefined
-                                            }
+                                            ref={this.getColumnRef(
+                                                rowIndex,
+                                                columnIndex
+                                            )}
                                             className={`cell cell-${rowIndex}-${columnIndex} ${c}`}
                                         >
                                             {g
