@@ -1345,8 +1345,10 @@ class Dash:
             inputs_state_indices = cb["inputs_state_indices"]
             inputs_state = convert_to_AttributeDict(g.inputs_list + g.states_list)
 
-            # Legacy support for older renderers
-            if not g.outputs_list:
+            if cb.get("no_output"):
+                g.outputs_list = []
+            elif not g.outputs_list:
+                # Legacy support for older renderers
                 split_callback_id(output)
 
             # Update args_grouping attributes
