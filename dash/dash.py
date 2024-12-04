@@ -1309,259 +1309,130 @@ class Dash:
         )
 
     # pylint: disable=R0915
-    async def async_dispatch(self):
-        body = flask.request.get_json()
-
+    def _initialize_context(self, body):
+        """Initialize the global context for the request."""
         g = AttributeDict({})
-
-        g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
-            "inputs", []
-        )
-        g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
-            "state", []
-        )
-        output = body["output"]
-        outputs_list = body.get("outputs")
-        g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
-
-        g.input_values = (  # pylint: disable=assigning-non-slot
-            input_values
-        ) = inputs_to_dict(inputs)
-        g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
-        changed_props = body.get("changedPropIds", [])
-        g.triggered_inputs = [  # pylint: disable=assigning-non-slot
-            {"prop_id": x, "value": input_values.get(x)} for x in changed_props
+        g.inputs_list = body.get("inputs", [])
+        g.states_list = body.get("state", [])
+        g.outputs_list = body.get("outputs", [])
+        g.input_values = inputs_to_dict(g.inputs_list)
+        g.state_values = inputs_to_dict(g.states_list)
+        g.triggered_inputs = [
+            {"prop_id": x, "value": g.input_values.get(x)}
+            for x in body.get("changedPropIds", [])
         ]
+        g.dash_response = flask.Response(mimetype="application/json")
+        g.cookies = dict(**flask.request.cookies)
+        g.headers = dict(**flask.request.headers)
+        g.path = flask.request.full_path
+        g.remote = flask.request.remote_addr
+        g.origin = flask.request.origin
+        g.updated_props = {}
+        return g
 
-        response = (
-            g.dash_response  # pylint: disable=assigning-non-slot
-        ) = flask.Response(mimetype="application/json")
-
-        args = inputs_to_vals(inputs + state)
-
+    def _prepare_callback(self, g, body):
+        """Prepare callback-related data."""
+        output = body["output"]
         try:
             cb = self.callback_map[output]
             func = cb["callback"]
-            g.background_callback_manager = (
-                cb.get("manager") or self._background_manager
-            )
+            g.background_callback_manager = cb.get("manager") or self._background_manager
             g.ignore_register_page = cb.get("long", False)
 
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
-            inputs_state = inputs + state
-            inputs_state = convert_to_AttributeDict(inputs_state)
+            inputs_state = convert_to_AttributeDict(g.inputs_list + g.states_list)
 
-            if cb.get("no_output"):
-                outputs_list = []
-            elif not outputs_list:
-                # FIXME Old renderer support?
+            # Legacy support for older renderers
+            if not g.outputs_list:
                 split_callback_id(output)
 
-            # update args_grouping attributes
+            # Update args_grouping attributes
             for s in inputs_state:
                 # check for pattern matching: list of inputs or state
                 if isinstance(s, list):
                     for pattern_match_g in s:
-                        update_args_group(pattern_match_g, changed_props)
-                update_args_group(s, changed_props)
+                        update_args_group(pattern_match_g, body.get("changedPropIds", []))
+                update_args_group(s, body.get("changedPropIds", []))
 
-            args_grouping = map_grouping(
-                lambda ind: inputs_state[ind], inputs_state_indices
+            g.args_grouping, g.using_args_grouping = self._prepare_grouping(
+                inputs_state, inputs_state_indices
             )
-
-            g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
-            g.using_args_grouping = (  # pylint: disable=assigning-non-slot
-                not isinstance(inputs_state_indices, int)
-                and (
-                    inputs_state_indices
-                    != list(range(grouping_len(inputs_state_indices)))
-                )
+            g.outputs_grouping, g.using_outputs_grouping = self._prepare_grouping(
+                g.outputs_list, cb.get("outputs_indices", [])
             )
+        except KeyError as e:
+            raise KeyError(f"Callback function not found for output '{output}'.") from e
+        return func
 
-            # Add outputs_grouping
-            outputs_indices = cb["outputs_indices"]
-            if not isinstance(outputs_list, list):
-                flat_outputs = [outputs_list]
-            else:
-                flat_outputs = outputs_list
+    def _prepare_grouping(self, data_list, indices):
+        """Prepare grouping logic for inputs or outputs."""
+        if not isinstance(data_list, list):
+            flat_data = [data_list]
+        else:
+            flat_data = data_list
 
-            if len(flat_outputs) > 0:
-                outputs_grouping = map_grouping(
-                    lambda ind: flat_outputs[ind], outputs_indices
-                )
-                g.outputs_grouping = (
-                    outputs_grouping  # pylint: disable=assigning-non-slot
-                )
-                g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
-                    not isinstance(outputs_indices, int)
-                    and outputs_indices != list(range(grouping_len(outputs_indices)))
-                )
-            else:
-                g.outputs_grouping = []
-                g.using_outputs_grouping = []
-            g.updated_props = {}
+        if len(flat_data) > 0:
+            grouping = map_grouping(lambda ind: flat_data[ind], indices)
+            using_grouping = not isinstance(indices, int) and indices != list(range(grouping_len(indices)))
+        else:
+            grouping, using_grouping = [], False
 
-            g.cookies = dict(**flask.request.cookies)
-            g.headers = dict(**flask.request.headers)
-            g.path = flask.request.full_path
-            g.remote = flask.request.remote_addr
-            g.origin = flask.request.origin
+        return grouping, using_grouping
 
-        except KeyError as missing_callback_function:
-            msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg) from missing_callback_function
-
-        ctx = copy_context()
-        # Create a partial function with the necessary arguments
+    def _execute_callback(self, func, args, outputs_list, g):
+        """Execute the callback with the prepared arguments."""
         # noinspection PyArgumentList
         partial_func = functools.partial(
-            execute_async_function,
             func,
             *args,
             outputs_list=outputs_list,
-            long_callback_manager=self._background_manager,
+            long_callback_manager=g.background_callback_manager,
             callback_context=g,
             app=self,
             app_on_error=self._on_error,
             app_use_async=self._use_async,
         )
+        return partial_func
 
-        response_data = await ctx.run(partial_func)
+    async def async_dispatch(self):
+        body = flask.request.get_json()
+        g = self._initialize_context(body)
+        func = self._prepare_callback(g, body)
+        args = inputs_to_vals(g.inputs_list + g.states_list)
 
-        # Check if the response is a coroutine
+        ctx = copy_context()
+        partial_func = self._execute_callback(func, args, g.outputs_list, g)
+        if asyncio.iscoroutine(func):
+            response_data = await ctx.run(partial_func)
+        else:
+            response_data = ctx.run(partial_func)
+
         if asyncio.iscoroutine(response_data):
             response_data = await response_data
 
-        response.set_data(response_data)
-        return response
+        g.dash_response.set_data(response_data)
+        return g.dash_response
 
     def dispatch(self):
         body = flask.request.get_json()
-
-        g = AttributeDict({})
-
-        g.inputs_list = inputs = body.get(  # pylint: disable=assigning-non-slot
-            "inputs", []
-        )
-        g.states_list = state = body.get(  # pylint: disable=assigning-non-slot
-            "state", []
-        )
-        output = body["output"]
-        outputs_list = body.get("outputs")
-        g.outputs_list = outputs_list  # pylint: disable=assigning-non-slot
-
-        g.input_values = (  # pylint: disable=assigning-non-slot
-            input_values
-        ) = inputs_to_dict(inputs)
-        g.state_values = inputs_to_dict(state)  # pylint: disable=assigning-non-slot
-        changed_props = body.get("changedPropIds", [])
-        g.triggered_inputs = [  # pylint: disable=assigning-non-slot
-            {"prop_id": x, "value": input_values.get(x)} for x in changed_props
-        ]
-
-        response = (
-            g.dash_response  # pylint: disable=assigning-non-slot
-        ) = flask.Response(mimetype="application/json")
-
-        args = inputs_to_vals(inputs + state)
-
-        try:
-            cb = self.callback_map[output]
-            func = cb["callback"]
-            g.background_callback_manager = (
-                cb.get("manager") or self._background_manager
-            )
-            g.ignore_register_page = cb.get("long", False)
-
-            # Add args_grouping
-            inputs_state_indices = cb["inputs_state_indices"]
-            inputs_state = inputs + state
-            inputs_state = convert_to_AttributeDict(inputs_state)
-
-            if cb.get("no_output"):
-                outputs_list = []
-            elif not outputs_list:
-                # FIXME Old renderer support?
-                split_callback_id(output)
-
-            # update args_grouping attributes
-            for s in inputs_state:
-                # check for pattern matching: list of inputs or state
-                if isinstance(s, list):
-                    for pattern_match_g in s:
-                        update_args_group(pattern_match_g, changed_props)
-                update_args_group(s, changed_props)
-
-            args_grouping = map_grouping(
-                lambda ind: inputs_state[ind], inputs_state_indices
-            )
-
-            g.args_grouping = args_grouping  # pylint: disable=assigning-non-slot
-            g.using_args_grouping = (  # pylint: disable=assigning-non-slot
-                not isinstance(inputs_state_indices, int)
-                and (
-                    inputs_state_indices
-                    != list(range(grouping_len(inputs_state_indices)))
-                )
-            )
-
-            # Add outputs_grouping
-            outputs_indices = cb["outputs_indices"]
-            if not isinstance(outputs_list, list):
-                flat_outputs = [outputs_list]
-            else:
-                flat_outputs = outputs_list
-
-            if len(flat_outputs) > 0:
-                outputs_grouping = map_grouping(
-                    lambda ind: flat_outputs[ind], outputs_indices
-                )
-                g.outputs_grouping = (
-                    outputs_grouping  # pylint: disable=assigning-non-slot
-                )
-                g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
-                    not isinstance(outputs_indices, int)
-                    and outputs_indices != list(range(grouping_len(outputs_indices)))
-                )
-            else:
-                g.outputs_grouping = []
-                g.using_outputs_grouping = []
-            g.updated_props = {}
-
-            g.cookies = dict(**flask.request.cookies)
-            g.headers = dict(**flask.request.headers)
-            g.path = flask.request.full_path
-            g.remote = flask.request.remote_addr
-            g.origin = flask.request.origin
-
-        except KeyError as missing_callback_function:
-            msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
-            raise KeyError(msg) from missing_callback_function
+        g = self._initialize_context(body)
+        func = self._prepare_callback(g, body)
+        args = inputs_to_vals(g.inputs_list + g.states_list)
 
         ctx = copy_context()
-        # Create a partial function with the necessary arguments
-        # noinspection PyArgumentList
-        partial_func = functools.partial(
-            func,
-            *args,
-            outputs_list=outputs_list,
-            long_callback_manager=self._background_manager,
-            callback_context=g,
-            app=self,
-            app_on_error=self._on_error,
-            app_use_async=self._use_async,
-        )
-
+        partial_func = self._execute_callback(func, args, g.outputs_list, g)
         response_data = ctx.run(partial_func)
 
         if asyncio.iscoroutine(response_data):
             raise Exception(
-                "You are trying to use a coroutine without dash[async], please install the dependencies via `pip install dash[async]` and make sure you arent passing `use_async=False` to the app."
+                "You are trying to use a coroutine without dash[async]. "
+                "Please install the dependencies via `pip install dash[async]` and ensure "
+                "that `use_async=False` is not being passed to the app."
             )
 
-        response.set_data(response_data)
-        return response
+        g.dash_response.set_data(response_data)
+        return g.dash_response
 
     def _setup_server(self):
         if self._got_first_request["setup_server"]:
