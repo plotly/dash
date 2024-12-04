@@ -1336,7 +1336,9 @@ class Dash:
         try:
             cb = self.callback_map[output]
             func = cb["callback"]
-            g.background_callback_manager = cb.get("manager") or self._background_manager
+            g.background_callback_manager = (
+                cb.get("manager") or self._background_manager
+            )
             g.ignore_register_page = cb.get("long", False)
 
             # Add args_grouping
@@ -1352,7 +1354,9 @@ class Dash:
                 # check for pattern matching: list of inputs or state
                 if isinstance(s, list):
                     for pattern_match_g in s:
-                        update_args_group(pattern_match_g, body.get("changedPropIds", []))
+                        update_args_group(
+                            pattern_match_g, body.get("changedPropIds", [])
+                        )
                 update_args_group(s, body.get("changedPropIds", []))
 
             g.args_grouping, g.using_args_grouping = self._prepare_grouping(
@@ -1374,7 +1378,9 @@ class Dash:
 
         if len(flat_data) > 0:
             grouping = map_grouping(lambda ind: flat_data[ind], indices)
-            using_grouping = not isinstance(indices, int) and indices != list(range(grouping_len(indices)))
+            using_grouping = not isinstance(indices, int) and indices != list(
+                range(grouping_len(indices))
+            )
         else:
             grouping, using_grouping = [], False
 
