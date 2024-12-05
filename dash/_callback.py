@@ -356,14 +356,12 @@ def register_callback(
     def initialize_context(args, kwargs, inputs_state_indices):
         """Initialize context and validate output specifications."""
         app = kwargs.pop("app", None)
-        output_spec = kwargs.pop("outputs_list", [])
+        output_spec = kwargs.pop("outputs_list")
         callback_ctx = kwargs.pop(
             "callback_context", AttributeDict({"updated_props": {}})
         )
         context_value.set(callback_ctx)
-        has_output = False
-        if len(output_spec) > 0:
-            has_output = True
+        original_packages = set(ComponentRegistry.registry)
 
         if has_output:
             _validate.validate_output_spec(insert_output, output_spec, Output)
@@ -371,10 +369,27 @@ def register_callback(
         func_args, func_kwargs = _validate.validate_and_group_input_args(
             args, inputs_state_indices
         )
-        return output_spec, callback_ctx, func_args, func_kwargs, app
+        return (
+            output_spec,
+            callback_ctx,
+            func_args,
+            func_kwargs,
+            app,
+            original_packages,
+            False,
+        )
 
     def handle_long_callback(
-        kwargs, long, long_key, response, error_handler, func, func_args, func_kwargs
+        kwargs,
+        long,
+        long_key,
+        callback_ctx,
+        response,
+        error_handler,
+        func,
+        func_args,
+        func_kwargs,
+        has_update=False,
     ):
         """Set up the long callback and manage jobs."""
         callback_manager = long.get(
@@ -437,7 +452,7 @@ def register_callback(
                 data["progressDefault"] = {
                     str(o): x for o, x in zip(progress_outputs, progress_default)
                 }
-            return to_json(data), True
+            return to_json(data), True, has_update
         if progress_outputs:
             # Get the progress before the result as it would be erased after the results.
             progress = callback_manager.get_progress(cache_key)
@@ -463,6 +478,12 @@ def register_callback(
 
                 if output_value is None:
                     output_value = NoUpdate()
+                # set_props from the error handler uses the original ctx
+                # instead of manager.get_updated_props since it runs in the
+                # request process.
+                has_update = (
+                    _set_side_update(callback_ctx, response) or output_value is not None
+                )
             else:
                 raise exc
 
@@ -477,24 +498,45 @@ def register_callback(
         updated_props = callback_manager.get_updated_props(cache_key)
         if len(updated_props) > 0:
             response["sideUpdate"] = updated_props
+            has_update = True
 
         if output_value is callback_manager.UNDEFINED:
-            return to_json(response), True
-        return output_value, False
+            return to_json(response), True, has_update
+        return output_value, False, has_update
 
-    def prepare_response(output_value, output_spec, multi, response, callback_ctx, app):
+    def prepare_response(
+        output_value,
+        output_spec,
+        multi,
+        response,
+        callback_ctx,
+        app,
+        original_packages,
+        long,
+        has_update,
+    ):
         """Prepare the response object based on the callback output."""
         component_ids = collections.defaultdict(dict)
-        original_packages = set(ComponentRegistry.registry)
 
-        if output_spec:
+        if has_output:
             if not multi:
                 output_value, output_spec = [output_value], [output_spec]
                 flat_output_values = output_value
             else:
                 if isinstance(output_value, (list, tuple)):
+                    # For multi-output, allow top-level collection to be
+                    # list or tuple
                     output_value = list(output_value)
-                flat_output_values = flatten_grouping(output_value, output_spec)
+                if NoUpdate.is_no_update(output_value):
+                    flat_output_values = [output_value]
+                else:
+                    # Flatten grouping and validate grouping structure
+                    flat_output_values = flatten_grouping(output_value, output)
+
+            if not NoUpdate.is_no_update(output_value):
+                _validate.validate_multi_return(
+                    output_spec, flat_output_values, callback_id
+                )
 
             for val, spec in zip(flat_output_values, output_spec):
                 if NoUpdate.is_no_update(val):
@@ -503,6 +545,7 @@ def register_callback(
                     zip(val, spec) if isinstance(spec, list) else [[val, spec]]
                 ):
                     if not NoUpdate.is_no_update(vali):
+                        has_update = True
                         id_str = stringify_id(speci["id"])
                         prop = clean_property_name(speci["property"])
                         component_ids[id_str][prop] = vali
@@ -513,11 +556,8 @@ def register_callback(
                     f"No-output callback received return value: {output_value}"
                 )
 
-        has_update = (
-            _set_side_update(callback_ctx, response)
-            or has_output
-            or response["sideUpdate"]
-        )
+        if not long:
+            has_update = _set_side_update(callback_ctx, response) or has_output
 
         if not has_update:
             raise PreventUpdate
@@ -550,18 +590,25 @@ def register_callback(
             """Handles synchronous callbacks with context management."""
             error_handler = on_error or kwargs.pop("app_on_error", None)
 
-            output_spec, callback_ctx, func_args, func_kwargs, app = initialize_context(
-                args, kwargs, inputs_state_indices
-            )
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                has_update,
+            ) = initialize_context(args, kwargs, inputs_state_indices)
 
             response: dict = {"multi": True}
 
             try:
                 if long is not None:
-                    output_value, skip = handle_long_callback(
+                    output_value, skip, has_update = handle_long_callback(
                         kwargs,
                         long,
                         long_key,
+                        callback_ctx,
                         response,
                         error_handler,
                         func,
@@ -589,6 +636,9 @@ def register_callback(
                 response,
                 callback_ctx,
                 app,
+                original_packages,
+                long,
+                has_update,
             )
             try:
                 jsonResponse = to_json(response)
@@ -602,18 +652,25 @@ def register_callback(
             """Handles async callbacks with context management."""
             error_handler = on_error or kwargs.pop("app_on_error", None)
 
-            output_spec, callback_ctx, func_args, func_kwargs, app = initialize_context(
-                args, kwargs, inputs_state_indices
-            )
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                has_update,
+            ) = initialize_context(args, kwargs, inputs_state_indices)
 
             response: dict = {"multi": True}
 
             try:
                 if long is not None:
-                    output_value, skip = handle_long_callback(
+                    output_value, skip, has_update = handle_long_callback(
                         kwargs,
                         long,
                         long_key,
+                        callback_ctx,
                         response,
                         error_handler,
                         func,
@@ -643,6 +700,9 @@ def register_callback(
                 response,
                 callback_ctx,
                 app,
+                original_packages,
+                long,
+                has_update,
             )
             try:
                 jsonResponse = to_json(response)
