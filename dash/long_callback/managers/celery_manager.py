@@ -1,6 +1,8 @@
 import json
 import traceback
 from contextvars import copy_context
+import asyncio
+from functools import partial
 
 from _plotly_utils.utils import PlotlyJSONEncoder
 
@@ -9,8 +11,6 @@ from dash._utils import AttributeDict
 from dash.exceptions import PreventUpdate
 from dash.long_callback._proxy_set_props import ProxySetProps
 from dash.long_callback.managers import BaseLongCallbackManager
-import asyncio
-from functools import partial
 
 
 class CeleryManager(BaseLongCallbackManager):
@@ -92,14 +92,7 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         self.handle.backend.delete(key)
 
     def call_job_fn(self, key, job_fn, args, context):
-        if asyncio.iscoroutinefunction(job_fn):
-            # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
-            from asgiref.sync import async_to_sync
-
-            new_job_fun = async_to_sync(job_fn)
-            task = new_job_fun.delay(key, self._make_progress_key(key), args, context)
-        else:
-            task = job_fn.delay(key, self._make_progress_key(key), args, context)
+        task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
 
     def get_progress(self, key):
@@ -144,11 +137,13 @@ CeleryLongCallbackManager requires extra dependencies which can be installed doi
         return json.loads(updated_props)
 
 
-def _make_job_fn(fn, celery_app, progress, key):
+def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-statements
     cache = celery_app.backend
 
     @celery_app.task(name=f"long_callback_{key}")
-    def job_fn(result_key, progress_key, user_callback_args, context=None):
+    def job_fn(
+        result_key, progress_key, user_callback_args, context=None
+    ):  # pylint: disable=too-many-statements
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
@@ -224,21 +219,31 @@ def _make_job_fn(fn, celery_app, progress, key):
                 else:
                     user_callback_output = await fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
+                # Put NoUpdate dict directly to avoid circular imports.
                 errored = True
-                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
+                cache.set(
+                    result_key,
+                    json.dumps(
+                        {"_dash_no_update": "_dash_no_update"}, cls=PlotlyJSONEncoder
+                    ),
+                )
             except Exception as err:  # pylint: disable=broad-except
                 errored = True
                 cache.set(
                     result_key,
-                    {
-                        "long_callback_error": {
-                            "msg": str(err),
-                            "tb": traceback.format_exc(),
-                        }
-                    },
+                    json.dumps(
+                        {
+                            "long_callback_error": {
+                                "msg": str(err),
+                                "tb": traceback.format_exc(),
+                            }
+                        },
+                    ),
                 )
+
             if asyncio.iscoroutine(user_callback_output):
                 user_callback_output = await user_callback_output
+
             if not errored:
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)

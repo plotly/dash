@@ -1,13 +1,13 @@
 import traceback
 from contextvars import copy_context
+import asyncio
+from functools import partial
 
 from . import BaseLongCallbackManager
 from .._proxy_set_props import ProxySetProps
 from ..._callback_context import context_value
 from ..._utils import AttributeDict
 from ...exceptions import PreventUpdate
-import asyncio
-from functools import partial
 
 _pending_value = "__$pending__"
 
@@ -131,24 +131,13 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
         from multiprocess import Process
 
-        # Check if the job is asynchronous
-        if asyncio.iscoroutinefunction(job_fn):
-            # For async jobs, run in an event loop in a new process
-            process = Process(
-                target=self._run_async_in_process,
-                args=(job_fn, key, args, context),
-            )
-            process.start()
-            return process.pid
-        else:
-            # For sync jobs, use the existing implementation
-            # pylint: disable-next=not-callable
-            process = Process(
-                target=job_fn,
-                args=(key, self._make_progress_key(key), args, context),
-            )
-            process.start()
-            return process.pid
+        # pylint: disable-next=not-callable
+        process = Process(
+            target=job_fn,
+            args=(key, self._make_progress_key(key), args, context),
+        )
+        process.start()
+        return process.pid
 
     @staticmethod
     def _run_async_in_process(job_fn, key, args, context):
@@ -172,7 +161,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
             loop.run_until_complete(async_job())
         except Exception as e:
             # Handle errors, log them, and cache if necessary
-            raise str(e)
+            raise Exception(str(e)) from e
         finally:
             loop.close()
 
@@ -217,7 +206,9 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
         return result
 
 
+# pylint: disable-next=too-many-statements
 def _make_job_fn(fn, cache, progress):
+    # pylint: disable-next=too-many-statements
     def job_fn(result_key, progress_key, user_callback_args, context):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):

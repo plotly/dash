@@ -300,7 +300,7 @@ def _set_side_update(ctx, response) -> bool:
     return False
 
 
-# pylint: disable=too-many-branches,too-many-statements
+# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
 ):
@@ -475,24 +475,9 @@ def register_callback(
         cache_key = flask.request.args.get("cacheKey")
         job_id = flask.request.args.get("job")
 
+        progress_long_callback(response, callback_manager)
+
         output_value = callback_manager.get_result(cache_key, job_id)
-
-        progress_long_callback(response, callback_manager)
-
-        return handle_rest_long_callback(
-            output_value, callback_manager, response, error_handler, callback_ctx
-        )
-
-    async def async_update_long_callback(error_handler, callback_ctx, response, kwargs):
-        """Set up the long callback and manage jobs."""
-        callback_manager = get_callback_manager(kwargs)
-
-        cache_key = flask.request.args.get("cacheKey")
-        job_id = flask.request.args.get("job")
-
-        output_value = await callback_manager.async_get_result(cache_key, job_id)
-
-        progress_long_callback(response, callback_manager)
 
         return handle_rest_long_callback(
             output_value, callback_manager, response, error_handler, callback_ctx
