@@ -379,21 +379,10 @@ def register_callback(
             False,
         )
 
-    def handle_long_callback(
-        kwargs,
-        long,
-        long_key,
-        callback_ctx,
-        response,
-        error_handler,
-        func,
-        func_args,
-        func_kwargs,
-        has_update=False,
-    ):
+    def get_callback_manager(kwargs):
         """Set up the long callback and manage jobs."""
         callback_manager = long.get(
-            "manager", kwargs.pop("long_callback_manager", None)
+            "manager", kwargs.get("long_callback_manager", None)
         )
         if not callback_manager:
             raise MissingLongCallbackManagerError(
@@ -405,63 +394,120 @@ def register_callback(
                 " and store results on redis.\n"
             )
 
-        progress_outputs = long.get("progress")
-        cache_key = flask.request.args.get("cacheKey")
-        job_id = flask.request.args.get("job")
         old_job = flask.request.args.getlist("oldJob")
 
-        current_key = callback_manager.build_cache_key(
+        if old_job:
+            for job in old_job:
+                callback_manager.terminate_job(job)
+
+        return callback_manager
+
+    def setup_long_callback(
+        kwargs,
+        long,
+        long_key,
+        func,
+        func_args,
+        func_kwargs,
+    ):
+        """Set up the long callback and manage jobs."""
+        callback_manager = get_callback_manager(kwargs)
+
+        progress_outputs = long.get("progress")
+
+        cache_key = callback_manager.build_cache_key(
             func,
             # Inputs provided as dict is kwargs.
             func_args if func_args else func_kwargs,
             long.get("cache_args_to_ignore", []),
         )
 
-        if old_job:
-            for job in old_job:
-                callback_manager.terminate_job(job)
+        job_fn = callback_manager.func_registry.get(long_key)
 
-        if not cache_key:
-            cache_key = current_key
+        ctx_value = AttributeDict(**context_value.get())
+        ctx_value.ignore_register_page = True
+        ctx_value.pop("background_callback_manager")
+        ctx_value.pop("dash_response")
 
-            job_fn = callback_manager.func_registry.get(long_key)
+        job = callback_manager.call_job_fn(
+            cache_key,
+            job_fn,
+            func_args if func_args else func_kwargs,
+            ctx_value,
+        )
 
-            ctx_value = AttributeDict(**context_value.get())
-            ctx_value.ignore_register_page = True
-            ctx_value.pop("background_callback_manager")
-            ctx_value.pop("dash_response")
+        data = {
+            "cacheKey": cache_key,
+            "job": job,
+        }
 
-            job = callback_manager.call_job_fn(
-                cache_key,
-                job_fn,
-                func_args if func_args else func_kwargs,
-                ctx_value,
-            )
+        cancel = long.get("cancel")
+        if cancel:
+            data["cancel"] = cancel
 
-            data = {
-                "cacheKey": cache_key,
-                "job": job,
+        progress_default = long.get("progressDefault")
+        if progress_default:
+            data["progressDefault"] = {
+                str(o): x for o, x in zip(progress_outputs, progress_default)
             }
+        return to_json(data)
 
-            cancel = long.get("cancel")
-            if cancel:
-                data["cancel"] = cancel
+    def progress_long_callback(response, callback_manager):
+        progress_outputs = long.get("progress")
+        cache_key = flask.request.args.get("cacheKey")
 
-            progress_default = long.get("progressDefault")
-            if progress_default:
-                data["progressDefault"] = {
-                    str(o): x for o, x in zip(progress_outputs, progress_default)
-                }
-            return to_json(data), True, has_update
         if progress_outputs:
             # Get the progress before the result as it would be erased after the results.
             progress = callback_manager.get_progress(cache_key)
             if progress:
-                response["progress"] = {
-                    str(x): progress[i] for i, x in enumerate(progress_outputs)
-                }
+                response.update(
+                    {
+                        "progress": {
+                            str(x): progress[i] for i, x in enumerate(progress_outputs)
+                        }
+                    }
+                )
+
+    def update_long_callback(error_handler, callback_ctx, response, kwargs):
+        """Set up the long callback and manage jobs."""
+        callback_manager = get_callback_manager(kwargs)
+
+        cache_key = flask.request.args.get("cacheKey")
+        job_id = flask.request.args.get("job")
 
         output_value = callback_manager.get_result(cache_key, job_id)
+
+        progress_long_callback(response, callback_manager)
+
+        return handle_rest_long_callback(
+            output_value, callback_manager, response, error_handler, callback_ctx
+        )
+
+    async def async_update_long_callback(error_handler, callback_ctx, response, kwargs):
+        """Set up the long callback and manage jobs."""
+        callback_manager = get_callback_manager(kwargs)
+
+        cache_key = flask.request.args.get("cacheKey")
+        job_id = flask.request.args.get("job")
+
+        output_value = await callback_manager.async_get_result(cache_key, job_id)
+
+        progress_long_callback(response, callback_manager)
+
+        return handle_rest_long_callback(
+            output_value, callback_manager, response, error_handler, callback_ctx
+        )
+
+    def handle_rest_long_callback(
+        output_value,
+        callback_manager,
+        response,
+        error_handler,
+        callback_ctx,
+        has_update=False,
+    ):
+        cache_key = flask.request.args.get("cacheKey")
+        job_id = flask.request.args.get("job")
         # Must get job_running after get_result since get_results terminates it.
         job_running = callback_manager.job_running(job_id)
         if not job_running and output_value is callback_manager.UNDEFINED:
@@ -501,8 +547,8 @@ def register_callback(
             has_update = True
 
         if output_value is callback_manager.UNDEFINED:
-            return to_json(response), True, has_update
-        return output_value, False, has_update
+            return to_json(response), has_update, True
+        return output_value, has_update, False
 
     def prepare_response(
         output_value,
@@ -577,7 +623,6 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
-
         if long is not None:
             long_key = BaseLongCallbackManager.register_func(
                 func,
@@ -604,16 +649,18 @@ def register_callback(
 
             try:
                 if long is not None:
-                    output_value, skip, has_update = handle_long_callback(
-                        kwargs,
-                        long,
-                        long_key,
-                        callback_ctx,
-                        response,
-                        error_handler,
-                        func,
-                        func_args,
-                        func_kwargs,
+                    if not flask.request.args.get("cacheKey"):
+                        return setup_long_callback(
+                            kwargs,
+                            long,
+                            long_key,
+                            func,
+                            func_args,
+                            func_kwargs,
+                        )
+
+                    output_value, has_update, skip = update_long_callback(
+                        error_handler, callback_ctx, response, kwargs
                     )
                     if skip:
                         return output_value
@@ -666,16 +713,17 @@ def register_callback(
 
             try:
                 if long is not None:
-                    output_value, skip, has_update = handle_long_callback(
-                        kwargs,
-                        long,
-                        long_key,
-                        callback_ctx,
-                        response,
-                        error_handler,
-                        func,
-                        func_args,
-                        func_kwargs,
+                    if not flask.request.args.get("cacheKey"):
+                        return setup_long_callback(
+                            kwargs,
+                            long,
+                            long_key,
+                            func,
+                            func_args,
+                            func_kwargs,
+                        )
+                    output_value, has_update, skip = update_long_callback(
+                        error_handler, callback_ctx, response, kwargs
                     )
                     if skip:
                         return output_value
@@ -695,7 +743,7 @@ def register_callback(
 
             prepare_response(
                 output_value,
-                has_output,
+                output_spec,
                 multi,
                 response,
                 callback_ctx,
