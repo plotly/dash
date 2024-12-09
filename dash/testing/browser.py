@@ -159,6 +159,11 @@ class Browser(DashPageMixin):
         """
         if widths is None:
             widths = [1280]
+        try:
+            import asgiref  # pylint: disable=unused-import, # noqa: F401
+            name += '_async'
+        except:
+            pass
 
         logger.info("taking snapshot name => %s", name)
         try:
