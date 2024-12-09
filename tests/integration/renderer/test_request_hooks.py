@@ -245,8 +245,11 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
         ]
     )
 
-    @app.callback(Output("output-1", "children"), [Input("input", "value")
-                                                   ],prevent_initial_call=True)
+    @app.callback(
+        Output("output-1", "children"),
+        [Input("input", "value")],
+        prevent_initial_call=True,
+    )
     def update_output(value):
         jwt_token.value = len(value) + 1
         return value
@@ -272,7 +275,10 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
                 return e
             if asyncio.iscoroutinefunction(func):
                 if test_async():
-                    from asgiref.sync import async_to_sync   # pylint: disable=unused-import, # noqa: F401
+                    from asgiref.sync import (
+                        async_to_sync,
+                    )  # pylint: disable=unused-import, # noqa: F401
+
                     return async_to_sync(func)(*args, **kwargs)
             return func(*args, **kwargs)
 
