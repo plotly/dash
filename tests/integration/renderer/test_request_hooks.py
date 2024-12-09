@@ -1,14 +1,10 @@
-import asyncio
 import json
-import functools
 import flask
 import pytest
-from tests.utils import test_async
 from multiprocessing import Value
 
 from dash import Dash, Output, Input, html, dcc
 from dash.types import RendererHooks
-from werkzeug.exceptions import HTTPException
 
 
 def test_rdrh001_request_hooks(dash_duo):
@@ -257,40 +253,16 @@ def test_rdrh003_refresh_jwt(expiry_code, dash_duo):
     jwt_token = Value("i", 0)
 
     # test with an auth layer that requires a JWT with a certain length
-    def protect_route(func):
-        @functools.wraps(func)
-        def wrap(*args, **kwargs):
-            try:
-
-                if flask.request.method == "OPTIONS":
-                    return func(*args, **kwargs)
-                token = flask.request.headers.environ.get("HTTP_AUTHORIZATION")
-                if jwt_token.value and (
-                    not token or len(token) != jwt_token.value + len("Bearer ")
-                ):
-                    # Read the data to prevent bug with base http server.
-                    flask.request.get_json(silent=True)
-                    flask.abort(expiry_code, description="JWT Expired " + str(token))
-            except HTTPException as e:
-                return e
-            if asyncio.iscoroutinefunction(func):
-                if test_async():
-                    from asgiref.sync import (
-                        async_to_sync,
-                    )  # pylint: disable=unused-import, # noqa: F401
-
-                    return async_to_sync(func)(*args, **kwargs)
-            return func(*args, **kwargs)
-
-        return wrap
-
-    # wrap all API calls with auth.
-    for name, method in (
-        (x, app.server.view_functions[x])
-        for x in app.routes
-        if x in app.server.view_functions
-    ):
-        app.server.view_functions[name] = protect_route(method)
+    @app.server.before_request
+    def add_auth():
+        if flask.request.method != "OPTIONS":
+            token = flask.request.headers.environ.get("HTTP_AUTHORIZATION")
+            if jwt_token.value and (
+                not token or len(token) != jwt_token.value + len("Bearer ")
+            ):
+                # Read the data to prevent bug with base http server.
+                flask.request.get_json(silent=True)
+                flask.abort(expiry_code, description="JWT Expired " + str(token))
 
     dash_duo.start_server(app)
 
