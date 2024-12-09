@@ -6,8 +6,6 @@ import pytest
 from tests.utils import test_async
 from multiprocessing import Value
 
-from flaky import flaky
-
 from dash import Dash, Output, Input, html, dcc
 from dash.types import RendererHooks
 from werkzeug.exceptions import HTTPException
