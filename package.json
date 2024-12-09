@@ -41,7 +41,7 @@
     "lint": "run-s private::lint.* --continue-on-error",
     "setup-tests.py": "run-s private::test.py.deploy-*",
     "setup-tests.R": "run-s private::test.R.deploy-*",
-    "citest.integration": "run-s setup-tests.py private::test.integration-*",
+    "citest.integration": "run-s setup-tests.py private::test.integration-* && python rerun_failed_tests.py",
     "citest.unit": "run-s private::test.unit-**",
     "test": "pytest && cd dash/dash-renderer && npm run test",
     "first-build": "cd dash/dash-renderer && npm i && cd ../../ && cd components/dash-html-components && npm i && npm run extract && cd ../../ && npm run build"
