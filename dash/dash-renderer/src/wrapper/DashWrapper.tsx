@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback} from 'react';
+import React, {useMemo, useCallback, memo} from 'react';
 import {
     path,
     concat,
@@ -29,8 +29,6 @@ import isSimpleComponent from '../isSimpleComponent';
 import {
     selectDashProps,
     selectDashPropsEqualityFn,
-    selectLoadingState,
-    selectLoadingStateEqualityFn,
     selectConfig
 } from './selectors';
 import CheckedComponent from './CheckedComponent';
@@ -51,15 +49,9 @@ function DashWrapper({
     const config: DashConfig = useSelector(selectConfig);
 
     // Select both the component and it's props.
-    const [component, componentProps] = useSelector(
+    const [component, componentProps, loading_state] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
-    );
-
-    // Loading state for dcc.Loading
-    const loading_state = useSelector(
-        selectLoadingState(componentPath),
-        selectLoadingStateEqualityFn
     );
 
     const setProps = (newProps: UpdatePropsPayload) => {
@@ -172,7 +164,8 @@ function DashWrapper({
 
     const extraProps = {
         loading_state,
-        setProps
+        setProps,
+        _dashprivate_layout: component
     };
 
     const element = useMemo(() => Registry.resolve(component), [component]);
@@ -422,4 +415,10 @@ function DashWrapper({
     );
 }
 
-export default DashWrapper;
+export default memo(
+    DashWrapper,
+    (prevProps, nextProps) =>
+        JSON.stringify(prevProps._dashprivate_path) ===
+            JSON.stringify(nextProps._dashprivate_path) &&
+        prevProps._dashprivate_error === nextProps._dashprivate_error
+);
