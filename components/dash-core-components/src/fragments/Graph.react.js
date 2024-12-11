@@ -173,9 +173,9 @@ class PlotlyGraph extends Component {
         configClone.typesetMath = mathjax;
 
         const figureClone = {
-            data: figure.data,
-            layout: this.getLayout(figure.layout, responsive),
-            frames: figure.frames,
+            data: figure?.data,
+            layout: this.getLayout(figure?.layout, responsive),
+            frames: figure?.frames,
             config: configClone,
         };
 
