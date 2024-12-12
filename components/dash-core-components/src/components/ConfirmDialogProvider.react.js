@@ -1,4 +1,3 @@
-import {clone} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -20,26 +19,15 @@ export default class ConfirmDialogProvider extends React.Component {
     render() {
         const {displayed, id, setProps, children, loading_state} = this.props;
 
-        // Will lose the previous onClick of the child
-        const wrapClick = child => {
-            const props = clone(child.props);
-            props._dashprivate_layout.props.onClick = () => {
-                setProps({displayed: true});
-            };
-
-            return React.cloneElement(child, props);
-        };
-
         return (
             <div
                 id={id}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
+                onClick={() => setProps({displayed: !displayed})}
             >
-                {Array.isArray(children)
-                    ? children.map(wrapClick)
-                    : wrapClick(children)}
+                {children}
                 <ConfirmDialog {...this.props} displayed={displayed} />
             </div>
         );

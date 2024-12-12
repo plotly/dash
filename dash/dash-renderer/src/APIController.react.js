@@ -71,13 +71,33 @@ const UnconnectedContainer = props => {
         layoutRequest.status &&
         !includes(layoutRequest.status, [STATUS.OK, 'loading'])
     ) {
-        content = <div className='_dash-error'>Error loading layout</div>;
+        if (config.ui) {
+            content = (
+                <div
+                    dangerouslySetInnerHTML={{__html: layoutRequest.content}}
+                ></div>
+            );
+        } else {
+            content = <div className='_dash-error'>Error loading layout</div>;
+        }
     } else if (
         errorLoading ||
         (dependenciesRequest.status &&
             !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
     ) {
-        content = <div className='_dash-error'>Error loading dependencies</div>;
+        if (config.ui) {
+            content = (
+                <div
+                    dangerouslySetInnerHTML={{
+                        __html: dependenciesRequest.content
+                    }}
+                ></div>
+            );
+        } else {
+            content = (
+                <div className='_dash-error'>Error loading dependencies</div>
+            );
+        }
     } else if (appLifecycle === getAppState('HYDRATED')) {
         renderedTree.current = true;
 
@@ -90,7 +110,7 @@ const UnconnectedContainer = props => {
                         ) : (
                             <DashWrapper
                                 _dashprivate_error={error}
-                                _dashprivate_path={[i]}
+                                componentPath={[i]}
                                 key={i}
                             />
                         )
@@ -98,7 +118,7 @@ const UnconnectedContainer = props => {
                 ) : (
                     <DashWrapper
                         _dashprivate_error={error}
-                        _dashprivate_path={[]}
+                        componentPath={[]}
                     />
                 )}
             </>

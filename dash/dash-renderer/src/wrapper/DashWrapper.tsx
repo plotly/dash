@@ -34,12 +34,20 @@ import {
 import CheckedComponent from './CheckedComponent';
 
 type DashWrapperProps = {
-    _dashprivate_path: DashLayoutPath;
+    /**
+     * Path of the component in the layout.
+     */
+    componentPath: DashLayoutPath;
+    /**
+     * extras props to be merged with the dash props from the store.
+     */
+    extras?: any;
     _dashprivate_error?: any;
 };
 
 function DashWrapper({
-    _dashprivate_path: componentPath,
+    componentPath,
+    extras,
     _dashprivate_error
 }: DashWrapperProps) {
     const dispatch = useDispatch();
@@ -126,7 +134,7 @@ function DashWrapper({
                         key
                     }
                     _dashprivate_error={_dashprivate_error}
-                    _dashprivate_path={containerPath}
+                    componentPath={containerPath}
                 />
             );
         },
@@ -165,7 +173,7 @@ function DashWrapper({
     const extraProps = {
         loading_state,
         setProps,
-        _dashprivate_layout: component
+        ...extras
     };
 
     const element = useMemo(() => Registry.resolve(component), [component]);
@@ -418,7 +426,7 @@ function DashWrapper({
 export default memo(
     DashWrapper,
     (prevProps, nextProps) =>
-        JSON.stringify(prevProps._dashprivate_path) ===
-            JSON.stringify(nextProps._dashprivate_path) &&
+        JSON.stringify(prevProps.componentPath) ===
+            JSON.stringify(nextProps.componentPath) &&
         prevProps._dashprivate_error === nextProps._dashprivate_error
 );
