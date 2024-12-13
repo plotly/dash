@@ -149,10 +149,11 @@ export default class Tabs extends Component {
         }
         const children = this.parseChildrenToArray();
         if (children && children.length) {
-            const firstChildren = window.dash_clientside.get_props(
-                children[0].props.componentPath,
-                'value'
-            );
+            const firstChildren = window.dash_clientside.get_layout([
+                ...children[0].props.componentPath,
+                'props',
+                'value',
+            ]);
             return firstChildren || 'tab-1';
         }
         return 'tab-1';
@@ -187,9 +188,15 @@ export default class Tabs extends Component {
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
 
-                childProps = window.dash_clientside.get_props(
-                    child.props.componentPath
-                );
+                if (React.isValidElement(child)) {
+                    childProps = window.dash_clientside.get_layout([
+                        ...child.props.componentPath,
+                        'props',
+                    ]);
+                } else {
+                    // In case the selected tab is a string.
+                    childProps = {};
+                }
 
                 if (!childProps.value) {
                     childProps = {...childProps, value: `tab-${index + 1}`};

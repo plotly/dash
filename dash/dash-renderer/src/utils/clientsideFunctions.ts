@@ -1,6 +1,13 @@
-import {concat, path} from 'ramda';
+import {path} from 'ramda';
+
 import {updateProps, notifyObservers} from '../actions/index';
 import {getPath} from '../actions/paths';
+
+function getStores() {
+    const stores = ((window as any).dash_stores =
+        (window as any).dash_stores || []);
+    return stores;
+}
 
 /**
  * Set the props of a dash component by id or path.
@@ -12,8 +19,7 @@ function set_props(
     idOrPath: string | object | string[],
     props: {[k: string]: any}
 ) {
-    const ds = ((window as any).dash_stores =
-        (window as any).dash_stores || []);
+    const ds = getStores();
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
         let componentPath;
@@ -64,12 +70,8 @@ const clean_url = (url: string, fallback = 'about:blank') => {
  * @param propPath Additional key to get the property instead of plain props.
  * @returns
  */
-function get_props(
-    componentPathOrId: string[] | string,
-    ...propPath: string[]
-): any {
-    const ds = ((window as any).dash_stores =
-        (window as any).dash_stores || []);
+function get_layout(componentPathOrId: string[] | string): any {
+    const ds = getStores();
     for (let y = 0; y < ds.length; y++) {
         const {paths, layout} = ds[y].getState();
         let componentPath;
@@ -78,10 +80,7 @@ function get_props(
         } else {
             componentPath = componentPathOrId;
         }
-        const props = path(
-            concat(componentPath, ['props', ...propPath]),
-            layout
-        );
+        const props = path(componentPath, layout);
         if (props !== undefined) {
             return props;
         }
@@ -92,4 +91,4 @@ const dc = ((window as any).dash_clientside =
     (window as any).dash_clientside || {});
 dc['set_props'] = set_props;
 dc['clean_url'] = dc['clean_url'] === undefined ? clean_url : dc['clean_url'];
-dc['get_props'] = get_props;
+dc['get_layout'] = get_layout;
