@@ -23,7 +23,7 @@ import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {recordUiEdit} from '../persistence';
-import {createElement, isDryComponent} from './wrapping';
+import {createElement, getLoadingState, isDryComponent} from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
 import {
@@ -57,7 +57,7 @@ function DashWrapper({
     const config: DashConfig = useSelector(selectConfig);
 
     // Select both the component and it's props.
-    const [component, componentProps, loading_state] = useSelector(
+    const [component, componentProps] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -171,7 +171,11 @@ function DashWrapper({
     );
 
     const extraProps = {
-        loading_state,
+        loading_state: getLoadingState(
+            component,
+            componentPath,
+            (store.getState() as any).loadingMap
+        ),
         setProps,
         ...extras
     };

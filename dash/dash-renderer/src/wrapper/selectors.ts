@@ -8,18 +8,13 @@ import {
 } from '../types/component';
 import {getLoadingState} from './wrapping';
 
-type SelectDashProps = [DashComponent, BaseDashProps, DashLoadingState];
+type SelectDashProps = [DashComponent, BaseDashProps];
 
 export const selectDashProps =
     (componentPath: DashLayoutPath) =>
     (state: any): SelectDashProps => {
         const c = path(componentPath, state.layout) as DashComponent;
-        const loading_state = getLoadingState(
-            c,
-            componentPath,
-            state.loadingMap
-        );
-        return [c, c.props, loading_state];
+        return [c, c.props];
     };
 
 export function selectDashPropsEqualityFn(
