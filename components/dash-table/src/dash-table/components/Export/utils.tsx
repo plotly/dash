@@ -72,6 +72,8 @@ export async function createWorkbook(
 
     const ws = XLSX.utils.aoa_to_sheet([]);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     data = R.map(R.pick(columnID))(data);
 
     if (

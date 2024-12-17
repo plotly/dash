@@ -6,25 +6,35 @@ import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
 /**
  * A tooltip with an absolute position.
  */
-const Tooltip = props => {
-    const {bbox, border_color, background_color, id, loading_state} = props;
+const Tooltip = ({
+    show = true,
+    targetable = false,
+    direction = 'right',
+    border_color = '#d6d6d6',
+    background_color = 'white',
+    className = '',
+    zindex = 1,
+    loading_text = 'Loading...',
+    ...props
+}) => {
+    const {bbox, id, loading_state} = props;
     const is_loading = loading_state?.is_loading;
-    const show = props.show && bbox;
+    const show_tooltip = show && bbox;
 
     return (
         <>
             <div className="dcc-tooltip-bounding-box">
                 <span
                     data-dash-is-loading={is_loading || undefined}
-                    className={`hover hover-${props.direction}`}
+                    className={`hover hover-${direction}`}
                 >
                     <span
                         id={id}
-                        className={`hover-content ${props.className}`}
+                        className={`hover-content ${className}`}
                         style={props.style}
                     >
                         {is_loading ? (
-                            <span>{props.loading_text}</span>
+                            <span>{loading_text}</span>
                         ) : (
                             props.children
                         )}
@@ -38,8 +48,8 @@ const Tooltip = props => {
                     left: ${bbox?.x0 || 0}px;
                     width: ${bbox?.x1 - bbox?.x0 || 0}px;
                     height: ${bbox?.y1 - bbox?.y0 || 0}px;
-                    display: ${show ? 'inline-block' : 'none'};
-                    pointer-events: ${props.targetable ? 'auto' : 'none'};
+                    display: ${show_tooltip ? 'inline-block' : 'none'};
+                    pointer-events: ${targetable ? 'auto' : 'none'};
                 }
                 .hover {
                     position: absolute;
@@ -70,7 +80,7 @@ const Tooltip = props => {
                     padding: 5px 10px;
                     background: ${background_color};
                     white-space: nowrap;
-                    z-index: ${props.zindex};
+                    z-index: ${zindex};
                     pointer-events: none;
                 }
                 .hover .hover-content,
@@ -95,7 +105,7 @@ const Tooltip = props => {
                     position: absolute;
                     border-style: solid;
                     top: -6px;
-                    z-index: ${props.zindex};
+                    z-index: ${zindex};
                 }
                 .hover:before,
                 .hover:after,
@@ -165,17 +175,6 @@ const Tooltip = props => {
             `}</style>
         </>
     );
-};
-
-Tooltip.defaultProps = {
-    show: true,
-    targetable: false,
-    direction: 'right',
-    border_color: '#d6d6d6',
-    background_color: 'white',
-    className: '',
-    zindex: 1,
-    loading_text: 'Loading...',
 };
 
 Tooltip.propTypes = {

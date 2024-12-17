@@ -36,18 +36,18 @@ class Patch:
     def __setstate__(self, state):
         vars(self).update(state)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> "Patch":
         validate_slice(item)
         return Patch(location=self._location + [item], parent=self)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> "Patch":
         if item == "tolist":
             # to_json fix
             raise AttributeError
         if item == "_location":
-            return self._location
+            return self._location  # type: ignore
         if item == "_operations":
-            return self._operations
+            return self._operations  # type: ignore
         return self.__getitem__(item)
 
     def __setattr__(self, key, value):
@@ -81,22 +81,32 @@ class Patch:
             self.extend(other)
         else:
             self._operations.append(_operation("Add", self._location, value=other))
+        if not self._location:
+            return self
         return _noop
 
     def __isub__(self, other):
         self._operations.append(_operation("Sub", self._location, value=other))
+        if not self._location:
+            return self
         return _noop
 
     def __imul__(self, other):
         self._operations.append(_operation("Mul", self._location, value=other))
+        if not self._location:
+            return self
         return _noop
 
     def __itruediv__(self, other):
         self._operations.append(_operation("Div", self._location, value=other))
+        if not self._location:
+            return self
         return _noop
 
     def __ior__(self, other):
         self.update(E=other)
+        if not self._location:
+            return self
         return _noop
 
     def __iter__(self):

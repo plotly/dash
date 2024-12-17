@@ -1,3 +1,5 @@
+import pytest
+
 from dash import Dash, Input, Output, html, dcc
 from dash.dash_table import DataTable
 
@@ -173,6 +175,9 @@ test_cases = {
 }
 
 
+@pytest.mark.skip(
+    reason="Flaky error on CI: https://github.com/plotly/dash/issues/2654"
+)
 def test_dvpc001_prop_check_errors_with_path(dash_duo):
     app = Dash(__name__, eager_loading=True)
 

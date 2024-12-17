@@ -6,7 +6,7 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from os.path import isfile, join
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, unquote
 
 import flask
 
@@ -113,6 +113,7 @@ def _infer_module_name(page_path):
 
 
 def _parse_query_string(search):
+    search = unquote(search)
     if search and len(search) > 0 and search[0] == "?":
         search = search[1:]
     else:
@@ -235,13 +236,14 @@ def register_page(
        order `0`
 
     - `title`:
-       (string or function) The name of the page <title>. That is, what appears in the browser title.
-       If not supplied, will use the supplied `name` or will be inferred by module,
-       e.g. `pages.weekly_analytics` to `Weekly analytics`
+       (string or function) Specifies the page title displayed in the browser tab.
+        If not supplied, the app's title is used if different from the default "Dash".
+        Otherwise, the title is the given `name` or inferred from the module name.
+        For example, `pages.weekly_analytics` is inferred as "Weekly Analytics".
 
     - `description`:
        (string or function) The <meta type="description"></meta>.
-       If not supplied, then nothing is supplied.
+       If not defined, the application description will be used if available.
 
     - `image`:
        The meta description image used by social media platforms.
@@ -319,10 +321,18 @@ def register_page(
     )
     page.update(
         supplied_title=title,
-        title=(title if title is not None else page["name"]),
+        title=title
+        if title is not None
+        else CONFIG.title
+        if CONFIG.title != "Dash"
+        else page["name"],
     )
     page.update(
-        description=description if description else "",
+        description=description
+        if description
+        else CONFIG.description
+        if CONFIG.description
+        else "",
         order=order,
         supplied_order=order,
         supplied_layout=layout,

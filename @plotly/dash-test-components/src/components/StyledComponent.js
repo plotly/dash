@@ -15,7 +15,7 @@ StyledComponent.propTypes = {
     /**
      * The style
      */
-    style: PropTypes.shape,
+    style: PropTypes.object,
 
     /**
      * The value to display

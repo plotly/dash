@@ -88,6 +88,12 @@ class Resources:
 
         return self._filter_resources(all_resources, dev_bundles)
 
+    def get_library_resources(self, libraries, dev_bundles=False):
+        lib_resources = ComponentRegistry.get_resources(self.resource_name, libraries)
+        all_resources = lib_resources + self._resources
+
+        return self._filter_resources(all_resources, dev_bundles)
+
 
 # pylint: disable=too-few-public-methods
 class _Config:
@@ -107,6 +113,9 @@ class Css:
     def get_all_css(self):
         return self._resources.get_all_resources()
 
+    def get_library_css(self, libraries):
+        return self._resources.get_library_resources(libraries)
+
 
 class Scripts:
     def __init__(self, serve_locally, eager):
@@ -118,3 +127,6 @@ class Scripts:
 
     def get_all_scripts(self, dev_bundles=False):
         return self._resources.get_all_resources(dev_bundles)
+
+    def get_library_scripts(self, libraries, dev_bundles=False):
+        return self._resources.get_library_resources(libraries, dev_bundles)

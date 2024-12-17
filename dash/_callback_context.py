@@ -2,11 +2,12 @@ import functools
 import warnings
 import json
 import contextvars
+import typing
 
 import flask
 
 from . import exceptions
-from ._utils import AttributeDict
+from ._utils import AttributeDict, stringify_id
 
 
 context_value = contextvars.ContextVar("callback_context")
@@ -27,6 +28,10 @@ def has_context(func):
 
 def _get_context_value():
     return context_value.get()
+
+
+def _get_from_context(key, default):
+    return getattr(_get_context_value(), key, default)
 
 
 class FalsyList(list):
@@ -247,5 +252,64 @@ class CallbackContext:
     def timing_information(self):
         return getattr(flask.g, "timing_information", {})
 
+    @has_context
+    def set_props(self, component_id: typing.Union[str, dict], props: dict):
+        ctx_value = _get_context_value()
+        _id = stringify_id(component_id)
+        existing = ctx_value.updated_props.get(_id)
+        if existing is not None:
+            ctx_value.updated_props[_id] = {**existing, **props}
+        else:
+            ctx_value.updated_props[_id] = props
+
+    @property
+    @has_context
+    def cookies(self):
+        """
+        Get the cookies for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("cookies", {})
+
+    @property
+    @has_context
+    def headers(self):
+        """
+        Get the original headers for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("headers", {})
+
+    @property
+    @has_context
+    def path(self):
+        """
+        Path of the callback request with the query parameters.
+        """
+        return _get_from_context("path", "")
+
+    @property
+    @has_context
+    def remote(self):
+        """
+        Remote addr of the callback request.
+        """
+        return _get_from_context("remote", "")
+
+    @property
+    @has_context
+    def origin(self):
+        """
+        Origin of the callback request.
+        """
+        return _get_from_context("origin", "")
+
 
 callback_context = CallbackContext()
+
+
+def set_props(component_id: typing.Union[str, dict], props: dict):
+    """
+    Set the props for a component not included in the callback outputs.
+    """
+    callback_context.set_props(component_id, props)

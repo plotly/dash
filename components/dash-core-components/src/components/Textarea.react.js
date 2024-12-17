@@ -1,6 +1,34 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda';
+import {pick} from 'ramda';
+
+const textAreaProps = [
+    'id',
+    'autoFocus',
+    'cols',
+    'disabled',
+    'form',
+    'maxLength',
+    'minLength',
+    'name',
+    'placeholder',
+    'readOnly',
+    'required',
+    'rows',
+    'wrap',
+    'accessKey',
+    'className',
+    'contentEditable',
+    'contextMenu',
+    'dir',
+    'draggable',
+    'hidden',
+    'lang',
+    'spellCheck',
+    'style',
+    'tabIndex',
+    'title',
+];
 
 /**
  * A basic HTML textarea for entering multiline text.
@@ -31,7 +59,7 @@ export default class Textarea extends Component {
                         n_clicks_timestamp: Date.now(),
                     });
                 }}
-                {...omit(['setProps', 'value'], this.props)}
+                {...pick(textAreaProps, this.props)}
             />
         );
     }

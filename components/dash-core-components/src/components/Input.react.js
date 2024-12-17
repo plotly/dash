@@ -1,4 +1,4 @@
-import {isNil, omit} from 'ramda';
+import {isNil, pick} from 'ramda';
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import isNumeric from 'fast-isnumeric';
@@ -8,6 +8,30 @@ import './css/input.css';
 const convert = val => (isNumeric(val) ? +val : NaN);
 
 const isEquivalent = (v1, v2) => v1 === v2 || (isNaN(v1) && isNaN(v2));
+
+const inputProps = [
+    'type',
+    'placeholder',
+    'inputMode',
+    'autoComplete',
+    'readOnly',
+    'required',
+    'autoFocus',
+    'disabled',
+    'list',
+    'multiple',
+    'spellCheck',
+    'name',
+    'min',
+    'max',
+    'step',
+    'minLength',
+    'maxLength',
+    'pattern',
+    'size',
+    'style',
+    'id',
+];
 
 /**
  * A basic HTML input control for entering text, numbers, or passwords.
@@ -84,23 +108,7 @@ export default class Input extends PureComponent {
                 onChange={this.onChange}
                 onKeyPress={this.onKeyPress}
                 {...valprops}
-                {...omit(
-                    [
-                        'className',
-                        'debounce',
-                        'value',
-                        'n_blur',
-                        'n_blur_timestamp',
-                        'n_submit',
-                        'n_submit_timestamp',
-                        'selectionDirection',
-                        'selectionEnd',
-                        'selectionStart',
-                        'setProps',
-                        'loading_state',
-                    ],
-                    this.props
-                )}
+                {...pick(inputProps, this.props)}
             />
         );
     }

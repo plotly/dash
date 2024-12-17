@@ -229,6 +229,7 @@ class Contents {
             case CellType.Markdown:
                 return (
                     <CellMarkdown
+                        key={`column-${columnIndex}`}
                         active={active}
                         applyFocus={applyFocus}
                         className={className}

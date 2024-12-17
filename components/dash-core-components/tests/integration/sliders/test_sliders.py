@@ -559,3 +559,60 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
     )
 
     assert dash_dcc.get_logs() == []
+
+
+def test_sls016_sliders_format_tooltips(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Slider(
+                value=34,
+                min=20,
+                max=100,
+                id="slider",
+                tooltip={
+                    "template": "Custom tooltip: {value}",
+                    "always_visible": True,
+                    "style": {"padding": "8px"},
+                },
+            ),
+            dcc.RangeSlider(
+                value=[48, 60],
+                min=20,
+                max=100,
+                id="range-slider",
+                tooltip={"template": "Custom tooltip: {value}", "always_visible": True},
+            ),
+            dcc.Slider(
+                min=20,
+                max=100,
+                id="slider-transform",
+                tooltip={"always_visible": True, "transform": "transformTooltip"},
+            ),
+        ],
+        style={"padding": "12px", "marginTop": "48px"},
+    )
+
+    dash_dcc.start_server(app)
+    # dash_dcc.wait_for_element("#slider")
+
+    dash_dcc.wait_for_text_to_equal(
+        "#slider .rc-slider-tooltip-content", "Custom tooltip: 34"
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#range-slider .rc-slider-tooltip-content", "Custom tooltip: 48"
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#range-slider > div:nth-child(1) > div:last-child .rc-slider-tooltip-content",
+        "Custom tooltip: 60",
+    )
+    dash_dcc.wait_for_style_to_equal(
+        "#slider .rc-slider-tooltip-inner > div", "padding", "8px"
+    )
+    dash_dcc.wait_for_text_to_equal(
+        "#slider-transform .rc-slider-tooltip-content", "Transformed 20"
+    )
+
+    dash_dcc.percy_snapshot("sliders-format-tooltips")
+
+    assert dash_dcc.get_logs() == []

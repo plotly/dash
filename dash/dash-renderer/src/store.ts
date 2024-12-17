@@ -56,6 +56,11 @@ export default class RendererStore {
     private createAppStore = (reducer: any, middleware: any) => {
         this.__store = createStore(reducer, middleware);
         this.storeObserver.setStore(this.__store);
+        const ds = ((window as any).dash_stores =
+            (window as any).dash_stores || []);
+        if (!ds.includes(this.__store)) {
+            ds.push(this.__store);
+        }
         this.setObservers();
     };
 

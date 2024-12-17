@@ -63,6 +63,12 @@ window.dash_clientside.clientside = {
         return triggered.map(t => `${t.prop_id} = ${t.value}`).join(', ');
     },
 
+    triggered_id_to_str: function(n_clicks0, n_clicks1) {
+        const triggered = dash_clientside.callback_context.triggered_id;
+        const triggered_id = typeof triggered === "string" ? triggered : triggered.btn1
+        return triggered_id
+    },
+
     inputs_to_str: function(n_clicks0, n_clicks1) {
         const inputs = dash_clientside.callback_context.inputs;
         const keys = Object.keys(inputs);

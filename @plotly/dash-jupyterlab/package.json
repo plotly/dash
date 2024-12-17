@@ -28,19 +28,21 @@
     "build:pack": "jlpm run prepare && jlpm pack --filename ../../dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
     "build:copy": "cp package.json ../../dash/labextension/dist/package.json",
     "clean": "rimraf lib",
-    "prepare": "mkdir -p ../../dash/labextension/dist && jlpm run clean && jlpm run build",
+    "prepare": "mkdirp ../../dash/labextension/dist && jlpm run clean && jlpm run build",
     "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^2.0.0 || ^3.0.0",
-    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0",
-    "@jupyterlab/console": "^2.0.0 || ^3.0.0"
+    "@jupyterlab/application": "^2.0.0 || ^3.0.0 || ^4.0.0",
+    "@jupyterlab/console": "^2.0.0 || ^3.0.0 || ^4.0.0",
+    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
+    "@types/json-schema": "^7.0.15",
+    "mkdirp": "^0.5.1",
     "prettier": "2.0.5",
     "rimraf": "3.0.2",
-    "typescript": "3.9.3"
+    "typescript": "5.6.2"
   },
   "jupyterlab": {
     "extension": true

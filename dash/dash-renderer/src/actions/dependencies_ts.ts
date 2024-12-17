@@ -18,18 +18,18 @@ import {
 } from 'ramda';
 import {
     ICallback,
-    ICallbackProperty,
     ICallbackDefinition,
-    ILayoutCallbackProperty,
-    ICallbackTemplate
+    ICallbackProperty,
+    ICallbackTemplate,
+    ILayoutCallbackProperty
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
-    splitIdAndProp,
-    stringifyId,
     getUnfilteredLayoutCallbacks,
+    idMatch,
     isMultiValued,
-    idMatch
+    splitIdAndProp,
+    stringifyId
 } from './dependencies';
 import {getPath} from './paths';
 
@@ -233,13 +233,27 @@ export const getReadyCallbacks = (
         }
     }
 
+    // Ramda.JS `difference` function is slow because it compares objects entirely
+    // This cause the following `filter` to be exponentially slow as the number of inputs or outputs grow
+    // We can optimize this by comparing only the `id+prop` part of the inputs & outputs.
+    // Original difference takes 380ms on average to compute difference between 200 inputs and 1 output.
+    // The following function takes 1-2ms on average.
+    const differenceBasedOnId = (inputs: any[], outputs: any[]): any[] =>
+        inputs.filter(
+            input =>
+                !outputs.some(
+                    output =>
+                        combineIdAndProp(input) === combineIdAndProp(output)
+                )
+        );
+
     // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
     // Outputs which overlap an input do not count as an outstanding output
     return filter(
         cb =>
             all<ILayoutCallbackProperty>(
                 cbp => !outputsMap[combineIdAndProp(cbp)],
-                difference(
+                differenceBasedOnId(
                     flatten(cb.getInputs(paths)),
                     flatten(cb.getOutputs(paths))
                 )

@@ -191,10 +191,6 @@ function validateDependencies(parsedDependencies, dispatchError) {
         let hasOutputs = true;
         if (outputs.length === 1 && !outputs[0].id && !outputs[0].property) {
             hasOutputs = false;
-            dispatchError('A callback is missing Outputs', [
-                'Please provide an output for this callback:',
-                JSON.stringify(dep, null, 2)
-            ]);
         }
 
         const head =
@@ -238,8 +234,22 @@ function validateDependencies(parsedDependencies, dispatchError) {
             });
         });
 
-        findDuplicateOutputs(outputs, head, dispatchError, outStrs, outObjs);
-        findMismatchedWildcards(outputs, inputs, state, head, dispatchError);
+        if (hasOutputs) {
+            findDuplicateOutputs(
+                outputs,
+                head,
+                dispatchError,
+                outStrs,
+                outObjs
+            );
+            findMismatchedWildcards(
+                outputs,
+                inputs,
+                state,
+                head,
+                dispatchError
+            );
+        }
     });
 }
 
@@ -382,7 +392,9 @@ function checkInOutOverlap(out, inputs) {
 }
 
 function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
-    const {matchKeys: out0MatchKeys} = findWildcardKeys(outputs[0].id);
+    const {matchKeys: out0MatchKeys} = findWildcardKeys(
+        outputs.length ? outputs[0].id : undefined
+    );
     outputs.forEach((out, i) => {
         if (i && !equals(findWildcardKeys(out.id).matchKeys, out0MatchKeys)) {
             dispatchError('Mismatched `MATCH` wildcards across `Output`s', [
@@ -605,12 +617,21 @@ export function computeGraphs(dependencies, dispatchError) {
 
     const fixIds = map(evolve({id: parseIfWildcard}));
     const parsedDependencies = map(dep => {
-        const {output} = dep;
+        const {output, no_output} = dep;
         const out = evolve({inputs: fixIds, state: fixIds}, dep);
-        out.outputs = map(
-            outi => assoc('out', true, splitIdAndProp(outi)),
-            isMultiOutputProp(output) ? parseMultipleOutputs(output) : [output]
-        );
+        if (no_output) {
+            // No output case
+            out.outputs = [];
+            out.noOutput = true;
+        } else {
+            out.outputs = map(
+                outi => assoc('out', true, splitIdAndProp(outi)),
+                isMultiOutputProp(output)
+                    ? parseMultipleOutputs(output)
+                    : [output]
+            );
+        }
+
         return out;
     }, dependencies);
 
@@ -809,7 +830,9 @@ export function computeGraphs(dependencies, dispatchError) {
         // Also collect MATCH keys in the output (all outputs must share these)
         // and ALL keys in the first output (need not be shared but we'll use
         // the first output for calculations) for later convenience.
-        const {matchKeys} = findWildcardKeys(outputs[0].id);
+        const {matchKeys} = findWildcardKeys(
+            outputs.length ? outputs[0].id : undefined
+        );
         const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
         const finalDependency = mergeRight(
             {matchKeys, firstSingleOutput, outputs},
@@ -1091,9 +1114,7 @@ export function addAllResolvedFromOutputs(resolve, paths, matches) {
             }
         } else {
             const cb = makeResolvedCallback(callback, resolve, '');
-            if (flatten(cb.getOutputs(paths)).length) {
-                matches.push(cb);
-            }
+            matches.push(cb);
         }
     };
 }

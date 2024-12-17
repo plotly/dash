@@ -1,7 +1,5 @@
 from dash import Dash, Input, Output, dcc, html, page_container, register_page
 
-import time
-
 from tests.integration.long_callback.utils import get_long_callback_manager
 
 long_callback_manager = get_long_callback_manager()
@@ -23,7 +21,7 @@ app.layout = html.Div(
         page_container,
     ]
 )
-
+app.test_lock = lock = long_callback_manager.test_lock
 
 register_page(
     "one",
@@ -34,6 +32,8 @@ register_page(
             html.Button("cancel1", id="cancel1"),
             html.Div("idle", id="progress1"),
             html.Div("initial", id="output1"),
+            html.Div("no-cancel-btn", id="no-cancel-btn"),
+            html.Div("no-cancel", id="no-cancel-output"),
         ]
     ),
 )
@@ -52,6 +52,16 @@ register_page(
 
 
 @app.callback(
+    Output("no-cancel-output", "children"),
+    Input("no-cancel-btn", "n_clicks"),
+    background=True,
+    prevent_initial_call=True,
+)
+def on_click_no_cancel(_):
+    return "Not Canceled"
+
+
+@app.callback(
     Output("output1", "children"),
     Input("start1", "n_clicks"),
     running=[
@@ -66,7 +76,8 @@ register_page(
     interval=300,
 )
 def on_click1(n_clicks):
-    time.sleep(2)
+    with lock:
+        pass
     return f"Click {n_clicks}"
 
 
@@ -85,7 +96,8 @@ def on_click1(n_clicks):
     interval=300,
 )
 def on_click1(n_clicks):
-    time.sleep(2)
+    with lock:
+        pass
     return f"Click {n_clicks}"
 
 

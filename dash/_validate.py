@@ -1,3 +1,4 @@
+import sys
 from collections.abc import MutableSequence
 import re
 from textwrap import dedent
@@ -356,6 +357,13 @@ def check_obsolete(kwargs):
                 See https://dash.plotly.com for details.
                 """
             )
+        if key in ["dynamic_loading", "preloaded_libraries"]:
+            # Only warns as this was only available for a short time.
+            print(
+                f"{key} has been removed and no longer a valid keyword argument in Dash.",
+                file=sys.stderr,
+            )
+            continue
         # any other kwarg mimic the built-in exception
         raise TypeError(f"Dash() got an unexpected keyword argument '{key}'")
 
@@ -390,10 +398,14 @@ def validate_index(name, checks, index):
 
 
 def validate_layout_type(value):
-    if not isinstance(value, (Component, patch_collections_abc("Callable"))):
+    if not isinstance(
+        value, (Component, patch_collections_abc("Callable"), list, tuple)
+    ):
         raise exceptions.NoLayoutException(
-            "Layout must be a dash component "
-            "or a function that returns a dash component."
+            """
+            Layout must be a single dash component, a list of dash components,
+            or a function that returns a dash component.
+            """
         )
 
 
@@ -407,18 +419,36 @@ def validate_layout(layout, layout_value):
             """
         )
 
-    layout_id = stringify_id(getattr(layout_value, "id", None))
+    component_ids = set()
 
-    component_ids = {layout_id} if layout_id else set()
-    for component in layout_value._traverse():  # pylint: disable=protected-access
-        component_id = stringify_id(getattr(component, "id", None))
-        if component_id and component_id in component_ids:
-            raise exceptions.DuplicateIdError(
-                f"""
-                Duplicate component id found in the initial layout: `{component_id}`
-                """
-            )
-        component_ids.add(component_id)
+    def _validate(value):
+        def _validate_id(comp):
+            component_id = stringify_id(getattr(comp, "id", None))
+            if component_id and component_id in component_ids:
+                raise exceptions.DuplicateIdError(
+                    f"""
+                    Duplicate component id found in the initial layout: `{component_id}`
+                    """
+                )
+            component_ids.add(component_id)
+
+        _validate_id(value)
+
+        for component in value._traverse():  # pylint: disable=protected-access
+            _validate_id(component)
+
+    if isinstance(layout_value, (list, tuple)):
+        for component in layout_value:
+            if isinstance(component, (str,)):
+                continue
+            if isinstance(component, (Component,)):
+                _validate(component)
+            else:
+                raise exceptions.NoLayoutException(
+                    "Only strings and components are allowed in a list layout."
+                )
+    else:
+        _validate(layout_value)
 
 
 def validate_template(template):

@@ -4,12 +4,25 @@ import inspect
 import sys
 import uuid
 import random
+import warnings
+import textwrap
 
 from .._utils import patch_collections_abc, stringify_id, OrderedSet
 
 MutableSequence = patch_collections_abc("MutableSequence")
 
 rd = random.Random(0)
+
+_deprecated_components = {
+    "dash_core_components": {
+        "LogoutButton": textwrap.dedent(
+            """
+        The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
+        eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
+    """
+        )
+    }
+}
 
 
 # pylint: disable=no-init,too-few-public-methods
@@ -18,12 +31,15 @@ class ComponentRegistry:
 
     registry = OrderedSet()
     children_props = collections.defaultdict(dict)
+    namespace_to_package = {}
 
     @classmethod
-    def get_resources(cls, resource_name):
+    def get_resources(cls, resource_name, includes=None):
         resources = []
 
         for module_name in cls.registry:
+            if includes is not None and module_name not in includes:
+                continue
             module = sys.modules[module_name]
             resources.extend(getattr(module, resource_name, []))
 
@@ -42,10 +58,12 @@ class ComponentMeta(abc.ABCMeta):
             # as it doesn't have the namespace.
             return component
 
+        _namespace = attributes.get("_namespace", module)
+        ComponentRegistry.namespace_to_package[_namespace] = module
         ComponentRegistry.registry.add(module)
-        ComponentRegistry.children_props[attributes.get("_namespace", module)][
-            name
-        ] = attributes.get("_children_props")
+        ComponentRegistry.children_props[_namespace][name] = attributes.get(
+            "_children_props"
+        )
 
         return component
 
@@ -90,6 +108,7 @@ class Component(metaclass=ComponentMeta):
     REQUIRED = _REQUIRED()
 
     def __init__(self, **kwargs):
+        self._validate_deprecation()
         import dash  # pylint: disable=import-outside-toplevel, cyclic-import
 
         # pylint: disable=super-init-not-called
@@ -399,6 +418,13 @@ class Component(metaclass=ComponentMeta):
         else:
             props_string = repr(getattr(self, "children", None))
         return f"{self._type}({props_string})"
+
+    def _validate_deprecation(self):
+        _type = getattr(self, "_type", "")
+        _ns = getattr(self, "_namespace", "")
+        deprecation_message = _deprecated_components.get(_ns, {}).get(_type)
+        if deprecation_message:
+            warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)))
 
 
 def _explicitize_args(func):

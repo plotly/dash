@@ -1,6 +1,7 @@
 import json
 import os as _os
 import sys as _sys
+
 import dash as _dash
 
 from ._imports_ import *  # noqa: F401, F403, E402
@@ -117,33 +118,6 @@ _js_dist.extend(
             "external_url": (
                 "https://unpkg.com/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js.map"
-            ).format(__version__),
-            "namespace": "dash",
-            "dynamic": True,
-        },
-        {
-            "relative_package_path": "dcc/plotly.min.js",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/plotly.min.js"
-            ).format(__version__),
-            "namespace": "dash",
-            "async": "eager",
-        },
-        {
-            "relative_package_path": "dcc/async-plotlyjs.js",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/async-plotlyjs.js"
-            ).format(__version__),
-            "namespace": "dash",
-            "async": "lazy",
-        },
-        {
-            "relative_package_path": "dcc/async-plotlyjs.js.map",
-            "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
-                "/dash_core_components/async-plotlyjs.js.map"
             ).format(__version__),
             "namespace": "dash",
             "dynamic": True,

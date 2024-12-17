@@ -418,7 +418,7 @@ function getter(
                                                           hiddenColumns
                                                               ? R.union(
                                                                     hiddenColumns,
-                                                                    ids
+                                                                    ids as string[]
                                                                 )
                                                               : ids;
 

@@ -61,8 +61,8 @@ export function validateComponent(componentDefinition: any) {
     if (type(componentDefinition) === 'Array') {
         throw new Error(
             'The children property of a component is a list of lists, instead ' +
-                'of just a list. ' +
-                'Check the component that has the following contents, ' +
+                'of just a list. This can sometimes be due to a trailing comma. ' +
+                'Check the component that has the following contents ' +
                 'and remove one of the levels of nesting: \n' +
                 JSON.stringify(componentDefinition, null, 2)
         );
