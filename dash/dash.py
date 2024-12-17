@@ -634,6 +634,9 @@ class Dash:
 
     @layout.setter
     def layout(self, value):
+        if isinstance(value, list):
+            value = html.Div(value)
+
         _validate.validate_layout_type(value)
         self._layout_is_function = callable(value)
         self._layout = value
