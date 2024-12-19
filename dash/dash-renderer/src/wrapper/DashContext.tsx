@@ -8,6 +8,7 @@ type DashContextType = {
     componentPath: DashLayoutPath;
 
     isLoading: () => boolean;
+    useLoading: () => boolean;
 
     // Give access to the right store.
     useSelector: typeof useSelector;
@@ -34,16 +35,21 @@ export function DashContextProvider(props: DashContextProviderProps) {
     const isLoading = useCallback(() => {
         const loading = pathOr(
             [],
-            componentPath,
+            [stringPath],
             (store.getState() as any).loading
         );
         return loading.length > 0;
+    }, [stringPath]);
+
+    const useLoading = useCallback(() => {
+        return useSelector(state => !!pathOr(false, [stringPath], state));
     }, [stringPath]);
 
     const ctxValue = useMemo(() => {
         return {
             componentPath,
             isLoading,
+            useLoading,
 
             useSelector,
             useStore,
