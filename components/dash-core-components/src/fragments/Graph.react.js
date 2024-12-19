@@ -14,6 +14,7 @@ import {
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
+import LoadingDiv from '../utils/LoadingDiv';
 /* global Plotly:true */
 
 /**
@@ -514,18 +515,10 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
+        const {className, id, style} = this.props;
 
         return (
-            <div
-                id={id}
-                key={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                className={className}
-                style={style}
-            >
+            <LoadingDiv id={id} key={id} className={className} style={style}>
                 <ResizeDetector
                     handleHeight={true}
                     handleWidth={true}
@@ -535,7 +528,7 @@ class PlotlyGraph extends Component {
                     onResize={this.graphResize}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </div>
+            </LoadingDiv>
         );
     }
 }

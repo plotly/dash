@@ -42,7 +42,10 @@ export function DashContextProvider(props: DashContextProviderProps) {
     }, [stringPath]);
 
     const useLoading = useCallback(() => {
-        return useSelector(state => !!pathOr(false, [stringPath], state));
+        return useSelector((state: any) => {
+            const load = pathOr([], [stringPath], state.loading);
+            return load.length > 0;
+        });
     }, [stringPath]);
 
     const ctxValue = useMemo(() => {
