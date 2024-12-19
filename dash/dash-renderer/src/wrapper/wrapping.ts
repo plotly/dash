@@ -1,13 +1,5 @@
 import React from 'react';
-import {mergeRight, type, has, path} from 'ramda';
-
-import Registry from '../registry';
-import {stringifyId} from '../actions/dependencies';
-
-function isLoadingComponent(layout: any) {
-    validateComponent(layout);
-    return (Registry.resolve(layout) as any)._dashprivate_isLoadingComponent;
-}
+import {mergeRight, type, has} from 'ramda';
 
 export function createElement(
     element: any,
@@ -29,45 +21,6 @@ export function isDryComponent(obj: any) {
         has('namespace', obj) &&
         has('props', obj)
     );
-}
-
-const NULL_LOADING_STATE = {is_loading: false};
-
-export function getLoadingState(
-    componentLayout: any,
-    componentPath: any,
-    loadingMap: any
-) {
-    if (!loadingMap) {
-        return NULL_LOADING_STATE;
-    }
-
-    const loadingFragment: any = path(componentPath, loadingMap);
-    // Component and children are not loading if there's no loading fragment
-    // for the component's path in the layout.
-    if (!loadingFragment) {
-        return NULL_LOADING_STATE;
-    }
-
-    const idprop: any = loadingFragment.__dashprivate__idprop__;
-    if (idprop) {
-        return {
-            is_loading: true,
-            prop_name: idprop.property,
-            component_name: stringifyId(idprop.id)
-        };
-    }
-
-    const idprops: any = loadingFragment.__dashprivate__idprops__?.[0];
-    if (idprops && isLoadingComponent(componentLayout)) {
-        return {
-            is_loading: true,
-            prop_name: idprops.property,
-            component_name: stringifyId(idprops.id)
-        };
-    }
-
-    return NULL_LOADING_STATE;
 }
 
 export function validateComponent(componentDefinition: any) {

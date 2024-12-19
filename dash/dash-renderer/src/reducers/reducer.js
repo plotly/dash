@@ -15,9 +15,9 @@ import profile from './profile';
 import changed from './changed';
 import isLoading from './isLoading';
 import layout from './layout';
-import loadingMap from './loadingMap';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
+import loading from './loading';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -51,9 +51,9 @@ function mainReducer() {
         changed,
         isLoading,
         layout,
-        loadingMap,
         paths,
-        callbackNum
+        callbackNum,
+        loading
     };
     forEach(r => {
         parts[r] = createApiReducer(r);

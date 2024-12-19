@@ -15,7 +15,7 @@ import {
     mapObjIndexed,
     type
 } from 'ramda';
-import {useSelector, useDispatch, batch, useStore} from 'react-redux';
+import {useSelector, useDispatch, batch} from 'react-redux';
 
 import ComponentErrorBoundary from '../components/error/ComponentErrorBoundary.react';
 import {DashLayoutPath, UpdatePropsPayload} from '../types/component';
@@ -23,7 +23,7 @@ import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {recordUiEdit} from '../persistence';
-import {createElement, getLoadingState, isDryComponent} from './wrapping';
+import {createElement, isDryComponent} from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
 import {
@@ -32,6 +32,7 @@ import {
     selectConfig
 } from './selectors';
 import CheckedComponent from './CheckedComponent';
+import {DashContextProvider} from './DashContext';
 
 type DashWrapperProps = {
     /**
@@ -51,7 +52,6 @@ function DashWrapper({
     _dashprivate_error
 }: DashWrapperProps) {
     const dispatch = useDispatch();
-    const store = useStore();
 
     // Get the config for the component as props
     const config: DashConfig = useSelector(selectConfig);
@@ -65,10 +65,7 @@ function DashWrapper({
     const setProps = (newProps: UpdatePropsPayload) => {
         const {id} = componentProps;
         const {_dash_error, ...restProps} = newProps;
-        const oldProps = path(
-            concat(componentPath, ['props']),
-            (store.getState() as any).layout
-        ) as any;
+        const oldProps = componentProps;
         const changedProps = pickBy(
             (val, key) => !equals(val, oldProps[key]),
             restProps
@@ -171,11 +168,6 @@ function DashWrapper({
     );
 
     const extraProps = {
-        loading_state: getLoadingState(
-            component,
-            componentPath,
-            (store.getState() as any).loadingMap
-        ),
         setProps,
         ...extras
     };
@@ -422,7 +414,9 @@ function DashWrapper({
             error={_dashprivate_error}
             dispatch={dispatch}
         >
-            {hydrated}
+            <DashContextProvider componentPath={componentPath}>
+                {hydrated}
+            </DashContextProvider>
         </ComponentErrorBoundary>
     );
 }
