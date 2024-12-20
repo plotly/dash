@@ -6,6 +6,7 @@ import {has, is, isNil} from 'ramda';
 // some weird interaction btwn styled-jsx 3.4 and babel
 // see https://github.com/vercel/styled-jsx/pull/716
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
+import LoadingElement from '../utils/LoadingElement';
 
 // EnhancedTab is defined here instead of in Tab.react.js because if exported there,
 // it will mess up the Python imports and metadata.json
@@ -247,12 +248,7 @@ export default class Tabs extends Component {
             : 'tab-parent';
 
         return (
-            <div
-                data-dash-is-loading={
-                    (this.props.loading_state &&
-                        this.props.loading_state.is_loading) ||
-                    undefined
-                }
+            <LoadingElement
                 className={`${tabParentClass} ${
                     this.props.parent_className || ''
                 }`}
@@ -319,7 +315,7 @@ export default class Tabs extends Component {
                         }
                     }
                 `}</style>
-            </div>
+            </LoadingElement>
         );
     }
 }
@@ -409,24 +405,6 @@ Tabs.propTypes = {
         border: PropTypes.string,
         primary: PropTypes.string,
         background: PropTypes.string,
-    }),
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
     }),
 
     /**

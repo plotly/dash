@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faCopy, faCheckCircle} from '@fortawesome/free-regular-svg-icons';
 
+import LoadingElement from '../utils/LoadingElement';
+
 const clipboardAPI = navigator.clipboard;
 
 function wait(ms) {
@@ -132,7 +134,7 @@ export default class Clipboard extends React.Component {
         const btnIcon = this.state.copied ? copiedIcon : copyIcon;
 
         return clipboardAPI ? (
-            <div
+            <LoadingElement
                 id={id}
                 title={title}
                 style={style}
@@ -140,7 +142,7 @@ export default class Clipboard extends React.Component {
                 onClick={this.onClickHandler}
             >
                 <i> {btnIcon}</i>
-            </div>
+            </LoadingElement>
         ) : null;
     }
 }

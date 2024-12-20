@@ -44,11 +44,13 @@ const Dropdown = props => {
         setProps,
         search_value,
         style,
-        loading_state,
         value,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const persistentOptions = useRef(null);
+
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
 
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
@@ -148,9 +150,7 @@ const Dropdown = props => {
             id={id}
             className="dash-dropdown"
             style={style}
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={loading || undefined}
         >
             <ReactDropdown
                 filterOptions={filterOptions}

@@ -14,7 +14,9 @@ import {
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
-import LoadingDiv from '../utils/LoadingDiv';
+
+import LoadingElement from '../utils/LoadingElement';
+
 /* global Plotly:true */
 
 /**
@@ -518,7 +520,12 @@ class PlotlyGraph extends Component {
         const {className, id, style} = this.props;
 
         return (
-            <LoadingDiv id={id} key={id} className={className} style={style}>
+            <LoadingElement
+                id={id}
+                key={id}
+                className={className}
+                style={style}
+            >
                 <ResizeDetector
                     handleHeight={true}
                     handleWidth={true}
@@ -528,7 +535,7 @@ class PlotlyGraph extends Component {
                     onResize={this.graphResize}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </LoadingDiv>
+            </LoadingElement>
         );
     }
 }
