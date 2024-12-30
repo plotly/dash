@@ -457,7 +457,7 @@ function handleServerside(
             for (let i = 0; i < tmp_body.inputs.length; i++) {
                 tmp_body.inputs[i]['value'] = null;
             }
-            for (let i = 0; i < tmp_body?.state.length; i++) {
+            for (let i = 0; i < (tmp_body?.state || []).length; i++) {
                 tmp_body.state[i]['value'] = null;
             }
             new_body = JSON.stringify(tmp_body)
