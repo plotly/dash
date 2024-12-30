@@ -439,6 +439,7 @@ function handleServerside(
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
         let url = `${urlBase(config)}_dash-update-component`;
+        let new_body = body
 
         const addArg = (name: string, value: string) => {
             let delim = '?';
@@ -447,11 +448,19 @@ function handleServerside(
             }
             url = `${url}${delim}${name}=${value}`;
         };
-        if (cacheKey) {
-            addArg('cacheKey', cacheKey);
-        }
-        if (job) {
-            addArg('job', job);
+        if (cacheKey || job) {
+            if (cacheKey) addArg('cacheKey', cacheKey);
+            if (job) addArg('job', job);
+
+            // clear inputs as background callback doesnt need inputs, just verify for context
+            let tmp_body = JSON.parse(new_body)
+            for (let i = 0; i < tmp_body.inputs.length; i++) {
+                tmp_body.inputs[i]['value'] = null;
+            }
+            for (let i = 0; i < tmp_body?.state.length; i++) {
+                tmp_body.state[i]['value'] = null;
+            }
+            new_body = JSON.stringify(tmp_body)
         }
 
         if (moreArgs) {
@@ -464,7 +473,7 @@ function handleServerside(
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body
+                body: new_body,
             })
         );
     };
