@@ -453,11 +453,11 @@ function handleServerside(
             if (job) addArg('job', job);
 
             // clear inputs as background callback doesnt need inputs, just verify for context
-            const tmpBody = JSON.parse(new_body);
-            for (let i = 0; i < tmp_body.inputs.length; i++) {
+            const tmpBody = JSON.parse(newBody);
+            for (let i = 0; i < tmpBody.inputs.length; i++) {
                 tmpBody.inputs[i]['value'] = null;
             }
-            for (let i = 0; i < (tmp_body?.state || []).length; i++) {
+            for (let i = 0; i < (tmpBody?.state || []).length; i++) {
                 tmpBody.state[i]['value'] = null;
             }
             newBody = JSON.stringify(tmpBody);
