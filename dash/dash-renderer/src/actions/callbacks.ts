@@ -473,7 +473,7 @@ function handleServerside(
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body: new_body
+                body: newBody
             })
         );
     };
