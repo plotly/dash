@@ -439,7 +439,7 @@ function handleServerside(
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
         let url = `${urlBase(config)}_dash-update-component`;
-        let new_body = body;
+        let newBody = body;
 
         const addArg = (name: string, value: string) => {
             let delim = '?';
@@ -453,14 +453,14 @@ function handleServerside(
             if (job) addArg('job', job);
 
             // clear inputs as background callback doesnt need inputs, just verify for context
-            const tmp_body = JSON.parse(new_body);
+            const tmpBody = JSON.parse(new_body);
             for (let i = 0; i < tmp_body.inputs.length; i++) {
-                tmp_body.inputs[i]['value'] = null;
+                tmpBody.inputs[i]['value'] = null;
             }
             for (let i = 0; i < (tmp_body?.state || []).length; i++) {
-                tmp_body.state[i]['value'] = null;
+                tmpBody.state[i]['value'] = null;
             }
-            new_body = JSON.stringify(tmp_body);
+            newBody = JSON.stringify(tmpBody);
         }
 
         if (moreArgs) {
