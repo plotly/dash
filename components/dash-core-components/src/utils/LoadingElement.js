@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 /**
  * The loading element is used to add `data-dash-is-loading` attribute
@@ -8,12 +7,14 @@ import PropTypes from 'prop-types';
  *
  * See: https://dash.plotly.com/loading-states#check-loading-states-from-components
  */
-export default function LoadingElement({elementType = 'div', ...props}) {
+// eslint-disable-next-line react/prop-types
+function LoadingElement({elementType = 'div', ...props}, ref) {
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
 
     const givenProps = {
         ...props,
+        ref,
     };
     if (loading) {
         givenProps['data-dash-is-loading'] = true;
@@ -22,7 +23,4 @@ export default function LoadingElement({elementType = 'div', ...props}) {
     return React.createElement(elementType, givenProps);
 }
 
-LoadingElement.propTypes = {
-    children: PropTypes.node,
-    elementType: PropTypes.string,
-};
+export default React.forwardRef(LoadingElement);
