@@ -369,7 +369,7 @@ function DashWrapper({
 
     const hydrated = useMemo(() => {
         let hydratedChildren: any;
-        if (componentProps.children) {
+        if (componentProps.children !== undefined) {
             hydratedChildren = wrapChildrenProp(componentProps.children, [
                 'children'
             ]);
