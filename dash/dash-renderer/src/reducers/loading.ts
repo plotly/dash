@@ -1,4 +1,4 @@
-import {assocPath, includes, pathOr, without} from 'ramda';
+import {assocPath, includes, pathOr} from 'ramda';
 
 import {LoadingPayload} from '../actions/loading';
 
@@ -20,7 +20,13 @@ export default function loading(
             return action.payload.reduce((acc, load) => {
                 const loadPath = [JSON.stringify(load.path)];
                 const prev = pathOr<any>([], loadPath, acc);
-                return assocPath(loadPath, without(prev, [load]), acc);
+                return assocPath(
+                    loadPath,
+                    prev.filter(
+                        (loading: any) => loading.property !== load.property
+                    ),
+                    acc
+                );
             }, state);
         case 'LOADING':
             return action.payload.reduce((acc, load) => {
