@@ -719,9 +719,6 @@ class Dash:
 
     @layout.setter
     def layout(self, value):
-        if isinstance(value, list):
-            value = html.Div(value)
-
         _validate.validate_layout_type(value)
         self._layout_is_function = callable(value)
         self._layout = value
@@ -2284,17 +2281,21 @@ class Dash:
 
             # Set validation_layout
             if not self.config.suppress_callback_exceptions:
-                self.validation_layout = html.Div(
-                    [
-                        page["layout"]() if callable(page["layout"]) else page["layout"]
-                        for page in _pages.PAGE_REGISTRY.values()
-                    ]
-                    + [
+                layout = self.layout
+                if not isinstance(layout, list):
+                    layout = [
                         # pylint: disable=not-callable
                         self.layout()
                         if callable(self.layout)
                         else self.layout
                     ]
+
+                self.validation_layout = html.Div(
+                    [
+                        page["layout"]() if callable(page["layout"]) else page["layout"]
+                        for page in _pages.PAGE_REGISTRY.values()
+                    ]
+                    + layout
                 )
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")
