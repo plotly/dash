@@ -16,7 +16,7 @@ function wait(ms) {
  */
 
 export default class Clipboard extends React.Component {
-    context = window.dash_component_api.DashContext;
+    static contextType = window.dash_component_api.DashContext;
 
     constructor(props) {
         super(props);
