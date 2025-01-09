@@ -20,12 +20,19 @@ export default class ConfirmDialogProvider extends React.Component {
     render() {
         const {displayed, id, setProps, children} = this.props;
 
+        // Will lose the previous onClick of the child
+        const wrapClick = child =>
+            React.cloneElement(child, {
+                extras: {
+                    onClick: () => setProps({displayed: true}),
+                },
+            });
+
         return (
-            <LoadingElement
-                id={id}
-                onClick={() => setProps({displayed: !displayed})}
-            >
-                {children}
+            <LoadingElement id={id}>
+                {Array.isArray(children)
+                    ? children.map(wrapClick)
+                    : wrapClick(children)}
                 <ConfirmDialog {...this.props} displayed={displayed} />
             </LoadingElement>
         );
