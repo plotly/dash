@@ -1,5 +1,5 @@
 import React, {useState, useRef, useMemo, useEffect} from 'react';
-import {equals, concat, includes, toPairs} from 'ramda';
+import {equals, concat, includes, toPairs, any} from 'ramda';
 import PropTypes from 'prop-types';
 
 import GraphSpinner from '../fragments/Loading/spinners/GraphSpinner.jsx';
@@ -35,19 +35,21 @@ const loadingSelector = (componentPath, targetComponents) => state => {
     stringPath = stringPath.substring(0, stringPath.length - 1);
     const loadingChildren = toPairs(state.loading).reduce(
         (acc, [path, load]) => {
-            if (path.startsWith(stringPath)) {
-                if (targetComponents) {
-                    const target = targetComponents[load.id];
-                    if (!target) {
-                        return acc;
-                    }
-                    if (Array.isArray(target)) {
-                        if (!includes(load.property, target)) {
-                            return acc;
+            if (path.startsWith(stringPath) && load.length) {
+                if (
+                    targetComponents &&
+                    !any(l => {
+                        const target = targetComponents[l.id];
+                        if (!target) {
+                            return false;
                         }
-                    } else if (load.property !== target) {
-                        return acc;
-                    }
+                        if (Array.isArray(target)) {
+                            return includes(l.property, target);
+                        }
+                        return l.property === target;
+                    }, load)
+                ) {
+                    return acc;
                 }
                 return concat(acc, load);
             }
