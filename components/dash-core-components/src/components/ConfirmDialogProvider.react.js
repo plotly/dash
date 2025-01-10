@@ -23,9 +23,7 @@ export default class ConfirmDialogProvider extends React.Component {
         // Will lose the previous onClick of the child
         const wrapClick = child =>
             React.cloneElement(child, {
-                extras: {
-                    onClick: () => setProps({displayed: true}),
-                },
+                onClick: () => setProps({displayed: true}),
             });
 
         return (

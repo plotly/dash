@@ -39,17 +39,13 @@ type DashWrapperProps = {
      * Path of the component in the layout.
      */
     componentPath: DashLayoutPath;
-    /**
-     * extras props to be merged with the dash props from the store.
-     */
-    extras?: any;
     _dashprivate_error?: any;
 };
 
 function DashWrapper({
     componentPath,
-    extras,
-    _dashprivate_error
+    _dashprivate_error,
+    ...extras
 }: DashWrapperProps) {
     const dispatch = useDispatch();
 

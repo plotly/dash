@@ -7,9 +7,9 @@ const AddPropsComponent = (props) => {
 
     return (
         <div id={id}>
-            {React.cloneElement(children, { extras: {
+            {React.cloneElement(children, { 
                 receive: `Element #${id} pass`,
-            }})}
+            })}
         </div>
     );
 };
