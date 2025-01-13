@@ -53,7 +53,7 @@ class DebugMenu extends Component {
     }
     render() {
         const {opened, errorsOpened, callbackGraphOpened} = this.state;
-        const {error, hotReload} = this.props;
+        const {error, hotReload, config} = this.props;
 
         const errCount = error.frontEnd.length + error.backEnd.length;
         const connected = error.backEndConnected;
@@ -148,6 +148,7 @@ class DebugMenu extends Component {
                     visible={errCount > 0}
                     errorsOpened={errorsOpened}
                     clickHandler={toggleErrors}
+                    config={config}
                 >
                     {this.props.children}
                 </GlobalErrorOverlay>
@@ -159,7 +160,8 @@ class DebugMenu extends Component {
 DebugMenu.propTypes = {
     children: PropTypes.object,
     error: PropTypes.object,
-    hotReload: PropTypes.bool
+    hotReload: PropTypes.bool,
+    config: PropTypes.object
 };
 
 export {DebugMenu};
