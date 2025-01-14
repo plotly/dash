@@ -1,4 +1,4 @@
-import {includes, mergeRight, path} from 'ramda';
+import {includes, mergeRight, append, view, lensPath, assocPath} from 'ramda';
 
 import {getAction} from '../actions/constants';
 
@@ -15,8 +15,10 @@ const layout = (state = {}, action) => {
             getAction('ON_PROP_CHANGE')
         ])
     ) {
-        const component = path(action.payload.itempath, state);
-        component.props = mergeRight(component.props, action.payload.props);
+        const propPath = append('props', action.payload.itempath);
+        const existingProps = view(lensPath(propPath), state);
+        const mergedProps = mergeRight(existingProps, action.payload.props);
+        return assocPath(propPath, mergedProps, state);
     }
 
     return state;

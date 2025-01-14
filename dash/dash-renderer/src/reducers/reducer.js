@@ -1,4 +1,4 @@
-import {forEach, isEmpty, keys, path} from 'ramda';
+import {forEach, includes, isEmpty, keys, path, assoc, pathOr} from 'ramda';
 import {combineReducers} from 'redux';
 
 import {getCallbacksByInput} from '../actions/dependencies_ts';
@@ -26,14 +26,19 @@ export const apiRequests = [
     'loginRequest'
 ];
 
-function callbackNum(state = 0, action) {
-    // With the refactor of TreeContainer to DashWrapper
-    // The props are updated partially and no longer
-    // trigger the selectors on change.
-    // By changing this store value we circumvent
-    // the issue.
-    if (action.type === 'ON_PROP_CHANGE') {
-        return state + 1;
+function layoutHashes(state = {}, action) {
+    if (
+        includes(action.type, [
+            'UNDO_PROP_CHANGE',
+            'REDO_PROP_CHANGE',
+            'ON_PROP_CHANGE'
+        ])
+    ) {
+        // Let us compare the paths sums to get updates without triggering
+        // render on the parent containers.
+        const jsonPath = JSON.stringify(action.payload.itempath);
+        const prev = pathOr(0, [jsonPath], state);
+        return assoc(jsonPath, prev + 1, state);
     }
     return state;
 }
@@ -52,7 +57,7 @@ function mainReducer() {
         isLoading,
         layout,
         paths,
-        callbackNum,
+        layoutHashes,
         loading
     };
     forEach(r => {
