@@ -2137,9 +2137,9 @@ class Dash:
 
         # Evaluate the env variables at runtime
 
-        host = os.getenv("HOST", host)
-        port = os.getenv("PORT", port)
-        proxy = os.getenv("DASH_PROXY", proxy)
+        host = host or os.getenv("HOST")
+        port = port or os.getenv("PORT")
+        proxy = proxy or os.getenv("DASH_PROXY")
 
         # Verify port value
         try:
