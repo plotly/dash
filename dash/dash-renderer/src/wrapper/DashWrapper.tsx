@@ -5,6 +5,7 @@ import {
     pickBy,
     equals,
     keys,
+    is,
     isEmpty,
     pick,
     assocPath,
@@ -406,7 +407,11 @@ function DashWrapper({
     return (
         <ComponentErrorBoundary
             componentType={component.type}
-            componentId={componentProps.id}
+            componentId={
+                is(Object, componentProps.id)
+                    ? stringifyId(componentProps.id)
+                    : componentProps.id
+            }
             error={_dashprivate_error}
             dispatch={dispatch}
         >
