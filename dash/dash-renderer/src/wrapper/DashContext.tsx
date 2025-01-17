@@ -3,6 +3,7 @@ import {useStore, useSelector, useDispatch} from 'react-redux';
 import {pathOr} from 'ramda';
 
 import {DashLayoutPath} from '../types/component';
+import {LoadingPayload} from '../actions/loading';
 
 type DashContextType = {
     componentPath: DashLayoutPath;
@@ -15,6 +16,8 @@ type DashContextType = {
     useDispatch: typeof useDispatch;
     useStore: typeof useStore;
 };
+
+type LoadingFilterFunc = (loading: LoadingPayload) => boolean;
 
 export const DashContext = React.createContext<DashContextType>({} as any);
 
@@ -41,12 +44,18 @@ export function DashContextProvider(props: DashContextProviderProps) {
         return loading.length > 0;
     }, [stringPath]);
 
-    const useLoading = useCallback(() => {
-        return useSelector((state: any) => {
-            const load = pathOr([], [stringPath], state.loading);
-            return load.length > 0;
-        });
-    }, [stringPath]);
+    const useLoading = useCallback(
+        (filterFunc?: LoadingFilterFunc) => {
+            return useSelector((state: any) => {
+                const load = pathOr([], [stringPath], state.loading);
+                if (filterFunc) {
+                    return load.filter(filterFunc).length > 0;
+                }
+                return load.length > 0;
+            });
+        },
+        [stringPath]
+    );
 
     const ctxValue = useMemo(() => {
         return {
