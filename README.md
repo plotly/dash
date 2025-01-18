@@ -12,7 +12,7 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 
 - [Docs](https://dash.plotly.com/getting-started): Create your first Dash app in under 5 minutes
 
-- [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code
+- [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code.
 
 <div align="center">
   <a href="https://dash.plotly.com/project-maintenance">
