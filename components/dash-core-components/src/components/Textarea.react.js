@@ -278,3 +278,5 @@ Textarea.propTypes = {
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
+
+export default Textarea;
