@@ -33,3 +33,5 @@ const DataTable = props => {
 
 DataTable.defaultProps = defaultProps;
 DataTable.propTypes = propTypes;
+
+export default DataTable;
