@@ -244,8 +244,8 @@ def dashjl(request, dashjl_server, tmpdir) -> DashJuliaComposite:
 
 @pytest.fixture
 def diskcache_manager():
-    from dash.long_callback import (  # pylint: disable=import-outside-toplevel
-        DiskcacheLongCallbackManager,
+    from dash.background_callback import (  # pylint: disable=import-outside-toplevel
+        DiskcacheManager,
     )
 
-    return DiskcacheLongCallbackManager()
+    return DiskcacheManager()

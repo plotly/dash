@@ -33,4 +33,4 @@ def on_style(value):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=10850)
+    app.run(debug=True, port="10850")
