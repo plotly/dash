@@ -215,8 +215,6 @@ def fail_callback_output(output_value, output):
     valid_children = (str, int, float, type(None), Component, NoUpdate)
     valid_props = (str, int, float, type(None), tuple, MutableSequence, NoUpdate)
 
-    print("================================")
-
     def _raise_invalid(bad_val, outer_val, path, index=None, toplevel=False):
         bad_type = type(bad_val).__name__
         outer_id = f"(id={outer_val.id:s})" if getattr(outer_val, "id", False) else ""
@@ -264,7 +262,6 @@ def fail_callback_output(output_value, output):
         return isinstance(val, valid_props)
 
     def _can_serialize(val):
-        print("checking ability to serialize")
         if not (_valid_child(val) or _valid_prop(val)):
             return False
         try:
@@ -276,7 +273,6 @@ def fail_callback_output(output_value, output):
     def _validate_value(val, index=None):
         # val is a Component
         if isinstance(val, Component):
-            print("Is Component")
             unserializable_items = []
             # pylint: disable=protected-access
             for p, j in val._traverse_with_paths():
@@ -337,7 +333,6 @@ def fail_callback_output(output_value, output):
 
     if isinstance(output_value, list):
         for i, val in enumerate(output_value):
-            print(val)
             _validate_value(val, index=i)
     else:
         _validate_value(output_value)
