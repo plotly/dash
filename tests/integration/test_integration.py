@@ -2,12 +2,8 @@ import datetime
 import flask
 import json
 import pytest
-import re
 
 from bs4 import BeautifulSoup
-
-import dash_dangerously_set_inner_html
-import dash_flow_example
 
 import dash
 from dash import Dash, html, dcc, Input, Output
@@ -46,67 +42,6 @@ def test_inin003_wildcard_data_attributes(dash_duo):
     assert actual == expected, "all attrs are included except None values"
 
     assert dash_duo.get_logs() == []
-
-
-def test_inin004_no_props_component(dash_duo):
-    app = Dash()
-    app.layout = html.Div(
-        [
-            dash_dangerously_set_inner_html.DangerouslySetInnerHTML(
-                """
-            <h1>No Props Component</h1>
-        """
-            )
-        ],
-        id="app",
-    )
-
-    dash_duo.start_server(app)
-
-    assert dash_duo.get_logs() == []
-    assert dash_duo.find_element("h1").text == "No Props Component"
-
-    inner = dash_duo.find_element("#app").get_property("innerHTML")
-    expected = "<div> <h1>No Props Component</h1> </div>"
-    assert re.sub("\\s+", " ", inner) == expected
-
-
-def test_inin005_flow_component(dash_duo):
-    app = Dash()
-
-    app.layout = html.Div(
-        [
-            dash_flow_example.ExampleReactComponent(
-                id="react", value="my-value", label="react component"
-            ),
-            dash_flow_example.ExampleFlowComponent(
-                id="flow", value="my-value", label="flow component"
-            ),
-            html.Hr(),
-            html.Div(id="output"),
-        ]
-    )
-
-    @app.callback(
-        Output("output", "children"), [Input("react", "value"), Input("flow", "value")]
-    )
-    def display_output(react_value, flow_value):
-        return html.Div(
-            [
-                "You have entered {} and {}".format(react_value, flow_value),
-                html.Hr(),
-                html.Label("Flow Component Docstring"),
-                html.Pre(dash_flow_example.ExampleFlowComponent.__doc__),
-                html.Hr(),
-                html.Label("React PropTypes Component Docstring"),
-                html.Pre(dash_flow_example.ExampleReactComponent.__doc__),
-                html.Div(id="waitfor"),
-            ]
-        )
-
-    dash_duo.start_server(app)
-    dash_duo.wait_for_element("#waitfor")
-    dash_duo.percy_snapshot(name="flowtype")
 
 
 def test_inin006_meta_tags(dash_duo):

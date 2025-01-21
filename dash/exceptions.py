@@ -87,7 +87,7 @@ class DuplicateCallback(DashException):
     pass
 
 
-class LongCallbackError(DashException):
+class BackgroundCallbackError(DashException):
     pass
 
 
