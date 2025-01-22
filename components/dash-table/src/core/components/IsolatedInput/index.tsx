@@ -93,7 +93,6 @@ export default class IsolatedInput extends PureComponent<IProps, IState> {
 
         return (
             <input
-                ref='input'
                 type='text'
                 value={this.state.value || ''}
                 onChange={this.handleChange}

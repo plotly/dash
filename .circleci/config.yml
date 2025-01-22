@@ -219,24 +219,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  test-312-react-18:
-    <<: *test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PERCY_ENABLE: 0
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python312
-          REDIS_URL: redis://localhost:6379
-          REACT_VERSION: "18.2.0"
-      - image: cimg/redis:6.2.6
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-
   test-38:
     <<: *test
     docker:
@@ -337,18 +319,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-312-react-18:
-    <<: *dcc-test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
-
   dcc-38:
     <<: *dcc-test
     docker:
@@ -414,18 +384,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-312-react-18:
-    <<: *html-test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
-
   html-38:
     <<: *html-test
     docker:
@@ -485,15 +443,6 @@ jobs:
           path: ~/dash/components/dash-table/test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
-
-  table-server-react-18:
-    <<: *table-server
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
 
   table-unit-test:
     working_directory: ~/dash
@@ -627,9 +576,6 @@ workflows:
       - test-312:
           requires:
             - install-dependencies-312
-      - test-312-react-18:
-          requires:
-            - install-dependencies-312
       - test-38:
           requires:
             - install-dependencies-38
@@ -644,17 +590,11 @@ workflows:
       - dcc-312:
           requires:
             - install-dependencies-312
-      - dcc-312-react-18:
-          requires:
-            - install-dependencies-312
       - dcc-38:
           requires:
             - install-dependencies-38
 
       - html-312:
-          requires:
-            - install-dependencies-312
-      - html-312-react-18:
           requires:
             - install-dependencies-312
       - html-38:
@@ -669,9 +609,6 @@ workflows:
             - install-dependencies-312
       - table-visual-test
       - table-server:
-          requires:
-            - install-dependencies-312
-      - table-server-react-18:
           requires:
             - install-dependencies-312
 
