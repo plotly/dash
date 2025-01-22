@@ -349,9 +349,6 @@ class Dash:
     want to control the document.title through a separate component or
     clientside callback.
 
-    :param long_callback_manager: Deprecated, use ``background_callback_manager``
-        instead.
-
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
@@ -411,9 +408,6 @@ class Dash:
         plugins: Optional[list] = None,
         title: str = "Dash",
         update_title: str = "Updating...",
-        long_callback_manager: Optional[
-            Any
-        ] = None,  # Type should be specified if possible
         background_callback_manager: Optional[
             Any
         ] = None,  # Type should be specified if possible
@@ -546,15 +540,8 @@ class Dash:
         )
 
         self._assets_files = []
-        self._long_callback_count = 0
-        if long_callback_manager:
-            warnings.warn(
-                DeprecationWarning(
-                    "`long_callback_manager` is deprecated and will be remove in Dash 3.0, "
-                    "use `background_callback_manager` instead."
-                )
-            )
-        self._background_manager = background_callback_manager or long_callback_manager
+
+        self._background_manager = background_callback_manager
 
         self.logger = logging.getLogger(__name__)
 
@@ -566,6 +553,8 @@ class Dash:
         ):
             for plugin in plugins:
                 plugin.plug(self)
+
+        self._setup_hooks()
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
@@ -581,6 +570,38 @@ class Dash:
                 "See https://dash.plotly.com/dash-in-jupyter for more details."
             )
         self.setup_startup_routes()
+
+    def _setup_hooks(self):
+        # pylint: disable=import-outside-toplevel,protected-access
+        from ._hooks import HooksManager
+
+        self._hooks = HooksManager
+        self._hooks.register_setuptools()
+
+        for setup in self._hooks.get_hooks("setup"):
+            setup(self)
+
+        for hook in self._hooks.get_hooks("callback"):
+            callback_args, callback_kwargs = hook.data
+            self.callback(*callback_args, **callback_kwargs)(hook.func)
+
+        for (
+            clientside_function,
+            args,
+            kwargs,
+        ) in self._hooks.hooks._clientside_callbacks:
+            _callback.register_clientside_callback(
+                self._callback_list,
+                self.callback_map,
+                self.config.prevent_initial_callbacks,
+                self._inline_scripts,
+                clientside_function,
+                *args,
+                **kwargs,
+            )
+
+        if self._hooks.get_hooks("error"):
+            self._on_error = self._hooks.HookErrorHandler(self._on_error)
 
     def init_app(self, app=None, **kwargs):
         """Initialize the parts of Dash that require a flask app."""
@@ -682,6 +703,9 @@ class Dash:
                 "_alive_" + jupyter_dash.alive_token, jupyter_dash.serve_alive
             )
 
+        for hook in self._hooks.get_hooks("routes"):
+            self._add_url(hook.data["name"], hook.func, hook.data["methods"])
+
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
@@ -747,6 +771,9 @@ class Dash:
 
     def serve_layout(self):
         layout = self._layout_value()
+
+        for hook in self._hooks.get_hooks("layout"):
+            layout = hook(layout)
 
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
@@ -890,9 +917,13 @@ class Dash:
 
         return srcs
 
+    # pylint: disable=protected-access
     def _generate_css_dist_html(self):
         external_links = self.config.external_stylesheets
-        links = self._collect_and_register_resources(self.css.get_all_css())
+        links = self._collect_and_register_resources(
+            self.css.get_all_css()
+            + self.css._resources._filter_resources(self._hooks.hooks._css_dist)
+        )
 
         return "\n".join(
             [
@@ -940,6 +971,9 @@ class Dash:
                 )
                 + self.scripts._resources._filter_resources(
                     dash_table._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    self._hooks.hooks._js_dist, dev_bundles=dev
                 )
             )
         )
@@ -1063,6 +1097,9 @@ class Dash:
             favicon=favicon,
             renderer=renderer,
         )
+
+        for hook in self._hooks.get_hooks("index"):
+            index = hook(index)
 
         checks = (
             _re_index_entry_id,
@@ -1234,38 +1271,6 @@ class Dash:
             **_kwargs,
         )
 
-    def long_callback(
-        self,
-        *_args,
-        manager=None,
-        interval=1000,
-        running=None,
-        cancel=None,
-        progress=None,
-        progress_default=None,
-        cache_args_to_ignore=None,
-        **_kwargs,
-    ):
-        """
-        Deprecated: long callbacks are now supported natively with regular callbacks,
-        use `background=True` with `dash.callback` or `app.callback` instead.
-        """
-        return _callback.callback(
-            *_args,
-            background=True,
-            manager=manager,
-            interval=interval,
-            progress=progress,
-            progress_default=progress_default,
-            running=running,
-            cancel=cancel,
-            cache_args_to_ignore=cache_args_to_ignore,
-            callback_map=self.callback_map,
-            callback_list=self._callback_list,
-            config_prevent_initial_callbacks=self.config.prevent_initial_callbacks,
-            **_kwargs,
-        )
-
     # pylint: disable=R0915
     def dispatch(self):
         body = flask.request.get_json()
@@ -1303,7 +1308,7 @@ class Dash:
             g.background_callback_manager = (
                 cb.get("manager") or self._background_manager
             )
-            g.ignore_register_page = cb.get("long", False)
+            g.ignore_register_page = cb.get("background", False)
 
             # Add args_grouping
             inputs_state_indices = cb["inputs_state_indices"]
@@ -1378,7 +1383,7 @@ class Dash:
                     func,
                     *args,
                     outputs_list=outputs_list,
-                    long_callback_manager=self._background_manager,
+                    background_callback_manager=self._background_manager,
                     callback_context=g,
                     app=self,
                     app_on_error=self._on_error,
@@ -1426,18 +1431,18 @@ class Dash:
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        _validate.validate_long_callbacks(self.callback_map)
+        _validate.validate_background_callbacks(self.callback_map)
 
         cancels = {}
 
         for callback in self.callback_map.values():
-            long = callback.get("long")
-            if not long:
+            background = callback.get("background")
+            if not background:
                 continue
-            if "cancel_inputs" in long:
-                cancel = long.pop("cancel_inputs")
+            if "cancel_inputs" in background:
+                cancel = background.pop("cancel_inputs")
                 for c in cancel:
-                    cancels[c] = long.get("manager")
+                    cancels[c] = background.get("manager")
 
         if cancels:
             for cancel_input, manager in cancels.items():
@@ -2299,16 +2304,3 @@ class Dash:
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
-
-    def run_server(self, *args, **kwargs):
-        """`run_server` is a deprecated alias of `run` and may be removed in a
-        future version. We recommend using `app.run` instead.
-
-        See `app.run` for usage information.
-        """
-        warnings.warn(
-            DeprecationWarning(
-                "Dash.run_server is deprecated and will be removed in Dash 3.0"
-            )
-        )
-        self.run(*args, **kwargs)

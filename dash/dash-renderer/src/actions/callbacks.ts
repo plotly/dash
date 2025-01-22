@@ -29,7 +29,7 @@ import {
     IStoredCallback,
     IBlockedCallback,
     IPrioritizedCallback,
-    LongCallbackInfo,
+    BackgroundCallbackInfo,
     CallbackResponse,
     CallbackResponseData,
     SideUpdateOutput
@@ -414,7 +414,7 @@ function handleServerside(
     hooks: any,
     config: any,
     payload: ICallbackPayload,
-    long: LongCallbackInfo | undefined,
+    background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
     output: string,
@@ -579,7 +579,7 @@ function handleServerside(
                         progressDefault = data.progressDefault;
                     }
 
-                    if (!long || data.response !== undefined) {
+                    if (!background || data.response !== undefined) {
                         if (data.dist) {
                             Promise.all(data.dist.map(loadLibrary)).then(() => {
                                 completeJob();
@@ -593,7 +593,9 @@ function handleServerside(
                         // Poll chain.
                         setTimeout(
                             handle,
-                            long.interval !== undefined ? long.interval : 500
+                            background.interval !== undefined
+                                ? background.interval
+                                : 500
                         );
                     }
                 });
@@ -680,8 +682,14 @@ export function executeCallback(
     dispatch: any,
     getState: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function, long, dynamic_creator} =
-        cb.callback;
+    const {
+        output,
+        inputs,
+        state,
+        clientside_function,
+        background,
+        dynamic_creator
+    } = cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
@@ -804,7 +812,7 @@ export function executeCallback(
                             hooks,
                             newConfig,
                             payload,
-                            long,
+                            background,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
                             cb.callback.output,

@@ -1,7 +1,5 @@
 import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 import React, {Component} from 'react';
-// /build/withPolyfill for IE11 support - https://github.com/maslianok/react-resize-detector/issues/144
-import ResizeDetector from 'react-resize-detector/build/withPolyfill';
 import {
     equals,
     filter,
@@ -18,6 +16,8 @@ import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
 import LoadingElement from '../utils/LoadingElement';
 
 /* global Plotly:true */
+
+import ResizeDetector from '../utils/ResizeDetector';
 
 /**
  * `autosize: true` causes Plotly.js to conform to the parent element size.
@@ -150,6 +150,8 @@ class PlotlyGraph extends Component {
         this._hasPlotted = false;
         this._prevGd = null;
         this._queue = Promise.resolve();
+
+        this.parentElement = React.createRef();
 
         this.bindEvents = this.bindEvents.bind(this);
         this.getConfig = this.getConfig.bind(this);
@@ -522,14 +524,11 @@ class PlotlyGraph extends Component {
                 key={id}
                 className={className}
                 style={style}
+                ref={this.parentElement}
             >
                 <ResizeDetector
-                    handleHeight={true}
-                    handleWidth={true}
-                    refreshMode="debounce"
-                    refreshOptions={{trailing: true}}
-                    refreshRate={50}
                     onResize={this.graphResize}
+                    targets={[this.parentElement, this.gd]}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
             </LoadingElement>

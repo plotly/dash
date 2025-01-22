@@ -2,8 +2,8 @@ import os
 
 __version__ = "1.21.1"
 
-_available_react_versions = {"16.14.0", "18.2.0", "18.3.1"}
-_available_reactdom_versions = {"16.14.0", "18.2.0", "18.3.1"}
+_available_react_versions = {"18.3.1", "18.2.0", "16.14.0"}
+_available_reactdom_versions = {"18.3.1", "18.2.0", "16.14.0"}
 _js_dist_dependencies = []  # to be set by _set_react_version
 
 
@@ -58,7 +58,7 @@ if _env_react_version:
     _set_react_version(_env_react_version)
     print(f"EXPERIMENTAL: Using react version from env: {_env_react_version}")
 else:
-    _set_react_version("16.14.0", "16.14.0")
+    _set_react_version("18.3.1", "18.3.1")
 
 _js_dist = [
     {
