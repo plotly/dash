@@ -6,7 +6,7 @@ import genRandomId from 'dash-table/utils/generate';
 import isValidProps from '../validate';
 import Sanitizer from '../Sanitizer';
 
-import {propTypes, defaultProps} from '../DataTable';
+import {propTypes} from '../DataTable';
 
 const DataTable = props => {
     const ctx = window.dash_component_api.useDashContext();
@@ -31,7 +31,6 @@ const DataTable = props => {
     );
 };
 
-DataTable.defaultProps = defaultProps;
 DataTable.propTypes = propTypes;
 
 export default DataTable;
