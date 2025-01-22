@@ -42,8 +42,8 @@ const Textarea = ({
     n_blur_timestamp = -1,
     n_clicks,
     n_clicks_timestamp = -1,
-    persisted_props = ['value'],
-    persistence_type = 'local',
+    persisted_props,
+    persistence_type,
     ...props
 }) => {
     const ctx = window.dash_component_api.useDashContext();
@@ -71,6 +71,11 @@ const Textarea = ({
             {...pick(textAreaProps, props)}
         />
     );
+};
+
+Textarea.dashPersistence = {
+    persisted_props: ['value'],
+    persistence_type: 'local',
 };
 
 Textarea.propTypes = {
