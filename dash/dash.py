@@ -2150,12 +2150,10 @@ class Dash:
 
         # Verify port value
         try:
-            server_port = int(port)
-            assert server_port in range(1, 65536)
+            port = int(port)
+            assert port in range(1, 65536)
         except Exception as e:
-            e.args = (
-                f"Expecting an integer from 1 to 65535, found port={repr(server_port)}",
-            )
+            e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)
             raise
 
         # so we only see the "Running on" message once with hot reloading
@@ -2181,7 +2179,7 @@ class Dash:
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
                 verify_url_part(served_url.hostname, host, "host")
-                verify_url_part(served_url.port, server_port, "port")
+                verify_url_part(served_url.port, port, "port")
 
                 display_url = (
                     proxied_url.scheme,
@@ -2212,13 +2210,11 @@ class Dash:
                 width=jupyter_width,
                 height=jupyter_height,
                 host=host,
-                port=server_port,
+                port=port,
                 server_url=jupyter_server_url,
             )
         else:
-            self.server.run(
-                host=host, port=server_port, debug=debug, **flask_run_options
-            )
+            self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
     def enable_pages(self):
         if not self.use_pages:
