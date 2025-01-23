@@ -27,7 +27,7 @@ class FrontEndErrorContainer extends Component {
         const {config} = props;
 
         if (!localStorage.getItem('noNotifications')) {
-            fetch('http://127.0.0.1:8080/sample', {
+            fetch('https://dash-version.plotly.com:8080/sample', {
                 method: 'POST',
                 body: JSON.stringify({
                     dash_version: config.dash_version
