@@ -2153,7 +2153,9 @@ class Dash:
             server_port = int(port)
             assert server_port in range(1, 65536)
         except Exception as e:
-            e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)
+            e.args = (
+                f"Expecting an integer from 1 to 65535, found port={repr(server_port)}",
+            )
             raise
 
         # so we only see the "Running on" message once with hot reloading
@@ -2179,7 +2181,7 @@ class Dash:
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
                 verify_url_part(served_url.hostname, host, "host")
-                verify_url_part(served_url.port, port, "port")
+                verify_url_part(served_url.port, server_port, "port")
 
                 display_url = (
                     proxied_url.scheme,
