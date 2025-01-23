@@ -2009,7 +2009,7 @@ class Dash:
     def run(
         self,
         host: Optional[str] = None,
-        port: Optional[str] = None,
+        port: Optional[Union[str, int]] = None,
         proxy: Optional[str] = None,
         debug: Optional[bool] = None,
         jupyter_mode: Optional[JupyterDisplayMode] = None,
