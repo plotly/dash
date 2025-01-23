@@ -2005,6 +2005,7 @@ class Dash:
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
+    # pylint: disable=too-many-branches
     def run(
         self,
         host: Optional[str] = None,
@@ -2137,7 +2138,13 @@ class Dash:
 
         # Evaluate the env variables at runtime
 
-        host = host or os.getenv("HOST", "127.0.0.1")
+        if "CONDA_PREFIX" in os.environ:
+            # Some conda systems has issue with setting the host environment
+            # to an invalid hostname.
+            # Related issue: https://github.com/plotly/dash/issues/3069
+            host = host or "127.0.0.1"
+        else:
+            host = host or os.getenv("HOST", "127.0.0.1")
         port = port or os.getenv("PORT", "8050")
         proxy = proxy or os.getenv("DASH_PROXY")
 
