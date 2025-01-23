@@ -370,3 +370,44 @@ def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
     data = json.loads(data)
     assert "customdata" in data["points"][0], "graph clickData must contain customdata"
     assert data["points"][0]["customdata"][0] == expected_value
+
+
+def test_grbs008_graph_with_empty_figure(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Toggle graph", id="btn"),
+            dcc.Graph(
+                id="graph",
+                figure=None,
+            ),
+        ]
+    )
+
+    @app.callback(Output("graph", "figure"), [Input("btn", "n_clicks")])
+    def toggle_figure(n_clicks):
+        if int(n_clicks or 0) % 2 == 0:
+            # a valid figure
+            return go.Figure([], layout=go.Layout(title="Valid Figure"))
+        else:
+            # an invalid figure
+            return None
+
+    dash_dcc.start_server(app)
+
+    # Click the toggle button a couple of times and expect the graph to change between the
+    # valid and invalid figures, using the "title" as the indicator.
+    dash_dcc.wait_for_element("#graph")
+    wait.until(
+        lambda: dash_dcc.find_element(".gtitle").text == "Valid Figure", timeout=2
+    )
+
+    dash_dcc.find_element("#btn").click()
+    wait.until(lambda: len(dash_dcc.find_elements(".gtitle")) == 0, timeout=2)
+
+    dash_dcc.find_element("#btn").click()
+    wait.until(
+        lambda: dash_dcc.find_element(".gtitle").text == "Valid Figure", timeout=2
+    )
+
+    assert dash_dcc.get_logs() == []
