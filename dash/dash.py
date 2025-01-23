@@ -2007,23 +2007,23 @@ class Dash:
 
     def run(
         self,
-        host="127.0.0.1",
-        port="8050",
-        proxy=None,
-        debug=None,
+        host: Optional[str] = None,
+        port: Optional[str] = None,
+        proxy: Optional[str] = None,
+        debug: Optional[bool] = None,
         jupyter_mode: Optional[JupyterDisplayMode] = None,
-        jupyter_width="100%",
-        jupyter_height=650,
-        jupyter_server_url=None,
-        dev_tools_ui=None,
-        dev_tools_props_check=None,
-        dev_tools_serve_dev_bundles=None,
-        dev_tools_hot_reload=None,
-        dev_tools_hot_reload_interval=None,
-        dev_tools_hot_reload_watch_interval=None,
-        dev_tools_hot_reload_max_retry=None,
-        dev_tools_silence_routes_logging=None,
-        dev_tools_prune_errors=None,
+        jupyter_width: str = "100%",
+        jupyter_height: int = 650,
+        jupyter_server_url: Optional[str] = None,
+        dev_tools_ui: Optional[bool] = None,
+        dev_tools_props_check: Optional[bool] = None,
+        dev_tools_serve_dev_bundles: Optional[bool] = None,
+        dev_tools_hot_reload: Optional[bool] = None,
+        dev_tools_hot_reload_interval: Optional[int] = None,
+        dev_tools_hot_reload_watch_interval: Optional[int] = None,
+        dev_tools_hot_reload_max_retry: Optional[int] = None,
+        dev_tools_silence_routes_logging: Optional[bool] = None,
+        dev_tools_prune_errors: Optional[bool] = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -2032,11 +2032,11 @@ class Dash:
         If a parameter can be set by an environment variable, that is listed
         too. Values provided here take precedence over environment variables.
 
-        :param host: Host IP used to serve the application
+        :param host: Host IP used to serve the application, default to "127.0.0.1"
             env: ``HOST``
         :type host: string
 
-        :param port: Port used to serve the application
+        :param port: Port used to serve the application, default to "8050"
             env: ``PORT``
         :type port: int
 
@@ -2137,14 +2137,14 @@ class Dash:
 
         # Evaluate the env variables at runtime
 
-        host = host or os.getenv("HOST")
-        port = port or os.getenv("PORT")
+        host = host or os.getenv("HOST", "127.0.0.1")
+        port = port or os.getenv("PORT", "8050")
         proxy = proxy or os.getenv("DASH_PROXY")
 
         # Verify port value
         try:
-            port = int(port)
-            assert port in range(1, 65536)
+            server_port = int(port)
+            assert server_port in range(1, 65536)
         except Exception as e:
             e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)
             raise
@@ -2203,11 +2203,13 @@ class Dash:
                 width=jupyter_width,
                 height=jupyter_height,
                 host=host,
-                port=port,
+                port=server_port,
                 server_url=jupyter_server_url,
             )
         else:
-            self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+            self.server.run(
+                host=host, port=server_port, debug=debug, **flask_run_options
+            )
 
     def enable_pages(self):
         if not self.use_pages:
