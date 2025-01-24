@@ -1,13 +1,6 @@
-import {path} from 'ramda';
-
 import {updateProps, notifyObservers} from '../actions/index';
 import {getPath} from '../actions/paths';
-
-function getStores() {
-    const stores = ((window as any).dash_stores =
-        (window as any).dash_stores || []);
-    return stores;
-}
+import {getStores} from './stores';
 
 /**
  * Set the props of a dash component by id or path.
@@ -63,32 +56,7 @@ const clean_url = (url: string, fallback = 'about:blank') => {
     return url;
 };
 
-/**
- * Get the dash props from a component path or id.
- *
- * @param componentPathOrId The path or the id of the component to get the props of.
- * @param propPath Additional key to get the property instead of plain props.
- * @returns
- */
-function get_layout(componentPathOrId: string[] | string): any {
-    const ds = getStores();
-    for (let y = 0; y < ds.length; y++) {
-        const {paths, layout} = ds[y].getState();
-        let componentPath;
-        if (!Array.isArray(componentPathOrId)) {
-            componentPath = getPath(paths, componentPathOrId);
-        } else {
-            componentPath = componentPathOrId;
-        }
-        const props = path(componentPath, layout);
-        if (props !== undefined) {
-            return props;
-        }
-    }
-}
-
 const dc = ((window as any).dash_clientside =
     (window as any).dash_clientside || {});
 dc['set_props'] = set_props;
 dc['clean_url'] = dc['clean_url'] === undefined ? clean_url : dc['clean_url'];
-dc['get_layout'] = get_layout;

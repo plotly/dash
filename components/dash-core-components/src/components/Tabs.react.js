@@ -153,7 +153,7 @@ export default class Tabs extends Component {
         }
         const children = this.parseChildrenToArray();
         if (children && children.length) {
-            const firstChildren = window.dash_clientside.get_layout([
+            const firstChildren = window.dash_component_api.getLayout([
                 ...children[0].props.componentPath,
                 'props',
                 'value',
@@ -193,7 +193,7 @@ export default class Tabs extends Component {
                 let childProps;
 
                 if (React.isValidElement(child)) {
-                    childProps = window.dash_clientside.get_layout([
+                    childProps = window.dash_component_api.getLayout([
                         ...child.props.componentPath,
                         'props',
                     ]);
