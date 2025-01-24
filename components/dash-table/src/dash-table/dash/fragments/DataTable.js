@@ -10,12 +10,12 @@ import {propTypes} from '../DataTable';
 
 const DataTable = props => {
     const ctx = window.dash_component_api.useDashContext();
-    const isLoading = ctx.useLoading(
-        loading =>
+    const isLoading = ctx.useLoading({
+        filterFunc: loading =>
             loading.property === 'data' ||
             loading.property === '' ||
             loading.property === undefined
-    );
+    });
     const id = useMemo(() => id || genRandomId('table-'), [id]);
     const sanitizer = useMemo(() => new Sanitizer(), []);
 

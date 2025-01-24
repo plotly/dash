@@ -27,8 +27,13 @@ const EnhancedTab = ({
     amountOfTabs,
     colors,
     vertical,
-    loading_state,
+    componentPath,
 }) => {
+    const ctx = window.dash_component_api.useDashContext();
+    // We use the raw path here since it's up one level from
+    // the tabs child.
+    const isLoading = ctx.useLoading({rawPath: componentPath});
+
     let tabStyle = style;
     if (disabled) {
         tabStyle = {tabStyle, ...disabled_style};
@@ -53,9 +58,7 @@ const EnhancedTab = ({
     }
     return (
         <div
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={isLoading}
             className={tabClassName}
             id={id}
             style={tabStyle}
@@ -227,7 +230,7 @@ export default class Tabs extends Component {
                         vertical={this.props.vertical}
                         amountOfTabs={amountOfTabs}
                         colors={this.props.colors}
-                        loading_state={childProps.loading_state}
+                        componentPath={child.componentPath}
                     />
                 );
             });
