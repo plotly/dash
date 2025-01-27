@@ -100,11 +100,11 @@ def generate_type(typename):
 
 
 def _get_literal_value(value):
-    if value is None:
-        return "None"
-
     if isinstance(value, str):
         value = json.loads(value.replace("'", '"'))
+
+    if value is None:
+        return "None"
 
     if isinstance(value, bool):
         return str(value)
