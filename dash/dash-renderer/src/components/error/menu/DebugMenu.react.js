@@ -174,7 +174,7 @@ class DebugMenu extends Component {
                     Callbacks
                 </button>
                 <div className='dash-debug-menu__divider' />
-                <div>
+                <div style={{position: 'relative'}}>
                     {this.state.upgradeTooltipOpened ? (
                         <div className='dash-debug-menu__upgrade-tooltip'>
                             <button onClick={setSkipThisVersion}>
@@ -193,13 +193,16 @@ class DebugMenu extends Component {
                         config.dash_version,
                         newDashVersion
                     ) ? (
-                        <button onClick={toggleShowUpgradeTooltip}>
+                        <button
+                            className='dash-debug-menu__upgrade-button'
+                            onClick={toggleShowUpgradeTooltip}
+                        >
                             Upgrade to v{newDashVersion}
                         </button>
                     ) : null}
                 </div>
                 <div className='dash-debug-menu__divider' />
-                <div>
+                <div className='dash-debug-menu__status'>
                     Server
                     <_StatusIcon className='dash-debug-menu__icon' />
                 </div>

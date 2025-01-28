@@ -20,6 +20,7 @@
     padding: 24px;
     text-align: left;
     background: transparent;
+    width: 100%;
 }
 .dash-error-card--alerts-tray {
     position: absolute;
