@@ -59,10 +59,7 @@ class FrontEndError extends Component {
         /* eslint-enable no-inline-comments */
 
         return collapsed ? (
-            <div className='dash-error-card__list-item'>
-                {errorHeader}
-                <button onClick={this.props.onDismiss}>x</button>
-            </div>
+            <div className='dash-error-card__list-item'>{errorHeader}</div>
         ) : (
             <div className={cardClasses}>
                 {errorHeader}

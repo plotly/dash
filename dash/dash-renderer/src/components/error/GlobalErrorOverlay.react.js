@@ -21,7 +21,6 @@ export default class GlobalErrorOverlay extends Component {
                 <FrontEndErrorContainer
                     errors={errors}
                     connected={error.backEndConnected}
-                    errorsOpened={errorsOpened}
                     clickHandler={clickHandler}
                     config={config}
                 />

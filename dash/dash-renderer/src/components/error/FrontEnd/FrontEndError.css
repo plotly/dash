@@ -45,11 +45,18 @@
     margin: 0px 8px;
 }
 .dash-fe-error-top {
-    height: 20px;
-    display: flex;
-    justify-content: space-between;
     width: 100%;
     cursor: pointer;
+    border: 1px solid gray;
+    border-radius: 2px;
+}
+.dash-debug-menu__error-count {
+    font-size: 12px;
+    color: #fff;
+    background-color: #C73A3A;
+    padding: 5px;
+    border-radius: 3px;
+    margin: 4px;
 }
 .dash-fe-error-top__group:first-child {
     /*
