@@ -217,11 +217,11 @@ class DebugMenu extends Component {
                             clickHandler={toggleErrors}
                             errors={errors}
                             connected={error.backEndConnected}
-                            config={config}
                         />
                     ) : undefined}
                     {menuContent}
                 </div>
+                {this.props.children}
             </div>
         );
     }
