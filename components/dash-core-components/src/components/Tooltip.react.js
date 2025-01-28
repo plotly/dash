@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
+import LoadingElement from '../utils/LoadingElement';
 
 /**
  * A tooltip with an absolute position.
@@ -17,15 +18,17 @@ const Tooltip = ({
     loading_text = 'Loading...',
     ...props
 }) => {
-    const {bbox, id, loading_state} = props;
-    const is_loading = loading_state?.is_loading;
+    const {bbox, id} = props;
     const show_tooltip = show && bbox;
+
+    const ctx = window.dash_component_api.useDashContext();
+    const is_loading = ctx.useLoading();
 
     return (
         <>
             <div className="dcc-tooltip-bounding-box">
-                <span
-                    data-dash-is-loading={is_loading || undefined}
+                <LoadingElement
+                    elementType="span"
                     className={`hover hover-${direction}`}
                 >
                     <span
@@ -39,7 +42,7 @@ const Tooltip = ({
                             props.children
                         )}
                     </span>
-                </span>
+                </LoadingElement>
             </div>
             <style jsx>{`
                 .dcc-tooltip-bounding-box {
@@ -253,24 +256,6 @@ Tooltip.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 };
 
 export default Tooltip;

@@ -25,6 +25,7 @@ export type TypescriptComponentProps = {
     array_obj?: {a: string}[];
     array_any?: any[];
     enum_string?: 'one' | 'two';
+    enum_number?: 2 | 3 | 4 | 5 | 6;
     union?: number | string;
     union_shape?: {a: string} | string;
     array_union_shape?: ({a: string} | string)[];

@@ -100,6 +100,9 @@ def generate_type(typename):
 
 
 def _get_literal_value(value):
+    if isinstance(value, str):
+        value = json.loads(value.replace("'", '"'))
+
     if value is None:
         return "None"
 
@@ -110,11 +113,7 @@ def _get_literal_value(value):
 
 
 def generate_enum(type_info, *_):
-    values = [
-        _get_literal_value(json.loads(v["value"].replace("'", '"')))
-        for v in type_info["value"]
-        if v
-    ]
+    values = [_get_literal_value(v["value"]) for v in type_info["value"] if v]
     return f"Literal[{', '.join(values)}]"
 
 

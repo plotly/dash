@@ -50,6 +50,7 @@ import {loadLibrary} from '../utils/libraries';
 
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
+import {loaded, loading} from './loading';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -731,6 +732,12 @@ export function executeCallback(
         }
 
         const __execute = async (): Promise<CallbackResult> => {
+            const loadingOutputs = outputs.map(out => ({
+                path: getPath(paths, out.id),
+                property: out.property,
+                id: out.id
+            }));
+            dispatch(loading(loadingOutputs));
             try {
                 const changedPropIds = keys<string>(cb.changedPropIds);
                 const parsedChangedPropsIds = changedPropIds.map(propId => {
@@ -887,11 +894,12 @@ export function executeCallback(
                         break;
                     }
                 }
-
                 // we reach here when we run out of retries.
                 return {error: lastError, payload: null};
             } catch (error: any) {
                 return {error, payload: null};
+            } finally {
+                dispatch(loaded(loadingOutputs));
             }
         };
 

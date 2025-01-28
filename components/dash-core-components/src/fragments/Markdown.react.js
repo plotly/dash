@@ -9,6 +9,7 @@ import MarkdownHighlighter from '../utils/MarkdownHighlighter';
 import {propTypes, defaultProps} from '../components/Markdown.react';
 
 import DccLink from './../components/Link.react';
+import LoadingElement from '../utils/LoadingElement';
 
 export default class DashMarkdown extends Component {
     constructor(props) {
@@ -93,7 +94,6 @@ export default class DashMarkdown extends Component {
             style,
             className,
             highlight_config,
-            loading_state,
             dangerously_allow_html,
             link_target,
             mathjax,
@@ -133,7 +133,7 @@ export default class DashMarkdown extends Component {
         };
 
         return (
-            <div
+            <LoadingElement
                 id={id}
                 ref={node => {
                     this.mdContainer = node;
@@ -149,9 +149,6 @@ export default class DashMarkdown extends Component {
                             ? 'hljs-dark'
                             : ''
                     }`
-                }
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
                 }
             >
                 <Markdown
@@ -184,7 +181,7 @@ export default class DashMarkdown extends Component {
                             ),
                     }}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }

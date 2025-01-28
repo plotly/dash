@@ -12,6 +12,9 @@ import {
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
+
+import LoadingElement from '../utils/LoadingElement';
+
 /* global Plotly:true */
 
 import ResizeDetector from '../utils/ResizeDetector';
@@ -473,10 +476,7 @@ class PlotlyGraph extends Component {
     shouldComponentUpdate(nextProps) {
         return (
             this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !==
-                JSON.stringify(nextProps.style) ||
-            JSON.stringify(this.props.loading_state) !==
-                JSON.stringify(nextProps.loading_state)
+            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
         );
     }
 
@@ -516,15 +516,12 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
+        const {className, id, style} = this.props;
 
         return (
-            <div
+            <LoadingElement
                 id={id}
                 key={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
                 className={className}
                 style={style}
                 ref={this.parentElement}
@@ -534,7 +531,7 @@ class PlotlyGraph extends Component {
                     targets={[this.parentElement, this.gd]}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </div>
+            </LoadingElement>
         );
     }
 }

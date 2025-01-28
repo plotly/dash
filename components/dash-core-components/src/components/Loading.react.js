@@ -1,5 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState, useRef, useMemo, useEffect} from 'react';
+import {equals, concat, includes, toPairs, any} from 'ramda';
 import PropTypes from 'prop-types';
+
 import GraphSpinner from '../fragments/Loading/spinners/GraphSpinner.jsx';
 import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner.jsx';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
@@ -16,12 +18,53 @@ const spinnerComponentOptions = {
 const getSpinner = spinnerType =>
     spinnerComponentOptions[spinnerType] || DefaultSpinner;
 
-/**
- * A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
- */
-const Loading = ({
+const coveringSpinner = {
+    visibility: 'visible',
+    position: 'absolute',
+    top: '0',
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+};
+
+const loadingSelector = (componentPath, targetComponents) => state => {
+    let stringPath = JSON.stringify(componentPath);
+    // Remove the last ] for easy match
+    stringPath = stringPath.substring(0, stringPath.length - 1);
+    const loadingChildren = toPairs(state.loading).reduce(
+        (acc, [path, load]) => {
+            if (path.startsWith(stringPath) && load.length) {
+                if (
+                    targetComponents &&
+                    !any(l => {
+                        const target = targetComponents[l.id];
+                        if (!target) {
+                            return false;
+                        }
+                        if (Array.isArray(target)) {
+                            return includes(l.property, target);
+                        }
+                        return l.property === target;
+                    }, load)
+                ) {
+                    return acc;
+                }
+                return concat(acc, load);
+            }
+            return acc;
+        },
+        []
+    );
+    if (loadingChildren.length) {
+        return loadingChildren;
+    }
+    return null;
+};
+
+function Loading({
     children,
-    loading_state,
     display = 'auto',
     color = '#119DFF',
     id,
@@ -38,91 +81,60 @@ const Loading = ({
     delay_show = 0,
     target_components,
     custom_spinner,
-}) => {
-    const coveringSpinner = {
-        visibility: 'visible',
-        position: 'absolute',
-        top: '0',
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    };
-
-    /* Overrides default Loading behavior if target_components is set. By default,
-     *  Loading fires when any recursive child enters loading state. This makes loading
-     *  opt-in: Loading animation only enabled when one of target components enters loading state.
-     */
-    const isTarget = () => {
-        if (!target_components) {
-            return true;
-        }
-        const isMatchingComponent = () => {
-            return Object.entries(target_components).some(
-                ([component_name, prop_names]) => {
-                    // Convert prop_names to an array if it's not already
-                    const prop_names_array = Array.isArray(prop_names)
-                        ? prop_names
-                        : [prop_names];
-
-                    return (
-                        loading_state.component_name === component_name &&
-                        (prop_names_array.includes('*') ||
-                            prop_names_array.some(
-                                prop_name =>
-                                    loading_state.prop_name === prop_name
-                            ))
-                    );
-                }
-            );
-        };
-        return isMatchingComponent;
-    };
+}) {
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useSelector(
+        loadingSelector(ctx.componentPath, target_components),
+        equals
+    );
 
     const [showSpinner, setShowSpinner] = useState(show_initially);
     const dismissTimer = useRef();
     const showTimer = useRef();
 
-    // delay_hide and delay_show is from dash-bootstrap-components dbc.Spinner
+    const containerStyle = useMemo(() => {
+        if (showSpinner) {
+            return {visibility: 'hidden', ...overlay_style, ...parent_style};
+        }
+        return parent_style;
+    }, [showSpinner, parent_style]);
+
     useEffect(() => {
         if (display === 'show' || display === 'hide') {
             setShowSpinner(display === 'show');
             return;
         }
 
-        if (loading_state) {
-            if (loading_state.is_loading) {
-                // if component is currently loading and there's a dismiss timer active
-                // we need to clear it.
-                if (dismissTimer.current) {
-                    dismissTimer.current = clearTimeout(dismissTimer.current);
-                }
-                // if component is currently loading but the spinner is not showing and
-                // there is no timer set to show, then set a timeout to show
-                if (!showSpinner && !showTimer.current) {
-                    showTimer.current = setTimeout(() => {
-                        setShowSpinner(isTarget());
-                        showTimer.current = null;
-                    }, delay_show);
-                }
-            } else {
-                // if component is not currently loading and there's a show timer
-                // active we need to clear it
-                if (showTimer.current) {
-                    showTimer.current = clearTimeout(showTimer.current);
-                }
-                // if component is not currently loading and the spinner is showing and
-                // there's no timer set to dismiss it, then set a timeout to hide it
-                if (showSpinner && !dismissTimer.current) {
-                    dismissTimer.current = setTimeout(() => {
-                        setShowSpinner(false);
-                        dismissTimer.current = null;
-                    }, delay_hide);
-                }
+        if (loading) {
+            // if component is currently loading and there's a dismiss timer active
+            // we need to clear it.
+            if (dismissTimer.current) {
+                dismissTimer.current = clearTimeout(dismissTimer.current);
+            }
+            // if component is currently loading but the spinner is not showing and
+            // there is no timer set to show, then set a timeout to show
+            if (!showSpinner && !showTimer.current) {
+                showTimer.current = setTimeout(() => {
+                    setShowSpinner(true);
+                    showTimer.current = null;
+                }, delay_show);
+            }
+        } else {
+            // if component is not currently loading and there's a show timer
+            // active we need to clear it
+            if (showTimer.current) {
+                showTimer.current = clearTimeout(showTimer.current);
+            }
+            // if component is not currently loading and the spinner is showing and
+            // there's no timer set to dismiss it, then set a timeout to hide it
+            if (showSpinner && !dismissTimer.current) {
+                dismissTimer.current = setTimeout(() => {
+                    setShowSpinner(false);
+                    dismissTimer.current = null;
+                }, delay_hide);
             }
         }
-    }, [delay_hide, delay_show, loading_state, display, showSpinner]);
+    }, [delay_hide, delay_show, loading, display, showSpinner]);
 
     const Spinner = showSpinner && getSpinner(spinnerType);
 
@@ -131,18 +143,7 @@ const Loading = ({
             style={{position: 'relative', ...parent_style}}
             className={parent_className}
         >
-            <div
-                className={parent_className}
-                style={
-                    showSpinner
-                        ? {
-                              visibility: 'hidden',
-                              ...overlay_style,
-                              ...parent_style,
-                          }
-                        : parent_style
-                }
-            >
+            <div className={parent_className} style={containerStyle}>
                 {children}
             </div>
             <div id={id} style={showSpinner ? coveringSpinner : {}}>
@@ -151,7 +152,7 @@ const Loading = ({
                         <Spinner
                             className={className}
                             style={style}
-                            status={loading_state}
+                            status={loading}
                             color={color}
                             debug={debug}
                             fullscreen={fullscreen}
@@ -160,9 +161,7 @@ const Loading = ({
             </div>
         </div>
     );
-};
-
-Loading._dashprivate_isLoadingComponent = true;
+}
 
 Loading.propTypes = {
     /**
@@ -226,24 +225,6 @@ Loading.propTypes = {
      * Primary color used for the built-in loading spinners
      */
     color: PropTypes.string,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Setting display to  "show" or "hide"  will override the loading state coming from dash-renderer

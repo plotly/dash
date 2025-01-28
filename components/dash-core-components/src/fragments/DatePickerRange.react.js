@@ -5,6 +5,7 @@ import uniqid from 'uniqid';
 
 import {propTypes, defaultProps} from '../components/DatePickerRange.react';
 import convertToMoment from '../utils/convertToMoment';
+import LoadingElement from '../utils/LoadingElement';
 
 export default class DatePickerRange extends Component {
     constructor(props) {
@@ -137,7 +138,6 @@ export default class DatePickerRange extends Component {
             stay_open_on_select,
             with_full_screen_portal,
             with_portal,
-            loading_state,
             id,
             style,
             className,
@@ -166,13 +166,10 @@ export default class DatePickerRange extends Component {
         const baselineHeight = 145;
 
         return (
-            <div
+            <LoadingElement
                 id={id}
                 style={DatePickerWrapperStyles}
                 className={className}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
             >
                 <DateRangePicker
                     daySize={day_size}
@@ -216,7 +213,7 @@ export default class DatePickerRange extends Component {
                     endDateId={end_date_id || this.state.end_date_id}
                     verticalHeight={baselineHeight + day_size * 6 + 'px'}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }

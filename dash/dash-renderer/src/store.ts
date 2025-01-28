@@ -4,25 +4,24 @@ import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
 import {ICallbacksState} from './reducers/callbacks';
-import {LoadingMapState} from './reducers/loadingMap';
 import {IsLoadingState} from './reducers/isLoading';
 
 import documentTitle from './observers/documentTitle';
 import executedCallbacks from './observers/executedCallbacks';
 import executingCallbacks from './observers/executingCallbacks';
 import isLoading from './observers/isLoading';
-import loadingMap from './observers/loadingMap';
 import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
 
+// FIXME add proper type for the store.
 export interface IStoreState {
     callbacks: ICallbacksState;
     isLoading: IsLoadingState;
-    loadingMap: LoadingMapState;
     [key: string]: any;
 }
 
+// Deprecated
 export interface IStoreObserver {
     observer: Observer<Store<IStoreState>>;
     inputs: string[];
@@ -43,9 +42,9 @@ export default class RendererStore {
     private setObservers = once(() => {
         const observe = this.storeObserver.observe;
 
+        // FIXME Remove observer pattern and refactor to standard reducers/actions/selectors.
         observe(documentTitle);
         observe(isLoading);
-        observe(loadingMap);
         observe(requestedCallbacks);
         observe(prioritizedCallbacks);
         observe(executingCallbacks);
