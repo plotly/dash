@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
     - `hooks.setup` is called before a Dash app is started to get an instance of the app as first argument.
     - `hooks.error` to receive all callback errors.
     - `hooks.index` to change the `Dash.index_string`.
+    - `hooks.route` to add a Flask route to the Dash app.
 
 ## Removed
 
