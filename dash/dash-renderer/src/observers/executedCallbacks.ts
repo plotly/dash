@@ -44,31 +44,41 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {executed}
         } = getState();
 
-        function applyProps(id: any, updatedProps: any) {
+        function applyProps(
+            id: any,
+            updatedProps: any,
+            enable_persistence: boolean
+        ) {
             const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
                 return false;
             }
 
-            // This is a callback-generated update.
             // Check if this invalidates existing persisted prop values,
             // or if persistence changed, whether this updates other props.
             updatedProps = prunePersistence(
                 path(itempath, layout),
                 updatedProps,
-                dispatch
+                dispatch,
+                enable_persistence
             );
 
-            // In case the update contains whole components, see if any of
-            // those components have props to update to persist user edits.
-            const {props} = applyPersistence({props: updatedProps}, dispatch);
+            // This is a callback-generated update.
+            // Apply persisted values from the persistence storage to the UI values only if "enable_persistence=False".
+            const {props} = applyPersistence(
+                {props: updatedProps},
+                dispatch,
+                enable_persistence
+            );
 
+            // Update properties and set value within the persistence storage only if "enable_persistence=True".
             dispatch(
                 updateProps({
                     itempath,
                     props,
-                    source: 'response'
+                    source: 'response',
+                    enable_persistence
                 })
             );
 
@@ -103,7 +113,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         } = getState();
 
                         // Components will trigger callbacks on their own as required (eg. derived)
-                        const appliedProps = applyProps(parsedId, props);
+                        const appliedProps = applyProps(
+                            parsedId,
+                            props,
+                            cb.callback.enable_persistence
+                        );
 
                         // Add callbacks for modified inputs
                         requestedCallbacks = concat(
