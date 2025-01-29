@@ -20,7 +20,7 @@
             "elements": [
                 "form"
             ],
-            "description": "List of supported charsets."
+            "description": "The character set, which if provided must be \"UTF-8\"."
         },
         "accessKey": {
             "elements": [
