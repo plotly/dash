@@ -66,14 +66,14 @@
     align-items: center;
 }
 .dash-debug-menu__icon {
-    margin-left: 5px;
+    margin: 0 5px;
 }
 
 .dash-debug-menu__upgrade-tooltip button,
 .dash-debug-menu__upgrade-tooltip a {
     background: white;
     border: none;
-    padding: 0 5px;
+    padding: 2px 5px;
     white-space: nowrap;
     color: #7F4BC4;
     font-size: 10pt;
@@ -97,6 +97,7 @@
 .dash-debug-menu__content {
     display: flex;
     align-items: stretch;
+    margin: 10px;
 }
 
 .dash-debug-menu__version {
@@ -106,10 +107,10 @@
 }
 
 .dash-debug-menu__divider {
-    width: 1px;
-    height: 20px;
-    margin: 10px;
-    background-color: #e6e6e6;
+    width: 1.5px;
+    height: 26px;
+    margin: 0px 13px;
+    background-color: #0015594D;
 }
 
 .dash-debug-menu__button {

@@ -6,6 +6,8 @@ import './DebugMenu.css';
 
 import CheckIcon from '../icons/CheckIcon.svg';
 import ClockIcon from '../icons/ClockIcon.svg';
+import ErrorIcon from '../icons/ErrorIcon.svg';
+import GraphIcon from '../icons/GraphIcon.svg';
 import OffIcon from '../icons/OffIcon.svg';
 
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
@@ -79,21 +81,23 @@ class DebugMenu extends Component {
 
         this.state = {
             opened: false,
-            callbackGraphOpened: false,
-            errorsOpened: true,
+            popup: 'errors',
             upgradeInfo: []
         };
 
         // Close the upgrade tooltip if the user clicks outside of it
-        document.addEventListener('click', () => {
-            if (this.state.upgradeTooltipOpened) {
+        document.addEventListener('click', e => {
+            if (
+                this.state.upgradeTooltipOpened &&
+                !e.target.closest('.dash-debug-menu__upgrade-button')
+            ) {
                 this.setState({upgradeTooltipOpened: false});
             }
         });
     }
 
     render() {
-        const {callbackGraphOpened, errorsOpened, upgradeInfo} = this.state;
+        const {popup, upgradeInfo, upgradeTooltipOpened} = this.state;
         const {error, hotReload, config} = this.props;
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -128,19 +132,18 @@ class DebugMenu extends Component {
         const connected = error.backEndConnected;
 
         const toggleErrors = () => {
-            this.setState({
-                errorsOpened: callbackGraphOpened ? true : !errorsOpened,
-                callbackGraphOpened: false
-            });
+            this.setState({popup: popup == 'errors' ? null : 'errors'});
         };
 
         const toggleCallbackGraph = () => {
-            this.setState({callbackGraphOpened: !callbackGraphOpened});
+            this.setState({
+                popup: popup == 'callbackGraph' ? null : 'callbackGraph'
+            });
         };
 
         const toggleShowUpgradeTooltip = () => {
             this.setState({
-                upgradeTooltipOpened: !this.state.upgradeTooltipOpened
+                upgradeTooltipOpened: !upgradeTooltipOpened
             });
         };
 
@@ -154,15 +157,16 @@ class DebugMenu extends Component {
 
         const menuContent = (
             <div className='dash-debug-menu__content'>
-                {callbackGraphOpened ? <CallbackGraphContainer /> : null}
+                {popup == 'callbackGraph' ? <CallbackGraphContainer /> : null}
                 <button
                     onClick={toggleErrors}
                     className={
-                        (!callbackGraphOpened && errorsOpened
+                        (popup == 'errors'
                             ? 'dash-debug-menu__button--selected'
                             : null) + ' dash-debug-menu__button'
                     }
                 >
+                    <ErrorIcon className='dash-debug-menu__icon' />
                     Errors
                     {errCount > 0 ? (
                         <span className='dash-debug-menu__error-count'>
@@ -173,11 +177,12 @@ class DebugMenu extends Component {
                 <button
                     onClick={toggleCallbackGraph}
                     className={
-                        (callbackGraphOpened
+                        (popup == 'callbackGraph'
                             ? 'dash-debug-menu__button--selected'
-                            : null) + ' dash-debug-menu__button'
+                            : '') + ' dash-debug-menu__button'
                     }
                 >
+                    <GraphIcon className='dash-debug-menu__icon' />
                     Callbacks
                 </button>
                 <div className='dash-debug-menu__divider' />
@@ -210,7 +215,7 @@ class DebugMenu extends Component {
                             className='dash-debug-menu__upgrade-button'
                             onClick={toggleShowUpgradeTooltip}
                         >
-                            Upgrade to v{newDashVersion}
+                            Dash update available - v{newDashVersion}
                         </button>
                     ) : null}
                 </div>
@@ -225,7 +230,7 @@ class DebugMenu extends Component {
         return (
             <div>
                 <div className={classes('dash-debug-menu__outer')}>
-                    {errorsOpened && errCount > 0 ? (
+                    {popup == 'errors' && errCount > 0 ? (
                         <FrontEndErrorContainer
                             clickHandler={toggleErrors}
                             errors={errors}

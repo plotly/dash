@@ -1,5 +1,5 @@
 .error-container {
-    margin-top: 10px;
+    padding: 0 10px;
 }
 
 .dash-fe-error__icon-x {
@@ -55,16 +55,13 @@
     height: 28px;
     margin: 0px 8px;
 }
-.dash-fe-error-top {
-    width: 100%;
-}
 .dash-debug-menu__error-count {
     font-size: 12px;
     color: #fff;
     background-color: #C73A3A;
-    padding: 5px;
+    padding: 3px 5px;
     border-radius: 3px;
-    margin: 4px;
+    margin: 0 5px;
 }
 .dash-fe-error-top__group:first-child {
     /*
@@ -193,11 +190,11 @@
     width: 422px;
 }
 .dash-error-card--container {
-    padding: 10px 0;
+    padding: 20px;
     width: 600px;
     max-width: 800px;
-    max-height: calc(100vh - 50px);
-    margin: 10px 0;
+    max-height: calc(100vh - 125px);
+    margin-bottom: 7px;
     background-color: white;
     overflow: auto;
     z-index: 1100;  /* above the plotly.js toolbar and Bootstrap components */
@@ -222,22 +219,21 @@
 
 .dash-error-card__content {
     box-sizing: border-box;
-    padding: 10px 10px;
     background-color: white;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
-        0px 1px 3px rgba(162, 177, 198, 0.32);
     border-radius: 2px;
     margin-bottom: 8px;
+    border: 1px solid #0018661A;
 }
 
-.dash-error-card__list-item {
+.dash-fe-error-item {
     background: #ffffff;
     border-radius: 2px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     border: 1px solid #0018661A;
     padding: 10px;
-    margin: 10px;
+    margin: 10px 0;
     cursor: pointer;
 }
 

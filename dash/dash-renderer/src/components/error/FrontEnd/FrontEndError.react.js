@@ -27,7 +27,7 @@ class FrontEndError extends Component {
         /* eslint-disable no-inline-comments */
         const errorHeader = (
             <div
-                className='dash-fe-error-top test-devtools-error-toggle'
+                className='dash-fe-error-item test-devtools-error-toggle'
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
                 <span className='dash-fe-error-top__group'>
@@ -56,10 +56,9 @@ class FrontEndError extends Component {
                 </span>
             </div>
         );
-        /* eslint-enable no-inline-comments */
 
         return collapsed ? (
-            <div className='dash-error-card__list-item'>{errorHeader}</div>
+            <>{errorHeader}</>
         ) : (
             <div className={cardClasses}>
                 {errorHeader}
@@ -137,7 +136,6 @@ function UnconnectedErrorContent({error, base}) {
                                  * browser's dev tools.
                                  */
                                 width: 'calc(600px - 67px)',
-                                height: '75vh',
                                 border: 'none'
                             }}
                         />
