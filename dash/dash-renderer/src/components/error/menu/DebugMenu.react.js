@@ -83,6 +83,13 @@ class DebugMenu extends Component {
             errorsOpened: true,
             upgradeInfo: []
         };
+
+        // Close the upgrade tooltip if the user clicks outside of it
+        document.addEventListener('click', () => {
+            if (this.state.upgradeTooltipOpened) {
+                this.setState({upgradeTooltipOpened: false});
+            }
+        });
     }
 
     render() {
@@ -174,17 +181,23 @@ class DebugMenu extends Component {
                     Callbacks
                 </button>
                 <div className='dash-debug-menu__divider' />
-                <div style={{position: 'relative'}}>
+                <div className='dash-debug-menu__version'>
                     {this.state.upgradeTooltipOpened ? (
                         <div className='dash-debug-menu__upgrade-tooltip'>
+                            <a
+                                target='_blank'
+                                href='https://dash.plotly.com/installation'
+                            >
+                                Read details
+                            </a>
                             <button onClick={setSkipThisVersion}>
-                                Skip This Version
+                                Skip this version
                             </button>
                             <button onClick={setRemindMeLater}>
-                                Remind Me Later
+                                Remind me tomorrow
                             </button>
                             <button onClick={setDontShowAgain}>
-                                Don't Show Again
+                                Silence all version notifications
                             </button>
                         </div>
                     ) : null}

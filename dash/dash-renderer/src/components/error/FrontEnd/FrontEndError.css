@@ -16,6 +16,7 @@
     background-color: #A159FF0D;
     border: 1px solid #864AD433;
     color: #7F4BC4;
+    margin-left: 10px;
 }
 
 .dash-debug-menu__upgrade-button:hover {
@@ -56,9 +57,6 @@
 }
 .dash-fe-error-top {
     width: 100%;
-    cursor: pointer;
-    border: 1px solid gray;
-    border-radius: 2px;
 }
 .dash-debug-menu__error-count {
     font-size: 12px;
@@ -173,9 +171,9 @@
     display: inline-block;
     /* shadow-1 */
     border-radius: 4px;
-    position: fixed;
-    top: 16px;
-    right: 16px;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
     animation: dash-error-card-animation 0.5s;
     padding: 24px;
     text-align: left;
@@ -195,13 +193,15 @@
     width: 422px;
 }
 .dash-error-card--container {
-    padding: 10px 10px;
+    padding: 10px 0;
     width: 600px;
     max-width: 800px;
     max-height: calc(100vh - 50px);
-    margin: 10px;
+    margin: 10px 0;
+    background-color: white;
     overflow: auto;
     z-index: 1100;  /* above the plotly.js toolbar and Bootstrap components */
+    box-shadow: 0 0 15px 6px #0000000D;
 }
 
 .dash-error-card__topbar {
@@ -232,13 +232,13 @@
 
 .dash-error-card__list-item {
     background: #ffffff;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
-        0px 1px 3px rgba(162, 177, 198, 0.32);
     border-radius: 2px;
-    padding: 10px 10px;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
+    border: 1px solid #0018661A;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
 }
 
 @keyframes dash-error-card-animation {
