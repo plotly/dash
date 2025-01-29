@@ -120,6 +120,10 @@ def generate_enum(type_info, *_):
 def get_prop_typing(
     type_name: str, component_name: str, prop_name: str, type_info, namespace=None
 ):
+    if prop_name == "id":
+        # Id is always the same either a string or a dict for pattern matching.
+        return "typing.Union[str, dict]"
+
     if namespace:
         # Only check the namespace once
         special = (
