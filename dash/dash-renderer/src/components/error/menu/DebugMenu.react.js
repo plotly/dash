@@ -15,6 +15,7 @@ import {FrontEndErrorContainer} from '../FrontEnd/FrontEndErrorContainer.react';
 
 const classes = (base, variant, variant2) =>
     `${base} ${base}--${variant}` + (variant2 ? ` ${base}--${variant2}` : '');
+const DAY_IN_MS = 86400000;
 
 function compareVersions(v1, v2) {
     const v1Parts = v1.split('.').map(Number);
@@ -43,18 +44,20 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
         return false;
     } else if (
         lastDismissed &&
-        Date.now() - Number(lastDismissed) > 7 * 24 * 60 * 60 * 1000
+        Date.now() - Number(lastDismissed) > DAY_IN_MS
     ) {
         return true;
-    } else if (lastDismissedVersion) {
-        return (
-            compareVersions(
-                localStorage.getItem('lastDismissedVersion'),
-                newDashVersion
-            ) < 0
-        );
-    } else {
+    } else if (
+        lastDismissedVersion &&
+        !lastDismissed &&
+        compareVersions(
+            localStorage.getItem('lastDismissedVersion'),
+            newDashVersion
+        ) < 0
+    ) {
         return true;
+    } else {
+        return !lastDismissed && !lastDismissedVersion;
     }
 }
 
@@ -89,7 +92,9 @@ class DebugMenu extends Component {
         document.addEventListener('click', e => {
             if (
                 this.state.upgradeTooltipOpened &&
-                !e.target.closest('.dash-debug-menu__upgrade-button')
+                !e.target.matches(
+                    '.dash-debug-menu__version, .dash-debug-menu__version *'
+                )
             ) {
                 this.setState({upgradeTooltipOpened: false});
             }
@@ -99,34 +104,27 @@ class DebugMenu extends Component {
     render() {
         const {popup, upgradeInfo, upgradeTooltipOpened} = this.state;
         const {error, hotReload, config} = this.props;
+        const newDashVersion = upgradeInfo[0]
+            ? upgradeInfo[0].version
+            : undefined;
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const setDontShowAgain = i => {
+        const setDontShowAgain = () => {
             // Set local storage to record the last dismissed notification
             localStorage.setItem('noNotifications', true);
             this.setState({upgradeTooltipOpened: false});
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const setRemindMeLater = i => {
+        const setRemindMeLater = () => {
             // Set local storage to record the last dismissed notification
             localStorage.setItem('lastDismissed', Date.now());
             this.setState({upgradeTooltipOpened: false});
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const setSkipThisVersion = i => {
+        const setSkipThisVersion = () => {
             // Set local storage to record the last dismissed version
-            localStorage.setItem(
-                'lastDismissedVersion',
-                upgradeInfo[i].version
-            );
+            localStorage.setItem('lastDismissedVersion', newDashVersion);
             this.setState({upgradeTooltipOpened: false});
         };
-
-        const newDashVersion = upgradeInfo[0]
-            ? upgradeInfo[0].version
-            : undefined;
 
         const errCount = error.frontEnd.length + error.backEnd.length;
         const connected = error.backEndConnected;
