@@ -147,9 +147,9 @@ def callback(
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
         :param enable_persistence:
-            Mark to enable persistence change from the callback. If it's True,
-            this will enable storing the callback outputs in the browser's
-            persistence storage.
+            Indicates whether the callback can write in the persistence storage.
+            If set to `True`, any outputs with persistence enabled will have their values
+            stored in the browser's persistence storage when updated by the callback.
     """
 
     long_spec = None

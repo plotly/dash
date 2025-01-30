@@ -55,6 +55,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return false;
             }
 
+            // This is a callback-generated update.
             // Check if this invalidates existing persisted prop values,
             // or if persistence changed, whether this updates other props.
             updatedProps = prunePersistence(
@@ -64,15 +65,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 enable_persistence
             );
 
-            // This is a callback-generated update.
-            // Apply persisted values from the persistence storage to the UI values only if "enable_persistence=False".
             const {props} = applyPersistence(
                 {props: updatedProps},
                 dispatch,
                 enable_persistence
             );
 
-            // Update properties and set value within the persistence storage only if "enable_persistence=True".
             dispatch(
                 updateProps({
                     itempath,
