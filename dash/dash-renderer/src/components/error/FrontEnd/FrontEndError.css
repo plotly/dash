@@ -6,28 +6,26 @@
     position: absolute;
     right: 0;
     top: 0;
-    color: #B9C2CE;
+    color: #b9c2ce;
     font-size: 20px;
     cursor: pointer;
-    margin-right: 10px
+    margin-right: 10px;
 }
 
 .dash-debug-menu__upgrade-button {
-    background-color: #A159FF0D;
-    border: 1px solid #864AD433;
-    color: #7F4BC4;
+    background-color: #a159ff0d;
+    border: 1px solid #864ad433;
+    color: #7f4bc4;
     margin-left: 10px;
 }
 
 .dash-debug-menu__upgrade-button:hover {
-    background-color: #864AD433;
+    background-color: #864ad433;
 }
 
-.dash-fe-error__icon-x:hover
-{
- color:#a1a9b5;
+.dash-fe-error__icon-x:hover {
+    color: #a1a9b5;
 }
-
 
 .dash-fe-errors {
     min-width: 386px;
@@ -58,7 +56,7 @@
 .dash-debug-menu__error-count {
     font-size: 12px;
     color: #fff;
-    background-color: #C73A3A;
+    background-color: #c73a3a;
     padding: 3px 5px;
     border-radius: 3px;
     margin: 0 5px;
@@ -131,7 +129,7 @@
 .dash-fe-error__curved-bottom {
     border-radius-bottom-left: 4px;
     border-radius-bottom-right: 4px;
-    background-color: #FFEFEF;
+    background-color: #ffefef;
 }
 
 .dash-be-error__st {
@@ -151,7 +149,6 @@
     display: inline-block;
     white-space: pre-wrap;
 }
-
 
 .dash-error-menu {
     max-width: 50%;
@@ -197,15 +194,17 @@
     margin-bottom: 7px;
     background-color: white;
     overflow: auto;
-    z-index: 1100;  /* above the plotly.js toolbar and Bootstrap components */
-    box-shadow: 0 0 15px 6px #0000000D;
+    z-index: 1100; /* above the plotly.js toolbar and Bootstrap components */
+    box-shadow: 0 0 15px 6px #0000000d;
 }
 
 .dash-error-card__topbar {
     width: 100%;
     height: 32px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    font-family: Inter;
+    font-size: 14px;
     align-items: center;
     position: relative;
 }
@@ -221,8 +220,10 @@
     box-sizing: border-box;
     background-color: white;
     border-radius: 2px;
-    margin-bottom: 8px;
-    border: 1px solid #0018661A;
+    margin-bottom: 15px;
+    border: 1px solid #0018661a;
+    font-family: Menlo;
+    font-size: 12.6px;
 }
 
 .dash-fe-error-item {
@@ -231,9 +232,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #0018661A;
     padding: 10px;
-    margin: 10px 0;
     cursor: pointer;
 }
 
