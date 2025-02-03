@@ -12,6 +12,8 @@ import {
 } from 'ramda';
 
 import {IStoreState} from '../store';
+import {ThunkDispatch} from 'redux-thunk';
+import {AnyAction} from 'redux';
 
 import {
     aggregateCallbacks,
@@ -71,7 +73,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 enable_persistence
             );
 
-            dispatch(
+            (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
                     props,
@@ -110,11 +112,16 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             paths: oldPaths
                         } = getState();
 
+                        const enable_persistence =
+                            cb.callback.enable_persistence === undefined
+                                ? false
+                                : cb.callback.enable_persistence;
+
                         // Components will trigger callbacks on their own as required (eg. derived)
                         const appliedProps = applyProps(
                             parsedId,
                             props,
-                            cb.callback.enable_persistence
+                            enable_persistence
                         );
 
                         // Add callbacks for modified inputs
