@@ -193,6 +193,7 @@
     max-width: 800px;
     max-height: calc(100vh - 125px);
     margin-bottom: 4px;
+    font-family: Verdana;
     background-color: white;
     overflow: auto;
     border-radius: 6px;
@@ -204,7 +205,6 @@
     height: 32px;
     display: flex;
     justify-content: flex-start;
-    font-family: Inter;
     font-size: 14px;
     align-items: center;
     position: relative;
@@ -225,7 +225,7 @@
     border-radius: 2px;
     margin-bottom: 15px;
     border: 1px solid #0018661a;
-    font-family: Menlo;
+    font-family: Courier;
     font-size: 12.6px;
 }
 

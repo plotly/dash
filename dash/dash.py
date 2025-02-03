@@ -124,6 +124,8 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
+DASH_VERSION_URL = "https://dash-version.plotly.com:8080/sample"
+
 # Handles the case in a newly cloned environment where the components are not yet generated.
 try:
     page_container = html.Div(
@@ -767,6 +769,7 @@ class Dash:
             "children_props": ComponentRegistry.children_props,
             "serve_locally": self.config.serve_locally,
             "dash_version": __version__,
+            "dash_version_url": DASH_VERSION_URL,
         }
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
