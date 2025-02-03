@@ -25,8 +25,8 @@
     transition: 0.3s;
     box-sizing: border-box;
     position: fixed;
-    bottom: 27px;
-    right: 27px;
+    bottom: 8px;
+    right: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -35,8 +35,8 @@
     border-radius: 5px;
     padding: 5px;
     background-color: #f5f6fa;
-    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
-        0px 1px 3px rgba(162, 177, 198, 0.32);
+    box-shadow: 0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.04), 0px 2.3px 2px 0px rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--Stroke-Weak, rgba(0, 24, 102, 0.10));
 }
 .dash-debug-menu__outer--closed {
     height: 60px;
@@ -61,7 +61,6 @@
 }
 
 .dash-debug-menu__status {
-    margin: 3px;
     display: flex;
     align-items: center;
 }

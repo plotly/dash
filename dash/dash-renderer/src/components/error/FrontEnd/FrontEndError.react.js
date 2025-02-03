@@ -31,7 +31,6 @@ class FrontEndError extends Component {
                 onClick={() => this.setState({collapsed: !collapsed})}
             >
                 <span className='dash-fe-error-top__group'>
-                    ⛑️
                     <span className='dash-fe-error__title'>
                         {e.error.message || 'Error'}
                     </span>

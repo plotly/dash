@@ -77,11 +77,12 @@
     margin: 0px;
     margin-left: 5px;
     padding: 0px;
-    font-size: 14px;
+    font-size: 12.6px;
     display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    line-height: 20px;
 }
 .dash-fe-error__timestamp {
     margin-right: 20px;
@@ -187,15 +188,15 @@
     width: 422px;
 }
 .dash-error-card--container {
-    padding: 20px;
+    padding: 16px;
     width: 600px;
     max-width: 800px;
     max-height: calc(100vh - 125px);
-    margin-bottom: 7px;
+    margin-bottom: 4px;
     background-color: white;
     overflow: auto;
-    z-index: 1100; /* above the plotly.js toolbar and Bootstrap components */
-    box-shadow: 0 0 15px 6px #0000000d;
+    border-radius: 6px;
+    box-shadow: 0px 0.7px 1.4px 0px rgba(0, 0, 0, 0.07), 0px 1.9px 4px 0px rgba(0, 0, 0, 0.05), 0px 4.5px 10px 0px rgba(0, 0, 0, 0.05);
 }
 
 .dash-error-card__topbar {
@@ -207,6 +208,8 @@
     font-size: 14px;
     align-items: center;
     position: relative;
+    padding-bottom: 14px;
+    font-weight: 700;
 }
 .dash-error-card__message {
     font-size: 14px;
@@ -232,7 +235,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
 }
 
