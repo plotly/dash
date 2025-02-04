@@ -124,7 +124,7 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
-DASH_VERSION_URL = "https://dash-version.plotly.com:8080/sample"
+DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
 # Handles the case in a newly cloned environment where the components are not yet generated.
 try:
