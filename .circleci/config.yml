@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@5.0.0
   percy: percy/agent@0.1.3
-  browser-tools: circleci/browser-tools@1.5.0
+  browser-tools: circleci/browser-tools@1.5.1
 
 
 jobs:
@@ -110,8 +110,6 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
-          install-firefox: false
-          install-geckodriver: false
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
