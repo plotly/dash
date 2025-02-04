@@ -110,6 +110,8 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
+          install-firefox: false
+          install-geckodriver: false
       - run:
           name: ️️🏗️ pip dev requirements
           command: |
