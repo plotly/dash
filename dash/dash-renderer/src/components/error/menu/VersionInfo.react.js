@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
 
+import './VersionInfo.css';
+
 const DAY_IN_MS = 86400000;
 
 function compareVersions(v1, v2) {

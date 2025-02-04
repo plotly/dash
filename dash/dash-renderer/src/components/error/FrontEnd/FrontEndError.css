@@ -12,17 +12,6 @@
     margin-right: 10px;
 }
 
-.dash-debug-menu__upgrade-button {
-    background-color: #a159ff0d;
-    border: 1px solid #864ad433;
-    color: #7f4bc4;
-    margin-left: 10px;
-}
-
-.dash-debug-menu__upgrade-button:hover {
-    background-color: #864ad433;
-}
-
 .dash-fe-error__icon-x:hover {
     color: #a1a9b5;
 }
@@ -52,14 +41,6 @@
     width: 8px;
     height: 28px;
     margin: 0px 8px;
-}
-.dash-debug-menu__error-count {
-    font-size: 12px;
-    color: #fff;
-    background-color: #c73a3a;
-    padding: 3px 5px;
-    border-radius: 3px;
-    margin: 0 5px;
 }
 .dash-fe-error-top__group:first-child {
     /*
