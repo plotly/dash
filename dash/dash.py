@@ -16,7 +16,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, List
+from typing import Any, Callable, Dict, Optional, Union, List, Sequence
 
 import flask
 
@@ -397,14 +397,14 @@ class Dash:
         routes_pathname_prefix: Optional[str] = None,
         serve_locally: bool = True,
         compress: Optional[bool] = None,
-        meta_tags: Optional[List[Dict[str, Any]]] = None,
+        meta_tags: Optional[Sequence[Dict[str, Any]]] = None,
         index_string: str = _default_index,
-        external_scripts: Optional[List[Union[str, Dict[str, Any]]]] = None,
-        external_stylesheets: Optional[List[Union[str, Dict[str, Any]]]] = None,
+        external_scripts: Optional[Sequence[Union[str, Dict[str, Any]]]] = None,
+        external_stylesheets: Optional[Sequence[Union[str, Dict[str, Any]]]] = None,
         suppress_callback_exceptions: Optional[bool] = None,
         prevent_initial_callbacks: bool = False,
         show_undo_redo: bool = False,
-        extra_hot_reload_paths: Optional[List[str]] = None,
+        extra_hot_reload_paths: Optional[Sequence[str]] = None,
         plugins: Optional[list] = None,
         title: str = "Dash",
         update_title: str = "Updating...",
