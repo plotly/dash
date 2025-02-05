@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@5.0.0
   percy: percy/agent@0.1.3
-  browser-tools: circleci/browser-tools@1.4.8
+  browser-tools: circleci/browser-tools@1.5.1
 
 
 jobs:
@@ -99,7 +99,11 @@ jobs:
 
     steps:
       - checkout
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -189,7 +193,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -288,7 +296,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -345,7 +357,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -409,7 +425,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -454,7 +474,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -496,7 +520,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
