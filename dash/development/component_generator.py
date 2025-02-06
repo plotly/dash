@@ -50,6 +50,7 @@ def generate_components(
     metadata=None,
     keep_prop_order=None,
     max_props=None,
+    custom_typing_module=None,
 ):
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
@@ -99,7 +100,9 @@ def generate_components(
 
         metadata = safe_json_loads(out.decode("utf-8"))
 
-    py_generator_kwargs = {}
+    py_generator_kwargs = {
+        "custom_typing_module": custom_typing_module,
+    }
     if keep_prop_order is not None:
         keep_prop_order = [
             component.strip(" ") for component in keep_prop_order.split(",")
@@ -239,10 +242,22 @@ def component_build_arg_parser():
         "but you may also want to reduce further for improved readability at the "
         "expense of auto-completion for the later props. Use 0 to include all props.",
     )
+    parser.add_argument(
+        "-t",
+        "--custom-typing-module",
+        type=str,
+        default="dash_prop_typing",
+        help=" Module containing custom typing definition for components."
+        "Can contains two variables:\n"
+        " - custom_imports: dict[ComponentName, list[str]].\n"
+        " - custom_props: dict[ComponentName, dict[PropName, function]].\n",
+    )
     return parser
 
 
 def cli():
+    # Add current path for loading modules.
+    sys.path.insert(0, ".")
     args = component_build_arg_parser().parse_args()
     generate_components(
         args.components_source,
@@ -256,6 +271,7 @@ def cli():
         jlprefix=args.jl_prefix,
         keep_prop_order=args.keep_prop_order,
         max_props=args.max_props,
+        custom_typing_module=args.custom_typing_module,
     )
 
 

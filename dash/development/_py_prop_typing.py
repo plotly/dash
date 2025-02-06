@@ -2,6 +2,7 @@ import collections
 import json
 import string
 import textwrap
+import importlib
 
 import stringcase
 
@@ -13,6 +14,24 @@ shape_template = """{name} = TypedDict(
 )
 """
 custom_imports = collections.defaultdict(lambda: collections.defaultdict(list))
+
+
+def _get_custom(module_name, prop, default):
+    if not module_name:
+        return default
+    try:
+        module = importlib.import_module(module_name)
+        return getattr(module, prop, default)
+    except ImportError:
+        return default
+
+
+def get_custom_imports(module_name):
+    return _get_custom(module_name, "custom_imports", {})
+
+
+def get_custom_props(module_name):
+    return _get_custom(module_name, "custom_props", {})
 
 
 def _clean_key(key):
@@ -118,17 +137,18 @@ def generate_enum(type_info, *_):
 
 
 def get_prop_typing(
-    type_name: str, component_name: str, prop_name: str, type_info, namespace=None
+    type_name: str,
+    component_name: str,
+    prop_name: str,
+    type_info,
+    custom_props=None,
 ):
     if prop_name == "id":
         # Id is always the same either a string or a dict for pattern matching.
         return "typing.Union[str, dict]"
 
-    if namespace:
-        # Only check the namespace once
-        special = (
-            special_cases.get(namespace, {}).get(component_name, {}).get(prop_name)
-        )
+    if custom_props:
+        special = custom_props.get(component_name, {}).get(prop_name)
         if special:
             return special(type_info, component_name, prop_name)
 
@@ -156,27 +176,6 @@ def generate_datetime_prop(component, array=False):
         return datetime_type
 
     return generator
-
-
-special_cases = {
-    "dash_core_components": {
-        "Graph": {"figure": generate_plotly_figure},
-        "DatePickerRange": {
-            "start_date": generate_datetime_prop("DatePickerRange"),
-            "end_date": generate_datetime_prop("DatePickerRange"),
-            "min_date_allowed": generate_datetime_prop("DatePickerRange"),
-            "max_date_allowed": generate_datetime_prop("DatePickerRange"),
-            "disabled_days": generate_datetime_prop("DatePickerRange", True),
-        },
-        "DatePickerSingle": {
-            "date": generate_datetime_prop("DatePickerSingle"),
-            "min_date_allowed": generate_datetime_prop("DatePickerSingle"),
-            "max_date_allowed": generate_datetime_prop("DatePickerSingle"),
-            "disabled_days": generate_datetime_prop("DatePickerSingle", True),
-            "initial_visible_month": generate_datetime_prop("DatePickerSingle"),
-        },
-    }
-}
 
 
 PROP_TYPING = {

@@ -10,7 +10,12 @@ from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from ._py_prop_typing import get_prop_typing, shapes, custom_imports
+from ._py_prop_typing import (
+    get_custom_props,
+    get_prop_typing,
+    shapes,
+    get_custom_imports,
+)
 from .base_component import Component, ComponentType
 
 import_string = """# AUTO GENERATED FILE - DO NOT EDIT
@@ -36,6 +41,7 @@ def generate_class_string(
     namespace,
     prop_reorder_exceptions=None,
     max_props=None,
+    custom_typing_module=None,
 ):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
@@ -162,7 +168,14 @@ def generate_class_string(
 
         type_name = type_info.get("name")
 
-        typed = get_prop_typing(type_name, typename, prop_key, type_info, namespace)
+        custom_props = get_custom_props(custom_typing_module)
+        typed = get_prop_typing(
+            type_name,
+            typename,
+            prop_key,
+            type_info,
+            custom_props=custom_props,
+        )
 
         arg_value = f"{prop_key}: typing.Optional[{typed}] = None"
 
@@ -208,6 +221,7 @@ def generate_class_file(
     namespace,
     prop_reorder_exceptions=None,
     max_props=None,
+    custom_typing_module="dash_prop_typing",
 ):
     """Generate a Python class file (.py) given a class string.
     Parameters
@@ -223,10 +237,16 @@ def generate_class_file(
     imports = import_string
 
     class_string = generate_class_string(
-        typename, props, description, namespace, prop_reorder_exceptions, max_props
+        typename,
+        props,
+        description,
+        namespace,
+        prop_reorder_exceptions,
+        max_props,
+        custom_typing_module,
     )
 
-    custom_imp = custom_imports[namespace][typename]
+    custom_imp = get_custom_imports(custom_typing_module).get(typename)
     if custom_imp:
         imports += "\n".join(custom_imp)
         imports += "\n\n"
