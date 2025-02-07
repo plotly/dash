@@ -114,14 +114,16 @@ def test_hook006_priority_final(hook_cleanup, dash_duo):
         layout.children.append(html.Div("second"))
         return layout
 
+    # This appears after the layout
+    @hooks.layout(priority=12)
+    def hook4(layout):
+        layout.children.append(html.Div("Prime"))
+        return layout
+
+    # Should still be last after setting a new max.
     @hooks.layout()
     def hook3(layout):
         layout.children.append(html.Div("third"))
-        return layout
-
-    @hooks.layout(priority=6)
-    def hook4(layout):
-        layout.children.insert(0, html.Div("Prime"))
         return layout
 
     app = Dash()
@@ -130,8 +132,8 @@ def test_hook006_priority_final(hook_cleanup, dash_duo):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#final-wrapper > div:first-child", "final")
-    dash_duo.wait_for_text_to_equal("#body > div:first-child", "Prime")
-    dash_duo.wait_for_text_to_equal("#body > div:nth-child(2)", "layout")
+    dash_duo.wait_for_text_to_equal("#body > div:first-child", "layout")
+    dash_duo.wait_for_text_to_equal("#body > div:nth-child(2)", "Prime")
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(3)", "first")
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(4)", "second")
     dash_duo.wait_for_text_to_equal("#body > div:nth-child(5)", "third")

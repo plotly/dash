@@ -71,10 +71,10 @@ class _Hooks:
             return
         hks = self._ns.get(hook, [])
 
-        p = 0
+        p = priority or 0
         if not priority and len(hks):
-            priority_max = max(h.priority for h in hks)
-            p = priority_max - 1
+            priority_min = min(h.priority for h in hks)
+            p = priority_min - 1
 
         hks.append(_Hook(func, priority=p, data=data))
         self._ns[hook] = sorted(hks, reverse=True, key=lambda h: h.priority)
