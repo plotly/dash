@@ -4,6 +4,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [3.0.0-rc2] - UNRELEASED
 
+## Added
+
+- [#3152](https://github.com/plotly/dash/pull/3152) Custom Python prop typing for component library.
+  - Added `-t`, `--custom-typing-module` argument to `dash-generate-components` CLI, default to `dash_prop_typing` and can contains definitions in variables:
+    - `custom_imports: dict[ComponentName, list[str]]` import statement to be copied at the top of the component class definition.
+    - `custom_props: dict[ComponentName, dict[PropName, function]]` for custom props. The function signature is: `def generate_type(type_info, component_name, prop_name) -> str`
+
 ## Fixed
 
 - [#3142](https://github.com/plotly/dash/pull/3142) Fix typing generation for id and dates props.
