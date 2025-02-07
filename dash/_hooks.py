@@ -73,6 +73,7 @@ class _Hooks:
 
         p = priority or 0
         if not priority and len(hks):
+            # Take the minimum value and remove 1 to keep the order.
             priority_min = min(h.priority for h in hks)
             p = priority_min - 1
 
