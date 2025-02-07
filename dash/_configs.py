@@ -126,9 +126,9 @@ def pages_folder_config(name, pages_folder, use_pages, root_path=None):
     if not pages_folder:
         return None
     is_custom_folder = str(pages_folder) != "pages"
-    if basepath is None:
-        basepath = flask.helpers.get_root_path(name)
-    pages_folder_path = os.path.join(flask.helpers.get_root_path(name), pages_folder)
+    if root_path is None:
+        root_path = flask.helpers.get_root_path(name)
+    pages_folder_path = os.path.join(root_path, pages_folder)
     if (use_pages or is_custom_folder) and not os.path.isdir(pages_folder_path):
         error_msg = f"""
         A folder called `{pages_folder}` does not exist. If a folder for pages is not
