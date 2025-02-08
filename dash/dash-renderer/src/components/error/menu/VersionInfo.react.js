@@ -31,13 +31,16 @@ async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
     }).then(response => response.json());
 }
 
-function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
+function shouldShowUpgradeNotification(
+    currentDashVersion,
+    newDashVersion,
+    showNotifications
+) {
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
-
     if (
         currentDashVersion == newDashVersion ||
-        localStorage.getItem('noNotifications') ||
+        !showNotifications ||
         newDashVersion === undefined
     ) {
         return false;
@@ -60,7 +63,11 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
     }
 }
 
-export const VersionInfo = ({config}) => {
+export const VersionInfo = ({
+    config,
+    showNotifications,
+    setShowNotifications
+}) => {
     const [upgradeInfo, setUpgradeInfo] = useState([]);
     const [upgradeTooltipOpened, setUpgradeTooltipOpened] = useState(false);
 
@@ -68,8 +75,8 @@ export const VersionInfo = ({config}) => {
 
     const setDontShowAgain = () => {
         // Set local storage to record the last dismissed notification
-        localStorage.setItem('noNotifications', true);
         setUpgradeTooltipOpened(false);
+        setShowNotifications(false);
     };
 
     const setRemindMeLater = () => {
@@ -85,13 +92,17 @@ export const VersionInfo = ({config}) => {
     };
 
     useEffect(() => {
-        requestDashVersionInfo(
-            config.dash_version,
-            config.dash_version_url
-        ).then(body => {
-            setUpgradeInfo(body);
-        });
+        if (showNotifications) {
+            requestDashVersionInfo(
+                config.dash_version,
+                config.dash_version_url
+            ).then(body => {
+                setUpgradeInfo(body);
+            });
+        }
+    }, [showNotifications]);
 
+    useEffect(() => {
         const hideUpgradeTooltip = e => {
             if (
                 upgradeTooltipOpened &&
@@ -106,7 +117,7 @@ export const VersionInfo = ({config}) => {
         document.addEventListener('click', hideUpgradeTooltip);
 
         return () => document.removeEventListener('click', hideUpgradeTooltip);
-    }, []);
+    }, [upgradeTooltipOpened]);
 
     return (
         <div className='dash-debug-menu__version'>
@@ -132,7 +143,8 @@ export const VersionInfo = ({config}) => {
             <span>v{config.dash_version}</span>
             {shouldShowUpgradeNotification(
                 config.dash_version,
-                newDashVersion
+                newDashVersion,
+                showNotifications
             ) ? (
                 <button
                     className='dash-debug-menu__upgrade-button'

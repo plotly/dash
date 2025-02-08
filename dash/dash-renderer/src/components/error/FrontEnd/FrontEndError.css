@@ -147,9 +147,6 @@
     display: inline-block;
     /* shadow-1 */
     border-radius: 4px;
-    position: absolute;
-    bottom: 100%;
-    right: 0;
     animation: dash-error-card-animation 0.5s;
     padding: 24px;
     text-align: left;
@@ -172,13 +169,15 @@
     padding: 16px;
     width: 600px;
     max-width: 800px;
-    max-height: calc(100vh - 125px);
+    max-height: calc(100vh - 200px);
     margin-bottom: 4px;
-    font-family: Verdana;
     background-color: white;
     overflow: auto;
     border-radius: 6px;
-    box-shadow: 0px 0.7px 1.4px 0px rgba(0, 0, 0, 0.07), 0px 1.9px 4px 0px rgba(0, 0, 0, 0.05), 0px 4.5px 10px 0px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0px 0.7px 1.4px 0px rgba(0, 0, 0, 0.07),
+        0px 1.9px 4px 0px rgba(0, 0, 0, 0.05),
+        0px 4.5px 10px 0px rgba(0, 0, 0, 0.05);
 }
 
 .dash-error-card__topbar {
