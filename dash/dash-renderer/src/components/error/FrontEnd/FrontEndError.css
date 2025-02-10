@@ -169,7 +169,6 @@
     padding: 16px;
     width: 600px;
     max-width: 800px;
-    max-height: calc(100vh - 200px);
     margin-bottom: 4px;
     background-color: white;
     overflow: auto;

@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 
 import './VersionInfo.css';
 
-const HOUR_IN_MS = 3600000;
 const DAY_IN_MS = 86400000;
 
 function compareVersions(v1, v2) {
@@ -25,7 +24,7 @@ async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
     const lastFetched = localStorage.getItem('lastFetched');
     if (
         lastFetched &&
-        Date.now() - Number(lastFetched) < HOUR_IN_MS &&
+        Date.now() - Number(lastFetched) < DAY_IN_MS &&
         cachedVersionInfo
     ) {
         return JSON.parse(cachedVersionInfo);
@@ -51,11 +50,8 @@ async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
     }
 }
 
-function shouldShowUpgradeNotification(
-    currentDashVersion,
-    newDashVersion,
-    showNotifications
-) {
+function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
+    const showNotifications = localStorage.getItem('showNotifications');
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
@@ -83,18 +79,14 @@ function shouldShowUpgradeNotification(
     }
 }
 
-export const VersionInfo = ({
-    config,
-    showNotifications,
-    setShowNotifications
-}) => {
+export const VersionInfo = ({config}) => {
     const [newDashVersion, setNewDashVersion] = useState(undefined);
     const [upgradeTooltipOpened, setUpgradeTooltipOpened] = useState(false);
 
     const setDontShowAgain = () => {
         // Set local storage to record the last dismissed notification
         setUpgradeTooltipOpened(false);
-        setShowNotifications(false);
+        localStorage.setItem('showNotifications', true);
     };
 
     const setRemindMeLater = () => {
@@ -110,15 +102,13 @@ export const VersionInfo = ({
     };
 
     useEffect(() => {
-        if (showNotifications) {
-            requestDashVersionInfo(
-                config.dash_version,
-                config.dash_version_url
-            ).then(version => {
-                setNewDashVersion(version);
-            });
-        }
-    }, [showNotifications]);
+        requestDashVersionInfo(
+            config.dash_version,
+            config.dash_version_url
+        ).then(version => {
+            setNewDashVersion(version);
+        });
+    }, []);
 
     useEffect(() => {
         const hideUpgradeTooltip = e => {
@@ -161,8 +151,7 @@ export const VersionInfo = ({
             <span>v{config.dash_version}</span>
             {shouldShowUpgradeNotification(
                 config.dash_version,
-                newDashVersion,
-                showNotifications
+                newDashVersion
             ) ? (
                 <button
                     className='dash-debug-menu__upgrade-button'

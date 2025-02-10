@@ -2,7 +2,7 @@
     border-radius: 4px;
     width: 80vw;
     position: relative;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 75px);
     overflow: auto;
     box-sizing: border-box;
     background: #ffffff;
