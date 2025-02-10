@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 
 import './VersionInfo.css';
 
+const HOUR_IN_MS = 3600000;
 const DAY_IN_MS = 86400000;
 
 function compareVersions(v1, v2) {
@@ -20,15 +21,34 @@ function compareVersions(v1, v2) {
 }
 
 async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
-    return fetch(dashVersionUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-            dash_version: currentDashVersion
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(response => response.json());
+    const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
+    const lastFetched = localStorage.getItem('lastFetched');
+    if (
+        lastFetched &&
+        Date.now() - Number(lastFetched) < HOUR_IN_MS &&
+        cachedVersionInfo
+    ) {
+        return JSON.parse(cachedVersionInfo);
+    } else {
+        return fetch(dashVersionUrl, {
+            method: 'POST',
+            body: JSON.stringify({
+                dash_version: currentDashVersion
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(body => {
+                localStorage.setItem(
+                    'cachedNewDashVersion',
+                    JSON.stringify(body.version)
+                );
+                localStorage.setItem('lastFetched', Date.now());
+                return body.version;
+            });
+    }
 }
 
 function shouldShowUpgradeNotification(
@@ -68,10 +88,8 @@ export const VersionInfo = ({
     showNotifications,
     setShowNotifications
 }) => {
-    const [upgradeInfo, setUpgradeInfo] = useState([]);
+    const [newDashVersion, setNewDashVersion] = useState(undefined);
     const [upgradeTooltipOpened, setUpgradeTooltipOpened] = useState(false);
-
-    const newDashVersion = upgradeInfo[0] ? upgradeInfo[0].version : undefined;
 
     const setDontShowAgain = () => {
         // Set local storage to record the last dismissed notification
@@ -96,8 +114,8 @@ export const VersionInfo = ({
             requestDashVersionInfo(
                 config.dash_version,
                 config.dash_version_url
-            ).then(body => {
-                setUpgradeInfo(body);
+            ).then(version => {
+                setNewDashVersion(version);
             });
         }
     }, [showNotifications]);
