@@ -9,7 +9,7 @@ class FrontEndErrorContainer extends Component {
     }
 
     render() {
-        const {errors, connected} = this.props;
+        const {errors, connected, clickHandler} = this.props;
 
         const inAlertsTray = this.props.inAlertsTray;
         let cardClasses = 'dash-error-card dash-error-card--container';
@@ -26,6 +26,12 @@ class FrontEndErrorContainer extends Component {
                     <div className='dash-error-card__message'>
                         Errors
                         {connected ? null : '\u00a0 🚫 Server Unavailable'}
+                    </div>
+                    <div
+                        className='dash-fe-error__icon-x'
+                        onClick={() => clickHandler()}
+                    >
+                        ×
                     </div>
                 </div>
                 <div className='dash-error-card__list'>{errorElements}</div>

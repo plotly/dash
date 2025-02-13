@@ -31,13 +31,13 @@
 .dash-debug-menu__version-opt-out {
     display: flex;
     width: 426px;
-    padding: var(--Spacing-16, 16px);
+    padding: 16px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    border-radius: var(--Corner-8, 8px);
-    border: 1px solid var(--Stroke-Weak, rgba(0, 24, 102, 0.1));
-    background: var(--Fill-Overlay, #fff);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 24, 102, 0.1);
+    background: #fff;
     align-self: flex-end;
     position: relative;
     /* Shadow/Small */
@@ -117,7 +117,7 @@
     box-shadow:
         0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.04),
         0px 2.3px 2px 0px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--Stroke-Weak, rgba(0, 24, 102, 0.1));
+    border: 1px solid rgba(0, 24, 102, 0.1);
 }
 .dash-debug-menu__outer--closed {
     height: 60px;
