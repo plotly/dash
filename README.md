@@ -11,7 +11,6 @@
 Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https://reactjs.org/) and [Flask](https://palletsprojects.com/p/flask/), Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read [our tutorial](https://dash.plotly.com/getting-started) (proudly crafted ❤️ with Dash itself).
 
 - [Docs](https://dash.plotly.com/getting-started): Create your first Dash app in under 5 minutes
-
 - [dash.gallery](https://dash.gallery): Dash app gallery with Python & R code
 
 <div align="center">
