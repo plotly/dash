@@ -3,7 +3,7 @@
     width: 80vw;
     position: relative;
     height: calc(100vh - 75px);
-    overflow: auto;
+    overflow: hidden;
     box-sizing: border-box;
     background: #ffffff;
     display: inline-block;
