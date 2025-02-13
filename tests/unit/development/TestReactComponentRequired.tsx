@@ -1,5 +1,5 @@
+// A react component with a ton of TypeScript types to run tests over
 import React from 'react';
-// A react component with all of the available proptypes to run tests over
 
 /**
  * This is a description of the component.
