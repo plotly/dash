@@ -56,7 +56,7 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
         currentDashVersion == newDashVersion ||
-        !showNotifications ||
+        showNotifications === 'false' ||
         newDashVersion === undefined
     ) {
         return false;
@@ -85,8 +85,8 @@ export const VersionInfo = ({config}) => {
 
     const setDontShowAgain = () => {
         // Set local storage to record the last dismissed notification
+        localStorage.setItem('showNotifications', false);
         setUpgradeTooltipOpened(false);
-        localStorage.setItem('showNotifications', true);
     };
 
     const setRemindMeLater = () => {
