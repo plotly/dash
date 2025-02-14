@@ -19,20 +19,34 @@ function compareVersions(v1, v2) {
     return 0;
 }
 
-async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
+async function requestDashVersionInfo(config) {
+    const {
+        dash_version: currentDashVersion,
+        dash_version_url: dashVersionUrl,
+        python_version: pythonVersion,
+        ddk_version: ddkVersion
+    } = config;
     const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
+    const cachedNewDashVersionLink = localStorage.getItem(
+        'cachedNewDashVersionLink'
+    );
     const lastFetched = localStorage.getItem('lastFetched');
     if (
         lastFetched &&
         Date.now() - Number(lastFetched) < DAY_IN_MS &&
         cachedVersionInfo
     ) {
-        return JSON.parse(cachedVersionInfo);
+        return {
+            version: JSON.parse(cachedVersionInfo),
+            link: cachedNewDashVersionLink
+        };
     } else {
         return fetch(dashVersionUrl, {
             method: 'POST',
             body: JSON.stringify({
-                dash_version: currentDashVersion
+                dash_version: currentDashVersion,
+                python_version: pythonVersion,
+                ddk_version: ddkVersion
             }),
             headers: {
                 'Content-Type': 'application/json'
@@ -44,8 +58,9 @@ async function requestDashVersionInfo(currentDashVersion, dashVersionUrl) {
                     'cachedNewDashVersion',
                     JSON.stringify(body.version)
                 );
+                localStorage.setItem('cachedNewDashVersionLink', body.link);
                 localStorage.setItem('lastFetched', Date.now());
-                return body.version;
+                return body;
             });
     }
 }
@@ -81,6 +96,7 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
 
 export const VersionInfo = ({config}) => {
     const [newDashVersion, setNewDashVersion] = useState(undefined);
+    const [newDashVersionLink, setNewDashVersionLink] = useState(undefined);
     const [upgradeTooltipOpened, setUpgradeTooltipOpened] = useState(false);
 
     const setDontShowAgain = () => {
@@ -102,11 +118,9 @@ export const VersionInfo = ({config}) => {
     };
 
     useEffect(() => {
-        requestDashVersionInfo(
-            config.dash_version,
-            config.dash_version_url
-        ).then(version => {
-            setNewDashVersion(version);
+        requestDashVersionInfo(config).then(body => {
+            setNewDashVersionLink(body.link);
+            setNewDashVersion(body.version);
         });
     }, []);
 
@@ -131,12 +145,11 @@ export const VersionInfo = ({config}) => {
         <div className='dash-debug-menu__version'>
             {upgradeTooltipOpened ? (
                 <div className='dash-debug-menu__upgrade-tooltip'>
-                    <a
-                        target='_blank'
-                        href='https://dash.plotly.com/installation'
-                    >
-                        Read details
-                    </a>
+                    {newDashVersionLink ? (
+                        <a target='_blank' href={newDashVersionLink}>
+                            Read details
+                        </a>
+                    ) : null}
                     <button onClick={setSkipThisVersion}>
                         Skip this version
                     </button>

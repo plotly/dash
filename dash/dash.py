@@ -77,6 +77,14 @@ from ._pages import (
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
 
+dash_design_kit_version = None
+try:
+    import dash_design_kit
+
+    dash_design_kit_version = dash_design_kit.__version__
+except ImportError:
+    pass
+
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
 
@@ -769,7 +777,9 @@ class Dash:
             "children_props": ComponentRegistry.children_props,
             "serve_locally": self.config.serve_locally,
             "dash_version": __version__,
+            "python_version": sys.version,
             "dash_version_url": DASH_VERSION_URL,
+            "design_kit_version": dash_design_kit_version,
         }
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
