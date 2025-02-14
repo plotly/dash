@@ -12,8 +12,6 @@ import {
 } from 'ramda';
 
 import {IStoreState} from '../store';
-import {ThunkDispatch} from 'redux-thunk';
-import {AnyAction} from 'redux';
 
 import {
     aggregateCallbacks,
@@ -46,39 +44,34 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {executed}
         } = getState();
 
-        function applyProps(
-            id: any,
-            updatedProps: any,
-            enable_persistence: boolean
-        ) {
+        function applyProps(id: any, updatedProps: any) {
             const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
                 return false;
             }
-
             // This is a callback-generated update.
-            // Check if this invalidates existing persisted prop values,
-            // or if persistence changed, whether this updates other props.
-            updatedProps = prunePersistence(
-                path(itempath, layout),
-                updatedProps,
-                dispatch,
-                enable_persistence
-            );
+            let props = updatedProps;
 
-            const {props} = applyPersistence(
-                {props: updatedProps},
-                dispatch,
-                enable_persistence
-            );
+            if (id === '_pages_content') {
+                // Check if this invalidates existing persisted prop values,
+                // or if persistence changed, whether this updates other props.
+                updatedProps = prunePersistence(
+                    path(itempath, layout),
+                    updatedProps,
+                    dispatch
+                );
 
-            (dispatch as ThunkDispatch<any, any, AnyAction>)(
+                // In case the update contains whole components, see if any of
+                // those components have props to update to persist user edits.
+                props = applyPersistence({props: updatedProps}, dispatch).props;
+            }
+
+            dispatch(
                 updateProps({
                     itempath,
                     props,
-                    source: 'response',
-                    enable_persistence
+                    source: 'response'
                 })
             );
 
@@ -112,17 +105,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             paths: oldPaths
                         } = getState();
 
-                        const enable_persistence =
-                            cb.callback.enable_persistence === undefined
-                                ? false
-                                : cb.callback.enable_persistence;
-
                         // Components will trigger callbacks on their own as required (eg. derived)
-                        const appliedProps = applyProps(
-                            parsedId,
-                            props,
-                            enable_persistence
-                        );
+                        const appliedProps = applyProps(parsedId, props);
 
                         // Add callbacks for modified inputs
                         requestedCallbacks = concat(

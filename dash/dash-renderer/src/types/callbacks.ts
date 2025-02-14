@@ -15,7 +15,6 @@ export interface ICallbackDefinition {
     dynamic_creator?: boolean;
     running: any;
     no_output?: boolean;
-    enable_persistence?: boolean;
 }
 
 export interface ICallbackProperty {

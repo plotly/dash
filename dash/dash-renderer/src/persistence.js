@@ -364,8 +364,8 @@ export function recordUiEdit(layout, newProps, dispatch) {
  * Used for entire layouts (on load) or partial layouts (from children
  * callbacks) to apply previously-stored UI edits to components
  */
-export function applyPersistence(layout, dispatch, enable_persistence) {
-    if (type(layout) !== 'Object' || !layout.props || enable_persistence) {
+export function applyPersistence(layout, dispatch) {
+    if (type(layout) !== 'Object' || !layout.props) {
         return layout;
     }
 
@@ -460,12 +460,7 @@ function persistenceMods(layout, component, path, dispatch) {
  * these override UI-driven edits of those exact props
  * but not for props nested inside children
  */
-export function prunePersistence(
-    layout,
-    newProps,
-    dispatch,
-    enable_persistence
-) {
+export function prunePersistence(layout, newProps, dispatch) {
     const {
         canPersist,
         id,
@@ -480,11 +475,7 @@ export function prunePersistence(
         propName in newProps ? newProps[propName] : prevVal;
     const finalPersistence = getFinal('persistence', persistence);
 
-    if (
-        !canPersist ||
-        !(persistence || finalPersistence) ||
-        enable_persistence
-    ) {
+    if (!canPersist || !(persistence || finalPersistence)) {
         return newProps;
     }
 

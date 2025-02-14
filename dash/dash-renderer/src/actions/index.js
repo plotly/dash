@@ -24,11 +24,8 @@ export const onPropChange = createAction(getAction('ON_PROP_CHANGE'));
 
 export function updateProps(payload) {
     return (dispatch, getState) => {
-        const {enable_persistence} = payload;
-        if (payload.source !== 'response' || enable_persistence) {
-            const component = path(payload.itempath, getState().layout);
-            recordUiEdit(component, payload.props, dispatch);
-        }
+        const component = path(payload.itempath, getState().layout);
+        recordUiEdit(component, payload.props, dispatch);
         dispatch(onPropChange(payload));
     };
 }
