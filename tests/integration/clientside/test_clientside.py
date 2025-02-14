@@ -4,6 +4,8 @@ from multiprocessing import Value, Lock
 from dash import Dash, Input, Output, State, ClientsideFunction, ALL, html, dcc
 from selenium.webdriver.common.keys import Keys
 
+from dash.dependencies import MATCH
+
 
 def test_clsd001_simple_clientside_serverside_callback(dash_duo):
     app = Dash(__name__, assets_folder="assets")
@@ -905,3 +907,33 @@ def test_clsd021_simple_clientside_module_serverside_callback(dash_duo):
     dash_duo.find_element("#input").send_keys("hello world")
     dash_duo.wait_for_text_to_equal("#output-serverside", 'Server says "hello world"')
     dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')
+
+
+def test_clsd022_clientside_pattern_matching_dots(dash_duo):
+    # Test for bug https://github.com/plotly/dash/issues/3163
+    # Allow dict id to contains a dot in the dict when using clientside callback.
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Button("click", id={"type": "input", "index": 3.1}),
+            html.Div(id={"type": "output", "index": 3.1}, className="output"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(n_clicks) {
+            return `clicked ${n_clicks}`;
+        }
+        """,
+        Output({"type": "output", "index": MATCH}, "children"),
+        Input({"type": "input", "index": MATCH}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("button").click()
+    dash_duo.wait_for_text_to_equal(".output", "clicked 1")
+
+    assert dash_duo.get_logs() == []
