@@ -779,7 +779,7 @@ class Dash:
             "dash_version": __version__,
             "python_version": sys.version,
             "dash_version_url": DASH_VERSION_URL,
-            "design_kit_version": dash_design_kit_version,
+            "ddk_version": dash_design_kit_version,
         }
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
