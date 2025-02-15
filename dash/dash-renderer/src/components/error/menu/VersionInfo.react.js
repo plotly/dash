@@ -24,7 +24,8 @@ async function requestDashVersionInfo(config) {
         dash_version: currentDashVersion,
         dash_version_url: dashVersionUrl,
         python_version: pythonVersion,
-        ddk_version: ddkVersion
+        ddk_version: ddkVersion,
+        plotly_version: plotlyVersion
     } = config;
     const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
     const cachedNewDashVersionLink = localStorage.getItem(
@@ -46,7 +47,8 @@ async function requestDashVersionInfo(config) {
             body: JSON.stringify({
                 dash_version: currentDashVersion,
                 python_version: pythonVersion,
-                ddk_version: ddkVersion
+                ddk_version: ddkVersion,
+                plotly_version: plotlyVersion
             }),
             headers: {
                 'Content-Type': 'application/json'

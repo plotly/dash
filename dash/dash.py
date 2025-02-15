@@ -85,6 +85,14 @@ try:
 except ImportError:
     pass
 
+plotly_version = None
+try:
+    import plotly
+
+    plotly_version = plotly.__version__
+except ImportError:
+    pass
+
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
 
@@ -780,6 +788,7 @@ class Dash:
             "python_version": sys.version,
             "dash_version_url": DASH_VERSION_URL,
             "ddk_version": dash_design_kit_version,
+            "plotly_version": plotly_version,
         }
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
