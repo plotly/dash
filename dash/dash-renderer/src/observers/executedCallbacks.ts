@@ -11,6 +11,9 @@ import {
     pathOr
 } from 'ramda';
 
+import {ThunkDispatch} from 'redux-thunk';
+import {AnyAction} from 'redux';
+
 import {IStoreState} from '../store';
 
 import {
@@ -67,7 +70,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 props = applyPersistence({props: updatedProps}, dispatch).props;
             }
 
-            dispatch(
+            (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
                     props,
