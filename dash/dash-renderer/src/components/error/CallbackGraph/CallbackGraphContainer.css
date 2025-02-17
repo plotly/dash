@@ -5,7 +5,7 @@
     right: 16px;
     width: 80vw;
     height: calc(100vh - 180px);
-    overflow: auto;
+    overflow: hidden;
     box-sizing: border-box;
     background: #ffffff;
     display: inline-block;
