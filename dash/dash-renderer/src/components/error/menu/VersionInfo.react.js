@@ -72,7 +72,7 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
-        currentDashVersion == newDashVersion ||
+        compareVersions(currentDashVersion, newDashVersion) >=0 ||
         showNotifications === 'false' ||
         newDashVersion === undefined
     ) {
