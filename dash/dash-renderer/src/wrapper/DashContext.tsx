@@ -9,15 +9,19 @@ type LoadingFilterFunc = (loading: LoadingPayload) => boolean;
 
 type LoadingOptions = {
     /**
-     *
+     * Path to add after the current component if loading.
+     * Ex `["props"]` will return true only for when that component load.
      */
     extraPath?: DashLayoutPath;
     /**
-     *
+     * A raw path used instead of the current component.
+     * Useful if you want the loading of a child component
+     * as the path is available in `child.props.componentPath`.
      */
     rawPath?: boolean;
     /**
      * Function used to filter the properties of the loading component.
+     * Filter argument is an Entry of `{path, property, id}`.
      */
     filterFunc?: LoadingFilterFunc;
 };
@@ -113,5 +117,12 @@ export function DashContextProvider(props: DashContextProviderProps) {
 }
 
 export function useDashContext() {
-    return useContext(DashContext);
+    const ctx = useContext(DashContext);
+    if (!ctx) {
+        // eslint-disable-next-line no-console
+        console.error(
+            'Dash Context was not found, component was rendered without a wrapper. Use `window.dash_component_api.ExternalWrapper` to make sure the component is properly connected.'
+        );
+    }
+    return ctx || {};
 }

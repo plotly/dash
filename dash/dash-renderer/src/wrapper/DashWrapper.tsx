@@ -422,10 +422,24 @@ function DashWrapper({
     );
 }
 
-export default memo(
-    DashWrapper,
-    (prevProps, nextProps) =>
-        JSON.stringify(prevProps.componentPath) ===
-            JSON.stringify(nextProps.componentPath) &&
-        prevProps._dashprivate_error === nextProps._dashprivate_error
-);
+function wrapperEquality(prev: any, next: any) {
+    const {
+        componentPath: prevPath,
+        _dashprivate_error: prevError,
+        ...prevProps
+    } = prev;
+    const {
+        componentPath: nextPath,
+        _dashprivate_error: nextError,
+        ...nextProps
+    } = next;
+    if (JSON.stringify(prevPath) !== JSON.stringify(nextPath)) {
+        return false;
+    }
+    if (prevError !== nextError) {
+        return false;
+    }
+    return equals(prevProps, nextProps);
+}
+
+export default memo(DashWrapper, wrapperEquality);

@@ -1,4 +1,12 @@
-import {includes, mergeRight, append, view, lensPath, assocPath} from 'ramda';
+import {
+    includes,
+    mergeRight,
+    append,
+    view,
+    lensPath,
+    assocPath,
+    dissocPath
+} from 'ramda';
 
 import {getAction} from '../actions/constants';
 
@@ -19,6 +27,14 @@ const layout = (state = {}, action) => {
         const existingProps = view(lensPath(propPath), state);
         const mergedProps = mergeRight(existingProps, action.payload.props);
         return assocPath(propPath, mergedProps, state);
+    }
+    // Custom component rendered out of tree.
+    else if (action.type === getAction('INSERT_COMPONENT')) {
+        const {component, componentPath} = action.payload;
+        return assocPath(componentPath, component, state);
+    } else if (action.type === getAction('REMOVE_COMPONENT')) {
+        const {componentPath} = action.payload;
+        return dissocPath(componentPath, state);
     }
 
     return state;

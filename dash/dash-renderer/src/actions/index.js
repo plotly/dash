@@ -18,6 +18,8 @@ export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const insertComponent = createAction(getAction('INSERT_COMPONENT'));
+export const removeComponent = createAction(getAction('REMOVE_COMPONENT'));
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(
