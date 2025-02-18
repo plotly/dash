@@ -6,6 +6,8 @@ import importlib
 import warnings
 from contextvars import copy_context
 from importlib.machinery import ModuleSpec
+from importlib.util import find_spec
+from importlib import metadata
 import pkgutil
 import threading
 import re
@@ -77,21 +79,14 @@ from ._pages import (
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
 
-dash_design_kit_version = None
-try:
-    import dash_design_kit
-
-    dash_design_kit_version = dash_design_kit.__version__
-except ImportError:
-    pass
+# If dash_design_kit is installed, check for version
+ddk_version = None
+if find_spec("dash_design_kit"):
+    ddk_version = metadata.version("dash_design_kit")
 
 plotly_version = None
-try:
-    import plotly
-
-    plotly_version = plotly.__version__
-except ImportError:
-    pass
+if find_spec("plotly"):
+    plotly_version = metadata.version("plotly")
 
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
@@ -787,7 +782,7 @@ class Dash:
             "dash_version": __version__,
             "python_version": sys.version,
             "dash_version_url": DASH_VERSION_URL,
-            "ddk_version": dash_design_kit_version,
+            "ddk_version": ddk_version,
             "plotly_version": plotly_version,
         }
         if not self.config.serve_locally:
