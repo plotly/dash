@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "build:dev": "webpack",
     "build:local": "renderer build local",
     "build": "renderer build && npm run prepublishOnly",
-    "postbuild": "es-check es2015 ../deps/*.js build/*.js",
+    "postbuild": "es-check es2018 ../deps/*.js build/*.js",
     "test": "karma start karma.conf.js --single-run",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.* --continue-on-error"
@@ -88,6 +88,6 @@
   ],
   "prettier": "@plotly/prettier-config-dash",
   "browserslist": [
-    "last 9 years and not dead"
+    "last 10 years and not dead"
   ]
 }

@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [3.0.0-rc2] - UNRELEASED
+## [3.0.0-rc2] - 2025-02-18
 
 ## Added
 
@@ -10,10 +10,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - Added `-t`, `--custom-typing-module` argument to `dash-generate-components` CLI, default to `dash_prop_typing` and can contains definitions in variables:
     - `custom_imports: dict[ComponentName, list[str]]` import statement to be copied at the top of the component class definition.
     - `custom_props: dict[ComponentName, dict[PropName, function]]` for custom props. The function signature is: `def generate_type(type_info, component_name, prop_name) -> str`
+- [#3170](https://github.com/plotly/dash/pull/3170) Add `window.dash_component_api.ExternalWrapper` to render Dash components that are not part of the layout tree.
 
 ## Fixed
 
 - [#3142](https://github.com/plotly/dash/pull/3142) Fix typing generation for id and dates props.
+- [#3164](https://github.com/plotly/dash/pull/3164) Fix typing on progress and cancel background callback.
+- [#3157](https://github.com/plotly/dash/pull/3157) Fix hook priority.
 
 ## [3.0.0-rc1] - 2025-01-28
 
