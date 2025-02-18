@@ -72,9 +72,9 @@ function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
-        compareVersions(currentDashVersion, newDashVersion) >=0 ||
-        showNotifications === 'false' ||
-        newDashVersion === undefined
+        newDashVersion === undefined ||
+        compareVersions(currentDashVersion, newDashVersion) >= 0 ||
+        showNotifications === 'false'
     ) {
         return false;
     } else if (
