@@ -60,15 +60,21 @@ async function requestDashVersionInfo(config) {
             }
         })
             .then(response => response.json())
-            .catch(() => {})
+            .catch(() => {
+                return {};
+            })
             .then(body => {
-                localStorage.setItem(
-                    'cachedNewDashVersion',
-                    JSON.stringify(body.version)
-                );
-                localStorage.setItem('cachedNewDashVersionLink', body.link);
-                localStorage.setItem('lastFetched', Date.now());
-                return body;
+                if (body.version && body.link) {
+                    localStorage.setItem(
+                        'cachedNewDashVersion',
+                        JSON.stringify(body.version)
+                    );
+                    localStorage.setItem('cachedNewDashVersionLink', body.link);
+                    localStorage.setItem('lastFetched', Date.now());
+                    return body;
+                } else {
+                    return {};
+                }
             });
     }
 }
