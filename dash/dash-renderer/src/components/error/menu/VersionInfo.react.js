@@ -60,6 +60,7 @@ async function requestDashVersionInfo(config) {
             }
         })
             .then(response => response.json())
+            .catch(() => {})
             .then(body => {
                 localStorage.setItem(
                     'cachedNewDashVersion',
