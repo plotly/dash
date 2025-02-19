@@ -1,1 +1,1 @@
-window.tested = "IGNORED"; // Break the chain.
+window.tested = 'IGNORED'; // Break the chain.
