@@ -1,1 +1,1 @@
-document.getElementById("tested").innerHTML = JSON.stringify(window.tested);
+document.getElementById('tested').innerHTML = JSON.stringify(window.tested);
