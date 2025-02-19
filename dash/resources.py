@@ -2,20 +2,53 @@ import json
 import warnings
 import os
 
+import typing as _t
+import typing_extensions as _tx
+
+
 from .development.base_component import ComponentRegistry
 from . import exceptions
 
 
-class Resources:
-    def __init__(self, resource_name):
-        self._resources = []
-        self.resource_name = resource_name
+# ResourceType has `async` key, use the init form to be able to provide it.
+ResourceType = _tx.TypedDict(
+    "ResourceType",
+    {
+        "namespace": str,
+        "async": _t.Union[bool, _t.Literal["eager", "lazy"]],
+        "dynamic": bool,
+        "relative_package_path": str,
+        "external_url": str,
+        "dev_package_path": str,
+        "absolute_path": str,
+        "asset_path": str,
+        "external_only": bool,
+        "filepath": str,
+    },
+    total=False,
+)
 
-    def append_resource(self, resource):
+
+# pylint: disable=too-few-public-methods
+class ResourceConfig:
+    def __init__(self, serve_locally, eager_loading):
+        self.eager_loading = eager_loading
+        self.serve_locally = serve_locally
+
+
+class Resources:
+    def __init__(self, resource_name: str, config: ResourceConfig):
+        self._resources: _t.List[ResourceType] = []
+        self.resource_name = resource_name
+        self.config = config
+
+    def append_resource(self, resource: ResourceType):
         self._resources.append(resource)
 
     # pylint: disable=too-many-branches
-    def _filter_resources(self, all_resources, dev_bundles=False):
+    def _filter_resources(
+        self, all_resources: _t.List[ResourceType], dev_bundles=False
+    ):
         filtered_resources = []
         for s in all_resources:
             filtered_resource = {}
@@ -45,23 +78,25 @@ class Resources:
                 )
             if "namespace" in s:
                 filtered_resource["namespace"] = s["namespace"]
-            if "external_url" in s and not self.config.serve_locally:
+            if "external_url" in s and (
+                s.get("external_only") or not self.config.serve_locally
+            ):
                 filtered_resource["external_url"] = s["external_url"]
-            elif "dev_package_path" in s and dev_bundles:
+            elif "dev_package_path" in s and (dev_bundles or s.get("dev_only")):
                 filtered_resource["relative_package_path"] = s["dev_package_path"]
             elif "relative_package_path" in s:
                 filtered_resource["relative_package_path"] = s["relative_package_path"]
             elif "absolute_path" in s:
                 filtered_resource["absolute_path"] = s["absolute_path"]
             elif "asset_path" in s:
-                info = os.stat(s["filepath"])
+                info = os.stat(s["filepath"])  # type: ignore
                 filtered_resource["asset_path"] = s["asset_path"]
                 filtered_resource["ts"] = info.st_mtime
             elif self.config.serve_locally:
                 warnings.warn(
                     (
                         "You have set your config to `serve_locally=True` but "
-                        f"A local version of {s['external_url']} is not available.\n"
+                        f"A local version of {s['external_url']} is not available.\n"  # type: ignore
                         "If you added this file with "
                         "`app.scripts.append_script` "
                         "or `app.css.append_css`, use `external_scripts` "
@@ -95,32 +130,25 @@ class Resources:
         return self._filter_resources(all_resources, dev_bundles)
 
 
-# pylint: disable=too-few-public-methods
-class _Config:
-    def __init__(self, serve_locally, eager_loading):
-        self.eager_loading = eager_loading
-        self.serve_locally = serve_locally
-
-
 class Css:
-    def __init__(self, serve_locally):
-        self._resources = Resources("_css_dist")
-        self._resources.config = self.config = _Config(serve_locally, True)
+    def __init__(self, serve_locally: bool):
+        self.config = ResourceConfig(serve_locally, True)
+        self._resources = Resources("_css_dist", self.config)
 
-    def append_css(self, stylesheet):
+    def append_css(self, stylesheet: ResourceType):
         self._resources.append_resource(stylesheet)
 
     def get_all_css(self):
         return self._resources.get_all_resources()
 
-    def get_library_css(self, libraries):
+    def get_library_css(self, libraries: _t.List[str]):
         return self._resources.get_library_resources(libraries)
 
 
 class Scripts:
     def __init__(self, serve_locally, eager):
-        self._resources = Resources("_js_dist")
-        self._resources.config = self.config = _Config(serve_locally, eager)
+        self.config = ResourceConfig(serve_locally, eager)
+        self._resources = Resources("_js_dist", self.config)
 
     def append_script(self, script):
         self._resources.append_resource(script)

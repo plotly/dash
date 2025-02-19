@@ -6,7 +6,7 @@ import 'react-virtualized-select/styles.css';
 import '../components/css/react-virtualized@9.9.0.css';
 import '../components/css/Dropdown.css';
 
-import {propTypes, defaultProps} from '../components/Dropdown.react';
+import {propTypes} from '../components/Dropdown.react';
 import {sanitizeOptions} from '../utils/optionTypes';
 import isEqual from 'react-fast-compare';
 
@@ -44,11 +44,13 @@ const Dropdown = props => {
         setProps,
         search_value,
         style,
-        loading_state,
         value,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const persistentOptions = useRef(null);
+
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
 
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
@@ -148,9 +150,7 @@ const Dropdown = props => {
             id={id}
             className="dash-dropdown"
             style={style}
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={loading || undefined}
         >
             <ReactDropdown
                 filterOptions={filterOptions}
@@ -168,6 +168,5 @@ const Dropdown = props => {
 };
 
 Dropdown.propTypes = propTypes;
-Dropdown.defaultProps = defaultProps;
 
 export default Dropdown;
