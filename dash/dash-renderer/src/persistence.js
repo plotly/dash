@@ -334,28 +334,31 @@ export function recordUiEdit(layout, newProps, dispatch) {
                     : extract(props[propName]);
                 let newVal = extract(newProps[propName]);
 
-                storage.setItem(valsKey, [newVal, originalVal], dispatch);
+                const vals =
+                    originalVal === undefined
+                        ? [newVal]
+                        : [newVal, originalVal];
+
+                storage.setItem(valsKey, vals, dispatch);
             }
         }, persisted_props);
     }
 
     // Recursively record UI edits for children
     const {children} = props;
+    if (!newProps?.children) {
+        return;
+    }
     if (Array.isArray(children)) {
+        if (children.length !== newProps['children'].length) {
+            return;
+        }
         children.forEach((child, i) => {
-            if (
-                type(child) === 'Object' &&
-                child.props &&
-                newProps['children'] !== undefined
-            ) {
+            if (type(child) === 'Object' && child.props) {
                 recordUiEdit(child, newProps['children'][i]['props'], dispatch);
             }
         });
-    } else if (
-        type(children) === 'Object' &&
-        children.props &&
-        newProps['children'] !== undefined
-    ) {
+    } else if (type(children) === 'Object' && children.props) {
         recordUiEdit(children, newProps['children']['props'], dispatch);
     }
 }
