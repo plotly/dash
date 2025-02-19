@@ -5,6 +5,11 @@ import './VersionInfo.css';
 const DAY_IN_MS = 86400000;
 
 function compareVersions(v1, v2) {
+    // Remove any non-numeric characters from the version strings
+    // and anything after them (e.g. 1.2.3-rc.1 -> 1.2.3, 1.2.3+build.1 -> 1.2.3)
+    v1 = v1.replace(/[^0-9.].*$/, '');
+    v2 = v2.replace(/[^0-9.].*$/, '');
+
     const v1Parts = v1.split('.').map(Number);
     const v2Parts = v2.split('.').map(Number);
 
