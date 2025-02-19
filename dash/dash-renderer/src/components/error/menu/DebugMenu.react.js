@@ -31,6 +31,12 @@ const MenuContent = ({
             : OffIcon
         : ClockIcon;
 
+    const status = hotReload
+        ? connected
+            ? 'available'
+            : 'unavailable'
+        : 'cold';
+
     return (
         <div className='dash-debug-menu__content'>
             <button
@@ -65,7 +71,9 @@ const MenuContent = ({
             <div className='dash-debug-menu__divider' />
             <VersionInfo config={config} />
             <div className='dash-debug-menu__divider' />
-            <div className='dash-debug-menu__status'>
+            <div
+                className={`dash-debug-menu__status dash-debug-menu__button--${status}`}
+            >
                 Server
                 <_StatusIcon className='dash-debug-menu__icon' />
             </div>
