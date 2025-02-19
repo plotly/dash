@@ -106,7 +106,7 @@
     right: 8px;
     display: flex;
     flex-direction: column;
-    font-family: Verdana;
+    font-family: Verdana, sans-serif;
     font-size: 14px;
     justify-content: center;
     align-items: center;
