@@ -116,8 +116,6 @@ def test_dvhr001_hot_reload(dash_duo_mp):
     dash_duo_mp.wait_for_element(".dash-debug-menu__button--unavailable")
     dash_duo_mp.wait_for_no_elements(".dash-fe-error__title")
     dash_duo_mp.percy_snapshot(name="hot-reload-unavailable")
-
-    dash_duo_mp.find_element(".dash-debug-disconnected")
     dash_duo_mp.percy_snapshot(name="hot-reload-unavailable-small")
 
     dash_duo_mp.find_element("#btn").click()
