@@ -1,1 +1,1 @@
-window.tested.push('load_after11');
+window.tested.push("load_after11");

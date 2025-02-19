@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // A react component with all of the available proptypes to run tests over
 
 /**
@@ -7,7 +7,7 @@ import React from 'react';
  */
 class ReactComponent extends Component {
     render() {
-        return '';
+        return "";
     }
 }
 
@@ -36,13 +36,13 @@ ReactComponent.propTypes = {
 
     // You can ensure that your prop is limited to specific values by treating
     // it as an enum.
-    optionalEnum: React.PropTypes.oneOf(['News', 'Photos']),
+    optionalEnum: React.PropTypes.oneOf(["News", "Photos"]),
 
     // An object that could be one of many types
     optionalUnion: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.number,
-        React.PropTypes.instanceOf(Message)
+        React.PropTypes.instanceOf(Message),
     ]),
 
     // An array of a certain type
@@ -66,30 +66,40 @@ ReactComponent.propTypes = {
             /**
              * layout describes the rest of the figure
              */
-            layout: React.PropTypes.object
-        })
+            layout: React.PropTypes.object,
+        }),
     }),
 
     // A value of any data type
     optionalAny: React.PropTypes.any,
 
-    customProp: function(props, propName, componentName) {
+    customProp: function (props, propName, componentName) {
         if (!/matchme/.test(props[propName])) {
             return new Error(
-            'Invalid prop `' + propName + '` supplied to' +
-            ' `' + componentName + '`. Validation failed.'
+                "Invalid prop `" +
+                    propName +
+                    "` supplied to" +
+                    " `" +
+                    componentName +
+                    "`. Validation failed.",
             );
         }
     },
 
-    customArrayProp: React.PropTypes.arrayOf(function(propValue, key, componentName, location, propFullName) {
-        if (!/matchme/.test(propValue[key])) {
-            return new Error(
-            'Invalid prop `' + propFullName + '` supplied to' +
-            ' `' + componentName + '`. Validation failed.'
-            );
-        }
-    }),
+    customArrayProp: React.PropTypes.arrayOf(
+        function (propValue, key, componentName, location, propFullName) {
+            if (!/matchme/.test(propValue[key])) {
+                return new Error(
+                    "Invalid prop `" +
+                        propFullName +
+                        "` supplied to" +
+                        " `" +
+                        componentName +
+                        "`. Validation failed.",
+                );
+            }
+        },
+    ),
 
     children: React.PropTypes.node,
 
@@ -98,7 +108,7 @@ ReactComponent.propTypes = {
 
 ReactComponent.defaultProps = {
     optionalNumber: 42,
-    optionalString: 'hello world'
+    optionalString: "hello world",
 };
 
 export default ReactComponent;

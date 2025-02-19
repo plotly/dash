@@ -40,6 +40,7 @@ const MenuContent = ({
                         ? 'dash-debug-menu__button--selected'
                         : null) + ' dash-debug-menu__button'
                 }
+                id='dash-debug-menu__errors-button'
             >
                 <ErrorIcon className='dash-debug-menu__icon' />
                 Errors
@@ -56,6 +57,7 @@ const MenuContent = ({
                         ? 'dash-debug-menu__button--selected'
                         : '') + ' dash-debug-menu__button'
                 }
+                id='dash-debug-menu__callback-graph-button'
             >
                 <GraphIcon className='dash-debug-menu__icon' />
                 Callbacks

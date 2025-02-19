@@ -1,9 +1,8 @@
 if (!window.dash_clientside) {
-    window.dash_clientside = {}
+    window.dash_clientside = {};
 }
 window.dash_clientside.clientside = {
-
-    add: function(a, b) {
+    add: function (a, b) {
         return window.R.add(a, b);
     },
 
@@ -17,7 +16,7 @@ window.dash_clientside.clientside = {
 
     add1_break_at_11: function (value) {
         if (parseInt(value, 10) === 11) {
-            throw new Error('Unexpected error');
+            throw new Error("Unexpected error");
         }
         return parseInt(value, 10) + 1;
     },
@@ -36,71 +35,71 @@ window.dash_clientside.clientside = {
         return [parseInt(value2, 10) + 1, parseInt(value3, 10) + 1];
     },
 
-    add_to_four_outputs: function(value) {
+    add_to_four_outputs: function (value) {
         return [
             parseInt(value) + 1,
             parseInt(value) + 2,
             parseInt(value) + 3,
-            parseInt(value) + 4
-        ]
+            parseInt(value) + 4,
+        ];
     },
 
-    side_effect_and_return_a_promise: function(value) {
-        return new Promise(function(resolve, reject) {
-            setTimeout(function() {
-                setTimeout(function() {
-                    document.getElementById('side-effect').innerText = (
-                        'side effect'
-                    );
+    side_effect_and_return_a_promise: function (value) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                setTimeout(function () {
+                    document.getElementById("side-effect").innerText =
+                        "side effect";
                 }, 100);
-                resolve('foo');
+                resolve("foo");
             }, 1);
         });
     },
 
-    triggered_to_str: function(n_clicks0, n_clicks1) {
+    triggered_to_str: function (n_clicks0, n_clicks1) {
         const triggered = dash_clientside.callback_context.triggered;
-        return triggered.map(t => `${t.prop_id} = ${t.value}`).join(', ');
+        return triggered.map((t) => `${t.prop_id} = ${t.value}`).join(", ");
     },
 
-    triggered_id_to_str: function(n_clicks0, n_clicks1) {
+    triggered_id_to_str: function (n_clicks0, n_clicks1) {
         const triggered = dash_clientside.callback_context.triggered_id;
-        const triggered_id = typeof triggered === "string" ? triggered : triggered.btn1
-        return triggered_id
+        const triggered_id =
+            typeof triggered === "string" ? triggered : triggered.btn1;
+        return triggered_id;
     },
 
-    inputs_to_str: function(n_clicks0, n_clicks1) {
+    inputs_to_str: function (n_clicks0, n_clicks1) {
         const inputs = dash_clientside.callback_context.inputs;
         const keys = Object.keys(inputs);
-        return keys.map(k => `${k} = ${inputs[k]}`).join(', ');
+        return keys.map((k) => `${k} = ${inputs[k]}`).join(", ");
     },
 
-    inputs_list_to_str: function(n_clicks0, n_clicks1) {
+    inputs_list_to_str: function (n_clicks0, n_clicks1) {
         return JSON.stringify(dash_clientside.callback_context.inputs_list);
     },
 
-    states_to_str: function(val0, val1, st0, st1) {
+    states_to_str: function (val0, val1, st0, st1) {
         const states = dash_clientside.callback_context.states;
         const keys = Object.keys(states);
-        return keys.map(k => `${k} = ${states[k]}`).join(', ');
+        return keys.map((k) => `${k} = ${states[k]}`).join(", ");
     },
 
-    states_list_to_str: function(val0, val1, st0, st1) {
+    states_list_to_str: function (val0, val1, st0, st1) {
         return JSON.stringify(dash_clientside.callback_context.states_list);
     },
 
-    input_output_callback: function(inputValue) {
+    input_output_callback: function (inputValue) {
         const triggered = dash_clientside.callback_context.triggered;
-        if (triggered.length==0){
+        if (triggered.length == 0) {
             return inputValue;
         } else {
             return inputValue + 1;
         }
     },
 
-    input_output_follower: function(inputValue) {
+    input_output_follower: function (inputValue) {
         if (!window.callCount) {
-            window.callCount = 0
+            window.callCount = 0;
         }
         window.callCount += 1;
         return inputValue.toString();
