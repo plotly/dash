@@ -44,7 +44,7 @@ const MenuContent = ({
                 <ErrorIcon className='dash-debug-menu__icon' />
                 Errors
                 {errCount > 0 ? (
-                    <span className='dash-debug-menu__error-count'>
+                    <span className='test-devtools-error-count dash-debug-menu__error-count'>
                         {errCount}
                     </span>
                 ) : null}
