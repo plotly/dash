@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import './css/react-select@1.0.0-rc.3.min.css';
 import {sanitizeOptions} from '../utils/optionTypes';
+import LoadingElement from '../utils/LoadingElement';
 
 /**
  * RadioItems is a component that encapsulates several radio item inputs.
@@ -22,7 +23,6 @@ export default class RadioItems extends Component {
             labelStyle,
             options,
             setProps,
-            loading_state,
             value,
             inline,
         } = this.props;
@@ -32,14 +32,7 @@ export default class RadioItems extends Component {
             ids = {id, key: id};
         }
         return (
-            <div
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                {...ids}
-                className={className}
-                style={style}
-            >
+            <LoadingElement {...ids} className={className} style={style}>
                 {sanitizeOptions(options).map(option => (
                     <label
                         style={{
@@ -62,7 +55,7 @@ export default class RadioItems extends Component {
                         {option.label}
                     </label>
                 ))}
-            </div>
+            </LoadingElement>
         );
     }
 }
@@ -184,24 +177,6 @@ RadioItems.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when

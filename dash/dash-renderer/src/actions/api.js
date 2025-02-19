@@ -116,6 +116,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     return json;
                 });
             }
+            const content = await res.text();
             logWarningOnce(
                 'Response is missing header: content-type: application/json'
             );
@@ -123,7 +124,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
                 type: store,
                 payload: {
                     id,
-                    status: res.status
+                    status: res.status,
+                    content
                 }
             });
         } catch (err) {
