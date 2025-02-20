@@ -105,6 +105,7 @@
     bottom: 8px;
     right: 8px;
     display: flex;
+    color: black;
     flex-direction: column;
     font-family: Verdana, sans-serif;
     font-size: 14px;
