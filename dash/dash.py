@@ -66,6 +66,7 @@ from . import _watch
 from . import _get_app
 
 from ._grouping import map_grouping, grouping_len, update_args_group
+from ._obsolete import ObsoleteChecker
 
 from . import _pages
 from ._pages import (
@@ -194,7 +195,7 @@ no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
-class Dash:
+class Dash(ObsoleteChecker):
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
 
