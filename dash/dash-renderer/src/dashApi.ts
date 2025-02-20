@@ -3,6 +3,7 @@ import {DashContext, useDashContext} from './wrapper/DashContext';
 import {getPath} from './actions/paths';
 import {getStores} from './utils/stores';
 import ExternalWrapper from './wrapper/ExternalWrapper';
+import {stringifyId} from './actions/dependencies';
 
 /**
  * Get the dash props from a component path or id.
@@ -32,5 +33,6 @@ function getLayout(componentPathOrId: string[] | string): any {
     ExternalWrapper,
     DashContext,
     useDashContext,
-    getLayout
+    getLayout,
+    stringifyId
 };
