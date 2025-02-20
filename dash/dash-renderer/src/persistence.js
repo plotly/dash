@@ -334,7 +334,12 @@ export function recordUiEdit(layout, newProps, dispatch) {
                     : extract(props[propName]);
                 let newVal = extract(newProps[propName]);
 
-                storage.setItem(valsKey, [newVal, originalVal], dispatch);
+                const vals =
+                    originalVal === undefined
+                        ? [newVal]
+                        : [newVal, originalVal];
+
+                storage.setItem(valsKey, vals, dispatch);
             }
         }, persisted_props);
     }
