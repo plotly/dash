@@ -3,7 +3,7 @@ import {useDispatch} from 'react-redux';
 
 import {DashLayoutPath} from '../types/component';
 import DashWrapper from './DashWrapper';
-import {insertComponent, removeComponent} from '../actions';
+import {insertComponent, removeComponent, updateProps} from '../actions';
 
 type Props = {
     componentPath: DashLayoutPath;
@@ -32,7 +32,7 @@ function ExternalWrapper({
                 component: {
                     type: componentType,
                     namespace: componentNamespace,
-                    props: {}
+                    props: props
                 },
                 componentPath
             })
@@ -43,10 +43,14 @@ function ExternalWrapper({
         };
     }, []);
 
+    useEffect(() => {
+        dispatch(updateProps({itempath: componentPath, props}));
+    }, [props]);
+
     if (!inserted) {
         return null;
     }
     // Render a wrapper with the actual props.
-    return <DashWrapper componentPath={componentPath} {...props} />;
+    return <DashWrapper componentPath={componentPath} />;
 }
 export default ExternalWrapper;
