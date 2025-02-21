@@ -6,6 +6,8 @@ import importlib
 import warnings
 from contextvars import copy_context
 from importlib.machinery import ModuleSpec
+from importlib.util import find_spec
+from importlib import metadata
 import pkgutil
 import threading
 import re
@@ -78,6 +80,15 @@ from ._pages import (
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
 
+# If dash_design_kit is installed, check for version
+ddk_version = None
+if find_spec("dash_design_kit"):
+    ddk_version = metadata.version("dash_design_kit")
+
+plotly_version = None
+if find_spec("plotly"):
+    plotly_version = metadata.version("plotly")
+
 # Add explicit mapping for map files
 mimetypes.add_type("application/json", ".map", True)
 
@@ -124,6 +135,8 @@ _ID_CONTENT = "_pages_content"
 _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
+
+DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
 # Handles the case in a newly cloned environment where the components are not yet generated.
 try:
@@ -794,6 +807,11 @@ class Dash(ObsoleteChecker):
             "update_title": self.config.update_title,
             "children_props": ComponentRegistry.children_props,
             "serve_locally": self.config.serve_locally,
+            "dash_version": __version__,
+            "python_version": sys.version,
+            "dash_version_url": DASH_VERSION_URL,
+            "ddk_version": ddk_version,
+            "plotly_version": plotly_version,
         }
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
