@@ -9,6 +9,7 @@
     text-decoration: none;
     cursor: pointer;
     display: flex;
+    font-family: Verdana sans-serif;
 }
 
 .dash-debug-menu__upgrade-tooltip:after {
