@@ -1,5 +1,6 @@
 .error-container {
     padding: 0 10px;
+    font-family: Courier;
 }
 
 .dash-fe-error__icon-x {
@@ -204,7 +205,6 @@
     border-radius: 2px;
     margin-bottom: 15px;
     border: 1px solid #0018661a;
-    font-family: Courier;
     font-size: 12.6px;
 }
 
