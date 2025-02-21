@@ -9,7 +9,7 @@
     text-decoration: none;
     cursor: pointer;
     display: flex;
-    font-family: Verdana sans-serif;
+    font-family: Verdana, sans-serif !important;
 }
 
 .dash-debug-menu__upgrade-tooltip:after {
@@ -28,6 +28,7 @@
     border: 1px solid #864ad433;
     color: #7f4bc4;
     margin-left: 10px;
+    font-family: Verdana, sans-serif !important;
     cursor: pointer;
 }
 
