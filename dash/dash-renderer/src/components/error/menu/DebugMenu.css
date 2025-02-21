@@ -107,7 +107,7 @@
     display: flex;
     color: black;
     flex-direction: column;
-    font-family: Verdana, sans-serif;
+    font-family: Verdana, sans-serif !important;
     font-size: 14px;
     justify-content: center;
     align-items: center;
