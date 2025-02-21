@@ -2,6 +2,19 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.0.0-rc3] - 2025-02-21
+
+## Added
+
+- [#3121](https://github.com/plotly/dash/pull/3121) Restyle and add version checker to dev tools.
+- [#3175](https://github.com/plotly/dash/pull/3175) Add `custom_data` hook.
+- [#3175](https://github.com/plotly/dash/pull/3175) Improved error for removed Dash app attribute, run_server and long_callback
+- [#3175](https://github.com/plotly/dash/pull/3175) Expose `stringifyId` in `window.dash_component_api`.
+
+## Fixed
+
+- [#3175](https://github.com/plotly/dash/pull/3175) Fix `ExternalWrapper` rendering children and support pattern matching ids.
+
 ## [3.0.0-rc2] - 2025-02-18
 
 ## Added
