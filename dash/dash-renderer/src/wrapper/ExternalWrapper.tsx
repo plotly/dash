@@ -1,9 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {useDispatch} from 'react-redux';
+import {batch, useDispatch} from 'react-redux';
 
 import {DashLayoutPath} from '../types/component';
 import DashWrapper from './DashWrapper';
-import {insertComponent, removeComponent, updateProps} from '../actions';
+import {
+    addComponentToLayout,
+    notifyObservers,
+    removeComponent,
+    updateProps
+} from '../actions';
 
 type Props = {
     componentPath: DashLayoutPath;
@@ -21,14 +26,14 @@ function ExternalWrapper({
     componentPath,
     ...props
 }: Props) {
-    const dispatch = useDispatch();
+    const dispatch: any = useDispatch();
     const [inserted, setInserted] = useState(false);
 
     useEffect(() => {
         // Give empty props for the inserted components.
         // The props will come from the parent so they can be updated.
         dispatch(
-            insertComponent({
+            addComponentToLayout({
                 component: {
                     type: componentType,
                     namespace: componentNamespace,
@@ -44,7 +49,10 @@ function ExternalWrapper({
     }, []);
 
     useEffect(() => {
-        dispatch(updateProps({itempath: componentPath, props}));
+        batch(() => {
+            dispatch(updateProps({itempath: componentPath, props}));
+            dispatch(notifyObservers({id: props.id, props}));
+        });
     }, [props]);
 
     if (!inserted) {
