@@ -1389,6 +1389,10 @@ class Dash(ObsoleteChecker):
             g.path = flask.request.full_path
             g.remote = flask.request.remote_addr
             g.origin = flask.request.origin
+            g.custom_data = AttributeDict({})
+
+            for hook in self._hooks.get_hooks("custom_data"):
+                g.custom_data[hook.data["namespace"]] = hook(g)
 
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"

@@ -304,6 +304,11 @@ class CallbackContext:
         """
         return _get_from_context("origin", "")
 
+    @property
+    @has_context
+    def custom_data(self):
+        return _get_from_context("custom_data", {})
+
 
 callback_context = CallbackContext()
 

@@ -45,6 +45,7 @@ class _Hooks:
             "error": [],
             "callback": [],
             "index": [],
+            "custom_data": [],
         }
         self._js_dist = []
         self._css_dist = []
@@ -186,6 +187,19 @@ class _Hooks:
                 func,
                 priority=priority,
                 final=final,
+            )
+            return func
+
+        return wrap
+
+    def custom_data(self, namespace, priority: _t.Optional[int] = None, final=False):
+        def wrap(func):
+            self.add_hook(
+                "custom_data",
+                func,
+                priority=priority,
+                final=final,
+                data={"namespace": namespace},
             )
             return func
 
