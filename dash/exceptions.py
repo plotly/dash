@@ -10,6 +10,10 @@ class ObsoleteKwargException(DashException):
     pass
 
 
+class ObsoleteAttributeException(DashException):
+    pass
+
+
 class NoLayoutException(DashException):
     pass
 

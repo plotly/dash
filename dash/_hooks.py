@@ -45,6 +45,7 @@ class _Hooks:
             "error": [],
             "callback": [],
             "index": [],
+            "custom_data": [],
         }
         self._js_dist = []
         self._css_dist = []
@@ -186,6 +187,28 @@ class _Hooks:
                 func,
                 priority=priority,
                 final=final,
+            )
+            return func
+
+        return wrap
+
+    def custom_data(
+        self, namespace: str, priority: _t.Optional[int] = None, final=False
+    ):
+        """
+        Add data to the callback_context.custom_data property under the namespace.
+
+        The hook function takes the current context_value and before the ctx is set
+        and has access to the flask request context.
+        """
+
+        def wrap(func: _t.Callable[[_t.Dict], _t.Any]):
+            self.add_hook(
+                "custom_data",
+                func,
+                priority=priority,
+                final=final,
+                data={"namespace": namespace},
             )
             return func
 

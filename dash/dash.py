@@ -68,6 +68,7 @@ from . import _watch
 from . import _get_app
 
 from ._grouping import map_grouping, grouping_len, update_args_group
+from ._obsolete import ObsoleteChecker
 
 from . import _pages
 from ._pages import (
@@ -207,7 +208,7 @@ no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-locals
-class Dash:
+class Dash(ObsoleteChecker):
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
 
@@ -1388,6 +1389,10 @@ class Dash:
             g.path = flask.request.full_path
             g.remote = flask.request.remote_addr
             g.origin = flask.request.origin
+            g.custom_data = AttributeDict({})
+
+            for hook in self._hooks.get_hooks("custom_data"):
+                g.custom_data[hook.data["namespace"]] = hook(g)
 
         except KeyError as missing_callback_function:
             msg = f"Callback function not found for output '{output}', perhaps you forgot to prepend the '@'?"
