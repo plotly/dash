@@ -8,20 +8,23 @@ const ExternalComponent = ({ id, text, input_id, extra_component }) => {
 
     return (
         <div id={id}>
-            <ExternalWrapper
-                id={input_id}
-                componentType="Input"
-                componentNamespace="dash_core_components"
-                value={text}
+            {text && <ExternalWrapper
+                
+                component={{
+                    type: "Input",
+                    namespace: "dash_core_components",
+                    props: {
+                        value: text,
+                        id: input_id
+                    }
+                }}
                 componentPath={[...ctx.componentPath, 'external']}
-            />
+            />}
             {
                 extra_component &&
                 <ExternalWrapper
-                    componentType={extra_component.type}
-                    componentNamespace={extra_component.namespace}
+                    component={extra_component}
                     componentPath={[...ctx.componentPath, 'extra']}
-                    {...extra_component.props}
             />}
         </div>
     )

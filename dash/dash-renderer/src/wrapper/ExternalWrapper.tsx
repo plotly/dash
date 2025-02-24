@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {batch, useDispatch} from 'react-redux';
 
-import {DashLayoutPath} from '../types/component';
+import {DashComponent, DashLayoutPath} from '../types/component';
 import DashWrapper from './DashWrapper';
 import {
     addComponentToLayout,
@@ -11,21 +11,14 @@ import {
 } from '../actions';
 
 type Props = {
+    component: DashComponent;
     componentPath: DashLayoutPath;
-    componentType: string;
-    componentNamespace: string;
-    [k: string]: any;
 };
 
 /**
  * For rendering components that are out of the regular layout tree.
  */
-function ExternalWrapper({
-    componentType,
-    componentNamespace,
-    componentPath,
-    ...props
-}: Props) {
+function ExternalWrapper({component, componentPath}: Props) {
     const dispatch: any = useDispatch();
     const [inserted, setInserted] = useState(false);
 
@@ -34,11 +27,7 @@ function ExternalWrapper({
         // The props will come from the parent so they can be updated.
         dispatch(
             addComponentToLayout({
-                component: {
-                    type: componentType,
-                    namespace: componentNamespace,
-                    props: props
-                },
+                component,
                 componentPath
             })
         );
@@ -50,12 +39,19 @@ function ExternalWrapper({
 
     useEffect(() => {
         batch(() => {
-            dispatch(updateProps({itempath: componentPath, props}));
-            if (props.id) {
-                dispatch(notifyObservers({id: props.id, props}));
+            dispatch(
+                updateProps({itempath: componentPath, props: component.props})
+            );
+            if (component.props.id) {
+                dispatch(
+                    notifyObservers({
+                        id: component.props.id,
+                        props: component.props
+                    })
+                );
             }
         });
-    }, [props]);
+    }, [component.props]);
 
     if (!inserted) {
         return null;
