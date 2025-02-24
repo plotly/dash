@@ -180,8 +180,6 @@
     cursor: pointer;
     font-family: Verdana, sans-serif !important;
     font-weight: bold;
-}
-.dash-debug-menu__button:hover {
     color: black;
 }
 
