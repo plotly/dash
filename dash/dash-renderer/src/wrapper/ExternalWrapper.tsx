@@ -51,7 +51,9 @@ function ExternalWrapper({
     useEffect(() => {
         batch(() => {
             dispatch(updateProps({itempath: componentPath, props}));
-            dispatch(notifyObservers({id: props.id, props}));
+            if (props.id) {
+                dispatch(notifyObservers({id: props.id, props}));
+            }
         });
     }, [props]);
 
