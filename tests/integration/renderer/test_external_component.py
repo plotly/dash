@@ -23,6 +23,10 @@ def test_rext001_render_external_component(dash_duo):
                     },
                 },
             ),
+            ExternalComponent(
+                id="without-id",
+                text="without-id",
+            ),
             html.Div(html.Div(id={"type": "output", "index": 1}), id="out"),
         ]
     )
@@ -53,3 +57,5 @@ def test_rext001_render_external_component(dash_duo):
 
     dash_duo.find_element("#extra > div").click()
     dash_duo.wait_for_text_to_equal("#out", "clicked")
+
+    assert dash_duo.get_logs() == []
