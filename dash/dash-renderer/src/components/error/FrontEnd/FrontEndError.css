@@ -10,7 +10,6 @@
     color: #b9c2ce;
     font-size: 20px;
     cursor: pointer;
-    margin-right: 10px;
 }
 
 .dash-fe-error__icon-x:hover {
@@ -125,12 +124,16 @@
 }
 
 .dash-be-error__str {
-    background-color: #fdf3f4;
+    background-color: #F5F6FA;
     min-width: 386px;
-    max-width: 650px;
+    width: 100%;
     overflow: auto;
-    display: inline-block;
-    white-space: pre-wrap;
+    line-height: 17px;
+    margin-bottom: 8px;
+}
+
+.dash-backend-error {
+    padding: 8px;
 }
 
 .dash-error-menu {

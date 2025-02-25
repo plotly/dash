@@ -10,6 +10,8 @@
     cursor: pointer;
     display: flex;
     font-family: Verdana, sans-serif !important;
+    font-weight: 500;
+    line-height: normal;
 }
 
 .dash-debug-menu__upgrade-tooltip:after {
@@ -23,15 +25,21 @@
     border-color: white transparent transparent transparent;
 }
 
-.dash-debug-menu__upgrade-button {
+.dash-debug-menu__outer button.dash-debug-menu__upgrade-button {
     background-color: #a159ff0d;
     border: 1px solid #864ad433;
     color: #7f4bc4;
     margin-left: 10px;
     font-family: Verdana, sans-serif !important;
     cursor: pointer;
+    height: 20px;
+    padding: 0px 8px;
+    border-radius: 3px;
+    font-weight: 500;
 }
 
 .dash-debug-menu__upgrade-button:hover {
     background-color: #864ad433;
+    border-color: #864ad433;
+    color: #7f4bc4;
 }
