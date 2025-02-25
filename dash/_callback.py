@@ -398,6 +398,7 @@ def register_callback(
                     # Inputs provided as dict is kwargs.
                     func_args if func_args else func_kwargs,
                     long.get("cache_args_to_ignore", []),
+                    callback_ctx.get("triggered_inputs", []),
                 )
 
                 if old_job:
