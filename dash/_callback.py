@@ -70,6 +70,7 @@ def callback(
     cancel=None,
     manager=None,
     cache_args_to_ignore=None,
+    cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
@@ -139,6 +140,9 @@ def callback(
             with keyword arguments (Input/State provided in a dict),
             this should be a list of argument names as strings. Otherwise,
             this should be a list of argument indices as integers.
+        :param cache_ignore_triggered:
+            Whether to ignore which inputs triggered the callback when creating
+            the cache.
         :param interval:
             Time to wait between the long callback update requests.
         :param on_error:
@@ -184,6 +188,8 @@ def callback(
 
         if cache_args_to_ignore:
             long_spec["cache_args_to_ignore"] = cache_args_to_ignore
+
+        long_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
     return register_callback(
         callback_list,
@@ -393,12 +399,16 @@ def register_callback(
                 job_id = flask.request.args.get("job")
                 old_job = flask.request.args.getlist("oldJob")
 
+                cache_ignore_triggered = long.get("cache_ignore_triggered", True)
+
                 current_key = callback_manager.build_cache_key(
                     func,
                     # Inputs provided as dict is kwargs.
                     func_args if func_args else func_kwargs,
                     long.get("cache_args_to_ignore", []),
-                    callback_ctx.get("triggered_inputs", []),
+                    None
+                    if cache_ignore_triggered
+                    else callback_ctx.get("triggered_inputs", []),
                 )
 
                 if old_job:
