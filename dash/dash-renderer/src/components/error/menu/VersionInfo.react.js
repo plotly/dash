@@ -47,18 +47,13 @@ async function requestDashVersionInfo(config) {
             link: cachedNewDashVersionLink
         };
     } else {
-        return fetch(dashVersionUrl, {
-            method: 'POST',
-            body: JSON.stringify({
-                dash_version: currentDashVersion,
-                python_version: pythonVersion,
-                ddk_version: ddkVersion,
-                plotly_version: plotlyVersion
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        const queryParams = new URLSearchParams({
+            dash_version: currentDashVersion,
+            python_version: pythonVersion,
+            ddk_version: ddkVersion,
+            plotly_version: plotlyVersion
+        }).toString();
+        return fetch(dashVersionUrl + '?' + queryParams)
             .then(response => response.json())
             .catch(() => {
                 return {};
