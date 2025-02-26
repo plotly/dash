@@ -53,7 +53,7 @@ async function requestDashVersionInfo(config) {
             ddk_version: ddkVersion,
             plotly_version: plotlyVersion
         }).toString();
-        return fetch(dashVersionUrl + '?' + queryParams)
+        return fetch(dashVersionUrl + '?' + queryParams, { mode: 'cors'})
             .then(response => response.json())
             .catch(() => {
                 return {};
