@@ -9,7 +9,7 @@ from dash import Dash, Input, Output, ALL, MATCH, html, dcc, no_update
 from dash.testing.wait import until
 
 debugging = dict(
-    debug=True, use_reloader=False, use_debugger=True, dev_tools_hot_reload=False
+    debug=True, use_reloader=False, use_debugger=True, dev_tools_hot_reload=False, dev_tools_disable_version_check=True
 )
 
 

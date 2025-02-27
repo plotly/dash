@@ -138,6 +138,7 @@ def test_dvui004_width_props(dash_duo):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
