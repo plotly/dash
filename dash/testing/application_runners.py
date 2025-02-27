@@ -162,7 +162,7 @@ class ThreadedRunner(BaseDashRunner):
             app.css.config.serve_locally = True
 
             options = kwargs.copy()
-            options["disable_version_check"] = True
+            options["dev_tools_disable_version_check"] = True
 
             if "port" not in kwargs:
                 options["port"] = self.port = BaseDashRunner._next_port
