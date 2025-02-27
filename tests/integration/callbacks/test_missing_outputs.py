@@ -63,7 +63,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
         def out2(contents):
             return sum(contents)
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#content", "")
     dash_duo.wait_for_text_to_equal("#output", "0")
@@ -304,7 +304,7 @@ def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
             call_counts["button-output"].value += 1
             return "New value!"
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#ch1-title", "Chapter 1")
     assert call_counts["body"].value == 1

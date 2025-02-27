@@ -49,6 +49,7 @@ def test_dvui002_disable_ui_config(dash_duo):
         use_debugger=True,
         dev_tools_hot_reload=False,
         dev_tools_ui=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Disable UI")
@@ -71,6 +72,7 @@ def test_dvui003_callback_graph(dash_duo):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
@@ -174,7 +176,7 @@ def test_dvui005_undo_redo(dash_duo):
     def set_b(a):
         return a
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.find_element("#a").send_keys("xyz")
 
@@ -209,7 +211,7 @@ def test_dvui006_no_undo_redo(dash_duo):
     def set_b(a):
         return a
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.find_element("#a").send_keys("xyz")
 
