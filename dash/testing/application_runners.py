@@ -162,6 +162,7 @@ class ThreadedRunner(BaseDashRunner):
             app.css.config.serve_locally = True
 
             options = kwargs.copy()
+            options["silence_upgrade_notification"] = True
 
             if "port" not in kwargs:
                 options["port"] = self.port = BaseDashRunner._next_port

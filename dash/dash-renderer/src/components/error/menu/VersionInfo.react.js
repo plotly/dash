@@ -32,6 +32,9 @@ async function requestDashVersionInfo(config) {
         ddk_version: ddkVersion,
         plotly_version: plotlyVersion
     } = config;
+    if (!shouldRequestDashVersion(config)) {
+        return {};
+    }
     const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
     const cachedNewDashVersionLink = localStorage.getItem(
         'cachedNewDashVersionLink'
@@ -74,14 +77,35 @@ async function requestDashVersionInfo(config) {
     }
 }
 
-function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
-    const showNotifications = localStorage.getItem('showNotifications');
+function shouldRequestDashVersion(config) {
+    const showNotificationsLocalStorage =
+        localStorage.getItem('showNotifications');
+    const showNotifications = config.silence_upgrade_notification
+        ? false
+        : showNotificationsLocalStorage !== 'false';
+    const lastFetched = localStorage.getItem('lastFetched');
+    return (
+        showNotifications &&
+        (!lastFetched || Date.now() - Number(lastFetched) > DAY_IN_MS)
+    );
+}
+
+function shouldShowUpgradeNotification(
+    currentDashVersion,
+    newDashVersion,
+    config
+) {
+    const showNotificationsLocalStorage =
+        localStorage.getItem('showNotifications');
+    const showNotifications = config.silence_upgrade_notification
+        ? false
+        : showNotificationsLocalStorage !== 'false';
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
         newDashVersion === undefined ||
         compareVersions(currentDashVersion, newDashVersion) >= 0 ||
-        showNotifications === 'false'
+        !showNotifications
     ) {
         return false;
     } else if (
@@ -173,7 +197,8 @@ export const VersionInfo = ({config}) => {
             <span>v{config.dash_version}</span>
             {shouldShowUpgradeNotification(
                 config.dash_version,
-                newDashVersion
+                newDashVersion,
+                config
             ) ? (
                 <button
                     className='dash-debug-menu__upgrade-button'
