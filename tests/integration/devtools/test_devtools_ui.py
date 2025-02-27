@@ -24,6 +24,7 @@ def test_dvui001_disable_props_check_config(dash_duo):
         use_debugger=True,
         dev_tools_hot_reload=False,
         dev_tools_props_check=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Props Check")

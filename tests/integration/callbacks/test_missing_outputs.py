@@ -231,7 +231,7 @@ def test_cbmo003_multi_all(dash_duo):
     def out2(ci, cj):
         return sum(ci) + sum(cj)
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#content1", "0\n0")
     dash_duo.wait_for_text_to_equal("#content2", "")
