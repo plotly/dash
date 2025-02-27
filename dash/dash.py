@@ -802,7 +802,7 @@ class Dash(ObsoleteChecker):
             "requests_pathname_prefix": self.config.requests_pathname_prefix,
             "ui": self._dev_tools.ui,
             "props_check": self._dev_tools.props_check,
-            "silence_upgrade_notification": self._dev_tools.silence_upgrade_notification,
+            "disable_version_check": self._dev_tools.disable_version_check,
             "show_undo_redo": self.config.show_undo_redo,
             "suppress_callback_exceptions": self.config.suppress_callback_exceptions,
             "update_title": self.config.update_title,
@@ -1755,9 +1755,9 @@ class Dash(ObsoleteChecker):
                 get_combined_config(attr, kwargs.get(attr, None), default=default)
             )
 
-        dev_tools["silence_upgrade_notification"] = get_combined_config(
-            "silence_upgrade_notification",
-            kwargs.get("silence_upgrade_notification", None),
+        dev_tools["disable_version_check"] = get_combined_config(
+            "disable_version_check",
+            kwargs.get("disable_version_check", None),
             default=False,
         )
 
@@ -1774,7 +1774,7 @@ class Dash(ObsoleteChecker):
         dev_tools_hot_reload_watch_interval=None,
         dev_tools_hot_reload_max_retry=None,
         dev_tools_silence_routes_logging=None,
-        dev_tools_silence_upgrade_notification=None,
+        dev_tools_disable_version_check=None,
         dev_tools_prune_errors=None,
     ):
         """Activate the dev tools, called by `run`. If your application
@@ -1795,7 +1795,7 @@ class Dash(ObsoleteChecker):
             - DASH_HOT_RELOAD_WATCH_INTERVAL
             - DASH_HOT_RELOAD_MAX_RETRY
             - DASH_SILENCE_ROUTES_LOGGING
-            - DASH_SILENCE_UPGRADE_NOTIFICATION
+            - DASH_DISABLE_VERSION_CHECK
             - DASH_PRUNE_ERRORS
 
         :param debug: Enable/disable all the dev tools unless overridden by the
@@ -1841,10 +1841,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 
-        :param dev_tools_silence_upgrade_notification: Silence the upgrade
+        :param dev_tools_disable_version_check: Silence the upgrade
             notification to prevent making requests to the Dash server.
-            env: ``DASH_SILENCE_UPGRADE_NOTIFICATION``
-        :type dev_tools_silence_upgrade_notification: bool
+            env: ``DASH_DISABLE_VERSION_CHECK``
+        :type dev_tools_disable_version_check: bool
 
         :param dev_tools_prune_errors: Reduce tracebacks to just user code,
             stripping out Flask and Dash pieces. Only available with debugging.
@@ -1867,7 +1867,7 @@ class Dash(ObsoleteChecker):
             hot_reload_watch_interval=dev_tools_hot_reload_watch_interval,
             hot_reload_max_retry=dev_tools_hot_reload_max_retry,
             silence_routes_logging=dev_tools_silence_routes_logging,
-            silence_upgrade_notification=dev_tools_silence_upgrade_notification,
+            disable_version_check=dev_tools_disable_version_check,
             prune_errors=dev_tools_prune_errors,
         )
 
@@ -2067,7 +2067,7 @@ class Dash(ObsoleteChecker):
         dev_tools_hot_reload_watch_interval: Optional[int] = None,
         dev_tools_hot_reload_max_retry: Optional[int] = None,
         dev_tools_silence_routes_logging: Optional[bool] = None,
-        dev_tools_silence_upgrade_notification: Optional[bool] = None,
+        dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
         **flask_run_options,
     ):
@@ -2140,10 +2140,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 
-        :param dev_tools_silence_upgrade_notification: Silence the upgrade
+        :param dev_tools_disable_version_check: Silence the upgrade
             notification to prevent making requests to the Dash server.
-            env: ``DASH_SILENCE_UPGRADE_NOTIFICATION``
-        :type dev_tools_silence_upgrade_notification: bool
+            env: ``DASH_DISABLE_VERSION_CHECK``
+        :type dev_tools_disable_version_check: bool
 
         :param dev_tools_prune_errors: Reduce tracebacks to just user code,
             stripping out Flask and Dash pieces. Only available with debugging.
@@ -2182,7 +2182,7 @@ class Dash(ObsoleteChecker):
             dev_tools_hot_reload_watch_interval,
             dev_tools_hot_reload_max_retry,
             dev_tools_silence_routes_logging,
-            dev_tools_silence_upgrade_notification,
+            dev_tools_disable_version_check,
             dev_tools_prune_errors,
         )
 

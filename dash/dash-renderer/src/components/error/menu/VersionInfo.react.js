@@ -32,9 +32,6 @@ async function requestDashVersionInfo(config) {
         ddk_version: ddkVersion,
         plotly_version: plotlyVersion
     } = config;
-    if (!shouldRequestDashVersion(config)) {
-        return {};
-    }
     const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
     const cachedNewDashVersionLink = localStorage.getItem(
         'cachedNewDashVersionLink'
@@ -49,7 +46,7 @@ async function requestDashVersionInfo(config) {
             version: JSON.parse(cachedVersionInfo),
             link: cachedNewDashVersionLink
         };
-    } else {
+    } else if (shouldRequestDashVersion(config)) {
         const queryParams = new URLSearchParams({
             dash_version: currentDashVersion,
             python_version: pythonVersion,
@@ -80,7 +77,7 @@ async function requestDashVersionInfo(config) {
 function shouldRequestDashVersion(config) {
     const showNotificationsLocalStorage =
         localStorage.getItem('showNotifications');
-    const showNotifications = config.silence_upgrade_notification
+    const showNotifications = config.disable_version_check
         ? false
         : showNotificationsLocalStorage !== 'false';
     const lastFetched = localStorage.getItem('lastFetched');
@@ -97,7 +94,7 @@ function shouldShowUpgradeNotification(
 ) {
     const showNotificationsLocalStorage =
         localStorage.getItem('showNotifications');
-    const showNotifications = config.silence_upgrade_notification
+    const showNotifications = config.disable_version_check
         ? false
         : showNotificationsLocalStorage !== 'false';
     const lastDismissed = localStorage.getItem('lastDismissed');
