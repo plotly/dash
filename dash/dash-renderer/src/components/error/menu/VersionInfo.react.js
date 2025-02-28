@@ -59,7 +59,7 @@ async function requestDashVersionInfo(config) {
                 return {};
             })
             .then(body => {
-                if (body.version && body.link) {
+                if (body && body.version && body.link) {
                     localStorage.setItem(
                         'cachedNewDashVersion',
                         JSON.stringify(body.version)
