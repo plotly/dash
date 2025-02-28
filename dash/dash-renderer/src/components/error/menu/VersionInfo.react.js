@@ -149,8 +149,10 @@ export const VersionInfo = ({config}) => {
 
     useEffect(() => {
         requestDashVersionInfo(config).then(body => {
-            setNewDashVersionLink(body.link);
-            setNewDashVersion(body.version);
+            if (body) {
+                setNewDashVersionLink(body.link);
+                setNewDashVersion(body.version);
+            }
         });
     }, []);
 
