@@ -55,9 +55,6 @@ async function requestDashVersionInfo(config) {
         }).toString();
         return fetch(dashVersionUrl + '?' + queryParams, {mode: 'cors'})
             .then(response => response.json())
-            .catch(() => {
-                return {};
-            })
             .then(body => {
                 if (body && body.version && body.link) {
                     localStorage.setItem(
@@ -70,6 +67,9 @@ async function requestDashVersionInfo(config) {
                 } else {
                     return {};
                 }
+            })
+            .catch(() => {
+                return {};
             });
     }
 }
