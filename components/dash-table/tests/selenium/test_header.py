@@ -174,7 +174,7 @@ def test_head006_style_merged_columns(test):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
-        test_head006_style_merged_columns=True,
+        dev_tools_disable_version_check=True,
     )
 
     target = test.table("table")
