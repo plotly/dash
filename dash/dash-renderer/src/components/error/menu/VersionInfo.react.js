@@ -46,25 +46,17 @@ async function requestDashVersionInfo(config) {
             version: JSON.parse(cachedVersionInfo),
             link: cachedNewDashVersionLink
         };
-    } else {
-        return fetch(dashVersionUrl, {
-            method: 'POST',
-            body: JSON.stringify({
-                dash_version: currentDashVersion,
-                python_version: pythonVersion,
-                ddk_version: ddkVersion,
-                plotly_version: plotlyVersion
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+    } else if (shouldRequestDashVersion(config)) {
+        const queryParams = new URLSearchParams({
+            dash_version: currentDashVersion,
+            python_version: pythonVersion,
+            ddk_version: ddkVersion,
+            plotly_version: plotlyVersion
+        }).toString();
+        return fetch(dashVersionUrl + '?' + queryParams, {mode: 'cors'})
             .then(response => response.json())
-            .catch(() => {
-                return {};
-            })
             .then(body => {
-                if (body.version && body.link) {
+                if (body && body.version && body.link) {
                     localStorage.setItem(
                         'cachedNewDashVersion',
                         JSON.stringify(body.version)
@@ -75,18 +67,42 @@ async function requestDashVersionInfo(config) {
                 } else {
                     return {};
                 }
+            })
+            .catch(() => {
+                return {};
             });
     }
 }
 
-function shouldShowUpgradeNotification(currentDashVersion, newDashVersion) {
-    const showNotifications = localStorage.getItem('showNotifications');
+function shouldRequestDashVersion(config) {
+    const showNotificationsLocalStorage =
+        localStorage.getItem('showNotifications');
+    const showNotifications = config.disable_version_check
+        ? false
+        : showNotificationsLocalStorage !== 'false';
+    const lastFetched = localStorage.getItem('lastFetched');
+    return (
+        showNotifications &&
+        (!lastFetched || Date.now() - Number(lastFetched) > DAY_IN_MS)
+    );
+}
+
+function shouldShowUpgradeNotification(
+    currentDashVersion,
+    newDashVersion,
+    config
+) {
+    const showNotificationsLocalStorage =
+        localStorage.getItem('showNotifications');
+    const showNotifications = config.disable_version_check
+        ? false
+        : showNotificationsLocalStorage !== 'false';
     const lastDismissed = localStorage.getItem('lastDismissed');
     const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
         newDashVersion === undefined ||
         compareVersions(currentDashVersion, newDashVersion) >= 0 ||
-        showNotifications === 'false'
+        !showNotifications
     ) {
         return false;
     } else if (
@@ -133,8 +149,10 @@ export const VersionInfo = ({config}) => {
 
     useEffect(() => {
         requestDashVersionInfo(config).then(body => {
-            setNewDashVersionLink(body.link);
-            setNewDashVersion(body.version);
+            if (body) {
+                setNewDashVersionLink(body.link);
+                setNewDashVersion(body.version);
+            }
         });
     }, []);
 
@@ -178,7 +196,8 @@ export const VersionInfo = ({config}) => {
             <span>v{config.dash_version}</span>
             {shouldShowUpgradeNotification(
                 config.dash_version,
-                newDashVersion
+                newDashVersion,
+                config
             ) ? (
                 <button
                     className='dash-debug-menu__upgrade-button'
