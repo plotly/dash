@@ -2,6 +2,19 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.0.0-rc4] - 2025-03-04
+
+## Fixed
+
+- [#3197](https://github.com/plotly/dash/pull/3197) Fix initial props not updated in setProps causing the initial value of props to not be able to be set again.
+- [#3183](https://github.com/plotly/dash/pull/3183) Fix external wrapper requiring id.
+- [#3184](https://github.com/plotly/dash/pull/3184) Fix devtools dark mode button color issue and other ui fixes for the version checker.
+
+## Changed
+
+- [#3183](https://github.com/plotly/dash/pull/3183) Change ExternalWrapper props to component, componentPath.
+- [#3197](https://github.com/plotly/dash/pull/3197) Improved layout path sum stringify of paths.
+
 ## [3.0.0-rc3] - 2025-02-21
 
 ## Added
