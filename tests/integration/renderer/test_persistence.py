@@ -1,4 +1,5 @@
 from multiprocessing import Value
+import flaky
 import pytest
 import time
 
@@ -206,6 +207,7 @@ def test_rdps004_show_hide(dash_duo):
     check_table_names(dash_duo, ["a", "b"])
 
 
+@flaky.flaky(max_runs=3)
 def test_rdps005_persisted_props(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(

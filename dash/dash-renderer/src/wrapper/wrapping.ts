@@ -1,5 +1,6 @@
 import React from 'react';
-import {mergeRight, type, has} from 'ramda';
+import {mergeRight, path, type, has, join} from 'ramda';
+import {DashComponent, DashLayoutPath} from '../types/component';
 
 export function createElement(
     element: any,
@@ -48,4 +49,15 @@ export function validateComponent(componentDefinition: any) {
                 JSON.stringify(componentDefinition, null, 2)
         );
     }
+}
+
+export function stringifyPath(layoutPath: DashLayoutPath) {
+    return join(',', layoutPath);
+}
+
+export function getComponentLayout(
+    componentPath: DashLayoutPath,
+    state: any
+): DashComponent {
+    return path(componentPath, state.layout) as DashComponent;
 }

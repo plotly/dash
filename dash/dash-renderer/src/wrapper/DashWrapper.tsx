@@ -24,7 +24,7 @@ import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {recordUiEdit} from '../persistence';
-import {createElement, isDryComponent} from './wrapping';
+import {createElement, getComponentLayout, isDryComponent} from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
 import {
@@ -62,56 +62,61 @@ function DashWrapper({
     const setProps = (newProps: UpdatePropsPayload) => {
         const {id} = componentProps;
         const {_dash_error, ...restProps} = newProps;
-        const oldProps = componentProps;
-        const changedProps = pickBy(
-            (val, key) => !equals(val, oldProps[key]),
-            restProps
-        );
-        if (_dash_error) {
-            dispatch(
-                onError({
-                    type: 'frontEnd',
-                    error: _dash_error
-                })
+
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        dispatch((dispatch, getState) => {
+            const currentState = getState();
+            const {graphs} = currentState;
+
+            const {props: oldProps} = getComponentLayout(
+                componentPath,
+                currentState
             );
-        }
-        if (!isEmpty(changedProps)) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            dispatch((dispatch, getState) => {
-                const {graphs} = getState();
-                // Identify the modified props that are required for callbacks
-                const watchedKeys = getWatchedKeys(
-                    id,
-                    keys(changedProps),
-                    graphs
+            const changedProps = pickBy(
+                (val, key) => !equals(val, oldProps[key]),
+                restProps
+            );
+            if (_dash_error) {
+                dispatch(
+                    onError({
+                        type: 'frontEnd',
+                        error: _dash_error
+                    })
                 );
+            }
 
-                batch(() => {
-                    // setProps here is triggered by the UI - record these changes
-                    // for persistence
-                    recordUiEdit(component, newProps, dispatch);
+            if (isEmpty(changedProps)) {
+                return;
+            }
 
-                    // Only dispatch changes to Dash if a watched prop changed
-                    if (watchedKeys.length) {
-                        dispatch(
-                            notifyObservers({
-                                id,
-                                props: pick(watchedKeys, changedProps)
-                            })
-                        );
-                    }
+            // Identify the modified props that are required for callbacks
+            const watchedKeys = getWatchedKeys(id, keys(changedProps), graphs);
 
-                    // Always update this component's props
+            batch(() => {
+                // setProps here is triggered by the UI - record these changes
+                // for persistence
+                recordUiEdit(component, newProps, dispatch);
+
+                // Only dispatch changes to Dash if a watched prop changed
+                if (watchedKeys.length) {
                     dispatch(
-                        updateProps({
-                            props: changedProps,
-                            itempath: componentPath
+                        notifyObservers({
+                            id,
+                            props: pick(watchedKeys, changedProps)
                         })
                     );
-                });
+                }
+
+                // Always update this component's props
+                dispatch(
+                    updateProps({
+                        props: changedProps,
+                        itempath: componentPath
+                    })
+                );
             });
-        }
+        });
     };
 
     const createContainer = useCallback(

@@ -45,6 +45,7 @@ const Dropdown = props => {
         search_value,
         style,
         value,
+        searchable,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const persistentOptions = useRef(null);
@@ -157,7 +158,7 @@ const Dropdown = props => {
                 options={sanitizedOptions}
                 value={value}
                 onChange={onChange}
-                onInputChange={onInputChange}
+                onInputChange={searchable ? onInputChange : undefined}
                 backspaceRemoves={clearable}
                 deleteRemoves={clearable}
                 inputProps={{autoComplete: 'off'}}

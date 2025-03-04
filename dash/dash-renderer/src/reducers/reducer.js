@@ -18,6 +18,7 @@ import layout from './layout';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
 import loading from './loading';
+import {stringifyPath} from '../wrapper/wrapping';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -36,9 +37,9 @@ function layoutHashes(state = {}, action) {
     ) {
         // Let us compare the paths sums to get updates without triggering
         // render on the parent containers.
-        const jsonPath = JSON.stringify(action.payload.itempath);
-        const prev = pathOr(0, [jsonPath], state);
-        return assoc(jsonPath, prev + 1, state);
+        const strPath = stringifyPath(action.payload.itempath);
+        const prev = pathOr(0, [strPath], state);
+        return assoc(strPath, prev + 1, state);
     }
     return state;
 }
