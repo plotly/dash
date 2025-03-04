@@ -472,3 +472,37 @@ def test_inin030_add_startup_route(dash_duo):
     response = requests.post(url)
     assert response.status_code == 200
     assert response.text == "hello"
+
+
+def test_inin031_initial_value_set_back(dash_duo):
+    # Test for regression on the initial value to be able to
+    # set back to initial after changing again.
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(
+                id="dropdown",
+                options=["Toronto", "Montréal", "Vancouver"],
+                value="Toronto",
+                searchable=False,
+            ),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), [Input("dropdown", "value")])
+    def callback(value):
+        return f"You have selected {value}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output", "You have selected Toronto")
+
+    dash_duo.select_dcc_dropdown("#dropdown", "Vancouver")
+    dash_duo.wait_for_text_to_equal("#output", "You have selected Vancouver")
+
+    dash_duo.select_dcc_dropdown("#dropdown", "Toronto")
+    dash_duo.wait_for_text_to_equal("#output", "You have selected Toronto")
+
+    assert dash_duo.get_logs() == []
