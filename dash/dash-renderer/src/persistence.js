@@ -307,6 +307,10 @@ const getProps = layout => {
 };
 
 export function recordUiEdit(layout, newProps, dispatch) {
+    if (newProps === undefined) {
+        return;
+    }
+
     const {
         canPersist,
         id,
@@ -316,43 +320,57 @@ export function recordUiEdit(layout, newProps, dispatch) {
         persisted_props,
         persistence_type
     } = getProps(layout);
-    if (!canPersist || !persistence) {
-        return;
-    }
 
-    forEach(persistedProp => {
-        const [propName, propPart] = persistedProp.split('.');
-        if (newProps[propName] !== undefined) {
-            const storage = getStore(persistence_type, dispatch);
-            const {extract} = getTransform(element, propName, propPart);
+    if (canPersist && persistence) {
+        forEach(persistedProp => {
+            const [propName, propPart] = persistedProp.split('.');
+            if (newProps[propName] !== undefined) {
+                const storage = getStore(persistence_type, dispatch);
+                const {extract} = getTransform(element, propName, propPart);
+                const valsKey = getValsKey(id, persistedProp, persistence);
 
-            const valsKey = getValsKey(id, persistedProp, persistence);
-            let originalVal = extract(props[propName]);
-            const newVal = extract(newProps[propName]);
+                let originalVal = storage.hasItem(valsKey)
+                    ? storage.getItem(valsKey)[1]
+                    : extract(props[propName]);
+                let newVal = extract(newProps[propName]);
 
-            // mainly for nested props with multiple persisted parts, it's
-            // possible to have the same value as before - should not store
-            // in this case.
-            if (originalVal !== newVal) {
-                if (storage.hasItem(valsKey)) {
-                    originalVal = storage.getItem(valsKey)[1];
-                }
                 const vals =
                     originalVal === undefined
                         ? [newVal]
                         : [newVal, originalVal];
+
                 storage.setItem(valsKey, vals, dispatch);
             }
-        }
-    }, persisted_props);
+        }, persisted_props);
+    }
+
+    // Recursively record UI edits for children
+    const {children} = props;
+    if (Array.isArray(children)) {
+        children.forEach((child, i) => {
+            if (
+                type(child) === 'Object' &&
+                child.props &&
+                newProps['children'] !== undefined
+            ) {
+                recordUiEdit(child, newProps['children'][i]['props'], dispatch);
+            }
+        });
+    } else if (
+        type(children) === 'Object' &&
+        children.props &&
+        newProps['children'] !== undefined
+    ) {
+        recordUiEdit(children, newProps['children']['props'], dispatch);
+    }
 }
 
 /*
  * Used for entire layouts (on load) or partial layouts (from children
  * callbacks) to apply previously-stored UI edits to components
  */
-export function applyPersistence(layout, dispatch) {
-    if (type(layout) !== 'Object' || !layout.props) {
+export function applyPersistence(layout, dispatch, enable_persistence) {
+    if (type(layout) !== 'Object' || !layout.props || enable_persistence) {
         return layout;
     }
 
@@ -447,7 +465,12 @@ function persistenceMods(layout, component, path, dispatch) {
  * these override UI-driven edits of those exact props
  * but not for props nested inside children
  */
-export function prunePersistence(layout, newProps, dispatch) {
+export function prunePersistence(
+    layout,
+    newProps,
+    dispatch,
+    enable_persistence
+) {
     const {
         canPersist,
         id,
@@ -462,7 +485,11 @@ export function prunePersistence(layout, newProps, dispatch) {
         propName in newProps ? newProps[propName] : prevVal;
     const finalPersistence = getFinal('persistence', persistence);
 
-    if (!canPersist || !(persistence || finalPersistence)) {
+    if (
+        !canPersist ||
+        !(persistence || finalPersistence) ||
+        enable_persistence
+    ) {
         return newProps;
     }
 

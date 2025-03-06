@@ -72,6 +72,7 @@ def callback(
     cache_args_to_ignore=None,
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
+    enable_persistence: bool = False,
     **_kwargs,
 ):
     """
@@ -149,6 +150,10 @@ def callback(
             Function to call when the callback raises an exception. Receives the
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
+        :param enable_persistence:
+            Indicates whether the callback can write in the persistence storage.
+            If set to `True`, any outputs with persistence enabled will have their values
+            stored in the browser's persistence storage when updated by the callback.
     """
 
     long_spec = None
@@ -201,6 +206,7 @@ def callback(
         manager=manager,
         running=running,
         on_error=on_error,
+        enable_persistence=enable_persistence,
     )
 
 
@@ -243,6 +249,7 @@ def insert_callback(
     running=None,
     dynamic_creator: Optional[bool] = False,
     no_output=False,
+    enable_persistence: bool = False,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -266,6 +273,7 @@ def insert_callback(
         },
         "dynamic_creator": dynamic_creator,
         "no_output": no_output,
+        "enable_persistence": enable_persistence,
     }
     if running:
         callback_spec["running"] = running
@@ -321,6 +329,7 @@ def register_callback(
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
     on_error = _kwargs.get("on_error")
+    enable_persistence = _kwargs.get("enable_persistence")
     if running is not None:
         if not isinstance(running[0], (list, tuple)):
             running = [running]
@@ -346,6 +355,7 @@ def register_callback(
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
         no_output=not has_output,
+        enable_persistence=enable_persistence,
     )
 
     # pylint: disable=too-many-locals
@@ -613,6 +623,7 @@ def register_clientside_callback(
 ):
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
     no_output = isinstance(output, (list,)) and len(output) == 0
+    enable_persistence = kwargs.get("enable_persistence")
     insert_callback(
         callback_list,
         callback_map,
@@ -624,6 +635,7 @@ def register_clientside_callback(
         None,
         prevent_initial_call,
         no_output=no_output,
+        enable_persistence=enable_persistence,
     )
 
     # If JS source is explicitly given, create a namespace and function
