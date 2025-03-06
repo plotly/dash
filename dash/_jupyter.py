@@ -354,7 +354,7 @@ class JupyterDash:
         self._servers[(host, port)] = server
 
         # Wait for server to start up
-        alive_url = f"http://{host}:{port}/_alive_{JupyterDash.alive_token}"
+        alive_url = f"http://{host}:{port}{requests_pathname_prefix}_alive_{JupyterDash.alive_token}"
 
         def _get_error():
             try:
