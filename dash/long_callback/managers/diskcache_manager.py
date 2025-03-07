@@ -179,7 +179,15 @@ def _make_job_fn(fn, cache, progress):
         maybe_progress = [_set_progress] if progress else []
 
         def _set_props(_id, props):
-            cache.set(f"{result_key}-set_props", {_id: props})
+            set_props_key = f"{result_key}-set_props"
+            existing_props = cache.get(set_props_key, {})
+
+            if _id in existing_props:
+                existing_props[_id].update(props)  # Merge instead of overwrite
+            else:
+                existing_props[_id] = props  # First-time update
+
+            cache.set(set_props_key, existing_props)
 
         ctx = copy_context()
 
