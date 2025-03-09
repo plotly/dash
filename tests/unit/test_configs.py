@@ -1,3 +1,12 @@
+"""Tests for Dash application configuration and path handling.
+
+This module contains test cases that verify the behavior of the application
+configuration, environment variable handling, pathname prefixing, and URL path utilities.
+The pytest tests cover scenarios such as valid and invalid configurations,
+environment variable overrides, and path manipulation functions used in the application.
+"""
+
+
 import os
 import logging
 
@@ -26,6 +35,12 @@ from dash._get_paths import (
 
 
 def test_dash_env_vars(empty_environ):
+    """
+    Tests that DASH_ENV_VARS are None by default without OS environment settings.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
+
     assert {None} == {
         val for _, val in DASH_ENV_VARS.items()
     }, "initial var values are None without extra OS environ setting"
@@ -43,6 +58,15 @@ def test_dash_env_vars(empty_environ):
 def test_valid_pathname_prefix_init(
     empty_environ, route_prefix, req_prefix, expected_route, expected_req
 ):
+    """
+    Tests valid pathname prefix configurations.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        route_prefix: Routes pathname prefix to test.
+        req_prefix: Requests pathname prefix to test.
+        expected_route: Expected routes pathname result.
+        expected_req: Expected requests pathname result.
+    """
     _, routes, req = pathname_configs(
         routes_pathname_prefix=route_prefix, requests_pathname_prefix=req_prefix
     )
@@ -53,6 +77,11 @@ def test_valid_pathname_prefix_init(
 
 
 def test_invalid_pathname_prefix(empty_environ):
+    """
+    Tests invalid pathname prefix configurations raise appropriate exceptions.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     with pytest.raises(_exc.InvalidConfig, match="url_base_pathname"):
         _, _, _ = pathname_configs("/my-path", "/another-path")
 
@@ -76,6 +105,11 @@ def test_invalid_pathname_prefix(empty_environ):
 
 
 def test_pathname_prefix_from_environ_app_name(empty_environ):
+    """
+    Tests pathname prefix derivation from DASH_APP_NAME environment variable.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     os.environ["DASH_APP_NAME"] = "my-dash-app"
     _, routes, req = pathname_configs()
     assert req == "/my-dash-app/"
@@ -83,12 +117,22 @@ def test_pathname_prefix_from_environ_app_name(empty_environ):
 
 
 def test_pathname_prefix_environ_routes(empty_environ):
+    """
+    Tests routes prefix from DASH_ROUTES_PATHNAME_PREFIX environment variable.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     os.environ["DASH_ROUTES_PATHNAME_PREFIX"] = "/routes/"
     _, routes, _ = pathname_configs()
     assert routes == "/routes/"
 
 
 def test_pathname_prefix_environ_requests(empty_environ):
+    """
+    Tests requests prefix from DASH_REQUESTS_PATHNAME_PREFIX environment variable.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     os.environ["DASH_REQUESTS_PATHNAME_PREFIX"] = "/requests/"
     _, _, req = pathname_configs()
     assert req == "/requests/"
@@ -103,6 +147,13 @@ def test_pathname_prefix_environ_requests(empty_environ):
     ],
 )
 def test_pathname_prefix_assets(empty_environ, req, expected):
+    """
+    Tests asset URL generation with different request prefixes.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        req: Request pathname prefix to test.
+        expected: Expected asset URL result.
+    """
     config = AttributeDict(assets_external_path=req, assets_url_path="assets")
     path = app_get_asset_url(config, "reset.css")
     assert path == expected
@@ -131,6 +182,15 @@ def test_asset_url(
     assets_url_path,
     expected,
 ):
+    """
+    Tests asset URL generation with various configuration combinations.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        requests_pathname_prefix: Request pathname prefix to test.
+        assets_external_path: External assets path to test.
+        assets_url_path: Assets URL path to test.
+        expected: Expected asset URL result.
+    """
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -155,6 +215,13 @@ def test_get_relative_path(
     requests_pathname_prefix,
     expected,
 ):
+    """
+    Tests relative path generation with request prefix.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        requests_pathname_prefix: Request pathname prefix to test.
+        expected: Expected relative path result.
+    """
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -176,6 +243,13 @@ def test_strip_relative_path(
     requests_pathname_prefix,
     expected,
 ):
+    """
+    Tests stripping of relative path with request prefix.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        requests_pathname_prefix: Request pathname prefix to test.
+        expected: Expected stripped path result.
+    """
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -186,6 +260,11 @@ def test_strip_relative_path(
 
 
 def test_get_combined_config_dev_tools_ui(empty_environ):
+    """
+    Tests dev tools UI configuration priority and defaults.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     val1 = get_combined_config("ui", None, default=False)
     assert (
         not val1
@@ -200,6 +279,11 @@ def test_get_combined_config_dev_tools_ui(empty_environ):
 
 
 def test_get_combined_config_props_check(empty_environ):
+    """
+    Tests props check configuration priority and defaults.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     val1 = get_combined_config("props_check", None, default=False)
     assert (
         not val1
@@ -214,6 +298,11 @@ def test_get_combined_config_props_check(empty_environ):
 
 
 def test_load_dash_env_vars_refects_to_os_environ(empty_environ):
+    """
+    Tests that environment variable loading reflects OS environment changes.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     for var in DASH_ENV_VARS.keys():
         os.environ[var] = "true"
         vars = load_dash_env_vars()
@@ -235,6 +324,14 @@ def test_load_dash_env_vars_refects_to_os_environ(empty_environ):
     ],
 )
 def test_app_name_server(empty_environ, name, server, expected):
+    """
+    Tests application name assignment with different server configurations.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        name: Application name to test.
+        server: Server configuration to test.
+        expected: Expected application name result.
+    """
     app = Dash(name=name, server=server)
     assert app.config.name == expected
 
@@ -255,6 +352,13 @@ def test_app_name_server(empty_environ, name, server, expected):
     ],
 )
 def test_pathname_prefix_relative_url(prefix, partial_path, expected):
+    """
+    Tests relative URL generation with different prefixes.
+    Args:
+        prefix: Pathname prefix to test.
+        partial_path: Partial path to append.
+        expected: Expected full path result.
+    """
     path = app_get_relative_path(prefix, partial_path)
     assert path == expected
 
@@ -264,6 +368,12 @@ def test_pathname_prefix_relative_url(prefix, partial_path, expected):
     [("/", "relative-page-1"), ("/my-dash-app/", "relative-page-1")],
 )
 def test_invalid_get_relative_path(prefix, partial_path):
+    """
+    Tests invalid relative path handling raises appropriate exception.
+    Args:
+        prefix: Pathname prefix to test.
+        partial_path: Invalid partial path to test.
+    """
     with pytest.raises(_exc.UnsupportedRelativePath):
         app_get_relative_path(prefix, partial_path)
 
@@ -293,6 +403,13 @@ def test_invalid_get_relative_path(prefix, partial_path):
     ],
 )
 def test_strip_relative_path(prefix, partial_path, expected):
+    """
+    Tests stripping of relative paths with different prefixes.
+    Args:
+        prefix: Pathname prefix to test.
+        partial_path: Full path to strip.
+        expected: Expected stripped path result.
+    """
     path = app_strip_relative_path(prefix, partial_path)
     assert path == expected
 
@@ -306,11 +423,22 @@ def test_strip_relative_path(prefix, partial_path, expected):
     ],
 )
 def test_invalid_strip_relative_path(prefix, partial_path):
+    """
+    Tests invalid path stripping raises appropriate exception.
+    Args:
+        prefix: Pathname prefix to test.
+        partial_path: Invalid path to test.
+    """
     with pytest.raises(_exc.UnsupportedRelativePath):
         app_strip_relative_path(prefix, partial_path)
 
 
 def test_port_env_fail_str(empty_environ):
+    """
+    Tests invalid port string raises appropriate exception.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     app = Dash()
     with pytest.raises(Exception) as excinfo:
         app.run(port="garbage")
@@ -321,6 +449,11 @@ def test_port_env_fail_str(empty_environ):
 
 
 def test_port_env_fail_range(empty_environ):
+    """
+    Tests out-of-range port values raise appropriate exception.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     app = Dash()
     with pytest.raises(Exception) as excinfo:
         app.run(port="0")
@@ -342,6 +475,14 @@ def test_port_env_fail_range(empty_environ):
     [False, True],
 )
 def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
+    """
+    Tests successful app run without proxy configuration.
+    Args:
+        mocker: Pytest fixture for mocking.
+        caplog: Pytest fixture for capturing log output.
+        empty_environ: Pytest fixture providing a clean environment.
+        setlevel_warning: Whether to set logging level to WARNING.
+    """
     app = Dash()
 
     if setlevel_warning:
@@ -370,6 +511,17 @@ def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     ],
 )
 def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
+    """
+    Tests successful app run with various proxy configurations.
+    Args:
+        mocker: Pytest fixture for mocking.
+        caplog: Pytest fixture for capturing log output.
+        empty_environ: Pytest fixture providing a clean environment.
+        proxy: Proxy URL to test.
+        host: Host address to test.
+        port: Port number to test.
+        path: URL path to test.
+    """
     proxystr = "http://{}:{}::{}".format(host, port, proxy)
     app = Dash(url_base_pathname=path)
     mocker.patch.object(app.server, "run")
@@ -380,6 +532,12 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
 
 
 def test_proxy_failure(mocker, empty_environ):
+    """
+    Tests proxy configuration failures raise appropriate exceptions.
+    Args:
+        mocker: Pytest fixture for mocking.
+        empty_environ: Pytest fixture providing a clean environment.
+    """
     app = Dash()
 
     # if the tests work we'll never get to server.run, but keep the mock
@@ -407,6 +565,11 @@ def test_proxy_failure(mocker, empty_environ):
 
 
 def test_title():
+    """
+    Tests application title configuration and rendering.
+    Args:
+        None
+    """
     app = Dash()
     assert "<title>Dash</title>" in app.index()
     app = Dash()
@@ -417,6 +580,11 @@ def test_title():
 
 
 def test_app_delayed_config():
+    """
+    Tests delayed application configuration functionality.
+    Args:
+        None
+    """
     app = Dash(server=False)
     app.init_app(app=Flask("test"), requests_pathname_prefix="/dash/")
 
@@ -427,6 +595,11 @@ def test_app_delayed_config():
 
 
 def test_app_invalid_delayed_config():
+    """
+    Tests invalid delayed configuration raises appropriate exception.
+    Args:
+        None
+    """
     app = Dash(server=False)
     with pytest.raises(AttributeError):
         app.init_app(app=Flask("test"), name="too late 2 update")
@@ -447,6 +620,14 @@ def test_app_invalid_delayed_config():
     ],
 )
 def test_debug_mode_run(empty_environ, debug_env, debug, expected):
+    """
+    Tests debug mode configuration during run.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        debug_env: Debug environment variable setting to test.
+        debug: Debug parameter to test.
+        expected: Expected debug mode result.
+    """
     if debug_env:
         os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
@@ -470,6 +651,14 @@ def test_debug_mode_run(empty_environ, debug_env, debug, expected):
     ],
 )
 def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
+    """
+    Tests debug mode configuration with dev tools enablement.
+    Args:
+        empty_environ: Pytest fixture providing a clean environment.
+        debug_env: Debug environment variable setting to test.
+        debug: Debug parameter to test.
+        expected: Expected debug mode result.
+    """
     if debug_env:
         os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
@@ -478,5 +667,10 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
 
 
 def test_missing_flask_compress_raises():
+    """
+    Tests missing Flask-Compress dependency raises ImportError.
+    Args:
+        None
+    """
     with pytest.raises(ImportError):
         Dash(compress=True)
