@@ -33,6 +33,7 @@ const RDProps = [
     'maxHeight',
     'style',
     'className',
+    'closeMenuOnSelect'
 ];
 
 const Dropdown = props => {
@@ -46,6 +47,7 @@ const Dropdown = props => {
         style,
         loading_state,
         value,
+        closeMenuOnSelect,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const persistentOptions = useRef(null);
@@ -158,6 +160,7 @@ const Dropdown = props => {
                 value={value}
                 onChange={onChange}
                 onInputChange={onInputChange}
+                closeMenuOnSelect={closeMenuOnSelect}
                 backspaceRemoves={clearable}
                 deleteRemoves={clearable}
                 inputProps={{autoComplete: 'off'}}
