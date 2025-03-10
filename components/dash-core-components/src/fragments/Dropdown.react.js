@@ -160,7 +160,6 @@ const Dropdown = props => {
                 value={value}
                 onChange={onChange}
                 onInputChange={onInputChange}
-                closeMenuOnSelect={closeMenuOnSelect}
                 backspaceRemoves={clearable}
                 deleteRemoves={clearable}
                 inputProps={{autoComplete: 'off'}}
