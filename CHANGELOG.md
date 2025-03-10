@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3103](https://github.com/plotly/dash/pull/3103) Fix Graph component becomes unresponsive if an invalid figure is passed
 - [#3190](https://github.com/plotly/dash/pull/3190) Fix issue with cache key generation by adding option to include triggered inputs. Fixes [#3189](https://github.com/plotly/dash/issues/3189)
 
+## Changed
+- [#3113](https://github.com/plotly/dash/pull/3113) Adjusted background polling requests to strip the data from the request, this allows for context to flow as normal. This addresses issue [#3111](https://github.com/plotly/dash/pull/3111)
+
+
 ## [2.18.2] - 2024-11-04
 
 ## Fixed
