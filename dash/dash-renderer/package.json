@@ -76,7 +76,7 @@
     "prettier": "^2.8.8",
     "style-loader": "^3.3.3",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.6.3",
+    "typescript": "^5.0.0",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4",
     "rimraf": "^5.0.5",
