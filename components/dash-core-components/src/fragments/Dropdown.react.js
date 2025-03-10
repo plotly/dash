@@ -47,7 +47,6 @@ const Dropdown = props => {
         style,
         loading_state,
         value,
-        closeMenuOnSelect,
     } = props;
     const [optionsCheck, setOptionsCheck] = useState(null);
     const persistentOptions = useRef(null);
