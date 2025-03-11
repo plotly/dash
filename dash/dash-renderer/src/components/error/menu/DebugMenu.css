@@ -19,12 +19,13 @@
 
 .dash-debug-menu__outer button {
     height: auto;
-    padding: unset;
+    padding: 0 8px;
     line-height: normal;
     text-transform: none;
     font-size: 14px;
     border-radius: 0px;
     letter-spacing: normal;
+    gap: 6px;
 }
 
 .dash-debug-menu__popup {
@@ -155,9 +156,7 @@
 .dash-debug-menu__status {
     display: flex;
     align-items: center;
-}
-.dash-debug-menu__icon {
-    margin: 0 5px;
+    gap: 6px;
 }
 
 .dash-debug-menu__content {
@@ -229,7 +228,6 @@
     background-color: #c73a3a;
     padding: 3px 5px;
     border-radius: 3px;
-    margin: 0 5px;
 }
 
 .dash-debug-disconnected {
