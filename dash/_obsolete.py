@@ -20,4 +20,4 @@ class ObsoleteChecker:
         if name in self._obsolete_attributes:
             err = self._obsolete_attributes[name]
             raise err.exc(err.message)
-        return getattr(self, name)
+        return getattr(self.__dict__, name)
