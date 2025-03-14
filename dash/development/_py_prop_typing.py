@@ -140,6 +140,11 @@ def generate_enum(type_info, *_):
     return f"Literal[{', '.join(values)}]"
 
 
+def _get_custom_prop(custom_props, component_name, prop_name):
+    customs = custom_props.get(component_name) or custom_props.get("*", {})
+    return customs.get(prop_name)
+
+
 def get_prop_typing(
     type_name: str,
     component_name: str,
@@ -153,7 +158,7 @@ def get_prop_typing(
         return "typing.Union[str, dict]"
 
     if custom_props:
-        special = custom_props.get(component_name, {}).get(prop_name)
+        special = _get_custom_prop(custom_props, component_name, prop_name)
         if special:
             return special(type_info, component_name, prop_name)
 

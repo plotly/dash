@@ -250,7 +250,9 @@ def generate_class_file(
         custom_typing_module,
     )
 
-    custom_imp = get_custom_imports(custom_typing_module).get(typename)
+    custom_imp = get_custom_imports(custom_typing_module)
+    custom_imp = custom_imp.get(typename) or custom_imp.get("*")
+
     if custom_imp:
         imports += "\n".join(custom_imp)
         imports += "\n\n"
