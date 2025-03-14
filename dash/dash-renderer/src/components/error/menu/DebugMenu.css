@@ -1,6 +1,5 @@
 .dash-debug-menu {
     transition: 0.3s;
-    position: fixed;
     bottom: 35px;
     right: 35px;
     display: flex;
@@ -32,8 +31,8 @@
     display: flex;
     flex-direction: column;
     position: absolute;
-    bottom: 100%;
-    right: 0;
+    bottom: 40px;
+    right: 10px;
     gap: 8px;
     max-height: calc(100vh - 75px);
     justify-content: flex-end;
@@ -112,20 +111,16 @@
 .dash-debug-menu__outer {
     transition: 0.3s;
     box-sizing: border-box;
-    position: fixed;
-    bottom: 8px;
-    right: 8px;
+    height: 35px;
     display: flex;
-    color: black;
     flex-direction: column;
     font-family: Verdana, sans-serif !important;
     font-size: 14px;
     justify-content: center;
     align-items: center;
-    z-index: 10000;
     border-radius: 5px;
     padding: 5px;
-    background-color: #f5f6fa;
+    background-color: #393a3f5c;
     box-shadow:
         0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.04),
         0px 2.3px 2px 0px rgba(0, 0, 0, 0.03);
@@ -189,15 +184,14 @@
     cursor: pointer;
     font-family: Verdana, sans-serif !important;
     font-weight: bold;
-    color: black;
 }
 
 .dash-debug-menu__button.dash-debug-menu__button--selected {
     color: #7f4bc4;
     box-shadow: 0 2px #0071c2;
 }
-.dash-debug-menu__button.dash-debug-menu__button--selected:hover {
-    color: #5806c4;
+.dash-debug-menu__button:not(.dash-debug-menu__button--selected):hover {
+    color: #ad6fff;
 }
 
 .dash-debug-alert {
@@ -233,4 +227,48 @@
 .dash-debug-disconnected {
     font-size: 14px;
     margin-left: 3px;
+}
+
+#_dash-app-content {
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+    width: 100%;
+}
+
+.display-dash-debug {
+    .display-debug-toggle {
+        position: absolute;
+        right: 20px;
+        bottom: 2.5px;
+        z-index: 10000;
+
+        .test-devtools-error-count {
+            display: none;
+        }
+    }
+
+    .display-debug-toggle::before {
+        content: 'hide dash tools';
+    }
+
+    .dash-debug-menu__outer {
+        bottom: 0;
+        position: absolute;
+        width: 100%;
+    }
+}
+
+.hide-dash-debug-console {
+    .dash-debug-menu__outer {
+        display: none;
+    }
+
+    .display-debug-toggle .test-devtools-error-count {
+        display: initial;
+    }
+
+    .display-debug-toggle::before {
+        content: 'show dash tools ';
+    }
 }

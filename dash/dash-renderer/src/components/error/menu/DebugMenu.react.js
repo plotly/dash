@@ -89,6 +89,44 @@ class DebugMenu extends Component {
             opened: false,
             popup: 'errors'
         };
+
+        // Bind the resize listener to the instance
+        this.resizeListener = this.resizeListener.bind(this);
+
+        // Add the resize event listener
+        window.addEventListener('resize', this.resizeListener);
+
+
+    }
+
+    resizeListener() {
+        const el = window.document.querySelector('#_dash-global-error-container')
+        if (el && !el.classList.contains('hide-dash-debug-console')) {
+            // Recalculate size on resize
+            this.calcSize();
+        }
+    }
+
+    calcSize() {
+        const totalHeight = window.innerHeight;
+        const clearance = 40; // Desired clearance in pixels
+        const usableHeight = totalHeight - clearance;
+
+        // Assuming the original content height is the full window height
+        const originalHeight = totalHeight;
+        const scaleFactor = usableHeight / originalHeight;
+
+        // Apply scaling using transform
+        const contentElement = document.querySelector('#_dash-app-content');
+        if (contentElement) {
+            contentElement.style.transform = `scale(1, ${scaleFactor})`;
+            contentElement.style.transformOrigin = 'left top'; // Scale from the top
+        }
+    }
+
+    componentDidMount() {
+        // Trigger the resize event manually when the component mounts
+        this.resizeListener();
     }
 
     render() {
@@ -136,12 +174,35 @@ class DebugMenu extends Component {
             />
         );
 
+        const toggleDebugTools = () => {
+            const el = window.document.querySelector('#_dash-global-error-container')
+            if (el) {
+                el.classList.toggle('hide-dash-debug-console')
+                if (el.classList.contains('hide-dash-debug-console')) {
+                    const contentElement = document.querySelector('#_dash-app-content');
+                    contentElement.style = ''
+                } else {
+                    this.calcSize()
+                }
+            }
+        }
+
         return (
             <div>
                 <div className={classes('dash-debug-menu__outer')}>
                     {popupContent}
                     {menuContent}
                 </div>
+                <button
+                    className='display-debug-toggle'
+                    onClick={toggleDebugTools}
+                    >
+                    {errCount > 0 ? (
+                        <span className='test-devtools-error-count dash-debug-menu__error-count'>
+                            {errCount}
+                        </span>
+                    ) : null}
+                </button>
                 {this.props.children}
             </div>
         );
