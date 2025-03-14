@@ -5,6 +5,8 @@
 import os
 import re
 
+from dash.development._py_prop_typing import get_custom_ignore
+
 
 init_check_re = re.compile("proptypes.js")
 
@@ -120,8 +122,11 @@ def check_init(namespace):
 def generate_prop_types(
     metadata,
     package_name,
+    custom_typing_module,
 ):
     patched = []
+
+    custom_ignore = get_custom_ignore(custom_typing_module)
 
     for component_path, data in metadata.items():
         filename = component_path.split("/")[-1]
@@ -133,7 +138,11 @@ def generate_prop_types(
 
         props = []
         for prop_name, prop_data in data.get("props", {}).items():
-            props.append(f"{prop_name}:{generate_prop_type(prop_data['type'])}")
+            if prop_name in custom_ignore:
+                prop_type = "pt.any"
+            else:
+                prop_type = generate_prop_type(prop_data["type"])
+            props.append(f"{prop_name}:{prop_type}")
 
         patched.append(
             component_prop_types_template.format(

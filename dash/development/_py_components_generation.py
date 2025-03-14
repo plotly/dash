@@ -11,6 +11,7 @@ from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
 from ._py_prop_typing import (
+    get_custom_ignore,
     get_custom_props,
     get_prop_typing,
     shapes,
@@ -150,6 +151,8 @@ def generate_class_string(
 
     default_arglist = []
 
+    custom_ignore = get_custom_ignore(custom_typing_module)
+
     for prop_key in prop_keys:
         prop = props[prop_key]
         if (
@@ -175,6 +178,7 @@ def generate_class_string(
             prop_key,
             type_info,
             custom_props=custom_props,
+            custom_ignore=custom_ignore,
         )
 
         arg_value = f"{prop_key}: typing.Optional[{typed}] = None"

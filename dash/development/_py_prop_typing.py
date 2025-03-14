@@ -34,6 +34,10 @@ def get_custom_props(module_name):
     return _get_custom(module_name, "custom_props", {})
 
 
+def get_custom_ignore(module_name):
+    return _get_custom(module_name, "ignore_props", ["style"])
+
+
 def _clean_key(key):
     k = ""
     for ch in key:
@@ -142,6 +146,7 @@ def get_prop_typing(
     prop_name: str,
     type_info,
     custom_props=None,
+    custom_ignore=None,
 ):
     if prop_name == "id":
         # Id is always the same either a string or a dict for pattern matching.
@@ -151,6 +156,9 @@ def get_prop_typing(
         special = custom_props.get(component_name, {}).get(prop_name)
         if special:
             return special(type_info, component_name, prop_name)
+
+    if custom_ignore and prop_name in custom_ignore:
+        return "typing.Any"
 
     prop_type = PROP_TYPING.get(type_name, generate_any)(
         type_info, component_name, prop_name
