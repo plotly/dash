@@ -107,11 +107,13 @@ def generate_class_string(
     )
     wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    custom_ignore = get_custom_ignore(custom_typing_module)
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         description=description,
         prop_reorder_exceptions=prop_reorder_exceptions,
+        ignored_props=custom_ignore,
     ).replace("\r\n", "\n")
     required_args = required_props(filtered_props)
     is_children_required = "children" in required_args
@@ -150,8 +152,6 @@ def generate_class_string(
         """
 
     default_arglist = []
-
-    custom_ignore = get_custom_ignore(custom_typing_module)
 
     for prop_key in prop_keys:
         prop = props[prop_key]
@@ -340,7 +340,13 @@ def required_props(props):
     return [prop_name for prop_name, prop in list(props.items()) if prop["required"]]
 
 
-def create_docstring(component_name, props, description, prop_reorder_exceptions=None):
+def create_docstring(
+    component_name,
+    props,
+    description,
+    prop_reorder_exceptions=None,
+    ignored_props=tuple(),
+):
     """Create the Dash component docstring.
     Parameters
     ----------
@@ -377,7 +383,7 @@ def create_docstring(component_name, props, description, prop_reorder_exceptions
             indent_num=0,
             is_flow_type="flowType" in prop and "type" not in prop,
         )
-        for p, prop in filter_props(props).items()
+        for p, prop in filter_props(props, ignored_props).items()
     )
 
     return (
@@ -442,7 +448,7 @@ def reorder_props(props):
     return OrderedDict(props1 + props2 + sorted(list(props.items())))
 
 
-def filter_props(props):
+def filter_props(props, ignored_props=tuple()):
     """Filter props from the Component arguments to exclude:
         - Those without a "type" or a "flowType" field
         - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
@@ -487,7 +493,7 @@ def filter_props(props):
     filtered_props = copy.deepcopy(props)
 
     for arg_name, arg in list(filtered_props.items()):
-        if "type" not in arg and "flowType" not in arg:
+        if arg_name in ignored_props or ("type" not in arg and "flowType" not in arg):
             filtered_props.pop(arg_name)
             continue
 
