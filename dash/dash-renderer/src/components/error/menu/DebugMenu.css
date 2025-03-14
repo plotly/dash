@@ -25,6 +25,7 @@
     border-radius: 0px;
     letter-spacing: normal;
     gap: 6px;
+    color: inherit;
 }
 
 .dash-debug-menu__popup {
