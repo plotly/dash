@@ -117,10 +117,13 @@ class DebugMenu extends Component {
         const scaleFactor = usableHeight / originalHeight;
 
         // Apply scaling using transform
-        const contentElement = document.querySelector('#_dash-app-content');
+        const contentElement = document.querySelector('body');
         if (contentElement) {
             contentElement.style.transform = `scale(1, ${scaleFactor})`;
             contentElement.style.transformOrigin = 'left top'; // Scale from the top
+            contentElement.style.height = '100vh';
+            contentElement.style.width = '100vw';
+            contentElement.style.overflowX = 'hidden';
         }
     }
 
@@ -179,8 +182,10 @@ class DebugMenu extends Component {
             if (el) {
                 el.classList.toggle('hide-dash-debug-console')
                 if (el.classList.contains('hide-dash-debug-console')) {
-                    const contentElement = document.querySelector('#_dash-app-content');
-                    contentElement.style = ''
+                    const contentElement = document.querySelector('body');
+                    contentElement.style.transform = ''
+                    contentElement.style.transformsOrigin = ''
+                    contentElement.style.overflowX = ''
                 } else {
                     this.calcSize()
                 }
@@ -188,7 +193,7 @@ class DebugMenu extends Component {
         }
 
         return (
-            <div>
+            <div className='debug-tool-holder'>
                 <div className={classes('dash-debug-menu__outer')}>
                     {popupContent}
                     {menuContent}
