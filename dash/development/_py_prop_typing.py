@@ -166,26 +166,6 @@ def get_prop_typing(
     return prop_type
 
 
-def generate_plotly_figure(*_):
-    custom_imports["dash_core_components"]["Graph"].append(
-        "from plotly.graph_objects import Figure"
-    )
-    return "typing.Union[Figure, dict]"
-
-
-def generate_datetime_prop(component, array=False):
-    if "import datetime" not in custom_imports["dash_core_components"][component]:
-        custom_imports["dash_core_components"][component].append("import datetime")
-
-    def generator(*_):
-        datetime_type = "typing.Union[str, datetime.datetime]"
-        if array:
-            datetime_type = f"typing.Sequence[{datetime_type}]"
-        return datetime_type
-
-    return generator
-
-
 PROP_TYPING = {
     "array": generate_type("typing.Sequence"),
     "arrayOf": generate_array_of,
