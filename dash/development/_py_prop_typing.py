@@ -140,6 +140,10 @@ def generate_enum(type_info, *_):
     return f"Literal[{', '.join(values)}]"
 
 
+def generate_literal(type_info, *_):
+    return f"Literal[{json.dumps(type_info['value'])}]"
+
+
 def _get_custom_prop(custom_props, component_name, prop_name):
     customs = custom_props.get(component_name) or custom_props.get("*", {})
     return customs.get(prop_name)
@@ -193,4 +197,5 @@ PROP_TYPING = {
     "enum": generate_enum,
     "objectOf": generate_object_of,
     "tuple": generate_tuple,
+    "literal": generate_literal,
 }

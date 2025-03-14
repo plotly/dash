@@ -2,6 +2,7 @@
 # Generate it instead with the provided metadata.json
 # for them to be able to report invalid prop
 
+import json
 import os
 import re
 
@@ -79,6 +80,10 @@ def generate_tuple(*_):
     return "pt.array"
 
 
+def generate_literal(prop_info):
+    return f"pt.oneOf([{json.dumps(prop_info['value'])}])"
+
+
 prop_types = {
     "array": generate_type("array"),
     "arrayOf": generate_array_of,
@@ -97,6 +102,7 @@ prop_types = {
     "enum": generate_enum,
     "objectOf": generate_object_of,
     "tuple": generate_tuple,
+    "literal": generate_literal,
 }
 
 
