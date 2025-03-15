@@ -638,7 +638,7 @@ def test_grva007_external_plotlyjs_prevents_lazy(is_eager, dash_dcc):
     app = Dash(
         __name__,
         eager_loading=is_eager,
-        external_scripts=[f"https://unpkg.com/plotly.js-dist-min@{v}/plotly.min.js"],
+        external_scripts=[f"https://cdn.jsdelivr.net/npm/plotly.js-dist-min@{v}/plotly.min.js"],
     )
 
     app.layout = html.Div(id="div", children=[html.Button(id="btn")])

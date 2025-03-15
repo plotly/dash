@@ -61,7 +61,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/async-{}.js".format(async_resource),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/async-{}.js"
             ).format(__version__, async_resource),
             "namespace": "dash",
@@ -76,7 +76,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/async-{}.js.map".format(async_resource),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/async-{}.js.map"
             ).format(__version__, async_resource),
             "namespace": "dash",
@@ -91,7 +91,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/{}.js".format(_this_module),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/dash_core_components.js"
             ).format(__version__),
             "namespace": "dash",
@@ -99,7 +99,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/{}.js.map".format(_this_module),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/dash_core_components.js.map"
             ).format(__version__),
             "namespace": "dash",
@@ -108,7 +108,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/{}-shared.js".format(_this_module),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js"
             ).format(__version__),
             "namespace": "dash",
@@ -116,7 +116,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dcc/{}-shared.js.map".format(_this_module),
             "external_url": (
-                "https://unpkg.com/dash-core-components@{}"
+                "https://cdn.jsdelivr.net/npm/dash-core-components@{}"
                 "/dash_core_components/dash_core_components-shared.js.map"
             ).format(__version__),
             "namespace": "dash",

@@ -22,16 +22,16 @@ def _set_react_version(v_react, v_reactdom=None):
         {
             "external_url": {
                 "prod": [
-                    "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.production.min.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.production.min.js",
-                    "https://unpkg.com/prop-types@15.8.1/prop-types.min.js",
+                    "https://cdn.jsdelivr.net/npm/@babel/polyfill@7.12.1/dist/polyfill.min.js",
+                    f"https://cdn.jsdelivr.net/npm/react@{v_react}/umd/react.production.min.js",
+                    f"https://cdn.jsdelivr.net/npm/react-dom@{v_reactdom}/umd/react-dom.production.min.js",
+                    "https://cdn.jsdelivr.net/npm/prop-types@15.8.1/prop-types.min.js",
                 ],
                 "dev": [
-                    "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.development.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.development.js",
-                    "https://unpkg.com/prop-types@15.8.1/prop-types.js",
+                    "https://cdn.jsdelivr.net/npm/@babel/polyfill@7.12.1/dist/polyfill.min.js",
+                    f"https://cdn.jsdelivr.net/npm/react@{v_react}/umd/react.development.js",
+                    f"https://cdn.jsdelivr.net/npm/react-dom@{v_reactdom}/umd/react-dom.development.js",
+                    "https://cdn.jsdelivr.net/npm/prop-types@15.8.1/prop-types.js",
                 ],
             },
             "relative_package_path": {
@@ -64,7 +64,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@1.21.1"
+        "external_url": "https://cdn.jsdelivr.net/npm/dash-renderer@1.21.1"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },

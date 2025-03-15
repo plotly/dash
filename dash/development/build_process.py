@@ -143,7 +143,7 @@ class BuildProcess:
                 versions[f"extra_{name_squashed}_versions"] = f'"{extras_str}"'
 
                 for extra_version in extras:
-                    url = f"https://unpkg.com/{name}@{extra_version}/umd/{filename}"
+                    url = f"https://cdn.jsdelivr.net/npm/{name}@{extra_version}/umd/{filename}"
                     res = requests.get(url)
                     extra_target = f"{name}@{extra_version}.{ext}"
                     extra_path = self._concat(self.deps_folder, extra_target)

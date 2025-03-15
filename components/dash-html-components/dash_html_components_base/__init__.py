@@ -35,7 +35,7 @@ _js_dist = [
     {
         "relative_package_path": "html/{}.min.js".format(_this_module),
         "external_url": (
-            "https://unpkg.com/dash-html-components@{}"
+            "https://cdn.jsdelivr.net/npm/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js"
         ).format(__version__),
         "namespace": "dash",
@@ -43,7 +43,7 @@ _js_dist = [
     {
         "relative_package_path": "html/{}.min.js.map".format(_this_module),
         "external_url": (
-            "https://unpkg.com/dash-html-components@{}"
+            "https://cdn.jsdelivr.net/npm/dash-html-components@{}"
             "/dash_html_components/dash_html_components.min.js.map"
         ).format(__version__),
         "namespace": "dash",
