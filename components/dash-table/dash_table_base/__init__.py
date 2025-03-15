@@ -42,7 +42,7 @@ _js_dist.extend(
         {
             "relative_package_path": "dash_table/async-{}.js".format(async_resource),
             "external_url": (
-                "https://unpkg.com/dash-table@{}" "/dash_table/async-{}.js"
+                "https://cdn.jsdelivr.net/npm/dash-table@{}" "/dash_table/async-{}.js"
             ).format(__version__, async_resource),
             "namespace": "dash",
             "async": True,
@@ -58,7 +58,7 @@ _js_dist.extend(
                 async_resource
             ),
             "external_url": (
-                "https://unpkg.com/dash-table@{}" "/dash_table/async-{}.js.map"
+                "https://cdn.jsdelivr.net/npm/dash-table@{}" "/dash_table/async-{}.js.map"
             ).format(__version__, async_resource),
             "namespace": "dash",
             "dynamic": True,
@@ -72,14 +72,14 @@ _js_dist.extend(
         {
             "relative_package_path": "dash_table/bundle.js",
             "external_url": (
-                "https://unpkg.com/dash-table@{}/dash_table/bundle.js"
+                "https://cdn.jsdelivr.net/npm/dash-table@{}/dash_table/bundle.js"
             ).format(__version__),
             "namespace": "dash",
         },
         {
             "relative_package_path": "dash_table/bundle.js.map",
             "external_url": (
-                "https://unpkg.com/dash-table@{}/dash_table/bundle.js.map"
+                "https://cdn.jsdelivr.net/npm/dash-table@{}/dash_table/bundle.js.map"
             ).format(__version__),
             "namespace": "dash",
             "dynamic": True,
