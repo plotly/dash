@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Upload(Component):
@@ -55,21 +63,6 @@ class Upload(Component):
         The last modified date of the file that was uploaded in unix time
         (seconds since 1970).
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - max_size (number; default -1):
         Maximum file size in bytes. If `-1`, then infinite.
 
@@ -78,9 +71,6 @@ class Upload(Component):
 
     - multiple (boolean; default False):
         Allow dropping multiple files.
-
-    - style (dict; optional):
-        CSS styles to apply.
 
     - style_active (dict; default {    borderStyle: 'solid',    borderColor: '#6c6',    backgroundColor: '#eee',}):
         CSS styles to apply while active.
@@ -99,26 +89,38 @@ class Upload(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        contents=Component.UNDEFINED,
-        filename=Component.UNDEFINED,
-        last_modified=Component.UNDEFINED,
-        accept=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        disable_click=Component.UNDEFINED,
-        max_size=Component.UNDEFINED,
-        min_size=Component.UNDEFINED,
-        multiple=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        className_active=Component.UNDEFINED,
-        className_reject=Component.UNDEFINED,
-        className_disabled=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        style_active=Component.UNDEFINED,
-        style_reject=Component.UNDEFINED,
-        style_disabled=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        contents: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
+        filename: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
+        last_modified: typing.Optional[
+            typing.Union[
+                typing.Union[int, float, numbers.Number],
+                typing.Sequence[typing.Union[int, float, numbers.Number]],
+            ]
+        ] = None,
+        accept: typing.Optional[str] = None,
+        disabled: typing.Optional[bool] = None,
+        disable_click: typing.Optional[bool] = None,
+        max_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        min_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        multiple: typing.Optional[bool] = None,
+        className: typing.Optional[str] = None,
+        className_active: typing.Optional[str] = None,
+        className_reject: typing.Optional[str] = None,
+        className_disabled: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        style_active: typing.Optional[dict] = None,
+        style_reject: typing.Optional[dict] = None,
+        style_disabled: typing.Optional[dict] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -134,7 +136,6 @@ class Upload(Component):
             "disabled",
             "filename",
             "last_modified",
-            "loading_state",
             "max_size",
             "min_size",
             "multiple",
@@ -157,7 +158,6 @@ class Upload(Component):
             "disabled",
             "filename",
             "last_modified",
-            "loading_state",
             "max_size",
             "min_size",
             "multiple",

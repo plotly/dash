@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Tooltip(Component):
@@ -43,29 +51,11 @@ class Tooltip(Component):
     - direction (a value equal to: 'top', 'right', 'bottom', 'left'; default 'right'):
         The side of the `bbox` on which the tooltip should open.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - loading_text (string; default 'Loading...'):
         The text displayed in the tooltip while loading.
 
     - show (boolean; default True):
         Whether to show the tooltip.
-
-    - style (dict; optional):
-        The style of the tooltip.
 
     - targetable (boolean; default False):
         Whether the tooltip itself can be targeted by pointer events. For
@@ -81,23 +71,39 @@ class Tooltip(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tooltip"
+    Bbox = TypedDict(
+        "Bbox",
+        {
+            "x0": NotRequired[typing.Union[int, float, numbers.Number]],
+            "y0": NotRequired[typing.Union[int, float, numbers.Number]],
+            "x1": NotRequired[typing.Union[int, float, numbers.Number]],
+            "y1": NotRequired[typing.Union[int, float, numbers.Number]],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        bbox=Component.UNDEFINED,
-        show=Component.UNDEFINED,
-        direction=Component.UNDEFINED,
-        border_color=Component.UNDEFINED,
-        background_color=Component.UNDEFINED,
-        loading_text=Component.UNDEFINED,
-        zindex=Component.UNDEFINED,
-        targetable=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        className: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        bbox: typing.Optional["Bbox"] = None,
+        show: typing.Optional[bool] = None,
+        direction: typing.Optional[Literal["top", "right", "bottom", "left"]] = None,
+        border_color: typing.Optional[str] = None,
+        background_color: typing.Optional[str] = None,
+        loading_text: typing.Optional[str] = None,
+        zindex: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        targetable: typing.Optional[bool] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -108,7 +114,6 @@ class Tooltip(Component):
             "border_color",
             "className",
             "direction",
-            "loading_state",
             "loading_text",
             "show",
             "style",
@@ -124,7 +129,6 @@ class Tooltip(Component):
             "border_color",
             "className",
             "direction",
-            "loading_state",
             "loading_text",
             "show",
             "style",

@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class DataTable(Component):
@@ -1132,87 +1140,551 @@ class DataTable(Component):
     _base_nodes = ["children"]
     _namespace = "dash_table"
     _type = "DataTable"
+    ColumnsFilterOptions = TypedDict(
+        "ColumnsFilterOptions",
+        {
+            "case": NotRequired[Literal["sensitive", "insensitive"]],
+            "placeholder_text": NotRequired[str],
+        },
+    )
+
+    ColumnsFormatLocale = TypedDict(
+        "ColumnsFormatLocale",
+        {
+            "symbol": NotRequired[typing.Sequence[str]],
+            "decimal": NotRequired[str],
+            "group": NotRequired[str],
+            "grouping": NotRequired[
+                typing.Sequence[typing.Union[int, float, numbers.Number]]
+            ],
+            "numerals": NotRequired[typing.Sequence[str]],
+            "percent": NotRequired[str],
+            "separate_4digits": NotRequired[bool],
+        },
+    )
+
+    ColumnsFormat = TypedDict(
+        "ColumnsFormat",
+        {
+            "locale": NotRequired["ColumnsFormatLocale"],
+            "nully": NotRequired[typing.Any],
+            "prefix": NotRequired[typing.Union[int, float, numbers.Number]],
+            "specifier": NotRequired[str],
+        },
+    )
+
+    ColumnsOnChange = TypedDict(
+        "ColumnsOnChange",
+        {
+            "action": NotRequired[Literal["coerce", "none", "validate"]],
+            "failure": NotRequired[Literal["accept", "default", "reject"]],
+        },
+    )
+
+    ColumnsValidation = TypedDict(
+        "ColumnsValidation",
+        {
+            "allow_null": NotRequired[bool],
+            "default": NotRequired[typing.Any],
+            "allow_YY": NotRequired[bool],
+        },
+    )
+
+    Columns = TypedDict(
+        "Columns",
+        {
+            "id": str,
+            "name": typing.Union[str, typing.Sequence[str]],
+            "type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
+            "presentation": NotRequired[Literal["input", "dropdown", "markdown"]],
+            "selectable": NotRequired[
+                typing.Union[Literal["first", "last"], bool, typing.Sequence[bool]]
+            ],
+            "clearable": NotRequired[
+                typing.Union[Literal["first", "last"], bool, typing.Sequence[bool]]
+            ],
+            "deletable": NotRequired[
+                typing.Union[Literal["first", "last"], bool, typing.Sequence[bool]]
+            ],
+            "editable": NotRequired[bool],
+            "hideable": NotRequired[
+                typing.Union[Literal["first", "last"], bool, typing.Sequence[bool]]
+            ],
+            "renamable": NotRequired[
+                typing.Union[Literal["first", "last"], bool, typing.Sequence[bool]]
+            ],
+            "filter_options": NotRequired["ColumnsFilterOptions"],
+            "format": NotRequired["ColumnsFormat"],
+            "on_change": NotRequired["ColumnsOnChange"],
+            "sort_as_null": NotRequired[
+                typing.Sequence[
+                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                ]
+            ],
+            "validation": NotRequired["ColumnsValidation"],
+        },
+    )
+
+    FixedColumns = TypedDict(
+        "FixedColumns",
+        {
+            "data": NotRequired[typing.Union[int, float, numbers.Number]],
+            "headers": Literal[True],
+        },
+    )
+
+    FixedRows = TypedDict(
+        "FixedRows",
+        {
+            "data": NotRequired[typing.Union[int, float, numbers.Number]],
+            "headers": Literal[True],
+        },
+    )
+
+    ActiveCell = TypedDict(
+        "ActiveCell",
+        {
+            "row": NotRequired[typing.Union[int, float, numbers.Number]],
+            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row_id": NotRequired[
+                typing.Union[str, typing.Union[int, float, numbers.Number]]
+            ],
+            "column_id": NotRequired[str],
+        },
+    )
+
+    SelectedCells = TypedDict(
+        "SelectedCells",
+        {
+            "row": NotRequired[typing.Union[int, float, numbers.Number]],
+            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row_id": NotRequired[
+                typing.Union[str, typing.Union[int, float, numbers.Number]]
+            ],
+            "column_id": NotRequired[str],
+        },
+    )
+
+    StartCell = TypedDict(
+        "StartCell",
+        {
+            "row": NotRequired[typing.Union[int, float, numbers.Number]],
+            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row_id": NotRequired[
+                typing.Union[str, typing.Union[int, float, numbers.Number]]
+            ],
+            "column_id": NotRequired[str],
+        },
+    )
+
+    EndCell = TypedDict(
+        "EndCell",
+        {
+            "row": NotRequired[typing.Union[int, float, numbers.Number]],
+            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row_id": NotRequired[
+                typing.Union[str, typing.Union[int, float, numbers.Number]]
+            ],
+            "column_id": NotRequired[str],
+        },
+    )
+
+    FilterAction = TypedDict(
+        "FilterAction",
+        {
+            "type": Literal["custom", "native"],
+            "operator": NotRequired[Literal["and", "or"]],
+        },
+    )
+
+    FilterOptions = TypedDict(
+        "FilterOptions",
+        {
+            "case": NotRequired[Literal["sensitive", "insensitive"]],
+            "placeholder_text": NotRequired[str],
+        },
+    )
+
+    SortBy = TypedDict(
+        "SortBy", {"column_id": str, "direction": Literal["asc", "desc"]}
+    )
+
+    DropdownOptions = TypedDict(
+        "DropdownOptions",
+        {
+            "label": str,
+            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+        },
+    )
+
+    Dropdown = TypedDict(
+        "Dropdown",
+        {"clearable": NotRequired[bool], "options": typing.Sequence["DropdownOptions"]},
+    )
+
+    DropdownConditionalIf = TypedDict(
+        "DropdownConditionalIf",
+        {"column_id": NotRequired[str], "filter_query": NotRequired[str]},
+    )
+
+    DropdownConditionalOptions = TypedDict(
+        "DropdownConditionalOptions",
+        {
+            "label": str,
+            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+        },
+    )
+
+    DropdownConditional = TypedDict(
+        "DropdownConditional",
+        {
+            "clearable": NotRequired[bool],
+            "if": NotRequired["DropdownConditionalIf"],
+            "options": typing.Sequence["DropdownConditionalOptions"],
+        },
+    )
+
+    DropdownDataOptions = TypedDict(
+        "DropdownDataOptions",
+        {
+            "label": str,
+            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+        },
+    )
+
+    DropdownData = TypedDict(
+        "DropdownData",
+        {
+            "clearable": NotRequired[bool],
+            "options": typing.Sequence["DropdownDataOptions"],
+        },
+    )
+
+    Tooltip = TypedDict(
+        "Tooltip",
+        {
+            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "type": NotRequired[Literal["text", "markdown"]],
+            "use_with": NotRequired[Literal["both", "data", "header"]],
+            "value": str,
+        },
+    )
+
+    TooltipConditionalIf = TypedDict(
+        "TooltipConditionalIf",
+        {
+            "column_id": NotRequired[str],
+            "filter_query": NotRequired[str],
+            "row_index": NotRequired[
+                typing.Union[
+                    typing.Union[int, float, numbers.Number], Literal["odd", "even"]
+                ]
+            ],
+        },
+    )
+
+    TooltipConditional = TypedDict(
+        "TooltipConditional",
+        {
+            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "if": "TooltipConditionalIf",
+            "type": NotRequired[Literal["text", "markdown"]],
+            "value": str,
+        },
+    )
+
+    TooltipData = TypedDict(
+        "TooltipData",
+        {
+            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "type": NotRequired[Literal["text", "markdown"]],
+            "value": str,
+        },
+    )
+
+    TooltipHeader = TypedDict(
+        "TooltipHeader",
+        {
+            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "type": NotRequired[Literal["text", "markdown"]],
+            "value": str,
+        },
+    )
+
+    LocaleFormat = TypedDict(
+        "LocaleFormat",
+        {
+            "symbol": NotRequired[typing.Sequence[str]],
+            "decimal": NotRequired[str],
+            "group": NotRequired[str],
+            "grouping": NotRequired[
+                typing.Sequence[typing.Union[int, float, numbers.Number]]
+            ],
+            "numerals": NotRequired[typing.Sequence[str]],
+            "percent": NotRequired[str],
+            "separate_4digits": NotRequired[bool],
+        },
+    )
+
+    MarkdownOptions = TypedDict(
+        "MarkdownOptions",
+        {
+            "link_target": NotRequired[
+                typing.Union[str, Literal["_blank", "_parent", "_self", "_top"]]
+            ],
+            "html": NotRequired[bool],
+        },
+    )
+
+    Css = TypedDict("Css", {"selector": str, "rule": str})
+
+    StyleCellConditionalIf = TypedDict(
+        "StyleCellConditionalIf",
+        {
+            "column_id": NotRequired[typing.Union[str, typing.Sequence[str]]],
+            "column_type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
+        },
+    )
+
+    StyleCellConditional = TypedDict(
+        "StyleCellConditional", {"if": NotRequired["StyleCellConditionalIf"]}
+    )
+
+    StyleDataConditionalIf = TypedDict(
+        "StyleDataConditionalIf",
+        {
+            "column_id": NotRequired[typing.Union[str, typing.Sequence[str]]],
+            "column_type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
+            "filter_query": NotRequired[str],
+            "state": NotRequired[Literal["active", "selected"]],
+            "row_index": NotRequired[
+                typing.Union[
+                    typing.Union[int, float, numbers.Number],
+                    Literal["odd", "even"],
+                    typing.Sequence[typing.Union[int, float, numbers.Number]],
+                ]
+            ],
+            "column_editable": NotRequired[bool],
+        },
+    )
+
+    StyleDataConditional = TypedDict(
+        "StyleDataConditional", {"if": NotRequired["StyleDataConditionalIf"]}
+    )
+
+    StyleFilterConditionalIf = TypedDict(
+        "StyleFilterConditionalIf",
+        {
+            "column_id": NotRequired[typing.Union[str, typing.Sequence[str]]],
+            "column_type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
+            "column_editable": NotRequired[bool],
+        },
+    )
+
+    StyleFilterConditional = TypedDict(
+        "StyleFilterConditional", {"if": NotRequired["StyleFilterConditionalIf"]}
+    )
+
+    StyleHeaderConditionalIf = TypedDict(
+        "StyleHeaderConditionalIf",
+        {
+            "column_id": NotRequired[typing.Union[str, typing.Sequence[str]]],
+            "column_type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
+            "header_index": NotRequired[
+                typing.Union[
+                    typing.Union[int, float, numbers.Number],
+                    typing.Sequence[typing.Union[int, float, numbers.Number]],
+                    Literal["odd", "even"],
+                ]
+            ],
+            "column_editable": NotRequired[bool],
+        },
+    )
+
+    StyleHeaderConditional = TypedDict(
+        "StyleHeaderConditional", {"if": NotRequired["StyleHeaderConditionalIf"]}
+    )
+
+    LoadingState = TypedDict(
+        "LoadingState",
+        {
+            "is_loading": NotRequired[bool],
+            "prop_name": NotRequired[str],
+            "component_name": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        data=Component.UNDEFINED,
-        columns=Component.UNDEFINED,
-        editable=Component.UNDEFINED,
-        fixed_columns=Component.UNDEFINED,
-        fixed_rows=Component.UNDEFINED,
-        column_selectable=Component.UNDEFINED,
-        cell_selectable=Component.UNDEFINED,
-        row_selectable=Component.UNDEFINED,
-        row_deletable=Component.UNDEFINED,
-        active_cell=Component.UNDEFINED,
-        selected_cells=Component.UNDEFINED,
-        selected_rows=Component.UNDEFINED,
-        selected_columns=Component.UNDEFINED,
-        selected_row_ids=Component.UNDEFINED,
-        start_cell=Component.UNDEFINED,
-        end_cell=Component.UNDEFINED,
-        data_previous=Component.UNDEFINED,
-        hidden_columns=Component.UNDEFINED,
-        is_focused=Component.UNDEFINED,
-        merge_duplicate_headers=Component.UNDEFINED,
-        data_timestamp=Component.UNDEFINED,
-        include_headers_on_copy_paste=Component.UNDEFINED,
-        export_columns=Component.UNDEFINED,
-        export_format=Component.UNDEFINED,
-        export_headers=Component.UNDEFINED,
-        page_action=Component.UNDEFINED,
-        page_current=Component.UNDEFINED,
-        page_count=Component.UNDEFINED,
-        page_size=Component.UNDEFINED,
-        filter_query=Component.UNDEFINED,
-        filter_action=Component.UNDEFINED,
-        filter_options=Component.UNDEFINED,
-        sort_action=Component.UNDEFINED,
-        sort_mode=Component.UNDEFINED,
-        sort_by=Component.UNDEFINED,
-        sort_as_null=Component.UNDEFINED,
-        dropdown=Component.UNDEFINED,
-        dropdown_conditional=Component.UNDEFINED,
-        dropdown_data=Component.UNDEFINED,
-        tooltip=Component.UNDEFINED,
-        tooltip_conditional=Component.UNDEFINED,
-        tooltip_data=Component.UNDEFINED,
-        tooltip_header=Component.UNDEFINED,
-        tooltip_delay=Component.UNDEFINED,
-        tooltip_duration=Component.UNDEFINED,
-        locale_format=Component.UNDEFINED,
-        style_as_list_view=Component.UNDEFINED,
-        fill_width=Component.UNDEFINED,
-        markdown_options=Component.UNDEFINED,
-        css=Component.UNDEFINED,
-        style_table=Component.UNDEFINED,
-        style_cell=Component.UNDEFINED,
-        style_data=Component.UNDEFINED,
-        style_filter=Component.UNDEFINED,
-        style_header=Component.UNDEFINED,
-        style_cell_conditional=Component.UNDEFINED,
-        style_data_conditional=Component.UNDEFINED,
-        style_filter_conditional=Component.UNDEFINED,
-        style_header_conditional=Component.UNDEFINED,
-        virtualization=Component.UNDEFINED,
-        derived_filter_query_structure=Component.UNDEFINED,
-        derived_viewport_data=Component.UNDEFINED,
-        derived_viewport_indices=Component.UNDEFINED,
-        derived_viewport_row_ids=Component.UNDEFINED,
-        derived_viewport_selected_columns=Component.UNDEFINED,
-        derived_viewport_selected_rows=Component.UNDEFINED,
-        derived_viewport_selected_row_ids=Component.UNDEFINED,
-        derived_virtual_data=Component.UNDEFINED,
-        derived_virtual_indices=Component.UNDEFINED,
-        derived_virtual_row_ids=Component.UNDEFINED,
-        derived_virtual_selected_rows=Component.UNDEFINED,
-        derived_virtual_selected_row_ids=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        data: typing.Optional[
+            typing.Sequence[
+                typing.Dict[
+                    typing.Union[str, float, int],
+                    typing.Union[str, typing.Union[int, float, numbers.Number], bool],
+                ]
+            ]
+        ] = None,
+        columns: typing.Optional[typing.Sequence["Columns"]] = None,
+        editable: typing.Optional[bool] = None,
+        fixed_columns: typing.Optional[typing.Union["FixedColumns"]] = None,
+        fixed_rows: typing.Optional[typing.Union["FixedRows"]] = None,
+        column_selectable: typing.Optional[Literal["single", "multi", False]] = None,
+        cell_selectable: typing.Optional[bool] = None,
+        row_selectable: typing.Optional[Literal["single", "multi", False]] = None,
+        row_deletable: typing.Optional[bool] = None,
+        active_cell: typing.Optional["ActiveCell"] = None,
+        selected_cells: typing.Optional[typing.Sequence["SelectedCells"]] = None,
+        selected_rows: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        selected_columns: typing.Optional[typing.Sequence[str]] = None,
+        selected_row_ids: typing.Optional[
+            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+        ] = None,
+        start_cell: typing.Optional["StartCell"] = None,
+        end_cell: typing.Optional["EndCell"] = None,
+        data_previous: typing.Optional[typing.Sequence[dict]] = None,
+        hidden_columns: typing.Optional[typing.Sequence[str]] = None,
+        is_focused: typing.Optional[bool] = None,
+        merge_duplicate_headers: typing.Optional[bool] = None,
+        data_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        include_headers_on_copy_paste: typing.Optional[bool] = None,
+        export_columns: typing.Optional[Literal["all", "visible"]] = None,
+        export_format: typing.Optional[Literal["csv", "xlsx", "none"]] = None,
+        export_headers: typing.Optional[
+            Literal["none", "ids", "names", "display"]
+        ] = None,
+        page_action: typing.Optional[Literal["custom", "native", "none"]] = None,
+        page_current: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        page_count: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        page_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        filter_query: typing.Optional[str] = None,
+        filter_action: typing.Optional[
+            typing.Union[Literal["custom", "native", "none"], "FilterAction"]
+        ] = None,
+        filter_options: typing.Optional["FilterOptions"] = None,
+        sort_action: typing.Optional[Literal["custom", "native", "none"]] = None,
+        sort_mode: typing.Optional[Literal["single", "multi"]] = None,
+        sort_by: typing.Optional[typing.Sequence["SortBy"]] = None,
+        sort_as_null: typing.Optional[
+            typing.Sequence[
+                typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+            ]
+        ] = None,
+        dropdown: typing.Optional[
+            typing.Dict[typing.Union[str, float, int], "Dropdown"]
+        ] = None,
+        dropdown_conditional: typing.Optional[
+            typing.Sequence["DropdownConditional"]
+        ] = None,
+        dropdown_data: typing.Optional[
+            typing.Sequence[typing.Dict[typing.Union[str, float, int], "DropdownData"]]
+        ] = None,
+        tooltip: typing.Optional[
+            typing.Dict[typing.Union[str, float, int], typing.Union[str, "Tooltip"]]
+        ] = None,
+        tooltip_conditional: typing.Optional[
+            typing.Sequence["TooltipConditional"]
+        ] = None,
+        tooltip_data: typing.Optional[
+            typing.Sequence[
+                typing.Dict[
+                    typing.Union[str, float, int], typing.Union[str, "TooltipData"]
+                ]
+            ]
+        ] = None,
+        tooltip_header: typing.Optional[
+            typing.Dict[
+                typing.Union[str, float, int],
+                typing.Union[
+                    str,
+                    "TooltipHeader",
+                    typing.Sequence[typing.Union[Literal[None], str, "TooltipHeader"]],
+                ],
+            ]
+        ] = None,
+        tooltip_delay: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        tooltip_duration: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        locale_format: typing.Optional["LocaleFormat"] = None,
+        style_as_list_view: typing.Optional[bool] = None,
+        fill_width: typing.Optional[bool] = None,
+        markdown_options: typing.Optional["MarkdownOptions"] = None,
+        css: typing.Optional[typing.Sequence["Css"]] = None,
+        style_table: typing.Optional[dict] = None,
+        style_cell: typing.Optional[dict] = None,
+        style_data: typing.Optional[dict] = None,
+        style_filter: typing.Optional[dict] = None,
+        style_header: typing.Optional[dict] = None,
+        style_cell_conditional: typing.Optional[
+            typing.Sequence["StyleCellConditional"]
+        ] = None,
+        style_data_conditional: typing.Optional[
+            typing.Sequence["StyleDataConditional"]
+        ] = None,
+        style_filter_conditional: typing.Optional[
+            typing.Sequence["StyleFilterConditional"]
+        ] = None,
+        style_header_conditional: typing.Optional[
+            typing.Sequence["StyleHeaderConditional"]
+        ] = None,
+        virtualization: typing.Optional[bool] = None,
+        derived_filter_query_structure: typing.Optional[dict] = None,
+        derived_viewport_data: typing.Optional[typing.Sequence[dict]] = None,
+        derived_viewport_indices: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        derived_viewport_row_ids: typing.Optional[
+            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+        ] = None,
+        derived_viewport_selected_columns: typing.Optional[typing.Sequence[str]] = None,
+        derived_viewport_selected_rows: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        derived_viewport_selected_row_ids: typing.Optional[
+            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+        ] = None,
+        derived_virtual_data: typing.Optional[typing.Sequence[dict]] = None,
+        derived_virtual_indices: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        derived_virtual_row_ids: typing.Optional[
+            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+        ] = None,
+        derived_virtual_selected_rows: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        derived_virtual_selected_row_ids: typing.Optional[
+            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        loading_state: typing.Optional["LoadingState"] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[
+            typing.Sequence[
+                Literal[
+                    "columns.name",
+                    "data",
+                    "filter_query",
+                    "hidden_columns",
+                    "page_current",
+                    "selected_columns",
+                    "selected_rows",
+                    "sort_by",
+                ]
+            ]
+        ] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [

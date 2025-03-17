@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Store(Component):
@@ -40,11 +48,21 @@ class Store(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.REQUIRED,
-        storage_type=Component.UNDEFINED,
-        data=Component.UNDEFINED,
-        clear_data=Component.UNDEFINED,
-        modified_timestamp=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        storage_type: typing.Optional[Literal["local", "session", "memory"]] = None,
+        data: typing.Optional[
+            typing.Union[
+                dict,
+                typing.Sequence,
+                typing.Union[int, float, numbers.Number],
+                str,
+                bool,
+            ]
+        ] = None,
+        clear_data: typing.Optional[bool] = None,
+        modified_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
         **kwargs
     ):
         self._prop_names = [

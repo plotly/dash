@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class ConfirmDialogProvider(Component):
@@ -35,21 +43,6 @@ class ConfirmDialogProvider(Component):
     - displayed (boolean; optional):
         Is the modal currently displayed.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - message (string; optional):
         Message to show in the popup.
 
@@ -67,15 +60,30 @@ class ConfirmDialogProvider(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        message=Component.UNDEFINED,
-        submit_n_clicks=Component.UNDEFINED,
-        submit_n_clicks_timestamp=Component.UNDEFINED,
-        cancel_n_clicks=Component.UNDEFINED,
-        cancel_n_clicks_timestamp=Component.UNDEFINED,
-        displayed=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        message: typing.Optional[str] = None,
+        submit_n_clicks: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        submit_n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        cancel_n_clicks: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        cancel_n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        displayed: typing.Optional[bool] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -84,7 +92,6 @@ class ConfirmDialogProvider(Component):
             "cancel_n_clicks",
             "cancel_n_clicks_timestamp",
             "displayed",
-            "loading_state",
             "message",
             "submit_n_clicks",
             "submit_n_clicks_timestamp",
@@ -96,7 +103,6 @@ class ConfirmDialogProvider(Component):
             "cancel_n_clicks",
             "cancel_n_clicks_timestamp",
             "displayed",
-            "loading_state",
             "message",
             "submit_n_clicks",
             "submit_n_clicks_timestamp",

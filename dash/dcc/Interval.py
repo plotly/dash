@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Interval(Component):
@@ -40,11 +48,11 @@ class Interval(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        interval=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        n_intervals=Component.UNDEFINED,
-        max_intervals=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        interval: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        disabled: typing.Optional[bool] = None,
+        n_intervals: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        max_intervals: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
         **kwargs
     ):
         self._prop_names = [

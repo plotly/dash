@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class RangeSlider(Component):
@@ -115,21 +123,6 @@ class RangeSlider(Component):
         callbacks. The ID needs to be unique across all of the components
         in an app.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted
         when the component - or the page - is refreshed. If `persisted` is
@@ -153,32 +146,66 @@ class RangeSlider(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "RangeSlider"
+    Marks = TypedDict("Marks", {"label": NotRequired[str], "style": NotRequired[dict]})
+
+    Tooltip = TypedDict(
+        "Tooltip",
+        {
+            "always_visible": NotRequired[bool],
+            "placement": NotRequired[
+                Literal[
+                    "left",
+                    "right",
+                    "top",
+                    "bottom",
+                    "topLeft",
+                    "topRight",
+                    "bottomLeft",
+                    "bottomRight",
+                ]
+            ],
+            "template": NotRequired[str],
+            "style": NotRequired[dict],
+            "transform": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        min=Component.UNDEFINED,
-        max=Component.UNDEFINED,
-        step=Component.UNDEFINED,
-        marks=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        drag_value=Component.UNDEFINED,
-        allowCross=Component.UNDEFINED,
-        pushable=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        count=Component.UNDEFINED,
-        dots=Component.UNDEFINED,
-        included=Component.UNDEFINED,
-        tooltip=Component.UNDEFINED,
-        updatemode=Component.UNDEFINED,
-        vertical=Component.UNDEFINED,
-        verticalHeight=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        min: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        max: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        step: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        marks: typing.Optional[
+            typing.Dict[typing.Union[str, float, int], typing.Union[str, "Marks"]]
+        ] = None,
+        value: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        drag_value: typing.Optional[
+            typing.Sequence[typing.Union[int, float, numbers.Number]]
+        ] = None,
+        allowCross: typing.Optional[bool] = None,
+        pushable: typing.Optional[
+            typing.Union[bool, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        disabled: typing.Optional[bool] = None,
+        count: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        dots: typing.Optional[bool] = None,
+        included: typing.Optional[bool] = None,
+        tooltip: typing.Optional["Tooltip"] = None,
+        updatemode: typing.Optional[Literal["mouseup", "drag"]] = None,
+        vertical: typing.Optional[bool] = None,
+        verticalHeight: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        className: typing.Optional[str] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -200,7 +227,6 @@ class RangeSlider(Component):
             "verticalHeight",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
@@ -225,7 +251,6 @@ class RangeSlider(Component):
             "verticalHeight",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",

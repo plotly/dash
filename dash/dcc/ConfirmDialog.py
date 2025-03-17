@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class ConfirmDialog(Component):
@@ -43,13 +51,21 @@ class ConfirmDialog(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        message=Component.UNDEFINED,
-        submit_n_clicks=Component.UNDEFINED,
-        submit_n_clicks_timestamp=Component.UNDEFINED,
-        cancel_n_clicks=Component.UNDEFINED,
-        cancel_n_clicks_timestamp=Component.UNDEFINED,
-        displayed=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        message: typing.Optional[str] = None,
+        submit_n_clicks: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        submit_n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        cancel_n_clicks: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        cancel_n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        displayed: typing.Optional[bool] = None,
         **kwargs
     ):
         self._prop_names = [

@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Dropdown(Component):
@@ -81,9 +89,6 @@ class Dropdown(Component):
     - maxHeight (number; default 200):
         height of the options dropdown.
 
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
     - className (string; optional):
         className of the dropdown element.
 
@@ -91,21 +96,6 @@ class Dropdown(Component):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
         in an app.
-
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted
@@ -130,27 +120,61 @@ class Dropdown(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Dropdown"
+    Options = TypedDict(
+        "Options",
+        {
+            "label": typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ],
+            "value": typing.Union[str, typing.Union[int, float, numbers.Number], bool],
+            "disabled": NotRequired[bool],
+            "title": NotRequired[str],
+            "search": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        options=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        multi=Component.UNDEFINED,
-        clearable=Component.UNDEFINED,
-        searchable=Component.UNDEFINED,
-        search_value=Component.UNDEFINED,
-        placeholder=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        optionHeight=Component.UNDEFINED,
-        maxHeight=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        options: typing.Optional[
+            typing.Union[
+                typing.Sequence[
+                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                ],
+                dict,
+                typing.Sequence["Options"],
+            ]
+        ] = None,
+        value: typing.Optional[
+            typing.Union[
+                str,
+                typing.Union[int, float, numbers.Number],
+                bool,
+                typing.Sequence[
+                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                ],
+            ]
+        ] = None,
+        multi: typing.Optional[bool] = None,
+        clearable: typing.Optional[bool] = None,
+        searchable: typing.Optional[bool] = None,
+        search_value: typing.Optional[str] = None,
+        placeholder: typing.Optional[str] = None,
+        disabled: typing.Optional[bool] = None,
+        optionHeight: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        maxHeight: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -167,7 +191,6 @@ class Dropdown(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
@@ -187,7 +210,6 @@ class Dropdown(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",

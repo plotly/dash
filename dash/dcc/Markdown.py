@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Markdown(Component):
@@ -47,46 +55,38 @@ class Markdown(Component):
         A string for the target attribute to use on links (such as
         \"_blank\").
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - mathjax (boolean; default False):
         If True, loads mathjax v3 (tex-svg) into the page and use it in
-        the markdown.
-
-    - style (dict; optional):
-        User-defined inline styles for the rendered Markdown."""
+        the markdown."""
 
     _children_props = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Markdown"
+    HighlightConfig = TypedDict(
+        "HighlightConfig", {"theme": NotRequired[Literal["dark", "light"]]}
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        mathjax=Component.UNDEFINED,
-        dangerously_allow_html=Component.UNDEFINED,
-        link_target=Component.UNDEFINED,
-        dedent=Component.UNDEFINED,
-        highlight_config=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        style=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        className: typing.Optional[str] = None,
+        mathjax: typing.Optional[bool] = None,
+        dangerously_allow_html: typing.Optional[bool] = None,
+        link_target: typing.Optional[str] = None,
+        dedent: typing.Optional[bool] = None,
+        highlight_config: typing.Optional["HighlightConfig"] = None,
+        style: typing.Optional[typing.Any] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -97,7 +97,6 @@ class Markdown(Component):
             "dedent",
             "highlight_config",
             "link_target",
-            "loading_state",
             "mathjax",
             "style",
         ]
@@ -110,7 +109,6 @@ class Markdown(Component):
             "dedent",
             "highlight_config",
             "link_target",
-            "loading_state",
             "mathjax",
             "style",
         ]

@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class RadioItems(Component):
@@ -41,9 +49,6 @@ class RadioItems(Component):
         Indicates whether the options labels should be displayed inline
         (True=horizontal) or in a block (False=vertical).
 
-    - style (dict; optional):
-        The style of the container (div).
-
     - className (string; optional):
         The class of the container (div).
 
@@ -65,21 +70,6 @@ class RadioItems(Component):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
         in an app.
-
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted
@@ -104,24 +94,50 @@ class RadioItems(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "RadioItems"
+    Options = TypedDict(
+        "Options",
+        {
+            "label": typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ],
+            "value": typing.Union[str, typing.Union[int, float, numbers.Number], bool],
+            "disabled": NotRequired[bool],
+            "title": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        options=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        inline=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        inputStyle=Component.UNDEFINED,
-        inputClassName=Component.UNDEFINED,
-        labelStyle=Component.UNDEFINED,
-        labelClassName=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        options: typing.Optional[
+            typing.Union[
+                typing.Sequence[
+                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                ],
+                dict,
+                typing.Sequence["Options"],
+            ]
+        ] = None,
+        value: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+        ] = None,
+        inline: typing.Optional[bool] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
+        inputStyle: typing.Optional[dict] = None,
+        inputClassName: typing.Optional[str] = None,
+        labelStyle: typing.Optional[dict] = None,
+        labelClassName: typing.Optional[str] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -135,7 +151,6 @@ class RadioItems(Component):
             "labelStyle",
             "labelClassName",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
@@ -152,7 +167,6 @@ class RadioItems(Component):
             "labelStyle",
             "labelClassName",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
