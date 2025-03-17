@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react';
+import React, {createRef, PureComponent} from 'react';
 
 import DOM from 'core/browser/DOM';
 import {memoizeOne} from 'core/memoizer';
@@ -19,6 +19,7 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
             __html: md.render(String(value))
         }
     }));
+    elRef: React.RefObject<any>;
 
     constructor(props: IProps) {
         super(props);
@@ -28,6 +29,7 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
                 this.setState({});
             });
         }
+        this.elRef = createRef();
     }
 
     componentDidUpdate() {
@@ -43,7 +45,7 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
 
         return (
             <div
-                ref='el'
+                ref={this.elRef}
                 className={[className, 'cell-markdown'].join(' ')}
                 {...this.getMarkdown(value, markdown, Markdown.isReady)}
             />
@@ -56,7 +58,7 @@ export default class CellMarkdown extends PureComponent<IProps, {}> {
             return;
         }
 
-        const el = this.refs.el as any;
+        const el = this.elRef.current;
 
         if (applyFocus && el && document.activeElement !== el) {
             // Limitation. If React >= 16 --> Use React.createRef instead to pass parent ref to child

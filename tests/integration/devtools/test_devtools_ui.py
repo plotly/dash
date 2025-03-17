@@ -24,14 +24,11 @@ def test_dvui001_disable_props_check_config(dash_duo):
         use_debugger=True,
         dev_tools_hot_reload=False,
         dev_tools_props_check=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Props Check")
     assert dash_duo.find_elements("#broken svg.main-svg"), "graph should be rendered"
-
-    # open the debug menu so we see the "hot reload off" indicator
-    dash_duo.find_element(".dash-debug-menu").click()
-    sleep(1)  # wait for debug menu opening animation
 
     dash_duo.percy_snapshot("devtools - disable props check - Graph should render")
 
@@ -52,6 +49,7 @@ def test_dvui002_disable_ui_config(dash_duo):
         use_debugger=True,
         dev_tools_hot_reload=False,
         dev_tools_ui=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#tcid", "Hello Disable UI")
@@ -74,6 +72,7 @@ def test_dvui003_callback_graph(dash_duo):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     dash_duo.wait_for_text_to_equal("#totals", "0 of 0 items completed")
@@ -91,9 +90,7 @@ def test_dvui003_callback_graph(dash_duo):
         """
     )
 
-    dash_duo.find_element(".dash-debug-menu").click()
-    sleep(1)  # wait for debug menu opening animation
-    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
     sleep(3)  # wait for callback graph to draw
     dash_duo.find_element('canvas[data-id="layer2-node"]')
 
@@ -108,11 +105,11 @@ def test_dvui003_callback_graph(dash_duo):
     )
 
     # hide and redraw the callback graph so we get the new position
-    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
 
     # fire callbacks so the profile state is regenerated
     dash_duo.find_element("#add").click()
-    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
     dash_duo.wait_for_text_to_equal("#totals", "0 of 1 items completed - 0%")
     sleep(2)
     # the manually moved node is still in its new position
@@ -143,11 +140,10 @@ def test_dvui004_width_props(dash_duo):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
-    dash_duo.find_element(".dash-debug-menu").click()
-    sleep(1)  # wait for debug menu opening animation
-    dash_duo.find_element(".dash-debug-menu__button--callbacks").click()
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
     sleep(3)  # wait for callback graph to draw
 
     assert dash_duo.get_logs() == []
@@ -180,7 +176,7 @@ def test_dvui005_undo_redo(dash_duo):
     def set_b(a):
         return a
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.find_element("#a").send_keys("xyz")
 
@@ -215,7 +211,7 @@ def test_dvui006_no_undo_redo(dash_duo):
     def set_b(a):
         return a
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.find_element("#a").send_keys("xyz")
 
