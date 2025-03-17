@@ -410,7 +410,7 @@ def register_callback(
                 job_id = flask.request.args.get("job")
                 old_job = flask.request.args.getlist("oldJob")
 
-                cache_ignore_triggered = long.get("cache_ignore_triggered", True)
+                cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
                 current_key = callback_manager.build_cache_key(
                     func,
