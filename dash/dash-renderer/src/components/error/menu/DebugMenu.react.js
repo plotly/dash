@@ -95,12 +95,12 @@ class DebugMenu extends Component {
 
         // Add the resize event listener
         window.addEventListener('resize', this.resizeListener);
-
-
     }
 
     resizeListener() {
-        const el = window.document.querySelector('#_dash-global-error-container')
+        const el = window.document.querySelector(
+            '#_dash-global-error-container'
+        );
         if (el && !el.classList.contains('hide-dash-debug-console')) {
             // Recalculate size on resize
             this.calcSize();
@@ -178,19 +178,21 @@ class DebugMenu extends Component {
         );
 
         const toggleDebugTools = () => {
-            const el = window.document.querySelector('#_dash-global-error-container')
+            const el = window.document.querySelector(
+                '#_dash-global-error-container'
+            );
             if (el) {
-                el.classList.toggle('hide-dash-debug-console')
+                el.classList.toggle('hide-dash-debug-console');
                 if (el.classList.contains('hide-dash-debug-console')) {
                     const contentElement = document.querySelector('body');
-                    contentElement.style.transform = ''
-                    contentElement.style.transformsOrigin = ''
-                    contentElement.style.overflowX = ''
+                    contentElement.style.transform = '';
+                    contentElement.style.transformsOrigin = '';
+                    contentElement.style.overflowX = '';
                 } else {
-                    this.calcSize()
+                    this.calcSize();
                 }
             }
-        }
+        };
 
         return (
             <div className='debug-tool-holder'>
@@ -201,7 +203,7 @@ class DebugMenu extends Component {
                 <button
                     className='display-debug-toggle'
                     onClick={toggleDebugTools}
-                    >
+                >
                     {errCount > 0 ? (
                         <span className='test-devtools-error-count dash-debug-menu__error-count'>
                             {errCount}
