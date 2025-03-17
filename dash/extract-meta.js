@@ -67,7 +67,7 @@ const BANNED_TYPES = [
     'ChildNode',
     'ParentNode',
 ];
-const unionSupport = PRIMITIVES.concat('boolean', 'Element');
+const unionSupport = PRIMITIVES.concat('boolean', 'Element', 'enum');
 
 const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
 
@@ -261,12 +261,16 @@ function gatherComponents(sources, components = {}) {
                         typeName = 'object';
                     }
                 }
+                if (t.value) {
+                    // A literal value
+                    return true;
+                }
                 return (
                     unionSupport.includes(typeName) ||
                     isArray(checker.typeToString(t))
                 );
             })
-            .map(t => getPropType(t, propObj, parentType));
+            .map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
 
         if (!value.length) {
             name = 'any';
@@ -728,7 +732,7 @@ function gatherComponents(sources, components = {}) {
 
             if (propsType) {
                 if (
-                    propsType.valueDeclaration && 
+                    propsType.valueDeclaration &&
                     propsType.valueDeclaration.name &&
                     propsType.valueDeclaration.name.elements &&
                     propsType.valueDeclaration.name.elements.length
@@ -762,7 +766,7 @@ function gatherComponents(sources, components = {}) {
                         fullText
                             .slice(r.pos + 4, r.end - 3)
                             .split('\n')
-                            .map(s => s.slice(3, s.length))
+                            .map(s => s.replace(/^(\s*\*?\s)/, ''))
                             .filter(e => e)
                             .join('\n')
                     )

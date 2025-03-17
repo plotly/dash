@@ -5,6 +5,13 @@ CONFIG = AttributeDict()
 
 
 def get_asset_url(path):
+    """
+    Return the URL for the provided `path` in the assets directory.
+
+    `dash.get_asset_url` is not compatible with Dash Snapshots.
+    Use `get_asset_url` on the app instance instead: `app.get_asset_url`.
+    See `app.get_asset_url` for more information.
+    """
     return app_get_asset_url(CONFIG, path)
 
 
@@ -59,6 +66,9 @@ def get_relative_path(path):
         if page_name == "page-2":
             return chapters.page_2
     ```
+
+    `dash.get_relative_path` is not compatible with Dash Snapshots. Use
+    `get_relative_path` on the app instance instead: `app.get_relative_path`.
     """
     return app_get_relative_path(CONFIG.requests_pathname_prefix, path)
 

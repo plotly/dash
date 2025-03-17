@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react';
+import React, {createRef, PureComponent} from 'react';
 
 import * as R from 'ramda';
 import Stylesheet from 'core/Stylesheet';
@@ -44,7 +44,25 @@ import reconcile from 'dash-table/type/reconcile';
 
 import PageNavigation from 'dash-table/components/PageNavigation';
 
-type Refs = {[key: string]: HTMLElement};
+type Refs = {
+    table: React.RefObject<HTMLDivElement>;
+    tooltip: React.RefObject<TableTooltip>;
+    r0c0: React.RefObject<HTMLElement>;
+    r0c1: React.RefObject<HTMLElement>;
+    r1c0: React.RefObject<HTMLElement>;
+    r1c1: React.RefObject<HTMLElement>;
+    r1: React.RefObject<HTMLDivElement>;
+};
+
+const tableRefNames = [
+    'table',
+    'tooltip',
+    'r0c0',
+    'r0c1',
+    'r1c0',
+    'r1c1',
+    'r1'
+];
 
 const DEFAULT_STYLE = {
     width: '100%'
@@ -72,10 +90,19 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         R.mergeAll(this.tableStyle(DEFAULT_STYLE, style))
     );
 
+    tableRefs: Refs;
+
     constructor(props: ControlledTableProps) {
         super(props);
 
         this.updateStylesheet();
+
+        this.tableRefs = tableRefNames.reduce((acc, name) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            acc[name] = createRef<React.RefObject<HTMLElement>>();
+            return acc;
+        }, {} as Refs);
     }
 
     getLexerResult = memoizeOne(lexer.bind(undefined, queryLexicon));
@@ -101,8 +128,8 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             return;
         }
 
-        const {r1c1} = this.refs as Refs;
-        const parent: any = r1c1.parentElement;
+        const {r1c1} = this.tableRefs;
+        const parent: any = r1c1.current?.parentElement;
 
         if (
             uiViewport &&
@@ -199,24 +226,28 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             return;
         }
 
-        const {r1c1} = this.refs as Refs;
-        const contentTd = r1c1.querySelector('tr > td:first-of-type');
+        const {r1c1} = this.tableRefs;
+        const contentTd = r1c1.current?.querySelector('tr > td:first-of-type');
 
         if (!contentTd) {
             return;
         }
 
-        const contentThs = r1c1.querySelectorAll('tr th:first-of-type');
+        const contentThs = r1c1.current?.querySelectorAll(
+            'tr th:first-of-type'
+        );
 
-        setState({
-            uiCell: {
-                height: contentTd.clientHeight
-            },
-            uiHeaders: R.map(
-                (th: Element) => ({height: th.clientHeight}),
-                Array.from(contentThs)
-            )
-        });
+        if (contentThs !== undefined) {
+            setState({
+                uiCell: {
+                    height: contentTd.clientHeight
+                },
+                uiHeaders: R.map(
+                    (th: Element) => ({height: th.clientHeight}),
+                    Array.from(contentThs)
+                )
+            });
+        }
     }
 
     handleClick = (event: any) => {
@@ -348,24 +379,32 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     getScrollbarWidthOnce = R.once(getScrollbarWidth);
 
     handleResizeIf = memoizeOne((..._: any[]) => {
-        const {r0c0, r0c1, r1c0, r1c1} = this.refs as Refs;
+        const {r0c0, r0c1, r1c0, r1c1} = this.tableRefs;
 
-        if (!this.isDisplayed(r1c1)) {
+        if (
+            !r1c1.current ||
+            !r1c1.current ||
+            !r0c0.current ||
+            !r0c1.current ||
+            !r1c0.current ||
+            !this.isDisplayed(r1c1.current)
+        ) {
             return;
         }
 
-        r0c1.style.marginLeft = '';
-        r1c1.style.marginLeft = '';
-        r0c0.style.width = '';
-        r1c0.style.width = '';
+        r0c1.current.style.marginLeft = '';
+        r1c1.current.style.marginLeft = '';
+        r0c0.current.style.width = '';
+        r1c0.current.style.width = '';
 
         [r0c0, r0c1, r1c0].forEach(rc => {
-            const table = rc.querySelector('table');
+            if (!rc.current) return;
+            const table = rc.current.querySelector('table');
             if (table) {
                 table.style.width = '';
             }
 
-            this.resetFragmentCells(rc);
+            this.resetFragmentCells(rc.current);
         });
 
         this.handleResize();
@@ -374,22 +413,28 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     handleResize = (previousWidth = NaN, cycle = false) => {
         const {fixed_columns, fixed_rows, setState} = this.props;
 
-        const {r1, r1c1} = this.refs as Refs;
+        const {r1, r1c1, r0c0, r0c1, r1c0} = this.tableRefs;
 
-        if (!this.isDisplayed(r1c1)) {
+        if (
+            !r1c1.current ||
+            !r1.current ||
+            !r1c1.current ||
+            !r0c0.current ||
+            !r0c1.current ||
+            !r1c0.current ||
+            !this.isDisplayed(r1c1.current)
+        ) {
             return;
         }
 
-        this.getScrollbarWidthOnce(r1).then((scrollbarWidth: number) =>
+        this.getScrollbarWidthOnce(r1.current).then((scrollbarWidth: number) =>
             setState({scrollbarWidth})
         );
 
-        const {r0c0, r0c1, r1c0} = this.refs as Refs;
-
-        const r0c0Table = r0c0.querySelector('table');
-        const r0c1Table = r0c1.querySelector('table');
-        const r1c0Table = r1c0.querySelector('table');
-        const r1c1Table = r1c1.querySelector('table') as HTMLElement;
+        const r0c0Table = r0c0.current.querySelector('table');
+        const r0c1Table = r0c1.current.querySelector('table');
+        const r1c0Table = r1c0.current.querySelector('table');
+        const r1c1Table = r1c1.current.querySelector('table') as HTMLElement;
 
         const currentTableWidth = getComputedStyle(r1c1Table).width;
 
@@ -401,45 +446,48 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         if (fixed_columns || fixed_rows) {
             const widths = Array.from(
-                r1c1.querySelectorAll(
+                r1c1.current.querySelectorAll(
                     'table.cell-table > tbody > tr:last-of-type > *'
                 )
             ).map(c => c.getBoundingClientRect().width);
 
             if (!cycle) {
-                this.resizeFragmentCells(r0c0, widths);
-                this.resizeFragmentCells(r0c1, widths);
-                this.resizeFragmentCells(r1c0, widths);
+                this.resizeFragmentCells(r0c0.current, widths);
+                this.resizeFragmentCells(r0c1.current, widths);
+                this.resizeFragmentCells(r1c0.current, widths);
             }
         }
 
         if (fixed_columns) {
-            const lastFixedTd = r1c1.querySelector(
+            const lastFixedTd = r1c1.current.querySelector(
                 `tr:first-of-type > *:nth-of-type(${fixed_columns})`
             );
             if (lastFixedTd) {
                 const lastFixedTdBounds = lastFixedTd.getBoundingClientRect();
                 const lastFixedTdRight =
-                    lastFixedTdBounds.right - r1c1.getBoundingClientRect().left;
+                    lastFixedTdBounds.right -
+                    r1c1.current?.getBoundingClientRect().left;
 
                 // Force first column containers width to match visible portion of table
-                r0c0.style.width = `${lastFixedTdRight}px`;
-                r1c0.style.width = `${lastFixedTdRight}px`;
+                r0c0.current.style.width = `${lastFixedTdRight}px`;
+                r1c0.current.style.width = `${lastFixedTdRight}px`;
             }
         }
 
         // Force second column containers width to match visible portion of table
-        const firstVisibleTd = r1c1.querySelector(
+        const firstVisibleTd = r1c1.current?.querySelector(
             `tr:first-of-type > *:nth-of-type(${fixed_columns + 1})`
         );
         if (firstVisibleTd) {
-            const r1c1FragmentBounds = r1c1.getBoundingClientRect();
+            const r1c1FragmentBounds = r1c1.current?.getBoundingClientRect();
             const firstTdBounds = firstVisibleTd.getBoundingClientRect();
 
             const width = firstTdBounds.left - r1c1FragmentBounds.left;
 
-            r0c1.style.marginLeft = `-${width + r1.scrollLeft}px`;
-            r1c1.style.marginLeft = `-${width}px`;
+            r0c1.current.style.marginLeft = `-${
+                width + r1.current.scrollLeft
+            }px`;
+            r1c1.current.style.marginLeft = `-${width}px`;
         }
 
         if (!cycle) {
@@ -746,6 +794,25 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         });
     };
 
+    getColumnRef(rowIndex: number, colIndex: number) {
+        if (rowIndex === 0) {
+            if (colIndex === 0) {
+                return this.tableRefs.r0c0;
+            }
+            if (colIndex === 1) {
+                return this.tableRefs.r0c1;
+            }
+        }
+        if (rowIndex == 1) {
+            if (colIndex === 0) {
+                return this.tableRefs.r1c0;
+            }
+            if (colIndex === 1) {
+                return this.tableRefs.r1c1;
+            }
+        }
+    }
+
     getNextCell = (event: any, {restrictToSelection, currentCell}: any) => {
         const {selected_cells, viewport, visibleColumns} = this.props;
 
@@ -858,13 +925,16 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
     }
 
     handleDropdown = () => {
-        const {r1c1} = this.refs as Refs;
-
-        dropdownHelper(r1c1.querySelector('.Select-menu-outer'));
+        const {r1c1} = this.tableRefs;
+        if (r1c1.current) {
+            dropdownHelper(r1c1.current.querySelector('.Select-menu-outer'));
+        }
     };
 
     onScroll = (ev: any) => {
-        const {r0c0, r0c1} = this.refs as Refs;
+        const {r0c0, r0c1} = this.tableRefs;
+
+        if (!r0c0.current || !r0c1.current) return;
 
         Logger.trace(
             `ControlledTable fragment scrolled to (left,top)=(${ev.target.scrollLeft},${ev.target.scrollTop})`
@@ -872,9 +942,9 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         const margin =
             parseFloat(ev.target.scrollLeft) +
-            (parseFloat(r0c0.style.width) || 0);
+            (parseFloat(r0c0.current.style.width) || 0);
 
-        r0c1.style.marginLeft = `${-margin}px`;
+        r0c1.current.style.marginLeft = `${-margin}px`;
 
         this.updateUiViewport();
         this.handleDropdown();
@@ -1000,7 +1070,7 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
             >
                 <TableTooltip
                     key='tooltip'
-                    ref='tooltip'
+                    ref={this.tableRefs.tooltip}
                     className='dash-table-tooltip'
                     tooltip={tableTooltip}
                 />
@@ -1010,14 +1080,18 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                 </div>
                 <div className={containerClasses.join(' ')} style={tableStyle}>
                     <div
-                        ref='table'
+                        ref={this.tableRefs.table}
                         className={innerClasses.join(' ')}
                         style={INNER_STYLE}
                     >
                         {grid.map((row, rowIndex) => (
                             <div
                                 key={`r${rowIndex}`}
-                                ref={`r${rowIndex}`}
+                                ref={
+                                    rowIndex === 1
+                                        ? this.tableRefs.r1
+                                        : undefined
+                                }
                                 className={`dt-table-container__row dt-table-container__row-${rowIndex}`}
                                 onScroll={this.onScroll}
                             >
@@ -1029,7 +1103,12 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
                                         <div
                                             style={s.fragment}
                                             key={columnIndex}
-                                            ref={`r${rowIndex}c${columnIndex}`}
+                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                            // @ts-ignore
+                                            ref={this.getColumnRef(
+                                                rowIndex,
+                                                columnIndex
+                                            )}
                                             className={`cell cell-${rowIndex}-${columnIndex} ${c}`}
                                         >
                                             {g
@@ -1167,16 +1246,16 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
 
         const {id, row, header} = currentTooltip;
 
-        const {table, tooltip: t} = this.refs as {[key: string]: any};
+        const {table, tooltip: t} = this.tableRefs;
 
-        if (t) {
-            const cell = table.querySelector(
+        if (t.current && table.current) {
+            const cell = table.current.querySelector(
                 header
                     ? `tr:nth-of-type(${row + 1}) th${columnSelector(id)}`
                     : `td[data-dash-row="${row}"]${columnSelector(id)}`
             );
 
-            (this.refs.tooltip as TableTooltip).updateBounds(cell);
+            t.current.updateBounds(cell);
         }
     }
 

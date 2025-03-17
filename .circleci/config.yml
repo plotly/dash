@@ -3,7 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@5.0.0
   percy: percy/agent@0.1.3
-  browser-tools: circleci/browser-tools@1.4.8
+  browser-tools: circleci/browser-tools@1.5.1
 
 
 jobs:
@@ -99,7 +99,11 @@ jobs:
 
     steps:
       - checkout
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -189,7 +193,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -218,24 +226,6 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: /tmp/dash_artifacts
-
-  test-312-react-18:
-    <<: *test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PERCY_ENABLE: 0
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python312
-          REDIS_URL: redis://localhost:6379
-          REACT_VERSION: "18.2.0"
-      - image: cimg/redis:6.2.6
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
 
   test-38:
     <<: *test
@@ -306,7 +296,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -337,18 +331,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-312-react-18:
-    <<: *dcc-test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
-
   dcc-38:
     <<: *dcc-test
     docker:
@@ -375,7 +357,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -414,18 +400,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-312-react-18:
-    <<: *html-test
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
-
   html-38:
     <<: *html-test
     docker:
@@ -451,7 +425,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -486,15 +464,6 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  table-server-react-18:
-    <<: *table-server
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-          REACT_VERSION: "18.2.0"
-
   table-unit-test:
     working_directory: ~/dash
     docker:
@@ -505,7 +474,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
@@ -540,18 +513,21 @@ jobs:
   table-visual-test:
     working_directory: ~/dash/components/dash-table
     docker:
-      - image: cimg/node:16.13-browsers
+      - image: cimg/node:lts-browsers
         environment:
           PERCY_TOKEN: $PERCY_TOKEN_TABLE
 
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - restore_cache:
           key: dep-{{ .Branch }}-{{ checksum "package-lock.json" }}-{{ checksum "package.json" }}
       - browser-tools/install-browser-tools:
-          chrome-version: 120.0.6099.71
           install-firefox: false
           install-geckodriver: false
       - run:
@@ -628,9 +604,6 @@ workflows:
       - test-312:
           requires:
             - install-dependencies-312
-      - test-312-react-18:
-          requires:
-            - install-dependencies-312
       - test-38:
           requires:
             - install-dependencies-38
@@ -645,17 +618,11 @@ workflows:
       - dcc-312:
           requires:
             - install-dependencies-312
-      - dcc-312-react-18:
-          requires:
-            - install-dependencies-312
       - dcc-38:
           requires:
             - install-dependencies-38
 
       - html-312:
-          requires:
-            - install-dependencies-312
-      - html-312-react-18:
           requires:
             - install-dependencies-312
       - html-38:
@@ -670,9 +637,6 @@ workflows:
             - install-dependencies-312
       - table-visual-test
       - table-server:
-          requires:
-            - install-dependencies-312
-      - table-server-react-18:
           requires:
             - install-dependencies-312
 

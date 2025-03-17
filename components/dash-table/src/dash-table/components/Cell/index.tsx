@@ -31,7 +31,6 @@ export default class Cell extends Component<ICellProps> {
 
         return (
             <td
-                ref='td'
                 children={(this as any).props.children}
                 tabIndex={-1}
                 className={className}

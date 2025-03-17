@@ -177,24 +177,6 @@ function generatePropTypes(element, attributes) {
         }, '') + `
 
     /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    'loading_state': PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
-
-    /**
      * Dash-assigned callback that gets fired when the element is clicked.
      */
     'setProps': PropTypes.func`
@@ -300,7 +282,9 @@ ${customImport}
  */
 const ${Component} = ({n_clicks = 0, n_clicks_timestamp = -1, ...props}) => {
     const extraProps = {};
-    if(props.loading_state && props.loading_state.is_loading) {
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
+    if (loading) {
         extraProps['data-dash-is-loading'] = true;
     }
 ${customCode}

@@ -1,6 +1,7 @@
 import React, {
     ChangeEvent,
     ClipboardEvent,
+    createRef,
     KeyboardEvent,
     MouseEvent,
     PureComponent
@@ -25,12 +26,15 @@ interface ICellState {
 }
 
 export default class CellInput extends PureComponent<ICellProps, ICellState> {
+    textInputRef: React.RefObject<any>;
     constructor(props: ICellProps) {
         super(props);
 
         this.state = {
             value: props.value
         };
+
+        this.textInputRef = createRef();
     }
 
     render() {
@@ -46,7 +50,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
                     {value}
                 </div>
                 <input
-                    ref='textInput'
+                    ref={this.textInputRef}
                     type='text'
                     className={className}
                     onBlur={this.propagateChange}
@@ -116,7 +120,7 @@ export default class CellInput extends PureComponent<ICellProps, ICellState> {
             return;
         }
 
-        const input = this.refs.textInput as HTMLInputElement;
+        const input = this.textInputRef.current;
 
         if (applyFocus && input && document.activeElement !== input) {
             input.focus();
