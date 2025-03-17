@@ -89,6 +89,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#3080](https://github.com/plotly/dash/pull/3080) Fix docstring generation for components using single-line or nonstandard-indent leading comments
 - [#3103](https://github.com/plotly/dash/pull/3103) Fix Graph component becomes unresponsive if an invalid figure is passed
+- [#3190](https://github.com/plotly/dash/pull/3190) Fix issue with cache key generation by adding option to include triggered inputs. Fixes [#3189](https://github.com/plotly/dash/issues/3189)
 - [#3130](https://github.com/plotly/dash/pull/3130) Fix HOST variable when using conda.
 - [#3066](https://github.com/plotly/dash/pull/3066) Improve performance of context components re-rendering.
 
