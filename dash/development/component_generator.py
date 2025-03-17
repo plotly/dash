@@ -139,7 +139,11 @@ def generate_components(
 
     components = generate_classes_files(project_shortname, metadata, *generator_methods)
 
-    generate_prop_types(metadata, project_shortname)
+    generate_prop_types(
+        metadata,
+        project_shortname,
+        custom_typing_module=custom_typing_module,
+    )
 
     with open(
         os.path.join(project_shortname, "metadata.json"), "w", encoding="utf-8"

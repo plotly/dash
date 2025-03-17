@@ -54,7 +54,7 @@ class BaseBackgroundCallbackManager(ABC):
     def get_updated_props(self, key):
         raise NotImplementedError
 
-    def build_cache_key(self, fn, args, cache_args_to_ignore):
+    def build_cache_key(self, fn, args, cache_args_to_ignore, triggered):
         fn_source = inspect.getsource(fn)
 
         if not isinstance(cache_args_to_ignore, (list, tuple)):
@@ -68,7 +68,7 @@ class BaseBackgroundCallbackManager(ABC):
                     arg for i, arg in enumerate(args) if i not in cache_args_to_ignore
                 ]
 
-        hash_dict = dict(args=args, fn_source=fn_source)
+        hash_dict = dict(args=args, fn_source=fn_source, triggered=triggered)
 
         if self.cache_by is not None:
             # Caching enabled

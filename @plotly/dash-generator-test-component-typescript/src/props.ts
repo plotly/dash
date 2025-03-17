@@ -47,6 +47,8 @@ export type TypescriptComponentProps = {
 
     object_of_string?: {[k: string]: string};
     object_of_components?: {[k: string]: JSX.Element};
+    ignored_prop?: {ignore: {me: string}};
+    union_enum?: number | 'small' | 'large'
 };
 
 export type WrappedHTMLProps = {

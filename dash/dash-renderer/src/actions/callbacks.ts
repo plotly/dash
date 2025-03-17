@@ -664,9 +664,14 @@ function getTriggeredId(triggered: string[]): string | object | undefined {
     // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
     // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
     if (triggered && triggered.length) {
-        let componentId = triggered[0].split('.')[0];
-        if (componentId.startsWith('{')) {
-            componentId = JSON.parse(componentId);
+        const trig = triggered[0];
+        let componentId;
+        if (trig.startsWith('{')) {
+            componentId = JSON.parse(
+                trig.substring(0, trig.lastIndexOf('}') + 1)
+            );
+        } else {
+            componentId = trig.split('.')[0];
         }
         return componentId;
     }
