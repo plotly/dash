@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Link(Component):
@@ -32,9 +40,6 @@ class Link(Component):
     - className (string; optional):
         Often used with CSS to style elements with common properties.
 
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
     - id (string; optional):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
@@ -59,19 +64,35 @@ class Link(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Link"
+    LoadingState = TypedDict(
+        "LoadingState",
+        {
+            "is_loading": NotRequired[bool],
+            "prop_name": NotRequired[str],
+            "component_name": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        href=Component.REQUIRED,
-        target=Component.UNDEFINED,
-        refresh=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        href: typing.Optional[str] = None,
+        target: typing.Optional[str] = None,
+        refresh: typing.Optional[bool] = None,
+        title: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        loading_state: typing.Optional["LoadingState"] = None,
         **kwargs
     ):
         self._prop_names = [

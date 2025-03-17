@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Textarea(Component):
@@ -80,21 +88,6 @@ class Textarea(Component):
     - lang (string; optional):
         Defines the language used in the element.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - maxLength (string | number; optional):
         Defines the maximum number of characters allowed in the element.
 
@@ -133,9 +126,6 @@ class Textarea(Component):
     - spellCheck (string; optional):
         Indicates whether spell checking is allowed for the element.
 
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
     - tabIndex (string | number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
@@ -154,39 +144,64 @@ class Textarea(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        n_clicks=Component.UNDEFINED,
-        n_clicks_timestamp=Component.UNDEFINED,
-        disable_n_clicks=Component.UNDEFINED,
-        key=Component.UNDEFINED,
-        autoFocus=Component.UNDEFINED,
-        autoComplete=Component.UNDEFINED,
-        cols=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        form=Component.UNDEFINED,
-        inputMode=Component.UNDEFINED,
-        maxLength=Component.UNDEFINED,
-        minLength=Component.UNDEFINED,
-        name=Component.UNDEFINED,
-        placeholder=Component.UNDEFINED,
-        readOnly=Component.UNDEFINED,
-        required=Component.UNDEFINED,
-        rows=Component.UNDEFINED,
-        wrap=Component.UNDEFINED,
-        accessKey=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        contentEditable=Component.UNDEFINED,
-        dir=Component.UNDEFINED,
-        draggable=Component.UNDEFINED,
-        hidden=Component.UNDEFINED,
-        lang=Component.UNDEFINED,
-        role=Component.UNDEFINED,
-        spellCheck=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        tabIndex=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        disable_n_clicks: typing.Optional[bool] = None,
+        key: typing.Optional[str] = None,
+        autoFocus: typing.Optional[
+            typing.Union[Literal["autoFocus", "autofocus", "AUTOFOCUS"], bool]
+        ] = None,
+        autoComplete: typing.Optional[str] = None,
+        cols: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        disabled: typing.Optional[
+            typing.Union[Literal["disabled", "DISABLED"], bool]
+        ] = None,
+        form: typing.Optional[str] = None,
+        inputMode: typing.Optional[str] = None,
+        maxLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        minLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        name: typing.Optional[str] = None,
+        placeholder: typing.Optional[str] = None,
+        readOnly: typing.Optional[str] = None,
+        required: typing.Optional[
+            typing.Union[Literal["required", "REQUIRED"], bool]
+        ] = None,
+        rows: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        wrap: typing.Optional[str] = None,
+        accessKey: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        contentEditable: typing.Optional[str] = None,
+        dir: typing.Optional[str] = None,
+        draggable: typing.Optional[str] = None,
+        hidden: typing.Optional[typing.Union[Literal["hidden", "HIDDEN"], bool]] = None,
+        lang: typing.Optional[str] = None,
+        role: typing.Optional[str] = None,
+        spellCheck: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        tabIndex: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        title: typing.Optional[str] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -209,7 +224,6 @@ class Textarea(Component):
             "inputMode",
             "key",
             "lang",
-            "loading_state",
             "maxLength",
             "minLength",
             "n_clicks",
@@ -247,7 +261,6 @@ class Textarea(Component):
             "inputMode",
             "key",
             "lang",
-            "loading_state",
             "maxLength",
             "minLength",
             "n_clicks",

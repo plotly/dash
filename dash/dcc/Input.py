@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Input(Component):
@@ -193,9 +201,6 @@ class Input(Component):
         fonts. In some browsers, a certain string with x characters will
         not be entirely visible even if size is defined to at least x.
 
-    - style (dict; optional):
-        The input's inline styles.
-
     - className (string; optional):
         The class of the input element.
 
@@ -203,21 +208,6 @@ class Input(Component):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
         in an app.
-
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted
@@ -246,41 +236,98 @@ class Input(Component):
     @_explicitize_args
     def __init__(
         self,
-        value=Component.UNDEFINED,
-        type=Component.UNDEFINED,
-        debounce=Component.UNDEFINED,
-        placeholder=Component.UNDEFINED,
-        n_submit=Component.UNDEFINED,
-        n_submit_timestamp=Component.UNDEFINED,
-        inputMode=Component.UNDEFINED,
-        autoComplete=Component.UNDEFINED,
-        readOnly=Component.UNDEFINED,
-        required=Component.UNDEFINED,
-        autoFocus=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        list=Component.UNDEFINED,
-        multiple=Component.UNDEFINED,
-        spellCheck=Component.UNDEFINED,
-        name=Component.UNDEFINED,
-        min=Component.UNDEFINED,
-        max=Component.UNDEFINED,
-        step=Component.UNDEFINED,
-        minLength=Component.UNDEFINED,
-        maxLength=Component.UNDEFINED,
-        pattern=Component.UNDEFINED,
-        selectionStart=Component.UNDEFINED,
-        selectionEnd=Component.UNDEFINED,
-        selectionDirection=Component.UNDEFINED,
-        n_blur=Component.UNDEFINED,
-        n_blur_timestamp=Component.UNDEFINED,
-        size=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        value: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        type: typing.Optional[
+            Literal[
+                "text",
+                "number",
+                "password",
+                "email",
+                "range",
+                "search",
+                "tel",
+                "url",
+                "hidden",
+            ]
+        ] = None,
+        debounce: typing.Optional[
+            typing.Union[bool, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        placeholder: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        n_submit: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_submit_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        inputMode: typing.Optional[
+            Literal[
+                "verbatim",
+                "latin",
+                "latin-name",
+                "latin-prose",
+                "full-width-latin",
+                "kana",
+                "katakana",
+                "numeric",
+                "tel",
+                "email",
+                "url",
+            ]
+        ] = None,
+        autoComplete: typing.Optional[str] = None,
+        readOnly: typing.Optional[
+            typing.Union[bool, Literal["readOnly", "readonly", "READONLY"]]
+        ] = None,
+        required: typing.Optional[
+            typing.Union[Literal["required", "REQUIRED"], bool]
+        ] = None,
+        autoFocus: typing.Optional[
+            typing.Union[Literal["autoFocus", "autofocus", "AUTOFOCUS"], bool]
+        ] = None,
+        disabled: typing.Optional[
+            typing.Union[Literal["disabled", "DISABLED"], bool]
+        ] = None,
+        list: typing.Optional[str] = None,
+        multiple: typing.Optional[bool] = None,
+        spellCheck: typing.Optional[
+            typing.Union[Literal["true", "false"], bool]
+        ] = None,
+        name: typing.Optional[str] = None,
+        min: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        max: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        step: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        minLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        maxLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        pattern: typing.Optional[str] = None,
+        selectionStart: typing.Optional[str] = None,
+        selectionEnd: typing.Optional[str] = None,
+        selectionDirection: typing.Optional[str] = None,
+        n_blur: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_blur_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        size: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -315,7 +362,6 @@ class Input(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
@@ -353,7 +399,6 @@ class Input(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",

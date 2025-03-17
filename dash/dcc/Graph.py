@@ -1,6 +1,17 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+
+
+from plotly.graph_objects import Figure
 
 
 class Graph(Component):
@@ -251,21 +262,6 @@ class Graph(Component):
     - hoverData (dict; optional):
         Data from latest hover event. Read-only.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - mathjax (boolean; default False):
         If True, loads mathjax v3 (tex-svg) into the page and use it in
         the graph.
@@ -311,38 +307,101 @@ class Graph(Component):
         Read-only.
 
     - selectedData (dict; optional):
-        Data from latest select event. Read-only.
-
-    - style (dict; optional):
-        Generic style overrides on the plot div."""
+        Data from latest select event. Read-only."""
 
     _children_props = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Graph"
+    ConfigEdits = TypedDict(
+        "ConfigEdits",
+        {
+            "annotationPosition": NotRequired[bool],
+            "annotationTail": NotRequired[bool],
+            "annotationText": NotRequired[bool],
+            "axisTitleText": NotRequired[bool],
+            "colorbarPosition": NotRequired[bool],
+            "colorbarTitleText": NotRequired[bool],
+            "legendPosition": NotRequired[bool],
+            "legendText": NotRequired[bool],
+            "shapePosition": NotRequired[bool],
+            "titleText": NotRequired[bool],
+        },
+    )
+
+    ConfigToImageButtonOptions = TypedDict(
+        "ConfigToImageButtonOptions",
+        {
+            "format": NotRequired[Literal["jpeg", "png", "webp", "svg"]],
+            "filename": NotRequired[str],
+            "width": NotRequired[typing.Union[int, float, numbers.Number]],
+            "height": NotRequired[typing.Union[int, float, numbers.Number]],
+            "scale": NotRequired[typing.Union[int, float, numbers.Number]],
+        },
+    )
+
+    Config = TypedDict(
+        "Config",
+        {
+            "staticPlot": NotRequired[bool],
+            "plotlyServerURL": NotRequired[str],
+            "editable": NotRequired[bool],
+            "editSelection": NotRequired[bool],
+            "edits": NotRequired["ConfigEdits"],
+            "autosizable": NotRequired[bool],
+            "responsive": NotRequired[bool],
+            "queueLength": NotRequired[typing.Union[int, float, numbers.Number]],
+            "fillFrame": NotRequired[bool],
+            "frameMargins": NotRequired[typing.Union[int, float, numbers.Number]],
+            "scrollZoom": NotRequired[bool],
+            "doubleClick": NotRequired[
+                Literal[False, "reset", "autosize", "reset+autosize"]
+            ],
+            "doubleClickDelay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "showTips": NotRequired[bool],
+            "showAxisDragHandles": NotRequired[bool],
+            "showAxisRangeEntryBoxes": NotRequired[bool],
+            "showLink": NotRequired[bool],
+            "sendData": NotRequired[bool],
+            "linkText": NotRequired[str],
+            "displayModeBar": NotRequired[Literal[True, False, "hover"]],
+            "showSendToCloud": NotRequired[bool],
+            "showEditInChartStudio": NotRequired[bool],
+            "modeBarButtonsToRemove": NotRequired[typing.Sequence],
+            "modeBarButtonsToAdd": NotRequired[typing.Sequence],
+            "modeBarButtons": NotRequired[typing.Any],
+            "toImageButtonOptions": NotRequired["ConfigToImageButtonOptions"],
+            "displaylogo": NotRequired[bool],
+            "watermark": NotRequired[bool],
+            "plotGlPixelRatio": NotRequired[typing.Union[int, float, numbers.Number]],
+            "topojsonURL": NotRequired[str],
+            "mapboxAccessToken": NotRequired[typing.Any],
+            "locale": NotRequired[str],
+            "locales": NotRequired[dict],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        responsive=Component.UNDEFINED,
-        clickData=Component.UNDEFINED,
-        clickAnnotationData=Component.UNDEFINED,
-        hoverData=Component.UNDEFINED,
-        clear_on_unhover=Component.UNDEFINED,
-        selectedData=Component.UNDEFINED,
-        relayoutData=Component.UNDEFINED,
-        extendData=Component.UNDEFINED,
-        prependData=Component.UNDEFINED,
-        restyleData=Component.UNDEFINED,
-        figure=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        mathjax=Component.UNDEFINED,
-        animate=Component.UNDEFINED,
-        animation_options=Component.UNDEFINED,
-        config=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        responsive: typing.Optional[Literal[True, False, "auto"]] = None,
+        clickData: typing.Optional[dict] = None,
+        clickAnnotationData: typing.Optional[dict] = None,
+        hoverData: typing.Optional[dict] = None,
+        clear_on_unhover: typing.Optional[bool] = None,
+        selectedData: typing.Optional[dict] = None,
+        relayoutData: typing.Optional[dict] = None,
+        extendData: typing.Optional[typing.Union[typing.Sequence, dict]] = None,
+        prependData: typing.Optional[typing.Union[typing.Sequence, dict]] = None,
+        restyleData: typing.Optional[typing.Sequence] = None,
+        figure: typing.Optional[typing.Union[Figure, dict]] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
+        mathjax: typing.Optional[bool] = None,
+        animate: typing.Optional[bool] = None,
+        animation_options: typing.Optional[dict] = None,
+        config: typing.Optional["Config"] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -357,7 +416,6 @@ class Graph(Component):
             "extendData",
             "figure",
             "hoverData",
-            "loading_state",
             "mathjax",
             "prependData",
             "relayoutData",
@@ -379,7 +437,6 @@ class Graph(Component):
             "extendData",
             "figure",
             "hoverData",
-            "loading_state",
             "mathjax",
             "prependData",
             "relayoutData",

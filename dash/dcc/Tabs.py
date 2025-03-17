@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Tabs(Component):
@@ -45,21 +53,6 @@ class Tabs(Component):
         Appends (inline) styles to the tab content container holding the
         children of the Tab that is selected.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - mobile_breakpoint (number; default 800):
         Breakpoint at which tabs are rendered full width (can be 0 if you
         don't want full width tabs on mobile).
@@ -91,10 +84,6 @@ class Tabs(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit.
 
-    - style (dict; optional):
-        Appends (inline) styles to the Tabs container holding the
-        individual Tab components.
-
     - value (string; optional):
         The value of the currently selected Tab.
 
@@ -105,26 +94,45 @@ class Tabs(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tabs"
+    Colors = TypedDict(
+        "Colors",
+        {
+            "border": NotRequired[str],
+            "primary": NotRequired[str],
+            "background": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        content_className=Component.UNDEFINED,
-        parent_className=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        parent_style=Component.UNDEFINED,
-        content_style=Component.UNDEFINED,
-        vertical=Component.UNDEFINED,
-        mobile_breakpoint=Component.UNDEFINED,
-        colors=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        value: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        content_className: typing.Optional[str] = None,
+        parent_className: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        parent_style: typing.Optional[dict] = None,
+        content_style: typing.Optional[dict] = None,
+        vertical: typing.Optional[bool] = None,
+        mobile_breakpoint: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        colors: typing.Optional["Colors"] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -134,7 +142,6 @@ class Tabs(Component):
             "colors",
             "content_className",
             "content_style",
-            "loading_state",
             "mobile_breakpoint",
             "parent_className",
             "parent_style",
@@ -153,7 +160,6 @@ class Tabs(Component):
             "colors",
             "content_className",
             "content_style",
-            "loading_state",
             "mobile_breakpoint",
             "parent_className",
             "parent_style",

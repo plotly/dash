@@ -13,7 +13,6 @@ from .Interval import Interval
 from .Link import Link
 from .Loading import Loading
 from .Location import Location
-from .LogoutButton import LogoutButton
 from .Markdown import Markdown
 from .RadioItems import RadioItems
 from .RangeSlider import RangeSlider
@@ -41,7 +40,6 @@ __all__ = [
     "Link",
     "Loading",
     "Location",
-    "LogoutButton",
     "Markdown",
     "RadioItems",
     "RangeSlider",

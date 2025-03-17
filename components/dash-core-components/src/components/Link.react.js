@@ -33,21 +33,15 @@ CustomEvent.prototype = window.Event.prototype;
  * component to use.
  */
 const Link = ({refresh = false, ...props}) => {
-    const {
-        className,
-        style,
-        id,
-        href,
-        loading_state,
-        children,
-        title,
-        target,
-        setProps,
-    } = props;
+    const {className, style, id, href, children, title, target, setProps} =
+        props;
     const cleanUrl = window.dash_clientside.clean_url;
     const sanitizedUrl = useMemo(() => {
         return href ? cleanUrl(href) : undefined;
     }, [href]);
+
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
 
     const updateLocation = e => {
         const hasModifiers = e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
@@ -80,9 +74,7 @@ const Link = ({refresh = false, ...props}) => {
 
     return (
         <a
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={loading || undefined}
             id={id}
             className={className}
             style={style}

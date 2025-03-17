@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Area(Component):
@@ -70,21 +78,6 @@ class Area(Component):
     - lang (string; optional):
         Defines the language used in the element.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - media (string; optional):
         Specifies a hint of the media for which the linked resource was
         designed.
@@ -114,9 +107,6 @@ class Area(Component):
     - spellCheck (string; optional):
         Indicates whether spell checking is allowed for the element.
 
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
     - tabIndex (string | number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
@@ -137,34 +127,45 @@ class Area(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        n_clicks=Component.UNDEFINED,
-        n_clicks_timestamp=Component.UNDEFINED,
-        disable_n_clicks=Component.UNDEFINED,
-        key=Component.UNDEFINED,
-        alt=Component.UNDEFINED,
-        coords=Component.UNDEFINED,
-        download=Component.UNDEFINED,
-        href=Component.UNDEFINED,
-        media=Component.UNDEFINED,
-        referrerPolicy=Component.UNDEFINED,
-        rel=Component.UNDEFINED,
-        shape=Component.UNDEFINED,
-        target=Component.UNDEFINED,
-        accessKey=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        contentEditable=Component.UNDEFINED,
-        dir=Component.UNDEFINED,
-        draggable=Component.UNDEFINED,
-        hidden=Component.UNDEFINED,
-        lang=Component.UNDEFINED,
-        role=Component.UNDEFINED,
-        spellCheck=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        tabIndex=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        disable_n_clicks: typing.Optional[bool] = None,
+        key: typing.Optional[str] = None,
+        alt: typing.Optional[str] = None,
+        coords: typing.Optional[str] = None,
+        download: typing.Optional[str] = None,
+        href: typing.Optional[str] = None,
+        media: typing.Optional[str] = None,
+        referrerPolicy: typing.Optional[str] = None,
+        rel: typing.Optional[str] = None,
+        shape: typing.Optional[str] = None,
+        target: typing.Optional[str] = None,
+        accessKey: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        contentEditable: typing.Optional[str] = None,
+        dir: typing.Optional[str] = None,
+        draggable: typing.Optional[str] = None,
+        hidden: typing.Optional[typing.Union[Literal["hidden", "HIDDEN"], bool]] = None,
+        lang: typing.Optional[str] = None,
+        role: typing.Optional[str] = None,
+        spellCheck: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        tabIndex: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        title: typing.Optional[str] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -185,7 +186,6 @@ class Area(Component):
             "href",
             "key",
             "lang",
-            "loading_state",
             "media",
             "n_clicks",
             "n_clicks_timestamp",
@@ -218,7 +218,6 @@ class Area(Component):
             "href",
             "key",
             "lang",
-            "loading_state",
             "media",
             "n_clicks",
             "n_clicks_timestamp",

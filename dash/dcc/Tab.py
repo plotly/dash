@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Tab(Component):
@@ -34,30 +42,12 @@ class Tab(Component):
     - label (string; optional):
         The tab's label.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - selected_className (string; optional):
         Appends a class to the Tab component when it is selected.
 
     - selected_style (dict; optional):
         Overrides the default (inline) styles for the Tab component when
         it is selected.
-
-    - style (dict; optional):
-        Overrides the default (inline) styles for the Tab component.
 
     - value (string; optional):
         Value for determining which Tab is currently selected."""
@@ -70,18 +60,25 @@ class Tab(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        label=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        disabled_style=Component.UNDEFINED,
-        disabled_className=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        selected_className=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        selected_style=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        label: typing.Optional[str] = None,
+        value: typing.Optional[str] = None,
+        disabled: typing.Optional[bool] = None,
+        disabled_style: typing.Optional[dict] = None,
+        disabled_className: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        selected_className: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        selected_style: typing.Optional[dict] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -92,7 +89,6 @@ class Tab(Component):
             "disabled_className",
             "disabled_style",
             "label",
-            "loading_state",
             "selected_className",
             "selected_style",
             "style",
@@ -107,7 +103,6 @@ class Tab(Component):
             "disabled_className",
             "disabled_style",
             "label",
-            "loading_state",
             "selected_className",
             "selected_style",
             "style",

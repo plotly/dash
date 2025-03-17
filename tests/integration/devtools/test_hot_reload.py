@@ -107,8 +107,6 @@ def test_dvhr001_hot_reload(dash_duo_mp):
     assert dash_duo_mp.driver.execute_script("return window.someVar") is None
 
     # Now check the server status indicator functionality
-
-    dash_duo_mp.find_element(".dash-debug-menu").click()
     dash_duo_mp.find_element(".dash-debug-menu__button--available")
     sleep(1)  # wait for opening animation
     dash_duo_mp.percy_snapshot(name="hot-reload-available")
@@ -118,10 +116,6 @@ def test_dvhr001_hot_reload(dash_duo_mp):
     dash_duo_mp.wait_for_element(".dash-debug-menu__button--unavailable")
     dash_duo_mp.wait_for_no_elements(".dash-fe-error__title")
     dash_duo_mp.percy_snapshot(name="hot-reload-unavailable")
-
-    dash_duo_mp.find_element(".dash-debug-menu").click()
-    sleep(1)  # wait for opening animation
-    dash_duo_mp.find_element(".dash-debug-disconnected")
     dash_duo_mp.percy_snapshot(name="hot-reload-unavailable-small")
 
     dash_duo_mp.find_element("#btn").click()
@@ -134,5 +128,4 @@ def test_dvhr001_hot_reload(dash_duo_mp):
 
     # rerenders with debug menu closed after reload
     # reopen and check that server is now available
-    dash_duo_mp.find_element(".dash-debug-menu--closed").click()
     dash_duo_mp.find_element(".dash-debug-menu__button--available")

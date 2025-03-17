@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Textarea(Component):
@@ -54,21 +62,6 @@ class Textarea(Component):
     - lang (string; optional):
         Defines the language used in the element.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - maxLength (string | number; optional):
         Defines the maximum number of characters allowed in the element.
 
@@ -81,7 +74,7 @@ class Textarea(Component):
     - n_blur_timestamp (number; default -1):
         Last time the textarea lost focus.
 
-    - n_clicks (number; default 0):
+    - n_clicks (number; optional):
         Number of times the textarea has been clicked.
 
     - n_clicks_timestamp (number; default -1):
@@ -91,7 +84,7 @@ class Textarea(Component):
         Name of the element. For example used by the server to identify
         the fields in form submits.
 
-    - persisted_props (list of a value equal to: 'value's; default ['value']):
+    - persisted_props (list of a value equal to: 'value's; optional):
         Properties whose user interactions will persist after refreshing
         the component or the page. Since only `value` is allowed this prop
         can normally be ignored.
@@ -104,7 +97,7 @@ class Textarea(Component):
         long as the new `value` also matches what was given originally.
         Used in conjunction with `persistence_type`.
 
-    - persistence_type (a value equal to: 'local', 'session', 'memory'; default 'local'):
+    - persistence_type (a value equal to: 'local', 'session', 'memory'; optional):
         Where persisted user changes will be stored: memory: only kept in
         memory, reset on page refresh. local: window.localStorage, data is
         kept after the browser quit. session: window.sessionStorage, data
@@ -131,9 +124,6 @@ class Textarea(Component):
     - spellCheck (a value equal to: 'true', 'false' | boolean; optional):
         Indicates whether spell checking is allowed for the element.
 
-    - style (dict; optional):
-        Defines CSS styles which will override styles previously set.
-
     - tabIndex (string | number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
@@ -155,40 +145,61 @@ class Textarea(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        value=Component.UNDEFINED,
-        autoFocus=Component.UNDEFINED,
-        cols=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        form=Component.UNDEFINED,
-        maxLength=Component.UNDEFINED,
-        minLength=Component.UNDEFINED,
-        name=Component.UNDEFINED,
-        placeholder=Component.UNDEFINED,
-        readOnly=Component.UNDEFINED,
-        required=Component.UNDEFINED,
-        rows=Component.UNDEFINED,
-        wrap=Component.UNDEFINED,
-        accessKey=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        contentEditable=Component.UNDEFINED,
-        contextMenu=Component.UNDEFINED,
-        dir=Component.UNDEFINED,
-        draggable=Component.UNDEFINED,
-        hidden=Component.UNDEFINED,
-        lang=Component.UNDEFINED,
-        spellCheck=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        tabIndex=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        n_blur=Component.UNDEFINED,
-        n_blur_timestamp=Component.UNDEFINED,
-        n_clicks=Component.UNDEFINED,
-        n_clicks_timestamp=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        value: typing.Optional[str] = None,
+        autoFocus: typing.Optional[str] = None,
+        cols: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        disabled: typing.Optional[typing.Union[str, bool]] = None,
+        form: typing.Optional[str] = None,
+        maxLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        minLength: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        name: typing.Optional[str] = None,
+        placeholder: typing.Optional[str] = None,
+        readOnly: typing.Optional[
+            typing.Union[bool, Literal["readOnly", "readonly", "READONLY"]]
+        ] = None,
+        required: typing.Optional[
+            typing.Union[Literal["required", "REQUIRED"], bool]
+        ] = None,
+        rows: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        wrap: typing.Optional[str] = None,
+        accessKey: typing.Optional[str] = None,
+        className: typing.Optional[str] = None,
+        contentEditable: typing.Optional[typing.Union[str, bool]] = None,
+        contextMenu: typing.Optional[str] = None,
+        dir: typing.Optional[str] = None,
+        draggable: typing.Optional[typing.Union[Literal["true", "false"], bool]] = None,
+        hidden: typing.Optional[str] = None,
+        lang: typing.Optional[str] = None,
+        spellCheck: typing.Optional[
+            typing.Union[Literal["true", "false"], bool]
+        ] = None,
+        style: typing.Optional[typing.Any] = None,
+        tabIndex: typing.Optional[
+            typing.Union[str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        title: typing.Optional[str] = None,
+        n_blur: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_blur_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_clicks_timestamp: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -205,7 +216,6 @@ class Textarea(Component):
             "form",
             "hidden",
             "lang",
-            "loading_state",
             "maxLength",
             "minLength",
             "n_blur",
@@ -242,7 +252,6 @@ class Textarea(Component):
             "form",
             "hidden",
             "lang",
-            "loading_state",
             "maxLength",
             "minLength",
             "n_blur",

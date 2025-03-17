@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Download(Component):
@@ -42,14 +50,23 @@ class Download(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Download"
+    Data = TypedDict(
+        "Data",
+        {
+            "filename": str,
+            "content": str,
+            "base64": NotRequired[bool],
+            "type": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        data=Component.UNDEFINED,
-        base64=Component.UNDEFINED,
-        type=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        data: typing.Optional["Data"] = None,
+        base64: typing.Optional[bool] = None,
+        type: typing.Optional[str] = None,
         **kwargs
     ):
         self._prop_names = ["id", "base64", "data", "type"]

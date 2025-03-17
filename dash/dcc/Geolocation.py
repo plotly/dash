@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Geolocation(Component):
@@ -90,20 +98,40 @@ class Geolocation(Component):
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Geolocation"
+    Position = TypedDict(
+        "Position",
+        {
+            "lat": NotRequired[typing.Union[int, float, numbers.Number]],
+            "lon": NotRequired[typing.Union[int, float, numbers.Number]],
+            "accuracy": NotRequired[typing.Union[int, float, numbers.Number]],
+            "alt": NotRequired[typing.Union[int, float, numbers.Number]],
+            "alt_accuracy": NotRequired[typing.Union[int, float, numbers.Number]],
+            "heading": NotRequired[typing.Union[int, float, numbers.Number]],
+            "speed": NotRequired[typing.Union[int, float, numbers.Number]],
+        },
+    )
+
+    PositionError = TypedDict(
+        "PositionError",
+        {
+            "code": NotRequired[typing.Union[int, float, numbers.Number]],
+            "message": NotRequired[str],
+        },
+    )
 
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        local_date=Component.UNDEFINED,
-        timestamp=Component.UNDEFINED,
-        position=Component.UNDEFINED,
-        position_error=Component.UNDEFINED,
-        show_alert=Component.UNDEFINED,
-        update_now=Component.UNDEFINED,
-        high_accuracy=Component.UNDEFINED,
-        maximum_age=Component.UNDEFINED,
-        timeout=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        local_date: typing.Optional[str] = None,
+        timestamp: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        position: typing.Optional["Position"] = None,
+        position_error: typing.Optional["PositionError"] = None,
+        show_alert: typing.Optional[bool] = None,
+        update_now: typing.Optional[bool] = None,
+        high_accuracy: typing.Optional[bool] = None,
+        maximum_age: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        timeout: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
         **kwargs
     ):
         self._prop_names = [

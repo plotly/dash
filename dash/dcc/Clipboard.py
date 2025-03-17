@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Clipboard(Component):
@@ -22,26 +30,8 @@ class Clipboard(Component):
         The clipboard html text be copied to the clipboard if the
         `target_id` is None.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - n_clicks (number; default 0):
         The number of times copy button was clicked.
-
-    - style (dict; optional):
-        The icon's styles.
 
     - target_id (string | dict; optional):
         The id of target component containing text to copy to the
@@ -60,15 +50,14 @@ class Clipboard(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.UNDEFINED,
-        target_id=Component.UNDEFINED,
-        content=Component.UNDEFINED,
-        n_clicks=Component.UNDEFINED,
-        html_content=Component.UNDEFINED,
-        title=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        target_id: typing.Optional[typing.Union[str, dict]] = None,
+        content: typing.Optional[str] = None,
+        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        html_content: typing.Optional[str] = None,
+        title: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -76,7 +65,6 @@ class Clipboard(Component):
             "className",
             "content",
             "html_content",
-            "loading_state",
             "n_clicks",
             "style",
             "target_id",
@@ -88,7 +76,6 @@ class Clipboard(Component):
             "className",
             "content",
             "html_content",
-            "loading_state",
             "n_clicks",
             "style",
             "target_id",

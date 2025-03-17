@@ -1,11 +1,19 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Loading(Component):
     """A Loading component.
-    A Loading component that wraps any other component and displays a spinner until the wrapped component has rendered.
+
 
     Keyword arguments:
 
@@ -46,21 +54,6 @@ class Loading(Component):
     - fullscreen (boolean; optional):
         Boolean that makes the built-in spinner display full-screen.
 
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
-
     - overlay_style (dict; optional):
         Additional CSS styling for the spinner overlay. This is applied to
         the dcc.Loading children while the spinner is active.  The default
@@ -79,9 +72,6 @@ class Loading(Component):
         state has been determined. Default True.  Use when also setting
         `delay_show`.
 
-    - style (dict; optional):
-        Additional CSS styling for the built-in spinner root DOM node.
-
     - target_components (dict with strings as keys and values of type string | list of strings; optional):
         Specify component and prop to trigger showing the loading spinner
         example: `{\"output-container\": \"children\", \"grid\":
@@ -99,24 +89,45 @@ class Loading(Component):
     @_explicitize_args
     def __init__(
         self,
-        children=None,
-        id=Component.UNDEFINED,
-        type=Component.UNDEFINED,
-        fullscreen=Component.UNDEFINED,
-        debug=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        parent_className=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        parent_style=Component.UNDEFINED,
-        overlay_style=Component.UNDEFINED,
-        color=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        display=Component.UNDEFINED,
-        delay_hide=Component.UNDEFINED,
-        delay_show=Component.UNDEFINED,
-        show_initially=Component.UNDEFINED,
-        target_components=Component.UNDEFINED,
-        custom_spinner=Component.UNDEFINED,
+        children: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        type: typing.Optional[
+            Literal["graph", "cube", "circle", "dot", "default"]
+        ] = None,
+        fullscreen: typing.Optional[bool] = None,
+        debug: typing.Optional[bool] = None,
+        className: typing.Optional[str] = None,
+        parent_className: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        parent_style: typing.Optional[dict] = None,
+        overlay_style: typing.Optional[dict] = None,
+        color: typing.Optional[str] = None,
+        display: typing.Optional[Literal["auto", "show", "hide"]] = None,
+        delay_hide: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        delay_show: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        show_initially: typing.Optional[bool] = None,
+        target_components: typing.Optional[
+            typing.Dict[
+                typing.Union[str, float, int], typing.Union[str, typing.Sequence[str]]
+            ]
+        ] = None,
+        custom_spinner: typing.Optional[
+            typing.Union[
+                str,
+                int,
+                float,
+                ComponentType,
+                typing.Sequence[typing.Union[str, int, float, ComponentType]],
+            ]
+        ] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -130,7 +141,6 @@ class Loading(Component):
             "delay_show",
             "display",
             "fullscreen",
-            "loading_state",
             "overlay_style",
             "parent_className",
             "parent_style",
@@ -151,7 +161,6 @@ class Loading(Component):
             "delay_show",
             "display",
             "fullscreen",
-            "loading_state",
             "overlay_style",
             "parent_className",
             "parent_style",

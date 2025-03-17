@@ -1,6 +1,14 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
 
 class Location(Component):
@@ -46,12 +54,12 @@ class Location(Component):
     @_explicitize_args
     def __init__(
         self,
-        id=Component.REQUIRED,
-        pathname=Component.UNDEFINED,
-        search=Component.UNDEFINED,
-        hash=Component.UNDEFINED,
-        href=Component.UNDEFINED,
-        refresh=Component.UNDEFINED,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        pathname: typing.Optional[str] = None,
+        search: typing.Optional[str] = None,
+        hash: typing.Optional[str] = None,
+        href: typing.Optional[str] = None,
+        refresh: typing.Optional[typing.Union[Literal["callback-nav"], bool]] = None,
         **kwargs
     ):
         self._prop_names = ["id", "hash", "href", "pathname", "refresh", "search"]

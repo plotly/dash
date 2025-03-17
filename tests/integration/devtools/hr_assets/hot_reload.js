@@ -1,2 +1,1 @@
-
-window.cheese = 'roquefort';
+window.cheese = "roquefort";

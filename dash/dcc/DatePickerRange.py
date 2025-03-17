@@ -1,6 +1,17 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+import numbers  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+try:
+    from dash.development.base_component import ComponentType  # noqa: F401
+except ImportError:
+    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+
+
+import datetime
 
 
 class DatePickerRange(Component):
@@ -131,9 +142,6 @@ class DatePickerRange(Component):
         The HTML element ID of the end date input field. Not used by Dash,
         only by CSS.
 
-    - style (dict; optional):
-        CSS styles appended to wrapper div.
-
     - className (string; optional):
         Appends a CSS class to the wrapper div component.
 
@@ -141,21 +149,6 @@ class DatePickerRange(Component):
         The ID of this component, used to identify dash components in
         callbacks. The ID needs to be unique across all of the components
         in an app.
-
-    - loading_state (dict; optional):
-        Object that holds the loading state object coming from
-        dash-renderer.
-
-        `loading_state` is a dict with keys:
-
-        - is_loading (boolean; optional):
-            Determines if the component is loading or not.
-
-        - prop_name (string; optional):
-            Holds which property is loading.
-
-        - component_name (string; optional):
-            Holds the name of the component that is loading.
 
     - persistence (boolean | string | number; optional):
         Used to allow user interactions in this component to be persisted
@@ -184,39 +177,48 @@ class DatePickerRange(Component):
     @_explicitize_args
     def __init__(
         self,
-        start_date=Component.UNDEFINED,
-        end_date=Component.UNDEFINED,
-        min_date_allowed=Component.UNDEFINED,
-        max_date_allowed=Component.UNDEFINED,
-        disabled_days=Component.UNDEFINED,
-        minimum_nights=Component.UNDEFINED,
-        updatemode=Component.UNDEFINED,
-        start_date_placeholder_text=Component.UNDEFINED,
-        end_date_placeholder_text=Component.UNDEFINED,
-        initial_visible_month=Component.UNDEFINED,
-        clearable=Component.UNDEFINED,
-        reopen_calendar_on_clear=Component.UNDEFINED,
-        display_format=Component.UNDEFINED,
-        month_format=Component.UNDEFINED,
-        first_day_of_week=Component.UNDEFINED,
-        show_outside_days=Component.UNDEFINED,
-        stay_open_on_select=Component.UNDEFINED,
-        calendar_orientation=Component.UNDEFINED,
-        number_of_months_shown=Component.UNDEFINED,
-        with_portal=Component.UNDEFINED,
-        with_full_screen_portal=Component.UNDEFINED,
-        day_size=Component.UNDEFINED,
-        is_RTL=Component.UNDEFINED,
-        disabled=Component.UNDEFINED,
-        start_date_id=Component.UNDEFINED,
-        end_date_id=Component.UNDEFINED,
-        style=Component.UNDEFINED,
-        className=Component.UNDEFINED,
-        id=Component.UNDEFINED,
-        loading_state=Component.UNDEFINED,
-        persistence=Component.UNDEFINED,
-        persisted_props=Component.UNDEFINED,
-        persistence_type=Component.UNDEFINED,
+        start_date: typing.Optional[typing.Union[str, datetime.datetime]] = None,
+        end_date: typing.Optional[typing.Union[str, datetime.datetime]] = None,
+        min_date_allowed: typing.Optional[typing.Union[str, datetime.datetime]] = None,
+        max_date_allowed: typing.Optional[typing.Union[str, datetime.datetime]] = None,
+        disabled_days: typing.Optional[
+            typing.Sequence[typing.Union[str, datetime.datetime]]
+        ] = None,
+        minimum_nights: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        updatemode: typing.Optional[Literal["singledate", "bothdates"]] = None,
+        start_date_placeholder_text: typing.Optional[str] = None,
+        end_date_placeholder_text: typing.Optional[str] = None,
+        initial_visible_month: typing.Optional[str] = None,
+        clearable: typing.Optional[bool] = None,
+        reopen_calendar_on_clear: typing.Optional[bool] = None,
+        display_format: typing.Optional[str] = None,
+        month_format: typing.Optional[str] = None,
+        first_day_of_week: typing.Optional[Literal[0, 1, 2, 3, 4, 5, 6]] = None,
+        show_outside_days: typing.Optional[bool] = None,
+        stay_open_on_select: typing.Optional[bool] = None,
+        calendar_orientation: typing.Optional[Literal["vertical", "horizontal"]] = None,
+        number_of_months_shown: typing.Optional[
+            typing.Union[int, float, numbers.Number]
+        ] = None,
+        with_portal: typing.Optional[bool] = None,
+        with_full_screen_portal: typing.Optional[bool] = None,
+        day_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        is_RTL: typing.Optional[bool] = None,
+        disabled: typing.Optional[bool] = None,
+        start_date_id: typing.Optional[str] = None,
+        end_date_id: typing.Optional[str] = None,
+        style: typing.Optional[typing.Any] = None,
+        className: typing.Optional[str] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        persistence: typing.Optional[
+            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+        ] = None,
+        persisted_props: typing.Optional[
+            typing.Sequence[Literal["start_date", "end_date"]]
+        ] = None,
+        persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -249,7 +251,6 @@ class DatePickerRange(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
@@ -285,7 +286,6 @@ class DatePickerRange(Component):
             "style",
             "className",
             "id",
-            "loading_state",
             "persistence",
             "persisted_props",
             "persistence_type",
