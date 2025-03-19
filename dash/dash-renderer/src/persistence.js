@@ -290,7 +290,9 @@ const getProps = layout => {
     const {id, persistence} = props;
 
     const element = Registry.resolve(layout);
-    const getVal = prop => props[prop] || (element.defaultProps || {})[prop];
+    const getVal = prop =>
+        props[prop] ||
+        (element.defaultProps || element.dashPersistence || {})[prop];
     const persisted_props = getVal('persisted_props');
     const persistence_type = getVal('persistence_type');
     const canPersist = id && persisted_props && persistence_type;

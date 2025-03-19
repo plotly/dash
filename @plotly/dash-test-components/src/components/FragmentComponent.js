@@ -10,6 +10,4 @@ FragmentComponent.propTypes = {
     id: PropTypes.string
 };
 
-FragmentComponent.defaultProps = {};
-
 export default FragmentComponent;

@@ -6,6 +6,7 @@ import {has, is, isNil} from 'ramda';
 // some weird interaction btwn styled-jsx 3.4 and babel
 // see https://github.com/vercel/styled-jsx/pull/716
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
+import LoadingElement from '../utils/LoadingElement';
 
 // EnhancedTab is defined here instead of in Tab.react.js because if exported there,
 // it will mess up the Python imports and metadata.json
@@ -26,8 +27,13 @@ const EnhancedTab = ({
     amountOfTabs,
     colors,
     vertical,
-    loading_state,
+    componentPath,
 }) => {
+    const ctx = window.dash_component_api.useDashContext();
+    // We use the raw path here since it's up one level from
+    // the tabs child.
+    const isLoading = ctx.useLoading({rawPath: componentPath});
+
     let tabStyle = style;
     if (disabled) {
         tabStyle = {tabStyle, ...disabled_style};
@@ -52,9 +58,7 @@ const EnhancedTab = ({
     }
     return (
         <div
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={isLoading}
             className={tabClassName}
             id={id}
             style={tabStyle}
@@ -135,8 +139,6 @@ export default class Tabs extends Component {
         super(props);
 
         this.selectHandler = this.selectHandler.bind(this);
-        this.parseChildrenToArray = this.parseChildrenToArray.bind(this);
-        this.valueOrDefault = this.valueOrDefault.bind(this);
 
         if (!has('value', this.props)) {
             this.props.setProps({
@@ -150,8 +152,13 @@ export default class Tabs extends Component {
             return this.props.value;
         }
         const children = this.parseChildrenToArray();
-        if (children && children[0].props.children) {
-            return children[0].props.children.props.value || 'tab-1';
+        if (children && children.length) {
+            const firstChildren = window.dash_component_api.getLayout([
+                ...children[0].props.componentPath,
+                'props',
+                'value',
+            ]);
+            return firstChildren || 'tab-1';
         }
         return 'tab-1';
     }
@@ -173,6 +180,8 @@ export default class Tabs extends Component {
         let EnhancedTabs;
         let selectedTab;
 
+        const value = this.valueOrDefault();
+
         if (this.props.children) {
             const children = this.parseChildrenToArray();
 
@@ -183,20 +192,14 @@ export default class Tabs extends Component {
                 // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
                 let childProps;
 
-                if (
-                    // disabled is a defaultProp (so it's always set)
-                    // meaning that if it's not set on child.props, the actual
-                    // props we want are lying a bit deeper - which means they
-                    // are coming from Dash
-                    isNil(child.props.disabled) &&
-                    child.props._dashprivate_layout &&
-                    child.props._dashprivate_layout.props
-                ) {
-                    // props are coming from Dash
-                    childProps = child.props._dashprivate_layout.props;
+                if (React.isValidElement(child)) {
+                    childProps = window.dash_component_api.getLayout([
+                        ...child.props.componentPath,
+                        'props',
+                    ]);
                 } else {
-                    // else props are coming from React (Demo.react.js, or Tabs.test.js)
-                    childProps = child.props;
+                    // In case the selected tab is a string.
+                    childProps = {};
                 }
 
                 if (!childProps.value) {
@@ -204,7 +207,7 @@ export default class Tabs extends Component {
                 }
 
                 // check if this child/Tab is currently selected
-                if (childProps.value === this.valueOrDefault()) {
+                if (childProps.value === value) {
                     selectedTab = child;
                 }
 
@@ -213,7 +216,7 @@ export default class Tabs extends Component {
                         key={index}
                         id={childProps.id}
                         label={childProps.label}
-                        selected={this.valueOrDefault() === childProps.value}
+                        selected={value === childProps.value}
                         selectHandler={this.selectHandler}
                         className={childProps.className}
                         style={childProps.style}
@@ -227,7 +230,7 @@ export default class Tabs extends Component {
                         vertical={this.props.vertical}
                         amountOfTabs={amountOfTabs}
                         colors={this.props.colors}
-                        loading_state={childProps.loading_state}
+                        componentPath={child.componentPath}
                     />
                 );
             });
@@ -248,12 +251,7 @@ export default class Tabs extends Component {
             : 'tab-parent';
 
         return (
-            <div
-                data-dash-is-loading={
-                    (this.props.loading_state &&
-                        this.props.loading_state.is_loading) ||
-                    undefined
-                }
+            <LoadingElement
                 className={`${tabParentClass} ${
                     this.props.parent_className || ''
                 }`}
@@ -320,7 +318,7 @@ export default class Tabs extends Component {
                         }
                     }
                 `}</style>
-            </div>
+            </LoadingElement>
         );
     }
 }
@@ -410,24 +408,6 @@ Tabs.propTypes = {
         border: PropTypes.string,
         primary: PropTypes.string,
         background: PropTypes.string,
-    }),
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
     }),
 
     /**

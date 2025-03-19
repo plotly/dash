@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 
 import AppProvider from './AppProvider.react';
 
+import './dashApi';
+
 class DashRenderer {
     constructor(hooks) {
         // render Dash Renderer upon initialising!
