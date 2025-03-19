@@ -276,7 +276,7 @@
     .debug-tool-holder {
         bottom: 0px;
         right: 0;
-        width: 300px;
+        width: 150px;
     }
 }
 
@@ -285,4 +285,5 @@
     position: absolute;
     width: 100%;
     height: 40px;
+    z-index: 10000;
 }
