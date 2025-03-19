@@ -45,6 +45,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   - `Dash.run_server` has been removed in favor of `Dash.run`.
   - Removed `dcc.LogoutButton` component.
   - Renamed all `long` references to `background`.
+  - Removed `dash_core_components`, `dash_html_components` and `dash_table` stub packages from `dash` install requirements.
 
 ## Changed
 
