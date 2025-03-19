@@ -14,7 +14,6 @@ import Interval from './components/Interval.react';
 import Link from './components/Link.react';
 import Loading from './components/Loading.react';
 import Location from './components/Location.react';
-import LogoutButton from './components/LogoutButton.react';
 import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems.react';
 import RangeSlider from './components/RangeSlider.react';
@@ -45,7 +44,6 @@ export {
     Link,
     Loading,
     Location,
-    LogoutButton,
     Markdown,
     RadioItems,
     RangeSlider,

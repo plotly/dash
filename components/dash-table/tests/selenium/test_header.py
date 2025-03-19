@@ -136,6 +136,7 @@ def test_head005_no_warnings_emitted(test):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     target = test.table("table")
@@ -173,6 +174,7 @@ def test_head006_style_merged_columns(test):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     target = test.table("table")

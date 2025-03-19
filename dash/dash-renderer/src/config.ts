@@ -1,4 +1,4 @@
-type Config = {
+export type DashConfig = {
     url_base_pathname: string;
     requests_pathname_prefix: string;
     ui: boolean;
@@ -23,7 +23,7 @@ type Config = {
     plotlyjs_url?: string;
 };
 
-export default function getConfigFromDOM(): Config {
+export default function getConfigFromDOM(): DashConfig {
     const configElement = document.getElementById('_dash-config');
     return JSON.parse(
         configElement?.textContent ? configElement?.textContent : '{}'

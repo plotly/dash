@@ -6,7 +6,7 @@ import {getAction} from './constants';
 import cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
-import {getPath} from './paths';
+import {computePaths, getPath} from './paths';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -18,6 +18,16 @@ export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const insertComponent = createAction(getAction('INSERT_COMPONENT'));
+export const removeComponent = createAction(getAction('REMOVE_COMPONENT'));
+
+export const addComponentToLayout = payload => (dispatch, getState) => {
+    const {paths} = getState();
+    dispatch(insertComponent(payload));
+    dispatch(
+        setPaths(computePaths(payload.component, payload.componentPath, paths))
+    );
+};
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(

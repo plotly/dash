@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import React, {PureComponent} from 'react';
+import React, {Component} from 'react';
 import {Remarkable} from 'remarkable';
 
 import {isEqual} from 'core/comparer';
@@ -17,6 +17,7 @@ export enum Arrow {
 export interface ITooltipProps {
     arrow?: Arrow;
     className?: string;
+    divRef: any;
     tooltip: {
         delay: number;
         duration: number;
@@ -32,10 +33,7 @@ interface ITooltipState {
     md: Remarkable;
 }
 
-export default class Tooltip extends PureComponent<
-    ITooltipProps,
-    ITooltipState
-> {
+export default class Tooltip extends Component<ITooltipProps, ITooltipState> {
     constructor(props: ITooltipProps) {
         super(props);
 
@@ -85,6 +83,7 @@ export default class Tooltip extends PureComponent<
 
         return (
             <div
+                ref={this.props.divRef}
                 className='dash-tooltip'
                 data-attr-anchor={arrow}
                 style={{visibility: display ? 'visible' : 'hidden'}}

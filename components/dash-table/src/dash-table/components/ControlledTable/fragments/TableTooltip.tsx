@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component, createRef} from 'react';
 
 import Tooltip, {ITooltipProps, Arrow} from 'dash-table/components/Tooltip';
 import {getPositionalParent} from 'dash-table/components/tooltipHelper';
-import ReactDOM from 'react-dom';
+
 import {isEqual} from 'core/comparer';
 
 interface IState {
@@ -10,9 +10,15 @@ interface IState {
     cell?: any;
 }
 
-export default class TableTooltip extends Component<ITooltipProps, IState> {
+export default class TableTooltip extends Component<
+    Omit<ITooltipProps, 'divRef'>,
+    IState
+> {
+    tooltipRef: React.RefObject<HTMLElement>;
     constructor(props: ITooltipProps) {
         super(props);
+
+        this.tooltipRef = createRef();
 
         this.state = {
             arrow: Arrow.Bottom
@@ -40,7 +46,7 @@ export default class TableTooltip extends Component<ITooltipProps, IState> {
         return (
             <Tooltip
                 key='tooltip'
-                ref='tooltip'
+                divRef={this.tooltipRef}
                 arrow={arrow}
                 {...this.props}
             />
@@ -50,7 +56,7 @@ export default class TableTooltip extends Component<ITooltipProps, IState> {
     private adjustPosition() {
         const {cell} = this.state;
 
-        const el = ReactDOM.findDOMNode(this.refs.tooltip) as any;
+        const el = this.tooltipRef.current;
 
         const positionalParent = getPositionalParent(el);
 

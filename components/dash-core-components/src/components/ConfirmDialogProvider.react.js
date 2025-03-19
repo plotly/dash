@@ -1,8 +1,8 @@
-import {clone} from 'ramda';
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import ConfirmDialog from './ConfirmDialog.react';
+import LoadingElement from '../utils/LoadingElement';
 
 /**
  * A wrapper component that will display a confirmation dialog
@@ -18,30 +18,21 @@ import ConfirmDialog from './ConfirmDialog.react';
  */
 export default class ConfirmDialogProvider extends React.Component {
     render() {
-        const {displayed, id, setProps, children, loading_state} = this.props;
+        const {displayed, id, setProps, children} = this.props;
 
         // Will lose the previous onClick of the child
-        const wrapClick = child => {
-            const props = clone(child.props);
-            props._dashprivate_layout.props.onClick = () => {
-                setProps({displayed: true});
-            };
-
-            return React.cloneElement(child, props);
-        };
+        const wrapClick = child =>
+            React.cloneElement(child, {
+                onClick: () => setProps({displayed: true}),
+            });
 
         return (
-            <div
-                id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-            >
+            <LoadingElement id={id}>
                 {Array.isArray(children)
                     ? children.map(wrapClick)
                     : wrapClick(children)}
                 <ConfirmDialog {...this.props} displayed={displayed} />
-            </div>
+            </LoadingElement>
         );
     }
 }
@@ -94,22 +85,4 @@ ConfirmDialogProvider.propTypes = {
      * The children to hijack clicks from and display the popup.
      */
     children: PropTypes.any,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 };
