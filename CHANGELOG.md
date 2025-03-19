@@ -788,7 +788,7 @@ This feature can be disabled by providing an empty viewport meta tag.  e.g. `app
   - Restores `style_header` text alignment in Dash Table [#1914](https://github.com/plotly/dash/issues/1914)
   - Clears the unneeded `webdriver-manager` requirement from `dash[testing]` [#1919](https://github.com/plotly/dash/issues/1925)
 
-## [2.1.0] - 2022-01-22
+## [2.1.0] - 2022-01-28
 
 ### Changed
 - [#1876](https://github.com/plotly/dash/pull/1876) Delays finalizing `Dash.config` attributes not used in the constructor until `init_app()`.
