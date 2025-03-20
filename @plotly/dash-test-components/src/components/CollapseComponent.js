@@ -11,8 +11,4 @@ CollapseComponent.propTypes = {
     id: PropTypes.string
 };
 
-CollapseComponent.defaultProps = {
-    display: false
-};
-
 export default CollapseComponent;

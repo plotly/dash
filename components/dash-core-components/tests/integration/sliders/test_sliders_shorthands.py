@@ -1,6 +1,7 @@
 from dash import Dash, dcc, html
 import numpy as np
 import math
+import time
 
 
 def test_slsh001_rangeslider_shorthand_props(dash_dcc):
@@ -192,4 +193,5 @@ def test_slsh002_sliders_marks_si_unit_format(dash_dcc):
 
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element(".rc-slider")
+    time.sleep(2)
     dash_dcc.percy_snapshot("slsh002 - test_slsh002_sliders_marks_si_unit_format", True)

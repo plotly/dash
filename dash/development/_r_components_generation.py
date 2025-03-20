@@ -278,7 +278,9 @@ def generate_js_metadata(pkg_data, project_shortname):
     if len(alldist) > 1:
         for dep in range(len(alldist)):
             curr_dep = alldist[dep]
-            rpp = curr_dep["relative_package_path"]
+            rpp = curr_dep.get("relative_package_path", "")
+            if not rpp:
+                continue
 
             async_or_dynamic = get_async_type(curr_dep)
 

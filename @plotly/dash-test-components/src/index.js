@@ -13,6 +13,7 @@ import AddPropsComponent from "./components/AddPropsComponent";
 import ReceivePropsComponent from "./components/ReceivePropsComponent";
 import ShapeOrExactKeepOrderComponent from "./components/ShapeOrExactKeepOrderComponent";
 import ArrayOfExactOrShapeWithNodePropAssignNone from './components/ArrayOfExactOrShapeWithNodePropAssignNone';
+import ExternalComponent from './components/ExternalComponent';
 
 
 export {
@@ -29,5 +30,6 @@ export {
     AddPropsComponent,
     ReceivePropsComponent,
     ShapeOrExactKeepOrderComponent,
-    ArrayOfExactOrShapeWithNodePropAssignNone
+    ArrayOfExactOrShapeWithNodePropAssignNone,
+    ExternalComponent,
 };

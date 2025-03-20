@@ -2,7 +2,56 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [3.0.0] - 2025-03-17
+
+## Added
+
+- [#2276](https://github.com/plotly/dash/pull/2276) Added component prop static typing for Python.
+  - [#3152](https://github.com/plotly/dash/pull/3152) Custom Python prop typing for component library.
+    - Added `-t`, `--custom-typing-module` argument to `dash-generate-components` CLI, default to `dash_prop_typing` and can contains definitions in variables:
+      - `custom_imports: dict[ComponentName, list[str]]` import statement to be copied at the top of the component class definition.
+      - `custom_props: dict[ComponentName, dict[PropName, function]]` for custom props. The function signature is: `def generate_type(type_info, component_name, prop_name) -> str`
+  - [#3035](https://github.com/plotly/dash/pull/3035) `PropType` generation for Typescript components allowing runtime prop validation when in debug mode.
+- [#3121](https://github.com/plotly/dash/pull/3121) Restyle and add version checker to dev tools.
+- [#3029](https://github.com/plotly/dash/pull/3029) Add pip install based hooks to Dash functionalities.
+  - Packages can add an `entry_points` with key `dash-hooks` to their `setup.py` for a module to be run when a Dash app is started.
+  - Add `dash.hooks` methods to hook into Dash apps.
+    - `hooks.layout` takes the layout as argument and must return a layout, can be used to wrap or add to the layout of Dash apps.
+    - `hooks.callback` defines a callback to be added to Dash apps.
+    - `hooks.clientside_callback` defines a clientside callback to be added to Dash apps.
+    - `hooks.setup` is called before a Dash app is started to get an instance of the app as first argument.
+    - `hooks.error` to receive all callback errors.
+    - `hooks.index` to change the `Dash.index_string`.
+    - `hooks.route` to add a Flask route to the Dash app.
+    - [#3175](https://github.com/plotly/dash/pull/3175) `hooks.custom_data` to add custom data called from the callback route to the user callback.
+- [#3066](https://github.com/plotly/dash/pull/3066) Adds `window.dash_component_api` for components developer as alternative to removed `_dashprivate` props.
+  - Add `dash_component_api.useDashContext`, `dash_component_api.DashContext` to access the redux store and loading mechanisms.
+    - `DashContext.componentPath` hold the path to the current component.
+    - `DashContext.useLoading(options?)` selector to get a boolean if the component is loading.
+    - `DashContext.isLoading` in case you need to use outside of a functional component.
+    - `DashContext.useSelector` to create custom selectors for the connected redux store.
+    - `DashContext.useStore` get the Dash app redux store.
+    - `DashContext.useDispatch` to dispatch new actions on the Dash redux store.
+  - Add `dash_component_api.getLayout(path)` to replace `_dashprivate_layout`.
+  - Expose `stringifyId` in `window.dash_component_api`. [#3175](https://github.com/plotly/dash/pull/3175)
+  - Add `window.dash_component_api.ExternalWrapper` to render Dash components that are not part of the layout tree. [#3170](https://github.com/plotly/dash/pull/3170) [#3183](https://github.com/plotly/dash/pull/3183)
+
+
+## Removed
+
+- [#3066](https://github.com/plotly/dash/pull/3066) `loading_state` removed from components props.
+- [#3078](https://github.com/plotly/dash/pull/3078) Deprecations removals
+  - Removed `dash.development.component_loader`, components libraries now required to generate the components with `dash-generate-components`.
+  - `Dash.run_server` has been removed in favor of `Dash.run`.
+  - Removed `dcc.LogoutButton` component.
+  - Renamed all `long` references to `background`.
+  - Removed `dash_core_components`, `dash_html_components` and `dash_table` stub packages from `dash` install requirements.
+
+## Changed
+
+- [#3093](https://github.com/plotly/dash/pull/3093) Changed default React version to 18.3.1
+  - `defaultProps` on functional components now emits a deprecation warning.
+  - Deprecation notice on strings refs.
 
 ## Added
 
@@ -11,6 +60,103 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 
 - [#3080](https://github.com/plotly/dash/pull/3080) Fix docstring generation for components using single-line or nonstandard-indent leading comments
+- [#3103](https://github.com/plotly/dash/pull/3103) Fix Graph component becomes unresponsive if an invalid figure is passed
+- [#3190](https://github.com/plotly/dash/pull/3190) Fix issue with cache key generation by adding option to include triggered inputs. Fixes [#3189](https://github.com/plotly/dash/issues/3189)
+- [#3130](https://github.com/plotly/dash/pull/3130) Fix HOST variable when using conda.
+- [#3066](https://github.com/plotly/dash/pull/3066) Improve performance of context components re-rendering.
+- [#3171](https://github.com/plotly/dash/pull/3171) JupyterDash Fix - Alive Check
+- [#3168](https://github.com/plotly/dash/pull/3168) Fix clientside pattern matching with a dot in the id.
+
+## [3.0.0-rc4] - 2025-03-04
+
+## Fixed
+
+- [#3197](https://github.com/plotly/dash/pull/3197) Fix initial props not updated in setProps causing the initial value of props to not be able to be set again.
+- [#3183](https://github.com/plotly/dash/pull/3183) Fix external wrapper requiring id.
+- [#3184](https://github.com/plotly/dash/pull/3184) Fix devtools dark mode button color issue and other ui fixes for the version checker.
+
+## Changed
+
+- [#3183](https://github.com/plotly/dash/pull/3183) Change ExternalWrapper props to component, componentPath.
+- [#3197](https://github.com/plotly/dash/pull/3197) Improved layout path sum stringify of paths.
+
+## [3.0.0-rc3] - 2025-02-21
+
+## Added
+
+- [#3121](https://github.com/plotly/dash/pull/3121) Restyle and add version checker to dev tools.
+- [#3175](https://github.com/plotly/dash/pull/3175) Add `custom_data` hook.
+- [#3175](https://github.com/plotly/dash/pull/3175) Improved error for removed Dash app attribute, run_server and long_callback
+- [#3175](https://github.com/plotly/dash/pull/3175) Expose `stringifyId` in `window.dash_component_api`.
+
+## Fixed
+
+- [#3175](https://github.com/plotly/dash/pull/3175) Fix `ExternalWrapper` rendering children and support pattern matching ids.
+
+## [3.0.0-rc2] - 2025-02-18
+
+## Added
+
+- [#3152](https://github.com/plotly/dash/pull/3152) Custom Python prop typing for component library.
+  - Added `-t`, `--custom-typing-module` argument to `dash-generate-components` CLI, default to `dash_prop_typing` and can contains definitions in variables:
+    - `custom_imports: dict[ComponentName, list[str]]` import statement to be copied at the top of the component class definition.
+    - `custom_props: dict[ComponentName, dict[PropName, function]]` for custom props. The function signature is: `def generate_type(type_info, component_name, prop_name) -> str`
+- [#3170](https://github.com/plotly/dash/pull/3170) Add `window.dash_component_api.ExternalWrapper` to render Dash components that are not part of the layout tree.
+
+## Fixed
+
+- [#3142](https://github.com/plotly/dash/pull/3142) Fix typing generation for id and dates props.
+- [#3164](https://github.com/plotly/dash/pull/3164) Fix typing on progress and cancel background callback.
+- [#3157](https://github.com/plotly/dash/pull/3157) Fix hook priority.
+
+## [3.0.0-rc1] - 2025-01-28
+
+## Added
+
+- [#2276](https://github.com/plotly/dash/pull/2276) Python typing definition generation for components `__init__`.
+- [#3035](https://github.com/plotly/dash/pull/3035) `PropType` generation for Typescript components allowing runtime prop validation when in debug mode.
+- [#3066](https://github.com/plotly/dash/pull/3066) Adds `window.dash_component_api` for components developer as alternative to removed `_dashprivate` props.
+  - Add `dash_component_api.useDashContext`, `dash_component_api.DashContext` to access the redux store and loading mechanisms.
+    - `DashContext.componentPath` hold the path to the current component.
+    - `DashContext.useLoading(options?)` selector to get a boolean if the component is loading.
+    - `DashContext.isLoading` in case you need to use outside of a functional component.
+    - `DashContext.useSelector` to create custom selectors for the connected redux store.
+    - `DashContext.useStore` get the Dash app redux store.
+    - `DashContext.useDispatch` to dispatch new actions on the Dash redux store.
+  - Add `dash_component_api.getLayout(path)` to replace `_dashprivate_layout`.
+- [#3029](https://github.com/plotly/dash/pull/3029) Add pip install based hooks to Dash functionalities.
+  - Packages can add an `entry_points` with key `dash-hooks` to their `setup.py` for a module to be run when a Dash app is started.
+  - Add `dash.hooks` methods to hook into Dash apps.
+    - `hooks.layout` takes the layout as argument and must return a layout, can be used to wrap or add to the layout of Dash apps.
+    - `hooks.callback` defines a callback to be added to Dash apps.
+    - `hooks.clientside_callback` defines a clientside callback to be added to Dash apps.
+    - `hooks.setup` is called before a Dash app is started to get an instance of the app as first argument.
+    - `hooks.error` to receive all callback errors.
+    - `hooks.index` to change the `Dash.index_string`.
+    - `hooks.route` to add a Flask route to the Dash app.
+
+## Removed
+
+- [#3066](https://github.com/plotly/dash/pull/3066) `loading_state` removed from components props.
+- [#3078](https://github.com/plotly/dash/pull/3078) Deprecations removals
+  - Removed `dash.development.component_loader`, components libraries now required to generate the components with `dash-generate-components`.
+  - `Dash.run_server` has been removed in favor of `Dash.run`.
+  - Removed `dcc.LogoutButton` component.
+  - Renamed all `long` references to `background`.
+
+## Changed
+
+- [#3093](https://github.com/plotly/dash/pull/3093) Changed default React version to 18.3.1
+  - `defaultProps` on functional components now emits a deprecation warning.
+  - Deprecation notice on strings refs.
+
+## Fixed
+
+- [#3080](https://github.com/plotly/dash/pull/3080) Fix docstring generation for components using single-line or nonstandard-indent leading comments
+- [#3103](https://github.com/plotly/dash/pull/3103) Fix Graph component becomes unresponsive if an invalid figure is passed
+- [#3190](https://github.com/plotly/dash/pull/3190) Fix issue with cache key generation by adding option to include triggered inputs. Fixes [#3189](https://github.com/plotly/dash/issues/3189)
+- [#3130](https://github.com/plotly/dash/pull/3130) Fix HOST variable when using conda.
+- [#3066](https://github.com/plotly/dash/pull/3066) Improve performance of context components re-rendering.
 
 ## [2.18.2] - 2024-11-04
 

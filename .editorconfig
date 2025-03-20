@@ -12,7 +12,8 @@ charset = utf-8
 indent_style = space
 indent_size = 4
 
-# Matches the exact files either package.json or .travis.yml
+# Matches the exact files either package.json or .circleci/config.yml
 [{package.json,.circleci/config.yml}]
 indent_style = space
 indent_size = 2
+
