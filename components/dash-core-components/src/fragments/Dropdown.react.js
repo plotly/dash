@@ -33,6 +33,7 @@ const RDProps = [
     'maxHeight',
     'style',
     'className',
+    'closeMenuOnSelect',
 ];
 
 const Dropdown = props => {
