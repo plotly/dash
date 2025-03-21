@@ -32,11 +32,17 @@ async function requestDashVersionInfo(config) {
         ddk_version: ddkVersion,
         plotly_version: plotlyVersion
     } = config;
-    const cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
-    const cachedNewDashVersionLink = localStorage.getItem(
-        'cachedNewDashVersionLink'
-    );
-    const lastFetched = localStorage.getItem('lastFetched');
+    let cachedVersionInfo, cachedNewDashVersionLink, lastFetched;
+    try {
+        cachedVersionInfo = localStorage.getItem('cachedNewDashVersion');
+        cachedNewDashVersionLink = localStorage.getItem(
+            'cachedNewDashVersionLink'
+        );
+        lastFetched = localStorage.getItem('lastFetched');
+    } catch (e) {
+        // If localStorage is not available, return an empty object
+        return {};
+    }
     if (
         lastFetched &&
         Date.now() - Number(lastFetched) < DAY_IN_MS &&
@@ -57,12 +63,19 @@ async function requestDashVersionInfo(config) {
             .then(response => response.json())
             .then(body => {
                 if (body && body.version && body.link) {
-                    localStorage.setItem(
-                        'cachedNewDashVersion',
-                        JSON.stringify(body.version)
-                    );
-                    localStorage.setItem('cachedNewDashVersionLink', body.link);
-                    localStorage.setItem('lastFetched', Date.now());
+                    try {
+                        localStorage.setItem(
+                            'cachedNewDashVersion',
+                            JSON.stringify(body.version)
+                        );
+                        localStorage.setItem(
+                            'cachedNewDashVersionLink',
+                            body.link
+                        );
+                        localStorage.setItem('lastFetched', Date.now());
+                    } catch (e) {
+                        // Ignore errors if localStorage is not available
+                    }
                     return body;
                 } else {
                     return {};
@@ -75,12 +88,19 @@ async function requestDashVersionInfo(config) {
 }
 
 function shouldRequestDashVersion(config) {
-    const showNotificationsLocalStorage =
-        localStorage.getItem('showNotifications');
-    const showNotifications = config.disable_version_check
-        ? false
-        : showNotificationsLocalStorage !== 'false';
-    const lastFetched = localStorage.getItem('lastFetched');
+    let showNotificationsLocalStorage, showNotifications, lastFetched;
+    try {
+        showNotificationsLocalStorage =
+            localStorage.getItem('showNotifications');
+
+        showNotifications = config.disable_version_check
+            ? false
+            : showNotificationsLocalStorage !== 'false';
+        lastFetched = localStorage.getItem('lastFetched');
+    } catch (e) {
+        // If localStorage is not available, return false
+        return false;
+    }
     return (
         showNotifications &&
         (!lastFetched || Date.now() - Number(lastFetched) > DAY_IN_MS)
@@ -92,13 +112,19 @@ function shouldShowUpgradeNotification(
     newDashVersion,
     config
 ) {
-    const showNotificationsLocalStorage =
-        localStorage.getItem('showNotifications');
+    let showNotificationsLocalStorage, lastDismissed, lastDismissedVersion;
+    try {
+        showNotificationsLocalStorage =
+            localStorage.getItem('showNotifications');
+        lastDismissed = localStorage.getItem('lastDismissed');
+        lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
+    } catch (e) {
+        // If localStorage is not available, return false
+        return false;
+    }
     const showNotifications = config.disable_version_check
         ? false
         : showNotificationsLocalStorage !== 'false';
-    const lastDismissed = localStorage.getItem('lastDismissed');
-    const lastDismissedVersion = localStorage.getItem('lastDismissedVersion');
     if (
         newDashVersion === undefined ||
         compareVersions(currentDashVersion, newDashVersion) >= 0 ||
@@ -113,10 +139,7 @@ function shouldShowUpgradeNotification(
     } else if (
         lastDismissedVersion &&
         !lastDismissed &&
-        compareVersions(
-            localStorage.getItem('lastDismissedVersion'),
-            newDashVersion
-        ) < 0
+        compareVersions(lastDismissedVersion, newDashVersion) < 0
     ) {
         return true;
     } else {
@@ -131,19 +154,31 @@ export const VersionInfo = ({config}) => {
 
     const setDontShowAgain = () => {
         // Set local storage to record the last dismissed notification
-        localStorage.setItem('showNotifications', false);
+        try {
+            localStorage.setItem('showNotifications', false);
+        } catch (e) {
+            // Ignore errors if localStorage is not available
+        }
         setUpgradeTooltipOpened(false);
     };
 
     const setRemindMeLater = () => {
         // Set local storage to record the last dismissed notification
-        localStorage.setItem('lastDismissed', Date.now());
+        try {
+            localStorage.setItem('lastDismissed', Date.now());
+        } catch (e) {
+            // Ignore errors if localStorage is not available
+        }
         setUpgradeTooltipOpened(false);
     };
 
     const setSkipThisVersion = () => {
         // Set local storage to record the last dismissed version
-        localStorage.setItem('lastDismissedVersion', newDashVersion);
+        try {
+            localStorage.setItem('lastDismissedVersion', newDashVersion);
+        } catch (e) {
+            // Ignore errors if localStorage is not available
+        }
         setUpgradeTooltipOpened(false);
     };
 
