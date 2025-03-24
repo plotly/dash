@@ -110,6 +110,15 @@ const DebugMenu = ({error, hotReload, config, children}) => {
         setPopup(popup == 'callbackGraph' ? null : 'callbackGraph');
     };
 
+    const toggleCollapsed = () => {
+        setCollapsed(!collapsed);
+        try {
+            localStorage.setItem('dash_debug_menu_collapsed', !collapsed);
+        } catch (e) {
+            // If localStorage is not available, do nothing
+        }
+    };
+
     const errors = concat(error.frontEnd, error.backEnd);
 
     const popupContent = (
@@ -143,17 +152,7 @@ const DebugMenu = ({error, hotReload, config, children}) => {
                 {popupContent}
                 {menuContent}
                 <button
-                    onClick={() => {
-                        setCollapsed(!collapsed);
-                        try {
-                            localStorage.setItem(
-                                'dash_debug_menu_collapsed',
-                                !collapsed
-                            );
-                        } catch (e) {
-                            // If localStorage is not available, do nothing
-                        }
-                    }}
+                    onClick={toggleCollapsed}
                     className={classes(
                         'dash-debug-menu__toggle',
                         collapsed ? 'collapsed' : 'expanded'
