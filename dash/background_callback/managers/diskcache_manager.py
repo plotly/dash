@@ -25,7 +25,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
         :param cache_by:
             A list of zero-argument functions.  When provided, caching is enabled and
             the return values of these functions are combined with the callback
-            function's input arguments and source code to generate cache keys.
+            function's input arguments, triggered inputs and source code to generate cache keys.
         :param expire:
             If provided, a cache entry will be removed when it has not been accessed
             for ``expire`` seconds.  If not provided, the lifetime of cache entries

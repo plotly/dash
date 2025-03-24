@@ -34,6 +34,10 @@ def get_custom_props(module_name):
     return _get_custom(module_name, "custom_props", {})
 
 
+def get_custom_ignore(module_name):
+    return _get_custom(module_name, "ignore_props", ["style"])
+
+
 def _clean_key(key):
     k = ""
     for ch in key:
@@ -136,46 +140,39 @@ def generate_enum(type_info, *_):
     return f"Literal[{', '.join(values)}]"
 
 
+def generate_literal(type_info, *_):
+    return f"Literal[{json.dumps(type_info['value'])}]"
+
+
+def _get_custom_prop(custom_props, component_name, prop_name):
+    customs = custom_props.get(component_name) or custom_props.get("*", {})
+    return customs.get(prop_name)
+
+
 def get_prop_typing(
     type_name: str,
     component_name: str,
     prop_name: str,
     type_info,
     custom_props=None,
+    custom_ignore=None,
 ):
     if prop_name == "id":
         # Id is always the same either a string or a dict for pattern matching.
         return "typing.Union[str, dict]"
 
     if custom_props:
-        special = custom_props.get(component_name, {}).get(prop_name)
+        special = _get_custom_prop(custom_props, component_name, prop_name)
         if special:
             return special(type_info, component_name, prop_name)
+
+    if custom_ignore and prop_name in custom_ignore:
+        return "typing.Any"
 
     prop_type = PROP_TYPING.get(type_name, generate_any)(
         type_info, component_name, prop_name
     )
     return prop_type
-
-
-def generate_plotly_figure(*_):
-    custom_imports["dash_core_components"]["Graph"].append(
-        "from plotly.graph_objects import Figure"
-    )
-    return "typing.Union[Figure, dict]"
-
-
-def generate_datetime_prop(component, array=False):
-    if "import datetime" not in custom_imports["dash_core_components"][component]:
-        custom_imports["dash_core_components"][component].append("import datetime")
-
-    def generator(*_):
-        datetime_type = "typing.Union[str, datetime.datetime]"
-        if array:
-            datetime_type = f"typing.Sequence[{datetime_type}]"
-        return datetime_type
-
-    return generator
 
 
 PROP_TYPING = {
@@ -200,4 +197,5 @@ PROP_TYPING = {
     "enum": generate_enum,
     "objectOf": generate_object_of,
     "tuple": generate_tuple,
+    "literal": generate_literal,
 }
