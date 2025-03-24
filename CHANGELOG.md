@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+
+- [#3239](https://github.com/plotly/dash/pull/3239) Remove stringcase dependency, fix [#3238](https://github.com/plotly/dash/issues/3238)
+
 ## [3.0.0] - 2025-03-17
 
 ## Added
