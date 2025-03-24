@@ -7,4 +7,3 @@ requests
 retrying
 nest-asyncio
 setuptools
-stringcase>=1.2.0

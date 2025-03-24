@@ -3,8 +3,7 @@ import json
 import string
 import textwrap
 import importlib
-
-import stringcase
+import re
 
 
 shapes = {}
@@ -52,9 +51,15 @@ def generate_any(*_):
     return "typing.Any"
 
 
+def pascal_case(name: str):
+    return name[0].upper() + re.sub(
+        r"[\-_\.\s]([a-z])", lambda match: match.group(1).upper(), name[1:]
+    )
+
+
 def generate_shape(type_info, component_name: str, prop_name: str):
     props = []
-    name = stringcase.pascalcase(prop_name)
+    name = pascal_case(prop_name)
 
     for prop_key, prop_type in type_info["value"].items():
         typed = get_prop_typing(
