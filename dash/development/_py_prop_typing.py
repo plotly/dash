@@ -3,7 +3,8 @@ import json
 import string
 import textwrap
 import importlib
-import re
+
+from .._utils import pascal_case
 
 
 shapes = {}
@@ -49,12 +50,6 @@ def _clean_key(key):
 
 def generate_any(*_):
     return "typing.Any"
-
-
-def pascal_case(name: str):
-    return name[0].upper() + re.sub(
-        r"[\-_\.\s]([a-z])", lambda match: match.group(1).upper(), name[1:]
-    )
 
 
 def generate_shape(type_info, component_name: str, prop_name: str):

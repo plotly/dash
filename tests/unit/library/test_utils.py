@@ -58,3 +58,19 @@ def test_ddut001_attribute_dict():
         a.x = 4
     assert err.value.args == ("Object is final: No new keys may be added.", "x")
     assert "x" not in a
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("foo_bar", "FooBar"),
+        ("", ""),
+        ("fooBarFoo", "FooBarFoo"),
+        ("foo bar", "FooBar"),
+        ("foo-bar", "FooBar"),
+        ("__private_prop", "PrivateProp"),
+        ("double__middle___triple", "DoubleMiddleTriple"),
+    ],
+)
+def test_ddut002_pascal_case(value, expected):
+    assert utils.pascal_case(value) == expected
