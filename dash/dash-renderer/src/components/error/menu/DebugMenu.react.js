@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {concat} from 'ramda';
 
@@ -9,12 +9,23 @@ import ClockIcon from '../icons/ClockIcon.svg';
 import ErrorIcon from '../icons/ErrorIcon.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
 import OffIcon from '../icons/OffIcon.svg';
+import Collapse from '../icons/Collapse.svg';
+import Expand from '../icons/Expand.svg';
 import {VersionInfo} from './VersionInfo.react';
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
 import {FrontEndErrorContainer} from '../FrontEnd/FrontEndErrorContainer.react';
 
 const classes = (base, variant, variant2) =>
     `${base} ${base}--${variant}` + (variant2 ? ` ${base}--${variant2}` : '');
+
+const isCollapsed = () => {
+    try {
+        return localStorage.getItem('dash_debug_menu_collapsed') === 'true';
+    } catch (e) {
+        // If localStorage is not available, default to false
+        return false;
+    }
+}
 
 const MenuContent = ({
     hotReload,
@@ -81,71 +92,73 @@ const MenuContent = ({
     );
 };
 
-class DebugMenu extends Component {
-    constructor(props) {
-        super(props);
+const DebugMenu = ({error, hotReload, config, children}) => {
+    const [popup, setPopup] = useState('errors');
+    const [collapsed, setCollapsed] = useState(isCollapsed);
 
-        this.state = {
-            opened: false,
-            popup: 'errors'
-        };
-    }
+    const errCount = error.frontEnd.length + error.backEnd.length;
+    const connected = error.backEndConnected;
 
-    render() {
-        const {popup} = this.state;
-        const {error, hotReload, config} = this.props;
-        const errCount = error.frontEnd.length + error.backEnd.length;
-        const connected = error.backEndConnected;
+    const toggleErrors = () => {
+        setPopup(popup == 'errors' ? null : 'errors');
+    };
 
-        const toggleErrors = () => {
-            this.setState({popup: popup == 'errors' ? null : 'errors'});
-        };
+    const toggleCallbackGraph = () => {
+        setPopup(popup == 'callbackGraph' ? null : 'callbackGraph')
+    };
 
-        const toggleCallbackGraph = () => {
-            this.setState({
-                popup: popup == 'callbackGraph' ? null : 'callbackGraph'
-            });
-        };
+    const errors = concat(error.frontEnd, error.backEnd);
 
-        const errors = concat(error.frontEnd, error.backEnd);
+    const popupContent = (
+        <div className='dash-debug-menu__popup'>
+            {popup == 'callbackGraph' ? (
+                <CallbackGraphContainer />
+            ) : undefined}
+            {popup == 'errors' && errCount > 0 ? (
+                <FrontEndErrorContainer
+                    clickHandler={toggleErrors}
+                    errors={errors}
+                    connected={error.backEndConnected}
+                />
+            ) : undefined}
+        </div>
+    );
 
-        const popupContent = (
-            <div className='dash-debug-menu__popup'>
-                {popup == 'callbackGraph' ? (
-                    <CallbackGraphContainer />
-                ) : undefined}
-                {popup == 'errors' && errCount > 0 ? (
-                    <FrontEndErrorContainer
-                        clickHandler={toggleErrors}
-                        errors={errors}
-                        connected={error.backEndConnected}
-                    />
-                ) : undefined}
+    const menuContent = (
+        collapsed ? 
+        undefined :
+        <MenuContent
+            popup={popup}
+            errCount={errCount}
+            toggleErrors={toggleErrors}
+            toggleCallbackGraph={toggleCallbackGraph}
+            config={config}
+            hotReload={hotReload}
+            connected={connected}
+        />
+    );
+
+    return (
+        <div>
+            <div className={classes('dash-debug-menu__outer')}>
+                {popupContent}
+                {menuContent}
+                <button onClick={
+                    () => {
+                        setCollapsed(!collapsed);
+                        try {
+                            localStorage.setItem('dash_debug_menu_collapsed', !collapsed);
+                        } catch (e) {
+                            // If localStorage is not available, do nothing
+                        }
+                    }
+                }>
+                    {collapsed ? <Expand/> : <Collapse/>}
+                </button>
             </div>
-        );
-
-        const menuContent = (
-            <MenuContent
-                popup={popup}
-                errCount={errCount}
-                toggleErrors={toggleErrors}
-                toggleCallbackGraph={toggleCallbackGraph}
-                config={config}
-                hotReload={hotReload}
-                connected={connected}
-            />
-        );
-
-        return (
-            <div>
-                <div className={classes('dash-debug-menu__outer')}>
-                    {popupContent}
-                    {menuContent}
-                </div>
-                {this.props.children}
-            </div>
-        );
-    }
+            {children}
+        </div>
+    );
 }
 
 DebugMenu.propTypes = {

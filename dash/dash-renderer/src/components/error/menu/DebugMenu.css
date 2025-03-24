@@ -117,7 +117,7 @@
     right: 8px;
     display: flex;
     color: black;
-    flex-direction: column;
+    flex-direction: row;
     font-family: Verdana, sans-serif !important;
     font-size: 14px;
     justify-content: center;
