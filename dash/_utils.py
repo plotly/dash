@@ -306,7 +306,7 @@ def get_caller_name():
     return "__main__"
 
 
-def pascal_case(name: str | None):
+def pascal_case(name: Union[str, None]):
     s = re.sub(r"\s", "_", str(name))
     # Replace leading `_`
     s = re.sub("^[_]+", "", s)
