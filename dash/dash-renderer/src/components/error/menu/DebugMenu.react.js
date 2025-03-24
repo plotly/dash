@@ -9,7 +9,6 @@ import ClockIcon from '../icons/ClockIcon.svg';
 import ErrorIcon from '../icons/ErrorIcon.svg';
 import GraphIcon from '../icons/GraphIcon.svg';
 import OffIcon from '../icons/OffIcon.svg';
-import Collapse from '../icons/Collapse.svg';
 import Expand from '../icons/Expand.svg';
 import {VersionInfo} from './VersionInfo.react';
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
@@ -25,7 +24,7 @@ const isCollapsed = () => {
         // If localStorage is not available, default to false
         return false;
     }
-}
+};
 
 const MenuContent = ({
     hotReload,
@@ -88,6 +87,10 @@ const MenuContent = ({
                 Server
                 <_StatusIcon className='dash-debug-menu__icon' />
             </div>
+            <div
+                className='dash-debug-menu__divider'
+                style={{marginRight: 0}}
+            />
         </div>
     );
 };
@@ -104,16 +107,14 @@ const DebugMenu = ({error, hotReload, config, children}) => {
     };
 
     const toggleCallbackGraph = () => {
-        setPopup(popup == 'callbackGraph' ? null : 'callbackGraph')
+        setPopup(popup == 'callbackGraph' ? null : 'callbackGraph');
     };
 
     const errors = concat(error.frontEnd, error.backEnd);
 
     const popupContent = (
         <div className='dash-debug-menu__popup'>
-            {popup == 'callbackGraph' ? (
-                <CallbackGraphContainer />
-            ) : undefined}
+            {popup == 'callbackGraph' ? <CallbackGraphContainer /> : undefined}
             {popup == 'errors' && errCount > 0 ? (
                 <FrontEndErrorContainer
                     clickHandler={toggleErrors}
@@ -124,9 +125,7 @@ const DebugMenu = ({error, hotReload, config, children}) => {
         </div>
     );
 
-    const menuContent = (
-        collapsed ? 
-        undefined :
+    const menuContent = collapsed ? undefined : (
         <MenuContent
             popup={popup}
             errCount={errCount}
@@ -143,23 +142,30 @@ const DebugMenu = ({error, hotReload, config, children}) => {
             <div className={classes('dash-debug-menu__outer')}>
                 {popupContent}
                 {menuContent}
-                <button onClick={
-                    () => {
+                <button
+                    onClick={() => {
                         setCollapsed(!collapsed);
                         try {
-                            localStorage.setItem('dash_debug_menu_collapsed', !collapsed);
+                            localStorage.setItem(
+                                'dash_debug_menu_collapsed',
+                                !collapsed
+                            );
                         } catch (e) {
                             // If localStorage is not available, do nothing
                         }
-                    }
-                }>
-                    {collapsed ? <Expand/> : <Collapse/>}
+                    }}
+                    className={classes(
+                        'dash-debug-menu__toggle',
+                        collapsed ? 'collapsed' : 'expanded'
+                    )}
+                >
+                    <Expand />
                 </button>
             </div>
             {children}
         </div>
     );
-}
+};
 
 DebugMenu.propTypes = {
     children: PropTypes.object,

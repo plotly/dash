@@ -26,6 +26,12 @@
     border-radius: 0px;
     letter-spacing: normal;
     gap: 6px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+    display: flex;
+    align-items: center;
 }
 
 .dash-debug-menu__popup {
@@ -52,8 +58,7 @@
     align-self: flex-end;
     position: relative;
     /* Shadow/Small */
-    box-shadow:
-        0px 0.7px 1.4px 0px rgba(0, 0, 0, 0.07),
+    box-shadow: 0px 0.7px 1.4px 0px rgba(0, 0, 0, 0.07),
         0px 1.9px 4px 0px rgba(0, 0, 0, 0.05),
         0px 4.5px 10px 0px rgba(0, 0, 0, 0.05);
 }
@@ -113,8 +118,8 @@
     transition: 0.3s;
     box-sizing: border-box;
     position: fixed;
-    bottom: 8px;
-    right: 8px;
+    bottom: -1px;
+    right: -1px;
     display: flex;
     color: black;
     flex-direction: row;
@@ -123,11 +128,10 @@
     justify-content: center;
     align-items: center;
     z-index: 10000;
-    border-radius: 5px;
-    padding: 5px;
+    border-radius: 5px 0 0 0;
+    padding: 15px 0;
     background-color: #f5f6fa;
-    box-shadow:
-        0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.04),
+    box-shadow: 0px 0.8px 0.8px 0px rgba(0, 0, 0, 0.04),
         0px 2.3px 2px 0px rgba(0, 0, 0, 0.03);
     border: 1px solid rgba(0, 24, 102, 0.1);
 }
@@ -153,6 +157,14 @@
     z-index: 1200;
 }
 
+.dash-debug-menu__toggle {
+    color: #7f4bc4;
+    transition: 0.3s;
+}
+.dash-debug-menu__toggle--expanded {
+    transform: rotate(180deg);
+}
+
 .dash-debug-menu__status {
     display: flex;
     align-items: center;
@@ -162,7 +174,8 @@
 .dash-debug-menu__content {
     display: flex;
     align-items: stretch;
-    margin: 10px;
+    margin-left: 15px;
+    transition: all 0.5s ease;
 }
 
 .dash-debug-menu__version {
@@ -186,7 +199,6 @@
     justify-content: center;
     align-items: center;
     transition: background-color 0.2s;
-    cursor: pointer;
     font-family: Verdana, sans-serif !important;
     font-weight: bold;
     color: black;
@@ -213,8 +225,7 @@
     right: 29px;
     z-index: 10002;
     cursor: pointer;
-    box-shadow:
-        0px 0px 1px rgba(0, 0, 0, 0.25),
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.25),
         0px 1px 3px rgba(162, 177, 198, 0.32);
     border-radius: 32px;
     background-color: white;
