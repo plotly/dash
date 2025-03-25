@@ -342,7 +342,9 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
 
 def _get_callback_manager(kwargs, background):
     """Set up the background callback and manage jobs."""
-    callback_manager = background.get("manager", kwargs.get("background_callback_manager", None))
+    callback_manager = background.get(
+        "manager", kwargs.get("background_callback_manager", None)
+    )
     if background is not None:
         if not callback_manager:
             raise MissingLongCallbackManagerError(
@@ -364,13 +366,7 @@ def _get_callback_manager(kwargs, background):
 
 
 def _setup_background_callback(
-    kwargs,
-    background,
-    background_key,
-    func,
-    func_args,
-    func_kwargs,
-    callback_ctx
+    kwargs, background, background_key, func, func_args, func_kwargs, callback_ctx
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
@@ -384,9 +380,7 @@ def _setup_background_callback(
         # Inputs provided as dict is kwargs.
         func_args if func_args else func_kwargs,
         background.get("cache_args_to_ignore", []),
-        None
-        if cache_ignore_triggered
-        else callback_ctx.get("triggered_inputs", []),
+        None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
     )
 
     job_fn = callback_manager.func_registry.get(background_key)
@@ -433,7 +427,9 @@ def _progress_background_callback(response, callback_manager, background):
             }
 
 
-def _update_background_callback(error_handler, callback_ctx, response, kwargs, background, multi):
+def _update_background_callback(
+    error_handler, callback_ctx, response, kwargs, background, multi
+):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
@@ -671,7 +667,7 @@ def register_callback(
                             func,
                             func_args,
                             func_kwargs,
-                            callback_ctx
+                            callback_ctx,
                         )
 
                     output_value, has_update, skip = _update_background_callback(
@@ -742,7 +738,7 @@ def register_callback(
                             func,
                             func_args,
                             func_kwargs,
-                            callback_ctx
+                            callback_ctx,
                         )
                     output_value, has_update, skip = _update_background_callback(
                         error_handler, callback_ctx, response, kwargs, background, multi
