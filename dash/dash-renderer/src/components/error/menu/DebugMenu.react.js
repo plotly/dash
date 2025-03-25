@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {concat} from 'ramda';
 
@@ -101,6 +101,12 @@ const DebugMenu = ({error, hotReload, config, children}) => {
 
     const errCount = error.frontEnd.length + error.backEnd.length;
     const connected = error.backEndConnected;
+
+    useEffect(() => {
+        if (errCount > 0 && popup == null) {
+            setPopup('errors');
+        }
+    }, [errCount]);
 
     const toggleErrors = () => {
         setPopup(popup == 'errors' ? null : 'errors');
