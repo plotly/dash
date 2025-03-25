@@ -25,6 +25,7 @@
     font-size: 14px;
     border-radius: 0px;
     letter-spacing: normal;
+    white-space: nowrap;
     gap: 6px;
     cursor: pointer;
     border: none;
@@ -125,7 +126,7 @@
     flex-direction: row;
     font-family: Verdana, sans-serif !important;
     font-size: 14px;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     z-index: 10000;
     border-radius: 5px 0 0 0;
@@ -135,12 +136,11 @@
         0px 2.3px 2px 0px rgba(0, 0, 0, 0.03);
     border: 1px solid rgba(0, 24, 102, 0.1);
 }
-.dash-debug-menu__outer--closed {
-    height: 60px;
-    width: 60px;
-    bottom: 37px;
-    right: 37px;
-    padding: 0;
+.dash-debug-menu__outer.dash-debug-menu__outer--collapsed {
+    width: 50px;
+}
+.dash-debug-menu__outer.dash-debug-menu__outer--expanded {
+    width: 682px;
 }
 
 .dash-debug-menu__upgrade-tooltip {

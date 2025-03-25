@@ -154,7 +154,12 @@ const DebugMenu = ({error, hotReload, config, children}) => {
 
     return (
         <div>
-            <div className={classes('dash-debug-menu__outer')}>
+            <div
+                className={classes(
+                    'dash-debug-menu__outer',
+                    collapsed ? 'collapsed' : 'expanded'
+                )}
+            >
                 {popupContent}
                 {menuContent}
                 <button
