@@ -167,7 +167,7 @@
 .dash-debug-menu__error-indicator {
     width: 8px;
     height: 8px;
-    background-color: red;
+    background-color: #DC3E42;
     border-radius: 100%;
     position: absolute;
     right: 3px;
