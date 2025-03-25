@@ -137,10 +137,10 @@
     border: 1px solid rgba(0, 24, 102, 0.1);
 }
 .dash-debug-menu__outer.dash-debug-menu__outer--collapsed {
-    width: 50px;
+    max-width: 50px;
 }
 .dash-debug-menu__outer.dash-debug-menu__outer--expanded {
-    width: 682px;
+    max-width: 682px;
 }
 
 .dash-debug-menu__upgrade-tooltip {
