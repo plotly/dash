@@ -92,7 +92,7 @@ def setup_background_callback_app(manager_name, app_name):
             [
                 "celery",
                 "-A",
-                f"tests.integration.background_callback.{app_name}:handle",
+                f"tests.integration.async_tests.{app_name}:handle",
                 "worker",
                 "-P",
                 "prefork",
