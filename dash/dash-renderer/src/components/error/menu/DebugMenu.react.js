@@ -165,6 +165,9 @@ const DebugMenu = ({error, hotReload, config, children}) => {
                     )}
                 >
                     <Expand />
+                    {errCount > 0 && collapsed ? (
+                        <div className='dash-debug-menu__error-indicator' />
+                    ) : null}
                 </button>
             </div>
             {children}

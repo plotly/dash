@@ -164,7 +164,15 @@
 .dash-debug-menu__toggle--expanded {
     transform: rotate(180deg);
 }
-
+.dash-debug-menu__error-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 100%;
+    position: absolute;
+    right: 3px;
+    top: 13px;
+}
 .dash-debug-menu__status {
     display: flex;
     align-items: center;
