@@ -4,7 +4,7 @@ import React from 'react';
 /**
  * MyComponent description
  */
-const StyledComponent = ({ id, style, value }) => (<div id={id} style={style}>{value}</div>);
+const StyledComponent = ({ id, style, value = '' }) => (<div id={id} style={style}>{value}</div>);
 
 StyledComponent.propTypes = {
     /**
@@ -21,10 +21,6 @@ StyledComponent.propTypes = {
      * The value to display
      */
     value: PropTypes.string
-};
-
-StyledComponent.defaultProps = {
-    value: ''
 };
 
 export default StyledComponent;

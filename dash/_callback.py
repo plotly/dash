@@ -1,7 +1,9 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any
+
+from typing import Callable, Optional, Any, List, Tuple, Union
+
 
 import asyncio
 import flask
@@ -10,6 +12,8 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    ClientsideFunction,
+    Input,
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
@@ -17,7 +21,7 @@ from .exceptions import (
     PreventUpdate,
     WildcardInLongCallback,
     MissingLongCallbackManagerError,
-    LongCallbackError,
+    BackgroundCallbackError,
     ImportedInsideCallbackError,
 )
 
@@ -36,7 +40,7 @@ from ._utils import (
 )
 
 from . import _validate
-from .long_callback.managers import BaseLongCallbackManager
+from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
 
 
@@ -73,14 +77,15 @@ GLOBAL_INLINE_SCRIPTS = []
 # pylint: disable=too-many-locals
 def callback(
     *_args,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
+    background: bool = False,
+    interval: int = 1000,
+    progress: Optional[Union[List[Output], Output]] = None,
+    progress_default: Any = None,
+    running: Optional[List[Tuple[Output, Any, Any]]] = None,
+    cancel: Optional[Union[List[Input], Input]] = None,
+    manager: Optional[BaseBackgroundCallbackManager] = None,
+    cache_args_to_ignore: Optional[list] = None,
+    cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
 ):
@@ -103,11 +108,11 @@ def callback(
 
     :Keyword Arguments:
         :param background:
-            Mark the callback as a long callback to execute in a manager for
+            Mark the callback as a background callback to execute in a manager for
             callbacks that take a long time without locking up the Dash app
             or timing out.
         :param manager:
-            A long callback manager instance. Currently, an instance of one of
+            A background callback manager instance. Currently, an instance of one of
             `DiskcacheManager` or `CeleryManager`.
             Defaults to the `background_callback_manager` instance provided to the
             `dash.Dash constructor`.
@@ -150,15 +155,18 @@ def callback(
             with keyword arguments (Input/State provided in a dict),
             this should be a list of argument names as strings. Otherwise,
             this should be a list of argument indices as integers.
+        :param cache_ignore_triggered:
+            Whether to ignore which inputs triggered the callback when creating
+            the cache.
         :param interval:
-            Time to wait between the long callback update requests.
+            Time to wait between the background callback update requests.
         :param on_error:
             Function to call when the callback raises an exception. Receives the
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
     """
 
-    long_spec = None
+    background_spec = None
 
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
@@ -167,34 +175,38 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        long_spec = {
+        background_spec: Any = {
             "interval": interval,
         }
 
         if manager:
-            long_spec["manager"] = manager
+            background_spec["manager"] = manager
 
         if progress:
-            long_spec["progress"] = coerce_to_list(progress)
-            validate_long_inputs(long_spec["progress"])
+            background_spec["progress"] = coerce_to_list(progress)
+            validate_background_inputs(background_spec["progress"])
 
         if progress_default:
-            long_spec["progressDefault"] = coerce_to_list(progress_default)
+            background_spec["progressDefault"] = coerce_to_list(progress_default)
 
-            if not len(long_spec["progress"]) == len(long_spec["progressDefault"]):
+            if not len(background_spec["progress"]) == len(
+                background_spec["progressDefault"]
+            ):
                 raise Exception(
                     "Progress and progress default needs to be of same length"
                 )
 
         if cancel:
             cancel_inputs = coerce_to_list(cancel)
-            validate_long_inputs(cancel_inputs)
+            validate_background_inputs(cancel_inputs)
 
-            long_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
-            long_spec["cancel_inputs"] = cancel_inputs
+            background_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
+            background_spec["cancel_inputs"] = cancel_inputs
 
         if cache_args_to_ignore:
-            long_spec["cache_args_to_ignore"] = cache_args_to_ignore
+            background_spec["cache_args_to_ignore"] = cache_args_to_ignore
+
+        background_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
     return register_callback(
         callback_list,
@@ -202,25 +214,28 @@ def callback(
         config_prevent_initial_callbacks,
         *_args,
         **_kwargs,
-        long=long_spec,
+        background=background_spec,
         manager=manager,
         running=running,
         on_error=on_error,
     )
 
 
-def validate_long_inputs(deps):
+def validate_background_inputs(deps):
     for dep in deps:
         if dep.has_wildcard():
             raise WildcardInLongCallback(
                 f"""
-                long callbacks does not support dependencies with
+                background callbacks does not support dependencies with
                 pattern-matching ids
                     Received: {repr(dep)}\n"""
             )
 
 
-def clientside_callback(clientside_function, *args, **kwargs):
+ClientsideFuncType = Union[str, ClientsideFunction]
+
+
+def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs):
     return register_clientside_callback(
         GLOBAL_CALLBACK_LIST,
         GLOBAL_CALLBACK_MAP,
@@ -243,7 +258,7 @@ def insert_callback(
     state,
     inputs_state_indices,
     prevent_initial_call,
-    long=None,
+    background=None,
     manager=None,
     running=None,
     dynamic_creator: Optional[bool] = False,
@@ -265,9 +280,9 @@ def insert_callback(
         # prevent_initial_call can be a string "initial_duplicates"
         # which should not prevent the initial call.
         "prevent_initial_call": prevent_initial_call is True,
-        "long": long
+        "background": background
         and {
-            "interval": long["interval"],
+            "interval": background["interval"],
         },
         "dynamic_creator": dynamic_creator,
         "no_output": no_output,
@@ -280,7 +295,7 @@ def insert_callback(
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
-        "long": long,
+        "background": background,
         "output": output,
         "raw_inputs": inputs,
         "manager": manager,
@@ -325,18 +340,19 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
     )
 
 
-def _get_callback_manager(kwargs, long):
-    """Set up the long callback and manage jobs."""
-    callback_manager = long.get("manager", kwargs.get("long_callback_manager", None))
-    if not callback_manager:
-        raise MissingLongCallbackManagerError(
-            "Running `long` callbacks requires a manager to be installed.\n"
-            "Available managers:\n"
-            "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
-            " and store results on the local filesystem.\n"
-            "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
-            " and store results on redis.\n"
-        )
+def _get_callback_manager(kwargs, background):
+    """Set up the background callback and manage jobs."""
+    callback_manager = background.get("manager", kwargs.get("background_callback_manager", None))
+    if background is not None:
+        if not callback_manager:
+            raise MissingLongCallbackManagerError(
+                "Running `background` callbacks requires a manager to be installed.\n"
+                "Available managers:\n"
+                "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
+                " and store results on the local filesystem.\n"
+                "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
+                " and store results on redis.\n"
+            )
 
     old_job = flask.request.args.getlist("oldJob")
 
@@ -347,27 +363,33 @@ def _get_callback_manager(kwargs, long):
     return callback_manager
 
 
-def _setup_long_callback(
+def _setup_background_callback(
     kwargs,
-    long,
-    long_key,
+    background,
+    background_key,
     func,
     func_args,
     func_kwargs,
+    callback_ctx
 ):
-    """Set up the long callback and manage jobs."""
-    callback_manager = _get_callback_manager(kwargs, long)
+    """Set up the background callback and manage jobs."""
+    callback_manager = _get_callback_manager(kwargs, background)
 
-    progress_outputs = long.get("progress")
+    progress_outputs = background.get("progress")
+
+    cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
     cache_key = callback_manager.build_cache_key(
         func,
         # Inputs provided as dict is kwargs.
         func_args if func_args else func_kwargs,
-        long.get("cache_args_to_ignore", []),
+        background.get("cache_args_to_ignore", []),
+        None
+        if cache_ignore_triggered
+        else callback_ctx.get("triggered_inputs", []),
     )
 
-    job_fn = callback_manager.func_registry.get(long_key)
+    job_fn = callback_manager.func_registry.get(background_key)
 
     ctx_value = AttributeDict(**context_value.get())
     ctx_value.ignore_register_page = True
@@ -386,11 +408,11 @@ def _setup_long_callback(
         "job": job,
     }
 
-    cancel = long.get("cancel")
+    cancel = background.get("cancel")
     if cancel:
         data["cancel"] = cancel
 
-    progress_default = long.get("progressDefault")
+    progress_default = background.get("progressDefault")
     if progress_default:
         data["progressDefault"] = {
             str(o): x for o, x in zip(progress_outputs, progress_default)
@@ -398,40 +420,36 @@ def _setup_long_callback(
     return to_json(data)
 
 
-def _progress_long_callback(response, callback_manager, long):
-    progress_outputs = long.get("progress")
+def _progress_background_callback(response, callback_manager, background):
+    progress_outputs = background.get("progress")
     cache_key = flask.request.args.get("cacheKey")
 
     if progress_outputs:
         # Get the progress before the result as it would be erased after the results.
         progress = callback_manager.get_progress(cache_key)
         if progress:
-            response.update(
-                {
-                    "progress": {
-                        str(x): progress[i] for i, x in enumerate(progress_outputs)
-                    }
-                }
-            )
+            response["progress"] = {
+                str(x): progress[i] for i, x in enumerate(progress_outputs)
+            }
 
 
-def _update_long_callback(error_handler, callback_ctx, response, kwargs, long, multi):
-    """Set up the long callback and manage jobs."""
-    callback_manager = _get_callback_manager(kwargs, long)
+def _update_background_callback(error_handler, callback_ctx, response, kwargs, background, multi):
+    """Set up the background callback and manage jobs."""
+    callback_manager = _get_callback_manager(kwargs, background)
 
     cache_key = flask.request.args.get("cacheKey")
     job_id = flask.request.args.get("job")
 
-    _progress_long_callback(response, callback_manager, long)
+    _progress_background_callback(response, callback_manager, background)
 
     output_value = callback_manager.get_result(cache_key, job_id)
 
-    return _handle_rest_long_callback(
+    return _handle_rest_background_callback(
         output_value, callback_manager, response, error_handler, callback_ctx, multi
     )
 
 
-def _handle_rest_long_callback(
+def _handle_rest_background_callback(
     output_value,
     callback_manager,
     response,
@@ -448,10 +466,10 @@ def _handle_rest_long_callback(
         # Job canceled -> no output to close the loop.
         output_value = NoUpdate()
 
-    elif isinstance(output_value, dict) and "long_callback_error" in output_value:
-        error = output_value.get("long_callback_error", {})
-        exc = LongCallbackError(
-            f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
+    elif isinstance(output_value, dict) and "background_callback_error" in output_value:
+        error = output_value.get("background_callback_error", {})
+        exc = BackgroundCallbackError(
+            f"An error occurred inside a background callback: {error['msg']}\n{error['tb']}"
         )
         if error_handler:
             output_value = error_handler(exc)
@@ -494,7 +512,7 @@ def _prepare_response(
     callback_ctx,
     app,
     original_packages,
-    long,
+    background,
     has_update,
     has_output,
     output,
@@ -542,7 +560,7 @@ def _prepare_response(
                 f"No-output callback received return value: {output_value}"
             )
 
-    if not long:
+    if not background:
         has_update = _set_side_update(callback_ctx, response) or has_output
 
     if not has_update:
@@ -584,7 +602,7 @@ def register_callback(
         multi = True
         has_output = len(output) > 0
 
-    long = _kwargs.get("long")
+    background = _kwargs.get("background")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
     on_error = _kwargs.get("on_error")
@@ -608,7 +626,7 @@ def register_callback(
         flat_state,
         inputs_state_indices,
         prevent_initial_call,
-        long=long,
+        background=background,
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
@@ -617,10 +635,10 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
-        if long is not None:
-            long_key = BaseLongCallbackManager.register_func(
+        if background is not None:
+            background_key = BaseBackgroundCallbackManager.register_func(
                 func,
-                long.get("progress") is not None,
+                background.get("progress") is not None,
                 callback_id,
             )
 
@@ -644,19 +662,19 @@ def register_callback(
             response: dict = {"multi": True}
 
             try:
-                if long is not None:
+                if background is not None:
                     if not flask.request.args.get("cacheKey"):
-                        return _setup_long_callback(
+                        return _setup_background_callback(
                             kwargs,
-                            long,
-                            long_key,
+                            background,
+                            background_key,
                             func,
                             func_args,
                             func_kwargs,
                         )
 
-                    output_value, has_update, skip = _update_long_callback(
-                        error_handler, callback_ctx, response, kwargs, long, multi
+                    output_value, has_update, skip = _update_background_callback(
+                        error_handler, callback_ctx, response, kwargs, background, multi
                     )
                     if skip:
                         return output_value
@@ -680,7 +698,7 @@ def register_callback(
                 callback_ctx,
                 app,
                 original_packages,
-                long,
+                background,
                 has_update,
                 has_output,
                 output,
@@ -714,18 +732,18 @@ def register_callback(
             response: dict = {"multi": True}
 
             try:
-                if long is not None:
+                if background is not None:
                     if not flask.request.args.get("cacheKey"):
-                        return _setup_long_callback(
+                        return _setup_background_callback(
                             kwargs,
-                            long,
-                            long_key,
+                            background,
+                            background_key,
                             func,
                             func_args,
                             func_kwargs,
                         )
-                    output_value, has_update, skip = _update_long_callback(
-                        error_handler, callback_ctx, response, kwargs, long, multi
+                    output_value, has_update, skip = _update_background_callback(
+                        error_handler, callback_ctx, response, kwargs, background, multi
                     )
                     if skip:
                         return output_value
@@ -751,7 +769,7 @@ def register_callback(
                 callback_ctx,
                 app,
                 original_packages,
-                long,
+                background,
                 has_update,
                 has_output,
                 output,
@@ -789,7 +807,7 @@ def register_clientside_callback(
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-    clientside_function,
+    clientside_function: ClientsideFuncType,
     *args,
     **kwargs,
 ):

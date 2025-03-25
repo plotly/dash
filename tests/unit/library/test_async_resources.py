@@ -1,15 +1,8 @@
-from dash.resources import Resources
-
-
-class obj(object):
-    def __init__(self, dict):
-        self.__dict__ = dict
+from dash.resources import Resources, ResourceConfig
 
 
 def test_resources_eager():
-
-    resource = Resources("js_test")
-    resource.config = obj({"eager_loading": True, "serve_locally": False})
+    resource = Resources("js_test", ResourceConfig(False, True))
 
     filtered = resource._filter_resources(
         [
@@ -32,9 +25,7 @@ def test_resources_eager():
 
 
 def test_resources_lazy():
-
-    resource = Resources("js_test")
-    resource.config = obj({"eager_loading": False, "serve_locally": False})
+    resource = Resources("js_test", ResourceConfig(False, False))
 
     filtered = resource._filter_resources(
         [

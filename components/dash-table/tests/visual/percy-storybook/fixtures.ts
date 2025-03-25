@@ -1,5 +1,12 @@
 import {ColumnType, Presentation} from 'dash-table/components/Table/props';
 
+// Mock dash 3.0 dash_component_api
+(window as any).dash_component_api = {
+    useDashContext: () => ({
+        useLoading: () => false
+    })
+};
+
 export default [
     {
         name: 'fixed rows -> dropdown',
