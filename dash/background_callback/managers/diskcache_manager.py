@@ -17,7 +17,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
 
     def __init__(self, cache=None, cache_by=None, expire=None):
         """
-        Long callback manager that runs callback logic in a subprocess and stores
+        Background callback manager that runs callback logic in a subprocess and stores
         results on disk using diskcache
 
         :param cache:
@@ -40,7 +40,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
         except ImportError as missing_imports:
             raise ImportError(
                 """\
-DiskcacheLongCallbackManager requires extra dependencies which can be installed doing
+DiskcacheManager requires extra dependencies which can be installed doing
 
     $ pip install "dash[diskcache]"\n"""
             ) from missing_imports
@@ -279,7 +279,7 @@ def _make_job_fn(fn, cache, progress):
                 cache.set(
                     result_key,
                     {
-                        "long_callback_error": {
+                        "background_callback_error": {
                             "msg": str(err),
                             "tb": traceback.format_exc(),
                         }

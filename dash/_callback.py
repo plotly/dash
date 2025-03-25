@@ -671,6 +671,7 @@ def register_callback(
                             func,
                             func_args,
                             func_kwargs,
+                            callback_ctx
                         )
 
                     output_value, has_update, skip = _update_background_callback(
@@ -741,6 +742,7 @@ def register_callback(
                             func,
                             func_args,
                             func_kwargs,
+                            callback_ctx
                         )
                     output_value, has_update, skip = _update_background_callback(
                         error_handler, callback_ctx, response, kwargs, background, multi

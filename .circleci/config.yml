@@ -248,7 +248,11 @@ jobs:
     steps:
       - checkout:
           path: ~/dash
-      - run: sudo apt-get update
+      - run:
+          name: Add chrome keys & update.
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:

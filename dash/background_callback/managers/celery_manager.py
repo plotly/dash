@@ -18,7 +18,7 @@ class CeleryManager(BaseBackgroundCallbackManager):
 
     def __init__(self, celery_app, cache_by=None, expire=None):
         """
-        Long callback manager that runs callback logic on a celery task queue,
+        Background callback manager that runs callback logic on a celery task queue,
         and stores results using a celery result backend.
 
         :param celery_app:
@@ -42,7 +42,7 @@ class CeleryManager(BaseBackgroundCallbackManager):
         except ImportError as missing_imports:
             raise ImportError(
                 """\
-CeleryLongCallbackManager requires extra dependencies which can be installed doing
+CeleryManager requires extra dependencies which can be installed doing
 
     $ pip install "dash[celery]"\n"""
             ) from missing_imports
@@ -233,7 +233,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     result_key,
                     json.dumps(
                         {
-                            "long_callback_error": {
+                            "background_callback_error": {
                                 "msg": str(err),
                                 "tb": traceback.format_exc(),
                             }
