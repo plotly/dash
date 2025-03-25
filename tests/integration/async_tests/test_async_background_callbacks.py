@@ -7,6 +7,7 @@ from tests.integration.async_tests.utils import setup_background_callback_app
 import time
 from tests.utils import test_async
 
+
 def test_001ab_arbitrary(dash_duo, manager):
     if not test_async():
         return
@@ -15,7 +16,7 @@ def test_001ab_arbitrary(dash_duo, manager):
 
         dash_duo.wait_for_text_to_equal("#output", "initial")
         # pause for sync
-        time.sleep(.2)
+        time.sleep(0.2)
         dash_duo.find_element("#start").click()
 
         dash_duo.wait_for_text_to_equal("#secondary", "first")
@@ -48,7 +49,7 @@ def test_002ab_basic(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#output-1", "initial value", 15)
         input_ = dash_duo.find_element("#input")
         # pause for sync
-        time.sleep(.2)
+        time.sleep(0.2)
         dash_duo.clear_input(input_)
 
         for key in "hello world":
@@ -59,4 +60,3 @@ def test_002ab_basic(dash_duo, manager):
 
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
-

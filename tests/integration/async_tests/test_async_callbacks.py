@@ -444,7 +444,9 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo, *args):
     assert dash_duo.get_logs() == []
 
 
-def test_async_cbsc009_callback_using_unloaded_async_component_and_graph(dash_duo, *args):
+def test_async_cbsc009_callback_using_unloaded_async_component_and_graph(
+    dash_duo, *args
+):
     if not test_async():
         return
     app = Dash(__name__)
