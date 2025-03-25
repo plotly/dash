@@ -5,6 +5,7 @@
     "private::format.black": "black dash tests --exclude metadata_test.py",
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::format.dcc": "cd components/dash-core-components && npm run format",
+    "private::format.table": "cd components/dash-table && npm run format",
     "private::initialize.renderer": "cd dash/dash-renderer && npm ci",
     "private::cibuild.components": "python dash/development/update_components.py 'all' --ci True",
     "private::build.components": "python dash/development/update_components.py 'all'",

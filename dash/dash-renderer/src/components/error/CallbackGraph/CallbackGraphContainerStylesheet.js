@@ -3,7 +3,7 @@ const stylesheet = [
         selector: '*',
         style: {
             'font-size': 12,
-            'font-family': '"Arial", sans-serif'
+            'font-family': 'Verdana, sans-serif'
         }
     },
 

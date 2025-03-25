@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import Dropzone from 'react-dropzone';
 
-import {propTypes, defaultProps} from '../components/Upload.react';
+import {propTypes} from '../components/Upload.react';
+import LoadingElement from '../utils/LoadingElement';
 
 export default class Upload extends Component {
     constructor() {
@@ -62,15 +63,9 @@ export default class Upload extends Component {
             style_active,
             style_reject,
             style_disabled,
-            loading_state,
         } = this.props;
         return (
-            <div
-                id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-            >
+            <LoadingElement id={id}>
                 <Dropzone
                     onDrop={this.onDrop}
                     accept={accept}
@@ -90,10 +85,9 @@ export default class Upload extends Component {
                 >
                     {children}
                 </Dropzone>
-            </div>
+            </LoadingElement>
         );
     }
 }
 
 Upload.propTypes = propTypes;
-Upload.defaultProps = defaultProps;

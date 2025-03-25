@@ -29,7 +29,7 @@ import {
     IStoredCallback,
     IBlockedCallback,
     IPrioritizedCallback,
-    LongCallbackInfo,
+    BackgroundCallbackInfo,
     CallbackResponse,
     CallbackResponseData,
     SideUpdateOutput
@@ -50,6 +50,7 @@ import {loadLibrary} from '../utils/libraries';
 
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
+import {loaded, loading} from './loading';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -413,7 +414,7 @@ function handleServerside(
     hooks: any,
     config: any,
     payload: ICallbackPayload,
-    long: LongCallbackInfo | undefined,
+    background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
     output: string,
@@ -587,7 +588,7 @@ function handleServerside(
                         progressDefault = data.progressDefault;
                     }
 
-                    if (!long || data.response !== undefined) {
+                    if (!background || data.response !== undefined) {
                         if (data.dist) {
                             Promise.all(data.dist.map(loadLibrary)).then(() => {
                                 completeJob();
@@ -601,7 +602,9 @@ function handleServerside(
                         // Poll chain.
                         setTimeout(
                             handle,
-                            long.interval !== undefined ? long.interval : 500
+                            background.interval !== undefined
+                                ? background.interval
+                                : 500
                         );
                     }
                 });
@@ -670,9 +673,14 @@ function getTriggeredId(triggered: string[]): string | object | undefined {
     // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
     // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
     if (triggered && triggered.length) {
-        let componentId = triggered[0].split('.')[0];
-        if (componentId.startsWith('{')) {
-            componentId = JSON.parse(componentId);
+        const trig = triggered[0];
+        let componentId;
+        if (trig.startsWith('{')) {
+            componentId = JSON.parse(
+                trig.substring(0, trig.lastIndexOf('}') + 1)
+            );
+        } else {
+            componentId = trig.split('.')[0];
         }
         return componentId;
     }
@@ -688,8 +696,14 @@ export function executeCallback(
     dispatch: any,
     getState: any
 ): IExecutingCallback {
-    const {output, inputs, state, clientside_function, long, dynamic_creator} =
-        cb.callback;
+    const {
+        output,
+        inputs,
+        state,
+        clientside_function,
+        background,
+        dynamic_creator
+    } = cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
 
@@ -732,6 +746,12 @@ export function executeCallback(
         }
 
         const __execute = async (): Promise<CallbackResult> => {
+            const loadingOutputs = outputs.map(out => ({
+                path: getPath(paths, out.id),
+                property: out.property,
+                id: out.id
+            }));
+            dispatch(loading(loadingOutputs));
             try {
                 const changedPropIds = keys<string>(cb.changedPropIds);
                 const parsedChangedPropsIds = changedPropIds.map(propId => {
@@ -806,7 +826,7 @@ export function executeCallback(
                             hooks,
                             newConfig,
                             payload,
-                            long,
+                            background,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
                             cb.callback.output,
@@ -888,11 +908,12 @@ export function executeCallback(
                         break;
                     }
                 }
-
                 // we reach here when we run out of retries.
                 return {error: lastError, payload: null};
             } catch (error: any) {
                 return {error, payload: null};
+            } finally {
+                dispatch(loaded(loadingOutputs));
             }
         };
 
