@@ -5,8 +5,11 @@ from flaky import flaky
 from multiprocessing import Lock
 from tests.integration.async_tests.utils import setup_background_callback_app
 import time
+from tests.utils import test_async
 
 def test_001ab_arbitrary(dash_duo, manager):
+    if not test_async():
+        return
     with setup_background_callback_app(manager, "app_arbitrary_async") as app:
         dash_duo.start_server(app)
 
@@ -37,6 +40,8 @@ def test_002ab_basic(dash_duo, manager):
     """
     Make sure that we settle to the correct final value when handling rapid inputs
     """
+    if not test_async():
+        return
     lock = Lock()
     with setup_background_callback_app(manager, "app1_async") as app:
         dash_duo.start_server(app)
