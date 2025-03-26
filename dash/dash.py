@@ -746,15 +746,6 @@ class Dash(ObsoleteChecker):
     def layout(self):
         return self._layout
 
-    def _layout_value(self):
-        layout = self._layout() if self._layout_is_function else self._layout
-
-        # Add any extra components
-        if self._extra_components:
-            layout = html.Div(children=[layout] + self._extra_components)
-
-        return layout
-
     @layout.setter
     def layout(self, value):
         _validate.validate_layout_type(value)
@@ -772,6 +763,15 @@ class Dash(ObsoleteChecker):
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
             self.validation_layout = layout_value
+
+    def _layout_value(self):
+        layout = self._layout() if self._layout_is_function else self._layout
+
+        # Add any extra components
+        if self._extra_components:
+            layout = html.Div(children=[layout] + self._extra_components)
+
+        return layout
 
     @property
     def index_string(self):
