@@ -10,7 +10,7 @@
   "scripts": {
     "build:js": "webpack --mode production",
     "setup": "python setup.py sdist",
-    "build:py_and_r": "dash-generate-components ./src/components dash_generator_test_component_typescript && cp base/** dash_generator_test_component_typescript/ && dash-generate-components ./src/components dash_generator_test_component_typescript --r-prefix 'dgtc_ts'",
+    "build:py_and_r": "dash-generate-components ./src/components dash_generator_test_component_typescript -t _dash_prop_typing && cp base/** dash_generator_test_component_typescript/",
     "build": "run-s build:js build:py_and_r setup",
     "test": "jest"
   },
