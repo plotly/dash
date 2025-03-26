@@ -54,7 +54,7 @@ function DashWrapper({
     const config: DashConfig = useSelector(selectConfig);
 
     // Select both the component and it's props.
-    const [component, componentProps] = useSelector(
+    const [component, componentProps, h] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -372,12 +372,13 @@ function DashWrapper({
     const dependenciesStable = useMemo(() => {
         return JSON.stringify(
             {
-                element: element,
-                component: component,
-                hydratedProps: hydratedProps,
-                extraProps: extraProps,
-                wrapChildrenProp: wrapChildrenProp,
-                componentProps: componentProps
+                element,
+                component,
+                hydratedProps,
+                extraProps,
+                wrapChildrenProp,
+                componentProps,
+                h
             }
         )
     }, [element,
@@ -385,7 +386,8 @@ function DashWrapper({
         hydratedProps,
         wrapChildrenProp,
         componentProps,
-        config.props_check
+        config.props_check,
+        h
         ])
 
     const hydrated = useMemo(() => {
