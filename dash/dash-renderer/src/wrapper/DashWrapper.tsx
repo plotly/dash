@@ -369,45 +369,36 @@ function DashWrapper({
         return props;
     }, [componentProps]);
 
-    const hydrated = useMemo(() => {
-        let hydratedChildren: any;
-        if (componentProps.children !== undefined) {
-            hydratedChildren = wrapChildrenProp(componentProps.children, [
-                'children'
-            ]);
-        }
-        if (config.props_check) {
-            return (
-                <CheckedComponent
-                    element={element}
-                    props={hydratedProps}
-                    component={component}
-                >
-                    {createElement(
-                        element,
-                        hydratedProps,
-                        extraProps,
-                        hydratedChildren
-                    )}
-                </CheckedComponent>
-            );
-        }
-
-        return createElement(
-            element,
-            hydratedProps,
-            extraProps,
-            hydratedChildren
+    let hydratedChildren: any;
+    let hydrated: any;
+    if (componentProps.children !== undefined) {
+        hydratedChildren = wrapChildrenProp(componentProps.children, [
+            'children'
+        ]);
+    }
+    if (config.props_check) {
+        hydrated = (
+            <CheckedComponent
+                element={element}
+                props={hydratedProps}
+                component={component}
+            >
+                {createElement(
+                    element,
+                    hydratedProps,
+                    extraProps,
+                    hydratedChildren
+                )}
+            </CheckedComponent>
         );
-    }, [
+    }
+
+    hydrated = createElement(
         element,
-        component,
         hydratedProps,
         extraProps,
-        wrapChildrenProp,
-        componentProps,
-        config.props_check
-    ]);
+        hydratedChildren
+    );
 
     return (
         <ComponentErrorBoundary

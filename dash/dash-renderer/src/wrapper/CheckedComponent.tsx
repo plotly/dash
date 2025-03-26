@@ -1,3 +1,4 @@
+import {useEffect, useState, memo} from 'react';
 import checkPropTypes from '../checkPropTypes';
 import {propTypeErrorHandler} from '../exceptions';
 import {validateComponent} from './wrapping';
@@ -9,20 +10,28 @@ type CheckedComponentProps = {
     props?: any;
 };
 
-export default function CheckedComponent(p: CheckedComponentProps) {
+function CheckedComponent(p: CheckedComponentProps) {
     const {element, props, children, component} = p;
+    const [error, setError] = useState('');
 
-    validateComponent(component);
+    useEffect(() => {
+        validateComponent(component);
+        const errorMessage = checkPropTypes(
+            element.propTypes,
+            props,
+            'component prop',
+            element
+        );
+        if (errorMessage) {
+            setError(errorMessage);
+        }
+    }, [component, props]);
 
-    const errorMessage = checkPropTypes(
-        element.propTypes,
-        props,
-        'component prop',
-        element
-    );
-    if (errorMessage) {
-        propTypeErrorHandler(errorMessage, props, component.type);
+    if (error) {
+        propTypeErrorHandler(error, props, component.type);
     }
 
     return children;
 }
+
+export default memo(CheckedComponent);
