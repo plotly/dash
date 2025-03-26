@@ -2,6 +2,19 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [unreleased]
+
+## Changed
+- [#3113](https://github.com/plotly/dash/pull/3113) Adjusted background polling requests to strip the data from the request, this allows for context to flow as normal. This addresses issue [#3111](https://github.com/plotly/dash/pull/3111)
+
+
+## [3.0.1] - 2025-03-24
+
+## Fixed
+
+- [#3239](https://github.com/plotly/dash/pull/3239) Remove stringcase dependency, fix [#3238](https://github.com/plotly/dash/issues/3238)
+- [#3232](https://github.com/plotly/dash/pull/3232) Add error handling for when localStorage is disabled
+
 ## [3.0.0] - 2025-03-17
 
 ## Added
