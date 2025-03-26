@@ -369,7 +369,27 @@ function DashWrapper({
         return props;
     }, [componentProps]);
 
+    const dependenciesStable = useMemo(() => {
+        return JSON.stringify(
+            {
+                element: element,
+                component: component,
+                hydratedProps: hydratedProps,
+                extraProps: extraProps,
+                wrapChildrenProp: wrapChildrenProp,
+                componentProps: componentProps
+            }
+        )
+    }, [element,
+        component,
+        hydratedProps,
+        wrapChildrenProp,
+        componentProps,
+        config.props_check
+        ])
+
     const hydrated = useMemo(() => {
+        console.log('rendering')
         let hydratedChildren: any;
         if (componentProps.children !== undefined) {
             hydratedChildren = wrapChildrenProp(componentProps.children, [
@@ -399,15 +419,7 @@ function DashWrapper({
             extraProps,
             hydratedChildren
         );
-    }, [
-        element,
-        component,
-        hydratedProps,
-        extraProps,
-        wrapChildrenProp,
-        componentProps,
-        config.props_check
-    ]);
+    }, [dependenciesStable]);
 
     return (
         <ComponentErrorBoundary
