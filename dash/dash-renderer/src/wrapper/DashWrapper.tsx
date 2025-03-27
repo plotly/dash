@@ -68,11 +68,13 @@ function DashWrapper({
         dispatch((dispatch, getState) => {
             const currentState = getState();
             const {graphs} = currentState;
-
-            const {props: oldProps} = getComponentLayout(
+            const oldLayout = getComponentLayout(
                 componentPath,
                 currentState
-            );
+            )
+            if (!oldLayout) return
+            const {props: oldProps} = oldLayout;
+            if (!oldProps) return
             const changedProps = pickBy(
                 (val, key) => !equals(val, oldProps[key]),
                 restProps
