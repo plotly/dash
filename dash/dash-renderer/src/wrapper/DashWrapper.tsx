@@ -373,19 +373,14 @@ function DashWrapper({
     const dependenciesStable = useMemo(() => {
         return JSON.stringify(
             {
-                element,
-                component,
-                hydratedProps,
-                extraProps,
-                componentProps,
-                h
+                h,
+                componentPath,
+                componentProps
             }
         )
-    }, [element,
-        component,
-        hydratedProps,
+    }, [
         componentProps,
-        config.props_check,
+        componentPath,
         h
         ])
 
