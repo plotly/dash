@@ -18,7 +18,7 @@ import layout from './layout';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
 import loading from './loading';
-import {stringifyPath} from '../wrapper/wrapping';
+import {stringifyPath, getComponentLayout} from '../wrapper/wrapping';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -26,6 +26,29 @@ export const apiRequests = [
     'reloadRequest',
     'loginRequest'
 ];
+
+function adjustHashes(state, action) {
+    const actionPath = action.payload.itempath
+    const strPath = stringifyPath(actionPath);
+    const prev = pathOr(0, [strPath], state);
+    state = assoc(strPath, prev + 1, state);
+
+    // check if children was adjusted
+    if ('children' in pathOr({}, ['payload', 'props'], action)) {
+        const layout = getComponentLayout(action.payload.itempath, action.payload.state)
+        const children = layout?.props?.children
+        const basePath = [...actionPath, 'props', 'children']
+        if (Array.isArray(children)) {
+            children.forEach((v, i) => {
+                state = adjustHashes(state, { payload: { itempath: [...basePath, i] } });
+            })
+        } else if (children) {
+            state = adjustHashes(state, { payload: { itempath: basePath } });
+        }
+
+    }
+    return state
+}
 
 function layoutHashes(state = {}, action) {
     if (
@@ -37,9 +60,7 @@ function layoutHashes(state = {}, action) {
     ) {
         // Let us compare the paths sums to get updates without triggering
         // render on the parent containers.
-        const strPath = stringifyPath(action.payload.itempath);
-        const prev = pathOr(0, [strPath], state);
-        return assoc(strPath, prev + 1, state);
+        return adjustHashes(state, action);
     }
     return state;
 }

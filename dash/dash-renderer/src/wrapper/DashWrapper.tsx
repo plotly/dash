@@ -112,7 +112,8 @@ function DashWrapper({
                 dispatch(
                     updateProps({
                         props: changedProps,
-                        itempath: componentPath
+                        itempath: componentPath,
+                        state: currentState
                     })
                 );
             });
@@ -141,7 +142,7 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenProp: DashLayoutPath) => {
+        (node: any, childrenPath: DashLayoutPath) => {
             if (Array.isArray(node)) {
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
@@ -149,7 +150,7 @@ function DashWrapper({
                             n,
                             concat(componentPath, [
                                 'props',
-                                ...childrenProp,
+                                ...childrenPath,
                                 i
                             ]),
                             i
@@ -163,7 +164,7 @@ function DashWrapper({
             }
             return createContainer(
                 node,
-                concat(componentPath, ['props', ...childrenProp])
+                concat(componentPath, ['props', ...childrenPath])
             );
         },
         [componentPath]
@@ -376,7 +377,6 @@ function DashWrapper({
                 component,
                 hydratedProps,
                 extraProps,
-                wrapChildrenProp,
                 componentProps,
                 h
             }
@@ -384,14 +384,12 @@ function DashWrapper({
     }, [element,
         component,
         hydratedProps,
-        wrapChildrenProp,
         componentProps,
         config.props_check,
         h
         ])
 
     const hydrated = useMemo(() => {
-        console.log('rendering')
         let hydratedChildren: any;
         if (componentProps.children !== undefined) {
             hydratedChildren = wrapChildrenProp(componentProps.children, [
