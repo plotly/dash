@@ -4,7 +4,7 @@ import string
 import textwrap
 import importlib
 
-import stringcase
+from .._utils import pascal_case
 
 
 shapes = {}
@@ -54,7 +54,7 @@ def generate_any(*_):
 
 def generate_shape(type_info, component_name: str, prop_name: str):
     props = []
-    name = stringcase.pascalcase(prop_name)
+    name = pascal_case(prop_name)
 
     for prop_key, prop_type in type_info["value"].items():
         typed = get_prop_typing(
