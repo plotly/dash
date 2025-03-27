@@ -1,5 +1,6 @@
 import {forEach, includes, isEmpty, keys, path, assoc, pathOr} from 'ramda';
 import {combineReducers} from 'redux';
+import {batch} from 'react-redux';
 
 import {getCallbacksByInput} from '../actions/dependencies_ts';
 
@@ -34,23 +35,22 @@ function adjustHashes(state, action) {
     state = assoc(strPath, prev + 1, state);
 
     // check if children was adjusted
-    if ('children' in pathOr({}, ['payload', 'props'], action) && action.payload?.state) {
-        const layout = getComponentLayout(action.payload.itempath, action.payload.state)
-        const children = layout?.props?.children
+    if ('children' in pathOr({}, ['payload', 'props'], action)) {
+        const children = pathOr({}, ['payload', 'props', 'children'], action)
         const basePath = [...actionPath, 'props', 'children']
         if (Array.isArray(children)) {
             children.forEach((v, i) => {
-                state = adjustHashes(state, { payload: { itempath: [...basePath, i] } });
+                state = adjustHashes(state, { payload: { itempath: [...basePath, i], props: v?.props } });
             })
         } else if (children) {
-            state = adjustHashes(state, { payload: { itempath: basePath } });
+            state = adjustHashes(state, { payload: { itempath: basePath }, props: children?.props });
         }
 
     }
     return state
 }
 
-function layoutHashes(state = {}, action) {
+const layoutHashes = batch(() => (state = {}, action) => {
     if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',
@@ -63,7 +63,7 @@ function layoutHashes(state = {}, action) {
         return adjustHashes(state, action);
     }
     return state;
-}
+})
 
 function mainReducer() {
     const parts = {

@@ -13,7 +13,9 @@ export const selectDashProps =
         const strPath = stringifyPath(componentPath);
 
         const h = state.layoutHashes[strPath]
-
+        if (!c) {
+            return [c, {}, -100]
+        }
         return [c, c?.props, h];
     };
 
