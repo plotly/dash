@@ -34,7 +34,7 @@ function adjustHashes(state, action) {
     state = assoc(strPath, prev + 1, state);
 
     // check if children was adjusted
-    if ('children' in pathOr({}, ['payload', 'props'], action)) {
+    if ('children' in pathOr({}, ['payload', 'props'], action) && action.payload?.state) {
         const layout = getComponentLayout(action.payload.itempath, action.payload.state)
         const children = layout?.props?.children
         const basePath = [...actionPath, 'props', 'children']

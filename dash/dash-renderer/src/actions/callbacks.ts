@@ -336,6 +336,7 @@ async function handleClientside(
 
 function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
     return function (dispatch: any, getState: any) {
+        const _state = getState()
         const {paths, config} = getState();
         const componentPath = getPath(paths, component_id);
         if (!componentPath) {
@@ -360,7 +361,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                state: _state
             })
         );
         dispatch(notifyObservers({id: component_id, props}));
