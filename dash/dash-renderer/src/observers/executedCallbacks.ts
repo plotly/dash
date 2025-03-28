@@ -34,6 +34,7 @@ import {ICallback, IStoredCallback} from '../types/callbacks';
 
 import {updateProps, setPaths, handleAsyncError} from '../actions';
 import {getPath, computePaths} from '../actions/paths';
+import {getComponentLayout} from '../wrapper/wrapping';
 
 import {applyPersistence, prunePersistence} from '../persistence';
 import {IStoreObserverDefinition} from '../StoreObserver';
@@ -46,7 +47,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         function applyProps(id: any, updatedProps: any) {
             const _state = getState();
-            const {layout, paths} = _state;
+            const {layout, paths, config} = _state;
             const itempath = getPath(paths, id);
             if (!itempath) {
                 return false;
@@ -64,12 +65,14 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
             const {props} = applyPersistence({props: updatedProps}, dispatch);
-
+            const component = getComponentLayout(itempath, _state);
             dispatch(
                 updateProps({
                     itempath,
                     props,
-                    source: 'response'
+                    source: 'response',
+                    component,
+                    config
                 })
             );
 

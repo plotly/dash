@@ -111,7 +111,9 @@ function DashWrapper({
                 dispatch(
                     updateProps({
                         props: changedProps,
-                        itempath: componentPath
+                        itempath: componentPath,
+                        component,
+                        config
                     })
                 );
             });

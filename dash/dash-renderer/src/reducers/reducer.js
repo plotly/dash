@@ -27,28 +27,177 @@ export const apiRequests = [
     'loginRequest'
 ];
 
+function handleChildrenPropsUpdate({
+    component,
+    config,
+    action,
+    actionPath,
+    state
+}) {
+    const childrenProps = pathOr(
+        [],
+        ['children_props', component?.namespace, component?.type],
+        config
+    );
+
+    // Ensure "children" is always considered
+    if (!childrenProps.includes('children[]')) {
+        childrenProps.push('children[]');
+    }
+
+    childrenProps.forEach(childrenProp => {
+        const segments = childrenProp.split('.');
+        const includesArray = childrenProp.includes('[]');
+        const includesObject = childrenProp.includes('{}');
+
+        const cleanSegments = segments.map(s =>
+            s.replace('[]', '').replace('{}', '')
+        );
+
+        const getFrontBack = () => {
+            const front = [];
+            const back = [];
+            let found = false;
+
+            for (const segment of segments) {
+                const clean = segment.replace('{}', '').replace('[]', '');
+                if (
+                    !found &&
+                    (segment.includes('[]') || segment.includes('{}'))
+                ) {
+                    found = true;
+                    front.push(clean);
+                } else if (found) {
+                    back.push(clean);
+                } else {
+                    front.push(clean);
+                }
+            }
+
+            return [front, back];
+        };
+
+        const [frontPath, backPath] = getFrontBack();
+        const basePath = [...actionPath, 'props', ...frontPath];
+        const propRoot = pathOr({}, ['payload', 'props'], action);
+
+        if (!(cleanSegments[0] in propRoot)) return;
+
+        const _fullValue = path(cleanSegments, propRoot);
+        const fullValues = Array.isArray(_fullValue)
+            ? _fullValue
+            : [_fullValue];
+
+        fullValues.forEach((fullValue, y) => {
+            if (includesArray) {
+                if (Array.isArray(fullValue)) {
+                    fullValue.forEach((el, i) => {
+                        let value = el;
+                        if (includesObject && backPath.length) {
+                            value = path(backPath, el);
+                        }
+
+                        if (value) {
+                            const itempath = [...basePath, i, ...backPath];
+                            state = adjustHashes(state, {
+                                payload: {
+                                    itempath,
+                                    props: value?.props,
+                                    component: value,
+                                    config
+                                }
+                            });
+                        }
+                    });
+                } else if (
+                    fullValue &&
+                    typeof fullValue === 'object' &&
+                    !('props' in fullValue)
+                ) {
+                    Object.entries(fullValue).forEach(([key, value]) => {
+                        const finalVal = backPath.length
+                            ? path(backPath, value)
+                            : value;
+                        if (finalVal) {
+                            const itempath = [...basePath, y, key, ...backPath];
+                            state = adjustHashes(state, {
+                                payload: {
+                                    itempath,
+                                    props: finalVal?.props,
+                                    component: finalVal,
+                                    config
+                                }
+                            });
+                        }
+                    });
+                } else if (fullValue) {
+                    const itempath = [...basePath, ...backPath];
+                    if (Array.isArray(_fullValue)) {
+                        itempath.push(y);
+                    }
+                    state = adjustHashes(state, {
+                        payload: {
+                            itempath,
+                            props: fullValue?.props,
+                            component: fullValue,
+                            config
+                        }
+                    });
+                }
+            } else if (includesObject) {
+                if (fullValue && typeof fullValue === 'object') {
+                    Object.entries(fullValue).forEach(([key, value]) => {
+                        const finalVal = backPath.length
+                            ? path(backPath, value)
+                            : value;
+                        if (finalVal) {
+                            const itempath = [...basePath, key, ...backPath];
+                            state = adjustHashes(state, {
+                                payload: {
+                                    itempath,
+                                    props: finalVal?.props,
+                                    component: finalVal,
+                                    config
+                                }
+                            });
+                        }
+                    });
+                }
+            } else {
+                if (fullValue) {
+                    const itempath = [...actionPath, 'props', ...cleanSegments];
+                    if (Array.isArray(_fullValue)) {
+                        itempath.push(y);
+                    }
+                    state = adjustHashes(state, {
+                        payload: {
+                            itempath,
+                            props: fullValue?.props,
+                            component: fullValue,
+                            config
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    return state;
+}
+
 function adjustHashes(state, action) {
     const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
     const prev = pathOr(0, [strPath], state);
+    const {component, config} = action.payload;
     state = assoc(strPath, prev + 1, state);
-
-    // check if children was adjusted
-    if ('children' in pathOr({}, ['payload', 'props'], action)) {
-        const children = pathOr({}, ['payload', 'props', 'children'], action);
-        const basePath = [...actionPath, 'props', 'children'];
-        if (Array.isArray(children)) {
-            children.forEach((v, i) => {
-                state = adjustHashes(state, {
-                    payload: {itempath: [...basePath, i], props: v?.props}
-                });
-            });
-        } else if (children) {
-            state = adjustHashes(state, {
-                payload: {itempath: [...basePath], props: children?.props}
-            });
-        }
-    }
+    state = handleChildrenPropsUpdate({
+        component,
+        config,
+        action,
+        actionPath,
+        state
+    });
     return state;
 }
 
