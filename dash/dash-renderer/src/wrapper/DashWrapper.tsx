@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback, memo, useState, useEffect} from 'react';
+import React, {useCallback, memo, useMemo} from 'react';
 import {
     path,
     concat,
@@ -43,11 +43,6 @@ type DashWrapperProps = {
     _dashprivate_error?: any;
 };
 
-// Define the type for your state
-type HydratedState = React.DetailedReactHTMLElement<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  HTMLInputElement
-> | null;
 
 function DashWrapper({
     componentPath,
@@ -55,7 +50,6 @@ function DashWrapper({
     ...extras
 }: DashWrapperProps) {
     const dispatch = useDispatch();
-    const [hydrated, setHydrated] = useState<HydratedState>(null);
 
     // Get the config for the component as props
     const config: DashConfig = useSelector(selectConfig);
@@ -65,22 +59,6 @@ function DashWrapper({
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
-
-    const dependenciesStable = useMemo(() => {
-        return JSON.stringify(
-            {
-                h,
-                componentPath,
-                componentProps
-            }
-        )
-    }, [
-        JSON.stringify({
-            componentProps,
-            componentPath,
-            h
-        })
-    ])
 
     const setProps = (newProps: UpdatePropsPayload) => {
         const {id} = componentProps;
@@ -393,44 +371,33 @@ function DashWrapper({
         return props;
     };
 
-    useEffect(() => {
-        let comp;
+    const hydrated = useMemo(() => {
         if (!component) {
-            return
-        }
-        const element = Registry.resolve(component);
-        const hydratedProps = setHydratedProps()
-        let hydratedChildren: any;
-        if (componentProps.children !== undefined) {
-            hydratedChildren = wrapChildrenProp(componentProps.children, [
-                'children'
-            ]);
-        }
-        if (config.props_check) {
-            comp = (
-                <CheckedComponent
-                    element={element}
-                    props={hydratedProps}
-                    component={component}
-                >
-                    {createElement(
-                        element,
-                        hydratedProps,
-                        extraProps,
-                        hydratedChildren
-                    )}
-                </CheckedComponent>
-            );
+            return;
         }
 
-        comp = createElement(
-            element,
-            hydratedProps,
-            extraProps,
-            hydratedChildren
+        const element = Registry.resolve(component);
+        const hydratedProps = setHydratedProps();
+
+        let hydratedChildren: any;
+        if (componentProps.children !== undefined) {
+            hydratedChildren = wrapChildrenProp(componentProps.children, ['children']);
+        }
+
+        const rendered = config.props_check ? (
+            <CheckedComponent
+                element={element}
+                props={hydratedProps}
+                component={component}
+            >
+                {createElement(element, hydratedProps, extraProps, hydratedChildren)}
+            </CheckedComponent>
+        ) : (
+            createElement(element, hydratedProps, extraProps, hydratedChildren)
         );
-        setHydrated(comp)
-    }, [dependenciesStable]);
+
+        return rendered
+    }, [h]);
 
     if (!component) {
         return null
@@ -448,7 +415,7 @@ function DashWrapper({
             dispatch={dispatch}
         >
             <DashContextProvider componentPath={componentPath}>
-                {hydrated ? hydrated : <></>}
+                {hydrated ? hydrated : <div/>}
             </DashContextProvider>
         </ComponentErrorBoundary>
     );
