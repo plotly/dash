@@ -41,8 +41,8 @@ function handleChildrenPropsUpdate({
     );
 
     // Ensure "children" is always considered
-    if (!childrenProps.includes('children[]')) {
-        childrenProps.push('children[]');
+    if (!childrenProps.includes('children')) {
+        childrenProps.push('children');
     }
 
     childrenProps.forEach(childrenProp => {
