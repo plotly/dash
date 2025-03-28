@@ -336,8 +336,8 @@ async function handleClientside(
 
 function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
     return function (dispatch: any, getState: any) {
-        const _state = getState()
-        const {paths, config} = getState();
+        const _state = getState();
+        const {paths, config} = _state;
         const componentPath = getPath(paths, component_id);
         if (!componentPath) {
             if (!config.suppress_callback_exceptions) {
@@ -361,8 +361,7 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath,
-                state: _state
+                itempath: componentPath
             })
         );
         dispatch(notifyObservers({id: component_id, props}));

@@ -1,6 +1,5 @@
 import {forEach, includes, isEmpty, keys, path, assoc, pathOr} from 'ramda';
 import {combineReducers} from 'redux';
-import {batch} from 'react-redux';
 
 import {getCallbacksByInput} from '../actions/dependencies_ts';
 
@@ -19,7 +18,7 @@ import layout from './layout';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
 import loading from './loading';
-import {stringifyPath, getComponentLayout} from '../wrapper/wrapping';
+import {stringifyPath} from '../wrapper/wrapping';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -29,28 +28,31 @@ export const apiRequests = [
 ];
 
 function adjustHashes(state, action) {
-    const actionPath = action.payload.itempath
+    const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
     const prev = pathOr(0, [strPath], state);
     state = assoc(strPath, prev + 1, state);
 
     // check if children was adjusted
     if ('children' in pathOr({}, ['payload', 'props'], action)) {
-        const children = pathOr({}, ['payload', 'props', 'children'], action)
-        const basePath = [...actionPath, 'props', 'children']
+        const children = pathOr({}, ['payload', 'props', 'children'], action);
+        const basePath = [...actionPath, 'props', 'children'];
         if (Array.isArray(children)) {
             children.forEach((v, i) => {
-                state = adjustHashes(state, { payload: { itempath: [...basePath, i], props: v?.props } });
-            })
+                state = adjustHashes(state, {
+                    payload: {itempath: [...basePath, i], props: v?.props}
+                });
+            });
         } else if (children) {
-            state = adjustHashes(state, { payload: { itempath: basePath }, props: children?.props });
+            state = adjustHashes(state, {
+                payload: {itempath: [...basePath], props: children?.props}
+            });
         }
-
     }
-    return state
+    return state;
 }
 
-const layoutHashes = batch(() => (state = {}, action) => {
+const layoutHashes = (state = {}, action) => {
     if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',
@@ -63,7 +65,7 @@ const layoutHashes = batch(() => (state = {}, action) => {
         return adjustHashes(state, action);
     }
     return state;
-})
+};
 
 function mainReducer() {
     const parts = {

@@ -43,7 +43,6 @@ type DashWrapperProps = {
     _dashprivate_error?: any;
 };
 
-
 function DashWrapper({
     componentPath,
     _dashprivate_error,
@@ -69,13 +68,10 @@ function DashWrapper({
         dispatch((dispatch, getState) => {
             const currentState = getState();
             const {graphs} = currentState;
-            const oldLayout = getComponentLayout(
-                componentPath,
-                currentState
-            )
-            if (!oldLayout) return
+            const oldLayout = getComponentLayout(componentPath, currentState);
+            if (!oldLayout) return;
             const {props: oldProps} = oldLayout;
-            if (!oldProps) return
+            if (!oldProps) return;
             const changedProps = pickBy(
                 (val, key) => !equals(val, oldProps[key]),
                 restProps
@@ -115,8 +111,7 @@ function DashWrapper({
                 dispatch(
                     updateProps({
                         props: changedProps,
-                        itempath: componentPath,
-                        state: currentState
+                        itempath: componentPath
                     })
                 );
             });
@@ -381,7 +376,9 @@ function DashWrapper({
 
         let hydratedChildren: any;
         if (componentProps.children !== undefined) {
-            hydratedChildren = wrapChildrenProp(componentProps.children, ['children']);
+            hydratedChildren = wrapChildrenProp(componentProps.children, [
+                'children'
+            ]);
         }
 
         const rendered = config.props_check ? (
@@ -390,17 +387,22 @@ function DashWrapper({
                 props={hydratedProps}
                 component={component}
             >
-                {createElement(element, hydratedProps, extraProps, hydratedChildren)}
+                {createElement(
+                    element,
+                    hydratedProps,
+                    extraProps,
+                    hydratedChildren
+                )}
             </CheckedComponent>
         ) : (
             createElement(element, hydratedProps, extraProps, hydratedChildren)
         );
 
-        return rendered
+        return rendered;
     }, [h]);
 
     if (!component) {
-        return null
+        return null;
     }
 
     return (
@@ -415,7 +417,7 @@ function DashWrapper({
             dispatch={dispatch}
         >
             <DashContextProvider componentPath={componentPath}>
-                {hydrated ? hydrated : <div/>}
+                {hydrated ? hydrated : <div />}
             </DashContextProvider>
         </ComponentErrorBoundary>
     );

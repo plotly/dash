@@ -26,8 +26,7 @@ function set_props(
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath,
-                state: _state
+                itempath: componentPath
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));

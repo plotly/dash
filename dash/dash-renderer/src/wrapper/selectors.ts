@@ -12,9 +12,9 @@ export const selectDashProps =
         // Then it can be easily compared without having to compare the props.
         const strPath = stringifyPath(componentPath);
 
-        const h = state.layoutHashes[strPath]
+        const h = state.layoutHashes[strPath];
         if (!c) {
-            return [c, {}, -100]
+            return [c, {}, -100];
         }
         return [c, c?.props, h];
     };
@@ -24,7 +24,7 @@ export function selectDashPropsEqualityFn(
     [___, ____, previousHash]: SelectDashProps
 ) {
     // Only need to compare the hash as any change is summed up
-    return (hash === previousHash);
+    return hash === previousHash;
 }
 
 export function selectConfig(state: any) {

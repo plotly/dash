@@ -45,7 +45,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         } = getState();
 
         function applyProps(id: any, updatedProps: any) {
-            const _state = getState()
+            const _state = getState();
             const {layout, paths} = _state;
             const itempath = getPath(paths, id);
             if (!itempath) {
@@ -69,8 +69,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 updateProps({
                     itempath,
                     props,
-                    source: 'response',
-                    state: _state
+                    source: 'response'
                 })
             );
 
