@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback, memo} from 'react';
+import React, {useCallback, memo, useMemo} from 'react';
 import {
     path,
     concat,
@@ -54,7 +54,7 @@ function DashWrapper({
     const config: DashConfig = useSelector(selectConfig);
 
     // Select both the component and it's props.
-    const [component, componentProps] = useSelector(
+    const [component, componentProps, h] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -68,11 +68,10 @@ function DashWrapper({
         dispatch((dispatch, getState) => {
             const currentState = getState();
             const {graphs} = currentState;
-
-            const {props: oldProps} = getComponentLayout(
-                componentPath,
-                currentState
-            );
+            const oldLayout = getComponentLayout(componentPath, currentState);
+            if (!oldLayout) return;
+            const {props: oldProps} = oldLayout;
+            if (!oldProps) return;
             const changedProps = pickBy(
                 (val, key) => !equals(val, oldProps[key]),
                 restProps
@@ -112,7 +111,9 @@ function DashWrapper({
                 dispatch(
                     updateProps({
                         props: changedProps,
-                        itempath: componentPath
+                        itempath: componentPath,
+                        component,
+                        config
                     })
                 );
             });
@@ -141,7 +142,7 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenProp: DashLayoutPath) => {
+        (node: any, childrenPath: DashLayoutPath) => {
             if (Array.isArray(node)) {
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
@@ -149,7 +150,7 @@ function DashWrapper({
                             n,
                             concat(componentPath, [
                                 'props',
-                                ...childrenProp,
+                                ...childrenPath,
                                 i
                             ]),
                             i
@@ -163,7 +164,7 @@ function DashWrapper({
             }
             return createContainer(
                 node,
-                concat(componentPath, ['props', ...childrenProp])
+                concat(componentPath, ['props', ...childrenPath])
             );
         },
         [componentPath]
@@ -174,13 +175,11 @@ function DashWrapper({
         ...extras
     };
 
-    const element = useMemo(() => Registry.resolve(component), [component]);
-
-    const hydratedProps = useMemo(() => {
+    const setHydratedProps = () => {
         // Hydrate components props
         const childrenProps = pathOr(
             [],
-            ['children_props', component.namespace, component.type],
+            ['children_props', component?.namespace, component?.type],
             config
         );
         let props = mergeRight(dissoc('children', componentProps), extraProps);
@@ -367,47 +366,46 @@ function DashWrapper({
             props.id = stringifyId(props.id);
         }
         return props;
-    }, [componentProps]);
+    };
 
     const hydrated = useMemo(() => {
+        if (!component) {
+            return;
+        }
+
+        const element = Registry.resolve(component);
+        const hydratedProps = setHydratedProps();
+
         let hydratedChildren: any;
         if (componentProps.children !== undefined) {
             hydratedChildren = wrapChildrenProp(componentProps.children, [
                 'children'
             ]);
         }
-        if (config.props_check) {
-            return (
-                <CheckedComponent
-                    element={element}
-                    props={hydratedProps}
-                    component={component}
-                >
-                    {createElement(
-                        element,
-                        hydratedProps,
-                        extraProps,
-                        hydratedChildren
-                    )}
-                </CheckedComponent>
-            );
-        }
 
-        return createElement(
-            element,
-            hydratedProps,
-            extraProps,
-            hydratedChildren
+        const rendered = config.props_check ? (
+            <CheckedComponent
+                element={element}
+                props={hydratedProps}
+                component={component}
+            >
+                {createElement(
+                    element,
+                    hydratedProps,
+                    extraProps,
+                    hydratedChildren
+                )}
+            </CheckedComponent>
+        ) : (
+            createElement(element, hydratedProps, extraProps, hydratedChildren)
         );
-    }, [
-        element,
-        component,
-        hydratedProps,
-        extraProps,
-        wrapChildrenProp,
-        componentProps,
-        config.props_check
-    ]);
+
+        return rendered;
+    }, [h]);
+
+    if (!component) {
+        return null;
+    }
 
     return (
         <ComponentErrorBoundary
@@ -421,7 +419,7 @@ function DashWrapper({
             dispatch={dispatch}
         >
             <DashContextProvider componentPath={componentPath}>
-                {hydrated}
+                {hydrated ? hydrated : <div />}
             </DashContextProvider>
         </ComponentErrorBoundary>
     );

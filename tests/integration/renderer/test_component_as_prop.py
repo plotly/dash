@@ -25,138 +25,139 @@ def opt(u):
 def test_rdcap001_component_as_prop(dash_duo):
     app = Dash(__name__)
 
-    app.layout = Div(
-        [
-            ComponentAsProp(
-                element=Div(
-                    "as-props",
-                    id="as-props",
-                )
-            ),
-            ComponentAsProp(
-                id="clicker-container", element=Button("click-me", id="clicker")
-            ),
-            ComponentAsProp(
-                id="nested-output-container",
-                element=Div(id="nested-output"),
-            ),
-            Div(
-                [
-                    Button("click-nested", id="send-nested"),
-                    Div(id="output-from-prop"),
+    content = [
+        ComponentAsProp(
+            element=Div(
+                "as-props",
+                id="as-props",
+            )
+        ),
+        ComponentAsProp(
+            id="clicker-container", element=Button("click-me", id="clicker")
+        ),
+        ComponentAsProp(
+            id="nested-output-container",
+            element=Div(id="nested-output"),
+        ),
+        Div(
+            [
+                Button("click-nested", id="send-nested"),
+                Div(id="output-from-prop"),
+            ]
+        ),
+        ComponentAsProp(
+            id="elements",
+            element=[
+                Div("one", id="list-one"),
+                Div("two", id="list-two"),
+                Div(id="list-output"),
+            ],
+        ),
+        Div(
+            [
+                Button("click-list", id="to-list"),
+                Div(id="output-from-list"),
+                Button("click footer", id="to-footer"),
+                Div(id="from-header"),
+                Div(id="from-list-of-dict"),
+                Button("click to list", id="update-list-of-dict"),
+            ],
+        ),
+        ComponentAsProp(
+            id="shaped",
+            shapeEl={
+                "header": Button("header", id="button-header"),
+                "footer": Div("initial", id="footer"),
+            },
+        ),
+        ComponentAsProp(
+            id="list-of-dict",
+            list_of_shapes=[
+                {"label": Button(f"click-{i}", id=f"list-click-{i}"), "value": i}
+                for i in range(1, 4)
+            ],
+        ),
+        ComponentAsProp(
+            "list-of-dict-update",
+            list_of_shapes=[
+                {
+                    "label": Div("update me", id="update-in-list-of-dict"),
+                    "value": 1,
+                },
+            ],
+        ),
+        ComponentAsProp(
+            id="list-of-list-of-nodes",
+            list_of_shapes=[
+                {
+                    "label": [
+                        Div("first-label", id="first-label"),
+                        Div("second-label", id="second-label"),
+                    ],
+                    "value": 2,
+                }
+            ],
+        ),
+        ComponentAsProp(
+            id="list-in-shape",
+            shapeEl={
+                "header": [
+                    Div("one", id="first-in-shape"),
+                    Div("two", id="second-in-shape"),
                 ]
-            ),
-            ComponentAsProp(
-                id="elements",
-                element=[
-                    Div("one", id="list-one"),
-                    Div("two", id="list-two"),
-                    Div(id="list-output"),
-                ],
-            ),
-            Div(
-                [
-                    Button("click-list", id="to-list"),
-                    Div(id="output-from-list"),
-                    Button("click footer", id="to-footer"),
-                    Div(id="from-header"),
-                    Div(id="from-list-of-dict"),
-                    Button("click to list", id="update-list-of-dict"),
-                ],
-            ),
-            ComponentAsProp(
-                id="shaped",
-                shapeEl={
-                    "header": Button("header", id="button-header"),
-                    "footer": Div("initial", id="footer"),
+            },
+        ),
+        ComponentAsProp(
+            id="multi-component",
+            multi_components=[
+                {
+                    "id": "multi",
+                    "first": Span("first"),
+                    "second": Span("second"),
                 },
-            ),
-            ComponentAsProp(
-                id="list-of-dict",
-                list_of_shapes=[
-                    {"label": Button(f"click-{i}", id=f"list-click-{i}"), "value": i}
-                    for i in range(1, 4)
-                ],
-            ),
-            ComponentAsProp(
-                "list-of-dict-update",
-                list_of_shapes=[
-                    {
-                        "label": Div("update me", id="update-in-list-of-dict"),
-                        "value": 1,
-                    },
-                ],
-            ),
-            ComponentAsProp(
-                id="list-of-list-of-nodes",
-                list_of_shapes=[
-                    {
-                        "label": [
-                            Div("first-label", id="first-label"),
-                            Div("second-label", id="second-label"),
-                        ],
-                        "value": 2,
-                    }
-                ],
-            ),
-            ComponentAsProp(
-                id="list-in-shape",
-                shapeEl={
-                    "header": [
-                        Div("one", id="first-in-shape"),
-                        Div("two", id="second-in-shape"),
-                    ]
+                {
+                    "id": "multi2",
+                    "first": Span("foo"),
+                    "second": Span("bar"),
                 },
-            ),
-            ComponentAsProp(
-                id="multi-component",
-                multi_components=[
-                    {
-                        "id": "multi",
-                        "first": Span("first"),
-                        "second": Span("second"),
-                    },
-                    {
-                        "id": "multi2",
-                        "first": Span("foo"),
-                        "second": Span("bar"),
-                    },
-                ],
-            ),
-            ComponentAsProp(
-                dynamic={
-                    "inside-dynamic": Div("dynamic", "inside-dynamic"),
-                    "output-dynamic": Div(id="output-dynamic"),
-                    "clicker": Button("click-dynamic", id="click-dynamic"),
-                    "clicker-dict": Button("click-dict", id="click-dict"),
-                    "clicker-list": Button("click-list", id="click-list"),
-                    "clicker-nested": Button("click-nested", id="click-nested"),
+            ],
+        ),
+        ComponentAsProp(
+            dynamic={
+                "inside-dynamic": Div("dynamic", "inside-dynamic"),
+                "output-dynamic": Div(id="output-dynamic"),
+                "clicker": Button("click-dynamic", id="click-dynamic"),
+                "clicker-dict": Button("click-dict", id="click-dict"),
+                "clicker-list": Button("click-list", id="click-list"),
+                "clicker-nested": Button("click-nested", id="click-nested"),
+            },
+            dynamic_dict={
+                "node": {
+                    "dict-dyn": Div("dict-dyn", id="inside-dict"),
+                    "dict-2": Div("dict-2", id="inside-dict-2"),
+                }
+            },
+            dynamic_list=[
+                {
+                    "list": Div("dynamic-list", id="inside-list"),
+                    "list-2": Div("list-2", id="inside-list-2"),
                 },
-                dynamic_dict={
-                    "node": {
-                        "dict-dyn": Div("dict-dyn", id="inside-dict"),
-                        "dict-2": Div("dict-2", id="inside-dict-2"),
-                    }
+                {"list-3": Div("list-3", id="inside-list-3")},
+            ],
+            dynamic_nested_list=[
+                {"obj": {"nested": Div("nested", id="nested-dyn")}},
+                {
+                    "obj": {
+                        "nested": Div("nested-2", id="nested-2"),
+                        "nested-again": Div("nested-again", id="nested-again"),
+                    },
                 },
-                dynamic_list=[
-                    {
-                        "list": Div("dynamic-list", id="inside-list"),
-                        "list-2": Div("list-2", id="inside-list-2"),
-                    },
-                    {"list-3": Div("list-3", id="inside-list-3")},
-                ],
-                dynamic_nested_list=[
-                    {"obj": {"nested": Div("nested", id="nested-dyn")}},
-                    {
-                        "obj": {
-                            "nested": Div("nested-2", id="nested-2"),
-                            "nested-again": Div("nested-again", id="nested-again"),
-                        },
-                    },
-                ],
-            ),
-        ]
-    )
+            ],
+        ),
+        Button(id="reset_test"),
+    ]
+
+    app.layout = Div(content, id="test_container")
 
     @app.callback(
         Output("output-from-prop", "children"), [Input("clicker", "n_clicks")]
@@ -237,79 +238,93 @@ def test_rdcap001_component_as_prop(dash_duo):
     def on_click(n_clicks):
         return f"Clicked {n_clicks}"
 
+    @app.callback(
+        Output("test_container", "children"),
+        Input("reset_test", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(_):
+        return content
+
     dash_duo.start_server(app)
 
+    for i in range(3):
+        ## tests re-rendering of components as props outside of the normal layout or first-time render
+        assert dash_duo.get_logs() == []
+
+        dash_duo.wait_for_text_to_equal("#as-props", "as-props")
+
+        elements = dash_duo.find_elements("#elements div")
+
+        assert len(elements) == 3
+
+        clicker = dash_duo.wait_for_element("#clicker")
+        clicker.click()
+        dash_duo.wait_for_text_to_equal("#output-from-prop", "From prop: 1")
+
+        nested = dash_duo.wait_for_element("#send-nested")
+        nested.click()
+        dash_duo.wait_for_text_to_equal("#nested-output", "Nested: 1")
+
+        to_list = dash_duo.find_element("#to-list")
+        to_list.click()
+        dash_duo.wait_for_text_to_equal("#list-output", "To list: 1")
+
+        from_list = dash_duo.find_element("#list-two")
+        from_list.click()
+        dash_duo.wait_for_text_to_equal("#output-from-list", "From list: 1")
+
+        from_header = dash_duo.find_element("#button-header")
+        from_header.click()
+        dash_duo.wait_for_text_to_equal("#from-header", "From header: 1")
+
+        to_footer = dash_duo.find_element("#to-footer")
+        to_footer.click()
+        dash_duo.wait_for_text_to_equal("#footer", "To footer: 1")
+
+        for btn_id in (f"list-click-{i}" for i in range(1, 4)):
+            dash_duo.find_element(f"#{btn_id}").click()
+            dash_duo.wait_for_text_to_equal("#from-list-of-dict", f"{btn_id}.n_clicks")
+
+        dash_duo.find_element("#update-list-of-dict").click()
+        dash_duo.wait_for_text_to_equal("#update-in-list-of-dict", "Updated: 1")
+
+        dash_duo.wait_for_text_to_equal("#first-label", "first-label")
+        dash_duo.wait_for_text_to_equal("#second-label", "second-label")
+
+        dash_duo.wait_for_text_to_equal("#first-in-shape", "one")
+        dash_duo.wait_for_text_to_equal("#second-in-shape", "two")
+
+        dash_duo.wait_for_text_to_equal("#multi", "first - second")
+        dash_duo.wait_for_text_to_equal("#multi2", "foo - bar")
+
+        dash_duo.wait_for_text_to_equal("#inside-dynamic", "dynamic")
+        dash_duo.wait_for_text_to_equal("#dict-dyn", "dict-dyn")
+        dash_duo.wait_for_text_to_equal("#inside-dict-2", "dict-2")
+        dash_duo.wait_for_text_to_equal("#nested-2", "nested-2")
+        dash_duo.wait_for_text_to_equal("#nested-again", "nested-again")
+
+        dash_duo.wait_for_text_to_equal("#inside-list", "dynamic-list")
+        dash_duo.wait_for_text_to_equal("#inside-list-2", "list-2")
+        dash_duo.wait_for_text_to_equal("#inside-list-3", "list-3")
+
+        dash_duo.find_element("#click-dynamic").click()
+        dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
+
+        dash_duo.find_element("#click-dict").click()
+        dash_duo.wait_for_text_to_equal("#inside-dict", "Clicked 1")
+
+        dash_duo.find_element("#click-list").click()
+        dash_duo.wait_for_text_to_equal("#inside-list", "Clicked 1")
+
+        dash_duo.find_element("#click-nested").click()
+        dash_duo.wait_for_text_to_equal("#nested-dyn", "Clicked 1")
+
+        assert dash_duo.get_logs() == []
+        dash_duo.find_element("#reset_test").click()
     assert dash_duo.get_logs() == []
 
     dash_duo.wait_for_text_to_equal("#as-props", "as-props")
-
-    elements = dash_duo.find_elements("#elements div")
-
-    assert len(elements) == 3
-
-    clicker = dash_duo.wait_for_element("#clicker")
-    clicker.click()
-    dash_duo.wait_for_text_to_equal("#output-from-prop", "From prop: 1")
-
-    nested = dash_duo.wait_for_element("#send-nested")
-    nested.click()
-    dash_duo.wait_for_text_to_equal("#nested-output", "Nested: 1")
-
-    to_list = dash_duo.find_element("#to-list")
-    to_list.click()
-    dash_duo.wait_for_text_to_equal("#list-output", "To list: 1")
-
-    from_list = dash_duo.find_element("#list-two")
-    from_list.click()
-    dash_duo.wait_for_text_to_equal("#output-from-list", "From list: 1")
-
-    from_header = dash_duo.find_element("#button-header")
-    from_header.click()
-    dash_duo.wait_for_text_to_equal("#from-header", "From header: 1")
-
-    to_footer = dash_duo.find_element("#to-footer")
-    to_footer.click()
-    dash_duo.wait_for_text_to_equal("#footer", "To footer: 1")
-
-    for btn_id in (f"list-click-{i}" for i in range(1, 4)):
-        dash_duo.find_element(f"#{btn_id}").click()
-        dash_duo.wait_for_text_to_equal("#from-list-of-dict", f"{btn_id}.n_clicks")
-
-    dash_duo.find_element("#update-list-of-dict").click()
-    dash_duo.wait_for_text_to_equal("#update-in-list-of-dict", "Updated: 1")
-
-    dash_duo.wait_for_text_to_equal("#first-label", "first-label")
-    dash_duo.wait_for_text_to_equal("#second-label", "second-label")
-
-    dash_duo.wait_for_text_to_equal("#first-in-shape", "one")
-    dash_duo.wait_for_text_to_equal("#second-in-shape", "two")
-
-    dash_duo.wait_for_text_to_equal("#multi", "first - second")
-    dash_duo.wait_for_text_to_equal("#multi2", "foo - bar")
-
-    dash_duo.wait_for_text_to_equal("#inside-dynamic", "dynamic")
-    dash_duo.wait_for_text_to_equal("#dict-dyn", "dict-dyn")
-    dash_duo.wait_for_text_to_equal("#inside-dict-2", "dict-2")
-    dash_duo.wait_for_text_to_equal("#nested-2", "nested-2")
-    dash_duo.wait_for_text_to_equal("#nested-again", "nested-again")
-
-    dash_duo.wait_for_text_to_equal("#inside-list", "dynamic-list")
-    dash_duo.wait_for_text_to_equal("#inside-list-2", "list-2")
-    dash_duo.wait_for_text_to_equal("#inside-list-3", "list-3")
-
-    dash_duo.find_element("#click-dynamic").click()
-    dash_duo.wait_for_text_to_equal("#output-dynamic", "Clicked 1")
-
-    dash_duo.find_element("#click-dict").click()
-    dash_duo.wait_for_text_to_equal("#inside-dict", "Clicked 1")
-
-    dash_duo.find_element("#click-list").click()
-    dash_duo.wait_for_text_to_equal("#inside-list", "Clicked 1")
-
-    dash_duo.find_element("#click-nested").click()
-    dash_duo.wait_for_text_to_equal("#nested-dyn", "Clicked 1")
-
-    assert dash_duo.get_logs() == []
 
 
 def test_rdcap002_component_as_props_dynamic_id(dash_duo):
