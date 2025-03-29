@@ -119,6 +119,7 @@ function DashWrapper({
     );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // @ts-ignore
     const newlyRendered = useMemo(() => {
         if (_newRender) {
             memoizedProps.current = {};
