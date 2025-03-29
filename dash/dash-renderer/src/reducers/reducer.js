@@ -30,12 +30,10 @@ export const apiRequests = [
 function adjustHashes(state, action) {
     const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
-    const prev = pathOr('0', [strPath], state);
+    const prev = pathOr(0, [strPath, 0], state);
     state = assoc(
         strPath,
-        `${parseInt(prev.split(' -')[0]) + 1} - ${JSON.stringify(
-            action.payload.props
-        )}`,
+        [prev + 1, action.payload.props],
         state
     );
     return state;

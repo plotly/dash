@@ -16,8 +16,8 @@ export const selectDashProps =
         let h = 0;
         let changedProps: object = {};
         if (hash) {
-            h = parseInt(hash.split(' -')[0]);
-            changedProps = JSON.parse(hash.split('- ')[1]);
+            h = hash[0];
+            changedProps = hash[1];
         }
         return [c, c?.props, h, changedProps];
     };
