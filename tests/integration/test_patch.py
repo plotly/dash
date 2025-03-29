@@ -5,6 +5,7 @@ import flaky
 from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, html, dcc, Input, Output, State, ALL, Patch
+from dash.testing.wait import until
 
 
 @flaky.flaky(max_runs=3)
@@ -219,52 +220,52 @@ def test_pch001_patch_operations(dash_duo):
     _input.send_keys("Set Value")
     dash_duo.find_element("#set-btn").click()
 
-    assert get_output()["value"] == "Set Value"
+    until(lambda: get_output()["value"] == "Set Value", 2)
 
     _input = dash_duo.find_element("#append-value")
     _input.send_keys("Append")
     dash_duo.find_element("#append-btn").click()
 
-    assert get_output()["array"] == ["initial", "Append"]
+    until(lambda: get_output()["array"] == ["initial", "Append"], 2)
 
     _input = dash_duo.find_element("#prepend-value")
     _input.send_keys("Prepend")
     dash_duo.find_element("#prepend-btn").click()
 
-    assert get_output()["array"] == ["Prepend", "initial", "Append"]
+    until(lambda: get_output()["array"] == ["Prepend", "initial", "Append"], 2)
 
     _input = dash_duo.find_element("#extend-value")
     _input.send_keys("Extend")
     dash_duo.find_element("#extend-btn").click()
 
-    assert get_output()["array"] == ["Prepend", "initial", "Append", "Extend"]
+    until(lambda: get_output()["array"] == ["Prepend", "initial", "Append", "Extend"], 2)
 
     undef = object()
-    assert get_output().get("merge", undef) is undef
+    until(lambda: get_output().get("merge", undef) is undef, 2)
 
     _input = dash_duo.find_element("#merge-value")
     _input.send_keys("Merged")
     dash_duo.find_element("#merge-btn").click()
 
-    assert get_output()["merged"] == "Merged"
+    until(lambda: get_output()["merged"] == "Merged", 2)
 
-    assert get_output()["delete"] == "Delete me"
+    until(lambda: get_output()["delete"] == "Delete me", 2)
 
     dash_duo.find_element("#delete-btn").click()
 
-    assert get_output().get("delete", undef) is undef
+    until(lambda: get_output().get("delete", undef) is undef, 2)
 
     _input = dash_duo.find_element("#insert-value")
     _input.send_keys("Inserted")
     dash_duo.find_element("#insert-btn").click()
 
-    assert get_output().get("array") == [
+    until(lambda:  get_output().get("array") == [
         "Prepend",
         "Inserted",
         "initial",
         "Append",
         "Extend",
-    ]
+    ], 2)
 
     _input.send_keys(" with negative index")
     _input = dash_duo.find_element("#insert-index")
@@ -272,40 +273,40 @@ def test_pch001_patch_operations(dash_duo):
     _input.send_keys("-1")
     dash_duo.find_element("#insert-btn").click()
 
-    assert get_output().get("array") == [
+    until(lambda: get_output().get("array") == [
         "Prepend",
         "Inserted",
         "initial",
         "Append",
         "Inserted with negative index",
         "Extend",
-    ]
+    ], 2)
 
     dash_duo.find_element("#delete-index").click()
-    assert get_output().get("array") == [
+    until(lambda: get_output().get("array") == [
         "Prepend",
         "initial",
         "Append",
         "Extend",
-    ]
+    ], 2)
 
     dash_duo.find_element("#reverse-btn").click()
-    assert get_output().get("array") == [
+    until(lambda: get_output().get("array") == [
         "Extend",
         "Append",
         "initial",
         "Prepend",
-    ]
+    ], 2)
 
     dash_duo.find_element("#remove-btn").click()
-    assert get_output().get("array") == [
+    until(lambda: get_output().get("array") == [
         "Extend",
         "Append",
         "Prepend",
-    ]
+    ], 2)
 
     dash_duo.find_element("#clear-btn").click()
-    assert get_output()["array"] == []
+    until(lambda: get_output()["array"] == [], 2)
 
 
 def test_pch002_patch_app_pmc_callbacks(dash_duo):

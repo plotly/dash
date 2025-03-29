@@ -31,11 +31,7 @@ function adjustHashes(state, action) {
     const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
     const prev = pathOr(0, [strPath, 0], state);
-    state = assoc(
-        strPath,
-        [prev + 1, action.payload.props],
-        state
-    );
+    state = assoc(strPath, [prev + 1, action.payload.props], state);
     return state;
 }
 
