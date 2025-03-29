@@ -238,7 +238,9 @@ def test_pch001_patch_operations(dash_duo):
     _input.send_keys("Extend")
     dash_duo.find_element("#extend-btn").click()
 
-    until(lambda: get_output()["array"] == ["Prepend", "initial", "Append", "Extend"], 2)
+    until(
+        lambda: get_output()["array"] == ["Prepend", "initial", "Append", "Extend"], 2
+    )
 
     undef = object()
     until(lambda: get_output().get("merge", undef) is undef, 2)
@@ -259,13 +261,17 @@ def test_pch001_patch_operations(dash_duo):
     _input.send_keys("Inserted")
     dash_duo.find_element("#insert-btn").click()
 
-    until(lambda:  get_output().get("array") == [
-        "Prepend",
-        "Inserted",
-        "initial",
-        "Append",
-        "Extend",
-    ], 2)
+    until(
+        lambda: get_output().get("array")
+        == [
+            "Prepend",
+            "Inserted",
+            "initial",
+            "Append",
+            "Extend",
+        ],
+        2,
+    )
 
     _input.send_keys(" with negative index")
     _input = dash_duo.find_element("#insert-index")
@@ -273,37 +279,53 @@ def test_pch001_patch_operations(dash_duo):
     _input.send_keys("-1")
     dash_duo.find_element("#insert-btn").click()
 
-    until(lambda: get_output().get("array") == [
-        "Prepend",
-        "Inserted",
-        "initial",
-        "Append",
-        "Inserted with negative index",
-        "Extend",
-    ], 2)
+    until(
+        lambda: get_output().get("array")
+        == [
+            "Prepend",
+            "Inserted",
+            "initial",
+            "Append",
+            "Inserted with negative index",
+            "Extend",
+        ],
+        2,
+    )
 
     dash_duo.find_element("#delete-index").click()
-    until(lambda: get_output().get("array") == [
-        "Prepend",
-        "initial",
-        "Append",
-        "Extend",
-    ], 2)
+    until(
+        lambda: get_output().get("array")
+        == [
+            "Prepend",
+            "initial",
+            "Append",
+            "Extend",
+        ],
+        2,
+    )
 
     dash_duo.find_element("#reverse-btn").click()
-    until(lambda: get_output().get("array") == [
-        "Extend",
-        "Append",
-        "initial",
-        "Prepend",
-    ], 2)
+    until(
+        lambda: get_output().get("array")
+        == [
+            "Extend",
+            "Append",
+            "initial",
+            "Prepend",
+        ],
+        2,
+    )
 
     dash_duo.find_element("#remove-btn").click()
-    until(lambda: get_output().get("array") == [
-        "Extend",
-        "Append",
-        "Prepend",
-    ], 2)
+    until(
+        lambda: get_output().get("array")
+        == [
+            "Extend",
+            "Append",
+            "Prepend",
+        ],
+        2,
+    )
 
     dash_duo.find_element("#clear-btn").click()
     until(lambda: get_output()["array"] == [], 2)
