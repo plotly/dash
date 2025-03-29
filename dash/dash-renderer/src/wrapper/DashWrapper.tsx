@@ -118,7 +118,7 @@ function DashWrapper({
         selectDashPropsEqualityFn
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
     // @ts-ignore
     const newlyRendered = useMemo(() => {
         if (_newRender) {
@@ -133,6 +133,7 @@ function DashWrapper({
         }
         return newRender.current;
     }, [_newRender]);
+    /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
 
     let propDifferences: any = {};
     if (memoizedProps.current) {
