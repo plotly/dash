@@ -1,4 +1,4 @@
-import React, {useCallback, memo, useMemo} from 'react';
+import React, {useCallback, MutableRefObject, useRef, useMemo} from 'react';
 import {
     path,
     concat,
@@ -14,7 +14,11 @@ import {
     dissoc,
     assoc,
     mapObjIndexed,
-    type
+    type,
+    reduce,
+    difference,
+    intersection,
+    filter
 } from 'ramda';
 import {useSelector, useDispatch, batch} from 'react-redux';
 
@@ -35,29 +39,108 @@ import {
 import CheckedComponent from './CheckedComponent';
 import {DashContextProvider} from './DashContext';
 
+// Define types for the input objects and the output differences
+type Dictionary = Record<string, any>;
+
+interface Difference {
+    obj1: any;
+    obj2: any;
+}
+
+const findDifferences = (
+    obj1: Dictionary,
+    obj2: Dictionary
+): Record<string, Difference> => {
+    const commonKeys = intersection(keys(obj1), keys(obj2));
+
+    const differingKeys = filter(
+        (key: string) => !equals(obj1[key], obj2[key]),
+        commonKeys
+    ) as string[];
+
+    const keysOnlyInObj2 = difference(keys(obj2), keys(obj1));
+
+    const differences: Record<string, Difference> = reduce(
+        (acc: Record<string, Difference>, key: string) => {
+            acc[key] = {obj1: obj1[key], obj2: obj2[key]};
+            return acc;
+        },
+        {},
+        differingKeys as string[]
+    );
+
+    keysOnlyInObj2.forEach(key => {
+        differences[key] = {obj1: undefined, obj2: obj2[key]};
+    });
+
+    return differences;
+};
+
 type DashWrapperProps = {
     /**
      * Path of the component in the layout.
      */
     componentPath: DashLayoutPath;
     _dashprivate_error?: any;
+    _passedComponent?: any;
+    _newRender?: any;
+};
+
+// Define a type for the memoized keys
+type MemoizedKeysType = {
+    [key: string]: React.ReactNode | null; // This includes React elements, strings, numbers, etc.
+};
+
+// Define a type for the memoized props
+type MemoizedPropsType = {
+    [key: string]: any;
 };
 
 function DashWrapper({
     componentPath,
     _dashprivate_error,
+    _passedComponent,
+    _newRender,
     ...extras
 }: DashWrapperProps) {
     const dispatch = useDispatch();
+    const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
+    const memoizedProps: MutableRefObject<MemoizedPropsType> = useRef({});
+    const newRender = useRef(false);
 
     // Get the config for the component as props
     const config: DashConfig = useSelector(selectConfig);
 
     // Select both the component and it's props.
-    const [component, componentProps, h] = useSelector(
+    // eslint-disable-next-line prefer-const
+    let [component, componentProps, h, changedProps] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const newlyRendered = useMemo(() => {
+        if (_newRender) {
+            memoizedProps.current = {};
+            newRender.current = true;
+            h = 0;
+            if (h in memoizedKeys.current) {
+                delete memoizedKeys.current[h];
+            }
+        } else {
+            newRender.current = false;
+        }
+        return newRender.current;
+    }, [_newRender]);
+
+    let propDifferences: any = {};
+    if (memoizedProps.current) {
+        propDifferences = findDifferences(
+            memoizedProps.current,
+            componentProps
+        );
+    }
+    memoizedProps.current = componentProps;
 
     const setProps = (newProps: UpdatePropsPayload) => {
         const {id} = componentProps;
@@ -121,7 +204,7 @@ function DashWrapper({
     };
 
     const createContainer = useCallback(
-        (container, containerPath, key = undefined) => {
+        (container, containerPath, _childNewRender, key = undefined) => {
             if (isSimpleComponent(component)) {
                 return component;
             }
@@ -135,6 +218,8 @@ function DashWrapper({
                     }
                     _dashprivate_error={_dashprivate_error}
                     componentPath={containerPath}
+                    _passedComponent={container}
+                    _newRender={_childNewRender}
                 />
             );
         },
@@ -142,7 +227,7 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenPath: DashLayoutPath) => {
+        (node: any, childrenPath: DashLayoutPath, _childNewRender: any) => {
             if (Array.isArray(node)) {
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
@@ -153,6 +238,7 @@ function DashWrapper({
                                 ...childrenPath,
                                 i
                             ]),
+                            _childNewRender,
                             i
                         );
                     }
@@ -164,7 +250,8 @@ function DashWrapper({
             }
             return createContainer(
                 node,
-                concat(componentPath, ['props', ...childrenPath])
+                concat(componentPath, ['props', ...childrenPath]),
+                _childNewRender
             );
         },
         [componentPath]
@@ -175,7 +262,7 @@ function DashWrapper({
         ...extras
     };
 
-    const setHydratedProps = () => {
+    const setHydratedProps = (component: any, componentProps: any) => {
         // Hydrate components props
         const childrenProps = pathOr(
             [],
@@ -186,10 +273,24 @@ function DashWrapper({
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp: string = childrenProps[i];
-
+            let childNewRender = 0;
+            if (
+                childrenProp
+                    .split('.')[0]
+                    .replace('[]', '')
+                    .replace('{}', '') in propDifferences ||
+                childrenProp
+                    .split('.')[0]
+                    .replace('[]', '')
+                    .replace('{}', '') in changedProps ||
+                newRender.current
+            ) {
+                childNewRender = Date.now();
+            }
             const handleObject = (obj: any, opath: DashLayoutPath) => {
                 return mapObjIndexed(
-                    (node, k) => wrapChildrenProp(node, [...opath, k]),
+                    (node, k) =>
+                        wrapChildrenProp(node, [...opath, k], childNewRender),
                     obj
                 );
             };
@@ -259,7 +360,8 @@ function DashWrapper({
                         } else {
                             listValue = wrapChildrenProp(
                                 path(backPath, el),
-                                elementPath
+                                elementPath,
+                                childNewRender
                             );
                         }
                         return assocPath(backPath, listValue, el);
@@ -305,7 +407,8 @@ function DashWrapper({
                                                   dynamic,
                                                   concat([k], backPath)
                                               )
-                                            : concat(dynamic, [k])
+                                            : concat(dynamic, [k]),
+                                        childNewRender
                                     ),
                                 dynValue
                             );
@@ -316,7 +419,11 @@ function DashWrapper({
                         if (node === undefined) {
                             continue;
                         }
-                        nodeValue = wrapChildrenProp(node, childrenPath);
+                        nodeValue = wrapChildrenProp(
+                            node,
+                            childrenPath,
+                            childNewRender
+                        );
                     }
                 }
                 props = assocPath(childrenPath, nodeValue, props);
@@ -352,7 +459,11 @@ function DashWrapper({
                     if (node !== undefined) {
                         props = assoc(
                             childrenProp,
-                            wrapChildrenProp(node, [childrenProp]),
+                            wrapChildrenProp(
+                                node,
+                                [childrenProp],
+                                childNewRender
+                            ),
                             props
                         );
                     }
@@ -368,20 +479,31 @@ function DashWrapper({
         return props;
     };
 
-    const hydrated = useMemo(() => {
+    const hydrateFunc = () => {
+        if (newRender.current) {
+            component = _passedComponent;
+            componentProps = _passedComponent?.props;
+        }
         if (!component) {
-            return;
+            return null;
         }
 
         const element = Registry.resolve(component);
-        const hydratedProps = setHydratedProps();
+        const hydratedProps = setHydratedProps(component, componentProps);
 
         let hydratedChildren: any;
         if (componentProps.children !== undefined) {
-            hydratedChildren = wrapChildrenProp(componentProps.children, [
-                'children'
-            ]);
+            hydratedChildren = wrapChildrenProp(
+                componentProps.children,
+                ['children'],
+                'children' in propDifferences ||
+                    newRender.current ||
+                    'children' in changedProps
+                    ? Date.now()
+                    : 0
+            );
         }
+        newRender.current = false;
 
         const rendered = config.props_check ? (
             <CheckedComponent
@@ -401,13 +523,20 @@ function DashWrapper({
         );
 
         return rendered;
-    }, [h]);
+    };
 
-    if (!component) {
-        return null;
+    let hydrated = null;
+    if (h in memoizedKeys.current && !newRender.current) {
+        hydrated = React.isValidElement(memoizedKeys.current[h])
+            ? memoizedKeys.current[h]
+            : null;
+    }
+    if (!hydrated) {
+        hydrated = hydrateFunc();
+        memoizedKeys.current = {[h]: hydrated};
     }
 
-    return (
+    return component ? (
         <ComponentErrorBoundary
             componentType={component.type}
             componentId={
@@ -419,30 +548,12 @@ function DashWrapper({
             dispatch={dispatch}
         >
             <DashContextProvider componentPath={componentPath}>
-                {hydrated ? hydrated : <div />}
+                {React.isValidElement(hydrated) ? hydrated : <div />}
             </DashContextProvider>
         </ComponentErrorBoundary>
+    ) : (
+        <div />
     );
 }
 
-function wrapperEquality(prev: any, next: any) {
-    const {
-        componentPath: prevPath,
-        _dashprivate_error: prevError,
-        ...prevProps
-    } = prev;
-    const {
-        componentPath: nextPath,
-        _dashprivate_error: nextError,
-        ...nextProps
-    } = next;
-    if (JSON.stringify(prevPath) !== JSON.stringify(nextPath)) {
-        return false;
-    }
-    if (prevError !== nextError) {
-        return false;
-    }
-    return equals(prevProps, nextProps);
-}
-
-export default memo(DashWrapper, wrapperEquality);
+export default DashWrapper;
