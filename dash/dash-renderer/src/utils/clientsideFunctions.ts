@@ -30,7 +30,8 @@ function set_props(
                 props,
                 itempath: componentPath,
                 component,
-                config
+                config,
+                renderType: 'clientsideApi'
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));

@@ -72,7 +72,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     props,
                     source: 'response',
                     component,
-                    config
+                    config,
+                    renderType: 'callback'
                 })
             );
 

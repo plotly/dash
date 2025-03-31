@@ -365,7 +365,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
                 props,
                 itempath: componentPath,
                 component,
-                config
+                config,
+                renderType: 'callback'
             })
         );
         dispatch(notifyObservers({id: component_id, props}));

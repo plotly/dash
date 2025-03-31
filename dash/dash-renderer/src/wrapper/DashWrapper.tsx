@@ -14,11 +14,7 @@ import {
     dissoc,
     assoc,
     mapObjIndexed,
-    type,
-    reduce,
-    difference,
-    intersection,
-    filter
+    type
 } from 'ramda';
 import {useSelector, useDispatch, batch} from 'react-redux';
 
@@ -38,43 +34,6 @@ import {
 } from './selectors';
 import CheckedComponent from './CheckedComponent';
 import {DashContextProvider} from './DashContext';
-
-// Define types for the input objects and the output differences
-type Dictionary = Record<string, any>;
-
-interface Difference {
-    obj1: any;
-    obj2: any;
-}
-
-const findDifferences = (
-    obj1: Dictionary,
-    obj2: Dictionary
-): Record<string, Difference> => {
-    const commonKeys = intersection(keys(obj1), keys(obj2));
-
-    const differingKeys = filter(
-        (key: string) => !equals(obj1[key], obj2[key]),
-        commonKeys
-    ) as string[];
-
-    const keysOnlyInObj2 = difference(keys(obj2), keys(obj1));
-
-    const differences: Record<string, Difference> = reduce(
-        (acc: Record<string, Difference>, key: string) => {
-            acc[key] = {obj1: obj1[key], obj2: obj2[key]};
-            return acc;
-        },
-        {},
-        differingKeys as string[]
-    );
-
-    keysOnlyInObj2.forEach(key => {
-        differences[key] = {obj1: undefined, obj2: obj2[key]};
-    });
-
-    return differences;
-};
 
 type DashWrapperProps = {
     /**
@@ -113,7 +72,7 @@ function DashWrapper({
 
     // Select both the component and it's props.
     // eslint-disable-next-line prefer-const
-    let [component, componentProps, h, changedProps] = useSelector(
+    let [component, componentProps, h, changedProps, renderType] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -135,13 +94,6 @@ function DashWrapper({
     }, [_newRender]);
     /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
 
-    let propDifferences: any = {};
-    if (memoizedProps.current) {
-        propDifferences = findDifferences(
-            memoizedProps.current,
-            componentProps
-        );
-    }
     memoizedProps.current = componentProps;
 
     const setProps = (newProps: UpdatePropsPayload) => {
@@ -198,7 +150,8 @@ function DashWrapper({
                         props: changedProps,
                         itempath: componentPath,
                         component,
-                        config
+                        config,
+                        renderType: 'internal'
                     })
                 );
             });
@@ -261,6 +214,8 @@ function DashWrapper({
 
     const extraProps = {
         setProps,
+        rendertype: newRender.current ? 'parent' : (
+            changedProps ? renderType : 'parent'),
         ...extras
     };
 
@@ -280,12 +235,8 @@ function DashWrapper({
                 childrenProp
                     .split('.')[0]
                     .replace('[]', '')
-                    .replace('{}', '') in propDifferences ||
-                childrenProp
-                    .split('.')[0]
-                    .replace('[]', '')
                     .replace('{}', '') in changedProps ||
-                newRender.current
+                newRender.current || !h
             ) {
                 childNewRender = Date.now();
             }
@@ -498,7 +449,7 @@ function DashWrapper({
             hydratedChildren = wrapChildrenProp(
                 componentProps.children,
                 ['children'],
-                'children' in propDifferences ||
+                    !h ||
                     newRender.current ||
                     'children' in changedProps
                     ? Date.now()

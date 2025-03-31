@@ -30,8 +30,9 @@ export const apiRequests = [
 function adjustHashes(state, action) {
     const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
-    const prev = pathOr(0, [strPath, 0], state);
-    state = assoc(strPath, [prev + 1, action.payload.props], state);
+    const prev = pathOr(0, [strPath, 'hash'], state);
+    state = assoc(strPath, {hash: prev + 1,
+    changedProps: action.payload.props, renderType: action.payload.renderType}, state);
     return state;
 }
 

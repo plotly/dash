@@ -1,7 +1,7 @@
 import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
 import {getComponentLayout, stringifyPath} from './wrapping';
 
-type SelectDashProps = [DashComponent, BaseDashProps, number, object];
+type SelectDashProps = [DashComponent, BaseDashProps, number, object, string];
 
 export const selectDashProps =
     (componentPath: DashLayoutPath) =>
@@ -15,11 +15,13 @@ export const selectDashProps =
         const hash = state.layoutHashes[strPath];
         let h = 0;
         let changedProps: object = {};
+        let renderType: string = '';
         if (hash) {
-            h = hash[0];
-            changedProps = hash[1];
+            h = hash['hash'];
+            changedProps = hash['changedProps'];
+            renderType = hash['renderType']
         }
-        return [c, c?.props, h, changedProps];
+        return [c, c?.props, h, changedProps, renderType];
     };
 
 export function selectDashPropsEqualityFn(
