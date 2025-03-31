@@ -34,7 +34,6 @@ import {
     CallbackResponseData,
     SideUpdateOutput
 } from '../types/callbacks';
-import {getComponentLayout} from '../wrapper/wrapping';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
 import {getCSRFHeader, dispatchError} from '.';
@@ -359,13 +358,10 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
             // error.
             return;
         }
-        const component = getComponentLayout(componentPath, _state);
         dispatch(
             updateProps({
                 props,
                 itempath: componentPath,
-                component,
-                config,
                 renderType: 'callback'
             })
         );

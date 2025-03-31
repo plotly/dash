@@ -27,22 +27,6 @@ export const apiRequests = [
     'loginRequest'
 ];
 
-function adjustHashes(state, action) {
-    const actionPath = action.payload.itempath;
-    const strPath = stringifyPath(actionPath);
-    const prev = pathOr(0, [strPath, 'hash'], state);
-    state = assoc(
-        strPath,
-        {
-            hash: prev + 1,
-            changedProps: action.payload.props,
-            renderType: action.payload.renderType
-        },
-        state
-    );
-    return state;
-}
-
 const layoutHashes = (state = {}, action) => {
     if (
         includes(action.type, [
@@ -53,7 +37,18 @@ const layoutHashes = (state = {}, action) => {
     ) {
         // Let us compare the paths sums to get updates without triggering
         // render on the parent containers.
-        return adjustHashes(state, action);
+        const actionPath = action.payload.itempath;
+        const strPath = stringifyPath(actionPath);
+        const prev = pathOr(0, [strPath, 'hash'], state);
+        state = assoc(
+            strPath,
+            {
+                hash: prev + 1,
+                changedProps: action.payload.props,
+                renderType: action.payload.renderType
+            },
+            state
+        );
     }
     return state;
 };

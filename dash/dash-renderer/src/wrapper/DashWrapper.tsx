@@ -63,8 +63,8 @@ type MemoizedPropsType = {
 function DashWrapper({
     componentPath,
     _dashprivate_error,
-    _passedComponent,
-    _newRender,
+    _passedComponent, // pass component to the DashWrapper in the event that it is a newRender and there are no layouthashes
+    _newRender, // this is to force the component to newly render regardless of props (redraw and component as props) is passed from the parent
     ...extras
 }: DashWrapperProps) {
     const dispatch = useDispatch();
@@ -84,7 +84,7 @@ function DashWrapper({
 
     /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
     // @ts-ignore
-    const newlyRendered = useMemo(() => {
+    const newlyRendered: any = useMemo(() => {
         if (_newRender) {
             memoizedProps.current = {};
             newRender.current = true;
@@ -154,8 +154,6 @@ function DashWrapper({
                     updateProps({
                         props: changedProps,
                         itempath: componentPath,
-                        component,
-                        config,
                         renderType: 'internal'
                     })
                 );
@@ -461,14 +459,12 @@ function DashWrapper({
             hydratedChildren = wrapChildrenProp(
                 componentProps.children,
                 ['children'],
-                !h || newRender.current || 'children' in changedProps
-                    ? {}
-                    : 0
+                !h || newRender.current || 'children' in changedProps ? {} : 0
             );
         }
         newRender.current = false;
 
-        const rendered = config.props_check ? (
+        return config.props_check ? (
             <CheckedComponent
                 element={element}
                 props={hydratedProps}
@@ -484,8 +480,6 @@ function DashWrapper({
         ) : (
             createElement(element, hydratedProps, extraProps, hydratedChildren)
         );
-
-        return rendered;
     };
 
     let hydrated = null;

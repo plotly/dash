@@ -67,10 +67,7 @@ export function checkRenderTypeProp(componentDefinition: any) {
         'dashRenderType' in
         pathOr(
             {},
-            [
-                componentDefinition?.namespace,
-                componentDefinition?.type
-            ],
+            [componentDefinition?.namespace, componentDefinition?.type],
             window as any
         )
     );

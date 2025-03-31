@@ -1,7 +1,6 @@
 import {updateProps, notifyObservers} from '../actions/index';
 import {getPath} from '../actions/paths';
 import {getStores} from './stores';
-import {getComponentLayout} from '../wrapper/wrapping';
 
 /**
  * Set the props of a dash component by id or path.
@@ -18,19 +17,16 @@ function set_props(
         const {dispatch, getState} = ds[y];
         let componentPath;
         const _state = getState();
-        const {paths, config} = _state;
+        const {paths} = _state;
         if (!Array.isArray(idOrPath)) {
             componentPath = getPath(paths, idOrPath);
         } else {
             componentPath = idOrPath;
         }
-        const component = getComponentLayout(componentPath, _state);
         dispatch(
             updateProps({
                 props,
                 itempath: componentPath,
-                component,
-                config,
                 renderType: 'clientsideApi'
             })
         );
