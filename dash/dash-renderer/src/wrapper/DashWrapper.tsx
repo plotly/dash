@@ -223,7 +223,7 @@ function DashWrapper({
     } as {[key: string]: any};
 
     if (checkRenderTypeProp(component)) {
-        extraProps['renderType'] = newRender.current
+        extraProps['dashRenderType'] = newRender.current
             ? 'parent'
             : changedProps
             ? renderType

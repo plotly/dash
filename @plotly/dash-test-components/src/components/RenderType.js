@@ -7,15 +7,17 @@ const RenderType = (props) => {
     }
 
     return <div id={props.id}>
-        <span>{props.renderType}</span>
+        <span>{props.dashRenderType}</span>
         <button onClick={onClick}>Test Internal</button>
     </div>;
 };
 
 RenderType.propTypes = {
     id: PropTypes.string,
-    renderType: PropTypes.string,
+    dashRenderType: PropTypes.string,
     n_clicks: PropTypes.number,
     setProps: PropTypes.func
 };
+
+RenderType.dashRenderType = true;
 export default RenderType;

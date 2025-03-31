@@ -64,13 +64,12 @@ export function getComponentLayout(
 
 export function checkRenderTypeProp(componentDefinition: any) {
     return (
-        'renderType' in
+        'dashRenderType' in
         pathOr(
             {},
             [
                 componentDefinition?.namespace,
                 componentDefinition?.type,
-                'propTypes'
             ],
             window as any
         )
