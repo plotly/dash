@@ -69,7 +69,7 @@ export function checkRenderTypeProp(componentDefinition: any) {
             {},
             [
                 componentDefinition?.namespace,
-                componentDefinition?.type,
+                componentDefinition?.type
             ],
             window as any
         )
