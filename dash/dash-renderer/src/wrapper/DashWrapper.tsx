@@ -241,7 +241,7 @@ function DashWrapper({
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp: string = childrenProps[i];
-            let childNewRender = 0;
+            let childNewRender: any = 0;
             if (
                 childrenProp
                     .split('.')[0]
@@ -250,7 +250,7 @@ function DashWrapper({
                 newRender.current ||
                 !h
             ) {
-                childNewRender = Date.now();
+                childNewRender = {};
             }
             const handleObject = (obj: any, opath: DashLayoutPath) => {
                 return mapObjIndexed(
@@ -462,7 +462,7 @@ function DashWrapper({
                 componentProps.children,
                 ['children'],
                 !h || newRender.current || 'children' in changedProps
-                    ? Date.now()
+                    ? {}
                     : 0
             );
         }
