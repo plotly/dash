@@ -24,7 +24,12 @@ import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {recordUiEdit} from '../persistence';
-import {createElement, getComponentLayout, isDryComponent} from './wrapping';
+import {
+    createElement,
+    getComponentLayout,
+    isDryComponent,
+    checkRenderTypeProp
+} from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
 import {
@@ -72,7 +77,7 @@ function DashWrapper({
 
     // Select both the component and it's props.
     // eslint-disable-next-line prefer-const
-    let [component, componentProps, h, changedProps] = useSelector(
+    let [component, componentProps, h, changedProps, renderType] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -215,7 +220,15 @@ function DashWrapper({
     const extraProps = {
         setProps,
         ...extras
-    };
+    } as {[key: string]: any};
+
+    if (checkRenderTypeProp(component)) {
+        extraProps['renderType'] = newRender.current
+            ? 'parent'
+            : changedProps
+            ? renderType
+            : 'parent';
+    }
 
     const setHydratedProps = (component: any, componentProps: any) => {
         // Hydrate components props
