@@ -1,4 +1,4 @@
-from dash.development.base_component import Component
+from .development.base_component import Component
 
 from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index
@@ -130,7 +130,7 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
 
 
 class ClientsideFunction:  # pylint: disable=too-few-public-methods
-    def __init__(self, namespace=None, function_name=None):
+    def __init__(self, namespace: str, function_name=None):
 
         if namespace.startswith("_dashprivate_"):
             raise ValueError("Namespaces cannot start with '_dashprivate_'.")

@@ -14,5 +14,5 @@ class ProxySetProps(dict):
         self._data.setdefault(key, {})
         self._data[key] = {**self._data[key], **value}
 
-    def get(self, key):
-        return self._data.get(key)
+    def get(self, key, default=None):
+        return self._data.get(key, default)

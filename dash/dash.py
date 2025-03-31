@@ -452,6 +452,7 @@ class Dash(ObsoleteChecker):
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
 
+        assert isinstance(name, str)  # to satisfy type checking
         self.config = AttributeDict(
             name=name,
             assets_folder=os.path.join(
@@ -651,7 +652,7 @@ class Dash(ObsoleteChecker):
         if config.compress:
             try:
                 # pylint: disable=import-outside-toplevel
-                from flask_compress import Compress
+                from flask_compress import Compress  # type: ignore[reportMissingImports]
 
                 # gzip
                 Compress(self.server)
@@ -765,11 +766,15 @@ class Dash(ObsoleteChecker):
             self.validation_layout = layout_value
 
     def _layout_value(self):
-        layout = self._layout() if self._layout_is_function else self._layout
+        if self._layout_is_function:
+            assert callable(self._layout)
+            layout = self._layout()
+        else:
+            layout = self._layout
 
         # Add any extra components
         if self._extra_components:
-            layout = html.Div(children=[layout] + self._extra_components)
+            layout = html.Div(children=[layout] + self._extra_components)  # type: ignore[reportArgumentType]
 
         return layout
 
@@ -879,8 +884,9 @@ class Dash(ObsoleteChecker):
             else:
                 version = importlib.import_module(namespace).__version__
 
-            module_path = os.path.join(
-                os.path.dirname(sys.modules[namespace].__file__), relative_package_path
+            module_path = os.path.join(  # type: ignore[reportCallIssue]
+                os.path.dirname(sys.modules[namespace].__file__),  # type: ignore[reportCallIssue]
+                relative_package_path,
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -975,7 +981,7 @@ class Dash(ObsoleteChecker):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(deps, dev_bundles=dev)  # type: ignore[reportArgumentType]
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -1522,7 +1528,7 @@ class Dash(ObsoleteChecker):
                 if f.endswith("js"):
                     self.scripts.append_script(self._add_assets_resource(path, full))
                 elif f.endswith("css"):
-                    self.css.append_css(self._add_assets_resource(path, full))
+                    self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
                 elif f == "favicon.ico":
                     self._favicon = path
 
@@ -1896,30 +1902,30 @@ class Dash(ObsoleteChecker):
 
                 for index, package in enumerate(packages):
                     if isinstance(package, AssertionRewritingHook):
-                        dash_spec = importlib.util.find_spec("dash")
+                        dash_spec = importlib.util.find_spec("dash")  # type: ignore[reportAttributeAccess]
                         dash_test_path = dash_spec.submodule_search_locations[0]
                         setattr(dash_spec, "path", dash_test_path)
                         packages[index] = dash_spec
 
             component_packages_dist = [
-                dash_test_path
+                dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
                 if isinstance(package, ModuleSpec)
-                else os.path.dirname(package.path)
+                else os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
                 if hasattr(package, "path")
                 else os.path.dirname(
-                    package._path[0]  # pylint: disable=protected-access
+                    package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
                 )
                 if hasattr(package, "_path")
-                else package.filename
+                else package.filename  # type: ignore[reportAttributeAccessIssue]
                 for package in packages
             ]
 
             for i, package in enumerate(packages):
                 if hasattr(package, "path") and "dash/dash" in os.path.dirname(
-                    package.path
+                    package.path  # type: ignore[reportAttributeAccessIssue]
                 ):
                     component_packages_dist[i : i + 1] = [
-                        os.path.join(os.path.dirname(package.path), x)
+                        os.path.join(os.path.dirname(package.path), x)  # type: ignore[reportAttributeAccessIssue]
                         for x in ["dcc", "html", "dash_table"]
                     ]
 
@@ -2026,7 +2032,7 @@ class Dash(ObsoleteChecker):
                     if filename.endswith("js"):
                         self.scripts.append_script(res)
                     elif filename.endswith("css"):
-                        self.css.append_css(res)
+                        self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
                     if filename in self._assets_files:
@@ -2282,7 +2288,7 @@ class Dash(ObsoleteChecker):
                 "pathname_": Input(_ID_LOCATION, "pathname"),
                 "search_": Input(_ID_LOCATION, "search"),
             }
-            inputs.update(self.routing_callback_inputs)
+            inputs.update(self.routing_callback_inputs)  # type: ignore[reportCallIssue]
 
             @self.callback(
                 Output(_ID_CONTENT, "children"),

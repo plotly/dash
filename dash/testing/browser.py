@@ -102,7 +102,7 @@ class Browser(DashPageMixin):
                 logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
-        except percy.errors.Error:
+        except percy.errors.Error:  # type: ignore[reportAttributeAccessIssue]
             logger.exception("percy runner failed to finalize properly")
 
     def visit_and_snapshot(
@@ -115,10 +115,11 @@ class Browser(DashPageMixin):
         stay_on_page=False,
         widths=None,
     ):
+        path = resource_path.lstrip("/")
         try:
-            path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
+            assert isinstance(self.server_url, str)  # to satisfy type checking
             self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
@@ -199,7 +200,7 @@ class Browser(DashPageMixin):
             self.percy_runner.snapshot(name=name, widths=widths)
         except requests.HTTPError as err:
             # Ignore retries.
-            if err.request.status_code != 400:
+            if err.request.status_code != 400:  # type: ignore[reportAttributeAccessIssue]
                 raise err
 
         if convert_canvases:
@@ -227,6 +228,7 @@ class Browser(DashPageMixin):
         running selenium session id
         """
         target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
+        assert isinstance(target, str)  # to satisfy type checking
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -402,7 +404,7 @@ class Browser(DashPageMixin):
             )
         except TimeoutException as exc:
             logger.exception("dash server is not loaded within %s seconds", timeout)
-            logs = "\n".join((str(log) for log in self.get_logs()))
+            logs = "\n".join((str(log) for log in self.get_logs()))  # type: ignore[reportOptionalIterable]
             logger.debug(logs)
             html = self.find_element("body").get_property("innerHTML")
             raise DashAppLoadingError(
@@ -497,7 +499,7 @@ class Browser(DashPageMixin):
         options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
-            webdriver.Remote(command_executor=self._remote_url, options=options)
+            webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
             if self._remote
             else webdriver.Chrome(options=options)
         )
@@ -505,7 +507,7 @@ class Browser(DashPageMixin):
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
         if self._headless:
             # pylint: disable=protected-access
-            chrome.command_executor._commands["send_command"] = (
+            chrome.command_executor._commands["send_command"] = (  # type: ignore[reportArgumentType]
                 "POST",
                 "/session/$sessionId/chromium/send_command",
             )
@@ -531,6 +533,7 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
+        assert isinstance(self._remote_url, str)  # to satisfy type checking
         return (
             webdriver.Remote(
                 command_executor=self._remote_url,
