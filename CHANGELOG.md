@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3113](https://github.com/plotly/dash/pull/3113) Adjusted background polling requests to strip the data from the request, this allows for context to flow as normal. This addresses issue [#3111](https://github.com/plotly/dash/pull/3111)
 - [#3248] changes to the rendering logic
 
+## Fixed
+- [#3251](https://github.com/plotly/dash/pull/3251). Prevented default styles from overriding `className_*` props in `dcc.Upload` component.
+
+
 ## [3.0.1] - 2025-03-24
 
 ## Fixed
