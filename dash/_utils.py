@@ -3,7 +3,7 @@ import shlex
 import sys
 import uuid
 import hashlib
-import collections
+from collections import abc
 import subprocess
 import logging
 import io
@@ -16,7 +16,7 @@ import re
 from html import escape
 from functools import wraps
 from typing import Union
-from dash.types import RendererHooks
+from .types import RendererHooks
 
 logger = logging.getLogger()
 
@@ -58,7 +58,7 @@ def generate_hash():
 
 # pylint: disable=no-member
 def patch_collections_abc(member):
-    return getattr(collections.abc, member)
+    return getattr(abc, member)
 
 
 class AttributeDict(dict):
@@ -251,7 +251,7 @@ def gen_salt(chars):
     )
 
 
-class OrderedSet(collections.abc.MutableSet):
+class OrderedSet(abc.MutableSet):
     def __init__(self, *args):
         self._data = []
         for i in args:
