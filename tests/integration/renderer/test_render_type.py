@@ -1,4 +1,3 @@
-import time
 from dash import Dash, Input, Output, html
 import json
 
