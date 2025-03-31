@@ -72,7 +72,7 @@ function DashWrapper({
 
     // Select both the component and it's props.
     // eslint-disable-next-line prefer-const
-    let [component, componentProps, h, changedProps, renderType] = useSelector(
+    let [component, componentProps, h, changedProps] = useSelector(
         selectDashProps(componentPath),
         selectDashPropsEqualityFn
     );
@@ -214,8 +214,6 @@ function DashWrapper({
 
     const extraProps = {
         setProps,
-        rendertype: newRender.current ? 'parent' : (
-            changedProps ? renderType : 'parent'),
         ...extras
     };
 
@@ -236,7 +234,8 @@ function DashWrapper({
                     .split('.')[0]
                     .replace('[]', '')
                     .replace('{}', '') in changedProps ||
-                newRender.current || !h
+                newRender.current ||
+                !h
             ) {
                 childNewRender = Date.now();
             }
@@ -449,9 +448,7 @@ function DashWrapper({
             hydratedChildren = wrapChildrenProp(
                 componentProps.children,
                 ['children'],
-                    !h ||
-                    newRender.current ||
-                    'children' in changedProps
+                !h || newRender.current || 'children' in changedProps
                     ? Date.now()
                     : 0
             );

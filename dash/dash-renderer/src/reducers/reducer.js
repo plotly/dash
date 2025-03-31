@@ -31,8 +31,15 @@ function adjustHashes(state, action) {
     const actionPath = action.payload.itempath;
     const strPath = stringifyPath(actionPath);
     const prev = pathOr(0, [strPath, 'hash'], state);
-    state = assoc(strPath, {hash: prev + 1,
-    changedProps: action.payload.props, renderType: action.payload.renderType}, state);
+    state = assoc(
+        strPath,
+        {
+            hash: prev + 1,
+            changedProps: action.payload.props,
+            renderType: action.payload.renderType
+        },
+        state
+    );
     return state;
 }
 

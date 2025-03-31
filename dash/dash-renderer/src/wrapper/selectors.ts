@@ -15,11 +15,11 @@ export const selectDashProps =
         const hash = state.layoutHashes[strPath];
         let h = 0;
         let changedProps: object = {};
-        let renderType: string = '';
+        let renderType = '';
         if (hash) {
             h = hash['hash'];
             changedProps = hash['changedProps'];
-            renderType = hash['renderType']
+            renderType = hash['renderType'];
         }
         return [c, c?.props, h, changedProps, renderType];
     };
