@@ -157,11 +157,13 @@ def _make_job_fn(fn, celery_app, progress, key):
         ctx = copy_context()
 
         def run():
+            assert isinstance(context, dict)  # to help type checking
             c = AttributeDict(**context)
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             errored = False
+            user_callback_output = None  # to help type checking
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
