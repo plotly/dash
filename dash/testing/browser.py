@@ -235,8 +235,8 @@ class Browser(DashPageMixin):
 
         self.driver.save_screenshot(f"{target}/{name}_{self.session_id}.png")
 
-    def find_element(self, selector, attribute="CSS_SELECTOR"):
-        """find_element returns the first found element by the attribute `selector`
+    def find_element(self, locator, attribute="CSS_SELECTOR"):
+        """find_element returns the first found element by the attribute `locator`
         shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`.
         args:
         - attribute: the attribute type to search for, aligns with the Selenium
@@ -244,7 +244,7 @@ class Browser(DashPageMixin):
             valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
             "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
-        return self.driver.find_element(getattr(By, attribute.upper()), selector)
+        return self.driver.find_element(getattr(By, attribute.upper()), locator)
 
     def find_elements(self, selector, attribute="CSS_SELECTOR"):
         """find_elements returns a list of all elements matching the attribute
