@@ -360,7 +360,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                renderType: 'callback'
             })
         );
         dispatch(notifyObservers({id: component_id, props}));
@@ -440,6 +441,7 @@ function handleServerside(
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
         let url = `${urlBase(config)}_dash-update-component`;
+        let newBody = body;
 
         const addArg = (name: string, value: string) => {
             let delim = '?';
@@ -448,11 +450,19 @@ function handleServerside(
             }
             url = `${url}${delim}${name}=${value}`;
         };
-        if (cacheKey) {
-            addArg('cacheKey', cacheKey);
-        }
-        if (job) {
-            addArg('job', job);
+        if (cacheKey || job) {
+            if (cacheKey) addArg('cacheKey', cacheKey);
+            if (job) addArg('job', job);
+
+            // clear inputs as background callback doesnt need inputs, just verify for context
+            const tmpBody = JSON.parse(newBody);
+            for (let i = 0; i < tmpBody.inputs.length; i++) {
+                tmpBody.inputs[i]['value'] = null;
+            }
+            for (let i = 0; i < (tmpBody?.state || []).length; i++) {
+                tmpBody.state[i]['value'] = null;
+            }
+            newBody = JSON.stringify(tmpBody);
         }
 
         if (moreArgs) {
@@ -465,7 +475,7 @@ function handleServerside(
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body
+                body: newBody
             })
         );
     };

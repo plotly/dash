@@ -63,12 +63,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
             const {props} = applyPersistence({props: updatedProps}, dispatch);
-
             dispatch(
                 updateProps({
                     itempath,
                     props,
-                    source: 'response'
+                    source: 'response',
+                    renderType: 'callback'
                 })
             );
 
