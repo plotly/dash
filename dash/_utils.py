@@ -15,7 +15,7 @@ import re
 
 from html import escape
 from functools import wraps
-from typing import Union
+from typing import Union, cast
 from .types import RendererHooks
 
 logger = logging.getLogger()
@@ -118,9 +118,11 @@ class AttributeDict(dict):
 
         return super().__setitem__(key, val)
 
-    def update(self, other):
+    def update(self, other=None, **kwargs):
         # Overrides dict.update() to use __setitem__ above
-        for k, v in other.items():
+        # Needs default `None` and `kwargs` to satisfy type checking
+        source = cast(dict, other) if other is not None else kwargs
+        for k, v in source.items():
             self[k] = v
 
     # pylint: disable=inconsistent-return-statements
