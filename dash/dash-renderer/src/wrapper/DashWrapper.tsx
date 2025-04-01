@@ -498,13 +498,13 @@ function DashWrapper({
         memoizedKeys.current = {[renderH]: hydrated};
     }
 
-    return component ? (
+    return renderComponent ? (
         <ComponentErrorBoundary
-            componentType={component.type}
+            componentType={renderComponent.type}
             componentId={
-                is(Object, componentProps.id)
-                    ? stringifyId(componentProps.id)
-                    : componentProps.id
+                is(Object, renderComponentProps.id)
+                    ? stringifyId(renderComponentProps.id)
+                    : renderComponentProps.id
             }
             error={_dashprivate_error}
             dispatch={dispatch}
