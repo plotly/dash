@@ -6,10 +6,17 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Changed
 - [#3113](https://github.com/plotly/dash/pull/3113) Adjusted background polling requests to strip the data from the request, this allows for context to flow as normal. This addresses issue [#3111](https://github.com/plotly/dash/pull/3111)
+- [#3248](https://github.com/plotly/dash/pull/3248) Changes to rendering logic:
+  - if it is first time rendering, render from the parent props
+  - listens only to updates for that single component, no children listening to parents
+  - if parents change a prop with components as props, only the prop changed re-renders, this is then forced on all children regardless of whether or not the props changed
 
 ## Fixed
 - [#3251](https://github.com/plotly/dash/pull/3251). Prevented default styles from overriding `className_*` props in `dcc.Upload` component.
 
+## Added
+- [#3248](https://github.com/plotly/dash/pull/3248) added new `dashRenderType` to determine why the component layout was changed (`internal`, `callback`, `parent`, `clientsideApi`):
+    - this can be utilized to keep from rendering components by the component having `dashRenderType` defined as a prop, and the `dashRenderType = true` must be set on the component, eg (`Div.dashRenderType = true`)
 
 ## [3.0.1] - 2025-03-24
 
