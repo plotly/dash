@@ -55,11 +55,6 @@ type MemoizedKeysType = {
     [key: string]: React.ReactNode | null; // This includes React elements, strings, numbers, etc.
 };
 
-// Define a type for the memoized props
-type MemoizedPropsType = {
-    [key: string]: any;
-};
-
 function DashWrapper({
     componentPath,
     _dashprivate_error,
@@ -69,7 +64,6 @@ function DashWrapper({
 }: DashWrapperProps) {
     const dispatch = useDispatch();
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
-    const memoizedProps: MutableRefObject<MemoizedPropsType> = useRef({});
     const newRender = useRef(false);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
@@ -88,21 +82,18 @@ function DashWrapper({
 
     useMemo(() => {
         if (_newRender) {
-            memoizedProps.current = {};
             newRender.current = true;
             renderH = 0;
-            if (h in memoizedKeys.current) {
-                delete memoizedKeys.current[h];
+            if (renderH in memoizedKeys.current) {
+                delete memoizedKeys.current[renderH];
             }
         } else {
             newRender.current = false;
         }
     }, [_newRender]);
 
-    memoizedProps.current = componentProps;
-
     const setProps = (newProps: UpdatePropsPayload) => {
-        const {id} = componentProps;
+        const {id} = renderComponentProps;
         const {_dash_error, ...restProps} = newProps;
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -137,7 +128,7 @@ function DashWrapper({
             batch(() => {
                 // setProps here is triggered by the UI - record these changes
                 // for persistence
-                recordUiEdit(component, newProps, dispatch);
+                recordUiEdit(renderComponent, newProps, dispatch);
 
                 // Only dispatch changes to Dash if a watched prop changed
                 if (watchedKeys.length) {
