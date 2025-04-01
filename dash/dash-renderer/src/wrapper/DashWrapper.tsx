@@ -163,8 +163,8 @@ function DashWrapper({
 
     const createContainer = useCallback(
         (container, containerPath, _childNewRender, key = undefined) => {
-            if (isSimpleComponent(container)) {
-                return container;
+            if (isSimpleComponent(renderComponent)) {
+                return renderComponent;
             }
             return (
                 <DashWrapper
