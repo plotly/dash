@@ -45,8 +45,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
         } = getState();
 
         function applyProps(id: any, updatedProps: any) {
-            const _state = getState();
-            const {layout, paths} = _state;
+            const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
                 return false;

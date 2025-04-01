@@ -16,8 +16,7 @@ function set_props(
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
         let componentPath;
-        const _state = getState();
-        const {paths} = _state;
+        const {paths} = getState();
         if (!Array.isArray(idOrPath)) {
             componentPath = getPath(paths, idOrPath);
         } else {
