@@ -71,33 +71,33 @@ function DashWrapper({
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const memoizedProps: MutableRefObject<MemoizedPropsType> = useRef({});
     const newRender = useRef(false);
+    let renderComponent: any = null;
+    let renderComponentProps: any = null;
+    let renderH: any = null;
 
     // Get the config for the component as props
     const config: DashConfig = useSelector(selectConfig);
 
-    // Select both the component and it's props.
-    // eslint-disable-next-line prefer-const
-    let [component, componentProps, h, changedProps, renderType] = useSelector(
-        selectDashProps(componentPath),
-        selectDashPropsEqualityFn
-    );
+    // Select component and it's props, along with render hash, changed props and the reason for render
+    const [component, componentProps, h, changedProps, renderType] =
+        useSelector(selectDashProps(componentPath), selectDashPropsEqualityFn);
 
-    /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
-    // @ts-ignore
-    const newlyRendered: any = useMemo(() => {
+    renderComponent = component;
+    renderComponentProps = componentProps;
+    renderH = h;
+
+    useMemo(() => {
         if (_newRender) {
             memoizedProps.current = {};
             newRender.current = true;
-            h = 0;
+            renderH = 0;
             if (h in memoizedKeys.current) {
                 delete memoizedKeys.current[h];
             }
         } else {
             newRender.current = false;
         }
-        return newRender.current;
     }, [_newRender]);
-    /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unused-vars */
 
     memoizedProps.current = componentProps;
 
@@ -163,8 +163,8 @@ function DashWrapper({
 
     const createContainer = useCallback(
         (container, containerPath, _childNewRender, key = undefined) => {
-            if (isSimpleComponent(component)) {
-                return component;
+            if (isSimpleComponent(container)) {
+                return container;
             }
             return (
                 <DashWrapper
@@ -220,7 +220,7 @@ function DashWrapper({
         ...extras
     } as {[key: string]: any};
 
-    if (checkRenderTypeProp(component)) {
+    if (checkRenderTypeProp(renderComponent)) {
         extraProps['dashRenderType'] = newRender.current
             ? 'parent'
             : changedProps
@@ -246,7 +246,7 @@ function DashWrapper({
                     .replace('[]', '')
                     .replace('{}', '') in changedProps ||
                 newRender.current ||
-                !h
+                !renderH
             ) {
                 childNewRender = {};
             }
@@ -444,22 +444,27 @@ function DashWrapper({
 
     const hydrateFunc = () => {
         if (newRender.current) {
-            component = _passedComponent;
-            componentProps = _passedComponent?.props;
+            renderComponent = _passedComponent;
+            renderComponentProps = _passedComponent?.props;
         }
-        if (!component) {
+        if (!renderComponent) {
             return null;
         }
 
-        const element = Registry.resolve(component);
-        const hydratedProps = setHydratedProps(component, componentProps);
+        const element = Registry.resolve(renderComponent);
+        const hydratedProps = setHydratedProps(
+            renderComponent,
+            renderComponentProps
+        );
 
         let hydratedChildren: any;
-        if (componentProps.children !== undefined) {
+        if (renderComponentProps.children !== undefined) {
             hydratedChildren = wrapChildrenProp(
-                componentProps.children,
+                renderComponentProps.children,
                 ['children'],
-                !h || newRender.current || 'children' in changedProps ? {} : 0
+                !renderH || newRender.current || 'children' in changedProps
+                    ? {}
+                    : 0
             );
         }
         newRender.current = false;
@@ -468,7 +473,7 @@ function DashWrapper({
             <CheckedComponent
                 element={element}
                 props={hydratedProps}
-                component={component}
+                component={renderComponent}
             >
                 {createElement(
                     element,
@@ -483,14 +488,14 @@ function DashWrapper({
     };
 
     let hydrated = null;
-    if (h in memoizedKeys.current && !newRender.current) {
-        hydrated = React.isValidElement(memoizedKeys.current[h])
-            ? memoizedKeys.current[h]
+    if (renderH in memoizedKeys.current && !newRender.current) {
+        hydrated = React.isValidElement(memoizedKeys.current[renderH])
+            ? memoizedKeys.current[renderH]
             : null;
     }
     if (!hydrated) {
         hydrated = hydrateFunc();
-        memoizedKeys.current = {[h]: hydrated};
+        memoizedKeys.current = {[renderH]: hydrated};
     }
 
     return component ? (
