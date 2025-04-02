@@ -114,10 +114,12 @@ def generate_components(
 
     generator_methods = [functools.partial(generate_class_file, **py_generator_kwargs)]
 
+    pkg_data = None
     if rprefix is not None or jlprefix is not None:
         with open("package.json", "r", encoding="utf-8") as f:
             pkg_data = safe_json_loads(f.read())
 
+    rpkg_data = None
     if rprefix is not None:
         if not os.path.exists("man"):
             os.makedirs("man")
@@ -126,8 +128,6 @@ def generate_components(
         if os.path.isfile("dash-info.yaml"):
             with open("dash-info.yaml", encoding="utf-8") as yamldata:
                 rpkg_data = yaml.safe_load(yamldata)
-        else:
-            rpkg_data = None
         generator_methods.append(
             functools.partial(write_class_file, prefix=rprefix, rpkg_data=rpkg_data)
         )
@@ -283,12 +283,12 @@ def cli():
 def byteify(input_object):
     if isinstance(input_object, dict):
         return OrderedDict(
-            [(byteify(key), byteify(value)) for key, value in input_object.iteritems()]
+            [(byteify(key), byteify(value)) for key, value in input_object.items()]
         )
     if isinstance(input_object, list):
         return [byteify(element) for element in input_object]
-    if isinstance(input_object, unicode):  # noqa:F821
-        return input_object.encode("utf-8")
+    if isinstance(input_object, str):  # noqa:F821
+        return input_object.encode(encoding="utf-8")
     return input_object
 
 
