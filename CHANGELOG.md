@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 - [#3248](https://github.com/plotly/dash/pull/3248) added new `dashRenderType` to determine why the component layout was changed (`internal`, `callback`, `parent`, `clientsideApi`):
     - this can be utilized to keep from rendering components by the component having `dashRenderType` defined as a prop, and the `dashRenderType = true` must be set on the component, eg (`Div.dashRenderType = true`)
+- [#3241](https://github.com/plotly/dash/pull/3241) Added a collapse / expand button to Dash Dev Tools.
 
 ## [3.0.1] - 2025-03-24
 
