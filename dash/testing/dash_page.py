@@ -1,4 +1,4 @@
-from typing import Any, Optional, Protocol, cast, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, cast, runtime_checkable
 
 from bs4 import BeautifulSoup
 
@@ -70,7 +70,7 @@ class DashPageMixin:
         return self._get_dash_dom_by_attribute("innerHTML")
 
     @property
-    def redux_state_paths(self) -> dict[str, Any]:
+    def redux_state_paths(self) -> Dict[str, Any]:
         """Get Redux state paths."""
         return cast(
             dict[str, Any],
@@ -83,7 +83,7 @@ class DashPageMixin:
         )
 
     @property
-    def redux_state_rqs(self) -> list[dict[str, Any]]:
+    def redux_state_rqs(self) -> List[Dict[str, Any]]:
         """Get Redux state request queue."""
         return cast(
             list[dict[str, Any]],
@@ -135,7 +135,7 @@ class DashPageMixin:
         redux_state_rqs = self.redux_state_rqs
         return (not window_store) or (redux_state_rqs == [])
 
-    def get_local_storage(self, store_id: str = "local") -> Optional[dict[str, Any]]:
+    def get_local_storage(self, store_id: str = "local") -> Optional[Dict[str, Any]]:
         """Get item from localStorage."""
         return cast(
             Optional[dict[str, Any]],
@@ -146,7 +146,7 @@ class DashPageMixin:
 
     def get_session_storage(
         self, session_id: str = "session"
-    ) -> Optional[dict[str, Any]]:
+    ) -> Optional[Dict[str, Any]]:
         """Get item from sessionStorage."""
         return cast(
             Optional[dict[str, Any]],

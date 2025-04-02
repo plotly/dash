@@ -4,6 +4,8 @@ import sys
 import time
 import logging
 import warnings
+from typing import List
+
 import percy
 import percy.errors  # to satisfy type checking
 import requests
@@ -603,7 +605,7 @@ class Browser(DashPageMixin):
             elem, elem.size["width"] * fx, elem.size["height"] * fy
         ).click().perform()
 
-    def get_logs(self) -> list:
+    def get_logs(self) -> List:
         """Return a list of `SEVERE` level logs after last reset time stamps
         (default to 0, resettable by `reset_log_timestamp`.
 
