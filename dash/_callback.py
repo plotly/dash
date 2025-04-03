@@ -360,7 +360,9 @@ def register_callback(
     # pylint: disable=too-many-locals
     def wrap_func(func):
 
-        if background is not None:
+        if background is None:
+            background_key = None
+        else:
             background_key = BaseBackgroundCallbackManager.register_func(
                 func,
                 background.get("progress") is not None,
@@ -590,6 +592,7 @@ def register_callback(
                 dist = app.get_dist(diff_packages)
                 response["dist"] = dist
 
+            jsonResponse = None
             try:
                 jsonResponse = to_json(response)
             except TypeError:

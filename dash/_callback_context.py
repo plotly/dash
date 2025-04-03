@@ -207,7 +207,7 @@ class CallbackContext:
 
     @staticmethod
     @has_context
-    def record_timing(name, duration=None, description=None):
+    def record_timing(name, duration, description=None):
         """Records timing information for a server resource.
 
         :param name: The name of the resource.
@@ -215,7 +215,7 @@ class CallbackContext:
 
         :param duration: The time in seconds to report. Internally, this
             is rounded to the nearest millisecond.
-        :type duration: float or None
+        :type duration: float
 
         :param description: A description of the resource.
         :type description: string or None

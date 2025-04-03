@@ -13,7 +13,7 @@ A "schema" is a grouping value that can be used to encode an expected grouping
 structure
 
 """
-from dash.exceptions import InvalidCallbackReturnValue
+from .exceptions import InvalidCallbackReturnValue
 from ._utils import AttributeDict, stringify_id
 
 

@@ -4,7 +4,10 @@ import sys
 import time
 import logging
 import warnings
+from typing import List
+
 import percy
+import percy.errors  # to satisfy type checking
 import requests
 
 from selenium import webdriver
@@ -115,10 +118,11 @@ class Browser(DashPageMixin):
         stay_on_page=False,
         widths=None,
     ):
+        path = resource_path.lstrip("/")  # moved before 'try' to satisfy type checking
         try:
-            path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
+            assert isinstance(self.server_url, str)  # to satisfy type checking
             self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
@@ -227,6 +231,7 @@ class Browser(DashPageMixin):
         running selenium session id
         """
         target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
+        assert isinstance(target, str)  # to satisfy type checking
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -235,8 +240,8 @@ class Browser(DashPageMixin):
 
         self.driver.save_screenshot(f"{target}/{name}_{self.session_id}.png")
 
-    def find_element(self, selector, attribute="CSS_SELECTOR"):
-        """find_element returns the first found element by the attribute `selector`
+    def find_element(self, locator, attribute="CSS_SELECTOR"):
+        """find_element returns the first found element by the attribute `locator`
         shortcut to `driver.find_element(By.CSS_SELECTOR, ...)`.
         args:
         - attribute: the attribute type to search for, aligns with the Selenium
@@ -244,7 +249,7 @@ class Browser(DashPageMixin):
             valid values: "CSS_SELECTOR", "ID", "NAME", "TAG_NAME",
             "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
-        return self.driver.find_element(getattr(By, attribute.upper()), selector)
+        return self.driver.find_element(getattr(By, attribute.upper()), locator)
 
     def find_elements(self, selector, attribute="CSS_SELECTOR"):
         """find_elements returns a list of all elements matching the attribute
@@ -283,6 +288,7 @@ class Browser(DashPageMixin):
                 message = msg(self.driver)
             else:
                 message = msg
+            assert isinstance(message, str)  # to satisfy type checking
             raise TimeoutException(message) from err
 
     def wait_for_element(self, selector, timeout=None):
@@ -496,6 +502,7 @@ class Browser(DashPageMixin):
         options.add_argument("--disable-gpu")
         options.add_argument("--remote-debugging-port=9222")
 
+        assert isinstance(self._remote_url, str)  # to satisfy type checking
         chrome = (
             webdriver.Remote(command_executor=self._remote_url, options=options)
             if self._remote
@@ -531,6 +538,7 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
+        assert isinstance(self._remote_url, str)  # to satisfy type checking
         return (
             webdriver.Remote(
                 command_executor=self._remote_url,
@@ -597,7 +605,7 @@ class Browser(DashPageMixin):
             elem, elem.size["width"] * fx, elem.size["height"] * fy
         ).click().perform()
 
-    def get_logs(self):
+    def get_logs(self) -> List:
         """Return a list of `SEVERE` level logs after last reset time stamps
         (default to 0, resettable by `reset_log_timestamp`.
 
@@ -609,8 +617,8 @@ class Browser(DashPageMixin):
                 for entry in self.driver.get_log("browser")
                 if entry["timestamp"] > self._last_ts
             ]
-        warnings.warn("get_logs always return None with webdrivers other than Chrome")
-        return None
+        warnings.warn("get_logs always returns '[]' with webdrivers other than Chrome")
+        return []
 
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdriver."""
