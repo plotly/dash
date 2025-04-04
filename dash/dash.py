@@ -1269,7 +1269,7 @@ class Dash(ObsoleteChecker):
             **kwargs,
         )
 
-    def callback(self, *_args, **_kwargs):
+    def callback(self, *_args, **_kwargs) -> Callable[..., Any]:
         """
         Normally used as a decorator, `@app.callback` provides a server-side
         callback relating the values of one or more `Output` items to one or

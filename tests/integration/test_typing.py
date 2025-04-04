@@ -223,7 +223,9 @@ def assert_pyright_output(
             "obj={}",
             {
                 "expected_status": 1,
-                "expected_outputs": ['"dict[Any, Any]" is incompatible with "Obj"'],
+                "expected_outputs": [
+                    '"dict[Any, Any]" cannot be assigned to parameter "obj" of type "Obj | None"'
+                ],
             },
         ),
         (
@@ -231,7 +233,7 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    '"dict[str, str | int]" is incompatible with "Obj"'
+                    '"dict[str, str | int]" cannot be assigned to parameter "obj" of type "Obj | None"'
                 ],
             },
         ),
