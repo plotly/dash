@@ -177,7 +177,7 @@ def split_callback_id(callback_id):
     return {"id": id_, "property": prop}
 
 
-def stringify_id(id_):
+def stringify_id(id_) -> str:
     def _json(k, v):
         vstr = v.to_json() if hasattr(v, "to_json") else json.dumps(v)
         return f"{json.dumps(k)}:{vstr}"

@@ -77,7 +77,7 @@ def callback(
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
-):
+) -> Callable[..., Any]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
