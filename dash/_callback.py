@@ -118,7 +118,6 @@ def callback(
             the app layout. The second element is the value that the property
             should be set to while the callback is running, and the third element
             is the value the property should be set to when the callback completes.
-            This parameter only applies to background callbacks (`background=True`).
         :param cancel:
             A list of `Input` dependency objects that reference a property of a
             component in the app's layout.  When the value of this property changes
