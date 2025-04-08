@@ -91,10 +91,10 @@ function DashWrapper({
         } else {
             newRender.current = false;
         }
-        renderedPath.current = componentPath
+        renderedPath.current = componentPath;
     }, [_newRender]);
 
-    const setProps = useCallback((newProps: UpdatePropsPayload) => {
+    const setProps = (newProps: UpdatePropsPayload) => {
         const {id} = renderComponentProps;
         const {_dash_error, ...restProps} = newProps;
 
@@ -103,7 +103,10 @@ function DashWrapper({
         dispatch((dispatch, getState) => {
             const currentState = getState();
             const {graphs} = currentState;
-            const oldLayout = getComponentLayout(renderedPath.current, currentState);
+            const oldLayout = getComponentLayout(
+                renderedPath.current,
+                currentState
+            );
             if (!oldLayout) return;
             const {props: oldProps} = oldLayout;
             if (!oldProps) return;
@@ -152,7 +155,7 @@ function DashWrapper({
                 );
             });
         });
-    }, [componentPath]);
+    };
 
     const createContainer = useCallback(
         (container, containerPath, _childNewRender, key = undefined) => {
