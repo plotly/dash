@@ -393,6 +393,10 @@ class Dash(ObsoleteChecker):
 
     server: flask.Flask
 
+    # Layout is a complex type which can be many things
+    _layout: Any
+    _extra_components: Any
+
     def __init__(  # pylint: disable=too-many-statements
         self,
         name: Optional[str] = None,
@@ -1896,7 +1900,7 @@ class Dash(ObsoleteChecker):
 
             if "_pytest" in sys.modules:
                 from _pytest.assertion.rewrite import (  # pylint: disable=import-outside-toplevel
-                    AssertionRewritingHook,
+                    AssertionRewritingHook,  # type: ignore[reportPrivateImportUsage]
                 )
 
                 for index, package in enumerate(packages):
