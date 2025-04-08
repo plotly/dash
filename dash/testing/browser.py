@@ -3,12 +3,13 @@ import os
 import sys
 import time
 import logging
-from typing import cast
+from typing import Union, Optional
 import warnings
 import percy
 import requests
 
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -38,20 +39,22 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
+    _url: str
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        browser,
-        remote=False,
-        remote_url=None,
-        headless=False,
-        options=None,
-        download_path="",
-        percy_run=True,
-        percy_finalize=True,
-        percy_assets_root="",
-        wait_timeout=10,
-        pause=False,
+        browser: str,
+        remote: bool = False,
+        remote_url: Optional[str] = None,
+        headless: bool = False,
+        options: Optional[Union[dict, list]] = None,
+        download_path: str = "",
+        percy_run: bool = True,
+        percy_finalize: bool = True,
+        percy_assets_root: str = "",
+        wait_timeout: int = 10,
+        pause: bool = False,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
@@ -71,7 +74,7 @@ class Browser(DashPageMixin):
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
-        self._url = None
+        self._url = ""
 
         self._window_idx = 0  # switch browser tabs
 
@@ -108,8 +111,8 @@ class Browser(DashPageMixin):
 
     def visit_and_snapshot(
         self,
-        resource_path,
-        hook_id,
+        resource_path: str,
+        hook_id: str,
         wait_for_callbacks=True,
         convert_canvases=False,
         assert_check=True,
@@ -120,7 +123,7 @@ class Browser(DashPageMixin):
         try:
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            self.server_url = cast(str, self.server_url)  # to satisfy type checking
+            self.server_url = self.server_url
             self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
@@ -219,7 +222,7 @@ class Browser(DashPageMixin):
             """
             )
 
-    def take_snapshot(self, name):
+    def take_snapshot(self, name: str):
         """Hook method to take snapshot when a selenium test fails. The
         snapshot is placed under.
 
@@ -228,8 +231,10 @@ class Browser(DashPageMixin):
         with a filename combining test case name and the
         running selenium session id
         """
-        target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
-        target = cast(str, target)  # to satisfy type checking
+        target = (
+            "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP", "")
+        )
+
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -286,7 +291,7 @@ class Browser(DashPageMixin):
                 message = msg(self.driver)
             else:
                 message = msg
-            raise TimeoutException(message) from err
+            raise TimeoutException(str(message)) from err
 
     def wait_for_element(self, selector, timeout=None):
         """wait_for_element is shortcut to `wait_for_element_by_css_selector`
@@ -534,10 +539,12 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
-        self._remote_url = cast(str, self._remote_url)  # to satisfy type checking
+        if not self._remote_url and self._remote:
+            raise TypeError("remote_url was not provided but required for Firefox")
+
         return (
             webdriver.Remote(
-                command_executor=self._remote_url,
+                command_executor=self._remote_url,  # type: ignore[reportTypeArgument]
                 options=options,
             )
             if self._remote
@@ -633,7 +640,7 @@ class Browser(DashPageMixin):
         return self.driver.session_id
 
     @property
-    def server_url(self):
+    def server_url(self) -> str:
         return self._url
 
     @server_url.setter
