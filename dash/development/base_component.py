@@ -301,12 +301,10 @@ class Component(metaclass=ComponentMeta):
                     if operation == "get":
                         return item
                     if operation == "set":
-                        assert self.children is not None  # to satisfy type checking
-                        self.children[i] = new_item
+                        self.children[i] = new_item  # type: ignore[reportOptionalSubscript]
                         return
                     if operation == "delete":
-                        assert self.children is not None  # to satisfy type checking
-                        del self.children[i]
+                        del self.children[i]  # type: ignore[reportOptionalSubscript]
                         return
 
                 # Otherwise, recursively dig into that item's subtree

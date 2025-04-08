@@ -9,6 +9,7 @@ import subprocess
 import logging
 import inspect
 import ctypes
+from typing import cast
 
 import runpy
 import requests
@@ -353,15 +354,16 @@ class RRunner(ProcessRunner):
             # app is a string chunk, we make a temporary folder to store app.R
             # and its relevant assets
             tmp_dir = "/tmp" if not self.is_windows else os.getenv("TEMP")
-            assert isinstance(tmp_dir, str)
+            tmp_dir = cast(str, tmp_dir)  # to satisfy type checking
             hex_id = uuid.uuid4().hex
-            self._tmp_app_path = os.path.join(tmp_dir, hex_id)
-            assert isinstance(self.tmp_app_path, str)  # to satisfy type checking
+            self._tmp_app_path = cast(
+                str, os.path.join(tmp_dir, hex_id)
+            )  # to satisfy type checking
             try:
-                os.mkdir(self.tmp_app_path)
+                os.mkdir(self.tmp_app_path)  # type: ignore[reportArgumentType]
             except OSError:
                 logger.exception("cannot make temporary folder %s", self.tmp_app_path)
-            path = os.path.join(self.tmp_app_path, "app.R")
+            path = os.path.join(self.tmp_app_path, "app.R")  # type: ignore[reportCallIssue]
 
             logger.info("RRunner start => app is R code chunk")
             logger.info("make a temporary R file for execution => %s", path)
@@ -392,7 +394,7 @@ class RRunner(ProcessRunner):
                 ]
 
                 for asset in assets:
-                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))
+                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))  # type: ignore[reportCallIssue]
                     if os.path.exists(target):
                         logger.debug("delete existing target %s", target)
                         shutil.rmtree(target)

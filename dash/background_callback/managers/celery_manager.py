@@ -157,8 +157,7 @@ def _make_job_fn(fn, celery_app, progress, key):
         ctx = copy_context()
 
         def run():
-            assert isinstance(context, dict)  # to help type checking
-            c = AttributeDict(**context)
+            c = AttributeDict(**context)  # type: ignore[reportCallIssue]
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)

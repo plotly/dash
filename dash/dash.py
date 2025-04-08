@@ -18,7 +18,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, Sequence
+from typing import Any, Callable, Dict, Optional, Union, Sequence, cast
 
 import flask
 
@@ -452,7 +452,7 @@ class Dash(ObsoleteChecker):
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
 
-        assert isinstance(name, str)  # to satisfy type checking
+        name = cast(str, name)  # to satisfy type checking
         self.config = AttributeDict(
             name=name,
             assets_folder=os.path.join(
@@ -767,8 +767,7 @@ class Dash(ObsoleteChecker):
 
     def _layout_value(self):
         if self._layout_is_function:
-            assert callable(self._layout)
-            layout = self._layout()
+            layout = self._layout()  # type: ignore[reportOptionalCall]
         else:
             layout = self._layout
 

@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import logging
+from typing import cast
 import warnings
 import percy
 import requests
@@ -119,7 +120,7 @@ class Browser(DashPageMixin):
         try:
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
-            assert isinstance(self.server_url, str)  # to satisfy type checking
+            self.server_url = cast(str, self.server_url)  # to satisfy type checking
             self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
@@ -228,7 +229,7 @@ class Browser(DashPageMixin):
         running selenium session id
         """
         target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
-        assert isinstance(target, str)  # to satisfy type checking
+        target = cast(str, target)  # to satisfy type checking
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -533,7 +534,7 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
-        assert isinstance(self._remote_url, str)  # to satisfy type checking
+        self._remote_url = cast(str, self._remote_url)  # to satisfy type checking
         return (
             webdriver.Remote(
                 command_executor=self._remote_url,
