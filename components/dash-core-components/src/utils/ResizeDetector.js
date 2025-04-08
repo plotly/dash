@@ -14,7 +14,7 @@ const ResizeDetector = props => {
         if (resizeTimeout) {
             clearTimeout(resizeTimeout);
         }
-        resizeTimeout = setTimeout(() => {
+        var resizeTimeout = setTimeout(() => {
             onResize(true); // Force on resize.
         }, DELAY);
     }, [onResize]);
