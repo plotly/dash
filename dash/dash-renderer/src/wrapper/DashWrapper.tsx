@@ -65,7 +65,7 @@ function DashWrapper({
     const dispatch = useDispatch();
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
-    const renderedPath: any = useRef(null);
+    const renderedPath = useRef<DashLayoutPath>(componentPath);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
     let renderH: any = null;
