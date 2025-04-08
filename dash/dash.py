@@ -434,17 +434,17 @@ class Dash(ObsoleteChecker):
     ):
         _validate.check_obsolete(obsolete)
 
-        caller_name = None if name else get_caller_name()
+        caller_name: str = name if name is not None else get_caller_name()
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, flask.Flask):
             self.server = server
             if name is None:
-                name = getattr(server, "name", caller_name)
+                caller_name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
             name = name if name else caller_name
-            self.server = flask.Flask(name) if server else None  # type: ignore
+            self.server = flask.Flask(caller_name) if server else None  # type: ignore
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -454,16 +454,16 @@ class Dash(ObsoleteChecker):
 
         name = cast(str, name)  # to satisfy type checking
         self.config = AttributeDict(
-            name=name,
+            name=caller_name,
             assets_folder=os.path.join(
-                flask.helpers.get_root_path(name), assets_folder
+                flask.helpers.get_root_path(caller_name), assets_folder
             ),  # type: ignore
             assets_url_path=assets_url_path,
             assets_ignore=assets_ignore,
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
-            pages_folder=pages_folder_config(name, pages_folder, use_pages),
+            pages_folder=pages_folder_config(caller_name, pages_folder, use_pages),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
