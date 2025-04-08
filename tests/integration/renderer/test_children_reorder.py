@@ -1,4 +1,3 @@
-import time
 from dash import Dash, Input, Output, html, dcc, State, ALL
 
 
@@ -82,3 +81,9 @@ def test_roc001_reorder_children(dash_duo):
             f".dropdown_{i} .Select-multi-value-wrapper", "×A\n ×B\n ×C\n "
         )
         dash_duo.find_element(f".swap_button_{i}").click()
+    dash_duo.wait_for_text_to_equal(
+        f".dropdown_{0} .Select-multi-value-wrapper", "×A\n ×B\n ×C\n "
+    )
+    dash_duo.wait_for_text_to_equal(
+        f".dropdown_{1} .Select-multi-value-wrapper", "×A\n ×B\n ×C\n "
+    )
