@@ -206,6 +206,6 @@ def test_grrs002_graph(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#generate-btn", "Generate Figures")
     dash_dcc.find_element("#generate-btn").click()
     dash_dcc.wait_for_text_to_equal("#bounding-output", "loaded")
-    time.sleep(.1) ## must wait for the full render
+    time.sleep(0.1)  ## must wait for the full render
     dash_dcc.find_element("#bounding-btn").click()
     dash_dcc.wait_for_text_to_equal("#bounding-output", "true")
