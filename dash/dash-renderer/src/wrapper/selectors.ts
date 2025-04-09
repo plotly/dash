@@ -1,7 +1,7 @@
 import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
 import {getComponentLayout, stringifyPath} from './wrapping';
 
-type SelectDashProps = [DashComponent, BaseDashProps, number];
+type SelectDashProps = [DashComponent, BaseDashProps, number, object, string];
 
 export const selectDashProps =
     (componentPath: DashLayoutPath) =>
@@ -12,14 +12,16 @@ export const selectDashProps =
         // Then it can be easily compared without having to compare the props.
         const strPath = stringifyPath(componentPath);
 
-        const h = Object.entries(state.layoutHashes).reduce(
-            (acc, [updatedPath, pathHash]) =>
-                strPath.startsWith(updatedPath)
-                    ? (pathHash as number) + acc
-                    : acc,
-            0
-        );
-        return [c, c.props, h];
+        const hash = state.layoutHashes[strPath];
+        let h = 0;
+        let changedProps: object = {};
+        let renderType = '';
+        if (hash) {
+            h = hash['hash'];
+            changedProps = hash['changedProps'];
+            renderType = hash['renderType'];
+        }
+        return [c, c?.props, h, changedProps, renderType];
     };
 
 export function selectDashPropsEqualityFn(

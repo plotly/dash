@@ -360,7 +360,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                renderType: 'callback'
             })
         );
         dispatch(notifyObservers({id: component_id, props}));

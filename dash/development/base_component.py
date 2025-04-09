@@ -51,13 +51,21 @@ class ComponentMeta(abc.ABCMeta):
 
     # pylint: disable=arguments-differ
     def __new__(mcs, name, bases, attributes):
-        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
         module = attributes["__module__"].split(".")[0]
+
+        if attributes.get("_explicitize_dash_init", False):
+            # We only want to patch the new generated component without
+            # the `@_explicitize_args` decorator for mypy support
+            # See issue: https://github.com/plotly/dash/issues/3226
+            attributes["__init__"] = _explicitize_args(attributes["__init__"])
+
+        _component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
+
         if name == "Component" or module == "builtins":
-            # Don't do the base component
+            # Don't add to the registry the base component
             # and the components loaded dynamically by load_component
             # as it doesn't have the namespace.
-            return component
+            return _component
 
         _namespace = attributes.get("_namespace", module)
         ComponentRegistry.namespace_to_package[_namespace] = module
@@ -66,7 +74,7 @@ class ComponentMeta(abc.ABCMeta):
             "_children_props"
         )
 
-        return component
+        return _component
 
 
 def is_number(s):
@@ -434,6 +442,8 @@ class Component(metaclass=ComponentMeta):
 
 
 ComponentType = typing.TypeVar("ComponentType", bound=Component)
+
+ComponentTemplate = typing.TypeVar("ComponentTemplate")
 
 
 # This wrapper adds an argument given to generated Component.__init__

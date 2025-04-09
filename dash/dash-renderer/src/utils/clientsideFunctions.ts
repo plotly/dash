@@ -16,8 +16,8 @@ function set_props(
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
         let componentPath;
+        const {paths} = getState();
         if (!Array.isArray(idOrPath)) {
-            const {paths} = getState();
             componentPath = getPath(paths, idOrPath);
         } else {
             componentPath = idOrPath;
@@ -25,7 +25,8 @@ function set_props(
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                renderType: 'clientsideApi'
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));

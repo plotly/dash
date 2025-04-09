@@ -27,7 +27,7 @@ export const apiRequests = [
     'loginRequest'
 ];
 
-function layoutHashes(state = {}, action) {
+const layoutHashes = (state = {}, action) => {
     if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',
@@ -37,12 +37,21 @@ function layoutHashes(state = {}, action) {
     ) {
         // Let us compare the paths sums to get updates without triggering
         // render on the parent containers.
-        const strPath = stringifyPath(action.payload.itempath);
-        const prev = pathOr(0, [strPath], state);
-        return assoc(strPath, prev + 1, state);
+        const actionPath = action.payload.itempath;
+        const strPath = stringifyPath(actionPath);
+        const prev = pathOr(0, [strPath, 'hash'], state);
+        state = assoc(
+            strPath,
+            {
+                hash: prev + 1,
+                changedProps: action.payload.props,
+                renderType: action.payload.renderType
+            },
+            state
+        );
     }
     return state;
-}
+};
 
 function mainReducer() {
     const parts = {
