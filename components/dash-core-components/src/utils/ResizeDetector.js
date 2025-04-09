@@ -4,17 +4,16 @@ import PropTypes from 'prop-types';
 // Debounce 50 ms
 const DELAY = 50;
 
-let resizeTimeout;
-
 const ResizeDetector = props => {
     const {onResize, children, targets} = props;
     const ref = createRef();
+    let resizeTimeout;
 
     const debouncedResizeHandler = useCallback(() => {
         if (resizeTimeout) {
             clearTimeout(resizeTimeout);
         }
-        var resizeTimeout = setTimeout(() => {
+        resizeTimeout = setTimeout(() => {
             onResize(true); // Force on resize.
         }, DELAY);
     }, [onResize]);
