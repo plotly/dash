@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [unreleased]
+
+## Fixed
+- [#3264](https://github.com/plotly/dash/pull/3264) Fixed an issue where moving components inside of children would not update the `setProps` path, leading to hashes being incorrect
+
 ## [3.0.2] - 2025-04-01
 
 ## Changed
