@@ -1,7 +1,5 @@
 from dash import dcc, html, Input, Output, Patch, Dash
 
-from dash.testing.wait import until
-
 
 def test_dcl001_descendant_tabs(dash_duo):
     app = Dash()
@@ -49,7 +47,7 @@ def test_dcl001_descendant_tabs(dash_duo):
         return True, True
 
     dash_duo.start_server(app)
-    dash_duo.wait_for_text_to_equal("#button", f"Enable Tabs")
+    dash_duo.wait_for_text_to_equal("#button", "Enable Tabs")
     dash_duo.find_element("#tab-a.tab--disabled")
     dash_duo.find_element("#button").click()
     dash_duo.find_element("#tab-a:not(.tab--disabled)")

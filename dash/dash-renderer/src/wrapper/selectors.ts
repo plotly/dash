@@ -14,27 +14,68 @@ interface ChangedPropsRecord {
     renderType: string;
 }
 
-const previousHashes = {};
+interface Hashes {
+    [key: string]: any; // Index signature for string keys with number values
+}
+
+const previousHashes: Hashes = {};
+
+const isFirstLevelPropsChild = (
+    updatedPath: string,
+    strPath: string
+): [boolean, string[]] => {
+    const updatedSegments = updatedPath.split(',');
+    const fullSegments = strPath.split(',');
+
+    // Check that strPath actually starts with updatedPath
+    const startsWithPath = fullSegments.every(
+        (seg, i) => updatedSegments[i] === seg
+    );
+
+    if (!startsWithPath) return [false, []];
+
+    // Get the remaining path after the prefix
+    const remainingSegments = updatedSegments.slice(fullSegments.length);
+
+    const propsCount = remainingSegments.filter(s => s === 'props').length;
+
+    return [propsCount < 2, remainingSegments];
+};
 
 function determineChangedProps(
     state: any,
     strPath: string
 ): ChangedPropsRecord {
     let combinedHash = 0;
-    const renderType = 'update'; // Default render type, adjust as needed
+    let renderType: any; // Default render type, adjust as needed
+    const changedProps: Record<string, any> = {};
     Object.entries(state.layoutHashes).forEach(([updatedPath, pathHash]) => {
-        if (updatedPath.startsWith(strPath)) {
+        const [descendant, remainingSegments] = isFirstLevelPropsChild(
+            updatedPath,
+            strPath
+        );
+        if (descendant) {
             const previousHash: any = pathOr({}, [updatedPath], previousHashes);
             combinedHash += pathOr(0, ['hash'], pathHash);
             if (previousHash !== pathHash) {
-                previousHash[updatedPath] = pathHash;
+                if (updatedPath !== strPath) {
+                    Object.assign(changedProps, {[remainingSegments[1]]: true});
+                    renderType = 'components';
+                } else {
+                    Object.assign(
+                        changedProps,
+                        pathOr({}, ['changedProps'], pathHash)
+                    );
+                    renderType = pathOr({}, ['renderType'], pathHash);
+                }
+                previousHashes[updatedPath] = pathHash;
             }
         }
     });
 
     return {
         hash: combinedHash,
-        changedProps: {},
+        changedProps,
         renderType
     };
 }
