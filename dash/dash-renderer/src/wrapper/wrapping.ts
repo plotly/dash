@@ -73,9 +73,9 @@ export function checkRenderTypeProp(componentDefinition: any) {
     );
 }
 
-export function checkChildrenLayoutHashes(componentDefinition: any) {
+export function checkDashChildrenUpdate(componentDefinition: any) {
     return (
-        'childrenLayoutHashes' in
+        'dashChildrenUpdate' in
         pathOr(
             {},
             [componentDefinition?.namespace, componentDefinition?.type],

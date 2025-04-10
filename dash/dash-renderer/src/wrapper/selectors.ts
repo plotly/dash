@@ -2,7 +2,7 @@ import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
 import {
     getComponentLayout,
     stringifyPath,
-    checkChildrenLayoutHashes
+    checkDashChildrenUpdate
 } from './wrapping';
 import {pathOr} from 'ramda';
 
@@ -90,7 +90,7 @@ export const selectDashProps =
         const strPath = stringifyPath(componentPath);
 
         let hash;
-        if (checkChildrenLayoutHashes(c)) {
+        if (checkDashChildrenUpdate(c)) {
             hash = determineChangedProps(state, strPath);
         } else {
             hash = state.layoutHashes[strPath];
