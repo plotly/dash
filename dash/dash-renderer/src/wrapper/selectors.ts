@@ -1,7 +1,36 @@
 import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
-import {getComponentLayout, stringifyPath} from './wrapping';
+import {getComponentLayout, stringifyPath, checkChildrenLayoutHashes} from './wrapping';
+import {pathOr} from 'ramda'
 
 type SelectDashProps = [DashComponent, BaseDashProps, number, object, string];
+
+interface ChangedPropsRecord {
+    hash: number;
+    changedProps: Record<string, any>;
+    renderType: string;
+}
+
+const previousHashes = {}
+
+function determineChangedProps(state: any, strPath: string): ChangedPropsRecord {
+    let combinedHash = 0;
+    let renderType = 'update'; // Default render type, adjust as needed
+    Object.entries(state.layoutHashes).forEach(([updatedPath, pathHash]) => {
+        if (updatedPath.startsWith(strPath)) {
+            const previousHash: any = pathOr({}, [updatedPath], previousHashes);
+            combinedHash += pathOr(0, ['hash'], pathHash)
+            if (previousHash !== pathHash) {
+                previousHash[updatedPath] = pathHash
+            }
+        }
+    });
+
+    return {
+        hash: combinedHash,
+        changedProps: {},
+        renderType
+    };
+}
 
 export const selectDashProps =
     (componentPath: DashLayoutPath) =>
@@ -12,7 +41,12 @@ export const selectDashProps =
         // Then it can be easily compared without having to compare the props.
         const strPath = stringifyPath(componentPath);
 
-        const hash = state.layoutHashes[strPath];
+        let hash;
+        if (checkChildrenLayoutHashes(c)) {
+            hash = determineChangedProps(state, strPath)
+        } else {
+            hash = state.layoutHashes[strPath];
+        }
         let h = 0;
         let changedProps: object = {};
         let renderType = '';

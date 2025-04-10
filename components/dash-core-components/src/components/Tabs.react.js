@@ -439,3 +439,5 @@ Tabs.propTypes = {
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
+
+Tabs.childrenLayoutHashes = true

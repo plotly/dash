@@ -72,3 +72,14 @@ export function checkRenderTypeProp(componentDefinition: any) {
         )
     );
 }
+
+export function checkChildrenLayoutHashes(componentDefinition: any) {
+    return (
+        'childrenLayoutHashes' in
+        pathOr(
+            {},
+            [componentDefinition?.namespace, componentDefinition?.type],
+            window as any
+        )
+    );
+}
