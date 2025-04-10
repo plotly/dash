@@ -1,6 +1,6 @@
 import traceback
 from contextvars import copy_context
-from multiprocess import Process  # type: ignore
+
 
 from . import BaseBackgroundCallbackManager
 from .._proxy_set_props import ProxySetProps
@@ -117,6 +117,9 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
 
     # noinspection PyUnresolvedReferences
     def call_job_fn(self, key, job_fn, args, context):
+        # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
+        from multiprocess import Process  # type: ignore
+
         # pylint: disable-next=not-callable
         proc = Process(
             target=job_fn,
