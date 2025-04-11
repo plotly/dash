@@ -72,3 +72,14 @@ export function checkRenderTypeProp(componentDefinition: any) {
         )
     );
 }
+
+export function checkDashChildrenUpdate(componentDefinition: any) {
+    return (
+        'dashChildrenUpdate' in
+        pathOr(
+            {},
+            [componentDefinition?.namespace, componentDefinition?.type],
+            window as any
+        )
+    );
+}
