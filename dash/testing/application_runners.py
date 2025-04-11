@@ -9,7 +9,6 @@ import subprocess
 import logging
 import inspect
 import ctypes
-from typing import cast
 
 import runpy
 import requests
@@ -354,11 +353,9 @@ class RRunner(ProcessRunner):
             # app is a string chunk, we make a temporary folder to store app.R
             # and its relevant assets
             tmp_dir = "/tmp" if not self.is_windows else os.getenv("TEMP")
-            tmp_dir = cast(str, tmp_dir)  # to satisfy type checking
+            tmp_dir = str(tmp_dir)  # to satisfy type checking
             hex_id = uuid.uuid4().hex
-            self._tmp_app_path = cast(
-                str, os.path.join(tmp_dir, hex_id)
-            )  # to satisfy type checking
+            self._tmp_app_path = os.path.join(tmp_dir, hex_id)
             try:
                 os.mkdir(self.tmp_app_path)  # type: ignore[reportArgumentType]
             except OSError:

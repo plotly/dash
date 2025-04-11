@@ -15,7 +15,7 @@ import re
 
 from html import escape
 from functools import wraps
-from typing import Union, cast
+from typing import Union
 from .types import RendererHooks
 
 logger = logging.getLogger()
@@ -121,7 +121,7 @@ class AttributeDict(dict):
     def update(self, other=None, **kwargs):
         # Overrides dict.update() to use __setitem__ above
         # Needs default `None` and `kwargs` to satisfy type checking
-        source = cast(dict, other) if other is not None else kwargs
+        source = other if other is not None else kwargs
         for k, v in source.items():
             self[k] = v
 

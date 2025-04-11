@@ -18,7 +18,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, Sequence, cast, Literal
+from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal
 
 import flask
 
@@ -448,7 +448,6 @@ class Dash(ObsoleteChecker):
             if name is None:
                 caller_name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
-            name = name if name else caller_name
             self.server = flask.Flask(caller_name) if server else None  # type: ignore
         else:
             raise ValueError("server must be a Flask app or a boolean")
@@ -457,7 +456,6 @@ class Dash(ObsoleteChecker):
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
         )
 
-        name = cast(str, name)  # to satisfy type checking
         self.config = AttributeDict(
             name=caller_name,
             assets_folder=os.path.join(
@@ -1788,7 +1786,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
-    ) -> None:
+    ) -> bool:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
