@@ -121,7 +121,6 @@ const EnhancedTab = ({
     );
 };
 
-
 /**
  * A Dash component that lets you render pages with tabs - the Tabs component's children
  * can be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold
