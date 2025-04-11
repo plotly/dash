@@ -183,7 +183,9 @@ PROP_TYPING = {
     "exact": generate_shape,
     "string": generate_type("str"),
     "bool": generate_type("bool"),
-    "number": generate_type("typing.Union[int, float, numbers.Number]"),
+    "number": generate_type(
+        "typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]"
+    ),
     "node": generate_type(
         "typing.Union[str, int, float, ComponentType,"
         " typing.Sequence[typing.Union"

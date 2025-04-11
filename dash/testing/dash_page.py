@@ -1,3 +1,8 @@
+# type: ignore[reportAttributeAccessIssue]
+# Ignore attribute access issues when type checking because mixin
+# class depends on other class lineage to supply things. We could use
+# a protocol definition here instead…
+
 from bs4 import BeautifulSoup
 
 

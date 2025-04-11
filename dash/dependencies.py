@@ -1,7 +1,6 @@
 from typing import Union, Sequence
 
-from dash.development.base_component import Component
-
+from .development.base_component import Component
 from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index
 from ._utils import stringify_id

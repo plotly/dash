@@ -33,8 +33,8 @@ class CeleryManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the celery result backend.
         """
         try:
-            import celery  # pylint: disable=import-outside-toplevel,import-error
-            from celery.backends.base import (  # pylint: disable=import-outside-toplevel,import-error
+            import celery  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel,import-error
+            from celery.backends.base import (  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel,import-error
                 DisabledBackend,
             )
         except ImportError as missing_imports:
@@ -157,11 +157,12 @@ def _make_job_fn(fn, celery_app, progress, key):
         ctx = copy_context()
 
         def run():
-            c = AttributeDict(**context)
+            c = AttributeDict(**context)  # type: ignore[reportCallIssue]
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             errored = False
+            user_callback_output = None  # to help type checking
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)
