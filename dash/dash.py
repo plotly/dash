@@ -18,10 +18,11 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, Sequence, cast
+from typing import Any, Callable, Dict, Optional, Union, Sequence, cast, Literal
 
 import flask
 
+from flask.typing import RouteCallable
 from importlib_metadata import version as _get_distribution_version
 
 from dash import dcc
@@ -622,7 +623,7 @@ class Dash(ObsoleteChecker):
         if self._hooks.get_hooks("error"):
             self._on_error = self._hooks.HookErrorHandler(self._on_error)
 
-    def init_app(self, app=None, **kwargs):
+    def init_app(self, app: Optional[flask.Flask] = None, **kwargs) -> None:
         """Initialize the parts of Dash that require a flask app."""
 
         config = self.config
@@ -694,7 +695,7 @@ class Dash(ObsoleteChecker):
 
         self._setup_plotlyjs()
 
-    def _add_url(self, name, view_func, methods=("GET",)):
+    def _add_url(self, name: str, view_func: RouteCallable, methods=("GET",)) -> None:
         full_name = self.config.routes_pathname_prefix + name
 
         self.server.add_url_rule(
@@ -748,11 +749,11 @@ class Dash(ObsoleteChecker):
         self._plotlyjs_url = url
 
     @property
-    def layout(self):
+    def layout(self) -> Any:
         return self._layout
 
     @layout.setter
-    def layout(self, value):
+    def layout(self, value: Any):
         _validate.validate_layout_type(value)
         self._layout_is_function = callable(value)
         self._layout = value
@@ -782,11 +783,11 @@ class Dash(ObsoleteChecker):
         return layout
 
     @property
-    def index_string(self):
+    def index_string(self) -> str:
         return self._index_string
 
     @index_string.setter
-    def index_string(self, value):
+    def index_string(self, value: str) -> None:
         checks = (_re_index_entry, _re_index_config, _re_index_scripts)
         _validate.validate_index("index string", checks, value)
         self._index_string = value
@@ -861,7 +862,7 @@ class Dash(ObsoleteChecker):
             }
         )
 
-    def get_dist(self, libraries):
+    def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
@@ -963,7 +964,7 @@ class Dash(ObsoleteChecker):
             ]
         )
 
-    def _generate_scripts_html(self):
+    def _generate_scripts_html(self) -> str:
         # Dash renderer has dependencies like React which need to be rendered
         # before every other script. However, the dash renderer bundle
         # itself needs to be rendered after all of the component's
@@ -1020,10 +1021,10 @@ class Dash(ObsoleteChecker):
             + [f"<script>{src}</script>" for src in self._inline_scripts]
         )
 
-    def _generate_config_html(self):
+    def _generate_config_html(self) -> str:
         return f'<script id="_dash-config" type="application/json">{to_json(self._config())}</script>'
 
-    def _generate_renderer(self):
+    def _generate_renderer(self) -> str:
         return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
     def _generate_meta(self):
@@ -1545,7 +1546,7 @@ class Dash(ObsoleteChecker):
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
-    def csp_hashes(self, hash_algorithm="sha256"):
+    def csp_hashes(self, hash_algorithm="sha256") -> Sequence[str]:
         """Calculates CSP hashes (sha + base64) of all inline scripts, such that
         one of the biggest benefits of CSP (disallowing general inline scripts)
         can be utilized together with Dash clientside callbacks (inline scripts).
@@ -1584,7 +1585,7 @@ class Dash(ObsoleteChecker):
             for script in (self._inline_scripts + [self.renderer])
         ]
 
-    def get_asset_url(self, path):
+    def get_asset_url(self, path: str) -> str:
         """
         Return the URL for the provided `path` in the assets directory.
 
@@ -1655,7 +1656,7 @@ class Dash(ObsoleteChecker):
             self.config.requests_pathname_prefix, path
         )
 
-    def strip_relative_path(self, path):
+    def strip_relative_path(self, path: str) -> Union[str, None]:
         """
         Return a path with `requests_pathname_prefix` and leading and trailing
         slashes stripped from it. Also, if None is passed in, None is returned.
@@ -1707,7 +1708,9 @@ class Dash(ObsoleteChecker):
         )
 
     @staticmethod
-    def add_startup_route(name, view_func, methods):
+    def add_startup_route(
+        name: str, view_func: RouteCallable, methods: Sequence[Literal["POST", "GET"]]
+    ) -> None:
         """
         Add a route to the app to be initialized at the end of Dash initialization.
         Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
@@ -1731,7 +1734,7 @@ class Dash(ObsoleteChecker):
 
         Dash.STARTUP_ROUTES.append((name, view_func, methods))
 
-    def setup_startup_routes(self):
+    def setup_startup_routes(self) -> None:
         """
         Initialize the startup routes stored in STARTUP_ROUTES.
         """
@@ -1774,18 +1777,18 @@ class Dash(ObsoleteChecker):
 
     def enable_dev_tools(
         self,
-        debug=None,
-        dev_tools_ui=None,
-        dev_tools_props_check=None,
-        dev_tools_serve_dev_bundles=None,
-        dev_tools_hot_reload=None,
-        dev_tools_hot_reload_interval=None,
-        dev_tools_hot_reload_watch_interval=None,
-        dev_tools_hot_reload_max_retry=None,
-        dev_tools_silence_routes_logging=None,
-        dev_tools_disable_version_check=None,
-        dev_tools_prune_errors=None,
-    ):
+        debug: Optional[bool] = None,
+        dev_tools_ui: Optional[bool] = None,
+        dev_tools_props_check: Optional[bool] = None,
+        dev_tools_serve_dev_bundles: Optional[bool] = None,
+        dev_tools_hot_reload: Optional[bool] = None,
+        dev_tools_hot_reload_interval: Optional[int] = None,
+        dev_tools_hot_reload_watch_interval: Optional[int] = None,
+        dev_tools_hot_reload_max_retry: Optional[int] = None,
+        dev_tools_silence_routes_logging: Optional[bool] = None,
+        dev_tools_disable_version_check: Optional[bool] = None,
+        dev_tools_prune_errors: Optional[bool] = None,
+    ) -> None:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
@@ -2275,7 +2278,7 @@ class Dash(ObsoleteChecker):
         else:
             self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
-    def enable_pages(self):
+    def enable_pages(self) -> None:
         if not self.use_pages:
             return
         if self.pages_folder:
