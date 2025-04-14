@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -47,13 +47,18 @@ class Clipboard(Component):
     _namespace = "dash_core_components"
     _type = "Clipboard"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         target_id: typing.Optional[typing.Union[str, dict]] = None,
         content: typing.Optional[str] = None,
-        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_clicks: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         html_content: typing.Optional[str] = None,
         title: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,

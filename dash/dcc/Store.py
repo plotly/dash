@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -45,7 +45,8 @@ class Store(Component):
     _namespace = "dash_core_components"
     _type = "Store"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
@@ -54,14 +55,18 @@ class Store(Component):
             typing.Union[
                 dict,
                 typing.Sequence,
-                typing.Union[int, float, numbers.Number],
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
                 str,
                 bool,
             ]
         ] = None,
         clear_data: typing.Optional[bool] = None,
         modified_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         **kwargs
     ):

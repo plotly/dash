@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -106,7 +106,8 @@ class Option(Component):
     _namespace = "dash_html_components"
     _type = "Option"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         children: typing.Optional[
@@ -119,9 +120,15 @@ class Option(Component):
             ]
         ] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_clicks: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         n_clicks_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         disable_n_clicks: typing.Optional[bool] = None,
         key: typing.Optional[str] = None,
@@ -144,7 +151,12 @@ class Option(Component):
         spellCheck: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
         tabIndex: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         title: typing.Optional[str] = None,
         **kwargs

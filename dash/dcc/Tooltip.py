@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -74,14 +74,31 @@ class Tooltip(Component):
     Bbox = TypedDict(
         "Bbox",
         {
-            "x0": NotRequired[typing.Union[int, float, numbers.Number]],
-            "y0": NotRequired[typing.Union[int, float, numbers.Number]],
-            "x1": NotRequired[typing.Union[int, float, numbers.Number]],
-            "y1": NotRequired[typing.Union[int, float, numbers.Number]],
+            "x0": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "y0": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "x1": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "y1": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
         },
     )
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         children: typing.Optional[
@@ -102,7 +119,11 @@ class Tooltip(Component):
         border_color: typing.Optional[str] = None,
         background_color: typing.Optional[str] = None,
         loading_text: typing.Optional[str] = None,
-        zindex: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        zindex: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         targetable: typing.Optional[bool] = None,
         **kwargs
     ):

@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -312,18 +312,11 @@ class DataTable(Component):
 
         `fixed_columns` is a dict with keys:
 
-        - data (a value equal to: 0; optional):
+        - data (number; optional):
             Example `{'headers':False, 'data':0}` No columns are fixed
             (the default).
 
-        - headers (a value equal to: false; optional)
-
-          Or dict with keys:
-
-        - data (number; optional):
-            Example `{'headers':True, 'data':1}` one column is fixed.
-
-        - headers (a value equal to: true; required)
+        - headers (boolean; optional)
 
     - fixed_rows (dict; default {    headers: False,    data: 0}):
         `fixed_rows` will \"fix\" the set of rows so that they remain
@@ -338,18 +331,11 @@ class DataTable(Component):
 
         `fixed_rows` is a dict with keys:
 
-        - data (a value equal to: 0; optional):
+        - data (number; optional):
             Example `{'headers':False, 'data':0}` No rows are fixed (the
             default).
 
-        - headers (a value equal to: false; optional)
-
-          Or dict with keys:
-
-        - data (number; optional):
-            Example `{'headers':True, 'data':1}` one row is fixed.
-
-        - headers (a value equal to: true; required)
+        - headers (boolean; optional)
 
     - column_selectable (a value equal to: 'single', 'multi', false; default False):
         If `single`, then the user can select a single column or group of
@@ -1155,7 +1141,11 @@ class DataTable(Component):
             "decimal": NotRequired[str],
             "group": NotRequired[str],
             "grouping": NotRequired[
-                typing.Sequence[typing.Union[int, float, numbers.Number]]
+                typing.Sequence[
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ]
+                ]
             ],
             "numerals": NotRequired[typing.Sequence[str]],
             "percent": NotRequired[str],
@@ -1168,7 +1158,11 @@ class DataTable(Component):
         {
             "locale": NotRequired["ColumnsFormatLocale"],
             "nully": NotRequired[typing.Any],
-            "prefix": NotRequired[typing.Union[int, float, numbers.Number]],
+            "prefix": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "specifier": NotRequired[str],
         },
     )
@@ -1218,7 +1212,15 @@ class DataTable(Component):
             "on_change": NotRequired["ColumnsOnChange"],
             "sort_as_null": NotRequired[
                 typing.Sequence[
-                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                    typing.Union[
+                        str,
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ],
+                        bool,
+                    ]
                 ]
             ],
             "validation": NotRequired["ColumnsValidation"],
@@ -1228,26 +1230,47 @@ class DataTable(Component):
     FixedColumns = TypedDict(
         "FixedColumns",
         {
-            "data": NotRequired[typing.Union[int, float, numbers.Number]],
-            "headers": Literal[True],
+            "data": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "headers": NotRequired[bool],
         },
     )
 
     FixedRows = TypedDict(
         "FixedRows",
         {
-            "data": NotRequired[typing.Union[int, float, numbers.Number]],
-            "headers": Literal[True],
+            "data": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "headers": NotRequired[bool],
         },
     )
 
     ActiveCell = TypedDict(
         "ActiveCell",
         {
-            "row": NotRequired[typing.Union[int, float, numbers.Number]],
-            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "column": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "row_id": NotRequired[
-                typing.Union[str, typing.Union[int, float, numbers.Number]]
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
             ],
             "column_id": NotRequired[str],
         },
@@ -1256,10 +1279,23 @@ class DataTable(Component):
     SelectedCells = TypedDict(
         "SelectedCells",
         {
-            "row": NotRequired[typing.Union[int, float, numbers.Number]],
-            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "column": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "row_id": NotRequired[
-                typing.Union[str, typing.Union[int, float, numbers.Number]]
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
             ],
             "column_id": NotRequired[str],
         },
@@ -1268,10 +1304,23 @@ class DataTable(Component):
     StartCell = TypedDict(
         "StartCell",
         {
-            "row": NotRequired[typing.Union[int, float, numbers.Number]],
-            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "column": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "row_id": NotRequired[
-                typing.Union[str, typing.Union[int, float, numbers.Number]]
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
             ],
             "column_id": NotRequired[str],
         },
@@ -1280,10 +1329,23 @@ class DataTable(Component):
     EndCell = TypedDict(
         "EndCell",
         {
-            "row": NotRequired[typing.Union[int, float, numbers.Number]],
-            "column": NotRequired[typing.Union[int, float, numbers.Number]],
+            "row": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "column": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "row_id": NotRequired[
-                typing.Union[str, typing.Union[int, float, numbers.Number]]
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
             ],
             "column_id": NotRequired[str],
         },
@@ -1313,7 +1375,13 @@ class DataTable(Component):
         "DropdownOptions",
         {
             "label": str,
-            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+            "value": typing.Union[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+                str,
+                bool,
+            ],
         },
     )
 
@@ -1331,7 +1399,13 @@ class DataTable(Component):
         "DropdownConditionalOptions",
         {
             "label": str,
-            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+            "value": typing.Union[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+                str,
+                bool,
+            ],
         },
     )
 
@@ -1348,7 +1422,13 @@ class DataTable(Component):
         "DropdownDataOptions",
         {
             "label": str,
-            "value": typing.Union[typing.Union[int, float, numbers.Number], str, bool],
+            "value": typing.Union[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+                str,
+                bool,
+            ],
         },
     )
 
@@ -1363,8 +1443,16 @@ class DataTable(Component):
     Tooltip = TypedDict(
         "Tooltip",
         {
-            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
-            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "delay": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "duration": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "type": NotRequired[Literal["text", "markdown"]],
             "use_with": NotRequired[Literal["both", "data", "header"]],
             "value": str,
@@ -1378,7 +1466,10 @@ class DataTable(Component):
             "filter_query": NotRequired[str],
             "row_index": NotRequired[
                 typing.Union[
-                    typing.Union[int, float, numbers.Number], Literal["odd", "even"]
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                    Literal["odd", "even"],
                 ]
             ],
         },
@@ -1387,8 +1478,16 @@ class DataTable(Component):
     TooltipConditional = TypedDict(
         "TooltipConditional",
         {
-            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
-            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "delay": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "duration": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "if": "TooltipConditionalIf",
             "type": NotRequired[Literal["text", "markdown"]],
             "value": str,
@@ -1398,8 +1497,16 @@ class DataTable(Component):
     TooltipData = TypedDict(
         "TooltipData",
         {
-            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
-            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "delay": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "duration": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "type": NotRequired[Literal["text", "markdown"]],
             "value": str,
         },
@@ -1408,8 +1515,16 @@ class DataTable(Component):
     TooltipHeader = TypedDict(
         "TooltipHeader",
         {
-            "delay": NotRequired[typing.Union[int, float, numbers.Number]],
-            "duration": NotRequired[typing.Union[int, float, numbers.Number]],
+            "delay": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "duration": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "type": NotRequired[Literal["text", "markdown"]],
             "value": str,
         },
@@ -1422,7 +1537,11 @@ class DataTable(Component):
             "decimal": NotRequired[str],
             "group": NotRequired[str],
             "grouping": NotRequired[
-                typing.Sequence[typing.Union[int, float, numbers.Number]]
+                typing.Sequence[
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ]
+                ]
             ],
             "numerals": NotRequired[typing.Sequence[str]],
             "percent": NotRequired[str],
@@ -1463,9 +1582,17 @@ class DataTable(Component):
             "state": NotRequired[Literal["active", "selected"]],
             "row_index": NotRequired[
                 typing.Union[
-                    typing.Union[int, float, numbers.Number],
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
                     Literal["odd", "even"],
-                    typing.Sequence[typing.Union[int, float, numbers.Number]],
+                    typing.Sequence[
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ]
+                    ],
                 ]
             ],
             "column_editable": NotRequired[bool],
@@ -1496,8 +1623,16 @@ class DataTable(Component):
             "column_type": NotRequired[Literal["any", "numeric", "text", "datetime"]],
             "header_index": NotRequired[
                 typing.Union[
-                    typing.Union[int, float, numbers.Number],
-                    typing.Sequence[typing.Union[int, float, numbers.Number]],
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                    typing.Sequence[
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ]
+                    ],
                     Literal["odd", "even"],
                 ]
             ],
@@ -1518,21 +1653,30 @@ class DataTable(Component):
         },
     )
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         data: typing.Optional[
             typing.Sequence[
                 typing.Dict[
                     typing.Union[str, float, int],
-                    typing.Union[str, typing.Union[int, float, numbers.Number], bool],
+                    typing.Union[
+                        str,
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ],
+                        bool,
+                    ],
                 ]
             ]
         ] = None,
         columns: typing.Optional[typing.Sequence["Columns"]] = None,
         editable: typing.Optional[bool] = None,
-        fixed_columns: typing.Optional[typing.Union["FixedColumns"]] = None,
-        fixed_rows: typing.Optional[typing.Union["FixedRows"]] = None,
+        fixed_columns: typing.Optional["FixedColumns"] = None,
+        fixed_rows: typing.Optional["FixedRows"] = None,
         column_selectable: typing.Optional[Literal["single", "multi", False]] = None,
         cell_selectable: typing.Optional[bool] = None,
         row_selectable: typing.Optional[Literal["single", "multi", False]] = None,
@@ -1540,11 +1684,22 @@ class DataTable(Component):
         active_cell: typing.Optional["ActiveCell"] = None,
         selected_cells: typing.Optional[typing.Sequence["SelectedCells"]] = None,
         selected_rows: typing.Optional[
-            typing.Sequence[typing.Union[int, float, numbers.Number]]
+            typing.Sequence[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ]
         ] = None,
         selected_columns: typing.Optional[typing.Sequence[str]] = None,
         selected_row_ids: typing.Optional[
-            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+            typing.Sequence[
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
+            ]
         ] = None,
         start_cell: typing.Optional["StartCell"] = None,
         end_cell: typing.Optional["EndCell"] = None,
@@ -1553,7 +1708,9 @@ class DataTable(Component):
         is_focused: typing.Optional[bool] = None,
         merge_duplicate_headers: typing.Optional[bool] = None,
         data_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         include_headers_on_copy_paste: typing.Optional[bool] = None,
         export_columns: typing.Optional[Literal["all", "visible"]] = None,
@@ -1562,9 +1719,21 @@ class DataTable(Component):
             Literal["none", "ids", "names", "display"]
         ] = None,
         page_action: typing.Optional[Literal["custom", "native", "none"]] = None,
-        page_current: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        page_count: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        page_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        page_current: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        page_count: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        page_size: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         filter_query: typing.Optional[str] = None,
         filter_action: typing.Optional[
             typing.Union[Literal["custom", "native", "none"], "FilterAction"]
@@ -1575,7 +1744,13 @@ class DataTable(Component):
         sort_by: typing.Optional[typing.Sequence["SortBy"]] = None,
         sort_as_null: typing.Optional[
             typing.Sequence[
-                typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                    bool,
+                ]
             ]
         ] = None,
         dropdown: typing.Optional[
@@ -1610,9 +1785,15 @@ class DataTable(Component):
                 ],
             ]
         ] = None,
-        tooltip_delay: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        tooltip_delay: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         tooltip_duration: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         locale_format: typing.Optional["LocaleFormat"] = None,
         style_as_list_view: typing.Optional[bool] = None,
@@ -1640,35 +1821,85 @@ class DataTable(Component):
         derived_filter_query_structure: typing.Optional[dict] = None,
         derived_viewport_data: typing.Optional[typing.Sequence[dict]] = None,
         derived_viewport_indices: typing.Optional[
-            typing.Sequence[typing.Union[int, float, numbers.Number]]
+            typing.Sequence[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ]
         ] = None,
         derived_viewport_row_ids: typing.Optional[
-            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+            typing.Sequence[
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
+            ]
         ] = None,
         derived_viewport_selected_columns: typing.Optional[typing.Sequence[str]] = None,
         derived_viewport_selected_rows: typing.Optional[
-            typing.Sequence[typing.Union[int, float, numbers.Number]]
+            typing.Sequence[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ]
         ] = None,
         derived_viewport_selected_row_ids: typing.Optional[
-            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+            typing.Sequence[
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
+            ]
         ] = None,
         derived_virtual_data: typing.Optional[typing.Sequence[dict]] = None,
         derived_virtual_indices: typing.Optional[
-            typing.Sequence[typing.Union[int, float, numbers.Number]]
+            typing.Sequence[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ]
         ] = None,
         derived_virtual_row_ids: typing.Optional[
-            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+            typing.Sequence[
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
+            ]
         ] = None,
         derived_virtual_selected_rows: typing.Optional[
-            typing.Sequence[typing.Union[int, float, numbers.Number]]
+            typing.Sequence[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ]
         ] = None,
         derived_virtual_selected_row_ids: typing.Optional[
-            typing.Sequence[typing.Union[str, typing.Union[int, float, numbers.Number]]]
+            typing.Sequence[
+                typing.Union[
+                    str,
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ],
+                ]
+            ]
         ] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         loading_state: typing.Optional["LoadingState"] = None,
         persistence: typing.Optional[
-            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                bool,
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         persisted_props: typing.Optional[
             typing.Sequence[

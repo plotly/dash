@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -142,22 +142,38 @@ class Textarea(Component):
     _namespace = "dash_core_components"
     _type = "Textarea"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         value: typing.Optional[str] = None,
         autoFocus: typing.Optional[str] = None,
         cols: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         disabled: typing.Optional[typing.Union[str, bool]] = None,
         form: typing.Optional[str] = None,
         maxLength: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         minLength: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         name: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
@@ -168,7 +184,12 @@ class Textarea(Component):
             typing.Union[Literal["required", "REQUIRED"], bool]
         ] = None,
         rows: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         wrap: typing.Optional[str] = None,
         accessKey: typing.Optional[str] = None,
@@ -184,19 +205,42 @@ class Textarea(Component):
         ] = None,
         style: typing.Optional[typing.Any] = None,
         tabIndex: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         title: typing.Optional[str] = None,
-        n_blur: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        n_blur_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+        n_blur: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
-        n_clicks: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_blur_timestamp: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        n_clicks: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         n_clicks_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         persistence: typing.Optional[
-            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                bool,
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,

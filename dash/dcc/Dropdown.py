@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -130,20 +130,35 @@ class Dropdown(Component):
                 ComponentType,
                 typing.Sequence[typing.Union[str, int, float, ComponentType]],
             ],
-            "value": typing.Union[str, typing.Union[int, float, numbers.Number], bool],
+            "value": typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+                bool,
+            ],
             "disabled": NotRequired[bool],
             "title": NotRequired[str],
             "search": NotRequired[str],
         },
     )
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         options: typing.Optional[
             typing.Union[
                 typing.Sequence[
-                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                    typing.Union[
+                        str,
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ],
+                        bool,
+                    ]
                 ],
                 dict,
                 typing.Sequence["Options"],
@@ -152,10 +167,20 @@ class Dropdown(Component):
         value: typing.Optional[
             typing.Union[
                 str,
-                typing.Union[int, float, numbers.Number],
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
                 bool,
                 typing.Sequence[
-                    typing.Union[str, typing.Union[int, float, numbers.Number], bool]
+                    typing.Union[
+                        str,
+                        typing.Union[
+                            typing.SupportsFloat,
+                            typing.SupportsInt,
+                            typing.SupportsComplex,
+                        ],
+                        bool,
+                    ]
                 ],
             ]
         ] = None,
@@ -165,13 +190,27 @@ class Dropdown(Component):
         search_value: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
         disabled: typing.Optional[bool] = None,
-        optionHeight: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        maxHeight: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        optionHeight: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        maxHeight: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         style: typing.Optional[typing.Any] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         persistence: typing.Optional[
-            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                bool,
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,

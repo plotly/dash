@@ -13,7 +13,7 @@ from .express import (  # noqa: F401, E402
     send_string,
 )
 
-__all__ = _components + [
+__all__ = _components + [  # type: ignore[reportUnsupportedDunderAll]
     "send_bytes",
     "send_data_frame",
     "send_file",
