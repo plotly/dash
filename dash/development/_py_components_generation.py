@@ -770,7 +770,7 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         return ""
     if js_type_name in js_to_py_types:
         if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_py_types[js_type_name](indent_num)
+            return js_to_py_types[js_type_name](indent_num)  # type: ignore[reportCallIssue]
         # All other types
-        return js_to_py_types[js_type_name]()
+        return js_to_py_types[js_type_name]()  # type: ignore[reportCallIssue]
     return ""

@@ -1,11 +1,16 @@
+from typing import List, Union, Optional, Any
+
+
 def _operation(name, location, **kwargs):
     return {"operation": name, "location": location, "params": dict(**kwargs)}
 
 
 _noop = object()
 
+_KeyType = Union[str, int]
 
-def validate_slice(obj):
+
+def validate_slice(obj: Any):
     if isinstance(obj, slice):
         raise TypeError("a slice is not a valid index for patch")
 
@@ -19,7 +24,11 @@ class Patch:
     Supported prop types: Dictionaries and lists.
     """
 
-    def __init__(self, location=None, parent=None):
+    def __init__(
+        self,
+        location: Optional[List[_KeyType]] = None,
+        parent: Optional["Patch"] = None,
+    ):
         if location is not None:
             self._location = location
         else:
@@ -36,11 +45,11 @@ class Patch:
     def __setstate__(self, state):
         vars(self).update(state)
 
-    def __getitem__(self, item) -> "Patch":
+    def __getitem__(self, item: _KeyType) -> "Patch":
         validate_slice(item)
         return Patch(location=self._location + [item], parent=self)
 
-    def __getattr__(self, item) -> "Patch":
+    def __getattr__(self, item: _KeyType) -> "Patch":
         if item == "tolist":
             # to_json fix
             raise AttributeError
@@ -50,16 +59,16 @@ class Patch:
             return self._operations  # type: ignore
         return self.__getitem__(item)
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: _KeyType, value: Any):
         if key in ("_location", "_operations"):
             self.__dict__[key] = value
         else:
             self.__setitem__(key, value)
 
-    def __delattr__(self, item):
+    def __delattr__(self, item: _KeyType):
         self.__delitem__(item)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: _KeyType, value: Any):
         validate_slice(key)
         if value is _noop:
             # The += set themselves.
@@ -72,11 +81,11 @@ class Patch:
             )
         )
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: _KeyType):
         validate_slice(key)
         self._operations.append(_operation("Delete", self._location + [key]))
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: Any):
         if isinstance(other, (list, tuple)):
             self.extend(other)
         else:
@@ -85,25 +94,25 @@ class Patch:
             return self
         return _noop
 
-    def __isub__(self, other):
+    def __isub__(self, other: Any):
         self._operations.append(_operation("Sub", self._location, value=other))
         if not self._location:
             return self
         return _noop
 
-    def __imul__(self, other):
+    def __imul__(self, other: Any) -> "Patch":
         self._operations.append(_operation("Mul", self._location, value=other))
         if not self._location:
             return self
         return _noop
 
-    def __itruediv__(self, other):
+    def __itruediv__(self, other: Any):
         self._operations.append(_operation("Div", self._location, value=other))
         if not self._location:
             return self
         return _noop
 
-    def __ior__(self, other):
+    def __ior__(self, other: Any):
         self.update(E=other)
         if not self._location:
             return self
@@ -115,39 +124,39 @@ class Patch:
     def __repr__(self):
         return f"<write-only dash.Patch object at {self._location}>"
 
-    def append(self, item):
+    def append(self, item: Any) -> None:
         """Add the item to the end of a list"""
         self._operations.append(_operation("Append", self._location, value=item))
 
-    def prepend(self, item):
+    def prepend(self, item: Any) -> None:
         """Add the item to the start of a list"""
         self._operations.append(_operation("Prepend", self._location, value=item))
 
-    def insert(self, index, item):
+    def insert(self, index: int, item: Any) -> None:
         """Add the item at the index of a list"""
         self._operations.append(
             _operation("Insert", self._location, value=item, index=index)
         )
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all items in a list"""
         self._operations.append(_operation("Clear", self._location))
 
-    def reverse(self):
+    def reverse(self) -> None:
         """Reversal of the order of items in a list"""
         self._operations.append(_operation("Reverse", self._location))
 
-    def extend(self, item):
+    def extend(self, item: Union[list, tuple]) -> None:
         """Add all the items to the end of a list"""
         if not isinstance(item, (list, tuple)):
             raise TypeError(f"{item} should be a list or tuple")
         self._operations.append(_operation("Extend", self._location, value=item))
 
-    def remove(self, item):
+    def remove(self, item: Any) -> None:
         """filter the item out of a list on the frontend"""
         self._operations.append(_operation("Remove", self._location, value=item))
 
-    def update(self, E=None, **F):
+    def update(self, E: Any = None, **F) -> None:
         """Merge a dict or keyword arguments with another dictionary"""
         value = E or {}
         value.update(F)
@@ -159,7 +168,7 @@ class Patch:
             "sort is reserved for future use, use brackets to access this key on your object"
         )
 
-    def to_plotly_json(self):
+    def to_plotly_json(self) -> Any:
         return {
             "__dash_patch_update": "__dash_patch_update",
             "operations": self._operations,

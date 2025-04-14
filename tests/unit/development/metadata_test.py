@@ -109,7 +109,7 @@ Keyword arguments:
         "OptionalObjectWithExactAndNestedDescription",
             {
             "color": NotRequired[str],
-            "fontSize": NotRequired[typing.Union[int, float, numbers.Number]],
+            "fontSize": NotRequired[typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]],
             "figure": NotRequired["OptionalObjectWithExactAndNestedDescriptionFigure"]
         }
     )
@@ -126,7 +126,7 @@ Keyword arguments:
         "OptionalObjectWithShapeAndNestedDescription",
             {
             "color": NotRequired[str],
-            "fontSize": NotRequired[typing.Union[int, float, numbers.Number]],
+            "fontSize": NotRequired[typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]],
             "figure": NotRequired["OptionalObjectWithShapeAndNestedDescriptionFigure"]
         }
     )
@@ -139,7 +139,7 @@ Keyword arguments:
         optionalArray: typing.Optional[typing.Sequence] = None,
         optionalBool: typing.Optional[bool] = None,
         optionalFunc: typing.Optional[typing.Any] = None,
-        optionalNumber: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        optionalNumber: typing.Optional[typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]] = None,
         optionalObject: typing.Optional[dict] = None,
         optionalString: typing.Optional[str] = None,
         optionalSymbol: typing.Optional[typing.Any] = None,
@@ -147,9 +147,9 @@ Keyword arguments:
         optionalElement: typing.Optional[ComponentType] = None,
         optionalMessage: typing.Optional[typing.Any] = None,
         optionalEnum: typing.Optional[Literal["News", "Photos"]] = None,
-        optionalUnion: typing.Optional[typing.Union[str, typing.Union[int, float, numbers.Number], typing.Any]] = None,
-        optionalArrayOf: typing.Optional[typing.Sequence[typing.Union[int, float, numbers.Number]]] = None,
-        optionalObjectOf: typing.Optional[typing.Dict[typing.Union[str, float, int], typing.Union[int, float, numbers.Number]]] = None,
+        optionalUnion: typing.Optional[typing.Union[str, typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex], typing.Any]] = None,
+        optionalArrayOf: typing.Optional[typing.Sequence[typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]]] = None,
+        optionalObjectOf: typing.Optional[typing.Dict[typing.Union[str, float, int], typing.Union[typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex]]] = None,
         optionalObjectWithExactAndNestedDescription: typing.Optional["OptionalObjectWithExactAndNestedDescription"] = None,
         optionalObjectWithShapeAndNestedDescription: typing.Optional["OptionalObjectWithShapeAndNestedDescription"] = None,
         optionalAny: typing.Optional[typing.Any] = None,
