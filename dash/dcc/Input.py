@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -233,11 +233,17 @@ class Input(Component):
     _namespace = "dash_core_components"
     _type = "Input"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         value: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         type: typing.Optional[
             Literal[
@@ -253,14 +259,30 @@ class Input(Component):
             ]
         ] = None,
         debounce: typing.Optional[
-            typing.Union[bool, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                bool,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         placeholder: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
-        n_submit: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_submit: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         n_submit_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         inputMode: typing.Optional[
             Literal[
@@ -297,34 +319,71 @@ class Input(Component):
         ] = None,
         name: typing.Optional[str] = None,
         min: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         max: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         step: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         minLength: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         maxLength: typing.Optional[
-            typing.Union[str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         pattern: typing.Optional[str] = None,
         selectionStart: typing.Optional[str] = None,
         selectionEnd: typing.Optional[str] = None,
         selectionDirection: typing.Optional[str] = None,
-        n_blur: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_blur: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         n_blur_timestamp: typing.Optional[
-            typing.Union[int, float, numbers.Number]
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
         ] = None,
         size: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         persistence: typing.Optional[
-            typing.Union[bool, str, typing.Union[int, float, numbers.Number]]
+            typing.Union[
+                bool,
+                str,
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+            ]
         ] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,

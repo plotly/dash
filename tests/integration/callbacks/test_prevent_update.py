@@ -36,7 +36,11 @@ def test_cbpu001_aborted_callback(dash_duo):
         raise PreventUpdate("testing callback does not update")
         return value
 
-    @app.callback(Output("output2", "children"), [Input("output1", "children")])
+    @app.callback(
+        Output("output2", "children"),
+        [Input("output1", "children")],
+        prevent_initial_call=True,
+    )
     def callback2(value):
         callback2_count.value += 1
         return value

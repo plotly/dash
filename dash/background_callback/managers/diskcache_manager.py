@@ -1,6 +1,7 @@
 import traceback
 from contextvars import copy_context
 
+
 from . import BaseBackgroundCallbackManager
 from .._proxy_set_props import ProxySetProps
 from ..._callback_context import context_value
@@ -32,7 +33,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the ``cache`` instance.
         """
         try:
-            import diskcache  # pylint: disable=import-outside-toplevel
+            import diskcache  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel
             import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
             import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
         except ImportError as missing_imports:
@@ -117,7 +118,7 @@ DiskcacheLongCallbackManager requires extra dependencies which can be installed 
     # noinspection PyUnresolvedReferences
     def call_job_fn(self, key, job_fn, args, context):
         # pylint: disable-next=import-outside-toplevel,no-name-in-module,import-error
-        from multiprocess import Process
+        from multiprocess import Process  # type: ignore
 
         # pylint: disable-next=not-callable
         proc = Process(
@@ -189,6 +190,7 @@ def _make_job_fn(fn, cache, progress):
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             errored = False
+            user_callback_output = None  # initialized to prevent type checker warnings
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = fn(*maybe_progress, **user_callback_args)

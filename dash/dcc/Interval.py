@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -45,14 +45,27 @@ class Interval(Component):
     _namespace = "dash_core_components"
     _type = "Interval"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        interval: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        interval: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         disabled: typing.Optional[bool] = None,
-        n_intervals: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        max_intervals: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        n_intervals: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        max_intervals: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         **kwargs
     ):
         self._prop_names = [

@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -86,7 +86,8 @@ class Upload(Component):
     _namespace = "dash_core_components"
     _type = "Upload"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         children: typing.Optional[
@@ -103,15 +104,29 @@ class Upload(Component):
         filename: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         last_modified: typing.Optional[
             typing.Union[
-                typing.Union[int, float, numbers.Number],
-                typing.Sequence[typing.Union[int, float, numbers.Number]],
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ],
+                typing.Sequence[
+                    typing.Union[
+                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                    ]
+                ],
             ]
         ] = None,
         accept: typing.Optional[str] = None,
         disabled: typing.Optional[bool] = None,
         disable_click: typing.Optional[bool] = None,
-        max_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        min_size: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        max_size: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        min_size: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         multiple: typing.Optional[bool] = None,
         className: typing.Optional[str] = None,
         className_active: typing.Optional[str] = None,

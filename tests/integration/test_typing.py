@@ -68,8 +68,10 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    'Argument of type "Literal[\'\']" cannot be assigned to parameter "a_number" '
-                    'of type "int | float | Number | None"'
+                    'Argument of type "Literal[\'\']" cannot be assigned to parameter "a_number" ',
+                    '"__float__" is not present',
+                    '"__int__" is not present',
+                    '"__complex__" is not present',
                 ],
             },
         ),
@@ -203,7 +205,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "tuple[Literal[1], Literal[2]]" cannot be assigned '
-                    'to parameter "a_tuple" of type "Tuple[int | float | Number, str] | None"'
+                    'to parameter "a_tuple" of type "Tuple[SupportsFloat | SupportsInt | SupportsComplex, str] | None'
                 ],
             },
         ),
@@ -223,7 +225,9 @@ def assert_pyright_output(
             "obj={}",
             {
                 "expected_status": 1,
-                "expected_outputs": ['"dict[Any, Any]" is incompatible with "Obj"'],
+                "expected_outputs": [
+                    '"dict[Any, Any]" cannot be assigned to parameter "obj" of type "Obj | None"'
+                ],
             },
         ),
         (
@@ -231,7 +235,7 @@ def assert_pyright_output(
             {
                 "expected_status": 1,
                 "expected_outputs": [
-                    '"dict[str, str | int]" is incompatible with "Obj"'
+                    '"dict[str, str | int]" cannot be assigned to parameter "obj" of type "Obj | None"'
                 ],
             },
         ),

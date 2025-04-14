@@ -24,7 +24,7 @@ import_string = """# AUTO GENERATED FILE - DO NOT EDIT
 import typing  # noqa: F401
 import numbers # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 try:
     from dash.development.base_component import ComponentType # noqa: F401
 except ImportError:
@@ -80,7 +80,8 @@ def generate_class_string(
     _namespace = '{namespace}'
     _type = '{typename}'
 {shapes}
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         {default_argtext}
@@ -769,7 +770,7 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         return ""
     if js_type_name in js_to_py_types:
         if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_py_types[js_type_name](indent_num)
+            return js_to_py_types[js_type_name](indent_num)  # type: ignore[reportCallIssue]
         # All other types
-        return js_to_py_types[js_type_name]()
+        return js_to_py_types[js_type_name]()  # type: ignore[reportCallIssue]
     return ""

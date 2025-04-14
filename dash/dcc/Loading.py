@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -86,7 +86,8 @@ class Loading(Component):
     _namespace = "dash_core_components"
     _type = "Loading"
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         children: typing.Optional[
@@ -111,8 +112,16 @@ class Loading(Component):
         overlay_style: typing.Optional[dict] = None,
         color: typing.Optional[str] = None,
         display: typing.Optional[Literal["auto", "show", "hide"]] = None,
-        delay_hide: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
-        delay_show: typing.Optional[typing.Union[int, float, numbers.Number]] = None,
+        delay_hide: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
+        delay_show: typing.Optional[
+            typing.Union[
+                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+            ]
+        ] = None,
         show_initially: typing.Optional[bool] = None,
         target_components: typing.Optional[
             typing.Dict[

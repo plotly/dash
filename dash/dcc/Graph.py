@@ -3,7 +3,7 @@
 import typing  # noqa: F401
 import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component, _explicitize_args
+from dash.development.base_component import Component
 
 try:
     from dash.development.base_component import ComponentType  # noqa: F401
@@ -334,9 +334,21 @@ class Graph(Component):
         {
             "format": NotRequired[Literal["jpeg", "png", "webp", "svg"]],
             "filename": NotRequired[str],
-            "width": NotRequired[typing.Union[int, float, numbers.Number]],
-            "height": NotRequired[typing.Union[int, float, numbers.Number]],
-            "scale": NotRequired[typing.Union[int, float, numbers.Number]],
+            "width": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "height": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
+            "scale": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
         },
     )
 
@@ -350,14 +362,26 @@ class Graph(Component):
             "edits": NotRequired["ConfigEdits"],
             "autosizable": NotRequired[bool],
             "responsive": NotRequired[bool],
-            "queueLength": NotRequired[typing.Union[int, float, numbers.Number]],
+            "queueLength": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "fillFrame": NotRequired[bool],
-            "frameMargins": NotRequired[typing.Union[int, float, numbers.Number]],
+            "frameMargins": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "scrollZoom": NotRequired[bool],
             "doubleClick": NotRequired[
                 Literal[False, "reset", "autosize", "reset+autosize"]
             ],
-            "doubleClickDelay": NotRequired[typing.Union[int, float, numbers.Number]],
+            "doubleClickDelay": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "showTips": NotRequired[bool],
             "showAxisDragHandles": NotRequired[bool],
             "showAxisRangeEntryBoxes": NotRequired[bool],
@@ -373,7 +397,11 @@ class Graph(Component):
             "toImageButtonOptions": NotRequired["ConfigToImageButtonOptions"],
             "displaylogo": NotRequired[bool],
             "watermark": NotRequired[bool],
-            "plotGlPixelRatio": NotRequired[typing.Union[int, float, numbers.Number]],
+            "plotGlPixelRatio": NotRequired[
+                typing.Union[
+                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+                ]
+            ],
             "topojsonURL": NotRequired[str],
             "mapboxAccessToken": NotRequired[typing.Any],
             "locale": NotRequired[str],
@@ -381,7 +409,8 @@ class Graph(Component):
         },
     )
 
-    @_explicitize_args
+    _explicitize_dash_init = True
+
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
