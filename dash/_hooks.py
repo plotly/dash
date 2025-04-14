@@ -251,7 +251,7 @@ class HooksManager:
 
         for dist in _importlib_metadata.distributions():
             for entry in dist.entry_points:
-                # Look for setup.py entry points named `dash-hooks`
-                if entry.group != "dash-hooks":
+                # Look for setup.py entry points named `dash_hooks`
+                if entry.group != "dash_hooks":
                     continue
                 entry.load()
