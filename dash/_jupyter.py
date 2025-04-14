@@ -1,3 +1,4 @@
+# type: ignore
 import asyncio
 import io
 import inspect

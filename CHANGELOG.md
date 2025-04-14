@@ -2,6 +2,17 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.0.3] - 2025-04-14
+
+## Fixed
+- [#3264](https://github.com/plotly/dash/pull/3264) Fixed an issue where moving components inside of children would not update the `setProps` path, leading to hashes being incorrect
+- [#3265](https://github.com/plotly/dash/pull/3265) Fixed issue where the resize of graphs was cancelling others
+- [#3273](https://github.com/plotly/dash/pull/3273) Fix hooks entry point, renamed from invalid hyphen `dash-hooks` to underscored `dash_hooks`. Fix [#3272](https://github.com/plotly/dash/issues/3272)
+- [#3271](https://github.com/plotly/dash/pull/3271) fix issue with tooltip styling. Fix [#3269](https://github.com/plotly/dash/issues/3269)
+
+## Added
+- [#3268](https://github.com/plotly/dash/pull/3268) Added the ability for component devs to subscribe to descendent updates by setting `dashChildrenUpdate = true` on the component, eg: `Tabs.dashChildrenUpdate = true`
+
 ## [3.0.2] - 2025-04-01
 
 ## Changed
@@ -17,6 +28,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 - [#3248](https://github.com/plotly/dash/pull/3248) added new `dashRenderType` to determine why the component layout was changed (`internal`, `callback`, `parent`, `clientsideApi`):
     - this can be utilized to keep from rendering components by the component having `dashRenderType` defined as a prop, and the `dashRenderType = true` must be set on the component, eg (`Div.dashRenderType = true`)
+- [#3241](https://github.com/plotly/dash/pull/3241) Added a collapse / expand button to Dash Dev Tools.
 
 ## [3.0.1] - 2025-03-24
 

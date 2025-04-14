@@ -51,13 +51,21 @@ class ComponentMeta(abc.ABCMeta):
 
     # pylint: disable=arguments-differ
     def __new__(mcs, name, bases, attributes):
-        component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
         module = attributes["__module__"].split(".")[0]
+
+        if attributes.get("_explicitize_dash_init", False):
+            # We only want to patch the new generated component without
+            # the `@_explicitize_args` decorator for mypy support
+            # See issue: https://github.com/plotly/dash/issues/3226
+            attributes["__init__"] = _explicitize_args(attributes["__init__"])
+
+        _component = abc.ABCMeta.__new__(mcs, name, bases, attributes)
+
         if name == "Component" or module == "builtins":
-            # Don't do the base component
+            # Don't add to the registry the base component
             # and the components loaded dynamically by load_component
             # as it doesn't have the namespace.
-            return component
+            return _component
 
         _namespace = attributes.get("_namespace", module)
         ComponentRegistry.namespace_to_package[_namespace] = module
@@ -66,7 +74,7 @@ class ComponentMeta(abc.ABCMeta):
             "_children_props"
         )
 
-        return component
+        return _component
 
 
 def is_number(s):
@@ -262,7 +270,7 @@ class Component(metaclass=ComponentMeta):
         if isinstance(self.children, Component):
             if getattr(self.children, "id", None) is not None:
                 # Woohoo! It's the item that we're looking for
-                if self.children.id == id:
+                if self.children.id == id:  # type: ignore[reportAttributeAccessIssue]
                     if operation == "get":
                         return self.children
                     if operation == "set":
@@ -287,16 +295,16 @@ class Component(metaclass=ComponentMeta):
 
         # if children is like a list
         if isinstance(self.children, (tuple, MutableSequence)):
-            for i, item in enumerate(self.children):
+            for i, item in enumerate(self.children):  # type: ignore[reportOptionalIterable]
                 # If the item itself is the one we're looking for
                 if getattr(item, "id", None) == id:
                     if operation == "get":
                         return item
                     if operation == "set":
-                        self.children[i] = new_item
+                        self.children[i] = new_item  # type: ignore[reportOptionalSubscript]
                         return
                     if operation == "delete":
-                        del self.children[i]
+                        del self.children[i]  # type: ignore[reportOptionalSubscript]
                         return
 
                 # Otherwise, recursively dig into that item's subtree
@@ -366,7 +374,7 @@ class Component(metaclass=ComponentMeta):
 
         # children is a list of components
         elif isinstance(children, (tuple, MutableSequence)):
-            for idx, i in enumerate(children):
+            for idx, i in enumerate(children):  # type: ignore[reportOptionalIterable]
                 list_path = f"[{idx:d}] {type(i).__name__:s}{self._id_str(i)}"
                 yield list_path, i
 
@@ -384,7 +392,7 @@ class Component(metaclass=ComponentMeta):
     def __iter__(self):
         """Yield IDs in the tree of children."""
         for t in self._traverse_ids():
-            yield t.id
+            yield t.id  # type: ignore[reportAttributeAccessIssue]
 
     def __len__(self):
         """Return the number of items in the tree."""
@@ -399,7 +407,7 @@ class Component(metaclass=ComponentMeta):
             length = 1
             length += len(self.children)
         elif isinstance(self.children, (tuple, MutableSequence)):
-            for c in self.children:
+            for c in self.children:  # type: ignore[reportOptionalIterable]
                 length += 1
                 if isinstance(c, Component):
                     length += len(c)
@@ -435,6 +443,8 @@ class Component(metaclass=ComponentMeta):
 
 ComponentType = typing.TypeVar("ComponentType", bound=Component)
 
+ComponentTemplate = typing.TypeVar("ComponentTemplate")
+
 
 # This wrapper adds an argument given to generated Component.__init__
 # with the actual given parameters by the user as a list of string.
@@ -456,5 +466,5 @@ def _explicitize_args(func):
     new_sig = inspect.signature(wrapper).replace(
         parameters=list(inspect.signature(func).parameters.values())
     )
-    wrapper.__signature__ = new_sig
+    wrapper.__signature__ = new_sig  # type: ignore[reportFunctionMemberAccess]
     return wrapper
