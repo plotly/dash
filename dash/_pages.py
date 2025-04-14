@@ -1,5 +1,6 @@
 import collections
 import importlib
+import importlib.util  # to make the type checker happy
 import os
 import re
 import sys
@@ -85,9 +86,11 @@ def _infer_path(module_name, template):
 
 
 def _module_name_is_package(module_name):
+    file_path = sys.modules[module_name].__file__
     return (
-        module_name in sys.modules
-        and Path(sys.modules[module_name].__file__).name == "__init__.py"
+        file_path
+        and module_name in sys.modules
+        and Path(file_path).name == "__init__.py"
     )
 
 
@@ -441,8 +444,8 @@ def _import_layouts_from_pages(pages_folder):
 
             module_name = _infer_module_name(page_path)
             spec = importlib.util.spec_from_file_location(module_name, page_path)
-            page_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(page_module)
+            page_module = importlib.util.module_from_spec(spec)  # type: ignore[reportArgumentType]
+            spec.loader.exec_module(page_module)  # type: ignore[reportOptionalMemberAccess]
             sys.modules[module_name] = page_module
 
             if (

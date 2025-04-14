@@ -365,7 +365,9 @@ def register_callback(
     # pylint: disable=too-many-locals
     def wrap_func(func):
 
-        if background is not None:
+        if background is None:
+            background_key = None
+        else:
             background_key = BaseBackgroundCallbackManager.register_func(
                 func,
                 background.get("progress") is not None,
@@ -520,7 +522,7 @@ def register_callback(
                     return to_json(response)
             else:
                 try:
-                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
@@ -560,7 +562,7 @@ def register_callback(
                     if NoUpdate.is_no_update(val):
                         continue
                     for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]]
                     ):
                         if not NoUpdate.is_no_update(vali):
                             has_update = True
@@ -595,6 +597,7 @@ def register_callback(
                 dist = app.get_dist(diff_packages)
                 response["dist"] = dist
 
+            jsonResponse = None
             try:
                 jsonResponse = to_json(response)
             except TypeError:
