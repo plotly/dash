@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+- [#3278](https://github.com/plotly/dash/pull/3278) Fix loading selector with children starting at the same digit. Fix [#3276](https://github.com/plotly/dash/issues/3276)
+
 ## [3.0.3] - 2025-04-14
 
 ## Fixed
