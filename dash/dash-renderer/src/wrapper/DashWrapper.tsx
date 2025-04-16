@@ -23,7 +23,6 @@ import {DashLayoutPath, UpdatePropsPayload} from '../types/component';
 import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
-import {recordUiEdit} from '../persistence';
 import {
     createElement,
     getComponentLayout,
@@ -131,10 +130,6 @@ function DashWrapper({
             const watchedKeys = getWatchedKeys(id, keys(changedProps), graphs);
 
             batch(() => {
-                // setProps here is triggered by the UI - record these changes
-                // for persistence
-                recordUiEdit(renderComponent, newProps, dispatch);
-
                 // Only dispatch changes to Dash if a watched prop changed
                 if (watchedKeys.length) {
                     dispatch(
