@@ -22,7 +22,6 @@ from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal
 
 import flask
 
-from flask.typing import RouteCallable
 from importlib_metadata import version as _get_distribution_version
 
 from dash import dcc
@@ -80,6 +79,8 @@ from ._pages import (
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
+
+RouteCallable = Callable[..., Any]
 
 # If dash_design_kit is installed, check for version
 ddk_version = None
