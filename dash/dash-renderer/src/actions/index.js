@@ -21,7 +21,6 @@ export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
 export const insertComponent = createAction(getAction('INSERT_COMPONENT'));
 export const removeComponent = createAction(getAction('REMOVE_COMPONENT'));
 
-// Change the variable name of the action
 export const onPropChange = createAction(getAction('ON_PROP_CHANGE'));
 
 export function updateProps(payload) {
