@@ -28,7 +28,8 @@ import {
     createElement,
     getComponentLayout,
     isDryComponent,
-    checkRenderTypeProp
+    checkRenderTypeProp,
+    stringifyPath
 } from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
@@ -158,18 +159,13 @@ function DashWrapper({
     };
 
     const createContainer = useCallback(
-        (container, containerPath, _childNewRender, key = undefined) => {
+        (container, containerPath, _childNewRender) => {
             if (isSimpleComponent(renderComponent)) {
                 return renderComponent;
             }
             return (
                 <DashWrapper
-                    key={
-                        (container &&
-                            container.props &&
-                            stringifyId(container.props.id)) ||
-                        key
-                    }
+                    key={stringifyPath(containerPath)}
                     _dashprivate_error={_dashprivate_error}
                     componentPath={containerPath}
                     _passedComponent={container}
@@ -192,8 +188,7 @@ function DashWrapper({
                                 ...childrenPath,
                                 i
                             ]),
-                            _childNewRender,
-                            i
+                            _childNewRender
                         );
                     }
                     return n;
