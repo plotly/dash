@@ -165,7 +165,11 @@ function DashWrapper({
             }
             return (
                 <DashWrapper
-                    key={stringifyPath(containerPath)}
+                    key={
+                        container?.props?.id
+                            ? stringifyId(container.props.id)
+                            : stringifyPath(containerPath)
+                    }
                     _dashprivate_error={_dashprivate_error}
                     componentPath={containerPath}
                     _passedComponent={container}
