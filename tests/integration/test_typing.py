@@ -271,7 +271,7 @@ def expect(status=None, outputs=None, modular=False):
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "tuple[Literal[1], Literal[2]]" cannot be assigned '
-                    'to parameter "a_tuple" of type "Tuple[SupportsFloat | SupportsInt | SupportsComplex, str] | None'
+                    'to parameter "a_tuple" of type "Tuple[NumberType, str] | None'
                 ],
             },
         ),
@@ -321,7 +321,7 @@ def test_typi001_component_typing(arguments, assertions, tmp_path):
 
 typing_modules = ["pyright"]
 
-if sys.version_info.minor >= 12:
+if sys.version_info.minor >= 10:
     typing_modules.append("mypy")
 
 
