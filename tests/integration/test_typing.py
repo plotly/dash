@@ -319,7 +319,13 @@ def test_typi001_component_typing(arguments, assertions, tmp_path):
     assert_output(codefile, code, module="pyright", **assertions)
 
 
-@pytest.mark.parametrize("typing_module", ["pyright", "mypy"])
+typing_modules = ["pyright"]
+
+if sys.version_info.minor >= 12:
+    typing_modules.append("mypy")
+
+
+@pytest.mark.parametrize("typing_module", typing_modules)
 @pytest.mark.parametrize(
     "prelayout, layout, callback_return, assertions",
     [

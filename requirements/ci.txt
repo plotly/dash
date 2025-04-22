@@ -19,4 +19,4 @@ xlrd>=2.0.1
 pytest-rerunfailures
 jupyterlab<4.0.0
 pyright==1.1.398;python_version>="3.7"
-mypy==1.15.0
+mypy==1.15.0;python_version>="3.12"
