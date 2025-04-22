@@ -33,7 +33,7 @@ def expected_class_string():
 
 @pytest.fixture
 def component_class_string(make_component_dir):
-    return import_string + generate_class_string(
+    return import_string.format(custom_imports="") + generate_class_string(
         typename="Table",
         props=make_component_dir["props"],
         description=make_component_dir["description"],
