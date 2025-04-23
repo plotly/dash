@@ -111,6 +111,18 @@ def expect(status=None, outputs=None, modular=False):
     return data
 
 
+@pytest.fixture()
+def change_dir():
+    original_dir = os.getcwd()
+
+    def change(dirname):
+        os.chdir(dirname)
+
+    yield change
+
+    os.chdir(original_dir)
+
+
 @pytest.mark.parametrize(
     "arguments, assertions",
     [
@@ -337,7 +349,7 @@ if sys.version_info.minor >= 10:
     ],
 )
 def test_typi002_typing_compliance(
-    typing_module, prelayout, layout, callback_return, assertions, tmp_path
+    typing_module, prelayout, layout, callback_return, assertions, tmp_path, change_dir
 ):
     codefile = os.path.join(tmp_path, "code.py")
     os.chdir(tmp_path)
