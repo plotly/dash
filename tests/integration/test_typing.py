@@ -11,11 +11,55 @@ from dash_generator_test_component_typescript.TypeScriptComponent import TypeScr
 t = TypeScriptComponent({0})
 """
 
+basic_app_template = """
+from dash import Dash, html, dcc, callback, Input, Output
 
-def run_pyright(codefile: str):
+app = Dash()
+
+{0}
+app.layout = {1}
+
+@callback(Output("out", "children"), Input("btn", "n_clicks"))
+def on_click() -> html.Div:
+    return {2}
+"""
+
+valid_layout = """html.Div([
+    html.H2('Valid'),
+    'String in middle',
+    123,
+    404.4,
+    dcc.Input(value='', id='in')
+])
+"""
+valid_layout_list = """[
+    html.H2('Valid'),
+    'String in middle',
+    123,
+    404.4,
+    dcc.Input(value='', id='in')
+]
+"""
+valid_layout_function = """
+def layout() -> html.Div:
+    return html.Div(["hello layout"])
+
+"""
+
+invalid_layout = """html.Div([
+    {"invalid": "dictionary in children"}
+])
+"""
+# There is not invalid layout for function & list as explicitly typed as Any to avoid special cases.
+
+valid_callback = "html.Div('Valid')"
+invalid_callback = "[]"
+
+
+def run_module(codefile: str, module: str, extra: str = ""):
 
     cmd = shlex.split(
-        f"pyright {codefile}",
+        f"{sys.executable} -m {module} {codefile}{extra}",
         posix=sys.platform != "win32",
         comments=True,
     )
@@ -32,17 +76,51 @@ def run_pyright(codefile: str):
     return out.decode(), err.decode(), proc.poll()
 
 
-def assert_pyright_output(
-    codefile: str, expected_outputs=tuple(), expected_errors=tuple(), expected_status=0
+def assert_output(
+    codefile: str,
+    code: str,
+    expected_outputs=tuple(),
+    expected_errors=tuple(),
+    expected_status=0,
+    module="pyright",
 ):
-    output, error, status = run_pyright(codefile)
+    output, error, status = run_module(codefile, module)
     assert (
         status == expected_status
-    ), f"Status: {status}\nOutput: {output}\nError: {error}"
+    ), f"Status: {status}\nOutput: {output}\nError: {error}\nCode: {code}"
     for ex_out in expected_outputs:
-        assert ex_out in output, f"Invalid output:\n {output}"
-    for ex_err in expected_errors:
-        assert ex_err in error
+        assert ex_out in output, f"Invalid output:\n {output}\n\nCode: {code}"
+
+
+def format_template_and_save(template, filename, *args):
+    formatted = template.format(*args)
+    with open(filename, "w") as f:
+        f.write(formatted)
+    return formatted
+
+
+def expect(status=None, outputs=None, modular=False):
+    data = {}
+    if status is not None:
+        data["expected_status"] = status
+    if outputs is not None:
+        data["expected_outputs"] = outputs
+    if modular:
+        # The expectations are per module.
+        data["modular"] = modular
+    return data
+
+
+@pytest.fixture()
+def change_dir():
+    original_dir = os.getcwd()
+
+    def change(dirname):
+        os.chdir(dirname)
+
+    yield change
+
+    os.chdir(original_dir)
 
 
 @pytest.mark.parametrize(
@@ -205,7 +283,7 @@ def assert_pyright_output(
                 "expected_status": 1,
                 "expected_outputs": [
                     'Argument of type "tuple[Literal[1], Literal[2]]" cannot be assigned '
-                    'to parameter "a_tuple" of type "Tuple[SupportsFloat | SupportsInt | SupportsComplex, str] | None'
+                    'to parameter "a_tuple" of type "Tuple[NumberType, str] | None'
                 ],
             },
         ),
@@ -247,9 +325,35 @@ def assert_pyright_output(
         ),
     ],
 )
-def test_component_typing(arguments, assertions, tmp_path):
+def test_typi001_component_typing(arguments, assertions, tmp_path):
     codefile = os.path.join(tmp_path, "code.py")
-    with open(codefile, "w") as f:
-        f.write(component_template.format(arguments))
+    code = format_template_and_save(component_template, codefile, arguments)
+    assert_output(codefile, code, module="pyright", **assertions)
 
-    assert_pyright_output(codefile, **assertions)
+
+typing_modules = ["pyright"]
+
+if sys.version_info.minor >= 10:
+    typing_modules.append("mypy")
+
+
+@pytest.mark.parametrize("typing_module", typing_modules)
+@pytest.mark.parametrize(
+    "prelayout, layout, callback_return, assertions",
+    [
+        ("", valid_layout, valid_callback, expect(status=0)),
+        ("", valid_layout_list, valid_callback, expect(status=0)),
+        (valid_layout_function, "layout", valid_callback, expect(status=0)),
+        ("", valid_layout, invalid_callback, expect(status=1)),
+        ("", invalid_layout, valid_callback, expect(status=1)),
+    ],
+)
+def test_typi002_typing_compliance(
+    typing_module, prelayout, layout, callback_return, assertions, tmp_path, change_dir
+):
+    codefile = os.path.join(tmp_path, "code.py")
+    os.chdir(tmp_path)
+    code = format_template_and_save(
+        basic_app_template, codefile, prelayout, layout, callback_return
+    )
+    assert_output(codefile, code, module=typing_module, **assertions)
