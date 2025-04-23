@@ -332,6 +332,7 @@ def generate_class(
         "TypedDict": TypedDict,
         "NotRequired": NotRequired,
         "Literal": Literal,
+        "NumberType": typing.Union[typing.SupportsFloat, typing.SupportsComplex, typing.SupportsInt]
     }
     # pylint: disable=exec-used
     exec(string, scope)
