@@ -340,6 +340,7 @@ def test_typi002_typing_compliance(
     typing_module, prelayout, layout, callback_return, assertions, tmp_path
 ):
     codefile = os.path.join(tmp_path, "code.py")
+    os.chdir(tmp_path)
     code = format_template_and_save(
         basic_app_template, codefile, prelayout, layout, callback_return
     )
