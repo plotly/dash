@@ -571,7 +571,7 @@ function handleServerside(
                             cacheKey: data.cacheKey as string,
                             cancelInputs: data.cancel,
                             progressDefault: data.progressDefault,
-                            output: JSON.stringify(payload.outputs),
+                            output: JSON.stringify(payload.outputs)
                         };
                         dispatch(addCallbackJob(jobInfo));
                         job = data.job;
