@@ -16,7 +16,7 @@ const CircleSpinner = ({
     style,
 }) => {
     let debugTitle;
-    if (debug) {
+    if (debug && status) {
         debugTitle = status.map((s) => <DebugTitle {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';
