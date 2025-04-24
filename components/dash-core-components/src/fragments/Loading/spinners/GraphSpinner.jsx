@@ -5,7 +5,7 @@ import DebugTitle from './DebugTitle.jsx';
 
 const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
     let debugTitle;
-    if (debug) {
+    if (debug && status) {
         debugTitle = status.map((s) => <DebugTitle {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';
