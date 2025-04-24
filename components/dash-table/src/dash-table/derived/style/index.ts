@@ -161,7 +161,7 @@ export function resolveStyle(styles: IConvertedStyle[]): CSSProperties {
         Object.assign(res, styles[i].style);
     }
 
-    return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS, res);
+    return R.omit(BORDER_PROPERTIES_AND_FRAGMENTS as any, res);
 }
 
 export const getDataCellStyle =
