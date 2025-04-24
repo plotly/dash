@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Dropdown(Component):
@@ -123,43 +130,19 @@ class Dropdown(Component):
     Options = TypedDict(
         "Options",
         {
-            "label": typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ],
-            "value": typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-                bool,
-            ],
+            "label": ComponentType,
+            "value": typing.Union[str, NumberType, bool],
             "disabled": NotRequired[bool],
             "title": NotRequired[str],
             "search": NotRequired[str],
         },
     )
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         options: typing.Optional[
             typing.Union[
-                typing.Sequence[
-                    typing.Union[
-                        str,
-                        typing.Union[
-                            typing.SupportsFloat,
-                            typing.SupportsInt,
-                            typing.SupportsComplex,
-                        ],
-                        bool,
-                    ]
-                ],
+                typing.Sequence[typing.Union[str, NumberType, bool]],
                 dict,
                 typing.Sequence["Options"],
             ]
@@ -167,21 +150,9 @@ class Dropdown(Component):
         value: typing.Optional[
             typing.Union[
                 str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
+                NumberType,
                 bool,
-                typing.Sequence[
-                    typing.Union[
-                        str,
-                        typing.Union[
-                            typing.SupportsFloat,
-                            typing.SupportsInt,
-                            typing.SupportsComplex,
-                        ],
-                        bool,
-                    ]
-                ],
+                typing.Sequence[typing.Union[str, NumberType, bool]],
             ]
         ] = None,
         multi: typing.Optional[bool] = None,
@@ -190,28 +161,12 @@ class Dropdown(Component):
         search_value: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
         disabled: typing.Optional[bool] = None,
-        optionHeight: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        maxHeight: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        optionHeight: typing.Optional[NumberType] = None,
+        maxHeight: typing.Optional[NumberType] = None,
         style: typing.Optional[typing.Any] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
@@ -260,3 +215,6 @@ class Dropdown(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Dropdown, self).__init__(**args)
+
+
+setattr(Dropdown, "__init__", _explicitize_args(Dropdown.__init__))

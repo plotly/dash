@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Tab(Component):
@@ -57,19 +64,9 @@ class Tab(Component):
     _namespace = "dash_core_components"
     _type = "Tab"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        children: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         label: typing.Optional[str] = None,
         value: typing.Optional[str] = None,
@@ -116,3 +113,6 @@ class Tab(Component):
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         super(Tab, self).__init__(children=children, **args)
+
+
+setattr(Tab, "__init__", _explicitize_args(Tab.__init__))

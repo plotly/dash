@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Store(Component):
@@ -45,29 +52,15 @@ class Store(Component):
     _namespace = "dash_core_components"
     _type = "Store"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         storage_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         data: typing.Optional[
-            typing.Union[
-                dict,
-                typing.Sequence,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-                str,
-                bool,
-            ]
+            typing.Union[dict, typing.Sequence, NumberType, str, bool]
         ] = None,
         clear_data: typing.Optional[bool] = None,
-        modified_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        modified_timestamp: typing.Optional[NumberType] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -96,3 +89,6 @@ class Store(Component):
                 raise TypeError("Required argument `" + k + "` was not specified.")
 
         super(Store, self).__init__(**args)
+
+
+setattr(Store, "__init__", _explicitize_args(Store.__init__))

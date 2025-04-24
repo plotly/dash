@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Textarea(Component):
@@ -142,39 +149,16 @@ class Textarea(Component):
     _namespace = "dash_core_components"
     _type = "Textarea"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         value: typing.Optional[str] = None,
         autoFocus: typing.Optional[str] = None,
-        cols: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        cols: typing.Optional[typing.Union[str, NumberType]] = None,
         disabled: typing.Optional[typing.Union[str, bool]] = None,
         form: typing.Optional[str] = None,
-        maxLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        minLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        maxLength: typing.Optional[typing.Union[str, NumberType]] = None,
+        minLength: typing.Optional[typing.Union[str, NumberType]] = None,
         name: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
         readOnly: typing.Optional[
@@ -183,14 +167,7 @@ class Textarea(Component):
         required: typing.Optional[
             typing.Union[Literal["required", "REQUIRED"], bool]
         ] = None,
-        rows: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        rows: typing.Optional[typing.Union[str, NumberType]] = None,
         wrap: typing.Optional[str] = None,
         accessKey: typing.Optional[str] = None,
         className: typing.Optional[str] = None,
@@ -204,44 +181,13 @@ class Textarea(Component):
             typing.Union[Literal["true", "false"], bool]
         ] = None,
         style: typing.Optional[typing.Any] = None,
-        tabIndex: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        tabIndex: typing.Optional[typing.Union[str, NumberType]] = None,
         title: typing.Optional[str] = None,
-        n_blur: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_blur_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_clicks: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_clicks_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        n_blur: typing.Optional[NumberType] = None,
+        n_blur_timestamp: typing.Optional[NumberType] = None,
+        n_clicks: typing.Optional[NumberType] = None,
+        n_clicks_timestamp: typing.Optional[NumberType] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
@@ -324,3 +270,6 @@ class Textarea(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Textarea, self).__init__(**args)
+
+
+setattr(Textarea, "__init__", _explicitize_args(Textarea.__init__))

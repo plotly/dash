@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Loading(Component):
@@ -86,19 +93,9 @@ class Loading(Component):
     _namespace = "dash_core_components"
     _type = "Loading"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        children: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         type: typing.Optional[
             Literal["graph", "cube", "circle", "dot", "default"]
@@ -112,31 +109,15 @@ class Loading(Component):
         overlay_style: typing.Optional[dict] = None,
         color: typing.Optional[str] = None,
         display: typing.Optional[Literal["auto", "show", "hide"]] = None,
-        delay_hide: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        delay_show: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        delay_hide: typing.Optional[NumberType] = None,
+        delay_show: typing.Optional[NumberType] = None,
         show_initially: typing.Optional[bool] = None,
         target_components: typing.Optional[
             typing.Dict[
                 typing.Union[str, float, int], typing.Union[str, typing.Sequence[str]]
             ]
         ] = None,
-        custom_spinner: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        custom_spinner: typing.Optional[ComponentType] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -185,3 +166,6 @@ class Loading(Component):
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         super(Loading, self).__init__(children=children, **args)
+
+
+setattr(Loading, "__init__", _explicitize_args(Loading.__init__))

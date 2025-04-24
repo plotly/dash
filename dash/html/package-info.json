@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -32,9 +32,9 @@
     "ramda": "^0.30.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.26.4",
+    "@babel/cli": "^7.27.0",
     "@babel/core": "^7.26.10",
-    "@babel/eslint-parser": "^7.26.10",
+    "@babel/eslint-parser": "^7.27.0",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
     "babel-loader": "^9.2.1",
@@ -52,7 +52,7 @@
     "request": "^2.88.2",
     "rimraf": "^5.0.5",
     "string": "^3.3.3",
-    "webpack": "^5.95.0",
+    "webpack": "^5.99.6",
     "webpack-cli": "^5.1.4"
   },
   "files": [

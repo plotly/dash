@@ -1,17 +1,24 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
-
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
-
+from dash.development.base_component import Component, _explicitize_args
 
 import datetime
+
+
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class DatePickerRange(Component):
@@ -174,8 +181,6 @@ class DatePickerRange(Component):
     _namespace = "dash_core_components"
     _type = "DatePickerRange"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         start_date: typing.Optional[typing.Union[str, datetime.datetime]] = None,
@@ -185,11 +190,7 @@ class DatePickerRange(Component):
         disabled_days: typing.Optional[
             typing.Sequence[typing.Union[str, datetime.datetime]]
         ] = None,
-        minimum_nights: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        minimum_nights: typing.Optional[NumberType] = None,
         updatemode: typing.Optional[Literal["singledate", "bothdates"]] = None,
         start_date_placeholder_text: typing.Optional[str] = None,
         end_date_placeholder_text: typing.Optional[str] = None,
@@ -202,18 +203,10 @@ class DatePickerRange(Component):
         show_outside_days: typing.Optional[bool] = None,
         stay_open_on_select: typing.Optional[bool] = None,
         calendar_orientation: typing.Optional[Literal["vertical", "horizontal"]] = None,
-        number_of_months_shown: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        number_of_months_shown: typing.Optional[NumberType] = None,
         with_portal: typing.Optional[bool] = None,
         with_full_screen_portal: typing.Optional[bool] = None,
-        day_size: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        day_size: typing.Optional[NumberType] = None,
         is_RTL: typing.Optional[bool] = None,
         disabled: typing.Optional[bool] = None,
         start_date_id: typing.Optional[str] = None,
@@ -221,15 +214,7 @@ class DatePickerRange(Component):
         style: typing.Optional[typing.Any] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[
             typing.Sequence[Literal["start_date", "end_date"]]
         ] = None,
@@ -312,3 +297,6 @@ class DatePickerRange(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(DatePickerRange, self).__init__(**args)
+
+
+setattr(DatePickerRange, "__init__", _explicitize_args(DatePickerRange.__init__))

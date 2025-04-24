@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Input(Component):
@@ -233,18 +240,9 @@ class Input(Component):
     _namespace = "dash_core_components"
     _type = "Input"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        value: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        value: typing.Optional[typing.Union[str, NumberType]] = None,
         type: typing.Optional[
             Literal[
                 "text",
@@ -258,32 +256,10 @@ class Input(Component):
                 "hidden",
             ]
         ] = None,
-        debounce: typing.Optional[
-            typing.Union[
-                bool,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        placeholder: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        n_submit: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_submit_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        debounce: typing.Optional[typing.Union[bool, NumberType]] = None,
+        placeholder: typing.Optional[typing.Union[str, NumberType]] = None,
+        n_submit: typing.Optional[NumberType] = None,
+        n_submit_timestamp: typing.Optional[NumberType] = None,
         inputMode: typing.Optional[
             Literal[
                 "verbatim",
@@ -318,73 +294,22 @@ class Input(Component):
             typing.Union[Literal["true", "false"], bool]
         ] = None,
         name: typing.Optional[str] = None,
-        min: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        max: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        step: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        minLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        maxLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        min: typing.Optional[typing.Union[str, NumberType]] = None,
+        max: typing.Optional[typing.Union[str, NumberType]] = None,
+        step: typing.Optional[typing.Union[str, NumberType]] = None,
+        minLength: typing.Optional[typing.Union[str, NumberType]] = None,
+        maxLength: typing.Optional[typing.Union[str, NumberType]] = None,
         pattern: typing.Optional[str] = None,
         selectionStart: typing.Optional[str] = None,
         selectionEnd: typing.Optional[str] = None,
         selectionDirection: typing.Optional[str] = None,
-        n_blur: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_blur_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        n_blur: typing.Optional[NumberType] = None,
+        n_blur_timestamp: typing.Optional[NumberType] = None,
         size: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
@@ -469,3 +394,6 @@ class Input(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Input, self).__init__(**args)
+
+
+setattr(Input, "__init__", _explicitize_args(Input.__init__))
