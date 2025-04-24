@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3284](https://github.com/plotly/dash/pull/3284) Fix component as props having the same key when used in the same container.
 - [#3287](https://github.com/plotly/dash/pull/3287) Fix typing component generation & explicitize_args.
 - [#3282](https://github.com/plotly/dash/pull/3282) Fix incorrect cancellation of pattern matched long callbacks.
+- [#3289](https://github.com/plotly/dash/pull/3289) Fixed issue with debugTitle where status doesnt exist and allow_duplicates to ignore the hash for prop loading in the target.
 
 ## [3.0.3] - 2025-04-14
 
