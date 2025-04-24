@@ -748,7 +748,7 @@ export function executeCallback(
         const __execute = async (): Promise<CallbackResult> => {
             const loadingOutputs = outputs.map(out => ({
                 path: getPath(paths, out.id),
-                property: out.property,
+                property: out.property.split('@')[0],
                 id: out.id
             }));
             dispatch(loading(loadingOutputs));
