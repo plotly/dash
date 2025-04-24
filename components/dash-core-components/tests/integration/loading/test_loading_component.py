@@ -690,6 +690,7 @@ def test_ldcp016_loading_component_delay_hide(dash_dcc):
 
     assert dash_dcc.get_logs() == []
 
+
 # multiple components, only one triggers the spinner
 def test_ldcp017_loading_component_target_components_duplicates(dash_dcc):
 
@@ -706,7 +707,7 @@ def test_ldcp017_loading_component_target_components_duplicates(dash_dcc):
                 ],
                 className="loading-1",
                 target_components={"btn-2": "children"},
-                debug=True
+                debug=True,
             )
         ],
         id="root",
@@ -720,9 +721,11 @@ def test_ldcp017_loading_component_target_components_duplicates(dash_dcc):
 
         return "content 1"
 
-    @app.callback(Output("btn-2", "children", allow_duplicate=True),
-                  [Input("btn-1", "n_clicks")],
-                  prevent_initial_call=True)
+    @app.callback(
+        Output("btn-2", "children", allow_duplicate=True),
+        [Input("btn-1", "n_clicks")],
+        prevent_initial_call=True,
+    )
     def updateDiv2(n_clicks):
         if n_clicks:
             with lock:
