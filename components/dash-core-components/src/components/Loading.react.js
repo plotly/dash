@@ -45,9 +45,9 @@ const loadingSelector = (componentPath, targetComponents) => state => {
                             return false;
                         }
                         if (Array.isArray(target)) {
-                            return includes(l.property, target);
+                            return includes(l.property.split('@')[0], target);
                         }
-                        return l.property === target;
+                        return l.property.split('@')[0] === target;
                     }, load)
                 ) {
                     return acc;
