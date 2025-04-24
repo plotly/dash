@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Dialog(Component):
@@ -98,30 +105,12 @@ class Dialog(Component):
     _namespace = "dash_html_components"
     _type = "Dialog"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        children: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        n_clicks: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_clicks_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        n_clicks: typing.Optional[NumberType] = None,
+        n_clicks_timestamp: typing.Optional[NumberType] = None,
         disable_n_clicks: typing.Optional[bool] = None,
         key: typing.Optional[str] = None,
         open: typing.Optional[typing.Union[Literal["open", "OPEN"], bool]] = None,
@@ -135,14 +124,7 @@ class Dialog(Component):
         role: typing.Optional[str] = None,
         spellCheck: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
-        tabIndex: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        tabIndex: typing.Optional[typing.Union[str, NumberType]] = None,
         title: typing.Optional[str] = None,
         **kwargs
     ):
@@ -200,3 +182,6 @@ class Dialog(Component):
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         super(Dialog, self).__init__(children=children, **args)
+
+
+setattr(Dialog, "__init__", _explicitize_args(Dialog.__init__))

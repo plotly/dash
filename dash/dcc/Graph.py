@@ -1,17 +1,24 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
-
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
-
+from dash.development.base_component import Component, _explicitize_args
 
 from plotly.graph_objects import Figure
+
+
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Graph(Component):
@@ -334,21 +341,9 @@ class Graph(Component):
         {
             "format": NotRequired[Literal["jpeg", "png", "webp", "svg"]],
             "filename": NotRequired[str],
-            "width": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "height": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "scale": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "width": NotRequired[NumberType],
+            "height": NotRequired[NumberType],
+            "scale": NotRequired[NumberType],
         },
     )
 
@@ -362,26 +357,14 @@ class Graph(Component):
             "edits": NotRequired["ConfigEdits"],
             "autosizable": NotRequired[bool],
             "responsive": NotRequired[bool],
-            "queueLength": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "queueLength": NotRequired[NumberType],
             "fillFrame": NotRequired[bool],
-            "frameMargins": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "frameMargins": NotRequired[NumberType],
             "scrollZoom": NotRequired[bool],
             "doubleClick": NotRequired[
                 Literal[False, "reset", "autosize", "reset+autosize"]
             ],
-            "doubleClickDelay": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "doubleClickDelay": NotRequired[NumberType],
             "showTips": NotRequired[bool],
             "showAxisDragHandles": NotRequired[bool],
             "showAxisRangeEntryBoxes": NotRequired[bool],
@@ -397,19 +380,13 @@ class Graph(Component):
             "toImageButtonOptions": NotRequired["ConfigToImageButtonOptions"],
             "displaylogo": NotRequired[bool],
             "watermark": NotRequired[bool],
-            "plotGlPixelRatio": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "plotGlPixelRatio": NotRequired[NumberType],
             "topojsonURL": NotRequired[str],
             "mapboxAccessToken": NotRequired[typing.Any],
             "locale": NotRequired[str],
             "locales": NotRequired[dict],
         },
     )
-
-    _explicitize_dash_init = True
 
     def __init__(
         self,
@@ -481,3 +458,6 @@ class Graph(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Graph, self).__init__(**args)
+
+
+setattr(Graph, "__init__", _explicitize_args(Graph.__init__))

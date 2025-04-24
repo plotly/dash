@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Checklist(Component):
@@ -97,56 +104,24 @@ class Checklist(Component):
     Options = TypedDict(
         "Options",
         {
-            "label": typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ],
-            "value": typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-                bool,
-            ],
+            "label": ComponentType,
+            "value": typing.Union[str, NumberType, bool],
             "disabled": NotRequired[bool],
             "title": NotRequired[str],
         },
     )
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         options: typing.Optional[
             typing.Union[
-                typing.Sequence[
-                    typing.Union[
-                        str,
-                        typing.Union[
-                            typing.SupportsFloat,
-                            typing.SupportsInt,
-                            typing.SupportsComplex,
-                        ],
-                        bool,
-                    ]
-                ],
+                typing.Sequence[typing.Union[str, NumberType, bool]],
                 dict,
                 typing.Sequence["Options"],
             ]
         ] = None,
         value: typing.Optional[
-            typing.Sequence[
-                typing.Union[
-                    str,
-                    typing.Union[
-                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                    ],
-                    bool,
-                ]
-            ]
+            typing.Sequence[typing.Union[str, NumberType, bool]]
         ] = None,
         inline: typing.Optional[bool] = None,
         className: typing.Optional[str] = None,
@@ -156,15 +131,7 @@ class Checklist(Component):
         labelStyle: typing.Optional[dict] = None,
         labelClassName: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
@@ -207,3 +174,6 @@ class Checklist(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Checklist, self).__init__(**args)
+
+
+setattr(Checklist, "__init__", _explicitize_args(Checklist.__init__))

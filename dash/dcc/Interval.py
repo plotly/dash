@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Interval(Component):
@@ -45,27 +52,13 @@ class Interval(Component):
     _namespace = "dash_core_components"
     _type = "Interval"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        interval: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        interval: typing.Optional[NumberType] = None,
         disabled: typing.Optional[bool] = None,
-        n_intervals: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        max_intervals: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        n_intervals: typing.Optional[NumberType] = None,
+        max_intervals: typing.Optional[NumberType] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -90,3 +83,6 @@ class Interval(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Interval, self).__init__(**args)
+
+
+setattr(Interval, "__init__", _explicitize_args(Interval.__init__))

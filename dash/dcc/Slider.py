@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Slider(Component):
@@ -158,60 +165,26 @@ class Slider(Component):
         },
     )
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        min: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        max: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        step: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        min: typing.Optional[NumberType] = None,
+        max: typing.Optional[NumberType] = None,
+        step: typing.Optional[NumberType] = None,
         marks: typing.Optional[
             typing.Dict[typing.Union[str, float, int], typing.Union[str, "Marks"]]
         ] = None,
-        value: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        drag_value: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        value: typing.Optional[NumberType] = None,
+        drag_value: typing.Optional[NumberType] = None,
         disabled: typing.Optional[bool] = None,
         dots: typing.Optional[bool] = None,
         included: typing.Optional[bool] = None,
         tooltip: typing.Optional["Tooltip"] = None,
         updatemode: typing.Optional[Literal["mouseup", "drag"]] = None,
         vertical: typing.Optional[bool] = None,
-        verticalHeight: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        verticalHeight: typing.Optional[NumberType] = None,
         className: typing.Optional[str] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        persistence: typing.Optional[
-            typing.Union[
-                bool,
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        persistence: typing.Optional[typing.Union[bool, str, NumberType]] = None,
         persisted_props: typing.Optional[typing.Sequence[Literal["value"]]] = None,
         persistence_type: typing.Optional[Literal["local", "session", "memory"]] = None,
         **kwargs
@@ -264,3 +237,6 @@ class Slider(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Slider, self).__init__(**args)
+
+
+setattr(Slider, "__init__", _explicitize_args(Slider.__init__))

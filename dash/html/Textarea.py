@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Textarea(Component):
@@ -141,79 +148,33 @@ class Textarea(Component):
     _namespace = "dash_html_components"
     _type = "Textarea"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        children: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        n_clicks: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        n_clicks_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        n_clicks: typing.Optional[NumberType] = None,
+        n_clicks_timestamp: typing.Optional[NumberType] = None,
         disable_n_clicks: typing.Optional[bool] = None,
         key: typing.Optional[str] = None,
         autoFocus: typing.Optional[
             typing.Union[Literal["autoFocus", "autofocus", "AUTOFOCUS"], bool]
         ] = None,
         autoComplete: typing.Optional[str] = None,
-        cols: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        cols: typing.Optional[typing.Union[str, NumberType]] = None,
         disabled: typing.Optional[
             typing.Union[Literal["disabled", "DISABLED"], bool]
         ] = None,
         form: typing.Optional[str] = None,
         inputMode: typing.Optional[str] = None,
-        maxLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
-        minLength: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        maxLength: typing.Optional[typing.Union[str, NumberType]] = None,
+        minLength: typing.Optional[typing.Union[str, NumberType]] = None,
         name: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
         readOnly: typing.Optional[str] = None,
         required: typing.Optional[
             typing.Union[Literal["required", "REQUIRED"], bool]
         ] = None,
-        rows: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        rows: typing.Optional[typing.Union[str, NumberType]] = None,
         wrap: typing.Optional[str] = None,
         accessKey: typing.Optional[str] = None,
         className: typing.Optional[str] = None,
@@ -225,14 +186,7 @@ class Textarea(Component):
         role: typing.Optional[str] = None,
         spellCheck: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
-        tabIndex: typing.Optional[
-            typing.Union[
-                str,
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-            ]
-        ] = None,
+        tabIndex: typing.Optional[typing.Union[str, NumberType]] = None,
         title: typing.Optional[str] = None,
         **kwargs
     ):
@@ -316,3 +270,6 @@ class Textarea(Component):
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         super(Textarea, self).__init__(children=children, **args)
+
+
+setattr(Textarea, "__init__", _explicitize_args(Textarea.__init__))

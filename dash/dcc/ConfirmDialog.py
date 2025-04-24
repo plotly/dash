@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class ConfirmDialog(Component):
@@ -48,32 +55,14 @@ class ConfirmDialog(Component):
     _namespace = "dash_core_components"
     _type = "ConfirmDialog"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         message: typing.Optional[str] = None,
-        submit_n_clicks: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        submit_n_clicks_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        cancel_n_clicks: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        cancel_n_clicks_timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        submit_n_clicks: typing.Optional[NumberType] = None,
+        submit_n_clicks_timestamp: typing.Optional[NumberType] = None,
+        cancel_n_clicks: typing.Optional[NumberType] = None,
+        cancel_n_clicks_timestamp: typing.Optional[NumberType] = None,
         displayed: typing.Optional[bool] = None,
         **kwargs
     ):
@@ -103,3 +92,6 @@ class ConfirmDialog(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(ConfirmDialog, self).__init__(**args)
+
+
+setattr(ConfirmDialog, "__init__", _explicitize_args(ConfirmDialog.__init__))

@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Location(Component):
@@ -51,8 +58,6 @@ class Location(Component):
     _namespace = "dash_core_components"
     _type = "Location"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
@@ -84,3 +89,6 @@ class Location(Component):
                 raise TypeError("Required argument `" + k + "` was not specified.")
 
         super(Location, self).__init__(**args)
+
+
+setattr(Location, "__init__", _explicitize_args(Location.__init__))

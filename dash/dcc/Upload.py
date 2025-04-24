@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Upload(Component):
@@ -86,47 +93,20 @@ class Upload(Component):
     _namespace = "dash_core_components"
     _type = "Upload"
 
-    _explicitize_dash_init = True
-
     def __init__(
         self,
-        children: typing.Optional[
-            typing.Union[
-                str,
-                int,
-                float,
-                ComponentType,
-                typing.Sequence[typing.Union[str, int, float, ComponentType]],
-            ]
-        ] = None,
+        children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
         contents: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         filename: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         last_modified: typing.Optional[
-            typing.Union[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ],
-                typing.Sequence[
-                    typing.Union[
-                        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                    ]
-                ],
-            ]
+            typing.Union[NumberType, typing.Sequence[NumberType]]
         ] = None,
         accept: typing.Optional[str] = None,
         disabled: typing.Optional[bool] = None,
         disable_click: typing.Optional[bool] = None,
-        max_size: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        min_size: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        max_size: typing.Optional[NumberType] = None,
+        min_size: typing.Optional[NumberType] = None,
         multiple: typing.Optional[bool] = None,
         className: typing.Optional[str] = None,
         className_active: typing.Optional[str] = None,
@@ -188,3 +168,6 @@ class Upload(Component):
         args = {k: _locals[k] for k in _explicit_args if k != "children"}
 
         super(Upload, self).__init__(children=children, **args)
+
+
+setattr(Upload, "__init__", _explicitize_args(Upload.__init__))

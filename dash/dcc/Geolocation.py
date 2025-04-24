@@ -1,14 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
-from dash.development.base_component import Component
+from dash.development.base_component import Component, _explicitize_args
 
-try:
-    from dash.development.base_component import ComponentType  # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Geolocation(Component):
@@ -101,82 +108,32 @@ class Geolocation(Component):
     Position = TypedDict(
         "Position",
         {
-            "lat": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "lon": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "accuracy": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "alt": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "alt_accuracy": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "heading": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "speed": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
+            "lat": NotRequired[NumberType],
+            "lon": NotRequired[NumberType],
+            "accuracy": NotRequired[NumberType],
+            "alt": NotRequired[NumberType],
+            "alt_accuracy": NotRequired[NumberType],
+            "heading": NotRequired[NumberType],
+            "speed": NotRequired[NumberType],
         },
     )
 
     PositionError = TypedDict(
-        "PositionError",
-        {
-            "code": NotRequired[
-                typing.Union[
-                    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-                ]
-            ],
-            "message": NotRequired[str],
-        },
+        "PositionError", {"code": NotRequired[NumberType], "message": NotRequired[str]}
     )
-
-    _explicitize_dash_init = True
 
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         local_date: typing.Optional[str] = None,
-        timestamp: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        timestamp: typing.Optional[NumberType] = None,
         position: typing.Optional["Position"] = None,
         position_error: typing.Optional["PositionError"] = None,
         show_alert: typing.Optional[bool] = None,
         update_now: typing.Optional[bool] = None,
         high_accuracy: typing.Optional[bool] = None,
-        maximum_age: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
-        timeout: typing.Optional[
-            typing.Union[
-                typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-            ]
-        ] = None,
+        maximum_age: typing.Optional[NumberType] = None,
+        timeout: typing.Optional[NumberType] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -211,3 +168,6 @@ class Geolocation(Component):
         args = {k: _locals[k] for k in _explicit_args}
 
         super(Geolocation, self).__init__(**args)
+
+
+setattr(Geolocation, "__init__", _explicitize_args(Geolocation.__init__))
