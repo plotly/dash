@@ -418,7 +418,6 @@ function handleServerside(
     background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    output: string,
     running: any
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
@@ -572,7 +571,7 @@ function handleServerside(
                             cacheKey: data.cacheKey as string,
                             cancelInputs: data.cancel,
                             progressDefault: data.progressDefault,
-                            output
+                            output: JSON.stringify(payload.outputs)
                         };
                         dispatch(addCallbackJob(jobInfo));
                         job = data.job;
@@ -791,9 +790,10 @@ export function executeCallback(
                 let lastError: any;
 
                 const additionalArgs: [string, string, boolean?][] = [];
+                const jsonOutput = JSON.stringify(payload.outputs);
                 values(getState().callbackJobs).forEach(
                     (job: CallbackJobPayload) => {
-                        if (cb.callback.output === job.output) {
+                        if (jsonOutput === job.output) {
                             // Terminate the old jobs that are not completed
                             // set as outdated for the callback promise to
                             // resolve and remove after.
@@ -830,7 +830,6 @@ export function executeCallback(
                             background,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
-                            cb.callback.output,
                             cb.callback.running
                         );
 
