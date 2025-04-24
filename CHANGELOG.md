@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3278](https://github.com/plotly/dash/pull/3278) Fix loading selector with children starting at the same digit. Fix [#3276](https://github.com/plotly/dash/issues/3276)
 - [#3280](https://github.com/plotly/dash/pull/3280) Remove flask typing import not available in earlier versions.
 - [#3284](https://github.com/plotly/dash/pull/3284) Fix component as props having the same key when used in the same container.
+- [#3287](https://github.com/plotly/dash/pull/3287) Fix typing component generation & explicitize_args.
+- [#3282](https://github.com/plotly/dash/pull/3282) Fix incorrect cancellation of pattern matched long callbacks.
 
 ## [3.0.3] - 2025-04-14
 
