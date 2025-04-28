@@ -3,6 +3,8 @@ import {mergeDeepRight, pick, type} from 'ramda';
 import JsxParser from 'react-jsx-parser';
 import Markdown from 'react-markdown';
 import RemarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 
 import Math from './Math.react';
 import MarkdownHighlighter from '../utils/MarkdownHighlighter';
@@ -10,6 +12,8 @@ import {propTypes} from '../components/Markdown.react';
 
 import DccLink from './../components/Link.react';
 import LoadingElement from '../utils/LoadingElement';
+
+import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 
 export default class DashMarkdown extends Component {
     constructor(props) {
@@ -106,21 +110,6 @@ export default class DashMarkdown extends Component {
         const displayText =
             dedent && textProp ? this.dedent(textProp) : textProp;
 
-        const componentTransforms = {
-            dccLink: props => <DccLink {...props} />,
-            dccMarkdown: props => (
-                <Markdown
-                    {...mergeDeepRight(
-                        pick(['dangerously_allow_html', 'dedent'], this.props),
-                        pick(['children'], props)
-                    )}
-                />
-            ),
-            dashMathjax: props => (
-                <Math tex={props.value} inline={props.inline} />
-            ),
-        };
-
         const regexMath = value => {
             const newValue = value.replace(
                 /(\${1,2})((?:\\.|[^$])+)\1/g,
@@ -130,6 +119,35 @@ export default class DashMarkdown extends Component {
                 }
             );
             return newValue;
+        };
+
+        const componentTransforms = {
+            dcclink: ({...props}) => <DccLink {...props} />,
+            dccmarkdown: props => (
+                <Markdown
+                    {...mergeDeepRight(
+                        pick(['dangerously_allow_html', 'dedent'], this.props),
+                        pick(['children'], props)
+                    )}
+                />
+            ),
+            dashmathjax: props => (
+                <Math tex={props.value} inline={props.inline} />
+            ),
+            math: props => <Math tex={props.value} inline={false} />,
+
+            inlinemath: props => <Math tex={props.value} inline={true} />,
+
+            html: props =>
+                props.escapeHtml ? (
+                    props.value
+                ) : (
+                    <JsxParser
+                        jsx={mathjax ? regexMath(props.value) : props.value}
+                        components={componentTransforms}
+                        renderInWrapper={false}
+                    />
+                ),
         };
 
         return (
@@ -152,35 +170,14 @@ export default class DashMarkdown extends Component {
                 }
             >
                 <Markdown
-                    source={displayText}
-                    escapeHtml={!dangerously_allow_html}
+                    skipHtml={!dangerously_allow_html}
                     linkTarget={link_target}
-                    plugins={mathjax ? [RemarkMath] : []}
-                    renderers={{
-                        math: props => (
-                            <Math tex={props.value} inline={false} />
-                        ),
-
-                        inlineMath: props => (
-                            <Math tex={props.value} inline={true} />
-                        ),
-
-                        html: props =>
-                            props.escapeHtml ? (
-                                props.value
-                            ) : (
-                                <JsxParser
-                                    jsx={
-                                        mathjax
-                                            ? regexMath(props.value)
-                                            : props.value
-                                    }
-                                    components={componentTransforms}
-                                    renderInWrapper={false}
-                                />
-                            ),
-                    }}
-                />
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    remarkPlugins={[RemarkMath]}
+                    components={componentTransforms}
+                >
+                    {displayText}
+                </Markdown>
             </LoadingElement>
         );
     }
