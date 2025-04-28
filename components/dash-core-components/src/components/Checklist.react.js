@@ -37,6 +37,7 @@ export default class Checklist extends Component {
                                 ...labelStyle,
                             }}
                             className={labelClassName}
+                            title={option.title}
                         >
                             <input
                                 checked={includes(option.value, value)}
