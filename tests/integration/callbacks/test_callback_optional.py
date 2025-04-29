@@ -1,4 +1,4 @@
-from dash import *
+from dash import Dash, html, Output, Input, State, no_update
 
 
 def test_cbop001_optional_input(dash_duo):
