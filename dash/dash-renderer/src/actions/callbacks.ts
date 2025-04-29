@@ -122,22 +122,27 @@ function unwrapIfNotMulti(
 
     if (idProps.length !== 1) {
         if (!idProps.length) {
-            const isStr = typeof spec.id === 'string';
-            msg =
-                'A nonexistent object was used in an `' +
-                depType +
-                '` of a Dash callback. The id of this object is ' +
-                (isStr
-                    ? '`' + spec.id + '`'
-                    : JSON.stringify(spec.id) +
-                      (anyVals ? ' with MATCH values ' + anyVals : '')) +
-                ' and the property is `' +
-                spec.property +
-                (isStr
-                    ? '`. The string ids in the current layout are: [' +
-                      keys(paths.strs).join(', ') +
-                      ']'
-                    : '`. The wildcard ids currently available are logged above.');
+            if (spec.allow_optional) {
+                idProps = [{...spec, value: null}]
+                msg = ''
+            } else {
+                const isStr = typeof spec.id === 'string';
+                msg =
+                    'A nonexistent object was used in an `' +
+                    depType +
+                    '` of a Dash callback. The id of this object is ' +
+                    (isStr
+                        ? '`' + spec.id + '`'
+                        : JSON.stringify(spec.id) +
+                          (anyVals ? ' with MATCH values ' + anyVals : '')) +
+                    ' and the property is `' +
+                    spec.property +
+                    (isStr
+                        ? '`. The string ids in the current layout are: [' +
+                          keys(paths.strs).join(', ') +
+                          ']'
+                        : '`. The wildcard ids currently available are logged above.');
+            }
         } else {
             msg =
                 'Multiple objects were found for an `' +
@@ -203,7 +208,6 @@ function fillVals(
         // That's a real problem, so throw the first message as an error.
         refErr(errors, paths);
     }
-
     return inputVals;
 }
 
