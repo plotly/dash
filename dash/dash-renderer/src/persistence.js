@@ -318,7 +318,14 @@ export function recordUiEdit(layout, newProps, dispatch) {
         persisted_props,
         persistence_type
     } = getProps(layout);
-    if (!canPersist || !persistence) {
+
+    // if the "persistence" property is changed as a callback output,
+    // skip the persistence storage overwriting.
+    const isPersistenceMismatch =
+        newProps?.persistence !== undefined &&
+        newProps.persistence !== persistence;
+
+    if (!canPersist || !persistence || isPersistenceMismatch) {
         return;
     }
 
