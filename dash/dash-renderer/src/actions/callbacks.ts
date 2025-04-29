@@ -123,8 +123,8 @@ function unwrapIfNotMulti(
     if (idProps.length !== 1) {
         if (!idProps.length) {
             if (spec.allow_optional) {
-                idProps = [{...spec, value: null}]
-                msg = ''
+                idProps = [{...spec, value: null}];
+                msg = '';
             } else {
                 const isStr = typeof spec.id === 'string';
                 msg =

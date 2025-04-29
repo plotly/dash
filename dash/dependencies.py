@@ -59,7 +59,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
     def to_dict(self) -> dict:
         specs = {"id": self.component_id_str(), "property": self.component_property}
-        return {**specs, 'allow_optional': True} if self.allow_optional else specs
+        return {**specs, "allow_optional": True} if self.allow_optional else specs
 
     def __eq__(self, other):
         """
@@ -136,6 +136,7 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
+
     def __init__(
         self,
         component_id: ComponentIdType,
@@ -149,6 +150,7 @@ class Input(DashDependency):  # pylint: disable=too-few-public-methods
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
+
     def __init__(
         self,
         component_id: ComponentIdType,
@@ -158,6 +160,7 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
         self.allowed_wildcards = (MATCH, ALL, ALLSMALLER)
+
     # allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
