@@ -3,7 +3,7 @@ import {mergeDeepRight, pick, type} from 'ramda';
 import JsxParser from 'react-jsx-parser';
 import Markdown from 'react-markdown';
 import RemarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+import rehypeMathjax from 'rehype-mathjax';
 import rehypeRaw from 'rehype-raw';
 
 import Math from './Math.react';
@@ -12,8 +12,6 @@ import {propTypes} from '../components/Markdown.react';
 
 import DccLink from './../components/Link.react';
 import LoadingElement from '../utils/LoadingElement';
-
-import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 
 export default class DashMarkdown extends Component {
     constructor(props) {
@@ -150,6 +148,14 @@ export default class DashMarkdown extends Component {
                 ),
         };
 
+        const rehypePlugins = [rehypeRaw];
+        const remarkPlugins = [];
+
+        if (mathjax) {
+            rehypePlugins.push(rehypeMathjax);
+            remarkPlugins.push(RemarkMath);
+        }
+
         return (
             <LoadingElement
                 id={id}
@@ -172,8 +178,8 @@ export default class DashMarkdown extends Component {
                 <Markdown
                     skipHtml={!dangerously_allow_html}
                     linkTarget={link_target}
-                    rehypePlugins={[rehypeRaw, rehypeKatex]}
-                    remarkPlugins={[RemarkMath]}
+                    rehypePlugins={rehypePlugins}
+                    remarkPlugins={remarkPlugins}
                     components={componentTransforms}
                 >
                     {displayText}
