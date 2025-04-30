@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [UNRELEASED]
+
+## Fixed
+- [#3279](https://github.com/plotly/dash/pull/3279) Fix an issue where persisted values were incorrectly pruned when updated via callback. Now, callback returned values are correctly stored in the persistence storage. Fix [#2678](https://github.com/plotly/dash/issues/2678)
+
 ## [3.0.4] - 2025-04-24
 
 ## Fixed
