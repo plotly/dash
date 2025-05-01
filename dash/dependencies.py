@@ -145,7 +145,7 @@ class Input(DashDependency):  # pylint: disable=too-few-public-methods
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
-        
+
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
