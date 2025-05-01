@@ -158,7 +158,7 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
            command: |
-             nvm install 18 && nvm use 18
+             nvm install lts/iron && nvm use lts/iron
       - run:
           name: npm prereqs
           command: |
@@ -169,7 +169,7 @@ jobs:
           name: ️️🏗️ build dash
           command: |
             . venv/Scripts/activate
-            npm run private::build.jupyterlab && npm run private::build.renderer && python dash/development/update_components.py 'dash-html-components'
+            npm run build.jupyterlab && npm run build.renderer && python dash/development/update_components.py 'dash-html-components'
           no_output_timeout: 30m
 
   test-312: &test
