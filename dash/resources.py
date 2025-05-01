@@ -96,7 +96,7 @@ class Resources:
                 warnings.warn(
                     (
                         "You have set your config to `serve_locally=True` but "
-                        f"A local version of {s['external_url']} is not available.\n"  # type: ignore
+                        f"A local version of {s.get('external_url', '')} is not available.\n"  # type: ignore
                         "If you added this file with "
                         "`app.scripts.append_script` "
                         "or `app.css.append_css`, use `external_scripts` "
