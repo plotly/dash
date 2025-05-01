@@ -145,7 +145,8 @@ class Input(DashDependency):  # pylint: disable=too-few-public-methods
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
-        self.allowed_wildcards = (MATCH, ALL, ALLSMALLER)
+        
+    allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
@@ -159,9 +160,8 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
-        self.allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
-    # allowed_wildcards = (MATCH, ALL, ALLSMALLER)
+    allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class ClientsideFunction:  # pylint: disable=too-few-public-methods
