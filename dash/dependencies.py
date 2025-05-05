@@ -59,7 +59,9 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
     def to_dict(self) -> dict:
         specs = {"id": self.component_id_str(), "property": self.component_property}
-        return {**specs, "allow_optional": True} if self.allow_optional else specs
+        if self.allow_optional:
+            specs["allow_optional"] = True
+        return specs
 
     def __eq__(self, other):
         """
