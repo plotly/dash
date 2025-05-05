@@ -61,10 +61,7 @@ def test_msmh003_update_md(dash_dcc):
         ]
     )
 
-    @app.callback(
-        Output("md", "children"),
-        Input("md-trigger", "n_clicks")
-    )
+    @app.callback(Output("md", "children"), Input("md-trigger", "n_clicks"))
     def update_md(nclicks):
         if nclicks is not None and nclicks > 0:
             return new_md_text + f"\n\nclicked {nclicks}"
