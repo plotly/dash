@@ -23,7 +23,7 @@ function extractElements($) {
         // experimental, don't add yet
         'portal',
         'fencedframe',
-        'selectedcontent',  // No support beside latest chrome
+        'selectedcontent',
     ];
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [
