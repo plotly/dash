@@ -1,0 +1,46 @@
+name: Typing Tests
+
+on:
+  push:        # Runs for pushes to all branches
+  pull_request:  # Runs for all pull request events (e.g., opened, synchronize)
+
+jobs:
+  test-typing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python dependencies including project in editable mode with extras
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          # This command installs the Dash package in editable mode (-e)
+          # along with dependencies specified in the [ci,testing,dev] extras
+          # defined in your setup.py or pyproject.toml.
+          # Ensure these extras include pytest and any typing tools.
+          pip install -e .[ci,testing,dev]
+
+      - name: Build project (JS/CSS, etc.)
+        run: npm run build
+
+      - name: Build/Setup test components (runs a Python script)
+        run: npm run setup-tests.py
+
+      - name: Run typing tests
+        run: pytest tests/compliance/test_typing.py
