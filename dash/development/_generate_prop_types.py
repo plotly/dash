@@ -21,6 +21,7 @@ runtime prop types validation with tsx components:
 
 _js_dist.append(dict(
     dev_package_path="proptypes.js",
+    dev_only=True,
     namespace="{namespace}"
 ))
 
