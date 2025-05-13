@@ -6,7 +6,7 @@ import sys
 import pytest
 
 component_template = """
-from dash_generator_test_component_typescript.TypeScriptComponent import TypeScriptComponent
+from dash_generator_test_component_typescript import TypeScriptComponent
 
 t = TypeScriptComponent({0})
 """
