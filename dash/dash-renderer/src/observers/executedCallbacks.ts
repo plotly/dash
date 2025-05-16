@@ -11,6 +11,9 @@ import {
     pathOr
 } from 'ramda';
 
+import {ThunkDispatch} from 'redux-thunk';
+import {AnyAction} from 'redux';
+
 import {IStoreState} from '../store';
 
 import {
@@ -63,12 +66,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
             const {props} = applyPersistence({props: updatedProps}, dispatch);
-
-            dispatch(
+            (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
                     props,
-                    source: 'response'
+                    source: 'response',
+                    renderType: 'callback'
                 })
             );
 

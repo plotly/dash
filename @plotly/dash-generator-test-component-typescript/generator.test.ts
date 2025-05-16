@@ -271,6 +271,23 @@ describe('Test Typescript component metadata generation', () => {
                 );
                 expect(objectOfComponents).toBe("node");
             }
+        );
+
+        test(
+            'union and literal values', () => {
+                const propType = R.path(
+                    propPath('TypeScriptComponent', 'union_enum').concat(
+                        'type'
+                    ),
+                    metadata
+                );
+                expect(propType.name).toBe('union');
+                expect(propType.value.length).toBe(3);
+                expect(propType.value[0].name).toBe('number');
+                expect(propType.value[1].name).toBe('literal');
+                expect(propType.value[2].name).toBe('literal');
+                expect(propType.value[1].value).toBe('small');
+            }
         )
     });
 

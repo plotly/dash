@@ -11,7 +11,7 @@ export interface ICallbackDefinition {
     outputs: ICallbackProperty[];
     prevent_initial_call: boolean;
     state: ICallbackProperty[];
-    long?: LongCallbackInfo;
+    background?: BackgroundCallbackInfo;
     dynamic_creator?: boolean;
     running: any;
     no_output?: boolean;
@@ -85,7 +85,7 @@ export type CallbackResult = {
     payload: ICallbackPayload | null;
 };
 
-export type LongCallbackInfo = {
+export type BackgroundCallbackInfo = {
     interval?: number;
     progress?: any;
     running?: any;

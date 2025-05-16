@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import logging
+from typing import Union, Optional
 import warnings
 import percy
 import requests
@@ -37,20 +38,22 @@ logger = logging.getLogger(__name__)
 
 
 class Browser(DashPageMixin):
+    _url: str
+
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        browser,
-        remote=False,
-        remote_url=None,
-        headless=False,
-        options=None,
-        download_path="",
-        percy_run=True,
-        percy_finalize=True,
-        percy_assets_root="",
-        wait_timeout=10,
-        pause=False,
+        browser: str,
+        remote: bool = False,
+        remote_url: Optional[str] = None,
+        headless: bool = False,
+        options: Optional[Union[dict, list]] = None,
+        download_path: str = "",
+        percy_run: bool = True,
+        percy_finalize: bool = True,
+        percy_assets_root: str = "",
+        wait_timeout: int = 10,
+        pause: bool = False,
     ):
         self._browser = browser.lower()
         self._remote_url = remote_url
@@ -70,7 +73,7 @@ class Browser(DashPageMixin):
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
         self._last_ts = 0
-        self._url = None
+        self._url = ""
 
         self._window_idx = 0  # switch browser tabs
 
@@ -102,23 +105,24 @@ class Browser(DashPageMixin):
                 logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
-        except percy.errors.Error:
+        except percy.errors.Error:  # type: ignore[reportAttributeAccessIssue]
             logger.exception("percy runner failed to finalize properly")
 
     def visit_and_snapshot(
         self,
-        resource_path,
-        hook_id,
+        resource_path: str,
+        hook_id: str,
         wait_for_callbacks=True,
         convert_canvases=False,
         assert_check=True,
         stay_on_page=False,
         widths=None,
     ):
+        path = resource_path.lstrip("/")
         try:
-            path = resource_path.lstrip("/")
             if path != resource_path:
                 logger.warning("we stripped the left '/' in resource_path")
+            self.server_url = self.server_url
             self.driver.get(f"{self.server_url.rstrip('/')}/{path}")
 
             # wait for the hook_id to present and all callbacks get fired
@@ -199,7 +203,7 @@ class Browser(DashPageMixin):
             self.percy_runner.snapshot(name=name, widths=widths)
         except requests.HTTPError as err:
             # Ignore retries.
-            if err.request.status_code != 400:
+            if err.request.status_code != 400:  # type: ignore[reportAttributeAccessIssue]
                 raise err
 
         if convert_canvases:
@@ -217,7 +221,7 @@ class Browser(DashPageMixin):
             """
             )
 
-    def take_snapshot(self, name):
+    def take_snapshot(self, name: str):
         """Hook method to take snapshot when a selenium test fails. The
         snapshot is placed under.
 
@@ -226,7 +230,10 @@ class Browser(DashPageMixin):
         with a filename combining test case name and the
         running selenium session id
         """
-        target = "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP")
+        target = (
+            "/tmp/dash_artifacts" if not self._is_windows() else os.getenv("TEMP", "")
+        )
+
         if not os.path.exists(target):
             try:
                 os.mkdir(target)
@@ -283,7 +290,7 @@ class Browser(DashPageMixin):
                 message = msg(self.driver)
             else:
                 message = msg
-            raise TimeoutException(message) from err
+            raise TimeoutException(str(message)) from err
 
     def wait_for_element(self, selector, timeout=None):
         """wait_for_element is shortcut to `wait_for_element_by_css_selector`
@@ -402,7 +409,7 @@ class Browser(DashPageMixin):
             )
         except TimeoutException as exc:
             logger.exception("dash server is not loaded within %s seconds", timeout)
-            logs = "\n".join((str(log) for log in self.get_logs()))
+            logs = "\n".join((str(log) for log in self.get_logs()))  # type: ignore[reportOptionalIterable]
             logger.debug(logs)
             html = self.find_element("body").get_property("innerHTML")
             raise DashAppLoadingError(
@@ -497,7 +504,7 @@ class Browser(DashPageMixin):
         options.add_argument("--remote-debugging-port=9222")
 
         chrome = (
-            webdriver.Remote(command_executor=self._remote_url, options=options)
+            webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
             if self._remote
             else webdriver.Chrome(options=options)
         )
@@ -505,7 +512,7 @@ class Browser(DashPageMixin):
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
         if self._headless:
             # pylint: disable=protected-access
-            chrome.command_executor._commands["send_command"] = (
+            chrome.command_executor._commands["send_command"] = (  # type: ignore[reportArgumentType]
                 "POST",
                 "/session/$sessionId/chromium/send_command",
             )
@@ -531,9 +538,12 @@ class Browser(DashPageMixin):
             "browser.helperApps.neverAsk.saveToDisk",
             "application/octet-stream",  # this MIME is generic for binary
         )
+        if not self._remote_url and self._remote:
+            raise TypeError("remote_url was not provided but required for Firefox")
+
         return (
             webdriver.Remote(
-                command_executor=self._remote_url,
+                command_executor=self._remote_url,  # type: ignore[reportTypeArgument]
                 options=options,
             )
             if self._remote
@@ -629,7 +639,7 @@ class Browser(DashPageMixin):
         return self.driver.session_id
 
     @property
-    def server_url(self):
+    def server_url(self) -> str:
         return self._url
 
     @server_url.setter

@@ -1,12 +1,16 @@
-from dash.development.base_component import Component
+from typing import Union, Sequence
 
+from .development.base_component import Component
 from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index
 from ._utils import stringify_id
 
 
+ComponentIdType = Union[str, Component, dict]
+
+
 class _Wildcard:  # pylint: disable=too-few-public-methods
-    def __init__(self, name):
+    def __init__(self, name: str):
         self._name = name
 
     def __str__(self):
@@ -15,7 +19,7 @@ class _Wildcard:  # pylint: disable=too-few-public-methods
     def __repr__(self):
         return f"<{self}>"
 
-    def to_json(self):
+    def to_json(self) -> str:
         # used in serializing wildcards - arrays are not allowed as
         # id values, so make the wildcards look like length-1 arrays.
         return f'["{self._name}"]'
@@ -27,7 +31,13 @@ ALLSMALLER = _Wildcard("ALLSMALLER")
 
 
 class DashDependency:  # pylint: disable=too-few-public-methods
-    def __init__(self, component_id, component_property):
+    component_id: ComponentIdType
+    allow_duplicate: bool
+    component_property: str
+    allowed_wildcards: Sequence[_Wildcard]
+    allow_optional: bool
+
+    def __init__(self, component_id: ComponentIdType, component_property: str):
 
         if isinstance(component_id, Component):
             self.component_id = component_id._set_random_id()
@@ -36,6 +46,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
         self.component_property = component_property
         self.allow_duplicate = False
+        self.allow_optional = False
 
     def __str__(self):
         return f"{self.component_id_str()}.{self.component_property}"
@@ -43,11 +54,14 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __repr__(self):
         return f"<{self.__class__.__name__} `{self}`>"
 
-    def component_id_str(self):
+    def component_id_str(self) -> str:
         return stringify_id(self.component_id)
 
-    def to_dict(self):
-        return {"id": self.component_id_str(), "property": self.component_property}
+    def to_dict(self) -> dict:
+        specs = {"id": self.component_id_str(), "property": self.component_property}
+        if self.allow_optional:
+            specs["allow_optional"] = True
+        return specs
 
     def __eq__(self, other):
         """
@@ -61,7 +75,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
             and self._id_matches(other)
         )
 
-    def _id_matches(self, other):
+    def _id_matches(self, other) -> bool:
         my_id = self.component_id
         other_id = other.component_id
         self_dict = isinstance(my_id, dict)
@@ -96,7 +110,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def __hash__(self):
         return hash(str(self))
 
-    def has_wildcard(self):
+    def has_wildcard(self) -> bool:
         """
         Return true if id contains a wildcard (MATCH, ALL, or ALLSMALLER)
         """
@@ -112,7 +126,12 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 
     allowed_wildcards = (MATCH, ALL)
 
-    def __init__(self, component_id, component_property, allow_duplicate=False):
+    def __init__(
+        self,
+        component_id: ComponentIdType,
+        component_property: str,
+        allow_duplicate: bool = False,
+    ):
         super().__init__(component_id, component_property)
         self.allow_duplicate = allow_duplicate
 
@@ -120,17 +139,35 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
 
+    def __init__(
+        self,
+        component_id: ComponentIdType,
+        component_property: str,
+        allow_optional: bool = False,
+    ):
+        super().__init__(component_id, component_property)
+        self.allow_optional = allow_optional
+
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
 
+    def __init__(
+        self,
+        component_id: ComponentIdType,
+        component_property: str,
+        allow_optional: bool = False,
+    ):
+        super().__init__(component_id, component_property)
+        self.allow_optional = allow_optional
+
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class ClientsideFunction:  # pylint: disable=too-few-public-methods
-    def __init__(self, namespace=None, function_name=None):
+    def __init__(self, namespace: str, function_name: str):
 
         if namespace.startswith("_dashprivate_"):
             raise ValueError("Namespaces cannot start with '_dashprivate_'.")

@@ -17,16 +17,18 @@ const Tooltip = ({
     loading_text = 'Loading...',
     ...props
 }) => {
-    const {bbox, id, loading_state} = props;
-    const is_loading = loading_state?.is_loading;
+    const {bbox, id} = props;
     const show_tooltip = show && bbox;
+
+    const ctx = window.dash_component_api.useDashContext();
+    const is_loading = ctx.useLoading();
 
     return (
         <>
             <div className="dcc-tooltip-bounding-box">
-                <span
-                    data-dash-is-loading={is_loading || undefined}
+                <div
                     className={`hover hover-${direction}`}
+                    data-dash-is-loading={is_loading}
                 >
                     <span
                         id={id}
@@ -39,7 +41,7 @@ const Tooltip = ({
                             props.children
                         )}
                     </span>
-                </span>
+                </div>
             </div>
             <style jsx>{`
                 .dcc-tooltip-bounding-box {
@@ -253,24 +255,6 @@ Tooltip.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 };
 
 export default Tooltip;

@@ -1,4 +1,4 @@
-import {forEach, isEmpty, keys, path} from 'ramda';
+import {forEach, includes, isEmpty, keys, path, assoc, pathOr} from 'ramda';
 import {combineReducers} from 'redux';
 
 import {getCallbacksByInput} from '../actions/dependencies_ts';
@@ -15,9 +15,10 @@ import profile from './profile';
 import changed from './changed';
 import isLoading from './isLoading';
 import layout from './layout';
-import loadingMap from './loadingMap';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
+import loading from './loading';
+import {stringifyPath} from '../wrapper/wrapping';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -25,6 +26,32 @@ export const apiRequests = [
     'reloadRequest',
     'loginRequest'
 ];
+
+const layoutHashes = (state = {}, action) => {
+    if (
+        includes(action.type, [
+            'UNDO_PROP_CHANGE',
+            'REDO_PROP_CHANGE',
+            'ON_PROP_CHANGE'
+        ])
+    ) {
+        // Let us compare the paths sums to get updates without triggering
+        // render on the parent containers.
+        const actionPath = action.payload.itempath;
+        const strPath = stringifyPath(actionPath);
+        const prev = pathOr(0, [strPath, 'hash'], state);
+        state = assoc(
+            strPath,
+            {
+                hash: prev + 1,
+                changedProps: action.payload.props,
+                renderType: action.payload.renderType
+            },
+            state
+        );
+    }
+    return state;
+};
 
 function mainReducer() {
     const parts = {
@@ -39,8 +66,9 @@ function mainReducer() {
         changed,
         isLoading,
         layout,
-        loadingMap,
-        paths
+        paths,
+        layoutHashes,
+        loading
     };
     forEach(r => {
         parts[r] = createApiReducer(r);
