@@ -559,6 +559,7 @@ jobs:
           path: ~/dash
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
+      
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - restore_cache:
@@ -577,6 +578,11 @@ jobs:
           command: |
             . venv/bin/activate
             pip install dash-package/dash-package.tar.gz[ci,dev,testing]
+      - run:
+          name: Show installed deps
+          command: |
+            . venv/bin/activate
+            pip list
 
       - run:
           name: Run eslint
