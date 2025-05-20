@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import subprocess
 import tempfile
@@ -90,6 +91,8 @@ def setup_background_callback_app(manager_name, app_name):
 
         worker = subprocess.Popen(
             [
+                sys.executable,
+                "-m",
                 "celery",
                 "-A",
                 f"tests.integration.background_callback.{app_name}:handle",
@@ -113,6 +116,7 @@ def setup_background_callback_app(manager_name, app_name):
             lines.append(line)
         else:
             error = "\n".join(lines)
+            error += f"\nPath: {sys.path}"
             raise RuntimeError(f"celery failed to start: {error}")
 
         try:
