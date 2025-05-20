@@ -215,7 +215,7 @@ jobs:
             . venv/bin/activate
             npm ci
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
+            pip list
       - run:
           name: 🧪 Run Integration Tests
           command: |
@@ -578,11 +578,6 @@ jobs:
           command: |
             . venv/bin/activate
             pip install dash-package/dash-package.tar.gz[ci,dev,testing]
-      - run:
-          name: Show installed deps
-          command: |
-            . venv/bin/activate
-            pip list
 
       - run:
           name: Run eslint
