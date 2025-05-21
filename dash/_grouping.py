@@ -29,22 +29,37 @@ def flatten_grouping(grouping, schema=None):
 
     :return: list of the scalar values in the input grouping
     """
+    stack = []
+    result = []
+    pushed_validate = False
+
+    # Avoid repeated recursive Python calls by using an explicit stack
+    push = stack.append
+    pop = stack.pop
+
+    # Only validate once at the top if schema is provided
     if schema is None:
         schema = grouping
     else:
         validate_grouping(grouping, schema)
+        pushed_validate = True  # Just for clarity; not strictly necessary
 
-    if isinstance(schema, (tuple, list)):
-        return [
-            g
-            for group_el, schema_el in zip(grouping, schema)
-            for g in flatten_grouping(group_el, schema_el)
-        ]
-
-    if isinstance(schema, dict):
-        return [g for k in schema for g in flatten_grouping(grouping[k], schema[k])]
-
-    return [grouping]
+    push((grouping, schema))
+    while stack:
+        group, sch = pop()
+        # Inline isinstance checks for perf
+        typ = type(sch)
+        if typ is tuple or typ is list:
+            # Avoid double recursion / excessive list construction
+            for ge, se in zip(group, sch):
+                push((ge, se))
+        elif typ is dict:
+            for k in sch:
+                push((group[k], sch[k]))
+        else:
+            result.append(group)
+    result.reverse()  # Since we LIFO, leaf values are in reverse order
+    return result
 
 
 def grouping_len(grouping):
@@ -203,25 +218,30 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
     Validate that the provided grouping conforms to the provided schema.
     If not, raise a SchemaValidationError
     """
+    # Inline full_schema logic for fewer function stack frames
     if full_schema is None:
         full_schema = schema
 
-    if isinstance(schema, (tuple, list)):
+    typ = type(schema)
+    if typ is tuple or typ is list:
         SchemaTypeValidationError.check(grouping, full_schema, path, (tuple, list))
         SchemaLengthValidationError.check(grouping, full_schema, path, len(schema))
-
-        for i, (g, s) in enumerate(zip(grouping, schema)):
-            validate_grouping(g, s, full_schema=full_schema, path=path + (i,))
-    elif isinstance(schema, dict):
+        # Use manual index for fewer packs/unpacks
+        for idx in range(len(schema)):
+            g = grouping[idx]
+            s = schema[idx]
+            validate_grouping(g, s, full_schema=full_schema, path=path + (idx,))
+    elif typ is dict:
         SchemaTypeValidationError.check(grouping, full_schema, path, dict)
         SchemaKeysValidationError.check(grouping, full_schema, path, set(schema))
-
+        # Avoid repeated dict.keys() conversion by iterating schema keys directly
         for k in schema:
             validate_grouping(
                 grouping[k], schema[k], full_schema=full_schema, path=path + (k,)
             )
     else:
-        pass
+        # Scalar case, nothing to check
+        return
 
 
 def update_args_group(g, triggered):
