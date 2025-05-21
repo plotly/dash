@@ -185,7 +185,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python312
           REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.6
+      - image: cimg/redis:6.2.18
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
