@@ -6,4 +6,4 @@ typing_extensions>=4.1.1
 requests
 retrying
 nest-asyncio
-setuptools
+setuptools<80.0.0
