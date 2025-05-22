@@ -1,0 +1,78 @@
+name: Background Callback Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  run-background-tests:
+    name: Run Background Callback Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Don't cancel other jobs in the matrix if one fails
+      matrix:
+        python-version: ["3.8", "3.12"] # Specify Python versions to test against
+
+    # Service container for Redis
+    services:
+      redis:
+        image: redis:6 # You can use redis:latest or a specific version like redis:6 or redis:7
+        ports:
+          - 6379:6379
+        # Optional: healthcheck to ensure Redis is ready before tests start
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Set REDIS_URL for your application/tests
+      # The service 'redis' will be available on localhost (or redis) at port 6379
+      REDIS_URL: redis://localhost:6379/0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip' # Cache pip dependencies
+
+      - name: Install build tools (and pin setuptools if needed)
+        run: |
+          python -m pip install --upgrade pip wheel
+          # IMPORTANT: If setuptools >80.0.0 causes issues, pin it here
+          python -m pip install "setuptools<80.0.0"
+
+      - name: Install Dash dependencies
+        run: |
+          # Mirroring how Dash installs its extras, adjust if your needs are simpler
+          python -m pip install --progress-bar off ".[ci,testing,dev,celery,diskcache]"
+
+      - name: Build project (JS/CSS, etc.)
+        run: npm run build
+
+      - name: Verify Redis connection
+        run: |
+          # Optional: A quick check that Redis is accessible. Requires redis-cli.
+          # sudo apt-get update && sudo apt-get install -y redis-tools # If redis-cli is not in the runner
+          # redis-cli -h localhost -p 6379 ping
+          # Alternatively, a python script:
+          python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
+
+      - name: Run Background Callback Tests
+        run: |
+          pytest tests/background_callback -v -s
