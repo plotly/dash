@@ -9,7 +9,7 @@ orbs:
 jobs:
   artifacts:
     docker:
-      - image: cimg/python:3.12.1
+      - image: cimg/python:3.12.10
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -31,7 +31,7 @@ jobs:
   install-dependencies-312: &install-dependencies
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-node
+      - image: cimg/python:3.12.10-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -89,7 +89,7 @@ jobs:
   lint-unit-312: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -175,7 +175,7 @@ jobs:
   test-312: &test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -240,7 +240,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python38
           REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.6
+      - image: cimg/redis:6.2.18
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -248,7 +248,7 @@ jobs:
   dcc-lint-unit-312: &dcc-lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-node
+      - image: cimg/python:3.12.10-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -285,7 +285,7 @@ jobs:
   dcc-312: &dcc-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -346,7 +346,7 @@ jobs:
   html-312: &html-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -415,7 +415,7 @@ jobs:
   table-server: &table-server
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         environment:
           PYVERSION: python312
           PERCY_ENABLE: 1
@@ -468,7 +468,7 @@ jobs:
   table-unit-test:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         environment:
           PYVERSION: python312
           PERCY_ENABLE: 0
@@ -550,7 +550,7 @@ jobs:
   table-node:
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-node
+      - image: cimg/python:3.12.10-node
         environment:
           PYVERSION: python312
           PERCY_ENABLE: 0
