@@ -60,7 +60,7 @@ jobs:
       - name: Install Dash dependencies
         run: |
           # Mirroring how Dash installs its extras, adjust if your needs are simpler
-          python -m pip install --progress-bar off ".[ci,testing,dev,celery,diskcache]"
+          pip install -e .[ci,testing,dev,celery,diskcache]
 
       - name: Build project (JS/CSS, etc.)
         run: npm run build
