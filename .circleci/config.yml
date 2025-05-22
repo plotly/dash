@@ -219,25 +219,25 @@ jobs:
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list
       - run:
-        name: DEBUG - Python Environment and Redis Importability
-        command: |
-          # Activate your virtualenv (e.g., source venv/bin/activate)
-          echo "Python Executable: $(which python)"
-          echo "Python Version: $(python --version)"
-          echo "Setuptools Version: $(python -c 'import setuptools; print(setuptools.__version__)' || echo 'Setuptools not found')"
-          echo "Pip Version: $(pip --version)"
-          echo "--- sys.path ---"
-          python -c "import sys; print(sys.path)"
-          echo "--- Current Directory (pwd): $(pwd) ---"
-          ls -la
-          echo "--- Looking for local redis.py (potential shadowing) ---"
-          find . -name "redis.py" -print
-          echo "--- Full pip freeze ---"
-          pip freeze
-          echo "--- Attempting direct import of 'redis' ---"
-          python -c "import redis; print(f'Successfully imported redis version {redis.__version__} from {redis.__file__}')" || echo "Direct import of 'redis' FAILED"
-          echo "--- Attempting to access Celery's Redis backend module (conceptual check) ---"
-          python -c "from celery.backends import redis as celery_redis_backend; print(f'Celery was able to access its redis backend module: {celery_redis_backend.__file__}')" || echo "Accessing Celery's redis backend module FAILED"
+          name: DEBUG - Python Environment and Redis Importability
+          command: |
+            # Activate your virtualenv (e.g., source venv/bin/activate)
+            echo "Python Executable: $(which python)"
+            echo "Python Version: $(python --version)"
+            echo "Setuptools Version: $(python -c 'import setuptools; print(setuptools.__version__)' || echo 'Setuptools not found')"
+            echo "Pip Version: $(pip --version)"
+            echo "--- sys.path ---"
+            python -c "import sys; print(sys.path)"
+            echo "--- Current Directory (pwd): $(pwd) ---"
+            ls -la
+            echo "--- Looking for local redis.py (potential shadowing) ---"
+            find . -name "redis.py" -print
+            echo "--- Full pip freeze ---"
+            pip freeze
+            echo "--- Attempting direct import of 'redis' ---"
+            python -c "import redis; print(f'Successfully imported redis version {redis.__version__} from {redis.__file__}')" || echo "Direct import of 'redis' FAILED"
+            echo "--- Attempting to access Celery's Redis backend module (conceptual check) ---"
+            python -c "from celery.backends import redis as celery_redis_backend; print(f'Celery was able to access its redis backend module: {celery_redis_backend.__file__}')" || echo "Accessing Celery's redis backend module FAILED"
       - run:
           name: 🧪 Run Integration Tests
           command: |
