@@ -475,7 +475,7 @@ class Browser(DashPageMixin):
         )
 
         if self._headless:
-            options.headless = True
+            options.add_argument("--headless")
 
         return options
 
