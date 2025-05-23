@@ -218,30 +218,24 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
     Validate that the provided grouping conforms to the provided schema.
     If not, raise a SchemaValidationError
     """
-    # Inline full_schema logic for fewer function stack frames
     if full_schema is None:
         full_schema = schema
 
-    typ = type(schema)
-    if typ is tuple or typ is list:
+    if isinstance(schema, (tuple, list)):
         SchemaTypeValidationError.check(grouping, full_schema, path, (tuple, list))
         SchemaLengthValidationError.check(grouping, full_schema, path, len(schema))
-        # Use manual index for fewer packs/unpacks
-        for idx in range(len(schema)):
-            g = grouping[idx]
-            s = schema[idx]
-            validate_grouping(g, s, full_schema=full_schema, path=path + (idx,))
-    elif typ is dict:
+
+        for i, (g, s) in enumerate(zip(grouping, schema)):
+            validate_grouping(g, s, full_schema=full_schema, path=path + (i,))
+    elif isinstance(schema, dict):
         SchemaTypeValidationError.check(grouping, full_schema, path, dict)
         SchemaKeysValidationError.check(grouping, full_schema, path, set(schema))
-        # Avoid repeated dict.keys() conversion by iterating schema keys directly
         for k in schema:
             validate_grouping(
                 grouping[k], schema[k], full_schema=full_schema, path=path + (k,)
             )
     else:
-        # Scalar case, nothing to check
-        return
+        pass
 
 
 def update_args_group(g, triggered):
