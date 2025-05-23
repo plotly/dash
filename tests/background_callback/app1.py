@@ -1,16 +1,7 @@
-import os
-
 from dash import Dash, Input, Output, dcc, html
 import time
 
 from tests.background_callback.utils import get_background_callback_manager
-
-
-os.environ["LONG_CALLBACK_MANAGER"] = "celery"
-os.environ["REDIS_URL"] = "redis://localhost:6379"
-redis_url = os.environ["REDIS_URL"].rstrip("/")
-os.environ["CELERY_BROKER"] = f"{redis_url}/0"
-os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
 
 background_callback_manager = get_background_callback_manager()
 handle = background_callback_manager.handle
