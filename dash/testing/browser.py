@@ -490,6 +490,8 @@ class Browser(DashPageMixin):
         options.add_argument("--disable-gpu")
         options.add_argument("--remote-debugging-port=0")
 
+        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
+
         chrome = (
             webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
             if self._remote
