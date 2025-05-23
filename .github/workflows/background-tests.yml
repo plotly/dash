@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false # Don't cancel other jobs in the matrix if one fails
       matrix:
-        python-version: ["3.8", "3.12"] # Specify Python versions to test against
+        python-version: ["3.9", "3.12"] # Specify Python versions to test against
 
     # Service container for Redis
     services:
