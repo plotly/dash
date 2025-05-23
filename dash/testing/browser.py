@@ -482,9 +482,6 @@ class Browser(DashPageMixin):
     def _get_chrome(self):
         options = self._get_wd_options()
 
-        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
-        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
-
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
 
@@ -529,7 +526,6 @@ class Browser(DashPageMixin):
     def _get_firefox(self):
         options = self._get_wd_options()
 
-        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
         options.set_capability("marionette", True)
 
         options.set_preference("browser.download.dir", self.download_path)
