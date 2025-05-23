@@ -132,4 +132,4 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          pytest tests/background_callback -v -s
+          pytest --headless --nopercyfinalize tests/background_callback -v -s
