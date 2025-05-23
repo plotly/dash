@@ -117,6 +117,7 @@ jobs:
         run: |
           # Mirroring how Dash installs its extras, adjust if your needs are simpler
           pip install -e .[ci,testing,dev,celery,diskcache]
+          python -m pip install "selenium==4.32.0"
 
       - name: Build project (JS/CSS, etc.)
         run: npm run build
