@@ -110,12 +110,10 @@ jobs:
       - name: Install build tools (and pin setuptools if needed)
         run: |
           python -m pip install --upgrade pip wheel
-          # IMPORTANT: If setuptools >80.0.0 causes issues, pin it here
           python -m pip install "setuptools<80.0.0"
 
       - name: Install Dash dependencies
         run: |
-          # Mirroring how Dash installs its extras, adjust if your needs are simpler
           pip install -e .[ci,testing,dev,celery,diskcache]
           python -m pip install "selenium==4.32.0"
 
@@ -124,10 +122,6 @@ jobs:
 
       - name: Verify Redis connection
         run: |
-          # Optional: A quick check that Redis is accessible. Requires redis-cli.
-          # sudo apt-get update && sudo apt-get install -y redis-tools # If redis-cli is not in the runner
-          # redis-cli -h localhost -p 6379 ping
-          # Alternatively, a python script:
           python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
 
       - name: Run Background Callback Tests
