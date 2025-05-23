@@ -7,7 +7,6 @@ from typing import Union, Optional
 import warnings
 import percy
 import requests
-import tempfile
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -486,36 +485,10 @@ class Browser(DashPageMixin):
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
 
-        options.add_experimental_option(
-            "prefs",
-            {
-                "download.default_directory": self.download_path,
-                "download.prompt_for_download": False,
-                "download.directory_upgrade": True,
-                "safebrowsing.enabled": False,
-                "safebrowsing.disable_download_protection": True,
-            },
-        )
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-gpu")
-        options.add_argument("--remote-debugging-port=9222")
-
-        if not self._remote:
-            try:
-                # Create a TemporaryDirectory object.
-                # It will be cleaned up when self._temp_user_data_dir_manager.cleanup() is called,
-                # or when the object is garbage collected if not cleaned up explicitly.
-                self._temp_user_data_dir_manager = tempfile.TemporaryDirectory()
-                user_data_dir_path = self._temp_user_data_dir_manager.name
-                options.add_argument(f"--user-data-dir={user_data_dir_path}")
-                logger.info(
-                    f"Chrome using temporary user data directory: {user_data_dir_path}"
-                )
-            except Exception as e:
-                logger.error(
-                    f"Could not create temporary directory for user-data-dir: {e}"
-                )
+        options.add_argument("--remote-debugging-port=0")
 
         chrome = (
             webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
