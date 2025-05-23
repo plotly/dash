@@ -2,7 +2,6 @@ from typing import List, Union, Optional, Any
 
 
 def _operation(name, location, **kwargs):
-    # No need to wrap kwargs in dict(), it's already a dict.
     return {"operation": name, "location": location, "params": kwargs}
 
 
