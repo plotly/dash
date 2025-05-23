@@ -7,6 +7,7 @@ from typing import Union, Optional
 import warnings
 import percy
 import requests
+import tempfile
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -499,6 +500,22 @@ class Browser(DashPageMixin):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-gpu")
         options.add_argument("--remote-debugging-port=9222")
+
+        if not self._remote:
+            try:
+                # Create a TemporaryDirectory object.
+                # It will be cleaned up when self._temp_user_data_dir_manager.cleanup() is called,
+                # or when the object is garbage collected if not cleaned up explicitly.
+                self._temp_user_data_dir_manager = tempfile.TemporaryDirectory()
+                user_data_dir_path = self._temp_user_data_dir_manager.name
+                options.add_argument(f"--user-data-dir={user_data_dir_path}")
+                logger.info(
+                    f"Chrome using temporary user data directory: {user_data_dir_path}"
+                )
+            except Exception as e:
+                logger.error(
+                    f"Could not create temporary directory for user-data-dir: {e}"
+                )
 
         chrome = (
             webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
