@@ -30,7 +30,7 @@ jobs:
     env:
       # Set REDIS_URL for your application/tests
       # The service 'redis' will be available on localhost (or redis) at port 6379
-      REDIS_URL: redis://localhost:6379/0
+      REDIS_URL: redis://localhost:6379
 
     steps:
       - name: Checkout repository
