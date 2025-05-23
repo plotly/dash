@@ -30,16 +30,12 @@ jobs:
       - name: Install Python dependencies including project in editable mode with extras
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          # This command installs the Dash package in editable mode (-e)
-          # along with dependencies specified in the [ci,testing,dev] extras
-          # defined in your setup.py or pyproject.toml.
-          # Ensure these extras include pytest and any typing tools.
           pip install -e .[ci,testing,dev]
 
       - name: Build project (JS/CSS, etc.)
         run: npm run build
 
-      - name: Build/Setup test components (runs a Python script)
+      - name: Build/Setup test components
         run: npm run setup-tests.py
 
       - name: Run typing tests
