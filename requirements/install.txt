@@ -1,6 +1,6 @@
 Flask>=1.0.4,<3.1
 Werkzeug<3.1
-plotly>=5.0.0
+plotly>=5.0.0,<6.1.0
 importlib-metadata
 typing_extensions>=4.1.1
 requests
