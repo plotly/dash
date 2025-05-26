@@ -185,11 +185,6 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python312
-          REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.18
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
     parallelism: 3
     steps:
       - checkout:
@@ -241,11 +236,6 @@ jobs:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python38
-          REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.18
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
 
   dcc-lint-unit-312: &dcc-lint-unit
     working_directory: ~/dash
