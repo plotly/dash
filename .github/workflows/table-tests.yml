@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x]
         python-version: ["3.12"]
+        node-version: [20.x]
 
     steps:
       - name: Checkout repository
@@ -55,8 +55,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x]
         python-version: ["3.12"] # Specify Python versions
+        node-version: [20.x]
 
     steps:
       - name: Checkout repository

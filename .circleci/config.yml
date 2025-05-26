@@ -491,7 +491,6 @@ workflows:
             - test-312
             - dcc-312
             - html-312
-            - table-server
       - artifacts:
           requires:
             - percy/finalize_all
