@@ -2,7 +2,7 @@ name: Typing Tests
 
 on:
   push:        # Runs for pushes to all branches
-  pull_request:  # Runs for all pull request events (e.g., opened, synchronize)
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   test-typing:
