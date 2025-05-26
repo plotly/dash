@@ -6,23 +6,25 @@ on:
 
 jobs:
   table-unit:
-    name: Table Node Tests (Node ${{ matrix.node-version }})
+    name: Table Node Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12"]
-        node-version: [20.x]
+        python-version: ["3.9","3.12"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -50,29 +52,25 @@ jobs:
           npm run test.unit
 
   table-server:
-    name: Table Server Tests (Python ${{ matrix.python-version }})
+    name: Table Server Tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12"] # Specify Python versions
-        node-version: [20.x]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'npm'
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+      - name: Install Node.js dependencies
+        run: npm ci
 
       - name: Install Google Chrome
         run: |
@@ -129,6 +127,12 @@ jobs:
       - name: Verify ChromeDriver Installation
         run: |
           chromedriver --version
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
       - name: Install Python dependencies
         run: pip install -e .[ci,dev,testing]
