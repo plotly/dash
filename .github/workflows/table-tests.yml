@@ -143,4 +143,4 @@ jobs:
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize
+          pytest --nopercyfinalize --headless
