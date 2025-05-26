@@ -2,7 +2,6 @@ import json
 import operator
 
 import pytest
-import flaky
 
 from dash import Dash, ALL, Input, Output, html, dcc, callback_context, ctx
 
@@ -99,7 +98,7 @@ def test_cbcx004_triggered_backward_compat(dash_duo):
     )
 
 
-@pytest.skip(reason="Broken test on circleci")
+@pytest.mark.skip(reason="Broken test on circleci")
 def test_cbcx005_grouped_clicks(dash_duo):
     class context:
         calls = 0
