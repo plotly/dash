@@ -37,13 +37,12 @@ jobs:
 
       - name: Build
         run: |
-          cd components/dash-table
-          npm ci
           npm run build
 
       - name: Lint
         run: |
           cd components/dash-table
+          npm ci
           npm run lint
 
       - name: Unit
@@ -139,8 +138,6 @@ jobs:
 
       - name: Build
         run: |
-          cd components/dash-table
-          npm ci
           npm run build
 
       - name: Run Table Server Tests
