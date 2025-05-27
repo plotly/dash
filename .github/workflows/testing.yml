@@ -219,6 +219,7 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
+          export PYTHONPATH=.
           pytest --headless --nopercyfinalize tests/background_callback -v -s
 
   table-unit:
