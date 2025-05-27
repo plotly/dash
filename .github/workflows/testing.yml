@@ -101,8 +101,8 @@ jobs:
 
       - name: Run typing tests
         run: |
-          cd @plotly/dash-test-components
-          pytest tests/compliance/test_typing.py
+          cd tests
+          pytest compliance/test_typing.py
   
   background-callbacks:
     name: Run Background Callback Tests (Python ${{ matrix.python-version }})
@@ -219,7 +219,8 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          pytest --headless --nopercyfinalize tests/background_callback -v -s
+          cd tests
+          pytest --headless --nopercyfinalize background_callback -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
