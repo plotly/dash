@@ -219,7 +219,7 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          pip install -e .
+          touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
 
   table-unit:
