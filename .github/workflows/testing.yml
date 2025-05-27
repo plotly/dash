@@ -17,12 +17,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python for build
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-
       - name: Set up Node.js for frontend build
         uses: actions/setup-node@v4
         with:
@@ -31,6 +25,12 @@ jobs:
 
       - name: Install NPM dependencies
         run: npm ci
+
+      - name: Set up Python for build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
 
       - name: Install build dependencies
         run: |
