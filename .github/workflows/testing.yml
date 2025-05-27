@@ -219,8 +219,8 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          cd tests
-          pytest --headless --nopercyfinalize background_callback -v -s
+          pip install -e .
+          pytest --headless --nopercyfinalize tests/background_callback -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
