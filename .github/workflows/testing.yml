@@ -157,7 +157,7 @@ jobs:
       - name: Install Dash packages
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
+          python -m pip install "setuptools<78.0.0"
           python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
 
@@ -219,7 +219,6 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
 
   table-unit:
