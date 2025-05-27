@@ -100,7 +100,9 @@ jobs:
         run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
 
       - name: Run typing tests
-        run: pytest tests/compliance/test_typing.py
+        run: |
+          cd @plotly/dash-test-components
+          pytest tests/compliance/test_typing.py
   
   background-callbacks:
     name: Run Background Callback Tests (Python ${{ matrix.python-version }})
@@ -157,7 +159,7 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
           python -m pip install "selenium==4.32.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
 
       - name: Install Google Chrome
         run: |
