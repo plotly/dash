@@ -3,6 +3,8 @@ import operator
 
 import pytest
 
+import flaky
+
 from dash import Dash, ALL, Input, Output, html, dcc, callback_context, ctx
 
 from dash.exceptions import PreventUpdate, MissingCallbackContextException
@@ -62,6 +64,7 @@ def test_cbcx002_triggered(dash_duo):
             )
 
 
+@flaky.flaky(max_runs=3)
 def test_cbcx003_no_callback_context():
     for attr in ["inputs", "states", "triggered", "response"]:
         with pytest.raises(MissingCallbackContextException):

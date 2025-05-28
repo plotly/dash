@@ -20,6 +20,7 @@ jobs:
         id: filter # Give an ID to this step to reference its outputs
         uses: dorny/paths-filter@v3
         with:
+          base: ${{ github.ref }}
           filters: |
             table_related_paths:
               - 'components/dash-table/**'
