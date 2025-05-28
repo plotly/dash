@@ -6,6 +6,25 @@ on:
 
 jobs:
 
+  changes_filter:
+    name: Detect Relevant Path Changes
+    runs-on: ubuntu-latest
+    outputs:
+      # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
+      table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed files for table tests
+        id: filter # Give an ID to this step to reference its outputs
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            table_related_paths:
+              - 'components/dash-table/**'
+              - 'dash/dash-renderer/**'
+
   build:
     name: Build Dash Package
     runs-on: ubuntu-latest
@@ -278,7 +297,12 @@ jobs:
 
   table-server:
     name: Table Server Tests (Group ${{ matrix.test-group }})
-    needs: build
+    needs: [build, changes_filter]
+    # Conditional execution:
+    # OR if the 'changes_filter' job detected changes in 'table_related_paths'.
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
