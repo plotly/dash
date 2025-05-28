@@ -219,7 +219,10 @@ jobs:
 
       - name: Run Background Callback Tests
         run: |
-          export PYTHONPATH=.
+          mkdir bgtests
+          cp -r tests bgtests/tests
+          cd bgtests
+          touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
 
   table-unit:
