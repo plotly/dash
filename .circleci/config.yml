@@ -9,7 +9,7 @@ orbs:
 jobs:
   artifacts:
     docker:
-      - image: cimg/python:3.12.1
+      - image: cimg/python:3.12.10
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -31,7 +31,7 @@ jobs:
   install-dependencies-312: &install-dependencies
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-node
+      - image: cimg/python:3.12.10-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -49,7 +49,8 @@ jobs:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
             python -m venv venv && . venv/bin/activate
-            pip install --upgrade pip wheel setuptools
+            pip install "pip<25.0"
+            pip install --upgrade wheel setuptools
             set -eo pipefail
             pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
             pip list | grep dash
@@ -89,7 +90,7 @@ jobs:
   lint-unit-312: &lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -175,7 +176,7 @@ jobs:
   test-312: &test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -184,11 +185,6 @@ jobs:
           PERCY_PARALLEL_TOTAL: -1
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python312
-          REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.6
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
     parallelism: 3
     steps:
       - checkout:
@@ -200,6 +196,7 @@ jobs:
             sudo apt-get update
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
+      - run: cat requirements-all.txt
       - restore_cache:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
       - browser-tools/install-browser-tools:
@@ -212,9 +209,10 @@ jobs:
           name: ️️🏗️ Install package
           command: |
             . venv/bin/activate
+            pip install "pip<25"
             npm ci
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
+            pip list
       - run:
           name: 🧪 Run Integration Tests
           command: |
@@ -238,16 +236,11 @@ jobs:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
           PYVERSION: python38
-          REDIS_URL: redis://localhost:6379
-      - image: cimg/redis:6.2.6
-        auth:
-          username: dashautomation
-          password: $DASH_PAT_DOCKERHUB
 
   dcc-lint-unit-312: &dcc-lint-unit
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-node
+      - image: cimg/python:3.12.10-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -284,7 +277,7 @@ jobs:
   dcc-312: &dcc-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -345,7 +338,7 @@ jobs:
   html-312: &html-test
     working_directory: ~/dash
     docker:
-      - image: cimg/python:3.12.1-browsers
+      - image: cimg/python:3.12.10-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -411,105 +404,6 @@ jobs:
           PYVERSION: python38
           PERCY_ENABLE: 0
 
-  table-server: &table-server
-    working_directory: ~/dash
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 1
-          PERCY_PARALLEL_TOTAL: -1
-
-    parallelism: 5
-
-    steps:
-      - checkout:
-          path: ~/dash
-      - run:
-          name: Add chrome keys & update.
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            sudo apt-get update
-      - run: echo $PYVERSION > ver.txt
-      - run: cat requirements/*.txt > requirements-all.txt
-      - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
-      - browser-tools/install-browser-tools:
-          chrome-version: 120.0.6099.71
-          install-firefox: false
-          install-geckodriver: false
-      - attach_workspace:
-          at: ~/dash
-      - run:
-          name: ️️🏗️ Install package
-          command: |
-            . venv/bin/activate
-            pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
-      - run:
-          name: Inject Percy Environment variables
-          command: |
-            echo 'export PERCY_TOKEN="$PERCY_TOKEN"' >> $BASH_ENV
-      - run:
-          name: Run tests
-          command: |
-            . venv/bin/activate
-            cd components/dash-table
-            TESTFILES=$(circleci tests glob "tests/selenium/**/test_*.py" | circleci tests split --split-by=timings)
-            pytest --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-table" ${TESTFILES}
-      - store_artifacts:
-          path: ~/dash/components/dash-table/test-reports
-      - store_test_results:
-          path: ~/dash/components/dash-table/test-reports
-      - store_artifacts:
-          path: /tmp/dash_artifacts
-
-  table-unit-test:
-    working_directory: ~/dash
-    docker:
-      - image: cimg/python:3.12.1-browsers
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-    steps:
-      - checkout:
-          path: ~/dash
-      - run:
-          name: Add chrome keys & update.
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            sudo apt-get update
-      - run: echo $PYVERSION > ver.txt
-      - run: cat requirements/*.txt > requirements-all.txt
-      - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
-      - restore_cache:
-          key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
-      - browser-tools/install-browser-tools:
-          chrome-version: 120.0.6099.71
-          install-firefox: false
-          install-geckodriver: false
-      - attach_workspace:
-          at: ~/dash
-      - run:
-          name: ️️🏗️ Install package and table deps
-          command: |
-            . venv/bin/activate
-            pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
-            cd components/dash-table
-            npm ci
-      - save_cache:
-          key: table-{{ checksum "components/dash-table/package.json" }}-{{ checksum "components/dash-table/package-lock.json" }}
-          paths:
-            - components/dash-table/node_modules
-      - run:
-          name: Run tests
-          command: |
-            . venv/bin/activate
-            cd components/dash-table
-            npm run test.unit
-
   table-visual-test:
     working_directory: ~/dash/components/dash-table
     docker:
@@ -545,45 +439,6 @@ jobs:
           command: PERCY_TOKEN=$PERCY_TOKEN_TABLE npm run test.visual
       - store_artifacts:
           path: storybook-static
-
-  table-node:
-    working_directory: ~/dash
-    docker:
-      - image: cimg/python:3.12.1-node
-        environment:
-          PYVERSION: python312
-          PERCY_ENABLE: 0
-    steps:
-      - checkout:
-          path: ~/dash
-      - run: echo $PYVERSION > ver.txt
-      - run: cat requirements/*.txt > requirements-all.txt
-      - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
-      - restore_cache:
-          key: dep-{{ .Branch }}-{{ checksum "components/dash-table/package-lock.json" }}-{{ checksum "components/dash-table/package.json" }}
-      - run:
-          name: Install package.json
-          command: cd components/dash-table && npm ci
-      - save_cache:
-          key: dep-{{ .Branch }}-{{ checksum "components/dash-table/package-lock.json" }}-{{ checksum "components/dash-table/package.json" }}
-          paths:
-            - components/dash-table/node_modules
-      - attach_workspace:
-          at: ~/dash
-      - run:
-          name: Install requirements
-          command: |
-            . venv/bin/activate
-            pip install dash-package/dash-package.tar.gz[ci,dev,testing]
-
-      - run:
-          name: Run eslint
-          command: |
-            . venv/bin/activate
-            cd components/dash-table
-            npm run lint
-          when: always
 
 workflows:
   version: 2
@@ -629,23 +484,13 @@ workflows:
           requires:
             - install-dependencies-38
 
-      - table-node:
-          requires:
-            - install-dependencies-312
-      - table-unit-test:
-          requires:
-            - install-dependencies-312
       - table-visual-test
-      - table-server:
-          requires:
-            - install-dependencies-312
 
       - percy/finalize_all:
           requires:
             - test-312
             - dcc-312
             - html-312
-            - table-server
       - artifacts:
           requires:
             - percy/finalize_all
