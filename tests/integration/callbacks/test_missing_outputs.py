@@ -1,13 +1,19 @@
+import time
+
 import pytest
 from multiprocessing import Lock, Value
 
 import dash
-from dash import Dash, Input, Output, ALL, MATCH, html, dcc
+from dash import Dash, Input, Output, ALL, MATCH, html, dcc, no_update
 
 from dash.testing.wait import until
 
 debugging = dict(
-    debug=True, use_reloader=False, use_debugger=True, dev_tools_hot_reload=False
+    debug=True,
+    use_reloader=False,
+    use_debugger=True,
+    dev_tools_hot_reload=False,
+    dev_tools_disable_version_check=True,
 )
 
 
@@ -61,7 +67,7 @@ def test_cbmo001_all_output(with_simple, dash_duo):
         def out2(contents):
             return sum(contents)
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#content", "")
     dash_duo.wait_for_text_to_equal("#output", "0")
@@ -229,7 +235,7 @@ def test_cbmo003_multi_all(dash_duo):
     def out2(ci, cj):
         return sum(ci) + sum(cj)
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#content1", "0\n0")
     dash_duo.wait_for_text_to_equal("#content2", "")
@@ -302,7 +308,7 @@ def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
             call_counts["button-output"].value += 1
             return "New value!"
 
-    dash_duo.start_server(app)
+    dash_duo.start_server(app, dev_tools_disable_version_check=True)
 
     dash_duo.wait_for_text_to_equal("#ch1-title", "Chapter 1")
     assert call_counts["body"].value == 1
@@ -336,3 +342,34 @@ def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
     dash_duo._wait_for_callbacks()
     chapter2_assertions()
     assert not dash_duo.get_logs()
+
+
+def test_cbmo005_no_update_single_to_multi(dash_duo):
+    # Bugfix for #2986
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input-box", type="text", value=""),
+            html.Button("Submit", id="button"),
+            html.Div(id="output-1", children="Output 1 will be displayed here"),
+            html.Div(id="output-2", children="Output 2 will be displayed here"),
+        ]
+    )
+
+    @app.callback(
+        Output("output-1", "children"),
+        Output("output-2", "children"),
+        Input("button", "n_clicks"),
+        Input("input-box", "value"),
+    )
+    def update_outputs(n_clicks, value):
+        if n_clicks is None:
+            return no_update
+        return "Hello", "world!"
+
+    dash_duo.start_server(app)
+
+    # just wait to make sure the error get logged.
+    time.sleep(1)
+    assert dash_duo.get_logs() == []

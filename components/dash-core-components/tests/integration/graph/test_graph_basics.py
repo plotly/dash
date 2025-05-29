@@ -81,6 +81,7 @@ def test_grbs002_wrapped_graph_has_no_infinite_loop(dash_dcc, is_eager):
 
     dash_dcc.start_server(app)
 
+    dash_dcc.wait_for_element("#graph .js-plotly-plot")
     wait.until(lambda: dash_dcc.driver.title == "Dash", timeout=2)
     sleep(1)
     # TODO: not sure 2 calls actually makes sense here, shouldn't it be 1?
@@ -166,6 +167,7 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
+@pytest.mark.skip(reason="customdata has broken with plotly.py 6")
 def test_grbs005_graph_customdata(dash_dcc):
     app = Dash(__name__)
 
@@ -321,3 +323,92 @@ def test_grbs006_graph_update_frames(dash_dcc):
     assert dash_dcc.wait_for_text_to_equal(
         "#relayout-data", "[0, -1, -2]"
     ), "graph data must contain frame [0,-1,-2]"
+
+
+def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
+    app = Dash(__name__)
+
+    expected_value = "obj-1"
+
+    scatter_figures = go.Figure(
+        data=[
+            go.Scatter(
+                x=[0, 1, 1, 0, 0],
+                y=[1, 1, 2, 2, 1],
+                mode="lines",
+                fill="toself",
+                customdata=[expected_value],
+            )
+        ]
+    )
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="scatter-lines",
+                figure=scatter_figures,
+                style={"width": 600, "height": 300},
+            ),
+            dcc.Textarea(id="test-text-area"),
+        ],
+        style={"width": 1000, "height": 500},
+    )
+
+    @app.callback(
+        Output("test-text-area", "value"), Input("scatter-lines", "clickData")
+    )
+    def handleClick(clickData):
+        return json.dumps(clickData)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#scatter-lines")
+
+    dash_dcc.find_elements("g .xy")[0].click()
+
+    data = dash_dcc.wait_for_element("#test-text-area").get_attribute("value")
+    assert data != "", "graph clickData must contain data"
+
+    data = json.loads(data)
+    assert "customdata" in data["points"][0], "graph clickData must contain customdata"
+    assert data["points"][0]["customdata"][0] == expected_value
+
+
+def test_grbs008_graph_with_empty_figure(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Toggle graph", id="btn"),
+            dcc.Graph(
+                id="graph",
+                figure=None,
+            ),
+        ]
+    )
+
+    @app.callback(Output("graph", "figure"), [Input("btn", "n_clicks")])
+    def toggle_figure(n_clicks):
+        if int(n_clicks or 0) % 2 == 0:
+            # a valid figure
+            return go.Figure([], layout=go.Layout(title="Valid Figure"))
+        else:
+            # an invalid figure
+            return None
+
+    dash_dcc.start_server(app)
+
+    # Click the toggle button a couple of times and expect the graph to change between the
+    # valid and invalid figures, using the "title" as the indicator.
+    dash_dcc.wait_for_element("#graph")
+    wait.until(
+        lambda: dash_dcc.find_element(".gtitle").text == "Valid Figure", timeout=2
+    )
+
+    dash_dcc.find_element("#btn").click()
+    wait.until(lambda: len(dash_dcc.find_elements(".gtitle")) == 0, timeout=2)
+
+    dash_dcc.find_element("#btn").click()
+    wait.until(
+        lambda: dash_dcc.find_element(".gtitle").text == "Valid Figure", timeout=2
+    )
+
+    assert dash_dcc.get_logs() == []

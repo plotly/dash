@@ -25,13 +25,6 @@ from dash._get_paths import (
 )
 
 
-@pytest.fixture
-def empty_environ():
-    for k in DASH_ENV_VARS.keys():
-        if k in os.environ:
-            os.environ.pop(k)
-
-
 def test_dash_env_vars(empty_environ):
     assert {None} == {
         val for _, val in DASH_ENV_VARS.items()
@@ -437,3 +430,53 @@ def test_app_invalid_delayed_config():
     app = Dash(server=False)
     with pytest.raises(AttributeError):
         app.init_app(app=Flask("test"), name="too late 2 update")
+
+
+@pytest.mark.parametrize(
+    "debug_env, debug, expected",
+    [
+        (None, None, False),
+        (None, True, True),
+        (None, False, False),
+        ("True", None, True),
+        ("True", True, True),
+        ("True", False, False),
+        ("False", None, False),
+        ("False", True, True),
+        ("False", False, False),
+    ],
+)
+def test_debug_mode_run(empty_environ, debug_env, debug, expected):
+    if debug_env:
+        os.environ["DASH_DEBUG"] = debug_env
+    app = Dash()
+    with pytest.raises(AssertionError):
+        app.run(debug=debug, port=-1)
+    assert app._dev_tools.ui == expected
+
+
+@pytest.mark.parametrize(
+    "debug_env, debug, expected",
+    [
+        (None, None, True),
+        (None, True, True),
+        (None, False, False),
+        ("True", None, True),
+        ("True", True, True),
+        ("True", False, False),
+        ("False", None, False),
+        ("False", True, True),
+        ("False", False, False),
+    ],
+)
+def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
+    if debug_env:
+        os.environ["DASH_DEBUG"] = debug_env
+    app = Dash()
+    app.enable_dev_tools(debug=debug)
+    assert app._dev_tools.ui == expected
+
+
+def test_missing_flask_compress_raises():
+    with pytest.raises(ImportError):
+        Dash(compress=True)

@@ -16,7 +16,7 @@ const defaults = {
             },
             {
                 test: /\.jsx?$/,
-                include: /node_modules[\\\/](cytoscape-fcose|ramda)[\\\/]/,
+                include: /node_modules[\\\/](cytoscape-fcose|ramda|react-cytoscapejs|react-redux)[\\\/]/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -56,8 +56,10 @@ const rendererOptions = {
     output: {
         path: path.resolve(__dirname, "build"),
         filename: `${dashLibraryName}.dev.js`,
-        library: dashLibraryName,
-        libraryTarget: 'window',
+        library: {
+            name: dashLibraryName,
+            type: 'window',
+        }
     },
     externals: {
         react: 'React',
@@ -84,8 +86,10 @@ module.exports = options => [
             output: {
                 path: path.resolve(__dirname, "build"),
                 filename: `${dashLibraryName}.min.js`,
-                library: dashLibraryName,
-                libraryTarget: 'window',
+                library: {
+                    name: dashLibraryName,
+                    type: 'window',
+                }
             },
             plugins: R.concat(
                 options.plugins || [],

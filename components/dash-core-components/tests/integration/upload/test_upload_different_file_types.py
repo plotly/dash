@@ -49,7 +49,7 @@ def test_upft001_test_upload_with_different_file_types(filetype, dash_dcc):
     filepath = os.path.join(
         os.path.dirname(__file__),
         "upload-assets",
-        "upft001.{}".format(filetype),
+        f"upft001.{filetype}",
     )
 
     app = Dash(__name__)

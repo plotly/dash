@@ -6,6 +6,16 @@ import MyPersistedComponent from './components/MyPersistedComponent';
 import MyPersistedComponentNested from './components/MyPersistedComponentNested';
 import StyledComponent from './components/StyledComponent';
 import WidthComponent from './components/WidthComponent';
+import ComponentAsProp from './components/ComponentAsProp';
+import RenderType from './components/RenderType';
+
+import DrawCounter from './components/DrawCounter';
+import AddPropsComponent from "./components/AddPropsComponent";
+import ReceivePropsComponent from "./components/ReceivePropsComponent";
+import ShapeOrExactKeepOrderComponent from "./components/ShapeOrExactKeepOrderComponent";
+import ArrayOfExactOrShapeWithNodePropAssignNone from './components/ArrayOfExactOrShapeWithNodePropAssignNone';
+import ExternalComponent from './components/ExternalComponent';
+
 
 export {
     AsyncComponent,
@@ -15,5 +25,13 @@ export {
     MyPersistedComponent,
     MyPersistedComponentNested,
     StyledComponent,
-    WidthComponent
+    WidthComponent,
+    ComponentAsProp,
+    DrawCounter,
+    AddPropsComponent,
+    ReceivePropsComponent,
+    ShapeOrExactKeepOrderComponent,
+    ArrayOfExactOrShapeWithNodePropAssignNone,
+    ExternalComponent,
+    RenderType
 };

@@ -49,11 +49,12 @@ const alignments: [React.ReactNode?] = [];
     });
 });
 
-storiesOf('DashTable/Headers', module)
-    .add('multi header', () => (
+storiesOf('DashTable/Headers', module).add('alignment and actions', () => (
+    <div>
+        <div style={{width: '100px'}}>{alignments}</div>
+        <div>multi header</div>
         <DataTable
             setProps={setProps}
-            id='multi-header'
             data={R.map(
                 i => ({
                     year: i,
@@ -64,7 +65,7 @@ storiesOf('DashTable/Headers', module)
                     temp: i * -100,
                     humidity: i * 0.1
                 }),
-                R.range(0, 100)
+                R.range(0, 10)
             )}
             columns={[
                 {name: ['Year', ''], id: 'year'},
@@ -76,7 +77,5 @@ storiesOf('DashTable/Headers', module)
                 {name: ['Climate', 'Humidity'], id: 'humidity'}
             ]}
         />
-    ))
-    .add('alignment and actions', () => (
-        <div style={{width: '100px'}}>{alignments}</div>
-    ));
+    </div>
+));

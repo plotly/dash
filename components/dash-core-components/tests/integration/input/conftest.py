@@ -57,3 +57,68 @@ def input_range_app():
         return val
 
     yield app
+
+
+@pytest.fixture(scope="module")
+def debounce_text_app():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(
+                id="input-slow",
+                debounce=3,
+                placeholder="long wait",
+            ),
+            html.Div(id="div-slow"),
+            dcc.Input(
+                id="input-fast",
+                debounce=0.25,
+                placeholder="short wait",
+            ),
+            html.Div(id="div-fast"),
+        ]
+    )
+
+    @app.callback(
+        [Output("div-slow", "children"), Output("div-fast", "children")],
+        [Input("input-slow", "value"), Input("input-fast", "value")],
+    )
+    def render(slow_val, fast_val):
+        return [slow_val, fast_val]
+
+    yield app
+
+
+@pytest.fixture(scope="module")
+def debounce_number_app():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(
+                id="input-slow",
+                debounce=3,
+                type="number",
+                placeholder="long wait",
+            ),
+            html.Div(id="div-slow"),
+            dcc.Input(
+                id="input-fast",
+                debounce=0.25,
+                type="number",
+                min=10,
+                max=10000,
+                step=3,
+                placeholder="short wait",
+            ),
+            html.Div(id="div-fast"),
+        ]
+    )
+
+    @app.callback(
+        [Output("div-slow", "children"), Output("div-fast", "children")],
+        [Input("input-slow", "value"), Input("input-fast", "value")],
+    )
+    def render(slow_val, fast_val):
+        return [slow_val, fast_val]
+
+    yield app

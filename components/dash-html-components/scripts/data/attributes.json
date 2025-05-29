@@ -1,5 +1,14 @@
 {
     "attributes": {
+        "autoFocus": {
+            "elements": [
+                "button",
+                "input",
+                "select",
+                "textarea"
+            ],
+            "description": "The element should be automatically focused after the page loaded."
+        },
         "accept": {
             "elements": [
                 "form",
@@ -11,7 +20,7 @@
             "elements": [
                 "form"
             ],
-            "description": "List of supported charsets."
+            "description": "The character set, which if provided must be \"UTF-8\"."
         },
         "accessKey": {
             "elements": [
@@ -33,7 +42,6 @@
         },
         "alt": {
             "elements": [
-                "applet",
                 "area",
                 "img",
                 "input"
@@ -55,16 +63,6 @@
             ],
             "description": "Indicates whether controls in this form can by default have their values automatically completed by the browser."
         },
-        "autoFocus": {
-            "elements": [
-                "button",
-                "input",
-                "keygen",
-                "select",
-                "textarea"
-            ],
-            "description": "The element should be automatically focused after the page loaded."
-        },
         "autoPlay": {
             "elements": [
                 "audio",
@@ -78,22 +76,14 @@
             ],
             "description": "From the Media Capture specification, specifies a new file can be captured."
         },
-        "challenge": {
-            "elements": [
-                "keygen"
-            ],
-            "description": "A challenge string that is submitted along with the public key."
-        },
         "charSet": {
             "elements": [
-                "meta",
-                "script"
+                "meta"
             ],
             "description": "Declares the character encoding of the page or script."
         },
         "checked": {
             "elements": [
-                "command",
                 "input"
             ],
             "description": "Indicates whether the element should be checked on page load."
@@ -137,12 +127,6 @@
                 "Globalattribute"
             ],
             "description": "Indicates whether the element's content is editable."
-        },
-        "contextMenu": {
-            "elements": [
-                "Globalattribute"
-            ],
-            "description": "Defines the ID of a <menu> element which will serve as the element's context menu."
         },
         "controls": {
             "elements": [
@@ -202,10 +186,8 @@
         "disabled": {
             "elements": [
                 "button",
-                "command",
                 "fieldset",
                 "input",
-                "keygen",
                 "optgroup",
                 "option",
                 "select",
@@ -244,7 +226,6 @@
                 "button",
                 "fieldset",
                 "input",
-                "keygen",
                 "label",
                 "meter",
                 "object",
@@ -267,28 +248,28 @@
                 "button",
                 "input"
             ],
-            "description": "If the button/input is a submit button (type=\"submit\"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner."
+            "description": "If the button/input is a submit button (e.g., type=\"submit\"), this attribute sets the encoding type to use during form submission. If this attribute is specified, it overrides the enctype attribute of the button's form owner."
         },
         "formMethod": {
             "elements": [
                 "button",
                 "input"
             ],
-            "description": "If the button/input is a submit button (type=\"submit\"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner."
+            "description": "If the button/input is a submit button (e.g., type=\"submit\"), this attribute sets the submission method to use during form submission (GET, POST, etc.). If this attribute is specified, it overrides the method attribute of the button's form owner."
         },
         "formNoValidate": {
             "elements": [
                 "button",
                 "input"
             ],
-            "description": "If the button/input is a submit button (type=\"submit\"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner."
+            "description": "If the button/input is a submit button (e.g., type=\"submit\"), this boolean attribute specifies that the form is not to be validated when it is submitted. If this attribute is specified, it overrides the novalidate attribute of the button's form owner."
         },
         "formTarget": {
             "elements": [
                 "button",
                 "input"
             ],
-            "description": "If the button/input is a submit button (type=\"submit\"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner."
+            "description": "If the button/input is a submit button (e.g., type=\"submit\"), this attribute specifies the browsing context (for example, tab, window, or inline frame) in which to display the response that is received after submitting the form. If this attribute is specified, it overrides the target attribute of the button's form owner."
         },
         "headers": {
             "elements": [
@@ -333,7 +314,6 @@
         "hrefLang": {
             "elements": [
                 "a",
-                "area",
                 "link"
             ],
             "description": "Specifies the language of the linked resource."
@@ -343,12 +323,6 @@
                 "meta"
             ],
             "description": "Defines a pragma directive."
-        },
-        "icon": {
-            "elements": [
-                "command"
-            ],
-            "description": "Specifies a picture which represents the command."
         },
         "id": {
             "elements": [
@@ -369,12 +343,6 @@
                 "contenteditable"
             ],
             "description": "Provides a hint as to the type of data that might be entered by the user while editing the element or its contents. The attribute can be used with form controls (such as the value of textarea elements), or in elements in an editing host (e.g., using contenteditable attribute)."
-        },
-        "keyType": {
-            "elements": [
-                "keygen"
-            ],
-            "description": "Specifies the type of key generated."
         },
         "kind": {
             "elements": [
@@ -405,7 +373,6 @@
         "loop": {
             "elements": [
                 "audio",
-                "bgsound",
                 "marquee",
                 "video"
             ],
@@ -483,7 +450,6 @@
                 "fieldset",
                 "iframe",
                 "input",
-                "keygen",
                 "object",
                 "output",
                 "select",
@@ -539,12 +505,6 @@
             ],
             "description": "Indicates whether the whole resource, parts of it or nothing should be preloaded."
         },
-        "radioGroup": {
-            "elements": [
-                "command"
-            ],
-            "description": ""
-        },
         "readOnly": {
             "elements": [
                 "input",
@@ -583,7 +543,7 @@
             "elements": [
                 "ol"
             ],
-            "description": "Indicates whether the list should be displayed in a descending order instead of a ascending."
+            "description": "Indicates whether the list should be displayed in a descending order instead of an ascending order."
         },
         "role": {
             "elements": [
@@ -733,9 +693,9 @@
             "elements": [
                 "button",
                 "input",
-                "command",
                 "embed",
                 "object",
+                "ol",
                 "script",
                 "source",
                 "style",
@@ -785,22 +745,24 @@
         }
     },
     "elements": {
-        "form": [
-            "accept",
-            "acceptCharset",
-            "action",
-            "autoComplete",
-            "encType",
-            "method",
+        "button": [
+            "autoFocus",
+            "disabled",
+            "form",
+            "formAction",
+            "formEncType",
+            "formMethod",
+            "formNoValidate",
+            "formTarget",
             "name",
-            "noValidate",
-            "target"
+            "type",
+            "value"
         ],
         "input": [
+            "autoFocus",
             "accept",
             "alt",
             "autoComplete",
-            "autoFocus",
             "capture",
             "checked",
             "disabled",
@@ -830,11 +792,47 @@
             "value",
             "width"
         ],
+        "select": [
+            "autoFocus",
+            "autoComplete",
+            "disabled",
+            "form",
+            "multiple",
+            "name",
+            "required",
+            "size"
+        ],
+        "textarea": [
+            "autoFocus",
+            "autoComplete",
+            "cols",
+            "disabled",
+            "form",
+            "inputMode",
+            "maxLength",
+            "minLength",
+            "name",
+            "placeholder",
+            "readOnly",
+            "required",
+            "rows",
+            "wrap"
+        ],
+        "form": [
+            "accept",
+            "acceptCharset",
+            "action",
+            "autoComplete",
+            "encType",
+            "method",
+            "name",
+            "noValidate",
+            "target"
+        ],
         "Globalattribute": [
             "accessKey",
             "className",
             "contentEditable",
-            "contextMenu",
             "dir",
             "draggable",
             "hidden",
@@ -856,15 +854,11 @@
             "srcDoc",
             "width"
         ],
-        "applet": [
-            "alt"
-        ],
         "area": [
             "alt",
             "coords",
             "download",
             "href",
-            "hrefLang",
             "media",
             "referrerPolicy",
             "rel",
@@ -884,60 +878,12 @@
         ],
         "script": [
             "async",
-            "charSet",
             "crossOrigin",
             "defer",
             "integrity",
             "referrerPolicy",
             "src",
             "type"
-        ],
-        "select": [
-            "autoComplete",
-            "autoFocus",
-            "disabled",
-            "form",
-            "multiple",
-            "name",
-            "required",
-            "size"
-        ],
-        "textarea": [
-            "autoComplete",
-            "autoFocus",
-            "cols",
-            "disabled",
-            "form",
-            "inputMode",
-            "maxLength",
-            "minLength",
-            "name",
-            "placeholder",
-            "readOnly",
-            "required",
-            "rows",
-            "wrap"
-        ],
-        "button": [
-            "autoFocus",
-            "disabled",
-            "form",
-            "formAction",
-            "formEncType",
-            "formMethod",
-            "formNoValidate",
-            "formTarget",
-            "name",
-            "type",
-            "value"
-        ],
-        "keygen": [
-            "autoFocus",
-            "challenge",
-            "disabled",
-            "form",
-            "keyType",
-            "name"
         ],
         "audio": [
             "autoPlay",
@@ -965,13 +911,6 @@
             "content",
             "httpEquiv",
             "name"
-        ],
-        "command": [
-            "checked",
-            "disabled",
-            "icon",
-            "radioGroup",
-            "type"
         ],
         "blockquote": [
             "cite"
@@ -1093,9 +1032,6 @@
         "contenteditable": [
             "inputMode"
         ],
-        "bgsound": [
-            "loop"
-        ],
         "marquee": [
             "loop"
         ],
@@ -1125,7 +1061,8 @@
         ],
         "ol": [
             "reversed",
-            "start"
+            "start",
+            "type"
         ],
         "col": [
             "span"

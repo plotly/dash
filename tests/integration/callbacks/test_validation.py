@@ -77,10 +77,12 @@ def test_cbva002_callback_return_validation():
     def single(a):
         return set([1])
 
+    single_wrapped = app.callback_map["b.children"]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         # outputs_list (normally callback_context.outputs_list) is provided
         # by the dispatcher from the request.
-        single("aaa", outputs_list={"id": "b", "property": "children"})
+        single_wrapped("aaa", outputs_list={"id": "b", "property": "children"})
         pytest.fail("not serializable")
 
     @app.callback(
@@ -89,12 +91,14 @@ def test_cbva002_callback_return_validation():
     def multi(a):
         return [1, set([2])]
 
+    multi_wrapped = app.callback_map["..c.children...d.children.."]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "c", "property": "children"},
             {"id": "d", "property": "children"},
         ]
-        multi("aaa", outputs_list=outputs_list)
+        multi_wrapped("aaa", outputs_list=outputs_list)
         pytest.fail("nested non-serializable")
 
     @app.callback(
@@ -103,12 +107,14 @@ def test_cbva002_callback_return_validation():
     def multi2(a):
         return ["abc"]
 
+    multi2_wrapped = app.callback_map["..e.children...f.children.."]["callback"]
+
     with pytest.raises(InvalidCallbackReturnValue):
         outputs_list = [
             {"id": "e", "property": "children"},
             {"id": "f", "property": "children"},
         ]
-        multi2("aaa", outputs_list=outputs_list)
+        multi2_wrapped("aaa", outputs_list=outputs_list)
         pytest.fail("wrong-length list")
 
 

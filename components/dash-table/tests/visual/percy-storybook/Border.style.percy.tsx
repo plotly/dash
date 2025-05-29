@@ -438,22 +438,38 @@ const ops_scenarios: ITest[] = [
     }
 ];
 
-const tests = R.concat(
-    R.xprod(scenarios, ALL_VARIANTS),
-    R.xprod(ops_scenarios, OPS_VARIANTS)
-);
-
-R.reduce(
-    (chain, [scenario, variant]) =>
-        chain.add(`${scenario.name} (${variant.name})`, () => (
-            <DataTable
-                {...R.mergeAll([
-                    BORDER_PROPS_DEFAULTS,
-                    variant.props,
-                    scenario.props
-                ])}
-            />
-        )),
-    storiesOf('DashTable/Border, custom styles', module),
-    tests
-);
+storiesOf('DashTable/Border, custom styles', module)
+    .add('all variants', () => (
+        <div>
+            {...R.xprod(scenarios, ALL_VARIANTS).map(([scenario, variant]) => (
+                <div>
+                    <div>{`${scenario.name} (${variant.name})`}</div>
+                    <DataTable
+                        {...R.mergeAll([
+                            BORDER_PROPS_DEFAULTS,
+                            variant.props,
+                            scenario.props
+                        ])}
+                    />
+                </div>
+            ))}
+        </div>
+    ))
+    .add('ops variants', () => (
+        <div>
+            {...R.xprod(ops_scenarios, OPS_VARIANTS).map(
+                ([scenario, variant]) => (
+                    <div>
+                        <div>{`${scenario.name} (${variant.name})`}</div>
+                        <DataTable
+                            {...R.mergeAll([
+                                BORDER_PROPS_DEFAULTS,
+                                variant.props,
+                                scenario.props
+                            ])}
+                        />
+                    </div>
+                )
+            )}
+        </div>
+    ));

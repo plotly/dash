@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import flaky
 from dash import Dash, Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 
@@ -47,7 +48,7 @@ def test_dveh001_python_errors(dash_duo):
         dev_tools_hot_reload=False,
     )
 
-    dash_duo.percy_snapshot("devtools - Python exception - start")
+    assert dash_duo.get_logs() == []
 
     dash_duo.find_element("#python").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
@@ -119,6 +120,7 @@ def test_dveh006_long_python_errors(dash_duo):
     assert "self.wsgi_app" in error1
 
 
+@flaky.flaky(max_runs=3)
 def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     # raising PreventUpdate shouldn't display the error message
     app = Dash(__name__)
@@ -157,7 +159,6 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     # two exceptions fired, but only a single exception appeared in the UI:
     # the prevent default was not displayed
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - prevent update - only a single exception")
 
 
 def test_dveh003_validation_errors_in_place(dash_duo):
@@ -188,8 +189,6 @@ def test_dveh003_validation_errors_in_place(dash_duo):
 
     dash_duo.find_element("#button").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - validation exception - closed")
-
     dash_duo.find_element(".test-devtools-error-toggle").click()
     dash_duo.percy_snapshot("devtools - validation exception - open")
 
@@ -222,8 +221,6 @@ def test_dveh004_validation_errors_creation(dash_duo):
 
     dash_duo.wait_for_element("#button").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - validation creation exception - closed")
-
     dash_duo.find_element(".test-devtools-error-toggle").click()
     dash_duo.percy_snapshot("devtools - validation creation exception - open")
 
@@ -263,7 +260,5 @@ def test_dveh005_multiple_outputs(dash_duo):
 
     dash_duo.find_element("#multi-output").click()
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, "1")
-    dash_duo.percy_snapshot("devtools - multi output Python exception - closed")
-
     dash_duo.find_element(".test-devtools-error-toggle").click()
     dash_duo.percy_snapshot("devtools - multi output Python exception - open")

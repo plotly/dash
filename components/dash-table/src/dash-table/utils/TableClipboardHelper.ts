@@ -98,7 +98,7 @@ export default class TableClipboardHelper {
             ? TableClipboardHelper.localCopyWithoutHeaders
             : TableClipboardHelper.lastLocalCopy;
         const values =
-            localDf === text ? localCopy : SheetClip.prototype.parse(text);
+            localDf === text ? localCopy : TableClipboardHelper.parse(text);
 
         return applyClipboardToData(
             values,
@@ -110,5 +110,64 @@ export default class TableClipboardHelper {
             overflowColumns,
             overflowRows
         );
+    }
+
+    private static parse(str: string) {
+        let r,
+            rlen,
+            a = 0,
+            c,
+            clen,
+            multiline,
+            last,
+            arr: string[][] = [[]];
+        const rows = str.split('\n');
+        if (rows.length > 1 && rows[rows.length - 1] === '') {
+            rows.pop();
+        }
+        arr = [];
+        for (r = 0, rlen = rows.length; r < rlen; r += 1) {
+            const row = rows[r].split('\t');
+            for (c = 0, clen = row.length; c < clen; c += 1) {
+                if (!arr[a]) {
+                    arr[a] = [];
+                }
+                if (multiline && c === 0) {
+                    last = arr[a].length - 1;
+                    arr[a][last] =
+                        arr[a][last] + '\n' + row[0].replace(/""/g, '"');
+                    if (
+                        multiline &&
+                        TableClipboardHelper.countQuotes(row[0]) & 1
+                    ) {
+                        multiline = false;
+                        arr[a][last] = arr[a][last].substring(
+                            0,
+                            arr[a][last].length - 1
+                        );
+                    }
+                } else {
+                    if (
+                        c === clen - 1 &&
+                        row[c].indexOf('"') === 0 &&
+                        TableClipboardHelper.countQuotes(row[c]) & 1
+                    ) {
+                        arr[a].push(row[c].substring(1).replace(/""/g, '"'));
+                        multiline = true;
+                    } else {
+                        arr[a].push(row[c]);
+                        multiline = false;
+                    }
+                }
+            }
+            if (!multiline) {
+                a += 1;
+            }
+        }
+        return arr;
+    }
+
+    private static countQuotes(str: string) {
+        return str.split('"').length - 1;
     }
 }

@@ -23,7 +23,7 @@ def get_app(props=dict()):
     return app
 
 
-def get_sigle_row_app(props=dict()):
+def get_single_row_app(props=dict()):
     app = dash.Dash(__name__)
 
     baseProps = get_props()
@@ -115,7 +115,7 @@ def test_head003_preserves_column_name_on_cancel(test):
 
 
 def test_head004_change_single_row_header(test):
-    test.start_server(get_sigle_row_app())
+    test.start_server(get_single_row_app())
 
     target = test.table("table")
 
@@ -136,6 +136,7 @@ def test_head005_no_warnings_emitted(test):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     target = test.table("table")
@@ -173,6 +174,7 @@ def test_head006_style_merged_columns(test):
         use_reloader=False,
         use_debugger=True,
         dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
     )
 
     target = test.table("table")

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
-import {assoc, isNil, omit} from 'ramda';
+import {assoc, isNil, pick, pipe, omit} from 'ramda';
 import computeSliderStyle from '../utils/computeSliderStyle';
 
 import 'rc-slider/assets/index.css';
@@ -10,7 +10,23 @@ import {
     calcStep,
     setUndefined,
 } from '../utils/computeSliderMarkers';
-import {propTypes, defaultProps} from '../components/Slider.react';
+import {propTypes} from '../components/Slider.react';
+import {
+    formatSliderTooltip,
+    transformSliderTooltip,
+} from '../utils/formatSliderTooltip';
+import LoadingElement from '../utils/LoadingElement';
+
+const sliderProps = [
+    'min',
+    'max',
+    'disabled',
+    'dots',
+    'included',
+    'tooltip',
+    'vertical',
+    'id',
+];
 
 /**
  * A slider component with a single handle.
@@ -48,7 +64,6 @@ export default class Slider extends Component {
         const {
             className,
             id,
-            loading_state,
             setProps,
             tooltip,
             updatemode,
@@ -61,25 +76,38 @@ export default class Slider extends Component {
         } = this.props;
         const value = this.state.value;
 
-        let tipProps;
-        if (tooltip && tooltip.always_visible) {
+        let tipProps, tipFormatter;
+        if (tooltip) {
             /**
              * clone `tooltip` but with renamed key `always_visible` -> `visible`
              * the rc-tooltip API uses `visible`, but `always_visible` is more semantic
              * assigns the new (renamed) key to the old key and deletes the old key
              */
-            tipProps = assoc('visible', tooltip.always_visible, tooltip);
-            delete tipProps.always_visible;
-        } else {
-            tipProps = tooltip;
+            tipProps = pipe(
+                assoc('visible', tooltip.always_visible),
+                omit(['always_visible', 'template', 'style', 'transform'])
+            )(tooltip);
+            if (tooltip.template || tooltip.style || tooltip.transform) {
+                tipFormatter = tipValue => {
+                    let t = tipValue;
+                    if (tooltip.transform) {
+                        t = transformSliderTooltip(tooltip.transform, tipValue);
+                    }
+                    return (
+                        <div style={tooltip.style}>
+                            {formatSliderTooltip(
+                                tooltip.template || '{value}',
+                                t
+                            )}
+                        </div>
+                    );
+                };
+            }
         }
 
         return (
-            <div
+            <LoadingElement
                 id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
                 className={className}
                 style={this._computeStyle(vertical, verticalHeight, tooltip)}
             >
@@ -105,6 +133,7 @@ export default class Slider extends Component {
                         ...tipProps,
                         getTooltipContainer: node => node,
                     }}
+                    tipFormatter={tipFormatter}
                     style={{position: 'relative'}}
                     value={value}
                     marks={sanitizeMarks({min, max, marks, step})}
@@ -115,24 +144,11 @@ export default class Slider extends Component {
                             ? null
                             : calcStep(min, max, step)
                     }
-                    {...omit(
-                        [
-                            'className',
-                            'setProps',
-                            'updatemode',
-                            'value',
-                            'drag_value',
-                            'marks',
-                            'verticalHeight',
-                            'step',
-                        ],
-                        this.props
-                    )}
+                    {...pick(sliderProps, this.props)}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }
 
 Slider.propTypes = propTypes;
-Slider.defaultProps = defaultProps;

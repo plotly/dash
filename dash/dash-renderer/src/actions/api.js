@@ -60,12 +60,16 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     // fetch rejection - this means the request didn't return,
                     // we don't get here from 400/500 errors, only network
                     // errors or unresponsive servers.
+                    // eslint-disable-next-line no-console
                     console.log('fetch error', res);
                     setConnectionStatus(false);
                     return;
                 }
 
-                if (res.status === STATUS.UNAUTHORIZED) {
+                if (
+                    res.status === STATUS.UNAUTHORIZED ||
+                    res.status === STATUS.BAD_REQUEST
+                ) {
                     if (hooks.request_refresh_jwt) {
                         const body = await res.text();
                         if (body.includes(JWT_EXPIRED_MESSAGE)) {
@@ -112,6 +116,7 @@ export default function apiThunk(endpoint, method, store, id, body) {
                     return json;
                 });
             }
+            const content = await res.text();
             logWarningOnce(
                 'Response is missing header: content-type: application/json'
             );
@@ -119,7 +124,8 @@ export default function apiThunk(endpoint, method, store, id, body) {
                 type: store,
                 payload: {
                     id,
-                    status: res.status
+                    status: res.status,
+                    content
                 }
             });
         } catch (err) {

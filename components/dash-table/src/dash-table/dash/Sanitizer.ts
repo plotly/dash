@@ -22,7 +22,6 @@ import {
 } from 'dash-table/components/Table/props';
 import headerRows from 'dash-table/derived/header/headerRows';
 import resolveFlag from 'dash-table/derived/cell/resolveFlag';
-import dataLoading from 'dash-table/derived/table/data_loading';
 import {Column, Columns} from '../components/Table/props';
 
 const D3_DEFAULT_LOCALE: INumberLocale = {
@@ -37,9 +36,11 @@ const D3_DEFAULT_LOCALE: INumberLocale = {
 const DEFAULT_NULLY = '';
 const DEFAULT_SPECIFIER = '';
 const NULL_SELECTED_CELLS: SelectedCells = [];
+const DEFAULT_FILTER_PLACEHOLDER_TEXT = 'filter data...';
 
 const DEFAULT_FILTER_OPTIONS = {
-    case: FilterCase.Sensitive
+    case: FilterCase.Sensitive,
+    placeholder_text: DEFAULT_FILTER_PLACEHOLDER_TEXT
 };
 
 const data2number = (data?: any) => +data || 0;
@@ -116,7 +117,7 @@ const getVisibleColumns = (
     );
 
 export default class Sanitizer {
-    sanitize(props: PropsWithDefaults): SanitizedProps {
+    sanitize(props: PropsWithDefaults, isLoading: boolean): SanitizedProps {
         const locale_format = this.applyDefaultToLocale(props.locale_format);
         const data = props.data ?? [];
         const columns = props.columns
@@ -170,7 +171,7 @@ export default class Sanitizer {
                 columns,
                 props.filter_action
             ),
-            loading_state: dataLoading(props.loading_state),
+            loading_state: isLoading,
             locale_format,
             selected_cells,
             visibleColumns

@@ -29,10 +29,9 @@ def test_click_simple(dash_duo):
 
     dash_duo.start_server(app)
 
-    dash_duo.find_element("#container")
+    dash_duo.wait_for_text_to_equal("#container", "")
 
     assert call_count.value == 0
-    dash_duo.percy_snapshot("html button initialization")
 
     dash_duo.find_element("#button").click()
 
@@ -83,14 +82,12 @@ def test_click_prev(dash_duo):
     assert timestamp_1.value == -5
     assert timestamp_2.value == -5
     assert call_count.value == 0
-    dash_duo.percy_snapshot("html button initialization 1")
 
     dash_duo.find_element("#button-1").click()
     dash_duo.wait_for_text_to_equal("#container", "1, 0")
     assert timestamp_1.value > ((time.time() - (24 * 60 * 60)) * 1000)
     assert timestamp_2.value == -1
     assert call_count.value == 1
-    dash_duo.percy_snapshot("html button-1 click")
     prev_timestamp_1 = timestamp_1.value
 
     dash_duo.find_element("#button-2").click()
@@ -98,7 +95,6 @@ def test_click_prev(dash_duo):
     assert timestamp_1.value == prev_timestamp_1
     assert timestamp_2.value > ((time.time() - 24 * 60 * 60) * 1000)
     assert call_count.value == 2
-    dash_duo.percy_snapshot("html button-2 click")
     prev_timestamp_2 = timestamp_2.value
 
     dash_duo.find_element("#button-2").click()
@@ -107,6 +103,41 @@ def test_click_prev(dash_duo):
     assert timestamp_2.value > prev_timestamp_2
     assert timestamp_2.value > timestamp_1.value
     assert call_count.value == 3
-    dash_duo.percy_snapshot("html button-2 click again")
 
     assert not dash_duo.get_logs()
+
+    def test_click_static(dash_duo):
+        app = Dash(__name__)
+
+        app.layout = html.Div(
+            [
+                html.Div("no event listener", className="div-1"),
+                html.Div("event listener", id="div-2", n_clicks=0),
+                html.Div(
+                    "no event listener", id="div-3", n_clicks=0, disable_n_clicks=True
+                ),
+                html.Div(
+                    "event listener", id="div-4", n_clicks=0, disable_n_clicks=False
+                ),
+                html.Div(id="div-output"),
+            ]
+        )
+
+        @app.callback(
+            Output("div-output", "children"),
+            Input("div-2", "n_clicks"),
+            Input("div-3", "n_clicks"),
+            Input("div-4", "n_clicks"),
+            prevent_initial_call=True,
+        )
+        def update(n2, n3, n4):
+            return f"{n2}, {n3}, {n4}"
+
+        dash_duo.start_server(app)
+        dash_duo.find_element("#div-2").click()
+        dash_duo.find_element("#div-3").click()
+        dash_duo.find_element("#div-4").click()
+
+        dash_duo.wait_for_text_to_equal("#div-output", "1, 0, 1")
+
+        assert not dash_duo.get_logs()

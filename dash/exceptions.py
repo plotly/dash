@@ -10,6 +10,10 @@ class ObsoleteKwargException(DashException):
     pass
 
 
+class ObsoleteAttributeException(DashException):
+    pass
+
+
 class NoLayoutException(DashException):
     pass
 
@@ -84,4 +88,24 @@ class ProxyError(DashException):
 
 
 class DuplicateCallback(DashException):
+    pass
+
+
+class BackgroundCallbackError(DashException):
+    pass
+
+
+class MissingLongCallbackManagerError(DashException):
+    pass
+
+
+class PageError(DashException):
+    pass
+
+
+class ImportedInsideCallbackError(DashException):
+    pass
+
+
+class HookError(DashException):
     pass

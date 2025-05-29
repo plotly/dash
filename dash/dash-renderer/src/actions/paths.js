@@ -3,9 +3,11 @@ import {
     filter,
     find,
     forEachObjIndexed,
+    insert,
     path,
     propEq,
-    props
+    props,
+    indexOf
 } from 'ramda';
 
 import {crawlLayout} from './utils';
@@ -46,7 +48,14 @@ export function computePaths(subTree, startingPath, oldPaths, events) {
                 const values = props(keys, id);
                 const keyStr = keys.join(',');
                 const paths = (objs[keyStr] = objs[keyStr] || []);
-                paths.push({values, path: concat(startingPath, itempath)});
+                const oldie = oldObjs[keyStr] || [];
+                const item = {values, path: concat(startingPath, itempath)};
+                const index = indexOf(item, oldie);
+                if (index === -1) {
+                    paths.push(item);
+                } else {
+                    objs[keyStr] = insert(index, item, paths);
+                }
             } else {
                 strs[id] = concat(startingPath, itempath);
             }
@@ -67,7 +76,7 @@ export function getPath(paths, id) {
             return false;
         }
         const values = props(keys, id);
-        const pathObj = find(propEq('values', values), keyPaths);
+        const pathObj = find(propEq(values, 'values'), keyPaths);
         return pathObj && pathObj.path;
     }
     return paths.strs[id];

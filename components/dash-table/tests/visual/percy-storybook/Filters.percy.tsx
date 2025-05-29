@@ -20,7 +20,6 @@ const data = (() => {
 
 const props = {
     setProps,
-    id: 'table',
     data: data,
     filter_action: TableAction.Native,
     style_cell: {
@@ -30,14 +29,14 @@ const props = {
     }
 };
 
-storiesOf('DashTable/Filtering', module)
-    .add('with a single column', () => (
+storiesOf('DashTable/Filtering', module).add('all variants', () => (
+    <div>
+        <div>with a single column</div>
         <DataTable
             {...props}
             columns={['a'].map(id => ({id: id, name: id.toUpperCase()}))}
         />
-    ))
-    .add('with multiple columns', () => (
+        <div>with multiple columns</div>
         <DataTable
             {...props}
             columns={['a', 'b', 'c'].map(id => ({
@@ -45,4 +44,5 @@ storiesOf('DashTable/Filtering', module)
                 name: id.toUpperCase()
             }))}
         />
-    ));
+    </div>
+));

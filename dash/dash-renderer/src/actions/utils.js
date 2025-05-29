@@ -1,4 +1,14 @@
-import {append, concat, has, path, type} from 'ramda';
+import {
+    append,
+    concat,
+    has,
+    path,
+    pathOr,
+    type,
+    findIndex,
+    includes,
+    slice
+} from 'ramda';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
@@ -27,11 +37,57 @@ export function urlBase(config) {
 const propsChildren = ['props', 'children'];
 
 // crawl a layout object or children array, apply a function on every object
-export const crawlLayout = (object, func, currentPath = []) => {
+export const crawlLayout = (
+    object,
+    func,
+    currentPath = [],
+    extraPath = undefined
+) => {
     if (Array.isArray(object)) {
         // children array
         object.forEach((child, i) => {
-            crawlLayout(child, func, append(i, currentPath));
+            if (extraPath) {
+                const objOf = findIndex(p => includes('{}', p), extraPath);
+                if (objOf !== -1) {
+                    const front = slice(0, objOf, extraPath);
+                    const back = slice(objOf, extraPath.length, extraPath);
+                    if (front.length) {
+                        crawlLayout(
+                            path(front, child),
+                            func,
+                            concat(currentPath, concat([i], front)),
+                            back
+                        );
+                    } else {
+                        const backPath = back
+                            .map(p => p.replace('{}', ''))
+                            .filter(e => e);
+                        let childObj,
+                            childPath = concat([i], backPath);
+                        if (backPath.length) {
+                            childObj = path(backPath, child);
+                        } else {
+                            childObj = child;
+                        }
+                        for (const key in childObj) {
+                            const value = childObj[key];
+                            crawlLayout(
+                                value,
+                                func,
+                                concat(currentPath, childPath.concat([key]))
+                            );
+                        }
+                    }
+                } else {
+                    crawlLayout(
+                        path(extraPath, child),
+                        func,
+                        concat(currentPath, concat([i], extraPath))
+                    );
+                }
+            } else {
+                crawlLayout(child, func, append(i, currentPath));
+            }
         });
     } else if (type(object) === 'Object') {
         func(object, currentPath);
@@ -41,6 +97,74 @@ export const crawlLayout = (object, func, currentPath = []) => {
             const newPath = concat(currentPath, propsChildren);
             crawlLayout(children, func, newPath);
         }
+
+        const childrenProps = pathOr(
+            [],
+            [object.namespace, object.type],
+            window.__dashprivate_childrenProps
+        );
+        childrenProps.forEach(childrenProp => {
+            if (childrenProp.includes('[]')) {
+                let [frontPath, backPath] = childrenProp
+                    .split('[]')
+                    .map(p => p.split('.').filter(e => e));
+
+                const front = concat(['props'], frontPath);
+                const basePath = concat(currentPath, front);
+                crawlLayout(path(front, object), func, basePath, backPath);
+            } else {
+                if (childrenProp.includes('{}')) {
+                    const opath = childrenProp.split('.');
+                    const frontPath = [];
+                    const backPath = [];
+                    let found = false;
+
+                    for (let i = 0; i < opath.length; i++) {
+                        const curPath = opath[i];
+                        if (!found && curPath.includes('{}')) {
+                            found = true;
+                            frontPath.push(curPath.replace('{}', ''));
+                        } else {
+                            if (found) {
+                                backPath.push(curPath);
+                            } else {
+                                frontPath.push(curPath);
+                            }
+                        }
+                    }
+                    const newPath = concat(currentPath, [
+                        'props',
+                        ...frontPath
+                    ]);
+
+                    const oValue = path(['props', ...frontPath], object);
+                    if (oValue !== undefined) {
+                        for (const key in oValue) {
+                            const value = oValue[key];
+                            if (backPath.length) {
+                                crawlLayout(
+                                    path(backPath, value),
+                                    func,
+                                    concat(newPath, [key, ...backPath])
+                                );
+                            } else {
+                                crawlLayout(value, func, [...newPath, key]);
+                            }
+                        }
+                    }
+                } else {
+                    const newPath = concat(currentPath, [
+                        'props',
+                        ...childrenProp.split('.')
+                    ]);
+                    crawlLayout(
+                        path(['props', ...childrenProp.split('.')], object),
+                        func,
+                        newPath
+                    );
+                }
+            }
+        });
     }
 };
 

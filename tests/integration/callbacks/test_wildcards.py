@@ -2,6 +2,7 @@ import pytest
 import re
 from selenium.webdriver.common.keys import Keys
 import json
+from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
@@ -421,10 +422,10 @@ def test_cbwc006_grouping_callbacks(dash_duo):
             items=dict(
                 all=[
                     {
-                        "id": {"item": i},
+                        "id": {"id": i},
                         "property": "children",
                         "value": text,
-                        "str_id": stringify_id({"item": i}),
+                        "str_id": stringify_id({"id": i}),
                         "triggered": False,
                     }
                     for i, text in enumerate(items_text[:-1])
@@ -483,3 +484,138 @@ def test_cbwc006_grouping_callbacks(dash_duo):
     dash_duo.wait_for_text_to_equal("#totals", "3 total item(s)")
     assert_count(3)
     assert_callback_context(["apples", "bananas", "carrots"])
+
+
+def test_cbwc007_pmc_update_subtree_ordering(dash_duo):
+    # Test for regression bug #2368, updated pmc subtree should keep order.
+    app = dash.Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("refresh options", id="refresh-options"),
+            html.Br(),
+            html.Div(
+                [
+                    *[
+                        dcc.Dropdown(
+                            id={"type": "demo-options", "index": i},
+                            placeholder=f"dropdown-{i}",
+                            style={"width": "200px"},
+                        )
+                        for i in range(2)
+                    ],
+                    dcc.Dropdown(
+                        id={"type": "demo-options", "index": 2},
+                        options=[f"option2-{i}" for i in range(3)],
+                        placeholder="dropdown-2",
+                        style={"width": "200px"},
+                    ),
+                ],
+                id="dropdown-container",
+            ),
+            html.Br(),
+            html.Pre(id="selected-values"),
+        ],
+        style={"padding": "50px"},
+    )
+
+    @app.callback(
+        [
+            Output({"type": "demo-options", "index": 0}, "options"),
+            Output({"type": "demo-options", "index": 1}, "options"),
+        ],
+        Input("refresh-options", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def refresh_options(_):
+        return [[f"option0-{i}" for i in range(3)], [f"option1-{i}" for i in range(3)]]
+
+    @app.callback(
+        Output("selected-values", "children"),
+        Input({"type": "demo-options", "index": ALL}, "value"),
+    )
+    def update_selected_values(values):
+        return str(values)
+
+    dash_duo.start_server(app)
+    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(3)", index=2)
+
+    dash_duo.wait_for_text_to_equal("#selected-values", "[None, None, 'option2-2']")
+
+    dash_duo.wait_for_element("#refresh-options").click()
+
+    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(2)", index=2)
+    dash_duo.wait_for_text_to_equal(
+        "#selected-values", "[None, 'option1-2', 'option2-2']"
+    )
+
+    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(1)", index=2)
+    dash_duo.wait_for_text_to_equal(
+        "#selected-values", "['option0-2', 'option1-2', 'option2-2']"
+    )
+
+
+def test_cbwc008_running_match(dash_duo):
+    lock = Lock()
+    app = dash.Dash()
+
+    app.layout = [
+        html.Div(
+            [
+                html.Button(
+                    "Test1",
+                    id={"component": "button", "index": "1"},
+                ),
+                html.Button(
+                    "Test2",
+                    id={"component": "button", "index": "2"},
+                ),
+            ],
+            id="buttons",
+        ),
+        html.Div(html.Div(id={"component": "output", "index": "1"}), id="output1"),
+        html.Div(html.Div(id={"component": "output", "index": "2"}), id="output2"),
+    ]
+
+    @app.callback(
+        Output({"component": "output", "index": MATCH}, "children"),
+        Input({"component": "button", "index": MATCH}, "n_clicks"),
+        running=[
+            (
+                Output({"component": "button", "index": MATCH}, "children"),
+                "running",
+                "finished",
+            ),
+            (Output({"component": "button", "index": ALL}, "disabled"), True, False),
+        ],
+        prevent_initial_call=True,
+    )
+    def on_click(_) -> str:
+        with lock:
+            return "done"
+
+    dash_duo.start_server(app)
+
+    for i in range(1, 3):
+        with lock:
+            dash_duo.find_element(f"#buttons button:nth-child({i})").click()
+            dash_duo.wait_for_text_to_equal(
+                f"#buttons button:nth-child({i})", "running"
+            )
+            # verify all the buttons were disabled.
+            assert dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
+                "disabled"
+            )
+            assert dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
+                "disabled"
+            )
+
+        dash_duo.wait_for_text_to_equal(f"#output{i}", "done")
+        dash_duo.wait_for_text_to_equal(f"#buttons button:nth-child({i})", "finished")
+
+        assert not dash_duo.find_element("#buttons button:nth-child(1)").get_attribute(
+            "disabled"
+        )
+        assert not dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
+            "disabled"
+        )

@@ -56,7 +56,8 @@ const NUMERIC_PROPERTIES = [
     'cols',
     'colSpan',
     'size',
-    'step'
+    'step',
+    'tabIndex'
 ];
 
 const PROP_TYPES = {
@@ -139,6 +140,12 @@ function generatePropTypes(element, attributes) {
     'n_clicks_timestamp': PropTypes.number,
 
     /**
+     * When True, this will disable the n_clicks prop.  Use this to remove
+     * event listeners that may interfere with screen readers.
+     */
+    'disable_n_clicks': PropTypes.bool,
+
+    /**
      * A unique identifier for the component, used to improve
      * performance by React.js while rendering components
      * See https://reactjs.org/docs/lists-and-keys.html for more info
@@ -168,24 +175,6 @@ function generatePropTypes(element, attributes) {
      */
     '${attributeName}': PropTypes.${propType},`;
         }, '') + `
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    'loading_state': PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Dash-assigned callback that gets fired when the element is clicked.
@@ -243,45 +232,80 @@ const customDocs = {
  * <body>.`
 };
 
+const customImportsForComponents = {};
+
+function createXSSProtection(propName) {
+    return `
+    const cleanUrl = window.dash_clientside.clean_url;
+    const ${propName} = React.useMemo(() => props.${propName} && cleanUrl(props.${propName}), [props.${propName}]);
+    
+    if (${propName}) {
+        extraProps.${propName} = ${propName};
+    }
+    
+    React.useEffect(() => {
+        if (${propName} && ${propName} !== props.${propName}) {
+            props.setProps({_dash_error: new Error(\`Dangerous link detected: \${props.${propName}}\`)})
+        }
+    }, [props.${propName}, ${propName}]);
+    `
+}
+
+
+const customCodesForComponents = {
+    a: createXSSProtection('href'),
+    form: createXSSProtection('action'),
+    iframe: createXSSProtection('src'),
+    object: createXSSProtection('data'),
+    embed: createXSSProtection('src'),
+    button: createXSSProtection('formAction')
+}
+
 function generateComponent(Component, element, attributes) {
     const propTypes = generatePropTypes(element, attributes);
 
+    const customImport = customImportsForComponents[element] || '';
     const customDoc = customDocs[element] ? ('\n *' + customDocs[element] + '\n *') : '';
+
+    const customCode = customCodesForComponents[element] || '';
 
     return `
 import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from 'ramda';
+${customImport}
 
 /**
  * ${Component} is a wrapper for the <${element}> HTML5 element.${customDoc}
  * For detailed attribute info see:
  * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/${element}
  */
-const ${Component} = (props) => {
-    const dataAttributes = {};
-    if(props.loading_state && props.loading_state.is_loading) {
-        dataAttributes['data-dash-is-loading'] = true;
+const ${Component} = ({n_clicks = 0, n_clicks_timestamp = -1, ...props}) => {
+    const extraProps = {};
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
+    if (loading) {
+        extraProps['data-dash-is-loading'] = true;
     }
-
+${customCode}
+     /* remove unnecessary onClick event listeners  */
+    const isStatic = props.disable_n_clicks || !props.id;
     return (
         <${element}
-            onClick={() => props.setProps({
-                n_clicks: props.n_clicks + 1,
+            {...(!isStatic && {onClick:
+            () => props.setProps({
+                n_clicks: n_clicks + 1,
                 n_clicks_timestamp: Date.now()
+            })
             })}
-            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps'], props)}
-            {...dataAttributes}
+            {...omit(['n_clicks', 'n_clicks_timestamp', 'loading_state', 'setProps', 'disable_n_clicks'], props)}
+            {...extraProps}
         >
             {props.children}
         </${element}>
     );
 };
 
-${Component}.defaultProps = {
-    n_clicks: 0,
-    n_clicks_timestamp: -1,
-};
 
 ${Component}.propTypes = {${propTypes}
 };

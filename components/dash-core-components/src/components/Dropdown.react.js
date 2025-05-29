@@ -56,8 +56,7 @@ Dropdown.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-                    .isRequired,
+                label: PropTypes.node.isRequired,
 
                 /**
                  * The value of the option. This value
@@ -81,6 +80,14 @@ Dropdown.propTypes = {
                  * see https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title
                  */
                 title: PropTypes.string,
+
+                /**
+                 * Optional search value for the option, to use if the label
+                 * is a component or provide a custom search value different
+                 * from the label. If no search value and the label is a
+                 * component, the `value` will be used for search.
+                 */
+                search: PropTypes.string,
             })
         ),
     ]),
@@ -144,6 +151,11 @@ Dropdown.propTypes = {
     optionHeight: PropTypes.number,
 
     /**
+     * height of the options dropdown.
+     */
+    maxHeight: PropTypes.number,
+
+    /**
      * Defines CSS styles which will override styles previously set.
      */
     style: PropTypes.object,
@@ -164,24 +176,6 @@ Dropdown.propTypes = {
      * Dash-assigned callback that gets fired when the input changes
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when
@@ -219,6 +213,7 @@ Dropdown.defaultProps = {
     multi: false,
     searchable: true,
     optionHeight: 35,
+    maxHeight: 200,
     persisted_props: ['value'],
     persistence_type: 'local',
 };

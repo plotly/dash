@@ -54,7 +54,12 @@ DashMarkdown.propTypes = {
     dangerously_allow_html: PropTypes.bool,
 
     /**
-     * A markdown string (or array of strings) that adhreres to the CommonMark spec
+     * A string for the target attribute to use on links (such as "_blank")
+     */
+    link_target: PropTypes.string,
+
+    /**
+     * A markdown string (or array of strings) that adheres to the CommonMark spec
      */
     children: PropTypes.oneOfType([
         PropTypes.string,
@@ -77,24 +82,6 @@ DashMarkdown.propTypes = {
          * Color scheme; default 'light'
          */
         theme: PropTypes.oneOf(['dark', 'light']),
-    }),
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
     }),
 
     /**

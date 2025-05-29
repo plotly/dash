@@ -1,47 +1,79 @@
-import React, {Component} from 'react';
+/* eslint-disable no-unused-vars */
+import React from 'react';
 import PropTypes from 'prop-types';
-import {omit} from 'ramda';
+import {pick} from 'ramda';
+
+const textAreaProps = [
+    'id',
+    'autoFocus',
+    'cols',
+    'disabled',
+    'form',
+    'maxLength',
+    'minLength',
+    'name',
+    'placeholder',
+    'readOnly',
+    'required',
+    'rows',
+    'wrap',
+    'accessKey',
+    'className',
+    'contentEditable',
+    'contextMenu',
+    'dir',
+    'draggable',
+    'hidden',
+    'lang',
+    'spellCheck',
+    'style',
+    'tabIndex',
+    'title',
+];
 
 /**
  * A basic HTML textarea for entering multiline text.
  *
  */
-export default class Textarea extends Component {
-    render() {
-        const {setProps, loading_state, value} = this.props;
+const Textarea = ({
+    setProps,
+    value,
+    n_blur = 0,
+    n_blur_timestamp = -1,
+    n_clicks,
+    n_clicks_timestamp = -1,
+    persisted_props,
+    persistence_type,
+    ...props
+}) => {
+    const ctx = window.dash_component_api.useDashContext();
+    const isLoading = ctx.useLoading();
 
-        return (
-            <textarea
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                value={value}
-                onChange={e => {
-                    setProps({value: e.target.value});
-                }}
-                onBlur={() => {
-                    setProps({
-                        n_blur: this.props.n_blur + 1,
-                        n_blur_timestamp: Date.now(),
-                    });
-                }}
-                onClick={() => {
-                    setProps({
-                        n_clicks: this.props.n_clicks + 1,
-                        n_clicks_timestamp: Date.now(),
-                    });
-                }}
-                {...omit(['setProps', 'value'], this.props)}
-            />
-        );
-    }
-}
+    return (
+        <textarea
+            data-dash-is-loading={isLoading || undefined}
+            value={value}
+            onChange={e => {
+                setProps({value: e.target.value});
+            }}
+            onBlur={() => {
+                setProps({
+                    n_blur: n_blur + 1,
+                    n_blur_timestamp: Date.now(),
+                });
+            }}
+            onClick={() => {
+                setProps({
+                    n_clicks: n_clicks + 1,
+                    n_clicks_timestamp: Date.now(),
+                });
+            }}
+            {...pick(textAreaProps, props)}
+        />
+    );
+};
 
-Textarea.defaultProps = {
-    n_blur: 0,
-    n_blur_timestamp: -1,
-    n_clicks: 0,
-    n_clicks_timestamp: -1,
+Textarea.dashPersistence = {
     persisted_props: ['value'],
     persistence_type: 'local',
 };
@@ -223,24 +255,6 @@ Textarea.propTypes = {
     setProps: PropTypes.func,
 
     /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
-
-    /**
      * Used to allow user interactions in this component to be persisted when
      * the component - or the page - is refreshed. If `persisted` is truthy and
      * hasn't changed from its previous value, a `value` that the user has
@@ -269,3 +283,5 @@ Textarea.propTypes = {
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
+
+export default Textarea;

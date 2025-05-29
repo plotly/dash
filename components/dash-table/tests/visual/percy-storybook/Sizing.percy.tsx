@@ -44,9 +44,11 @@ const props = {
     columns
 };
 
-storiesOf('DashTable/Sizing', module)
-    .add('default styles', () => <DataTable {...props} />)
-    .add('padding', () => (
+storiesOf('DashTable/Sizing', module).add('all variants', () => (
+    <div>
+        <div>default styles</div>
+        <DataTable {...props} />
+        <div>padding</div>
         <DataTable
             {...props}
             css={[
@@ -61,8 +63,7 @@ storiesOf('DashTable/Sizing', module)
             ]}
             style_data_conditional={[{width: '16.67%'}]}
         />
-    ))
-    .add('single column width by percentage', () => (
+        <div>single column width by percentage</div>
         <DataTable
             {...props}
             css={[
@@ -82,8 +83,7 @@ storiesOf('DashTable/Sizing', module)
                 }
             ]}
         />
-    ))
-    .add('underspecified widths', () => (
+        <div>underspecified widths</div>
         <DataTable
             {...props}
             style_data_conditional={[
@@ -107,8 +107,7 @@ storiesOf('DashTable/Sizing', module)
                 }
             ]}
         />
-    ))
-    .add('widths smaller than content', () => (
+        <div>widths smaller than content</div>
         <DataTable
             {...props}
             css={[
@@ -119,8 +118,7 @@ storiesOf('DashTable/Sizing', module)
             ]}
             style_data_conditional={[{width: '100px'}]}
         />
-    ))
-    .add('widths smaller than content (forced)', () => (
+        <div>widths smaller than content (forced)</div>
         <DataTable
             {...props}
             style_data_conditional={[
@@ -135,4 +133,5 @@ storiesOf('DashTable/Sizing', module)
                 max_width: '100px'
             }}
         />
-    ));
+    </div>
+));

@@ -7,13 +7,13 @@ import DatePickerRange from './components/DatePickerRange.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import Download from './components/Download.react';
 import Dropdown from './components/Dropdown.react';
+import Geolocation from './components/Geolocation.react';
 import Graph from './components/Graph.react';
 import Input from './components/Input.react';
 import Interval from './components/Interval.react';
 import Link from './components/Link.react';
 import Loading from './components/Loading.react';
 import Location from './components/Location.react';
-import LogoutButton from './components/LogoutButton.react';
 import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems.react';
 import RangeSlider from './components/RangeSlider.react';
@@ -37,13 +37,13 @@ export {
     DatePickerSingle,
     Download,
     Dropdown,
+    Geolocation,
     Graph,
     Input,
     Interval,
     Link,
     Loading,
     Location,
-    LogoutButton,
     Markdown,
     RadioItems,
     RangeSlider,

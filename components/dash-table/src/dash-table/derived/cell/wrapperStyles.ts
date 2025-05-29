@@ -52,7 +52,7 @@ const getter = (
     const selectedStyles = styles.filter(style => style.checksStateSelected());
     const activeStyles = styles.filter(style => style.checksStateActive());
 
-    R.forEach(({row: i, column: j}) => {
+    cells.forEach(({row: i, column: j}) => {
         const iNoOffset = i - offset.rows;
         const jNoOffset = j - offset.columns;
 
@@ -93,7 +93,7 @@ const getter = (
         };
 
         baseline[iNoOffset][jNoOffset] = style;
-    }, cells);
+    });
 
     return baseline;
 };

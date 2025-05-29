@@ -17,7 +17,7 @@ module.exports = config => {
             'tests/js-unit/**/*.ts' // *.tsx for React Jsx
         ],
         reporters: ["progress"],
-        browsers: ["Chrome"],
+        browsers: ["ChromeHeadless"],
         webpack: require('./webpack.test.config')
     });
 }

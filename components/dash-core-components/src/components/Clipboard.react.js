@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faCopy, faCheckCircle} from '@fortawesome/free-regular-svg-icons';
 
+import LoadingElement from '../utils/LoadingElement';
+
 const clipboardAPI = navigator.clipboard;
 
 function wait(ms) {
@@ -14,9 +16,12 @@ function wait(ms) {
  */
 
 export default class Clipboard extends React.Component {
+    static contextType = window.dash_component_api.DashContext;
+
     constructor(props) {
         super(props);
         this.copyToClipboard = this.copyToClipboard.bind(this);
+        this.onClickHandler = this.onClickHandler.bind(this);
         this.copySuccess = this.copySuccess.bind(this);
         this.getTargetText = this.getTargetText.bind(this);
         this.loading = this.loading.bind(this);
@@ -24,6 +29,22 @@ export default class Clipboard extends React.Component {
         this.state = {
             copied: false,
         };
+    }
+
+    onClickHandler() {
+        this.props.setProps({n_clicks: this.props.n_clicks + 1});
+    }
+
+    componentDidUpdate(prevProps) {
+        // If the clicks has not changed, do nothing
+        if (
+            !this.props.n_clicks ||
+            this.props.n_clicks === prevProps.n_clicks
+        ) {
+            return;
+        }
+        // If the clicks has changed, copy to clipboard
+        this.copyToClipboard();
     }
 
     // stringifies object ids used in pattern matching callbacks
@@ -38,9 +59,23 @@ export default class Clipboard extends React.Component {
         return '{' + parts.join(',') + '}';
     }
 
-    async copySuccess(content) {
+    async copySuccess(content, htmlContent) {
         const showCopiedIcon = 1000;
-        await clipboardAPI.writeText(content);
+        if (htmlContent) {
+            const blobHtml = new Blob([htmlContent], {type: 'text/html'});
+            const blobText = new Blob([content ?? htmlContent], {
+                type: 'text/plain',
+            });
+            const data = [
+                new ClipboardItem({
+                    ['text/plain']: blobText,
+                    ['text/html']: blobHtml,
+                }),
+            ];
+            await navigator.clipboard.write(data);
+        } else {
+            await clipboardAPI.writeText(content);
+        }
         this.setState({copied: true});
         await wait(showCopiedIcon);
         this.setState({copied: false});
@@ -65,26 +100,24 @@ export default class Clipboard extends React.Component {
     }
 
     async loading() {
-        while (this.props.loading_state?.is_loading) {
+        while (this.context.isLoading()) {
             await wait(100);
         }
     }
 
     async copyToClipboard() {
-        this.props.setProps({
-            n_clicks: this.props.n_clicks + 1,
-        });
-
         let content;
+        let htmlContent;
         if (this.props.target_id) {
             content = this.getTargetText();
         } else {
             await wait(100); // gives time for callback to start
             await this.loading();
             content = this.props.content;
+            htmlContent = this.props.html_content;
         }
-        if (content) {
-            this.copySuccess(content);
+        if (content || htmlContent) {
+            this.copySuccess(content, htmlContent);
         }
     }
 
@@ -95,30 +128,28 @@ export default class Clipboard extends React.Component {
     }
 
     render() {
-        const {id, title, className, style, loading_state} = this.props;
+        const {id, title, className, style} = this.props;
         const copyIcon = <FontAwesomeIcon icon={faCopy} />;
         const copiedIcon = <FontAwesomeIcon icon={faCheckCircle} />;
         const btnIcon = this.state.copied ? copiedIcon : copyIcon;
 
         return clipboardAPI ? (
-            <div
+            <LoadingElement
                 id={id}
                 title={title}
                 style={style}
                 className={className}
-                onClick={this.copyToClipboard}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
+                onClick={this.onClickHandler}
             >
                 <i> {btnIcon}</i>
-            </div>
+            </LoadingElement>
         ) : null;
     }
 }
 
 Clipboard.defaultProps = {
     content: null,
+    html_content: null,
     target_id: null,
     n_clicks: 0,
 };
@@ -137,7 +168,7 @@ Clipboard.propTypes = {
     target_id: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 
     /**
-     * The text to  be copied to the clipboard if the `target_id` is None.
+     * The text to be copied to the clipboard if the `target_id` is None.
      */
     content: PropTypes.string,
 
@@ -145,6 +176,11 @@ Clipboard.propTypes = {
      * The number of times copy button was clicked
      */
     n_clicks: PropTypes.number,
+
+    /**
+     * The clipboard html text be copied to the clipboard if the `target_id` is None.
+     */
+    html_content: PropTypes.string,
 
     /**
      * The text shown as a tooltip when hovering over the copy icon.
@@ -160,24 +196,6 @@ Clipboard.propTypes = {
      * The class  name of the icon element
      */
     className: PropTypes.string,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Dash-assigned callback that gets fired when the value changes.

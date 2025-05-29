@@ -49,8 +49,10 @@ module.exports = (env, argv) => {
             path: path.resolve(__dirname, dashLibraryName),
             chunkFilename: '[name].js',
             filename,
-            library: dashLibraryName,
-            libraryTarget: 'window',
+            library: {
+                name: dashLibraryName,
+                type: 'window',
+            }
         },
         externals,
         module: {
@@ -65,7 +67,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|moment)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|moment|react-dates|react(-virtualized)?-select)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {

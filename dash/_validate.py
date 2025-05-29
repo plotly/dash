@@ -1,11 +1,20 @@
+import sys
 from collections.abc import MutableSequence
 import re
 from textwrap import dedent
+from keyword import iskeyword
+import flask
 
 from ._grouping import grouping_len, map_grouping
 from .development.base_component import Component
 from . import exceptions
-from ._utils import patch_collections_abc, stringify_id, to_json
+from ._utils import (
+    patch_collections_abc,
+    stringify_id,
+    to_json,
+    coerce_to_list,
+    clean_property_name,
+)
 
 
 def validate_callback(outputs, inputs, state, extra_args, types):
@@ -120,7 +129,10 @@ def validate_output_spec(output, output_spec, Output):
     for outi, speci in zip(output, output_spec):
         speci_list = speci if isinstance(speci, (list, tuple)) else [speci]
         for specij in speci_list:
-            if not Output(specij["id"], specij["property"]) == outi:
+            if (
+                not Output(specij["id"], clean_property_name(specij["property"]))
+                == outi
+            ):
                 raise exceptions.CallbackException(
                     "Output does not match callback definition"
                 )
@@ -150,49 +162,49 @@ def validate_and_group_input_args(flat_args, arg_index_grouping):
     return func_args, func_kwargs
 
 
-def validate_multi_return(outputs_list, output_value, callback_id):
-    if not isinstance(output_value, (list, tuple)):
+def validate_multi_return(output_lists, output_values, callback_id):
+    if not isinstance(output_values, (list, tuple)):
         raise exceptions.InvalidCallbackReturnValue(
             dedent(
                 f"""
                 The callback {callback_id} is a multi-output.
                 Expected the output type to be a list or tuple but got:
-                {output_value!r}.
+                {output_values!r}.
                 """
             )
         )
 
-    if len(output_value) != len(outputs_list):
+    if len(output_values) != len(output_lists):
         raise exceptions.InvalidCallbackReturnValue(
             f"""
             Invalid number of output values for {callback_id}.
-            Expected {len(outputs_list)}, got {len(output_value)}
+            Expected {len(output_lists)}, got {len(output_values)}
             """
         )
 
-    for i, outi in enumerate(outputs_list):
-        if isinstance(outi, list):
-            vi = output_value[i]
-            if not isinstance(vi, (list, tuple)):
+    for i, output_spec in enumerate(output_lists):
+        if isinstance(output_spec, list):
+            output_value = output_values[i]
+            if not isinstance(output_value, (list, tuple)):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         The callback {callback_id} output {i} is a wildcard multi-output.
                         Expected the output type to be a list or tuple but got:
-                        {vi!r}.
-                        output spec: {outi!r}
+                        {output_value!r}.
+                        output spec: {output_spec!r}
                         """
                     )
                 )
 
-            if len(vi) != len(outi):
+            if len(output_value) != len(output_spec):
                 raise exceptions.InvalidCallbackReturnValue(
                     dedent(
                         f"""
                         Invalid number of output values for {callback_id} item {i}.
-                        Expected {len(vi)}, got {len(outi)}
-                        output spec: {outi!r}
-                        output value: {vi!r}
+                        Expected {len(output_spec)}, got {len(output_value)}
+                        output spec: {output_spec!r}
+                        output value: {output_value!r}
                         """
                     )
                 )
@@ -345,6 +357,17 @@ def check_obsolete(kwargs):
                 See https://dash.plotly.com for details.
                 """
             )
+        if key in ["dynamic_loading", "preloaded_libraries"]:
+            # Only warns as this was only available for a short time.
+            print(
+                f"{key} has been removed and no longer a valid keyword argument in Dash.",
+                file=sys.stderr,
+            )
+            continue
+        if key in ["long_callback_manager"]:
+            raise exceptions.ObsoleteKwargException(
+                "long_callback_manager is obsolete, use background_callback_manager instead"
+            )
         # any other kwarg mimic the built-in exception
         raise TypeError(f"Dash() got an unexpected keyword argument '{key}'")
 
@@ -379,10 +402,14 @@ def validate_index(name, checks, index):
 
 
 def validate_layout_type(value):
-    if not isinstance(value, (Component, patch_collections_abc("Callable"))):
+    if not isinstance(
+        value, (Component, patch_collections_abc("Callable"), list, tuple)
+    ):
         raise exceptions.NoLayoutException(
-            "Layout must be a dash component "
-            "or a function that returns a dash component."
+            """
+            Layout must be a single dash component, a list of dash components,
+            or a function that returns a dash component.
+            """
         )
 
 
@@ -390,21 +417,170 @@ def validate_layout(layout, layout_value):
     if layout is None:
         raise exceptions.NoLayoutException(
             """
-            The layout was `None` at the time that `run_server` was called.
+            The layout was `None` at the time that `run` was called.
             Make sure to set the `layout` attribute of your application
             before running the server.
             """
         )
 
-    layout_id = stringify_id(getattr(layout_value, "id", None))
+    component_ids = set()
 
-    component_ids = {layout_id} if layout_id else set()
-    for component in layout_value._traverse():  # pylint: disable=protected-access
-        component_id = stringify_id(getattr(component, "id", None))
-        if component_id and component_id in component_ids:
-            raise exceptions.DuplicateIdError(
-                f"""
-                Duplicate component id found in the initial layout: `{component_id}`
+    def _validate(value):
+        def _validate_id(comp):
+            component_id = stringify_id(getattr(comp, "id", None))
+            if component_id and component_id in component_ids:
+                raise exceptions.DuplicateIdError(
+                    f"""
+                    Duplicate component id found in the initial layout: `{component_id}`
+                    """
+                )
+            component_ids.add(component_id)
+
+        _validate_id(value)
+
+        for component in value._traverse():  # pylint: disable=protected-access
+            _validate_id(component)
+
+    if isinstance(layout_value, (list, tuple)):
+        for component in layout_value:
+            if isinstance(component, (str,)):
+                continue
+            if isinstance(component, (Component,)):
+                _validate(component)
+            else:
+                raise exceptions.NoLayoutException(
+                    "Only strings and components are allowed in a list layout."
+                )
+    else:
+        _validate(layout_value)
+
+
+def validate_template(template):
+    variable_names = re.findall("<(.*?)>", template)
+
+    for name in variable_names:
+        if not name.isidentifier() or iskeyword(name):
+            raise Exception(
+                f'`{name}` is not a valid Python variable name in `path_template`: "{template}".'
+            )
+
+
+def check_for_duplicate_pathnames(registry):
+    path_to_module = {}
+    for page in registry.values():
+        if page["path"] not in path_to_module:
+            path_to_module[page["path"]] = [page["module"]]
+        else:
+            path_to_module[page["path"]].append(page["module"])
+
+    for modules in path_to_module.values():
+        if len(modules) > 1:
+            raise Exception(f"modules {modules} have duplicate paths")
+
+
+def validate_registry(registry):
+    for page in registry.values():
+        if "layout" not in page:
+            raise exceptions.NoLayoutException(
+                f"No layout in module `{page['module']}` in dash.page_registry"
+            )
+        if page["module"] == "__main__":
+            raise Exception(
+                """
+                When registering pages from app.py, `__name__` is not a valid module name.  Use a string instead.
+                For example, `dash.register_page("my_module_name")`, rather than `dash.register_page(__name__)`
                 """
             )
-        component_ids.add(component_id)
+
+
+def validate_pages_layout(module, page):
+    if not hasattr(page, "layout"):
+        raise exceptions.NoLayoutException(
+            f"""
+            No layout found in module {module}
+            A variable or a function named "layout" is required.
+            """
+        )
+
+
+def validate_use_pages(config):
+    if not config.get("assets_folder", None):
+        raise exceptions.PageError(
+            "`dash.register_page()` must be called after app instantiation"
+        )
+
+    if flask.has_request_context():
+        raise exceptions.PageError(
+            """
+            dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
+             For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
+            """
+        )
+
+
+def validate_module_name(module):
+    if not isinstance(module, str):
+        raise exceptions.PageError(
+            "The first attribute of dash.register_page() must be a string or '__name__'"
+        )
+    return module
+
+
+def validate_background_callbacks(callback_map):
+    # Validate that background callback side output & inputs are not circular
+    # If circular, triggering a background callback would result in a fatal server/computer crash.
+    all_outputs = set()
+    input_indexed = {}
+    for callback in callback_map.values():
+        out = coerce_to_list(callback["output"])
+        all_outputs.update(out)
+        for o in out:
+            input_indexed.setdefault(o, set())
+            input_indexed[o].update(coerce_to_list(callback["raw_inputs"]))
+
+    for callback in (x for x in callback_map.values() if x.get("background")):
+        bg_info = callback["background"]
+        progress = bg_info.get("progress", [])
+        running = bg_info.get("running", [])
+
+        bg_inputs = coerce_to_list(callback["raw_inputs"])
+        outputs = set([x[0] for x in running] + progress)
+        circular = [
+            x
+            for x in set(k for k, v in input_indexed.items() if v.intersection(outputs))
+            if x in bg_inputs
+        ]
+
+        if circular:
+            raise exceptions.BackgroundCallbackError(
+                f"Background callback circular error!\n{circular} is used as input for a background callback"
+                f" but also used as output from an input that is updated with progress or running argument."
+            )
+
+
+def validate_duplicate_output(
+    output, prevent_initial_call, config_prevent_initial_call
+):
+    if "initial_duplicate" in (prevent_initial_call, config_prevent_initial_call):
+        return
+
+    def _valid(out):
+        if (
+            out.allow_duplicate
+            and not prevent_initial_call
+            and not config_prevent_initial_call
+        ):
+            raise exceptions.DuplicateCallback(
+                "allow_duplicate requires prevent_initial_call to be True. The order of the call is not"
+                " guaranteed to be the same on every page load. "
+                "To enable duplicate callback with initial call, set prevent_initial_call='initial_duplicate' "
+                " or globally in the config prevent_initial_callbacks='initial_duplicate'"
+            )
+
+    if isinstance(output, (list, tuple)):
+        for o in output:
+            _valid(o)
+
+        return
+
+    _valid(output)

@@ -19,7 +19,7 @@ const getColumns = () =>
             ],
             id
         }),
-        result.meta.fields
+        result.meta.fields as any
     );
 
 interface ITest {
@@ -29,7 +29,7 @@ interface ITest {
 
 const DEFAULT_PROPS = {
     id: 'table',
-    data: result.data.slice(0, 10)
+    data: result.data.slice(0, 5)
 };
 
 const variants: ITest[] = [
@@ -160,13 +160,19 @@ const scenarios: ITest[] = [
 
 const tests = R.xprod(scenarios, variants);
 
-R.reduce(
-    (chain, [scenario, variant]) =>
-        chain.add(`${scenario.name} (${variant.name})`, () => (
-            <DataTable
-                {...R.mergeAll([DEFAULT_PROPS, variant.props, scenario.props])}
-            />
-        )),
-    storiesOf('DashTable/Hideable Columns', module),
-    tests
-);
+storiesOf('DashTable/Hideable Columns', module).add('all variants', () => (
+    <div>
+        {...tests.map(([scenario, variant]) => (
+            <div>
+                <div>{`${scenario.name} (${variant.name})`}</div>
+                <DataTable
+                    {...R.mergeAll([
+                        DEFAULT_PROPS,
+                        variant.props,
+                        scenario.props
+                    ])}
+                />
+            </div>
+        ))}
+    </div>
+));

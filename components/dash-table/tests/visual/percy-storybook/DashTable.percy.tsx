@@ -27,7 +27,7 @@ function makeSelection(coords: any[], data: any[], columns: any[]) {
 }
 
 // Legacy: Tests previously run in Python
-const fixtureStories = storiesOf('DashTable/Fixtures', module);
+const fixtureTests: any[] = [];
 fixtures.forEach(fixture => {
     // update active and selected cells for the new cell object format
     const {data, columns, active_cell, selected_cells} = fixture.props;
@@ -46,44 +46,40 @@ fixtures.forEach(fixture => {
             columns as any[]
         );
     }
-
-    fixtureStories.add(fixture.name, () => (
+    fixtureTests.push(
+        <div>{fixture.name}</div>,
         <DataTable {...Object.assign(fixture.props)} />
-    ));
+    );
 });
-
-import dataset from './../../assets/gapminder.csv';
-import {TableAction, ExportFormat} from 'dash-table/components/Table/props';
-
-storiesOf('DashTable/Without Data', module).add('with 1 column', () => (
-    <DataTable
-        setProps={setProps}
-        id='table'
-        data={[]}
-        columns={[{id: 'a', name: 'A'}]}
-        sort_action={TableAction.None}
-        editable={false}
-        row_deletable={false}
-        row_selectable={false}
-    />
+storiesOf('DashTable/Fixtures', module).add('all fixtures', () => (
+    <div>{...fixtureTests}</div>
 ));
 
-storiesOf('DashTable/With Data', module)
-    .add('simple', () => {
-        const result = parser.parse(dataset, {delimiter: ',', header: true});
+import dataset from './../../assets/gapminder.csv';
+const gapminder = parser.parse(dataset, {delimiter: ',', header: true});
+import {TableAction, ExportFormat} from 'dash-table/components/Table/props';
 
-        return (
-            <DataTable
-                id='table'
-                data={result.data}
-                columns={R.map(i => ({name: i, id: i}), result.meta.fields)}
-            />
-        );
-    })
-    .add('with 3 columns and 3 rows, not actionable', () => (
+storiesOf('DashTable/Basic', module).add('all variants', () => (
+    <div>
+        <div>one column, no data</div>
         <DataTable
             setProps={setProps}
-            id='table'
+            data={[]}
+            columns={[{id: 'a', name: 'A'}]}
+            sort_action={TableAction.None}
+            editable={false}
+            row_deletable={false}
+            row_selectable={false}
+        />
+        <div>simple data</div>
+        <DataTable
+            data={gapminder.data}
+            columns={R.map(i => ({name: i, id: i}), gapminder.meta.fields)}
+            page_size={20}
+        />
+        <div>with 3 columns and 3 rows, not actionable</div>
+        <DataTable
+            setProps={setProps}
             data={[
                 {a: 1, b: 2, c: 3},
                 {a: 11, b: 12, c: 13},
@@ -104,7 +100,8 @@ storiesOf('DashTable/With Data', module)
                 {if: {column_id: 'c'}, width: '200px'}
             ]}
         />
-    ));
+    </div>
+));
 
 const columnsA2J = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].map(
     id => ({id: id, name: id.toUpperCase()})
@@ -142,12 +139,14 @@ const dataA2J = (() => {
 })();
 
 const style_data_conditional = [{width: '100px'}];
+const testColumns = JSON.parse(JSON.stringify(columnsA2J));
+testColumns[2].hidden = true;
 
-storiesOf('DashTable/Fixed Rows & Columns', module)
-    .add('with 1 fixed row, 2 fixed columns', () => (
+storiesOf('DashTable/Fixed Rows & Columns', module).add('all variants', () => (
+    <div>
+        <div>with 1 fixed row, 2 fixed columns</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={dataA2J}
             columns={columnsA2J}
             fixed_columns={{headers: true}}
@@ -156,11 +155,9 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             row_selectable={true}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('with 1 fixed row', () => (
+        <div>with 1 fixed row</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={dataA2J}
             columns={columnsA2J}
             fixed_rows={{headers: true}}
@@ -168,23 +165,19 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             row_selectable={true}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('with 2 fixed columns', () => (
+        <div>with 2 fixed columns</div>
         <DataTable
             setProps={setProps}
-            id='table'
-            data={dataA2J}
+            data={dataA2J.slice(0, 10)}
             columns={columnsA2J}
             fixed_columns={{headers: true}}
             row_deletable={true}
             row_selectable={true}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('with 2 fixed rows, 4 fixed columns and merged cells', () => (
+        <div>with 2 fixed rows, 4 fixed columns and merged cells</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={dataA2J}
             columns={mergedColumns}
             merge_duplicate_headers={true}
@@ -192,27 +185,18 @@ storiesOf('DashTable/Fixed Rows & Columns', module)
             fixed_rows={{headers: true, data: 1}}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add(
-        'with 2 fixed rows, 3 fixed columns, hidden columns and merged cells',
-        () => {
-            const testColumns = JSON.parse(JSON.stringify(columnsA2J));
-            testColumns[2].hidden = true;
-
-            return (
-                <DataTable
-                    setProps={setProps}
-                    id='table'
-                    data={dataA2J}
-                    columns={mergedColumns}
-                    merge_duplicate_headers={true}
-                    fixed_columns={{headers: true, data: 3}}
-                    fixed_rows={{headers: true, data: 1}}
-                    style_data_conditional={style_data_conditional}
-                />
-            );
-        }
-    );
+        <div>2 fixed rows, 3 fixed cols, hidden cols and merged cells</div>
+        <DataTable
+            setProps={setProps}
+            data={dataA2J}
+            columns={mergedColumns}
+            merge_duplicate_headers={true}
+            fixed_columns={{headers: true, data: 3}}
+            fixed_rows={{headers: true, data: 1}}
+            style_data_conditional={style_data_conditional}
+        />
+    </div>
+));
 
 const sparseData = (() => {
     const r = random(1);
@@ -232,33 +216,29 @@ const hiddenColumns = columnsA2J
     .map(c => c.id)
     .filter((_, index) => index % 2 === 0);
 
-storiesOf('DashTable/Hidden Columns', module)
-    .add('hides', () => (
+storiesOf('DashTable/Hidden Columns', module).add('all variants', () => (
+    <div>
+        <div>hides</div>
         <DataTable
             setProps={setProps}
-            id='table'
-            data={dataA2J}
+            data={dataA2J.slice(0, 5)}
             columns={columnsA2J}
             hidden_columns={hiddenColumns}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('active cell', () => (
+        <div>active cell</div>
         <DataTable
             setProps={setProps}
-            id='table'
-            data={dataA2J}
+            data={dataA2J.slice(0, 5)}
             columns={columnsA2J}
             hidden_columns={hiddenColumns}
             active_cell={makeCell(1, 1, dataA2J, columnsA2J)}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('selected cells', () => (
+        <div>selected cells</div>
         <DataTable
             setProps={setProps}
-            id='table'
-            data={dataA2J}
+            data={dataA2J.slice(0, 5)}
             columns={columnsA2J}
             hidden_columns={hiddenColumns}
             active_cell={makeCell(1, 1, dataA2J, columnsA2J)}
@@ -274,35 +254,32 @@ storiesOf('DashTable/Hidden Columns', module)
             )}
             style_data_conditional={style_data_conditional}
         />
-    ));
+    </div>
+));
 
-storiesOf('DashTable/Sorting', module)
-    .add('"a" ascending', () => (
+storiesOf('DashTable/Sorting', module).add('all variants', () => (
+    <div>
+        <div>"a" ascending</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
             sort_by={[{column_id: 'a', direction: 'asc'}]}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('"a" descending', () => (
+        <div>"a" descending</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
             sort_by={[{column_id: 'a', direction: 'desc'}]}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('"a" ascending -- empty string override', () => (
+        <div>"a" ascending -- empty string override</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
@@ -310,11 +287,9 @@ storiesOf('DashTable/Sorting', module)
             sort_as_null={['']}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('"a" descending -- empty string override', () => (
+        <div>"a" descending -- empty string override</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
@@ -322,11 +297,9 @@ storiesOf('DashTable/Sorting', module)
             sort_as_null={['']}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('"a" descending -- empty string & 426 override', () => (
+        <div>"a" descending -- empty string and 426 override</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
@@ -334,11 +307,9 @@ storiesOf('DashTable/Sorting', module)
             sort_as_null={['', 426]}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('"a" ascending -- empty string and 426 override', () => (
+        <div>"a" ascending -- empty string and 426 override</div>
         <DataTable
             setProps={setProps}
-            id='table'
             data={sparseData}
             columns={mergedColumns}
             sort_action={TableAction.Native}
@@ -346,9 +317,12 @@ storiesOf('DashTable/Sorting', module)
             sort_as_null={['', 426]}
             style_data_conditional={style_data_conditional}
         />
-    ));
-storiesOf('DashTable/Without id', module)
-    .add('with 1 fixed row, 2 fixed columns', () => (
+    </div>
+));
+
+storiesOf('DashTable/Without id', module).add('all variants', () => (
+    <div>
+        <div>with 1 fixed row, 2 fixed columns</div>
         <DataTable
             setProps={setProps}
             data={dataA2J}
@@ -359,8 +333,7 @@ storiesOf('DashTable/Without id', module)
             row_selectable={true}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('with 1 fixed row, 2 fixed columns, set height and width', () => (
+        <div>with 1 fixed row, 2 fixed columns, set height and width</div>
         <DataTable
             setProps={setProps}
             data={dataA2J}
@@ -372,8 +345,7 @@ storiesOf('DashTable/Without id', module)
             style_table={{height: 500, width: 200}}
             style_data_conditional={style_data_conditional}
         />
-    ))
-    .add('with set height and width and colors', () => (
+        <div>with set height and width and colors</div>
         <DataTable
             setProps={setProps}
             data={dataA2J}
@@ -390,74 +362,71 @@ storiesOf('DashTable/Without id', module)
                 }
             ]}
         />
-    ))
-    .add('Two tables with CSS props set', () => (
-        <div>
-            <DataTable
-                setProps={setProps}
-                data={dataA2J}
-                columns={columnsA2J}
-                fixed_columns={{headers: true}}
-                fixed_rows={{headers: true}}
-                row_deletable={true}
-                row_selectable={true}
-                style_table={{height: 500, width: 400}}
-                css={[
-                    {
-                        selector: '.dash-spreadsheet',
-                        rule: 'border: 4px solid hotpink'
-                    }
-                ]}
-            />
-            <DataTable
-                setProps={setProps}
-                data={dataA2J}
-                columns={columnsA2J}
-                fixed_columns={{headers: true}}
-                fixed_rows={{headers: true}}
-                row_deletable={true}
-                row_selectable={true}
-                style_table={{height: 500, width: 400}}
-                css={[
-                    {
-                        selector: '.dash-spreadsheet',
-                        rule: 'border: 4px solid cyan'
-                    }
-                ]}
-            />
-        </div>
-    ));
+        <div>Two tables with CSS props set</div>
+        <DataTable
+            setProps={setProps}
+            data={dataA2J}
+            columns={columnsA2J}
+            fixed_columns={{headers: true}}
+            fixed_rows={{headers: true}}
+            row_deletable={true}
+            row_selectable={true}
+            style_table={{height: 300, width: 400}}
+            css={[
+                {
+                    selector: '.dash-spreadsheet',
+                    rule: 'border: 4px solid hotpink'
+                }
+            ]}
+        />
+        <DataTable
+            setProps={setProps}
+            data={dataA2J}
+            columns={columnsA2J}
+            fixed_columns={{headers: true}}
+            fixed_rows={{headers: true}}
+            row_deletable={true}
+            row_selectable={true}
+            style_table={{height: 300, width: 400}}
+            css={[
+                {
+                    selector: '.dash-spreadsheet',
+                    rule: 'border: 4px solid cyan'
+                }
+            ]}
+        />
+    </div>
+));
 
-storiesOf('DashTable/Export', module)
-    .add('Export Button for xlsx file', () => (
+storiesOf('DashTable/Export', module).add('all variants', () => (
+    <div>
+        <div>Export Button for xlsx file</div>
         <DataTable
             setProps={setProps}
-            data={dataA2J.slice(0, 10)}
+            data={dataA2J.slice(0, 3)}
             columns={columnsA2J.slice(0, 10)}
             export_format={ExportFormat.Xlsx}
         />
-    ))
-    .add('Export Button for csv file', () => (
+        <div>Export Button for csv file</div>
         <DataTable
             setProps={setProps}
-            data={dataA2J.slice(0, 10)}
+            data={dataA2J.slice(0, 3)}
             columns={columnsA2J.slice(0, 10)}
             export_format={ExportFormat.Xlsx}
         />
-    ))
-    .add('No export Button for file formatted not supported', () => (
+        <div>No export Button for file formatted not supported</div>
         <DataTable
             setProps={setProps}
-            data={dataA2J.slice(0, 10)}
+            data={dataA2J.slice(0, 3)}
             columns={columnsA2J.slice(0, 10)}
             export_format={'json'}
         />
-    ))
-    .add('No export Button', () => (
+        <div>No export Button</div>
         <DataTable
             setProps={setProps}
-            data={dataA2J.slice(0, 10)}
+            data={dataA2J.slice(0, 3)}
             columns={columnsA2J.slice(0, 10)}
             export_format={ExportFormat.None}
         />
-    ));
+    </div>
+));

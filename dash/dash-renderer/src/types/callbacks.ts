@@ -11,6 +11,10 @@ export interface ICallbackDefinition {
     outputs: ICallbackProperty[];
     prevent_initial_call: boolean;
     state: ICallbackProperty[];
+    background?: BackgroundCallbackInfo;
+    dynamic_creator?: boolean;
+    running: any;
+    no_output?: boolean;
 }
 
 export interface ICallbackProperty {
@@ -68,6 +72,7 @@ export interface IStoredCallback extends IExecutedCallback {
 
 export interface ICallbackPayload {
     changedPropIds: any[];
+    parsedChangedPropsIds: any[];
     inputs: any[];
     output: string;
     outputs: any[];
@@ -75,7 +80,35 @@ export interface ICallbackPayload {
 }
 
 export type CallbackResult = {
-    data?: any;
+    data?: CallbackResponse;
     error?: Error;
     payload: ICallbackPayload | null;
+};
+
+export type BackgroundCallbackInfo = {
+    interval?: number;
+    progress?: any;
+    running?: any;
+};
+
+export type CallbackResponse = {
+    [k: string]: any;
+};
+
+export type CallbackResponseData = {
+    response?: CallbackResponse;
+    multi?: boolean;
+    cacheKey?: string;
+    job?: string;
+    progressDefault?: CallbackResponse;
+    progress?: CallbackResponse;
+    running?: CallbackResponse;
+    runningOff?: CallbackResponse;
+    cancel?: ICallbackProperty[];
+    dist?: any;
+    sideUpdate?: any;
+};
+
+export type SideUpdateOutput = {
+    [key: string]: any;
 };

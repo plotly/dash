@@ -29,6 +29,7 @@
     "react",
     "import"
   ],
+  "parser": "@babel/eslint-parser",
   "rules": {
     "accessor-pairs": ["error"],
     "block-scoped-var": ["error"],
@@ -43,7 +44,7 @@
     "import/named": ["off"],
     "import/namespace": ["off"],
     "import/no-duplicates": ["error"],
-    "import/no-named-as-default": ["error"],
+    "import/no-named-as-default": ["off"],
     "import/no-unresolved": ["off"],
     "new-cap": ["error", {
       "capIsNewExceptionPattern": "Immutable\\.*"
@@ -62,7 +63,7 @@
     "no-extra-bind": ["error"],
     "no-extra-boolean-cast": ["error"],
     "no-inline-comments": ["off"],
-    "no-implicit-coercion": ["error"],
+    "no-implicit-coercion": ["off"],
     "no-implied-eval": ["error"],
     "no-inner-declarations": ["off"],
     "no-invalid-this": ["error"],
@@ -100,7 +101,7 @@
     "react/no-did-update-set-state": ["error"],
     "react/no-direct-mutation-state": ["error"],
     "react/no-is-mounted": ["error"],
-    "react/no-unknown-property": ["error"],
+    "react/no-unknown-property": ["error", {"ignore": ["jsx"]}],
     "react/prefer-es6-class": ["error", "always"],
     "react/prop-types": "error",
     "valid-jsdoc": ["off"],
@@ -117,7 +118,7 @@
     }],
     "no-magic-numbers": ["error", {
       "ignoreArrayIndexes": true,
-      "ignore": [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 10, 16, 0.5, 25]
+      "ignore": [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 100, 10, 16, 0.5, 25, 1000]
     }],
     "no-underscore-dangle": ["off"],
     "no-useless-escape": ["off"]

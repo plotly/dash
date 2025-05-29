@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
 import {append, includes, without} from 'ramda';
 import React, {Component} from 'react';
+
 import {sanitizeOptions} from '../utils/optionTypes';
+import LoadingElement from '../utils/LoadingElement';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
@@ -21,28 +23,19 @@ export default class Checklist extends Component {
             options,
             setProps,
             style,
-            loading_state,
             value,
             inline,
         } = this.props;
         return (
-            <div
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                id={id}
-                style={style}
-                className={className}
-            >
+            <LoadingElement id={id} style={style} className={className}>
                 {sanitizeOptions(options).map(option => {
                     return (
                         <label
                             key={option.value}
-                            style={Object.assign(
-                                {},
-                                labelStyle,
-                                inline ? {display: 'inline-block'} : {}
-                            )}
+                            style={{
+                                display: inline ? 'inline-block' : 'block',
+                                ...labelStyle,
+                            }}
                             className={labelClassName}
                         >
                             <input
@@ -68,7 +61,7 @@ export default class Checklist extends Component {
                         </label>
                     );
                 })}
-            </div>
+            </LoadingElement>
         );
     }
 }
@@ -104,11 +97,7 @@ Checklist.propTypes = {
                 /**
                  * The option's label
                  */
-                label: PropTypes.oneOfType([
-                    PropTypes.string,
-                    PropTypes.number,
-                    PropTypes.bool,
-                ]).isRequired,
+                label: PropTypes.node.isRequired,
 
                 /**
                  * The value of the option. This value
@@ -148,9 +137,8 @@ Checklist.propTypes = {
     ),
 
     /**
-     * Indicates whether labelStyle should be inline or not
-     * True: Automatically set { 'display': 'inline-block' } to labelStyle
-     * False: No additional styles are passed into labelStyle.
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
      */
     inline: PropTypes.bool,
 
@@ -197,24 +185,6 @@ Checklist.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when

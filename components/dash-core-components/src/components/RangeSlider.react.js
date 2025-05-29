@@ -125,6 +125,31 @@ RangeSlider.propTypes = {
             'bottomLeft',
             'bottomRight',
         ]),
+        /**
+         * Template string to display the tooltip in.
+         * Must contain `{value}`, which will be replaced with either
+         * the default string representation of the value or the result of the
+         * transform function if there is one.
+         */
+        template: PropTypes.string,
+        /**
+         * Custom style for the tooltip.
+         */
+        style: PropTypes.object,
+        /**
+         * Reference to a function in the `window.dccFunctions` namespace.
+         * This can be added in a script in the asset folder.
+         *
+         * For example, in `assets/tooltip.js`:
+         * ```
+         * window.dccFunctions = window.dccFunctions || {};
+         * window.dccFunctions.multByTen = function(value) {
+         *     return value * 10;
+         * }
+         * ```
+         * Then in the component `tooltip={'transform': 'multByTen'}`
+         */
+        transform: PropTypes.string,
     }),
 
     /**
@@ -164,24 +189,6 @@ RangeSlider.propTypes = {
      * Dash-assigned callback that gets fired when the value or drag_value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when

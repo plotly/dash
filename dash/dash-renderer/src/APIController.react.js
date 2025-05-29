@@ -1,8 +1,8 @@
-import {connect} from 'react-redux';
+import {batch, connect} from 'react-redux';
 import {includes, isEmpty} from 'ramda';
-import React, {useEffect, useRef, useState, createContext} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+
 import PropTypes from 'prop-types';
-import TreeContainer from './TreeContainer';
 import GlobalErrorContainer from './components/error/GlobalErrorContainer.react';
 import {
     dispatchError,
@@ -19,10 +19,9 @@ import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
-import {getLoadingState, getLoadingHash} from './utils/TreeContainer';
 import wait from './utils/wait';
-
-export const DashContext = createContext({});
+import isSimpleComponent from './isSimpleComponent';
+import DashWrapper from './wrapper/DashWrapper';
 
 /**
  * Fire off API calls for initialization
@@ -36,8 +35,7 @@ const UnconnectedContainer = props => {
         dependenciesRequest,
         error,
         layoutRequest,
-        layout,
-        loadingMap
+        layout
     } = props;
 
     const [errorLoading, setErrorLoading] = useState(false);
@@ -47,18 +45,6 @@ const UnconnectedContainer = props => {
         events.current = new EventEmitter();
     }
     const renderedTree = useRef(false);
-
-    const propsRef = useRef({});
-    propsRef.current = props;
-
-    const provider = useRef({
-        fn: () => ({
-            _dashprivate_config: propsRef.current.config,
-            _dashprivate_dispatch: propsRef.current.dispatch,
-            _dashprivate_graphs: propsRef.current.graphs,
-            _dashprivate_loadingMap: propsRef.current.loadingMap
-        })
-    });
 
     useEffect(storeEffect.bind(null, props, events, setErrorLoading));
 
@@ -72,38 +58,70 @@ const UnconnectedContainer = props => {
         }
     });
 
+    useEffect(() => {
+        if (config.serve_locally) {
+            window._dashPlotlyJSURL = `${config.requests_pathname_prefix}_dash-component-suites/plotly/package_data/plotly.min.js`;
+        } else {
+            window._dashPlotlyJSURL = config.plotlyjs_url;
+        }
+    }, []);
+
     let content;
     if (
         layoutRequest.status &&
         !includes(layoutRequest.status, [STATUS.OK, 'loading'])
     ) {
-        content = <div className='_dash-error'>Error loading layout</div>;
+        if (config.ui) {
+            content = (
+                <div
+                    dangerouslySetInnerHTML={{__html: layoutRequest.content}}
+                ></div>
+            );
+        } else {
+            content = <div className='_dash-error'>Error loading layout</div>;
+        }
     } else if (
         errorLoading ||
         (dependenciesRequest.status &&
             !includes(dependenciesRequest.status, [STATUS.OK, 'loading']))
     ) {
-        content = <div className='_dash-error'>Error loading dependencies</div>;
+        if (config.ui) {
+            content = (
+                <div
+                    dangerouslySetInnerHTML={{
+                        __html: dependenciesRequest.content
+                    }}
+                ></div>
+            );
+        } else {
+            content = (
+                <div className='_dash-error'>Error loading dependencies</div>
+            );
+        }
     } else if (appLifecycle === getAppState('HYDRATED')) {
         renderedTree.current = true;
 
         content = (
-            <DashContext.Provider value={provider.current}>
-                <TreeContainer
-                    _dashprivate_error={error}
-                    _dashprivate_layout={layout}
-                    _dashprivate_loadingState={getLoadingState(
-                        layout,
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_loadingStateHash={getLoadingHash(
-                        [],
-                        loadingMap
-                    )}
-                    _dashprivate_path={JSON.stringify([])}
-                />
-            </DashContext.Provider>
+            <>
+                {Array.isArray(layout) ? (
+                    layout.map((c, i) =>
+                        isSimpleComponent(c) ? (
+                            c
+                        ) : (
+                            <DashWrapper
+                                _dashprivate_error={error}
+                                componentPath={[i]}
+                                key={i}
+                            />
+                        )
+                    )
+                ) : (
+                    <DashWrapper
+                        _dashprivate_error={error}
+                        componentPath={[]}
+                    />
+                )}
+            </>
         );
     } else {
         content = <div className='_dash-loading'>Loading...</div>;
@@ -123,62 +141,78 @@ function storeEffect(props, events, setErrorLoading) {
         dispatch,
         error,
         graphs,
+        hooks,
         layout,
         layoutRequest
     } = props;
 
-    if (isEmpty(layoutRequest)) {
-        dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
-    } else if (layoutRequest.status === STATUS.OK) {
-        if (isEmpty(layout)) {
-            const finalLayout = applyPersistence(
-                layoutRequest.content,
-                dispatch
-            );
-            dispatch(
-                setPaths(computePaths(finalLayout, [], null, events.current))
-            );
-            dispatch(setLayout(finalLayout));
-        }
-    }
-
-    if (isEmpty(dependenciesRequest)) {
-        dispatch(apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest'));
-    } else if (dependenciesRequest.status === STATUS.OK && isEmpty(graphs)) {
-        dispatch(
-            setGraphs(
-                computeGraphs(
-                    dependenciesRequest.content,
-                    dispatchError(dispatch)
-                )
-            )
-        );
-    }
-
-    if (
-        // dependenciesRequest and its computed stores
-        dependenciesRequest.status === STATUS.OK &&
-        !isEmpty(graphs) &&
-        // LayoutRequest and its computed stores
-        layoutRequest.status === STATUS.OK &&
-        !isEmpty(layout) &&
-        // Hasn't already hydrated
-        appLifecycle === getAppState('STARTED')
-    ) {
-        let hasError = false;
-        try {
-            dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
-        } catch (err) {
-            // Display this error in devtools, unless we have errors
-            // already, in which case we assume this new one is moot
-            if (!error.frontEnd.length && !error.backEnd.length) {
-                dispatch(onError({type: 'backEnd', error: err}));
+    batch(() => {
+        if (isEmpty(layoutRequest)) {
+            if (typeof hooks.layout_pre === 'function') {
+                hooks.layout_pre();
             }
-            hasError = true;
-        } finally {
-            setErrorLoading(hasError);
+            dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
+        } else if (layoutRequest.status === STATUS.OK) {
+            if (isEmpty(layout)) {
+                if (typeof hooks.layout_post === 'function') {
+                    hooks.layout_post(layoutRequest.content);
+                }
+                const finalLayout = applyPersistence(
+                    layoutRequest.content,
+                    dispatch
+                );
+                dispatch(
+                    setPaths(
+                        computePaths(finalLayout, [], null, events.current)
+                    )
+                );
+                dispatch(setLayout(finalLayout));
+            }
         }
-    }
+
+        if (isEmpty(dependenciesRequest)) {
+            dispatch(
+                apiThunk('_dash-dependencies', 'GET', 'dependenciesRequest')
+            );
+        } else if (
+            dependenciesRequest.status === STATUS.OK &&
+            (isEmpty(graphs) || graphs.reset)
+        ) {
+            dispatch(
+                setGraphs(
+                    computeGraphs(
+                        dependenciesRequest.content,
+                        dispatchError(dispatch)
+                    )
+                )
+            );
+        }
+
+        if (
+            // dependenciesRequest and its computed stores
+            dependenciesRequest.status === STATUS.OK &&
+            !isEmpty(graphs) &&
+            // LayoutRequest and its computed stores
+            layoutRequest.status === STATUS.OK &&
+            !isEmpty(layout) &&
+            // Hasn't already hydrated
+            appLifecycle === getAppState('STARTED')
+        ) {
+            let hasError = false;
+            try {
+                dispatch(hydrateInitialOutputs(dispatchError(dispatch)));
+            } catch (err) {
+                // Display this error in devtools, unless we have errors
+                // already, in which case we assume this new one is moot
+                if (!error.frontEnd.length && !error.backEnd.length) {
+                    dispatch(onError({type: 'backEnd', error: err}));
+                }
+                hasError = true;
+            } finally {
+                setErrorLoading(hasError);
+            }
+        }
+    });
 }
 
 UnconnectedContainer.propTypes = {
@@ -190,9 +224,9 @@ UnconnectedContainer.propTypes = {
     dispatch: PropTypes.func,
     dependenciesRequest: PropTypes.object,
     graphs: PropTypes.object,
+    hooks: PropTypes.object,
     layoutRequest: PropTypes.object,
-    layout: PropTypes.object,
-    loadingMap: PropTypes.any,
+    layout: PropTypes.any,
     history: PropTypes.any,
     error: PropTypes.object,
     config: PropTypes.object
@@ -203,9 +237,9 @@ const Container = connect(
     state => ({
         appLifecycle: state.appLifecycle,
         dependenciesRequest: state.dependenciesRequest,
+        hooks: state.hooks,
         layoutRequest: state.layoutRequest,
         layout: state.layout,
-        loadingMap: state.loadingMap,
         graphs: state.graphs,
         history: state.history,
         error: state.error,

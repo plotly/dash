@@ -97,9 +97,7 @@ def platter_app():
             dcc.Slider(
                 min=0,
                 max=9,
-                marks={
-                    i: "Label {}".format(i) if i == 1 else str(i) for i in range(1, 6)
-                },
+                marks={i: f"Label {i}" if i == 1 else str(i) for i in range(1, 6)},
                 value=5,
             ),
             html.Label("Graph"),

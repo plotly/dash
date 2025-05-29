@@ -39,7 +39,7 @@ def grouping_app():
         ),
         dict(
             items=dict(
-                all=State({"item": ALL}, "children"),
+                all=State({"id": ALL}, "children"),
                 new=State("new-item", "value"),
             ),
             triggers=[Input("add", "n_clicks"), Input("new-item", "n_submit")],
@@ -64,11 +64,11 @@ def grouping_app():
             html.Div(
                 [
                     dcc.Checklist(
-                        id={"item": i, "action": "done"},
+                        id={"id": i, "property": "done"},
                         options=[{"label": "", "value": "done"}],
                         style={"display": "inline"},
                     ),
-                    html.Div(text, id={"item": i}, style=style_todo),
+                    html.Div(text, id={"id": i}, style=style_todo),
                 ],
                 style={"clear": "both"},
             )

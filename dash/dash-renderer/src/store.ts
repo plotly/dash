@@ -4,25 +4,24 @@ import thunk from 'redux-thunk';
 import {createReducer} from './reducers/reducer';
 import StoreObserver from './StoreObserver';
 import {ICallbacksState} from './reducers/callbacks';
-import {LoadingMapState} from './reducers/loadingMap';
 import {IsLoadingState} from './reducers/isLoading';
 
 import documentTitle from './observers/documentTitle';
 import executedCallbacks from './observers/executedCallbacks';
 import executingCallbacks from './observers/executingCallbacks';
 import isLoading from './observers/isLoading';
-import loadingMap from './observers/loadingMap';
 import prioritizedCallbacks from './observers/prioritizedCallbacks';
 import requestedCallbacks from './observers/requestedCallbacks';
 import storedCallbacks from './observers/storedCallbacks';
 
+// FIXME add proper type for the store.
 export interface IStoreState {
     callbacks: ICallbacksState;
     isLoading: IsLoadingState;
-    loadingMap: LoadingMapState;
     [key: string]: any;
 }
 
+// Deprecated
 export interface IStoreObserver {
     observer: Observer<Store<IStoreState>>;
     inputs: string[];
@@ -43,9 +42,9 @@ export default class RendererStore {
     private setObservers = once(() => {
         const observe = this.storeObserver.observe;
 
+        // FIXME Remove observer pattern and refactor to standard reducers/actions/selectors.
         observe(documentTitle);
         observe(isLoading);
-        observe(loadingMap);
         observe(requestedCallbacks);
         observe(prioritizedCallbacks);
         observe(executingCallbacks);
@@ -56,6 +55,11 @@ export default class RendererStore {
     private createAppStore = (reducer: any, middleware: any) => {
         this.__store = createStore(reducer, middleware);
         this.storeObserver.setStore(this.__store);
+        const ds = ((window as any).dash_stores =
+            (window as any).dash_stores || []);
+        if (!ds.includes(this.__store)) {
+            ds.push(this.__store);
+        }
         this.setObservers();
     };
 
@@ -82,7 +86,12 @@ export default class RendererStore {
             const reduxDTEC = (window as any)
                 .__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
             if (reduxDTEC) {
-                this.createAppStore(reducer, reduxDTEC(applyMiddleware(thunk)));
+                this.createAppStore(
+                    reducer,
+                    reduxDTEC({actionsDenylist: ['reloadRequest']})(
+                        applyMiddleware(thunk)
+                    )
+                );
             } else {
                 this.createAppStore(reducer, applyMiddleware(thunk));
             }

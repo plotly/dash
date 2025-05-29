@@ -80,7 +80,7 @@ def test_link002_scroll(dash_dcc):
     @app.callback(Output("page-content", "children"), [Input("test-url", "pathname")])
     def display_page(pathname):
         call_count.value = call_count.value + 1
-        return "You are on page {}".format(pathname)
+        return f"You are on page {pathname}"
 
     dash_dcc.start_server(app)
 
@@ -94,7 +94,7 @@ def test_link002_scroll(dash_dcc):
 
     wait.until(
         lambda: test_link.get_attribute("href")
-        == "http://localhost:{}/test-link".format(dash_dcc.server.port),
+        == f"http://localhost:{dash_dcc.server.port}/test-link",
         3,
     )
     wait.until(lambda: call_count.value == 2, 3)

@@ -5,12 +5,12 @@ import {
     difference,
     filter,
     flatten,
-    forEach,
     isEmpty,
     keys,
     map,
     mergeWith,
     partition,
+    path,
     pickBy,
     props,
     reduce,
@@ -18,18 +18,18 @@ import {
 } from 'ramda';
 import {
     ICallback,
-    ICallbackProperty,
     ICallbackDefinition,
-    ILayoutCallbackProperty,
-    ICallbackTemplate
+    ICallbackProperty,
+    ICallbackTemplate,
+    ILayoutCallbackProperty
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
-    splitIdAndProp,
-    stringifyId,
     getUnfilteredLayoutCallbacks,
+    idMatch,
     isMultiValued,
-    idMatch
+    splitIdAndProp,
+    stringifyId
 } from './dependencies';
 import {getPath} from './paths';
 
@@ -145,10 +145,52 @@ export function getPriority(
     return map(i => Math.min(i, 35).toString(36), priority).join('');
 }
 
+export function getAllSubsequentOutputsForCallback(
+    graphs: any,
+    paths: any,
+    callback: ICallback
+) {
+    let callbacks: ICallback[] = [callback];
+    let touchedOutputs: {[key: string]: boolean} = {};
+
+    // this traverses the graph all the way to the end
+    while (callbacks.length) {
+        // don't add it if it already exists based on id and props
+        const outputs = filter(
+            o => !touchedOutputs[combineIdAndProp(o)],
+            flatten(map(cb => flatten(cb.getOutputs(paths)), callbacks))
+        );
+
+        touchedOutputs = reduce(
+            (touched, o) => assoc(combineIdAndProp(o), true, touched),
+            touchedOutputs,
+            outputs
+        );
+
+        callbacks = flatten(
+            map(
+                ({id, property}: any) =>
+                    getCallbacksByInput(
+                        graphs,
+                        paths,
+                        id,
+                        property,
+                        INDIRECT,
+                        false
+                    ),
+                outputs
+            )
+        );
+    }
+
+    return touchedOutputs;
+}
+
 export const getReadyCallbacks = (
     paths: any,
     candidates: ICallback[],
-    callbacks: ICallback[] = candidates
+    callbacks: ICallback[] = candidates,
+    graphs: any = {}
 ): ICallback[] => {
     // Skip if there's no candidates
     if (!candidates.length) {
@@ -166,8 +208,44 @@ export const getReadyCallbacks = (
     );
 
     // Make `outputs` hash table for faster access
-    const outputsMap: {[key: string]: boolean} = {};
-    forEach(output => (outputsMap[output] = true), outputs);
+    let outputsMap: {[key: string]: boolean} = {};
+    outputs.forEach(output => (outputsMap[output] = true));
+
+    // find all the outputs touched by activeCallbacks
+    // remove this check if graph is accessible all the time
+
+    if (Object.keys(graphs).length) {
+        //not sure if graph will be accessible all the time
+        const allTouchedOutputs: {[key: string]: boolean}[] = flatten(
+            map(
+                cb => getAllSubsequentOutputsForCallback(graphs, paths, cb),
+                callbacks
+            )
+        );
+
+        // overrrides the outputsMap, will duplicate callbacks filtered
+        // this is only done to silence typescript errors
+        if (allTouchedOutputs.length > 0) {
+            outputsMap = Object.assign(
+                allTouchedOutputs[0],
+                ...allTouchedOutputs
+            );
+        }
+    }
+
+    // Ramda.JS `difference` function is slow because it compares objects entirely
+    // This cause the following `filter` to be exponentially slow as the number of inputs or outputs grow
+    // We can optimize this by comparing only the `id+prop` part of the inputs & outputs.
+    // Original difference takes 380ms on average to compute difference between 200 inputs and 1 output.
+    // The following function takes 1-2ms on average.
+    const differenceBasedOnId = (inputs: any[], outputs: any[]): any[] =>
+        inputs.filter(
+            input =>
+                !outputs.some(
+                    output =>
+                        combineIdAndProp(input) === combineIdAndProp(output)
+                )
+        );
 
     // Find `requested` callbacks that do not depend on a outstanding output (as either input or state)
     // Outputs which overlap an input do not count as an outstanding output
@@ -175,7 +253,7 @@ export const getReadyCallbacks = (
         cb =>
             all<ILayoutCallbackProperty>(
                 cbp => !outputsMap[combineIdAndProp(cbp)],
-                difference(
+                differenceBasedOnId(
                     flatten(cb.getInputs(paths)),
                     flatten(cb.getOutputs(paths))
                 )
@@ -238,6 +316,23 @@ export const getLayoutCallbacks = (
                 flatten(map(({getOutputs}) => getOutputs(paths), excluded))
             )
         );
+    }
+
+    if (options.filterRoot) {
+        let rootId = path(['props', 'id'], layout);
+        if (rootId) {
+            rootId = stringifyId(rootId);
+            // Filter inputs that are not present in the response
+            callbacks = callbacks.filter(cb =>
+                cb.callback.inputs.reduce(
+                    (previous: any, input: any) =>
+                        previous ||
+                        (stringifyId(input.id) == rootId &&
+                            options.filterRoot.includes(input.property)),
+                    false
+                )
+            );
+        }
     }
 
     /*

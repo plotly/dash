@@ -13,9 +13,9 @@ from dash.testing.wait import until
 )
 def test_dldf001_download_dataframe(fmt, dash_dcc):
     df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 1, 5, 6], "c": ["x", "x", "y", "y"]})
-    reader = getattr(pd, "read_{}".format(fmt))  # e.g. read_csv
-    writer = getattr(df, "to_{}".format(fmt))  # e.g. to_csv
-    filename = "df.{}".format(fmt)
+    reader = getattr(pd, f"read_{fmt}")  # e.g. read_csv
+    writer = getattr(df, f"to_{fmt}")  # e.g. to_csv
+    filename = f"df.{fmt}"
     # Create app.
     app = Dash(__name__, prevent_initial_callbacks=True)
     app.layout = html.Div(

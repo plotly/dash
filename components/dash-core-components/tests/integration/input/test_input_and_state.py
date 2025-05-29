@@ -24,7 +24,7 @@ def test_state_and_inputs(dash_dcc):
     )
     def update_output(input, state):
         call_count.value += 1
-        return 'input="{}", state="{}"'.format(input, state)
+        return f'input="{input}", state="{state}"'
 
     dash_dcc.start_server(app)
 

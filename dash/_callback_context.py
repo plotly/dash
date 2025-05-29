@@ -1,23 +1,37 @@
 import functools
 import warnings
 import json
-from copy import deepcopy
+import contextvars
+import typing
+
 import flask
 
 from . import exceptions
-from ._utils import stringify_id, AttributeDict
+from ._utils import AttributeDict, stringify_id
+
+
+context_value = contextvars.ContextVar("callback_context")
+context_value.set({})
 
 
 def has_context(func):
     @functools.wraps(func)
     def assert_context(*args, **kwargs):
-        if not flask.has_request_context():
+        if not context_value.get():
             raise exceptions.MissingCallbackContextException(
                 f"dash.callback_context.{getattr(func, '__name__')} is only available from a callback!"
             )
         return func(*args, **kwargs)
 
     return assert_context
+
+
+def _get_context_value():
+    return context_value.get()
+
+
+def _get_from_context(key, default):
+    return getattr(_get_context_value(), key, default)
 
 
 class FalsyList(list):
@@ -38,12 +52,12 @@ class CallbackContext:
     @property
     @has_context
     def inputs(self):
-        return getattr(flask.g, "input_values", {})
+        return getattr(_get_context_value(), "input_values", {})
 
     @property
     @has_context
     def states(self):
-        return getattr(flask.g, "state_values", {})
+        return getattr(_get_context_value(), "state_values", {})
 
     @property
     @has_context
@@ -65,7 +79,7 @@ class CallbackContext:
         # value - to avoid breaking existing apps, add a dummy item but
         # make the list still look falsy. So `if ctx.triggered` will make it
         # look empty, but you can still do `triggered[0]["prop_id"].split(".")`
-        return getattr(flask.g, "triggered_inputs", []) or falsy_triggered
+        return getattr(_get_context_value(), "triggered_inputs", []) or falsy_triggered
 
     @property
     @has_context
@@ -91,7 +105,7 @@ class CallbackContext:
         `if "btn-1.n_clicks" in ctx.triggered_prop_ids:
             do_something()`
         """
-        triggered = getattr(flask.g, "triggered_inputs", [])
+        triggered = getattr(_get_context_value(), "triggered_inputs", [])
         ids = AttributeDict({})
         for item in triggered:
             component_id, _, _ = item["prop_id"].rpartition(".")
@@ -127,7 +141,7 @@ class CallbackContext:
         args_grouping is a dict of the inputs used with flexible callback signatures. The keys are the variable names
         and the values are dictionaries containing:
         - “id”: (string or dict) the component id. If it’s a pattern matching id, it will be a dict.
-        - “id_str”: (str) for pattern matching ids, it’s the strigified dict id with no white spaces.
+        - “id_str”: (str) for pattern matching ids, it’s the stringified dict id with no white spaces.
         - “property”: (str) The component property used in the callback.
         - “value”: the value of the component property at the time the callback was fired.
         - “triggered”: (bool)Whether this input triggered the callback.
@@ -147,64 +161,12 @@ class CallbackContext:
                return "No clicks yet"
 
         """
-        triggered = getattr(flask.g, "triggered_inputs", [])
-        triggered = [item["prop_id"] for item in triggered]
-        grouping = getattr(flask.g, "args_grouping", {})
-
-        def update_args_grouping(g):
-            if isinstance(g, dict) and "id" in g:
-                str_id = stringify_id(g["id"])
-                prop_id = f"{str_id}.{g['property']}"
-
-                new_values = {
-                    "value": g.get("value"),
-                    "str_id": str_id,
-                    "triggered": prop_id in triggered,
-                    "id": AttributeDict(g["id"])
-                    if isinstance(g["id"], dict)
-                    else g["id"],
-                }
-                g.update(new_values)
-
-        def recursive_update(g):
-            if isinstance(g, (tuple, list)):
-                for i in g:
-                    update_args_grouping(i)
-                    recursive_update(i)
-            if isinstance(g, dict):
-                for i in g.values():
-                    update_args_grouping(i)
-                    recursive_update(i)
-
-        recursive_update(grouping)
-
-        return grouping
-
-    # todo not sure whether we need this, but it removes a level of nesting so
-    #  you don't need to use `.value` to get the value.
-    @property
-    @has_context
-    def args_grouping_values(self):
-        grouping = getattr(flask.g, "args_grouping", {})
-        grouping = deepcopy(grouping)
-
-        def recursive_update(g):
-            if isinstance(g, (tuple, list)):
-                for i in g:
-                    recursive_update(i)
-            if isinstance(g, dict):
-                for k, v in g.items():
-                    if isinstance(v, dict) and "id" in v:
-                        g[k] = v["value"]
-                    recursive_update(v)
-
-        recursive_update(grouping)
-        return grouping
+        return getattr(_get_context_value(), "args_grouping", [])
 
     @property
     @has_context
     def outputs_grouping(self):
-        return getattr(flask.g, "outputs_grouping", [])
+        return getattr(_get_context_value(), "outputs_grouping", [])
 
     @property
     @has_context
@@ -215,7 +177,7 @@ class CallbackContext:
                 DeprecationWarning,
             )
 
-        return getattr(flask.g, "outputs_list", [])
+        return getattr(_get_context_value(), "outputs_list", [])
 
     @property
     @has_context
@@ -226,7 +188,7 @@ class CallbackContext:
                 DeprecationWarning,
             )
 
-        return getattr(flask.g, "inputs_list", [])
+        return getattr(_get_context_value(), "inputs_list", [])
 
     @property
     @has_context
@@ -236,16 +198,16 @@ class CallbackContext:
                 "states_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
             )
-        return getattr(flask.g, "states_list", [])
+        return getattr(_get_context_value(), "states_list", [])
 
     @property
     @has_context
     def response(self):
-        return getattr(flask.g, "dash_response")
+        return getattr(_get_context_value(), "dash_response")
 
     @staticmethod
     @has_context
-    def record_timing(name, duration=None, description=None):
+    def record_timing(name, duration, description=None):
         """Records timing information for a server resource.
 
         :param name: The name of the resource.
@@ -253,7 +215,7 @@ class CallbackContext:
 
         :param duration: The time in seconds to report. Internally, this
             is rounded to the nearest millisecond.
-        :type duration: float or None
+        :type duration: float
 
         :param description: A description of the resource.
         :type description: string or None
@@ -274,7 +236,7 @@ class CallbackContext:
         Return True if this callback is using dictionary or nested groupings for
         Input/State dependencies, or if Input and State dependencies are interleaved
         """
-        return getattr(flask.g, "using_args_grouping", [])
+        return getattr(_get_context_value(), "using_args_grouping", [])
 
     @property
     @has_context
@@ -283,7 +245,79 @@ class CallbackContext:
         Return True if this callback is using dictionary or nested groupings for
         Output dependencies.
         """
-        return getattr(flask.g, "using_outputs_grouping", [])
+        return getattr(_get_context_value(), "using_outputs_grouping", [])
+
+    @property
+    @has_context
+    def timing_information(self):
+        return getattr(flask.g, "timing_information", {})
+
+    @has_context
+    def set_props(self, component_id: typing.Union[str, dict], props: dict):
+        ctx_value = _get_context_value()
+        _id = stringify_id(component_id)
+        existing = ctx_value.updated_props.get(_id)
+        if existing is not None:
+            ctx_value.updated_props[_id] = {**existing, **props}
+        else:
+            ctx_value.updated_props[_id] = props
+
+    @property
+    @has_context
+    def cookies(self):
+        """
+        Get the cookies for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("cookies", {})
+
+    @property
+    @has_context
+    def headers(self):
+        """
+        Get the original headers for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("headers", {})
+
+    @property
+    @has_context
+    def path(self):
+        """
+        Path of the callback request with the query parameters.
+        """
+        return _get_from_context("path", "")
+
+    @property
+    @has_context
+    def remote(self):
+        """
+        Remote addr of the callback request.
+        """
+        return _get_from_context("remote", "")
+
+    @property
+    @has_context
+    def origin(self):
+        """
+        Origin of the callback request.
+        """
+        return _get_from_context("origin", "")
+
+    @property
+    @has_context
+    def custom_data(self):
+        """
+        Custom data set by hooks.custom_data.
+        """
+        return _get_from_context("custom_data", {})
 
 
 callback_context = CallbackContext()
+
+
+def set_props(component_id: typing.Union[str, dict], props: dict):
+    """
+    Set the props for a component not included in the callback outputs.
+    """
+    callback_context.set_props(component_id, props)

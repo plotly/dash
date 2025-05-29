@@ -6,9 +6,10 @@ import RemarkMath from 'remark-math';
 
 import Math from './Math.react';
 import MarkdownHighlighter from '../utils/MarkdownHighlighter';
-import {propTypes, defaultProps} from '../components/Markdown.react';
+import {propTypes} from '../components/Markdown.react';
 
 import DccLink from './../components/Link.react';
+import LoadingElement from '../utils/LoadingElement';
 
 export default class DashMarkdown extends Component {
     constructor(props) {
@@ -32,12 +33,20 @@ export default class DashMarkdown extends Component {
     }
 
     highlightCode() {
+        const isHighlighted = node => {
+            // a highlighted node will have <span> children which are what color the text
+            return node.children.length > 0;
+        };
+
         if (this.mdContainer) {
             const nodes = this.mdContainer.querySelectorAll('pre code');
 
             if (MarkdownHighlighter.hljs) {
                 for (let i = 0; i < nodes.length; i++) {
-                    MarkdownHighlighter.hljs.highlightElement(nodes[i]);
+                    if (!isHighlighted(nodes[i])) {
+                        nodes[i].removeAttribute('data-highlighted');
+                        MarkdownHighlighter.hljs.highlightElement(nodes[i]);
+                    }
                 }
             } else {
                 MarkdownHighlighter.loadhljs();
@@ -85,8 +94,8 @@ export default class DashMarkdown extends Component {
             style,
             className,
             highlight_config,
-            loading_state,
             dangerously_allow_html,
+            link_target,
             mathjax,
             children,
             dedent,
@@ -107,10 +116,24 @@ export default class DashMarkdown extends Component {
                     )}
                 />
             ),
+            dashMathjax: props => (
+                <Math tex={props.value} inline={props.inline} />
+            ),
+        };
+
+        const regexMath = value => {
+            const newValue = value.replace(
+                /(\${1,2})((?:\\.|[^$])+)\1/g,
+                function (m, tag, src) {
+                    const inline = tag.length === 1 || src.indexOf('\n') === -1;
+                    return `<dashMathjax value='${src}' inline='${inline}'/>`;
+                }
+            );
+            return newValue;
         };
 
         return (
-            <div
+            <LoadingElement
                 id={id}
                 ref={node => {
                     this.mdContainer = node;
@@ -127,13 +150,11 @@ export default class DashMarkdown extends Component {
                             : ''
                     }`
                 }
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
             >
                 <Markdown
                     source={displayText}
                     escapeHtml={!dangerously_allow_html}
+                    linkTarget={link_target}
                     plugins={mathjax ? [RemarkMath] : []}
                     renderers={{
                         math: props => (
@@ -149,17 +170,20 @@ export default class DashMarkdown extends Component {
                                 props.value
                             ) : (
                                 <JsxParser
-                                    jsx={props.value}
+                                    jsx={
+                                        mathjax
+                                            ? regexMath(props.value)
+                                            : props.value
+                                    }
                                     components={componentTransforms}
                                     renderInWrapper={false}
                                 />
                             ),
                     }}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }
 
 DashMarkdown.propTypes = propTypes;
-DashMarkdown.defaultProps = defaultProps;

@@ -109,17 +109,19 @@ const scenarios: ITest[] = [
 
 const tests = R.xprod(scenarios, ALL_VARIANTS);
 
-R.reduce(
-    (chain, [scenario, variant]) =>
-        chain.add(`${scenario.name} (${variant.name})`, () => (
-            <DataTable
-                {...R.mergeAll([
-                    BORDER_PROPS_DEFAULTS,
-                    variant.props,
-                    scenario.props
-                ])}
-            />
-        )),
-    storiesOf('DashTable/Multiline', module),
-    tests
-);
+storiesOf('DashTable/Multiline', module).add('all variants', () => (
+    <div>
+        {...tests.map(([scenario, variant]) => (
+            <div>
+                <div>{`${scenario.name} (${variant.name})`}</div>
+                <DataTable
+                    {...R.mergeAll([
+                        BORDER_PROPS_DEFAULTS,
+                        variant.props,
+                        scenario.props
+                    ])}
+                />
+            </div>
+        ))}
+    </div>
+));

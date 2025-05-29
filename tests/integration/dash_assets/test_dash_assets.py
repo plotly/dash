@@ -52,13 +52,11 @@ def test_dada001_assets(dash_duo):
     ]
 
     assert order == tested, "the content and order is expected"
-    dash_duo.percy_snapshot("test assets includes")
 
 
 def test_dada002_external_files_init(dash_duo):
     js_files = [
         "https://www.google-analytics.com/analytics.js",
-        {"src": "https://cdn.polyfill.io/v2/polyfill.min.js"},
         {
             "src": "https://cdnjs.cloudflare.com/ajax/libs/ramda/0.26.1/ramda.min.js",
             "integrity": "sha256-43x9r7YRdZpZqTjDT5E0Vfrxn1ajIZLyYWtfAXsargA=",
@@ -114,7 +112,7 @@ def test_dada002_external_files_init(dash_duo):
         (("//script[@src='{}']", x) for x in js_urls),
         (("//link[@href='{}']", x) for x in css_urls),
     ):
-        dash_duo.driver.find_element_by_xpath(fmt.format(url))
+        dash_duo.find_element(fmt.format(url), attribute="XPATH")
 
     assert (
         dash_duo.find_element("#btn").value_of_css_property("height") == "18px"

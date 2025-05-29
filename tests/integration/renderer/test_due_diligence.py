@@ -97,7 +97,6 @@ def test_rddd001_initial_state(dash_duo):
 
     assert not dash_duo.redux_state_is_loading, "no callback => no pendingCallbacks"
 
-    dash_duo.percy_snapshot(name="layout")
     assert dash_duo.get_logs() == [], "console has no errors"
 
 

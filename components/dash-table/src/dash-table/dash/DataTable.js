@@ -313,13 +313,18 @@ export const propTypes = {
              * There are two `filter_options` props in the table.
              * This is the column-level filter_options prop and there is
              * also the table-level `filter_options` prop.
-             * These props determine whether the applicable filter relational
-             * operators will default to `sensitive` or `insensitive` comparison.
              * If the column-level `filter_options` prop is set it overrides
              * the table-level `filter_options` prop for that column.
              */
             filter_options: PropTypes.shape({
-                case: PropTypes.oneOf(['sensitive', 'insensitive'])
+                /**
+                 * (default: 'sensitive') Determine whether the applicable filter relational operators will default to `sensitive` or `insensitive` comparison.
+                 */
+                case: PropTypes.oneOf(['sensitive', 'insensitive']),
+                /**
+                 * (default: 'filter data...') The filter cell placeholder text.
+                 */
+                placeholder_text: PropTypes.string
             }),
 
             /**
@@ -467,25 +472,14 @@ export const propTypes = {
      * View the documentation examples to learn more.
      *
      */
-    fixed_columns: PropTypes.oneOfType([
-        PropTypes.exact({
-            /**
-             * Example `{'headers':False, 'data':0}` No columns are fixed (the default)
-             */
+    fixed_columns: PropTypes.exact({
+        /**
+         * Example `{'headers':False, 'data':0}` No columns are fixed (the default)
+         */
 
-            data: PropTypes.oneOf([0]),
-            headers: PropTypes.oneOf([false])
-        }),
-
-        PropTypes.exact({
-            /**
-             * Example `{'headers':True, 'data':1}` one column is fixed.
-             */
-
-            data: PropTypes.number,
-            headers: PropTypes.oneOf([true]).isRequired
-        })
-    ]),
+        data: PropTypes.number,
+        headers: PropTypes.bool
+    }),
 
     /**
      * `fixed_rows` will "fix" the set of rows so that
@@ -500,24 +494,14 @@ export const propTypes = {
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
      */
-    fixed_rows: PropTypes.oneOfType([
-        PropTypes.exact({
-            /**
-             * Example `{'headers':False, 'data':0}` No rows are fixed (the default)
-             */
+    fixed_rows: PropTypes.exact({
+        /**
+         * Example `{'headers':False, 'data':0}` No rows are fixed (the default)
+         */
 
-            data: PropTypes.oneOf([0]),
-            headers: PropTypes.oneOf([false])
-        }),
-        PropTypes.exact({
-            /**
-             * Example `{'headers':True, 'data':1}` one row is fixed.
-             */
-
-            data: PropTypes.number,
-            headers: PropTypes.oneOf([true]).isRequired
-        })
-    ]),
+        data: PropTypes.number,
+        headers: PropTypes.bool
+    }),
 
     /**
      * If `single`, then the user can select a single column or group
@@ -695,7 +679,7 @@ export const propTypes = {
     /**
      * Denotes the format of the headers in the export data file.
      * If `'none'`, there will be no header. If `'display'`, then the header
-     * of the data file will be be how it is currently displayed. Note that
+     * of the data file will be how it is currently displayed. Note that
      * `'display'` is only supported for `'xlsx'` export_format and will behave
      * like `'names'` for `'csv'` export format. If `'ids'` or `'names'`,
      * then the headers of data file will be the column id or the column
@@ -776,14 +760,20 @@ export const propTypes = {
      * There are two `filter_options` props in the table.
      * This is the table-level filter_options prop and there is
      * also the column-level `filter_options` prop.
-     * These props determine whether the applicable filter relational
-     * operators will default to `sensitive` or `insensitive` comparison.
      * If the column-level `filter_options` prop is set it overrides
      * the table-level `filter_options` prop for that column.
      */
     filter_options: PropTypes.shape({
-        case: PropTypes.oneOf(['sensitive', 'insensitive'])
+        /**
+         * (default: 'sensitive') Determine whether the applicable filter relational operators will default to `sensitive` or `insensitive` comparison.
+         */
+        case: PropTypes.oneOf(['sensitive', 'insensitive']),
+        /**
+         * (default: 'filter data...') The filter cell placeholder text.
+         */
+        placeholder_text: PropTypes.string
     }),
+
     /**
      * The `sort_action` property enables data to be
      * sorted on a per-column basis.
@@ -791,7 +781,7 @@ export const propTypes = {
      * If `'native'`, then the sorting UI is displayed and the sorting
      * logic is handled by the table. That is, it is performed on the data
      * that exists in the `data` property.
-     * If `'custom'`, the the sorting UI is displayed but it is the
+     * If `'custom'`, the sorting UI is displayed but it is the
      * responsibility of the developer to program the sorting
      * through a callback (where `sort_by` would be the input and `data`
      * would be the output).

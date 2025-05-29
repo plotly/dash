@@ -1,4 +1,4 @@
-import {find, flatten, forEach, map, partition, pluck, sort, uniq} from 'ramda';
+import {find, flatten, map, partition, sort} from 'ramda';
 
 import {IStoreState} from '../store';
 
@@ -53,13 +53,16 @@ const getStash = (
     return {allOutputs, allPropIds};
 };
 
-const getIds = (cb: ICallback, paths: any) =>
-    uniq(
-        pluck('id', [
-            ...flatten(cb.getInputs(paths)),
-            ...flatten(cb.getState(paths))
-        ])
-    );
+const getIds = (cb: ICallback, paths: any) => {
+    const items = [
+        ...flatten(cb.getInputs(paths)),
+        ...flatten(cb.getState(paths))
+    ];
+
+    const uniqueIds = new Map(items.map(item => [stringifyId(item.id), item]));
+    const uniqueItems = Array.from(uniqueIds.values());
+    return uniqueItems;
+};
 
 const observer: IStoreObserverDefinition<IStoreState> = {
     observer: async ({dispatch, getState}) => {
@@ -110,7 +113,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     paths,
                                     layout,
                                     getStash(cb, paths),
-                                    dispatch
+                                    dispatch,
+                                    getState
                                 ),
                             pickedSyncCallbacks
                         )
@@ -136,7 +140,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 ])
             );
 
-            forEach(async cb => {
+            deferred.forEach(async cb => {
                 await cb.isReady;
 
                 const {
@@ -162,7 +166,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                     paths,
                     layout,
                     cb,
-                    dispatch
+                    dispatch,
+                    getState
                 );
 
                 dispatch(
@@ -171,7 +176,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         addExecutingCallbacks([executingCallback])
                     ])
                 );
-            }, deferred);
+            });
         }
     },
     inputs: ['callbacks.prioritized', 'callbacks.completed']

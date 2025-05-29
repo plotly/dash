@@ -81,7 +81,7 @@ def test_filt001_basic(test, props, expect):
 
 
 @pytest.mark.parametrize(
-    "filter_options,column_filter_options",
+    "filter_case_options,column_case_filter_options",
     [
         ("sensitive", None),
         ("sensitive", None),
@@ -91,7 +91,7 @@ def test_filt001_basic(test, props, expect):
         ("insensitive", "sensitive"),
     ],
 )
-def test_filt002_sensitivity(test, filter_options, column_filter_options):
+def test_filt002_sensitivity(test, filter_case_options, column_case_filter_options):
     props = dict(
         id="table",
         data=[dict(a="abc", b="abc", c="abc"), dict(a="ABC", b="ABC", c="ABC")],
@@ -99,37 +99,39 @@ def test_filt002_sensitivity(test, filter_options, column_filter_options):
             dict(
                 id="a",
                 name="a",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
+                filter_options=dict(case=column_case_filter_options)
+                if column_case_filter_options is not None
                 else None,
                 type="any",
             ),
             dict(
                 id="b",
                 name="b",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
+                filter_options=dict(case=column_case_filter_options)
+                if column_case_filter_options is not None
                 else None,
                 type="text",
             ),
             dict(
                 id="c",
                 name="c",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
+                filter_options=dict(case=column_case_filter_options)
+                if column_case_filter_options is not None
                 else None,
                 type="numeric",
             ),
         ],
         filter_action="native",
-        filter_options=dict(case=filter_options)
-        if filter_options is not None
+        filter_options=dict(case=filter_case_options)
+        if filter_case_options is not None
         else None,
         style_cell=dict(width=100, min_width=100, max_width=100),
     )
 
     sensitivity = (
-        filter_options if column_filter_options is None else column_filter_options
+        filter_case_options
+        if column_case_filter_options is None
+        else column_case_filter_options
     )
 
     test.start_server(get_app(props))
@@ -197,7 +199,7 @@ def test_filt002_sensitivity(test, filter_options, column_filter_options):
 
 
 @pytest.mark.parametrize(
-    "filter_options,column_filter_options",
+    "filter_case_options,column_case_filter_options",
     [
         ("sensitive", None),
         ("sensitive", None),
@@ -207,7 +209,11 @@ def test_filt002_sensitivity(test, filter_options, column_filter_options):
         ("insensitive", "sensitive"),
     ],
 )
-def test_filt003_sensitivity(test, filter_options, column_filter_options):
+def test_filt003_sensitivity(test, filter_case_options, column_case_filter_options):
+    column_b_filter_option = dict(placeholder_text="some descriptive text")
+    if column_case_filter_options is not None:
+        column_b_filter_option["case"] = column_case_filter_options
+
     props = dict(
         id="table",
         data=[dict(a="abc", b="abc", c="abc"), dict(a="ABC", b="ABC", c="ABC")],
@@ -215,42 +221,45 @@ def test_filt003_sensitivity(test, filter_options, column_filter_options):
             dict(
                 id="a",
                 name="a",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
+                filter_options=dict(case=column_case_filter_options)
+                if column_case_filter_options is not None
                 else None,
                 type="any",
             ),
             dict(
                 id="b",
                 name="b",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
-                else None,
+                filter_options=column_b_filter_option,
                 type="text",
             ),
             dict(
                 id="c",
                 name="c",
-                filter_options=dict(case=column_filter_options)
-                if column_filter_options is not None
+                filter_options=dict(case=column_case_filter_options)
+                if column_case_filter_options is not None
                 else None,
                 type="numeric",
             ),
         ],
         filter_action="native",
-        filter_options=dict(case=filter_options)
-        if filter_options is not None
+        filter_options=dict(case=filter_case_options)
+        if filter_case_options is not None
         else None,
         style_cell=dict(width=100, min_width=100, max_width=100),
     )
 
     sensitivity = (
-        filter_options if column_filter_options is None else column_filter_options
+        filter_case_options
+        if column_case_filter_options is None
+        else column_case_filter_options
     )
 
     test.start_server(get_app(props))
 
     target = test.table("table")
+
+    target.column("a").filter_placeholder() == "filter data..."
+    target.column("b").filter_placeholder() == "some descriptive text"
 
     target.column("a").filter_value("contains A")
     if sensitivity == "sensitive":
@@ -301,3 +310,42 @@ def test_filt003_sensitivity(test, filter_options, column_filter_options):
     else:
         assert target.cell(0, "c").get_text() == "abc"
         assert target.cell(1, "c").get_text() == "ABC"
+
+
+@pytest.mark.parametrize(
+    "column_placeholder_setting,table_placeholder_setting,expected_placeholder",
+    [
+        ("abc", None, "abc"),
+        (None, "def", "def"),
+        ("gah", "ijk", "gah"),
+        ("", None, ""),
+        (None, None, "filter data..."),
+    ],
+)
+def test_filt004_placeholder(
+    test, column_placeholder_setting, table_placeholder_setting, expected_placeholder
+):
+    column_filter_setting = dict(case="sensitive")
+    if column_placeholder_setting is not None:
+        column_filter_setting["placeholder_text"] = column_placeholder_setting
+
+    props = dict(
+        id="table",
+        data=[],
+        columns=[
+            dict(
+                id="a",
+                name="a",
+                type="any",
+                filter_options=column_filter_setting,
+            ),
+        ],
+        filter_action="native",
+        filter_options=dict(placeholder_text=table_placeholder_setting)
+        if table_placeholder_setting is not None
+        else None,
+    )
+
+    test.start_server(get_app(props))
+    target = test.table("table")
+    assert target.column("a").filter_placeholder() == expected_placeholder

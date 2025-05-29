@@ -1,3 +1,7 @@
+import time
+
+from selenium.webdriver.common.keys import Keys
+
 from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
 
@@ -67,3 +71,59 @@ def test_dddo002_array_comma_value(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#react-select-2--value-0", "San Francisco, CA\n ")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_dddo003_value_no_options(dash_dcc):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(value="foobar", id="dropdown"),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    assert dash_dcc.get_logs() == []
+    dash_dcc.wait_for_element("#dropdown")
+
+
+def test_dddo004_dynamic_value_search(dash_dcc):
+    # Bug clear the search input while typing
+    # https://github.com/plotly/dash/issues/2099
+
+    options = [
+        {"label": "aa1", "value": "aa1"},
+        {"label": "aa2", "value": "aa2"},
+        {"label": "aa3", "value": "aa3"},
+        {"label": "best value", "value": "bb1"},
+        {"label": "better value", "value": "bb2"},
+        {"label": "bye", "value": "bb3"},
+    ]
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(
+                ["Single dynamic Dropdown", dcc.Dropdown(id="dropdown")],
+                style={"width": 200, "marginLeft": 20, "marginTop": 20},
+            ),
+        ]
+    )
+
+    @app.callback(Output("dropdown", "options"), Input("dropdown", "search_value"))
+    def update_options(search_value):
+        if not search_value:
+            raise PreventUpdate
+        return [o for o in options if search_value in o["label"]]
+
+    dash_dcc.start_server(app)
+
+    input_ = dash_dcc.find_element("#dropdown input")
+
+    input_.send_keys("aa1")
+    input_.send_keys(Keys.ENTER)
+
+    input_.send_keys("b")
+
+    time.sleep(1)
+    assert input_.get_attribute("value") == "b"

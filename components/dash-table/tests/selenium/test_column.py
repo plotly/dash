@@ -267,3 +267,30 @@ def test_colm008_top_row_by_subset(test):
         for r in range(3):
             if target.column(c).exists(r):
                 assert target.column(c).is_selected(r)
+
+
+def test_colm009_newline_id(test):
+    app = dash.Dash(__name__)
+
+    columns = [
+        {"name": "aaabbb", "id": "aaa\nbbb"},
+        {"name": "cccddd", "id": "ccc\nddd"},
+    ]
+    data = [{columns[c]["id"]: r + (3 * c) + 1 for c in [0, 1]} for r in [0, 1, 2]]
+    tooltip_data = [{k: str(v * 11) for k, v in row.items()} for row in data]
+
+    app.layout = DataTable(
+        id="table", columns=columns, data=data, tooltip_data=tooltip_data
+    )
+
+    test.start_server(app)
+
+    target = test.table("table")
+    cell = target.cell(1, 1)
+
+    target.is_ready()
+    cell.move_to()
+    # note first I tried tooltip.exists() and tooltip.get_text() like in ttip001
+    # but that didn't work? didn't wait for it perhaps?
+    test.wait_for_text_to_equal(".dash-tooltip", "55")
+    assert test.get_log_errors() == []
