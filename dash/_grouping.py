@@ -31,7 +31,6 @@ def flatten_grouping(grouping, schema=None):
     """
     stack = []
     result = []
-    pushed_validate = False
 
     # Avoid repeated recursive Python calls by using an explicit stack
     push = stack.append
@@ -42,7 +41,6 @@ def flatten_grouping(grouping, schema=None):
         schema = grouping
     else:
         validate_grouping(grouping, schema)
-        pushed_validate = True  # Just for clarity; not strictly necessary
 
     push((grouping, schema))
     while stack:
