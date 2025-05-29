@@ -86,12 +86,10 @@ def _infer_path(module_name, template):
 
 
 def _module_name_is_package(module_name):
-    file_path = sys.modules[module_name].__file__
-    return (
-        file_path
-        and module_name in sys.modules
-        and Path(file_path).name == "__init__.py"
-    )
+    if module_name not in sys.modules:
+        return False
+    file = sys.modules[module_name].__file__
+    return file and file.endswith("__init__.py")
 
 
 def _path_to_module_name(path):
