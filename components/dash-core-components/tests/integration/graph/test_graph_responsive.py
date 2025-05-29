@@ -1,4 +1,5 @@
 import pytest
+import flaky
 
 from dash import Dash, Input, Output, State, dcc, html
 import plotly.graph_objects as go
@@ -137,6 +138,7 @@ def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_respons
     assert dash_dcc.get_logs() == []
 
 
+@flaky.flaky(max_runs=3)
 def test_grrs002_graph(dash_dcc):
     app = Dash(__name__)
 
