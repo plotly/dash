@@ -1,5 +1,5 @@
 import React from 'react';
-import {mergeRight, path, type, has, join} from 'ramda';
+import {mergeRight, path, type, has, join, pathOr} from 'ramda';
 import {DashComponent, DashLayoutPath} from '../types/component';
 
 export function createElement(
@@ -60,4 +60,26 @@ export function getComponentLayout(
     state: any
 ): DashComponent {
     return path(componentPath, state.layout) as DashComponent;
+}
+
+export function checkRenderTypeProp(componentDefinition: any) {
+    return (
+        'dashRenderType' in
+        pathOr(
+            {},
+            [componentDefinition?.namespace, componentDefinition?.type],
+            window as any
+        )
+    );
+}
+
+export function checkDashChildrenUpdate(componentDefinition: any) {
+    return (
+        'dashChildrenUpdate' in
+        pathOr(
+            {},
+            [componentDefinition?.namespace, componentDefinition?.type],
+            window as any
+        )
+    );
 }

@@ -122,22 +122,27 @@ function unwrapIfNotMulti(
 
     if (idProps.length !== 1) {
         if (!idProps.length) {
-            const isStr = typeof spec.id === 'string';
-            msg =
-                'A nonexistent object was used in an `' +
-                depType +
-                '` of a Dash callback. The id of this object is ' +
-                (isStr
-                    ? '`' + spec.id + '`'
-                    : JSON.stringify(spec.id) +
-                      (anyVals ? ' with MATCH values ' + anyVals : '')) +
-                ' and the property is `' +
-                spec.property +
-                (isStr
-                    ? '`. The string ids in the current layout are: [' +
-                      keys(paths.strs).join(', ') +
-                      ']'
-                    : '`. The wildcard ids currently available are logged above.');
+            if (spec.allow_optional) {
+                idProps = [{...spec, value: null}];
+                msg = '';
+            } else {
+                const isStr = typeof spec.id === 'string';
+                msg =
+                    'A nonexistent object was used in an `' +
+                    depType +
+                    '` of a Dash callback. The id of this object is ' +
+                    (isStr
+                        ? '`' + spec.id + '`'
+                        : JSON.stringify(spec.id) +
+                          (anyVals ? ' with MATCH values ' + anyVals : '')) +
+                    ' and the property is `' +
+                    spec.property +
+                    (isStr
+                        ? '`. The string ids in the current layout are: [' +
+                          keys(paths.strs).join(', ') +
+                          ']'
+                        : '`. The wildcard ids currently available are logged above.');
+            }
         } else {
             msg =
                 'Multiple objects were found for an `' +
@@ -203,7 +208,6 @@ function fillVals(
         // That's a real problem, so throw the first message as an error.
         refErr(errors, paths);
     }
-
     return inputVals;
 }
 
@@ -360,7 +364,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                renderType: 'callback'
             })
         );
         dispatch(notifyObservers({id: component_id, props}));
@@ -417,7 +422,6 @@ function handleServerside(
     background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    output: string,
     running: any
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
@@ -440,6 +444,7 @@ function handleServerside(
     const fetchCallback = () => {
         const headers = getCSRFHeader() as any;
         let url = `${urlBase(config)}_dash-update-component`;
+        let newBody = body;
 
         const addArg = (name: string, value: string) => {
             let delim = '?';
@@ -448,11 +453,19 @@ function handleServerside(
             }
             url = `${url}${delim}${name}=${value}`;
         };
-        if (cacheKey) {
-            addArg('cacheKey', cacheKey);
-        }
-        if (job) {
-            addArg('job', job);
+        if (cacheKey || job) {
+            if (cacheKey) addArg('cacheKey', cacheKey);
+            if (job) addArg('job', job);
+
+            // clear inputs as background callback doesnt need inputs, just verify for context
+            const tmpBody = JSON.parse(newBody);
+            for (let i = 0; i < tmpBody.inputs.length; i++) {
+                tmpBody.inputs[i]['value'] = null;
+            }
+            for (let i = 0; i < (tmpBody?.state || []).length; i++) {
+                tmpBody.state[i]['value'] = null;
+            }
+            newBody = JSON.stringify(tmpBody);
         }
 
         if (moreArgs) {
@@ -465,7 +478,7 @@ function handleServerside(
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body
+                body: newBody
             })
         );
     };
@@ -562,7 +575,7 @@ function handleServerside(
                             cacheKey: data.cacheKey as string,
                             cancelInputs: data.cancel,
                             progressDefault: data.progressDefault,
-                            output
+                            output: JSON.stringify(payload.outputs)
                         };
                         dispatch(addCallbackJob(jobInfo));
                         job = data.job;
@@ -739,7 +752,7 @@ export function executeCallback(
         const __execute = async (): Promise<CallbackResult> => {
             const loadingOutputs = outputs.map(out => ({
                 path: getPath(paths, out.id),
-                property: out.property,
+                property: out.property?.split('@')[0],
                 id: out.id
             }));
             dispatch(loading(loadingOutputs));
@@ -781,9 +794,10 @@ export function executeCallback(
                 let lastError: any;
 
                 const additionalArgs: [string, string, boolean?][] = [];
+                const jsonOutput = JSON.stringify(payload.outputs);
                 values(getState().callbackJobs).forEach(
                     (job: CallbackJobPayload) => {
-                        if (cb.callback.output === job.output) {
+                        if (jsonOutput === job.output) {
                             // Terminate the old jobs that are not completed
                             // set as outdated for the callback promise to
                             // resolve and remove after.
@@ -820,7 +834,6 @@ export function executeCallback(
                             background,
                             additionalArgs.length ? additionalArgs : undefined,
                             getState,
-                            cb.callback.output,
                             cb.callback.running
                         );
 

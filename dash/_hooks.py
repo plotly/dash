@@ -61,8 +61,8 @@ class _Hooks:
         hook: str,
         func: _t.Callable,
         priority: _t.Optional[int] = None,
-        final=False,
-        data=None,
+        final: bool = False,
+        data: _t.Optional[HookDataType] = None,
     ):
         if final:
             existing = self._finals.get(hook)
@@ -117,7 +117,7 @@ class _Hooks:
         name: _t.Optional[str] = None,
         methods: _t.Sequence[str] = ("GET",),
         priority: _t.Optional[int] = None,
-        final=False,
+        final: bool = False,
     ):
         """
         Add a route to the Dash server.
@@ -136,7 +136,7 @@ class _Hooks:
 
         return wrap
 
-    def error(self, priority: _t.Optional[int] = None, final=False):
+    def error(self, priority: _t.Optional[int] = None, final: bool = False):
         """Automatically add an error handler to the dash app."""
 
         def _error(func: _t.Callable[[Exception], _t.Any]):
@@ -145,7 +145,9 @@ class _Hooks:
 
         return _error
 
-    def callback(self, *args, priority: _t.Optional[int] = None, final=False, **kwargs):
+    def callback(
+        self, *args, priority: _t.Optional[int] = None, final: bool = False, **kwargs
+    ):
         """
         Add a callback to all the apps with the hook installed.
         """
@@ -249,7 +251,7 @@ class HooksManager:
 
         for dist in _importlib_metadata.distributions():
             for entry in dist.entry_points:
-                # Look for setup.py entry points named `dash-hooks`
-                if entry.group != "dash-hooks":
+                # Look for setup.py entry points named `dash_hooks`
+                if entry.group != "dash_hooks":
                     continue
                 entry.load()

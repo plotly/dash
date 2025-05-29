@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback, memo} from 'react';
+import React, {useCallback, MutableRefObject, useRef, useMemo} from 'react';
 import {
     path,
     concat,
@@ -23,8 +23,13 @@ import {DashLayoutPath, UpdatePropsPayload} from '../types/component';
 import {DashConfig} from '../config';
 import {notifyObservers, onError, updateProps} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
-import {recordUiEdit} from '../persistence';
-import {createElement, getComponentLayout, isDryComponent} from './wrapping';
+import {
+    createElement,
+    getComponentLayout,
+    isDryComponent,
+    checkRenderTypeProp,
+    stringifyPath
+} from './wrapping';
 import Registry from '../registry';
 import isSimpleComponent from '../isSimpleComponent';
 import {
@@ -41,26 +46,56 @@ type DashWrapperProps = {
      */
     componentPath: DashLayoutPath;
     _dashprivate_error?: any;
+    _passedComponent?: any;
+    _newRender?: any;
+};
+
+// Define a type for the memoized keys
+type MemoizedKeysType = {
+    [key: string]: React.ReactNode | null; // This includes React elements, strings, numbers, etc.
 };
 
 function DashWrapper({
     componentPath,
     _dashprivate_error,
+    _passedComponent, // pass component to the DashWrapper in the event that it is a newRender and there are no layouthashes
+    _newRender, // this is to force the component to newly render regardless of props (redraw and component as props) is passed from the parent
     ...extras
 }: DashWrapperProps) {
     const dispatch = useDispatch();
+    const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
+    const newRender = useRef(false);
+    const renderedPath = useRef<DashLayoutPath>(componentPath);
+    let renderComponent: any = null;
+    let renderComponentProps: any = null;
+    let renderH: any = null;
 
     // Get the config for the component as props
     const config: DashConfig = useSelector(selectConfig);
 
-    // Select both the component and it's props.
-    const [component, componentProps] = useSelector(
-        selectDashProps(componentPath),
-        selectDashPropsEqualityFn
-    );
+    // Select component and it's props, along with render hash, changed props and the reason for render
+    const [component, componentProps, h, changedProps, renderType] =
+        useSelector(selectDashProps(componentPath), selectDashPropsEqualityFn);
+
+    renderComponent = component;
+    renderComponentProps = componentProps;
+    renderH = h;
+
+    useMemo(() => {
+        if (_newRender) {
+            newRender.current = true;
+            renderH = 0;
+            if (renderH in memoizedKeys.current) {
+                delete memoizedKeys.current[renderH];
+            }
+        } else {
+            newRender.current = false;
+        }
+        renderedPath.current = componentPath;
+    }, [_newRender]);
 
     const setProps = (newProps: UpdatePropsPayload) => {
-        const {id} = componentProps;
+        const {id} = renderComponentProps;
         const {_dash_error, ...restProps} = newProps;
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -68,11 +103,13 @@ function DashWrapper({
         dispatch((dispatch, getState) => {
             const currentState = getState();
             const {graphs} = currentState;
-
-            const {props: oldProps} = getComponentLayout(
-                componentPath,
+            const oldLayout = getComponentLayout(
+                renderedPath.current,
                 currentState
             );
+            if (!oldLayout) return;
+            const {props: oldProps} = oldLayout;
+            if (!oldProps) return;
             const changedProps = pickBy(
                 (val, key) => !equals(val, oldProps[key]),
                 restProps
@@ -94,10 +131,6 @@ function DashWrapper({
             const watchedKeys = getWatchedKeys(id, keys(changedProps), graphs);
 
             batch(() => {
-                // setProps here is triggered by the UI - record these changes
-                // for persistence
-                recordUiEdit(component, newProps, dispatch);
-
                 // Only dispatch changes to Dash if a watched prop changed
                 if (watchedKeys.length) {
                     dispatch(
@@ -112,7 +145,8 @@ function DashWrapper({
                 dispatch(
                     updateProps({
                         props: changedProps,
-                        itempath: componentPath
+                        itempath: renderedPath.current,
+                        renderType: 'internal'
                     })
                 );
             });
@@ -120,20 +154,21 @@ function DashWrapper({
     };
 
     const createContainer = useCallback(
-        (container, containerPath, key = undefined) => {
-            if (isSimpleComponent(component)) {
-                return component;
+        (container, containerPath, _childNewRender) => {
+            if (isSimpleComponent(renderComponent)) {
+                return renderComponent;
             }
             return (
                 <DashWrapper
                     key={
-                        (container &&
-                            container.props &&
-                            stringifyId(container.props.id)) ||
-                        key
+                        container?.props?.id
+                            ? stringifyId(container.props.id)
+                            : stringifyPath(containerPath)
                     }
                     _dashprivate_error={_dashprivate_error}
                     componentPath={containerPath}
+                    _passedComponent={container}
+                    _newRender={_childNewRender}
                 />
             );
         },
@@ -141,7 +176,7 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenProp: DashLayoutPath) => {
+        (node: any, childrenPath: DashLayoutPath, _childNewRender: any) => {
             if (Array.isArray(node)) {
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
@@ -149,10 +184,10 @@ function DashWrapper({
                             n,
                             concat(componentPath, [
                                 'props',
-                                ...childrenProp,
+                                ...childrenPath,
                                 i
                             ]),
-                            i
+                            _childNewRender
                         );
                     }
                     return n;
@@ -163,7 +198,8 @@ function DashWrapper({
             }
             return createContainer(
                 node,
-                concat(componentPath, ['props', ...childrenProp])
+                concat(componentPath, ['props', ...childrenPath]),
+                _childNewRender
             );
         },
         [componentPath]
@@ -172,25 +208,42 @@ function DashWrapper({
     const extraProps = {
         setProps,
         ...extras
-    };
+    } as {[key: string]: any};
 
-    const element = useMemo(() => Registry.resolve(component), [component]);
+    if (checkRenderTypeProp(renderComponent)) {
+        extraProps['dashRenderType'] = newRender.current
+            ? 'parent'
+            : changedProps
+            ? renderType
+            : 'parent';
+    }
 
-    const hydratedProps = useMemo(() => {
+    const setHydratedProps = (component: any, componentProps: any) => {
         // Hydrate components props
         const childrenProps = pathOr(
             [],
-            ['children_props', component.namespace, component.type],
+            ['children_props', component?.namespace, component?.type],
             config
         );
         let props = mergeRight(dissoc('children', componentProps), extraProps);
 
         for (let i = 0; i < childrenProps.length; i++) {
             const childrenProp: string = childrenProps[i];
-
+            let childNewRender: any = 0;
+            if (
+                childrenProp
+                    .split('.')[0]
+                    .replace('[]', '')
+                    .replace('{}', '') in changedProps ||
+                newRender.current ||
+                !renderH
+            ) {
+                childNewRender = {};
+            }
             const handleObject = (obj: any, opath: DashLayoutPath) => {
                 return mapObjIndexed(
-                    (node, k) => wrapChildrenProp(node, [...opath, k]),
+                    (node, k) =>
+                        wrapChildrenProp(node, [...opath, k], childNewRender),
                     obj
                 );
             };
@@ -260,7 +313,8 @@ function DashWrapper({
                         } else {
                             listValue = wrapChildrenProp(
                                 path(backPath, el),
-                                elementPath
+                                elementPath,
+                                childNewRender
                             );
                         }
                         return assocPath(backPath, listValue, el);
@@ -306,7 +360,8 @@ function DashWrapper({
                                                   dynamic,
                                                   concat([k], backPath)
                                               )
-                                            : concat(dynamic, [k])
+                                            : concat(dynamic, [k]),
+                                        childNewRender
                                     ),
                                 dynValue
                             );
@@ -317,7 +372,11 @@ function DashWrapper({
                         if (node === undefined) {
                             continue;
                         }
-                        nodeValue = wrapChildrenProp(node, childrenPath);
+                        nodeValue = wrapChildrenProp(
+                            node,
+                            childrenPath,
+                            childNewRender
+                        );
                     }
                 }
                 props = assocPath(childrenPath, nodeValue, props);
@@ -353,7 +412,11 @@ function DashWrapper({
                     if (node !== undefined) {
                         props = assoc(
                             childrenProp,
-                            wrapChildrenProp(node, [childrenProp]),
+                            wrapChildrenProp(
+                                node,
+                                [childrenProp],
+                                childNewRender
+                            ),
                             props
                         );
                     }
@@ -367,84 +430,82 @@ function DashWrapper({
             props.id = stringifyId(props.id);
         }
         return props;
-    }, [componentProps]);
+    };
 
-    const hydrated = useMemo(() => {
-        let hydratedChildren: any;
-        if (componentProps.children !== undefined) {
-            hydratedChildren = wrapChildrenProp(componentProps.children, [
-                'children'
-            ]);
+    const hydrateFunc = () => {
+        if (newRender.current) {
+            renderComponent = _passedComponent;
+            renderComponentProps = _passedComponent?.props;
         }
-        if (config.props_check) {
-            return (
-                <CheckedComponent
-                    element={element}
-                    props={hydratedProps}
-                    component={component}
-                >
-                    {createElement(
-                        element,
-                        hydratedProps,
-                        extraProps,
-                        hydratedChildren
-                    )}
-                </CheckedComponent>
+        if (!renderComponent) {
+            return null;
+        }
+
+        const element = Registry.resolve(renderComponent);
+        const hydratedProps = setHydratedProps(
+            renderComponent,
+            renderComponentProps
+        );
+
+        let hydratedChildren: any;
+        if (renderComponentProps.children !== undefined) {
+            hydratedChildren = wrapChildrenProp(
+                renderComponentProps.children,
+                ['children'],
+                !renderH || newRender.current || 'children' in changedProps
+                    ? {}
+                    : 0
             );
         }
+        newRender.current = false;
 
-        return createElement(
-            element,
-            hydratedProps,
-            extraProps,
-            hydratedChildren
+        return config.props_check ? (
+            <CheckedComponent
+                element={element}
+                props={hydratedProps}
+                component={renderComponent}
+            >
+                {createElement(
+                    element,
+                    hydratedProps,
+                    extraProps,
+                    hydratedChildren
+                )}
+            </CheckedComponent>
+        ) : (
+            createElement(element, hydratedProps, extraProps, hydratedChildren)
         );
-    }, [
-        element,
-        component,
-        hydratedProps,
-        extraProps,
-        wrapChildrenProp,
-        componentProps,
-        config.props_check
-    ]);
+    };
 
-    return (
+    let hydrated = null;
+    if (renderH in memoizedKeys.current && !newRender.current) {
+        hydrated = React.isValidElement(memoizedKeys.current[renderH])
+            ? memoizedKeys.current[renderH]
+            : null;
+    }
+    if (!hydrated) {
+        hydrated = hydrateFunc();
+        memoizedKeys.current = {[renderH]: hydrated};
+    }
+
+    return renderComponent ? (
         <ComponentErrorBoundary
-            componentType={component.type}
+            componentType={renderComponent.type}
             componentId={
-                is(Object, componentProps.id)
-                    ? stringifyId(componentProps.id)
-                    : componentProps.id
+                is(Object, renderComponentProps.id)
+                    ? stringifyId(renderComponentProps.id)
+                    : renderComponentProps.id
             }
             error={_dashprivate_error}
             dispatch={dispatch}
         >
             <DashContextProvider componentPath={componentPath}>
-                {hydrated}
+                {React.isValidElement(hydrated) ? hydrated : <div />}
             </DashContextProvider>
         </ComponentErrorBoundary>
+    ) : (
+        <div />
     );
 }
 
-function wrapperEquality(prev: any, next: any) {
-    const {
-        componentPath: prevPath,
-        _dashprivate_error: prevError,
-        ...prevProps
-    } = prev;
-    const {
-        componentPath: nextPath,
-        _dashprivate_error: nextError,
-        ...nextProps
-    } = next;
-    if (JSON.stringify(prevPath) !== JSON.stringify(nextPath)) {
-        return false;
-    }
-    if (prevError !== nextError) {
-        return false;
-    }
-    return equals(prevProps, nextProps);
-}
-
-export default memo(DashWrapper, wrapperEquality);
+export default DashWrapper;

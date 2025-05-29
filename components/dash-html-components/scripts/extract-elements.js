@@ -22,7 +22,8 @@ function extractElements($) {
         'noframes',
         // experimental, don't add yet
         'portal',
-        'fencedframe'
+        'fencedframe',
+        'selectedcontent'
     ];
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [

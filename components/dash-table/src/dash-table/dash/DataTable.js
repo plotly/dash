@@ -472,25 +472,14 @@ export const propTypes = {
      * View the documentation examples to learn more.
      *
      */
-    fixed_columns: PropTypes.oneOfType([
-        PropTypes.exact({
-            /**
-             * Example `{'headers':False, 'data':0}` No columns are fixed (the default)
-             */
+    fixed_columns: PropTypes.exact({
+        /**
+         * Example `{'headers':False, 'data':0}` No columns are fixed (the default)
+         */
 
-            data: PropTypes.oneOf([0]),
-            headers: PropTypes.oneOf([false])
-        }),
-
-        PropTypes.exact({
-            /**
-             * Example `{'headers':True, 'data':1}` one column is fixed.
-             */
-
-            data: PropTypes.number,
-            headers: PropTypes.oneOf([true]).isRequired
-        })
-    ]),
+        data: PropTypes.number,
+        headers: PropTypes.bool
+    }),
 
     /**
      * `fixed_rows` will "fix" the set of rows so that
@@ -505,24 +494,14 @@ export const propTypes = {
      * way that your columns are rendered or sized.
      * View the documentation examples to learn more.
      */
-    fixed_rows: PropTypes.oneOfType([
-        PropTypes.exact({
-            /**
-             * Example `{'headers':False, 'data':0}` No rows are fixed (the default)
-             */
+    fixed_rows: PropTypes.exact({
+        /**
+         * Example `{'headers':False, 'data':0}` No rows are fixed (the default)
+         */
 
-            data: PropTypes.oneOf([0]),
-            headers: PropTypes.oneOf([false])
-        }),
-        PropTypes.exact({
-            /**
-             * Example `{'headers':True, 'data':1}` one row is fixed.
-             */
-
-            data: PropTypes.number,
-            headers: PropTypes.oneOf([true]).isRequired
-        })
-    ]),
+        data: PropTypes.number,
+        headers: PropTypes.bool
+    }),
 
     /**
      * If `single`, then the user can select a single column or group

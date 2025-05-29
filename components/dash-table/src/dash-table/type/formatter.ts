@@ -7,7 +7,7 @@ export default (c: IColumnType) => {
     let formatter;
     switch (c.type) {
         case ColumnType.Numeric:
-            formatter = getNumberFormatter(c.format);
+            formatter = getNumberFormatter(c.format as any);
             break;
     }
 

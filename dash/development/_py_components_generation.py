@@ -22,13 +22,21 @@ from .base_component import Component, ComponentType
 import_string = """# AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
-import numbers # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
-try:
-    from dash.development.base_component import ComponentType # noqa: F401
-except ImportError:
-    ComponentType = typing.TypeVar("ComponentType", bound=Component)
+{custom_imports}
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 """
@@ -80,7 +88,7 @@ def generate_class_string(
     _namespace = '{namespace}'
     _type = '{typename}'
 {shapes}
-    @_explicitize_args
+
     def __init__(
         self,
         {default_argtext}
@@ -97,6 +105,8 @@ def generate_class_string(
         args = {args}
         {required_validation}
         super({typename}, self).__init__({argtext})
+
+setattr({typename}, "__init__", _explicitize_args({typename}.__init__))
 '''
 
     filtered_props = (
@@ -238,7 +248,6 @@ def generate_class_file(
     Returns
     -------
     """
-    imports = import_string
 
     class_string = generate_class_string(
         typename,
@@ -254,8 +263,11 @@ def generate_class_file(
     custom_imp = custom_imp.get(typename) or custom_imp.get("*")
 
     if custom_imp:
-        imports += "\n".join(custom_imp)
-        imports += "\n\n"
+        imports = import_string.format(
+            custom_imports="\n" + "\n".join(custom_imp) + "\n\n"
+        )
+    else:
+        imports = import_string.format(custom_imports="")
 
     file_name = f"{typename:s}.py"
 
@@ -320,6 +332,9 @@ def generate_class(
         "TypedDict": TypedDict,
         "NotRequired": NotRequired,
         "Literal": Literal,
+        "NumberType": typing.Union[
+            typing.SupportsFloat, typing.SupportsComplex, typing.SupportsInt
+        ],
     }
     # pylint: disable=exec-used
     exec(string, scope)
@@ -769,7 +784,7 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         return ""
     if js_type_name in js_to_py_types:
         if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_py_types[js_type_name](indent_num)
+            return js_to_py_types[js_type_name](indent_num)  # type: ignore[reportCallIssue]
         # All other types
-        return js_to_py_types[js_type_name]()
+        return js_to_py_types[js_type_name]()  # type: ignore[reportCallIssue]
     return ""
