@@ -2,7 +2,7 @@ from typing import List, Union, Optional, Any
 
 
 def _operation(name, location, **kwargs):
-    return {"operation": name, "location": location, "params": dict(**kwargs)}
+    return {"operation": name, "location": location, "params": kwargs}
 
 
 _noop = object()
