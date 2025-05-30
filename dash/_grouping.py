@@ -29,22 +29,35 @@ def flatten_grouping(grouping, schema=None):
 
     :return: list of the scalar values in the input grouping
     """
+    stack = []
+    result = []
+
+    # Avoid repeated recursive Python calls by using an explicit stack
+    push = stack.append
+    pop = stack.pop
+
+    # Only validate once at the top if schema is provided
     if schema is None:
         schema = grouping
     else:
         validate_grouping(grouping, schema)
 
-    if isinstance(schema, (tuple, list)):
-        return [
-            g
-            for group_el, schema_el in zip(grouping, schema)
-            for g in flatten_grouping(group_el, schema_el)
-        ]
-
-    if isinstance(schema, dict):
-        return [g for k in schema for g in flatten_grouping(grouping[k], schema[k])]
-
-    return [grouping]
+    push((grouping, schema))
+    while stack:
+        group, sch = pop()
+        # Inline isinstance checks for perf
+        typ = type(sch)
+        if typ is tuple or typ is list:
+            # Avoid double recursion / excessive list construction
+            for ge, se in zip(group, sch):
+                push((ge, se))
+        elif typ is dict:
+            for k in sch:
+                push((group[k], sch[k]))
+        else:
+            result.append(group)
+    result.reverse()  # Since we LIFO, leaf values are in reverse order
+    return result
 
 
 def grouping_len(grouping):
@@ -215,7 +228,6 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
     elif isinstance(schema, dict):
         SchemaTypeValidationError.check(grouping, full_schema, path, dict)
         SchemaKeysValidationError.check(grouping, full_schema, path, set(schema))
-
         for k in schema:
             validate_grouping(
                 grouping[k], schema[k], full_schema=full_schema, path=path + (k,)
