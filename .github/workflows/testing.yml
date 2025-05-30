@@ -16,6 +16,7 @@ jobs:
     outputs:
       # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
+      background_cb_changed: ${{ steps.filter.outputs.background_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,15 +25,21 @@ jobs:
         id: filter # Give an ID to this step to reference its outputs
         uses: dorny/paths-filter@v3
         with:
-          base: ${{ github.ref }}
           filters: |
             table_related_paths:
               - 'components/dash-table/**'
               - 'dash/dash-renderer/**'
+            background_paths:
+              - 'dash/background_callback/**'
+              - 'dash/dash-renderer/**'
+              - 'dash/_callback.py'
+              - 'dash/_callback_context.py'
+              - 'requirements/**'
 
   build:
     name: Build Dash Package
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     outputs:
       artifact_name: dash-packages
     steps:
@@ -86,6 +93,7 @@ jobs:
     name: Typing Tests
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 30
     strategy:
       fail-fast: false
 
@@ -130,7 +138,11 @@ jobs:
   
   background-callbacks:
     name: Run Background Callback Tests (Python ${{ matrix.python-version }})
-    needs: build
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.background_cb_changed == 'true'
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -251,8 +263,12 @@ jobs:
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
-    needs: build
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -309,6 +325,7 @@ jobs:
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
       needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
