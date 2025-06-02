@@ -13,6 +13,7 @@ import {
 type Props = {
     component: DashComponent;
     componentPath: DashLayoutPath;
+    temp?: boolean; // If true, the component will be removed on unmount.
 };
 
 /**
@@ -22,7 +23,7 @@ function ExternalWrapper({
     component,
     componentPath,
     temp = false
-}: Props & {temp?: boolean}) {
+}: Props) {
     const dispatch: any = useDispatch();
     const [inserted, setInserted] = useState(false);
 
