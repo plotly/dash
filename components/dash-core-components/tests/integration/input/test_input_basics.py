@@ -104,6 +104,7 @@ def test_inbs003_styles_are_scoped(dash_dcc):
 
     assert external_outline_css != dash_outline_css
 
+
 @pytest.mark.parametrize(
     "initial_text, invalid_char, cursor_position_before, expected_text, expected_cursor_position",
     [
