@@ -21,8 +21,6 @@ const reservedPatterns = args[1]
     ? args[1].split('|').map(part => new RegExp(part))
     : [];
 
-let tsconfig = {};
-
 function help() {
     console.error('usage: ');
     console.error(
@@ -36,24 +34,14 @@ if (!src.length) {
     process.exit(1);
 }
 
-if (fs.existsSync('tsconfig.json')) {
-    tsconfig = JSON.parse(fs.readFileSync('tsconfig.json')).compilerOptions;
-    // Map moduleResolution to the appropriate enum.
-    switch (tsconfig.moduleResolution) {
-        case 'node':
-            tsconfig.moduleResolution = ts.ModuleResolutionKind.NodeJs;
-            break;
-        case 'node16':
-            tsconfig.moduleResolution = ts.ModuleResolutionKind.Node16;
-            break;
-        case 'nodenext':
-            tsconfig.moduleResolution = ts.ModuleResolutionKind.NodeNext;
-            break;
-        case 'classic':
-            tsconfig.moduleResolution = ts.ModuleResolutionKind.Classic;
-            break;
-        default:
-            break;
+function getTsConfigCompilerOptions() {
+    // Since extract-meta can be run on JavaScript sources, if trying to get the
+    // config doesn't work, we can fall back gracefully.
+    try {
+        const tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', { esModuleInterop: true }, ts.sys);
+        return tsconfig?.options ?? {};
+    } catch {
+        return {};
     }
 }
 
@@ -79,7 +67,7 @@ const BANNED_TYPES = [
     'ChildNode',
     'ParentNode',
 ];
-const unionSupport = PRIMITIVES.concat('boolean', 'Element');
+const unionSupport = PRIMITIVES.concat('boolean', 'Element', 'enum');
 
 const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
 
@@ -97,7 +85,7 @@ const isUnionLiteral = typeObj =>
 
 function logError(error, filePath) {
     if (filePath) {
-        process.stderr.write(`Error with path ${filePath}`);
+        process.stderr.write(`Error with path ${filePath}\n`);
     }
     process.stderr.write(error + '\n');
     if (error instanceof Error) {
@@ -157,7 +145,7 @@ function parseJSX(filepath) {
         docstringWarning(doc);
         return doc;
     } catch (error) {
-        logError(error);
+        logError(error, filepath);
     }
 }
 
@@ -204,7 +192,7 @@ function gatherComponents(sources, components = {}) {
         return components;
     }
 
-    const program = ts.createProgram(filepaths, {...tsconfig, esModuleInterop: true});
+    const program = ts.createProgram(filepaths, getTsConfigCompilerOptions());
     const checker = program.getTypeChecker();
 
     const coerceValue = t => {
@@ -273,12 +261,16 @@ function gatherComponents(sources, components = {}) {
                         typeName = 'object';
                     }
                 }
+                if (t.value) {
+                    // A literal value
+                    return true;
+                }
                 return (
                     unionSupport.includes(typeName) ||
                     isArray(checker.typeToString(t))
                 );
             })
-            .map(t => getPropType(t, propObj, parentType));
+            .map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
 
         if (!value.length) {
             name = 'any';
@@ -739,6 +731,14 @@ function gatherComponents(sources, components = {}) {
             let props;
 
             if (propsType) {
+                if (
+                    propsType.valueDeclaration &&
+                    propsType.valueDeclaration.name &&
+                    propsType.valueDeclaration.name.elements &&
+                    propsType.valueDeclaration.name.elements.length
+                ) {
+                    defaultProps = getDefaultPropsValues(propsType.valueDeclaration.name.elements);
+                }
                 props = getPropInfo(propsType, defaultProps);
             } else {
                 defaultProps = getDefaultPropsForClassComponent(type, source);
@@ -766,7 +766,7 @@ function gatherComponents(sources, components = {}) {
                         fullText
                             .slice(r.pos + 4, r.end - 3)
                             .split('\n')
-                            .map(s => s.slice(3, s.length))
+                            .map(s => s.replace(/^(\s*\*?\s)/, ''))
                             .filter(e => e)
                             .join('\n')
                     )

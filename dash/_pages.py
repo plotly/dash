@@ -1,12 +1,13 @@
 import collections
 import importlib
+import importlib.util  # to make the type checker happy
 import os
 import re
 import sys
 from fnmatch import fnmatch
 from pathlib import Path
 from os.path import isfile, join
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, unquote
 
 import flask
 
@@ -85,10 +86,10 @@ def _infer_path(module_name, template):
 
 
 def _module_name_is_package(module_name):
-    return (
-        module_name in sys.modules
-        and Path(sys.modules[module_name].__file__).name == "__init__.py"
-    )
+    if module_name not in sys.modules:
+        return False
+    file = sys.modules[module_name].__file__
+    return file and file.endswith("__init__.py")
 
 
 def _path_to_module_name(path):
@@ -113,6 +114,7 @@ def _infer_module_name(page_path):
 
 
 def _parse_query_string(search):
+    search = unquote(search)
     if search and len(search) > 0 and search[0] == "?":
         search = search[1:]
     else:
@@ -440,8 +442,8 @@ def _import_layouts_from_pages(pages_folder):
 
             module_name = _infer_module_name(page_path)
             spec = importlib.util.spec_from_file_location(module_name, page_path)
-            page_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(page_module)
+            page_module = importlib.util.module_from_spec(spec)  # type: ignore[reportArgumentType]
+            spec.loader.exec_module(page_module)  # type: ignore[reportOptionalMemberAccess]
             sys.modules[module_name] = page_module
 
             if (

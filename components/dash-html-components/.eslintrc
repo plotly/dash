@@ -29,6 +29,7 @@
   "globals": {
     "jest": true
   },
+  "parser": "@babel/eslint-parser",
   "plugins": [
     "react",
     "import"
@@ -45,7 +46,7 @@
     "guard-for-in": ["off"],
     "import/named": ["off"],
     "import/no-duplicates": ["error"],
-    "import/no-named-as-default": ["error"],
+    "import/no-named-as-default": ["off"],
     "new-cap": ["error"],
     "no-alert": [1],
     "no-caller": ["error"],
@@ -111,7 +112,7 @@
     }],
     "no-unused-vars": ["error", {
         "args": "after-used",
-        "argsIgnorePattern": "^_",
+        "argsIgnorePattern": "(^_|n_clicks_timestamp)",
         "caughtErrorsIgnorePattern": "^e$"
     }],
     "no-magic-numbers": ["error", {

@@ -1,7 +1,9 @@
 import collections
 import hashlib
 from functools import wraps
-from typing import Callable, Optional, Any
+
+from typing import Callable, Optional, Any, List, Tuple, Union
+
 
 import flask
 
@@ -9,13 +11,17 @@ from .dependencies import (
     handle_callback_args,
     handle_grouped_callback_args,
     Output,
+    ClientsideFunction,
+    Input,
 )
+from .development.base_component import ComponentRegistry
 from .exceptions import (
     InvalidCallbackReturnValue,
     PreventUpdate,
     WildcardInLongCallback,
     MissingLongCallbackManagerError,
-    LongCallbackError,
+    BackgroundCallbackError,
+    ImportedInsideCallbackError,
 )
 
 from ._grouping import (
@@ -33,7 +39,7 @@ from ._utils import (
 )
 
 from . import _validate
-from .long_callback.managers import BaseLongCallbackManager
+from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
 
 
@@ -60,17 +66,18 @@ GLOBAL_INLINE_SCRIPTS = []
 # pylint: disable=too-many-locals
 def callback(
     *_args,
-    background=False,
-    interval=1000,
-    progress=None,
-    progress_default=None,
-    running=None,
-    cancel=None,
-    manager=None,
-    cache_args_to_ignore=None,
+    background: bool = False,
+    interval: int = 1000,
+    progress: Optional[Union[List[Output], Output]] = None,
+    progress_default: Any = None,
+    running: Optional[List[Tuple[Output, Any, Any]]] = None,
+    cancel: Optional[Union[List[Input], Input]] = None,
+    manager: Optional[BaseBackgroundCallbackManager] = None,
+    cache_args_to_ignore: Optional[list] = None,
+    cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
-):
+) -> Callable[..., Any]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -90,11 +97,11 @@ def callback(
 
     :Keyword Arguments:
         :param background:
-            Mark the callback as a long callback to execute in a manager for
+            Mark the callback as a background callback to execute in a manager for
             callbacks that take a long time without locking up the Dash app
             or timing out.
         :param manager:
-            A long callback manager instance. Currently, an instance of one of
+            A background callback manager instance. Currently, an instance of one of
             `DiskcacheManager` or `CeleryManager`.
             Defaults to the `background_callback_manager` instance provided to the
             `dash.Dash constructor`.
@@ -117,6 +124,7 @@ def callback(
             while a callback is running, the callback is canceled.
             Note that the value of the property is not significant, any change in
             value will result in the cancellation of the running job (if any).
+            This parameter only applies to background callbacks (`background=True`).
         :param progress:
             An `Output` dependency grouping that references properties of
             components in the app's layout. When provided, the decorated function
@@ -125,27 +133,34 @@ def callback(
             function should call in order to provide updates to the app on its
             current progress. This function accepts a single argument, which
             correspond to the grouping of properties specified in the provided
-            `Output` dependency grouping
+            `Output` dependency grouping. This parameter only applies to background
+            callbacks (`background=True`).
         :param progress_default:
             A grouping of values that should be assigned to the components
             specified by the `progress` argument when the callback is not in
             progress. If `progress_default` is not provided, all the dependency
             properties specified in `progress` will be set to `None` when the
-            callback is not running.
+            callback is not running. This parameter only applies to background
+            callbacks (`background=True`).
         :param cache_args_to_ignore:
             Arguments to ignore when caching is enabled. If callback is configured
             with keyword arguments (Input/State provided in a dict),
             this should be a list of argument names as strings. Otherwise,
             this should be a list of argument indices as integers.
+            This parameter only applies to background callbacks (`background=True`).
+        :param cache_ignore_triggered:
+            Whether to ignore which inputs triggered the callback when creating
+            the cache. This parameter only applies to background callbacks
+            (`background=True`).
         :param interval:
-            Time to wait between the long callback update requests.
+            Time to wait between the background callback update requests.
         :param on_error:
             Function to call when the callback raises an exception. Receives the
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
     """
 
-    long_spec = None
+    background_spec = None
 
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
@@ -154,34 +169,38 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        long_spec = {
+        background_spec: Any = {
             "interval": interval,
         }
 
         if manager:
-            long_spec["manager"] = manager
+            background_spec["manager"] = manager
 
         if progress:
-            long_spec["progress"] = coerce_to_list(progress)
-            validate_long_inputs(long_spec["progress"])
+            background_spec["progress"] = coerce_to_list(progress)
+            validate_background_inputs(background_spec["progress"])
 
         if progress_default:
-            long_spec["progressDefault"] = coerce_to_list(progress_default)
+            background_spec["progressDefault"] = coerce_to_list(progress_default)
 
-            if not len(long_spec["progress"]) == len(long_spec["progressDefault"]):
+            if not len(background_spec["progress"]) == len(
+                background_spec["progressDefault"]
+            ):
                 raise Exception(
                     "Progress and progress default needs to be of same length"
                 )
 
         if cancel:
             cancel_inputs = coerce_to_list(cancel)
-            validate_long_inputs(cancel_inputs)
+            validate_background_inputs(cancel_inputs)
 
-            long_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
-            long_spec["cancel_inputs"] = cancel_inputs
+            background_spec["cancel"] = [c.to_dict() for c in cancel_inputs]
+            background_spec["cancel_inputs"] = cancel_inputs
 
         if cache_args_to_ignore:
-            long_spec["cache_args_to_ignore"] = cache_args_to_ignore
+            background_spec["cache_args_to_ignore"] = cache_args_to_ignore
+
+        background_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
     return register_callback(
         callback_list,
@@ -189,25 +208,28 @@ def callback(
         config_prevent_initial_callbacks,
         *_args,
         **_kwargs,
-        long=long_spec,
+        background=background_spec,
         manager=manager,
         running=running,
         on_error=on_error,
     )
 
 
-def validate_long_inputs(deps):
+def validate_background_inputs(deps):
     for dep in deps:
         if dep.has_wildcard():
             raise WildcardInLongCallback(
                 f"""
-                long callbacks does not support dependencies with
+                background callbacks does not support dependencies with
                 pattern-matching ids
                     Received: {repr(dep)}\n"""
             )
 
 
-def clientside_callback(clientside_function, *args, **kwargs):
+ClientsideFuncType = Union[str, ClientsideFunction]
+
+
+def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs):
     return register_clientside_callback(
         GLOBAL_CALLBACK_LIST,
         GLOBAL_CALLBACK_MAP,
@@ -230,7 +252,7 @@ def insert_callback(
     state,
     inputs_state_indices,
     prevent_initial_call,
-    long=None,
+    background=None,
     manager=None,
     running=None,
     dynamic_creator: Optional[bool] = False,
@@ -252,9 +274,9 @@ def insert_callback(
         # prevent_initial_call can be a string "initial_duplicates"
         # which should not prevent the initial call.
         "prevent_initial_call": prevent_initial_call is True,
-        "long": long
+        "background": background
         and {
-            "interval": long["interval"],
+            "interval": background["interval"],
         },
         "dynamic_creator": dynamic_creator,
         "no_output": no_output,
@@ -267,7 +289,7 @@ def insert_callback(
         "state": callback_spec["state"],
         "outputs_indices": outputs_indices,
         "inputs_state_indices": inputs_state_indices,
-        "long": long,
+        "background": background,
         "output": output,
         "raw_inputs": inputs,
         "manager": manager,
@@ -309,7 +331,7 @@ def register_callback(
         multi = True
         has_output = len(output) > 0
 
-    long = _kwargs.get("long")
+    background = _kwargs.get("background")
     manager = _kwargs.get("manager")
     running = _kwargs.get("running")
     on_error = _kwargs.get("on_error")
@@ -333,7 +355,7 @@ def register_callback(
         flat_state,
         inputs_state_indices,
         prevent_initial_call,
-        long=long,
+        background=background,
         manager=manager,
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
@@ -343,22 +365,29 @@ def register_callback(
     # pylint: disable=too-many-locals
     def wrap_func(func):
 
-        if long is not None:
-            long_key = BaseLongCallbackManager.register_func(
+        if background is None:
+            background_key = None
+        else:
+            background_key = BaseBackgroundCallbackManager.register_func(
                 func,
-                long.get("progress") is not None,
+                background.get("progress") is not None,
                 callback_id,
             )
 
         @wraps(func)
         def add_context(*args, **kwargs):
             output_spec = kwargs.pop("outputs_list")
-            app_callback_manager = kwargs.pop("long_callback_manager", None)
+            app_callback_manager = kwargs.pop("background_callback_manager", None)
+
             callback_ctx = kwargs.pop(
                 "callback_context", AttributeDict({"updated_props": {}})
             )
-            callback_manager = long and long.get("manager", app_callback_manager)
+            app = kwargs.pop("app", None)
+            callback_manager = background and background.get(
+                "manager", app_callback_manager
+            )
             error_handler = on_error or kwargs.pop("app_on_error", None)
+            original_packages = set(ComponentRegistry.registry)
 
             if has_output:
                 _validate.validate_output_spec(insert_output, output_spec, Output)
@@ -372,10 +401,10 @@ def register_callback(
             response: dict = {"multi": True}
             has_update = False
 
-            if long is not None:
+            if background is not None:
                 if not callback_manager:
                     raise MissingLongCallbackManagerError(
-                        "Running `long` callbacks requires a manager to be installed.\n"
+                        "Running `background` callbacks requires a manager to be installed.\n"
                         "Available managers:\n"
                         "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
                         " and store results on the local filesystem.\n"
@@ -383,16 +412,21 @@ def register_callback(
                         " and store results on redis.\n"
                     )
 
-                progress_outputs = long.get("progress")
+                progress_outputs = background.get("progress")
                 cache_key = flask.request.args.get("cacheKey")
                 job_id = flask.request.args.get("job")
                 old_job = flask.request.args.getlist("oldJob")
+
+                cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
                 current_key = callback_manager.build_cache_key(
                     func,
                     # Inputs provided as dict is kwargs.
                     func_args if func_args else func_kwargs,
-                    long.get("cache_args_to_ignore", []),
+                    background.get("cache_args_to_ignore", []),
+                    None
+                    if cache_ignore_triggered
+                    else callback_ctx.get("triggered_inputs", []),
                 )
 
                 if old_job:
@@ -402,25 +436,18 @@ def register_callback(
                 if not cache_key:
                     cache_key = current_key
 
-                    job_fn = callback_manager.func_registry.get(long_key)
+                    job_fn = callback_manager.func_registry.get(background_key)
+
+                    ctx_value = AttributeDict(**context_value.get())
+                    ctx_value.ignore_register_page = True
+                    ctx_value.pop("background_callback_manager")
+                    ctx_value.pop("dash_response")
 
                     job = callback_manager.call_job_fn(
                         cache_key,
                         job_fn,
                         func_args if func_args else func_kwargs,
-                        AttributeDict(
-                            args_grouping=callback_ctx.args_grouping,
-                            using_args_grouping=callback_ctx.using_args_grouping,
-                            outputs_grouping=callback_ctx.outputs_grouping,
-                            using_outputs_grouping=callback_ctx.using_outputs_grouping,
-                            inputs_list=callback_ctx.inputs_list,
-                            states_list=callback_ctx.states_list,
-                            outputs_list=callback_ctx.outputs_list,
-                            input_values=callback_ctx.input_values,
-                            state_values=callback_ctx.state_values,
-                            triggered_inputs=callback_ctx.triggered_inputs,
-                            ignore_register_page=True,
-                        ),
+                        ctx_value,
                     )
 
                     data = {
@@ -428,11 +455,11 @@ def register_callback(
                         "job": job,
                     }
 
-                    cancel = long.get("cancel")
+                    cancel = background.get("cancel")
                     if cancel:
                         data["cancel"] = cancel
 
-                    progress_default = long.get("progressDefault")
+                    progress_default = background.get("progressDefault")
                     if progress_default:
                         data["progressDefault"] = {
                             str(o): x
@@ -456,11 +483,11 @@ def register_callback(
 
                 elif (
                     isinstance(output_value, dict)
-                    and "long_callback_error" in output_value
+                    and "background_callback_error" in output_value
                 ):
-                    error = output_value.get("long_callback_error", {})
-                    exc = LongCallbackError(
-                        f"An error occurred inside a long callback: {error['msg']}\n{error['tb']}"
+                    error = output_value.get("background_callback_error", {})
+                    exc = BackgroundCallbackError(
+                        f"An error occurred inside a background callback: {error['msg']}\n{error['tb']}"
                     )
                     if error_handler:
                         output_value = error_handler(exc)
@@ -495,7 +522,7 @@ def register_callback(
                     return to_json(response)
             else:
                 try:
-                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
@@ -503,11 +530,8 @@ def register_callback(
                         output_value = error_handler(err)
 
                         # If the error returns nothing, automatically puts NoUpdate for response.
-                        if output_value is None:
-                            if not multi:
-                                output_value = NoUpdate()
-                            else:
-                                output_value = [NoUpdate for _ in output_spec]
+                        if output_value is None and has_output:
+                            output_value = NoUpdate()
                     else:
                         raise err
 
@@ -523,18 +547,22 @@ def register_callback(
                         # list or tuple
                         output_value = list(output_value)
 
-                    # Flatten grouping and validate grouping structure
-                    flat_output_values = flatten_grouping(output_value, output)
+                    if NoUpdate.is_no_update(output_value):
+                        flat_output_values = [output_value]
+                    else:
+                        # Flatten grouping and validate grouping structure
+                        flat_output_values = flatten_grouping(output_value, output)
 
-                _validate.validate_multi_return(
-                    output_spec, flat_output_values, callback_id
-                )
+                if not NoUpdate.is_no_update(output_value):
+                    _validate.validate_multi_return(
+                        output_spec, flat_output_values, callback_id
+                    )
 
                 for val, spec in zip(flat_output_values, output_spec):
                     if NoUpdate.is_no_update(val):
                         continue
                     for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]]
                     ):
                         if not NoUpdate.is_no_update(vali):
                             has_update = True
@@ -549,7 +577,7 @@ def register_callback(
                 output_value = []
                 flat_output_values = []
 
-            if not long:
+            if not background:
                 has_update = _set_side_update(callback_ctx, response) or has_update
 
             if not has_update:
@@ -557,6 +585,19 @@ def register_callback(
 
             response["response"] = component_ids
 
+            if len(ComponentRegistry.registry) != len(original_packages):
+                diff_packages = list(
+                    set(ComponentRegistry.registry).difference(original_packages)
+                )
+                if not allow_dynamic_callbacks:
+                    raise ImportedInsideCallbackError(
+                        f"Component librar{'y' if len(diff_packages) == 1 else 'ies'} was imported during callback.\n"
+                        "You can set `_allow_dynamic_callbacks` to allow for development purpose only."
+                    )
+                dist = app.get_dist(diff_packages)
+                response["dist"] = dist
+
+            jsonResponse = None
             try:
                 jsonResponse = to_json(response)
             except TypeError:
@@ -585,7 +626,7 @@ def register_clientside_callback(
     callback_map,
     config_prevent_initial_callbacks,
     inline_scripts,
-    clientside_function,
+    clientside_function: ClientsideFuncType,
     *args,
     **kwargs,
 ):

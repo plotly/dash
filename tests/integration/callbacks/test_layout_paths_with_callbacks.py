@@ -4,7 +4,10 @@ from multiprocessing import Value
 from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
     TIMEOUT = 2
     with open(os.path.join(os.path.dirname(__file__), "state_path.json")) as fp:
@@ -176,7 +179,7 @@ def test_cblp001_radio_buttons_callbacks_generating_children(dash_duo):
                     + "#{}-graph:not(.dash-graph--pending) .js-plotly-plot".format(
                         chapter
                     )
-                    + '").layout.title.text'
+                    + '").layout.title'
                 )
                 == value
             ),

@@ -30,6 +30,10 @@ def _get_context_value():
     return context_value.get()
 
 
+def _get_from_context(key, default):
+    return getattr(_get_context_value(), key, default)
+
+
 class FalsyList(list):
     def __bool__(self):
         # for Python 3
@@ -203,7 +207,7 @@ class CallbackContext:
 
     @staticmethod
     @has_context
-    def record_timing(name, duration=None, description=None):
+    def record_timing(name, duration, description=None):
         """Records timing information for a server resource.
 
         :param name: The name of the resource.
@@ -211,7 +215,7 @@ class CallbackContext:
 
         :param duration: The time in seconds to report. Internally, this
             is rounded to the nearest millisecond.
-        :type duration: float or None
+        :type duration: float
 
         :param description: A description of the resource.
         :type description: string or None
@@ -257,6 +261,56 @@ class CallbackContext:
             ctx_value.updated_props[_id] = {**existing, **props}
         else:
             ctx_value.updated_props[_id] = props
+
+    @property
+    @has_context
+    def cookies(self):
+        """
+        Get the cookies for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("cookies", {})
+
+    @property
+    @has_context
+    def headers(self):
+        """
+        Get the original headers for the current callback.
+        Works with background callbacks.
+        """
+        return _get_from_context("headers", {})
+
+    @property
+    @has_context
+    def path(self):
+        """
+        Path of the callback request with the query parameters.
+        """
+        return _get_from_context("path", "")
+
+    @property
+    @has_context
+    def remote(self):
+        """
+        Remote addr of the callback request.
+        """
+        return _get_from_context("remote", "")
+
+    @property
+    @has_context
+    def origin(self):
+        """
+        Origin of the callback request.
+        """
+        return _get_from_context("origin", "")
+
+    @property
+    @has_context
+    def custom_data(self):
+        """
+        Custom data set by hooks.custom_data.
+        """
+        return _get_from_context("custom_data", {})
 
 
 callback_context = CallbackContext()

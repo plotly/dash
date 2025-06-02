@@ -32,23 +32,16 @@ CustomEvent.prototype = window.Event.prototype;
  * For links with destinations outside the current app, `html.A` is a better
  * component to use.
  */
-const Link = props => {
-    const {
-        className,
-        style,
-        id,
-        href,
-        loading_state,
-        children,
-        title,
-        target,
-        refresh,
-        setProps,
-    } = props;
+const Link = ({refresh = false, ...props}) => {
+    const {className, style, id, href, children, title, target, setProps} =
+        props;
     const cleanUrl = window.dash_clientside.clean_url;
     const sanitizedUrl = useMemo(() => {
         return href ? cleanUrl(href) : undefined;
     }, [href]);
+
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
 
     const updateLocation = e => {
         const hasModifiers = e.metaKey || e.shiftKey || e.altKey || e.ctrlKey;
@@ -81,9 +74,7 @@ const Link = props => {
 
     return (
         <a
-            data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-            }
+            data-dash-is-loading={loading || undefined}
             id={id}
             className={className}
             style={style}
@@ -155,7 +146,4 @@ Link.propTypes = {
     setProps: PropTypes.func,
 };
 
-Link.defaultProps = {
-    refresh: false,
-};
 export default Link;

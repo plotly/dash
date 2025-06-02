@@ -6,7 +6,7 @@ import time
 
 def watch(folders, on_change, pattern=None, sleep_time=0.1):
     pattern = re.compile(pattern) if pattern else None
-    watched = collections.defaultdict(lambda: -1)
+    watched = collections.defaultdict(lambda: -1.0)
 
     def walk():
         walked = []

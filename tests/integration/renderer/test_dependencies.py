@@ -2,7 +2,10 @@ from multiprocessing import Value
 
 from dash import Dash, html, dcc, Input, Output
 
+from flaky import flaky
 
+
+@flaky(max_runs=3)
 def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
     app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(

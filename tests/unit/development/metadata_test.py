@@ -1,6 +1,21 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
+import typing  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
 class Table(Component):
@@ -51,6 +66,8 @@ Keyword arguments:
 
     - color (string; optional)
 
+    - fontSize (number; optional)
+
     - figure (dict; optional):
         Figure is a plotly graph object.
 
@@ -61,8 +78,6 @@ Keyword arguments:
 
         - layout (dict; optional):
             layout describes the rest of the figure.
-
-    - fontSize (number; optional)
 
 - optionalObjectWithShapeAndNestedDescription (dict; optional)
 
@@ -70,6 +85,8 @@ Keyword arguments:
 
     - color (string; optional)
 
+    - fontSize (number; optional)
+
     - figure (dict; optional):
         Figure is a plotly graph object.
 
@@ -80,8 +97,6 @@ Keyword arguments:
 
         - layout (dict; optional):
             layout describes the rest of the figure.
-
-    - fontSize (number; optional)
 
 - optionalString (string; default 'hello world')
 
@@ -90,8 +105,66 @@ Keyword arguments:
     _base_nodes = ['optionalNode', 'optionalElement', 'children']
     _namespace = 'TableComponents'
     _type = 'Table'
-    @_explicitize_args
-    def __init__(self, children=None, optionalArray=Component.UNDEFINED, optionalBool=Component.UNDEFINED, optionalFunc=Component.UNDEFINED, optionalNumber=Component.UNDEFINED, optionalObject=Component.UNDEFINED, optionalString=Component.UNDEFINED, optionalSymbol=Component.UNDEFINED, optionalNode=Component.UNDEFINED, optionalElement=Component.UNDEFINED, optionalMessage=Component.UNDEFINED, optionalEnum=Component.UNDEFINED, optionalUnion=Component.UNDEFINED, optionalArrayOf=Component.UNDEFINED, optionalObjectOf=Component.UNDEFINED, optionalObjectWithExactAndNestedDescription=Component.UNDEFINED, optionalObjectWithShapeAndNestedDescription=Component.UNDEFINED, optionalAny=Component.UNDEFINED, customProp=Component.UNDEFINED, customArrayProp=Component.UNDEFINED, id=Component.UNDEFINED, **kwargs):
+    OptionalObjectWithExactAndNestedDescriptionFigure = TypedDict(
+        "OptionalObjectWithExactAndNestedDescriptionFigure",
+            {
+            "data": NotRequired[typing.Sequence[dict]],
+            "layout": NotRequired[dict]
+        }
+    )
+
+    OptionalObjectWithExactAndNestedDescription = TypedDict(
+        "OptionalObjectWithExactAndNestedDescription",
+            {
+            "color": NotRequired[str],
+            "fontSize": NotRequired[NumberType],
+            "figure": NotRequired["OptionalObjectWithExactAndNestedDescriptionFigure"]
+        }
+    )
+
+    OptionalObjectWithShapeAndNestedDescriptionFigure = TypedDict(
+        "OptionalObjectWithShapeAndNestedDescriptionFigure",
+            {
+            "data": NotRequired[typing.Sequence[dict]],
+            "layout": NotRequired[dict]
+        }
+    )
+
+    OptionalObjectWithShapeAndNestedDescription = TypedDict(
+        "OptionalObjectWithShapeAndNestedDescription",
+            {
+            "color": NotRequired[str],
+            "fontSize": NotRequired[NumberType],
+            "figure": NotRequired["OptionalObjectWithShapeAndNestedDescriptionFigure"]
+        }
+    )
+
+
+    def __init__(
+        self,
+        children: typing.Optional[ComponentType] = None,
+        optionalArray: typing.Optional[typing.Sequence] = None,
+        optionalBool: typing.Optional[bool] = None,
+        optionalFunc: typing.Optional[typing.Any] = None,
+        optionalNumber: typing.Optional[NumberType] = None,
+        optionalObject: typing.Optional[dict] = None,
+        optionalString: typing.Optional[str] = None,
+        optionalSymbol: typing.Optional[typing.Any] = None,
+        optionalNode: typing.Optional[ComponentType] = None,
+        optionalElement: typing.Optional[Component] = None,
+        optionalMessage: typing.Optional[typing.Any] = None,
+        optionalEnum: typing.Optional[Literal["News", "Photos"]] = None,
+        optionalUnion: typing.Optional[typing.Union[str, NumberType, typing.Any]] = None,
+        optionalArrayOf: typing.Optional[typing.Sequence[NumberType]] = None,
+        optionalObjectOf: typing.Optional[typing.Dict[typing.Union[str, float, int], NumberType]] = None,
+        optionalObjectWithExactAndNestedDescription: typing.Optional["OptionalObjectWithExactAndNestedDescription"] = None,
+        optionalObjectWithShapeAndNestedDescription: typing.Optional["OptionalObjectWithShapeAndNestedDescription"] = None,
+        optionalAny: typing.Optional[typing.Any] = None,
+        customProp: typing.Optional[typing.Any] = None,
+        customArrayProp: typing.Optional[typing.Sequence[typing.Any]] = None,
+        id: typing.Optional[typing.Union[str, dict]] = None,
+        **kwargs
+    ):
         self._prop_names = ['children', 'id', 'aria-*', 'customArrayProp', 'customProp', 'data-*', 'in', 'optionalAny', 'optionalArray', 'optionalArrayOf', 'optionalBool', 'optionalElement', 'optionalEnum', 'optionalNode', 'optionalNumber', 'optionalObject', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalString', 'optionalUnion']
         self._valid_wildcard_attributes =            ['data-', 'aria-']
         self.available_properties = ['children', 'id', 'aria-*', 'customArrayProp', 'customProp', 'data-*', 'in', 'optionalAny', 'optionalArray', 'optionalArrayOf', 'optionalBool', 'optionalElement', 'optionalEnum', 'optionalNode', 'optionalNumber', 'optionalObject', 'optionalObjectOf', 'optionalObjectWithExactAndNestedDescription', 'optionalObjectWithShapeAndNestedDescription', 'optionalString', 'optionalUnion']
@@ -102,3 +175,5 @@ Keyword arguments:
         args = {k: _locals[k] for k in _explicit_args if k != 'children'}
 
         super(Table, self).__init__(children=children, **args)
+
+setattr(Table, "__init__", _explicitize_args(Table.__init__))

@@ -1,16 +1,48 @@
 from collections import OrderedDict
 import copy
+import numbers
 import os
+import typing
 from textwrap import fill, dedent
 
+from typing_extensions import TypedDict, NotRequired, Literal
 from dash.development.base_component import _explicitize_args
 from dash.exceptions import NonExistentEventException
 from ._all_keywords import python_keywords
 from ._collect_nodes import collect_nodes, filter_base_nodes
-from .base_component import Component
+from ._py_prop_typing import (
+    get_custom_ignore,
+    get_custom_props,
+    get_prop_typing,
+    shapes,
+    get_custom_imports,
+)
+from .base_component import Component, ComponentType
+
+import_string = """# AUTO GENERATED FILE - DO NOT EDIT
+
+import typing  # noqa: F401
+from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
+from dash.development.base_component import Component, _explicitize_args
+{custom_imports}
+ComponentType = typing.Union[
+    str,
+    int,
+    float,
+    Component,
+    None,
+    typing.Sequence[typing.Union[str, int, float, Component, None]],
+]
+
+NumberType = typing.Union[
+    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+]
 
 
-# pylint: disable=unused-argument,too-many-locals
+"""
+
+
+# pylint: disable=unused-argument,too-many-locals,too-many-branches
 def generate_class_string(
     typename,
     props,
@@ -18,6 +50,7 @@ def generate_class_string(
     namespace,
     prop_reorder_exceptions=None,
     max_props=None,
+    custom_typing_module=None,
 ):
     """Dynamically generate class strings to have nicely formatted docstrings,
     keyword arguments, and repr.
@@ -54,8 +87,12 @@ def generate_class_string(
     _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'
-    @_explicitize_args
-    def __init__(self, {default_argtext}):
+{shapes}
+
+    def __init__(
+        self,
+        {default_argtext}
+    ):
         self._prop_names = {list_of_valid_keys}
         self._valid_wildcard_attributes =\
             {list_of_valid_wildcard_attr_prefixes}
@@ -68,6 +105,8 @@ def generate_class_string(
         args = {args}
         {required_validation}
         super({typename}, self).__init__({argtext})
+
+setattr({typename}, "__init__", _explicitize_args({typename}.__init__))
 '''
 
     filtered_props = (
@@ -78,11 +117,13 @@ def generate_class_string(
     )
     wildcard_prefixes = repr(parse_wildcards(props))
     list_of_valid_keys = repr(list(map(str, filtered_props.keys())))
+    custom_ignore = get_custom_ignore(custom_typing_module)
     docstring = create_docstring(
         component_name=typename,
         props=filtered_props,
         description=description,
         prop_reorder_exceptions=prop_reorder_exceptions,
+        ignored_props=custom_ignore,
     ).replace("\r\n", "\n")
     required_args = required_props(filtered_props)
     is_children_required = "children" in required_args
@@ -94,7 +135,9 @@ def generate_class_string(
     prop_keys = list(props.keys())
     if "children" in props and "children" in list_of_valid_keys:
         prop_keys.remove("children")
-        default_argtext = "children=None, "
+        # TODO For dash 3.0, remove the Optional and = None for proper typing.
+        #  Also add the other required props after children.
+        default_argtext = f"children: typing.Optional[{get_prop_typing('node', '', '', {})}] = None,\n        "
         args = "{k: _locals[k] for k in _explicit_args if k != 'children'}"
         argtext = "children=children, **args"
     else:
@@ -118,15 +161,39 @@ def generate_class_string(
             raise TypeError('Required argument children was not specified.')
         """
 
-    default_arglist = [
-        (
-            f"{p:s}=Component.REQUIRED"
-            if props[p]["required"]
-            else f"{p:s}=Component.UNDEFINED"
+    default_arglist = []
+
+    for prop_key in prop_keys:
+        prop = props[prop_key]
+        if (
+            prop_key.endswith("-*")
+            or prop_key in python_keywords
+            or prop_key == "setProps"
+        ):
+            continue
+
+        type_info = prop.get("type")
+
+        if not type_info:
+            print(f"Invalid prop type for typing: {prop_key}")
+            default_arglist.append(f"{prop_key} = None")
+            continue
+
+        type_name = type_info.get("name")
+
+        custom_props = get_custom_props(custom_typing_module)
+        typed = get_prop_typing(
+            type_name,
+            typename,
+            prop_key,
+            type_info,
+            custom_props=custom_props,
+            custom_ignore=custom_ignore,
         )
-        for p in prop_keys
-        if not p.endswith("-*") and p not in python_keywords and p != "setProps"
-    ]
+
+        arg_value = f"{prop_key}: typing.Optional[{typed}] = None"
+
+        default_arglist.append(arg_value)
 
     if max_props:
         final_max_props = max_props - (1 if "children" in props else 0)
@@ -139,7 +206,7 @@ def generate_class_string(
                 "they may still be used as keyword arguments."
             )
 
-    default_argtext += ", ".join(default_arglist + ["**kwargs"])
+    default_argtext += ",\n        ".join(default_arglist + ["**kwargs"])
     nodes = collect_nodes({k: v for k, v in props.items() if k != "children"})
 
     return dedent(
@@ -156,6 +223,7 @@ def generate_class_string(
             required_validation=required_validation,
             children_props=nodes,
             base_nodes=filter_base_nodes(nodes) + ["children"],
+            shapes="\n".join(shapes.get(typename, {}).values()),
         )
     )
 
@@ -167,6 +235,7 @@ def generate_class_file(
     namespace,
     prop_reorder_exceptions=None,
     max_props=None,
+    custom_typing_module="dash_prop_typing",
 ):
     """Generate a Python class file (.py) given a class string.
     Parameters
@@ -179,20 +248,32 @@ def generate_class_file(
     Returns
     -------
     """
-    import_string = (
-        "# AUTO GENERATED FILE - DO NOT EDIT\n\n"
-        + "from dash.development.base_component import "
-        + "Component, _explicitize_args\n\n\n"
-    )
 
     class_string = generate_class_string(
-        typename, props, description, namespace, prop_reorder_exceptions, max_props
+        typename,
+        props,
+        description,
+        namespace,
+        prop_reorder_exceptions,
+        max_props,
+        custom_typing_module,
     )
+
+    custom_imp = get_custom_imports(custom_typing_module)
+    custom_imp = custom_imp.get(typename) or custom_imp.get("*")
+
+    if custom_imp:
+        imports = import_string.format(
+            custom_imports="\n" + "\n".join(custom_imp) + "\n\n"
+        )
+    else:
+        imports = import_string.format(custom_imports="")
+
     file_name = f"{typename:s}.py"
 
     file_path = os.path.join(namespace, file_name)
     with open(file_path, "w", encoding="utf-8") as f:
-        f.write(import_string)
+        f.write(imports)
         f.write(class_string)
 
     print(f"Generated {file_name}")
@@ -242,7 +323,19 @@ def generate_class(
     string = generate_class_string(
         typename, props, description, namespace, prop_reorder_exceptions
     )
-    scope = {"Component": Component, "_explicitize_args": _explicitize_args}
+    scope = {
+        "Component": Component,
+        "ComponentType": ComponentType,
+        "_explicitize_args": _explicitize_args,
+        "typing": typing,
+        "numbers": numbers,
+        "TypedDict": TypedDict,
+        "NotRequired": NotRequired,
+        "Literal": Literal,
+        "NumberType": typing.Union[
+            typing.SupportsFloat, typing.SupportsComplex, typing.SupportsInt
+        ],
+    }
     # pylint: disable=exec-used
     exec(string, scope)
     result = scope[typename]
@@ -262,7 +355,13 @@ def required_props(props):
     return [prop_name for prop_name, prop in list(props.items()) if prop["required"]]
 
 
-def create_docstring(component_name, props, description, prop_reorder_exceptions=None):
+def create_docstring(
+    component_name,
+    props,
+    description,
+    prop_reorder_exceptions=None,
+    ignored_props=tuple(),
+):
     """Create the Dash component docstring.
     Parameters
     ----------
@@ -299,7 +398,7 @@ def create_docstring(component_name, props, description, prop_reorder_exceptions
             indent_num=0,
             is_flow_type="flowType" in prop and "type" not in prop,
         )
-        for p, prop in filter_props(props).items()
+        for p, prop in filter_props(props, ignored_props).items()
     )
 
     return (
@@ -364,7 +463,7 @@ def reorder_props(props):
     return OrderedDict(props1 + props2 + sorted(list(props.items())))
 
 
-def filter_props(props):
+def filter_props(props, ignored_props=tuple()):
     """Filter props from the Component arguments to exclude:
         - Those without a "type" or a "flowType" field
         - Those with arg.type.name in {'func', 'symbol', 'instanceOf'}
@@ -409,7 +508,7 @@ def filter_props(props):
     filtered_props = copy.deepcopy(props)
 
     for arg_name, arg in list(filtered_props.items()):
-        if "type" not in arg and "flowType" not in arg:
+        if arg_name in ignored_props or ("type" not in arg and "flowType" not in arg):
             filtered_props.pop(arg_name)
             continue
 
@@ -557,7 +656,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
                 default=prop.get("defaultValue"),
                 indent_num=indent_num + 2,
             )
-            for prop_name, prop in sorted(list(type_object["value"].items()))
+            for prop_name, prop in type_object["value"].items()
         )
 
     def array_of():
@@ -685,7 +784,7 @@ def js_to_py_type(type_object, is_flow_type=False, indent_num=0):
         return ""
     if js_type_name in js_to_py_types:
         if js_type_name == "signature":  # This is a Flow object w/ signature
-            return js_to_py_types[js_type_name](indent_num)
+            return js_to_py_types[js_type_name](indent_num)  # type: ignore[reportCallIssue]
         # All other types
-        return js_to_py_types[js_type_name]()
+        return js_to_py_types[js_type_name]()  # type: ignore[reportCallIssue]
     return ""

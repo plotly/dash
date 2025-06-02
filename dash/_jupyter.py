@@ -1,3 +1,4 @@
+# type: ignore
 import asyncio
 import io
 import inspect
@@ -9,6 +10,7 @@ import sys
 import threading
 import time
 
+from typing import Optional
 from typing_extensions import Literal
 
 from werkzeug.serving import make_server
@@ -228,7 +230,7 @@ class JupyterDash:
     def run_app(
         self,
         app,
-        mode: JupyterDisplayMode = None,
+        mode: Optional[JupyterDisplayMode] = None,
         width="100%",
         height=650,
         host="127.0.0.1",
@@ -266,7 +268,7 @@ class JupyterDash:
                 f"    Received value of type {type(mode)}: {repr(mode)}"
             )
         else:
-            mode = mode.lower()
+            mode = mode.lower()  # type: ignore
             if mode not in valid_display_values:
                 raise ValueError(
                     f"Invalid display argument {mode}\n"
@@ -291,6 +293,8 @@ class JupyterDash:
             requests_pathname_prefix = requests_pathname_prefix.format(port=port)
         else:
             requests_pathname_prefix = "/"
+
+        routes_pathname_prefix = app.config.get("routes_pathname_prefix", "/")
 
         # FIXME Move config initialization to main dash __init__
         # low-level setter to circumvent Dash's config locking
@@ -353,7 +357,7 @@ class JupyterDash:
         self._servers[(host, port)] = server
 
         # Wait for server to start up
-        alive_url = f"http://{host}:{port}/_alive_{JupyterDash.alive_token}"
+        alive_url = f"http://{host}:{port}{routes_pathname_prefix}_alive_{JupyterDash.alive_token}"
 
         def _get_error():
             try:
@@ -381,7 +385,7 @@ class JupyterDash:
                     url = f"http://{host}:{port}"
                     raise OSError(
                         f"Address '{url}' already in use.\n"
-                        "    Try passing a different port to run_server."
+                        "    Try passing a different port to run."
                     )
             except requests.ConnectionError as err:
                 _get_error()

@@ -61,7 +61,9 @@ class BaseDashRunner:
 
     _next_port = 58050
 
-    def __init__(self, keep_open, stop_timeout):
+    def __init__(self, keep_open, stop_timeout, scheme="http", host="localhost"):
+        self.scheme = scheme
+        self.host = host
         self.port = 8050
         self.started = None
         self.keep_open = keep_open
@@ -102,7 +104,7 @@ class BaseDashRunner:
     @property
     def url(self):
         """The default server url."""
-        return f"http://localhost:{self.port}"
+        return f"{self.scheme}://{self.host}:{self.port}"
 
     @property
     def is_windows(self):
@@ -116,11 +118,11 @@ class BaseDashRunner:
 class KillerThread(threading.Thread):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._old_threads = list(threading._active.keys())  # pylint: disable=W0212
+        self._old_threads = list(threading._active.keys())  # type: ignore[reportAttributeAccessIssue]; pylint: disable=W0212
 
     def kill(self):
         # Kill all the new threads.
-        for thread_id in list(threading._active):  # pylint: disable=W0212
+        for thread_id in list(threading._active):  # type: ignore[reportAttributeAccessIssue]; pylint: disable=W0212
             if thread_id in self._old_threads:
                 continue
 
@@ -147,7 +149,7 @@ class ThreadedRunner(BaseDashRunner):
         self.thread = None
 
     def running_and_accessible(self, url):
-        if self.thread.is_alive():
+        if self.thread.is_alive():  # type: ignore[reportOptionalMemberAccess]
             return self.accessible(url)
         raise DashAppLoadingError("Thread is not alive.")
 
@@ -160,6 +162,7 @@ class ThreadedRunner(BaseDashRunner):
             app.css.config.serve_locally = True
 
             options = kwargs.copy()
+            options["dev_tools_disable_version_check"] = True
 
             if "port" not in kwargs:
                 options["port"] = self.port = BaseDashRunner._next_port
@@ -199,14 +202,14 @@ class ThreadedRunner(BaseDashRunner):
                 retries += 1
                 time.sleep(1)
 
-        self.started = self.thread.is_alive()
+        self.started = self.thread.is_alive()  # type: ignore[reportOptionalMemberAccess]
         if not self.started:
             raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
-        self.thread.kill()
-        self.thread.join()
-        wait.until_not(self.thread.is_alive, self.stop_timeout)
+        self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
+        self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+        wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         self.started = False
 
 
@@ -234,14 +237,14 @@ class MultiProcessRunner(BaseDashRunner):
                 logger.exception(error)
                 raise error
 
-        self.proc = multiprocess.Process(target=target)  # pylint: disable=not-callable
+        self.proc = multiprocess.Process(target=target)  # type: ignore[reportAttributeAccessIssue]; pylint: disable=not-callable
         self.proc.start()
 
         wait.until(lambda: self.accessible(self.url), timeout=start_timeout)
         self.started = True
 
     def stop(self):
-        process = psutil.Process(self.proc.pid)
+        process = psutil.Process(self.proc.pid)  # type: ignore[reportOptionalMemberAccess]
 
         for proc in process.children(recursive=True):
             try:
@@ -319,11 +322,10 @@ class ProcessRunner(BaseDashRunner):
                     logger.debug("removing temporary app path %s", self.tmp_app_path)
                     shutil.rmtree(self.tmp_app_path)
 
-                _except = subprocess.TimeoutExpired  # pylint:disable=no-member
                 self.proc.communicate(
                     timeout=self.stop_timeout  # pylint: disable=unexpected-keyword-arg
                 )
-            except _except:
+            except subprocess.TimeoutExpired:
                 logger.exception(
                     "subprocess terminate not success, trying to kill "
                     "the subprocess in a safe manner"
@@ -339,7 +341,7 @@ class RRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app, start_timeout=2, cwd=None):
+    def start(self, app, start_timeout=2, cwd=None):  # type: ignore[reportIncompatibleMethodOverride]
         """Start the server with subprocess and Rscript."""
 
         if os.path.isfile(app) and os.path.exists(app):
@@ -350,14 +352,15 @@ class RRunner(ProcessRunner):
         else:
             # app is a string chunk, we make a temporary folder to store app.R
             # and its relevant assets
-            self._tmp_app_path = os.path.join(
-                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
-            )
+            tmp_dir = "/tmp" if not self.is_windows else os.getenv("TEMP")
+            tmp_dir = str(tmp_dir)  # to satisfy type checking
+            hex_id = uuid.uuid4().hex
+            self._tmp_app_path = os.path.join(tmp_dir, hex_id)
             try:
-                os.mkdir(self.tmp_app_path)
+                os.mkdir(self.tmp_app_path)  # type: ignore[reportArgumentType]
             except OSError:
                 logger.exception("cannot make temporary folder %s", self.tmp_app_path)
-            path = os.path.join(self.tmp_app_path, "app.R")
+            path = os.path.join(self.tmp_app_path, "app.R")  # type: ignore[reportCallIssue]
 
             logger.info("RRunner start => app is R code chunk")
             logger.info("make a temporary R file for execution => %s", path)
@@ -388,7 +391,7 @@ class RRunner(ProcessRunner):
                 ]
 
                 for asset in assets:
-                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))
+                    target = os.path.join(self.tmp_app_path, os.path.basename(asset))  # type: ignore[reportCallIssue]
                     if os.path.exists(target):
                         logger.debug("delete existing target %s", target)
                         shutil.rmtree(target)
@@ -436,7 +439,7 @@ class JuliaRunner(ProcessRunner):
         self.proc = None
 
     # pylint: disable=arguments-differ
-    def start(self, app, start_timeout=30, cwd=None):
+    def start(self, app, start_timeout=30, cwd=None):  # type: ignore[reportIncompatibleMethodOverride]
         """Start the server with subprocess and julia."""
 
         if os.path.isfile(app) and os.path.exists(app):
@@ -447,9 +450,11 @@ class JuliaRunner(ProcessRunner):
         else:
             # app is a string chunk, we make a temporary folder to store app.jl
             # and its relevant assets
-            self._tmp_app_path = os.path.join(
-                "/tmp" if not self.is_windows else os.getenv("TEMP"), uuid.uuid4().hex
-            )
+            tmp_dir = "/tmp" if not self.is_windows else os.getenv("TEMP")
+            assert isinstance(tmp_dir, str)  # to satisfy typing
+            hex_id = uuid.uuid4().hex
+            self._tmp_app_path = os.path.join(tmp_dir, hex_id)
+            assert isinstance(self.tmp_app_path, str)  # to satisfy typing
             try:
                 os.mkdir(self.tmp_app_path)
             except OSError:

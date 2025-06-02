@@ -39,7 +39,7 @@ const getter = (
         return (column && column.sort_as_null) || [];
     };
 
-    const isNully = (value: any, columnId: ColumnId) =>
+    const isNully = (value: any, columnId: ColumnId): any =>
         R.isNil(value) || R.includes(value, getNullyCases(columnId));
 
     if (sort_action === TableAction.Native) {

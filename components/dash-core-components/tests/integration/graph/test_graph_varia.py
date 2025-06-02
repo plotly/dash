@@ -15,6 +15,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from flaky import flaky
+
 
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva001_candlestick(dash_dcc, is_eager):
@@ -681,6 +683,7 @@ def test_grva007_external_plotlyjs_prevents_lazy(is_eager, dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_grva008_shapes_not_lost(dash_dcc):
     # See issue #879 and pr #905
     app = Dash(__name__)
@@ -714,6 +717,7 @@ def test_grva008_shapes_not_lost(dash_dcc):
     dash_dcc.start_server(app)
     button = dash_dcc.wait_for_element("#button")
     dash_dcc.wait_for_text_to_equal("#output", "0")
+    dash_dcc.wait_for_element("#graph .js-plotly-plot")
 
     # Draw a shape
     dash_dcc.click_and_hold_at_coord_fractions("#graph", 0.25, 0.25)
