@@ -18,7 +18,7 @@ type Props = {
 /**
  * For rendering components that are out of the regular layout tree.
  */
-function ExternalWrapper({component, componentPath}: Props) {
+function ExternalWrapper({component, componentPath}: Props, temp?: boolean = false) {
     const dispatch: any = useDispatch();
     const [inserted, setInserted] = useState(false);
 
@@ -33,7 +33,7 @@ function ExternalWrapper({component, componentPath}: Props) {
         );
         setInserted(true);
         return () => {
-            dispatch(removeComponent({componentPath}));
+            if (temp) dispatch(removeComponent({componentPath}));
         };
     }, []);
 
