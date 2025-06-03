@@ -1389,9 +1389,7 @@ class Dash(ObsoleteChecker):
                 outputs_grouping = map_grouping(
                     lambda ind: flat_outputs[ind], outputs_indices
                 )
-                g.outputs_grouping = (
-                    outputs_grouping  # pylint: disable=assigning-non-slot
-                )
+                g.outputs_grouping = outputs_grouping  # pylint: disable=assigning-non-slot
                 g.using_outputs_grouping = (  # pylint: disable=assigning-non-slot
                     not isinstance(outputs_indices, int)
                     and outputs_indices != list(range(grouping_len(outputs_indices)))
@@ -1551,7 +1549,9 @@ class Dash(ObsoleteChecker):
                     full = os.path.join(current, f)
 
                     if f.endswith("js"):
-                        self.scripts.append_script(self._add_assets_resource(path, full))
+                        self.scripts.append_script(
+                            self._add_assets_resource(path, full)
+                        )
                     elif f.endswith("css"):
                         self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
                     elif f == "favicon.ico":
@@ -2368,9 +2368,7 @@ class Dash(ObsoleteChecker):
                 if not isinstance(layout, list):
                     layout = [
                         # pylint: disable=not-callable
-                        self.layout()
-                        if callable(self.layout)
-                        else self.layout
+                        self.layout() if callable(self.layout) else self.layout
                     ]
 
                 self.validation_layout = html.Div(
