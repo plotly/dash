@@ -59,3 +59,69 @@ def test_rext001_render_external_component(dash_duo):
     dash_duo.wait_for_text_to_equal("#out", "clicked")
 
     assert dash_duo.get_logs() == []
+
+
+def test_rext002_render_external_component_temp(dash_duo):
+    app = Dash()
+    app.layout = html.Div(
+        [
+            dcc.Tabs(
+                [
+                    dcc.Tab(
+                        label="Tab 1",
+                        children=[
+                            ExternalComponent(
+                                id="ext",
+                                extra_component={
+                                    "type": "Div",
+                                    "namespace": "dash_html_components",
+                                    "props": {
+                                        "id": "extra",
+                                        "children": [
+                                            html.Div(
+                                                "extra children",
+                                                id={"type": "extra", "index": 1},
+                                            )
+                                        ],
+                                    },
+                                },
+                                extra_component_temp=True,
+                            ),
+                        ],
+                    ),
+                    dcc.Tab(
+                        label="Tab 2",
+                        children=[
+                            ExternalComponent(
+                                id="without-id",
+                                text="without-id",
+                            ),
+                        ],
+                    ),
+                ]
+            ),
+        ]
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#extra", "extra children")
+
+    dash_duo.find_element(".tab:nth-child(2)").click()
+    assert (
+        dash_duo.find_element("#without-id > input").get_attribute("value")
+        == "without-id"
+    )
+
+    dash_duo.find_element(".tab").click()
+    dash_duo.find_element("#ext")
+    assert (
+        len(dash_duo.find_elements("#ext > *")) == 0
+    ), "extra component should be removed"
+
+    dash_duo.find_element(".tab:nth-child(2)").click()
+    assert (
+        dash_duo.find_element("#without-id > input").get_attribute("value")
+        == "without-id"
+    )
+
+    assert dash_duo.get_logs() == []
