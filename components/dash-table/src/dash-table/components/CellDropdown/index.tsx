@@ -1,4 +1,4 @@
-import React, {ChangeEvent, PureComponent} from 'react';
+import React, {ChangeEvent, Component, createRef} from 'react';
 import Dropdown from 'react-select';
 
 import DOM from 'core/browser/DOM';
@@ -17,7 +17,12 @@ interface IProps {
     disabled?: boolean;
 }
 
-export default class CellDropdown extends PureComponent<IProps> {
+export default class CellDropdown extends Component<IProps> {
+    dropdownRef: React.RefObject<any>;
+    constructor(props: IProps) {
+        super(props);
+        this.dropdownRef = createRef();
+    }
     render() {
         const {clearable, dropdown, onChange, value, disabled} = this.props;
 
@@ -37,7 +42,7 @@ export default class CellDropdown extends PureComponent<IProps> {
                     }
                 </div>
                 <Dropdown
-                    ref='dropdown'
+                    ref={this.dropdownRef}
                     clearable={clearable}
                     onChange={(newValue: any) => {
                         onChange(newValue ? newValue.value : newValue);
@@ -71,7 +76,7 @@ export default class CellDropdown extends PureComponent<IProps> {
             return;
         }
 
-        const dropdown = this.refs.dropdown as any;
+        const dropdown = this.dropdownRef.current;
 
         if (applyFocus && dropdown && document.activeElement !== dropdown) {
             // Limitation. If React >= 16 --> Use React.createRef instead to pass parent ref to child
@@ -83,8 +88,8 @@ export default class CellDropdown extends PureComponent<IProps> {
     }
 
     private handleOpenDropdown = () => {
-        const {dropdown}: {[key: string]: any} = this.refs;
-
-        dropdownHelper(dropdown.wrapper.querySelector('.Select-menu-outer'));
+        dropdownHelper(
+            this.dropdownRef.current.wrapper.querySelector('.Select-menu-outer')
+        );
     };
 }

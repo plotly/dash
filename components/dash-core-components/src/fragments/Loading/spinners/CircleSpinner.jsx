@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import DebugTitle from './DebugTitle.jsx';
+
+
 /**
  * Spinner created by Tobias Ahlin, https://github.com/tobiasahlin/SpinKit
  */
@@ -13,13 +16,8 @@ const CircleSpinner = ({
     style,
 }) => {
     let debugTitle;
-    if (debug) {
-        debugTitle = (
-            <h3 className="dash-loading-title">
-                Loading {status.component_name}
-                's {status.prop_name}
-            </h3>
-        );
+    if (debug && status) {
+        debugTitle = status.map((s) => <DebugTitle {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';
     if (className) {
@@ -187,7 +185,7 @@ const CircleSpinner = ({
 };
 
 CircleSpinner.propTypes = {
-    status: PropTypes.object,
+    status: PropTypes.array,
     color: PropTypes.string,
     className: PropTypes.string,
     fullscreen: PropTypes.bool,

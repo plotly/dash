@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react';
+import React, {createRef, PureComponent} from 'react';
 
 interface IProps {
     active: boolean;
@@ -8,11 +8,16 @@ interface IProps {
 }
 
 export default class CellLabel extends PureComponent<IProps> {
+    elRef: React.RefObject<any>;
+    constructor(props: IProps) {
+        super(props);
+        this.elRef = createRef();
+    }
     render() {
         const {className, value} = this.props;
 
         return (
-            <div ref='el' className={className} tabIndex={-1}>
+            <div ref={this.elRef} className={className} tabIndex={-1}>
                 {typeof value === 'boolean' ? value.toString() : value}
             </div>
         );
@@ -32,7 +37,7 @@ export default class CellLabel extends PureComponent<IProps> {
             return;
         }
 
-        const el = this.refs.el as HTMLDivElement;
+        const el = this.elRef.current;
 
         if (applyFocus && el && document.activeElement !== el) {
             window.getSelection()?.selectAllChildren(el);

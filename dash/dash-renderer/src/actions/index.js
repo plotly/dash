@@ -1,4 +1,4 @@
-import {once} from 'ramda';
+import {once, path} from 'ramda';
 import {createAction} from 'redux-actions';
 import {addRequestedCallbacks} from './callbacks';
 import {getAppState} from '../reducers/constants';
@@ -6,7 +6,8 @@ import {getAction} from './constants';
 import cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
-import {getPath} from './paths';
+import {computePaths, getPath} from './paths';
+import {recordUiEdit} from '../persistence';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -17,7 +18,26 @@ export const setHooks = createAction(getAction('SET_HOOKS'));
 export const setLayout = createAction(getAction('SET_LAYOUT'));
 export const setPaths = createAction(getAction('SET_PATHS'));
 export const setRequestQueue = createAction(getAction('SET_REQUEST_QUEUE'));
-export const updateProps = createAction(getAction('ON_PROP_CHANGE'));
+export const insertComponent = createAction(getAction('INSERT_COMPONENT'));
+export const removeComponent = createAction(getAction('REMOVE_COMPONENT'));
+
+export const onPropChange = createAction(getAction('ON_PROP_CHANGE'));
+
+export function updateProps(payload) {
+    return (dispatch, getState) => {
+        const component = path(payload.itempath, getState().layout);
+        recordUiEdit(component, payload.props, dispatch);
+        dispatch(onPropChange(payload));
+    };
+}
+
+export const addComponentToLayout = payload => (dispatch, getState) => {
+    const {paths} = getState();
+    dispatch(insertComponent(payload));
+    dispatch(
+        setPaths(computePaths(payload.component, payload.componentPath, paths))
+    );
+};
 
 export const dispatchError = dispatch => (message, lines) =>
     dispatch(
