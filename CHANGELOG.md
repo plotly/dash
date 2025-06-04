@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - [#3303](https://github.com/plotly/dash/pull/3303) Improve flatten_grouping performance (callback with dictionary output/input)
 - [#3304](https://github.com/plotly/dash/pull/3304) Speed up function _operation by 80%
+- [#3323](https://github.com/plotly/dash/pull/3323) Make Dash instances WSGI compliant, can now call gunicorn on the dash app itself.
 
 ## [3.0.4] - 2025-04-24
 
