@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - [#3294](https://github.com/plotly/dash/pull/3294) Added the ability to pass `allow_optional` to Input and State to allow callbacks to work even if these components are not in the dash layout.
+- [#3077](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
 
 ## [3.0.4] - 2025-04-24
 
