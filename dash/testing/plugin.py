@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring,redefined-outer-name
+from typing import Any
+
 import pytest
 from .consts import SELENIUM_GRID_DEFAULT
 
@@ -10,6 +12,16 @@ class MissingDashTesting:
             "dash[testing] was not installed. "
             "Please install to use the dash testing fixtures."
         )
+
+    def __enter__(self) -> Any:
+        """Implemented to satisfy type checking."""
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+        """Implemented to satisfy type checking."""
+
+        return False
 
 
 try:
@@ -127,39 +139,39 @@ def pytest_runtest_makereport(item, call):  # pylint: disable=unused-argument
 
 
 @pytest.fixture
-def dash_thread_server() -> ThreadedRunner:
+def dash_thread_server() -> ThreadedRunner:  # type: ignore[reportInvalidTypeForm]
     """Start a local dash server in a new thread."""
     with ThreadedRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def dash_process_server() -> ProcessRunner:
+def dash_process_server() -> ProcessRunner:  # type: ignore[reportInvalidTypeForm]
     """Start a Dash server with subprocess.Popen and waitress-serve."""
     with ProcessRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def dash_multi_process_server() -> MultiProcessRunner:
+def dash_multi_process_server() -> MultiProcessRunner:  # type: ignore[reportInvalidTypeForm]
     with MultiProcessRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def dashr_server() -> RRunner:
+def dashr_server() -> RRunner:  # type: ignore[reportInvalidTypeForm]
     with RRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def dashjl_server() -> JuliaRunner:
+def dashjl_server() -> JuliaRunner:  # type: ignore[reportInvalidTypeForm]
     with JuliaRunner() as starter:
         yield starter
 
 
 @pytest.fixture
-def dash_br(request, tmpdir) -> Browser:
+def dash_br(request, tmpdir) -> Browser:  # type: ignore[reportInvalidTypeForm]
     with Browser(
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
@@ -175,9 +187,9 @@ def dash_br(request, tmpdir) -> Browser:
 
 
 @pytest.fixture
-def dash_duo(request, dash_thread_server, tmpdir) -> DashComposite:
+def dash_duo(request, dash_thread_server, tmpdir) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
     with DashComposite(
-        dash_thread_server,
+        server=dash_thread_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),
@@ -192,9 +204,9 @@ def dash_duo(request, dash_thread_server, tmpdir) -> DashComposite:
 
 
 @pytest.fixture
-def dash_duo_mp(request, dash_multi_process_server, tmpdir) -> DashComposite:
+def dash_duo_mp(request, dash_multi_process_server, tmpdir) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
     with DashComposite(
-        dash_multi_process_server,
+        server=dash_multi_process_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),
@@ -209,9 +221,9 @@ def dash_duo_mp(request, dash_multi_process_server, tmpdir) -> DashComposite:
 
 
 @pytest.fixture
-def dashr(request, dashr_server, tmpdir) -> DashRComposite:
+def dashr(request, dashr_server, tmpdir) -> DashRComposite:  # type: ignore[reportInvalidTypeForm]
     with DashRComposite(
-        dashr_server,
+        server=dashr_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),
@@ -226,9 +238,9 @@ def dashr(request, dashr_server, tmpdir) -> DashRComposite:
 
 
 @pytest.fixture
-def dashjl(request, dashjl_server, tmpdir) -> DashJuliaComposite:
+def dashjl(request, dashjl_server, tmpdir) -> DashJuliaComposite:  # type: ignore[reportInvalidTypeForm]
     with DashJuliaComposite(
-        dashjl_server,
+        server=dashjl_server,
         browser=request.config.getoption("webdriver"),
         remote=request.config.getoption("remote"),
         remote_url=request.config.getoption("remote_url"),

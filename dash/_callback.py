@@ -77,7 +77,7 @@ def callback(
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
     **_kwargs,
-):
+) -> Callable[..., Any]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -124,6 +124,7 @@ def callback(
             while a callback is running, the callback is canceled.
             Note that the value of the property is not significant, any change in
             value will result in the cancellation of the running job (if any).
+            This parameter only applies to background callbacks (`background=True`).
         :param progress:
             An `Output` dependency grouping that references properties of
             components in the app's layout. When provided, the decorated function
@@ -132,21 +133,25 @@ def callback(
             function should call in order to provide updates to the app on its
             current progress. This function accepts a single argument, which
             correspond to the grouping of properties specified in the provided
-            `Output` dependency grouping
+            `Output` dependency grouping. This parameter only applies to background
+            callbacks (`background=True`).
         :param progress_default:
             A grouping of values that should be assigned to the components
             specified by the `progress` argument when the callback is not in
             progress. If `progress_default` is not provided, all the dependency
             properties specified in `progress` will be set to `None` when the
-            callback is not running.
+            callback is not running. This parameter only applies to background
+            callbacks (`background=True`).
         :param cache_args_to_ignore:
             Arguments to ignore when caching is enabled. If callback is configured
             with keyword arguments (Input/State provided in a dict),
             this should be a list of argument names as strings. Otherwise,
             this should be a list of argument indices as integers.
+            This parameter only applies to background callbacks (`background=True`).
         :param cache_ignore_triggered:
             Whether to ignore which inputs triggered the callback when creating
-            the cache.
+            the cache. This parameter only applies to background callbacks
+            (`background=True`).
         :param interval:
             Time to wait between the background callback update requests.
         :param on_error:
@@ -360,7 +365,9 @@ def register_callback(
     # pylint: disable=too-many-locals
     def wrap_func(func):
 
-        if background is not None:
+        if background is None:
+            background_key = None
+        else:
             background_key = BaseBackgroundCallbackManager.register_func(
                 func,
                 background.get("progress") is not None,
@@ -515,7 +522,7 @@ def register_callback(
                     return to_json(response)
             else:
                 try:
-                    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
                 except PreventUpdate as err:
                     raise err
                 except Exception as err:  # pylint: disable=broad-exception-caught
@@ -555,7 +562,7 @@ def register_callback(
                     if NoUpdate.is_no_update(val):
                         continue
                     for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]]
                     ):
                         if not NoUpdate.is_no_update(vali):
                             has_update = True
@@ -590,6 +597,7 @@ def register_callback(
                 dist = app.get_dist(diff_packages)
                 response["dist"] = dist
 
+            jsonResponse = None
             try:
                 jsonResponse = to_json(response)
             except TypeError:

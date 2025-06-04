@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
-import LoadingElement from '../utils/LoadingElement';
 
 /**
  * A tooltip with an absolute position.
@@ -27,9 +26,9 @@ const Tooltip = ({
     return (
         <>
             <div className="dcc-tooltip-bounding-box">
-                <LoadingElement
-                    elementType="span"
+                <div
                     className={`hover hover-${direction}`}
+                    data-dash-is-loading={is_loading}
                 >
                     <span
                         id={id}
@@ -42,7 +41,7 @@ const Tooltip = ({
                             props.children
                         )}
                     </span>
-                </LoadingElement>
+                </div>
             </div>
             <style jsx>{`
                 .dcc-tooltip-bounding-box {

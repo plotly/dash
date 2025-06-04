@@ -1,3 +1,4 @@
-npm run lint && \
-(cd components/dash-core-components && npm run lint) && \
-(cd components/dash-table && npm run lint)
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx lint-staged

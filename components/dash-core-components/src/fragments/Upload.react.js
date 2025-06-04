@@ -64,6 +64,11 @@ export default class Upload extends Component {
             style_reject,
             style_disabled,
         } = this.props;
+
+        const activeStyle = className_active ? undefined : style_active;
+        const disabledStyle = className_disabled ? undefined : style_disabled;
+        const rejectStyle = className_reject ? undefined : style_reject;
+
         return (
             <LoadingElement id={id}>
                 <Dropzone
@@ -79,9 +84,9 @@ export default class Upload extends Component {
                     rejectClassName={className_reject}
                     disabledClassName={className_disabled}
                     style={style}
-                    activeStyle={style_active}
-                    rejectStyle={style_reject}
-                    disabledStyle={style_disabled}
+                    activeStyle={activeStyle}
+                    rejectStyle={rejectStyle}
+                    disabledStyle={disabledStyle}
                 >
                     {children}
                 </Dropzone>
