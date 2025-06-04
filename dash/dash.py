@@ -2395,3 +2395,11 @@ class Dash(ObsoleteChecker):
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
+
+    def __call__(self, environ, start_response):
+        """
+        This method makes instances of Dash WSGI-compliant callables.
+        It delegates the actual WSGI handling to the internal Flask app's
+        __call__ method.
+        """
+        return self.server(environ, start_response)
