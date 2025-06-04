@@ -10,10 +10,19 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3298](https://github.com/plotly/dash/pull/3298) Fix dev_only resources filtering.
 - [#3315](https://github.com/plotly/dash/pull/3315) Fix pages module is package check.
 - [#3319](https://github.com/plotly/dash/pull/3319) Fix issue where `ExternalWrapper` would remove props from the parent component, now there is a `temp` that is passed to check if it should be removed on unmount.
+- [#3108](https://github.com/plotly/dash/pull/3108) Fix layout as list for pages.
+- [#1906](https://github.com/plotly/dash/pull/1906) Make graph height more responsive.
+- [#2927](https://github.com/plotly/dash/pull/2927) Fix unexpected behaviour of the cursor in dcc.Input
 
 ## Added
 - [#3294](https://github.com/plotly/dash/pull/3294) Added the ability to pass `allow_optional` to Input and State to allow callbacks to work even if these components are not in the dash layout.
 - [#3077](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
+- [#3202](https://github.com/plotly/dash/pull/3202) expose the closeMenuOnSelect option in dropdown component
+
+## Changed
+
+- [#3303](https://github.com/plotly/dash/pull/3303) Improve flatten_grouping performance (callback with dictionary output/input)
+- [#3304](https://github.com/plotly/dash/pull/3304) Speed up function _operation by 80%
 
 ## [3.0.4] - 2025-04-24
 
