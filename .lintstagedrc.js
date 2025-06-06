@@ -1,6 +1,6 @@
 // .lintstagedrc.js
 const path = require("path");
-const fs = require('fs')
+const fs = require("fs");
 
 // Helper to resolve path to venv executables
 const venvBin = (command) => {
@@ -14,7 +14,15 @@ const venvBin = (command) => {
     if (fs.existsSync(".venv")) {
         return path.join(".venv", bin, command);
     }
-}
+};
+
+// Allow to cd into a subdirectory
+const sh_cd = (directory, command) => {
+    if (process.platform == "win32") {
+        return `cmd /k 'cd ${directory} && ${command}'`;
+    }
+    return `sh -c 'cd ${directory} && ${command}'`;
+};
 
 module.exports = {
     // Python checks (run from root, using root venv)
@@ -32,12 +40,16 @@ module.exports = {
             path.relative(path.join("components", "dash-core-components"), f)
         );
         return [
-            `cd components/dash-core-components && npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
-                " "
-            )}`,
-            `cd components/dash-core-components && npx prettier --check ${relativeFilePaths.join(
-                " "
-            )}`,
+            sh_cd(
+                "components/dash-core-components",
+                `npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
+                    " "
+                )}`
+            ),
+            sh_cd(
+                "components/dash-core-components",
+                `npx prettier --check ${relativeFilePaths.join(" ")}`
+            ),
         ];
     },
 
@@ -46,9 +58,12 @@ module.exports = {
             path.relative(path.join("components", "dash-html-components"), f)
         );
         return [
-            `cd components/dash-html-components && npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
-                " "
-            )}`,
+            sh_cd(
+                "components/dash-html-components",
+                `npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
+                    " "
+                )}`
+            ),
         ];
     },
 
@@ -57,12 +72,16 @@ module.exports = {
             path.relative(path.join("components", "dash-table"), f)
         );
         return [
-            `cd components/dash-table && npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
-                " "
-            )}`,
-            `cd components/dash-table && npx prettier --check ${relativeFilePaths.join(
-                " "
-            )}`,
+            sh_cd(
+                "components/dash-table",
+                `npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
+                    " "
+                )}`
+            ),
+            sh_cd(
+                "components/dash-table",
+                `npx prettier --check ${relativeFilePaths.join(" ")}`
+            ),
         ];
     },
 
@@ -71,12 +90,16 @@ module.exports = {
             path.relative(path.join("dash", "dash-renderer"), f)
         );
         return [
-            `cd dash/dash-renderer && npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
-                " "
-            )}`,
-            `cd dash/dash-renderer && npx prettier --check ${relativeFilePaths.join(
-                " "
-            )}`,
+            sh_cd(
+                "dash/dash-renderer",
+                `npx eslint --no-error-on-unmatched-pattern ${relativeFilePaths.join(
+                    " "
+                )}`
+            ),
+            sh_cd(
+                "dash/dash-renderer",
+                `npx prettier --check ${relativeFilePaths.join(" ")}`
+            ),
         ];
     },
 };
