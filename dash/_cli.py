@@ -13,31 +13,30 @@ def load_app(app_path: str) -> Dash:
     :param app_path: The import path to the Dash app instance.
     :return: The loaded Dash app instance.
     """
-    if ":" not in app_path:
-        raise ValueError(
-            f"Invalid app path: '{app_path}'. "
-            'The path must be in the format "module:variable".'
-        )
+    app_split = app_path.split(":")
+    module_str = app_split[0]
 
-    module_str, app_str = app_path.split(":", 1)
-
-    if not module_str or not app_str:
-        raise ValueError(
-            f"Invalid app path: '{app_path}'. "
-            'Both module and variable names are required in "module:variable".'
-        )
+    if not module_str:
+        raise ValueError(f"Invalid app path: '{app_path}'. ")
 
     try:
         module = importlib.import_module(module_str)
     except ImportError as e:
         raise ImportError(f"Could not import module '{module_str}'.") from e
 
-    try:
-        app_instance = getattr(module, app_str)
-    except AttributeError as e:
-        raise AttributeError(
-            f"Could not find variable '{app_str}' in module '{module_str}'."
-        ) from e
+    if len(app_split) == 2:
+        app_str = app_split[1]
+        try:
+            app_instance = getattr(module, app_str)
+        except AttributeError as e:
+            raise AttributeError(
+                f"Could not find variable '{app_str}' in module '{module_str}'."
+            ) from e
+    else:
+        for module_var in vars(module).values():
+            if isinstance(module_var, Dash):
+                app_instance = module_var
+                break
 
     if not isinstance(app_instance, Dash):
         raise TypeError(f"'{app_path}' did not resolve to a Dash app instance.")
@@ -60,7 +59,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     run_parser.add_argument(
-        "app", help='The Dash app to run, in the format "module:variable".'
+        "app",
+        help='The Dash app to run, in the format "module:variable" '
+        'or just "module" to find the app instance automatically. (eg: plotly run app)',
     )
 
     # Server options
