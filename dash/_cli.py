@@ -82,12 +82,10 @@ def create_parser() -> argparse.ArgumentParser:
         help='Proxy configuration string, e.g., "http://0.0.0.0:8050::https://my.domain.com".',
     )
 
-    # Debug flag (supports --debug and --no-debug)
-    # Note: Requires Python 3.9+
     run_parser.add_argument(
         "--debug",
         "-d",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable Flask debug mode and dev tools.",
     )
 
@@ -95,22 +93,22 @@ def create_parser() -> argparse.ArgumentParser:
     dev_tools_group = run_parser.add_argument_group("dev tools options")
     dev_tools_group.add_argument(
         "--dev-tools-ui",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable the dev tools UI.",
     )
     dev_tools_group.add_argument(
         "--dev-tools-props-check",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable component prop validation.",
     )
     dev_tools_group.add_argument(
         "--dev-tools-serve-dev-bundles",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable serving of dev bundles.",
     )
     dev_tools_group.add_argument(
         "--dev-tools-hot-reload",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable hot reloading.",
     )
     dev_tools_group.add_argument(
@@ -130,17 +128,17 @@ def create_parser() -> argparse.ArgumentParser:
     )
     dev_tools_group.add_argument(
         "--dev-tools-silence-routes-logging",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable silencing of Werkzeug's route logging.",
     )
     dev_tools_group.add_argument(
         "--dev-tools-disable-version-check",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable the Dash version upgrade check.",
     )
     dev_tools_group.add_argument(
         "--dev-tools-prune-errors",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         help="Enable/disable pruning of tracebacks to user code only.",
     )
 
