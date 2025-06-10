@@ -24,6 +24,7 @@ def load_app(app_path: str) -> Dash:
     except ImportError as e:
         raise ImportError(f"Could not import module '{module_str}'.") from e
 
+    app_instance = None
     if len(app_split) == 2:
         app_str = app_split[1]
         try:
