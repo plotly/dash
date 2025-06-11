@@ -345,7 +345,7 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
     )
 
 
-def _get_callback_manager(kwargs, background):
+def _get_callback_manager(kwargs: dict, background: dict) -> Union[BaseBackgroundCallbackManager, None]:
     """Set up the background callback and manage jobs."""
     callback_manager = background.get(
         "manager", kwargs.get("background_callback_manager", None)
