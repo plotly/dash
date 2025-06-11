@@ -25,11 +25,11 @@ from dash import (
 )
 from dash.exceptions import PreventUpdate
 from tests.integration.utils import json_engine
-from tests.utils import test_async
+from tests.utils import is_dash_async
 
 
 def test_async_cbsc001_simple_callback(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
 
@@ -70,7 +70,7 @@ def test_async_cbsc001_simple_callback(dash_duo, *args):
 
 def test_async_cbsc002_callbacks_generating_children(dash_duo, *args):
     """Modify the DOM tree by adding new components in the callbacks."""
-    if not test_async():
+    if not is_dash_async():
         return
     # some components don't exist in the initial render
     app = Dash(__name__, suppress_callback_exceptions=True)
@@ -155,7 +155,7 @@ def test_async_cbsc002_callbacks_generating_children(dash_duo, *args):
 
 
 def test_async_cbsc003_callback_with_unloaded_async_component(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash()
     app.layout = html.Div(
@@ -190,7 +190,7 @@ def test_async_cbsc003_callback_with_unloaded_async_component(dash_duo, *args):
 
 
 def test_async_cbsc004_callback_using_unloaded_async_component(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash()
     app.layout = html.Div(
@@ -257,7 +257,7 @@ def test_async_cbsc004_callback_using_unloaded_async_component(dash_duo, *args):
 
 @pytest.mark.parametrize("engine", ["json", "orjson"])
 def test_async_cbsc005_children_types(dash_duo, engine):
-    if not test_async():
+    if not is_dash_async():
         return
     with json_engine(engine):
         app = Dash()
@@ -290,7 +290,7 @@ def test_async_cbsc005_children_types(dash_duo, engine):
 
 @pytest.mark.parametrize("engine", ["json", "orjson"])
 def test_async_cbsc006_array_of_objects(dash_duo, engine):
-    if not test_async():
+    if not is_dash_async():
         return
     with json_engine(engine):
         app = Dash()
@@ -335,7 +335,7 @@ def test_async_cbsc007_parallel_updates(refresh, dash_duo, *args):
     # pendingCallbacks, calling PreventUpdate in the callback would also skip
     # any callbacks that depend on pathname, despite the new front-end-provided
     # value.
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash()
 
@@ -378,7 +378,7 @@ def test_async_cbsc007_parallel_updates(refresh, dash_duo, *args):
 
 
 def test_async_cbsc008_wildcard_prop_callbacks(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
 
@@ -447,7 +447,7 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo, *args):
 def test_async_cbsc009_callback_using_unloaded_async_component_and_graph(
     dash_duo, *args
 ):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__)
     app.layout = FragmentComponent(
@@ -492,7 +492,7 @@ def test_async_cbsc009_callback_using_unloaded_async_component_and_graph(
 
 
 def test_async_cbsc010_event_properties(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__)
     app.layout = html.Div([html.Button("Click Me", id="button"), html.Div(id="output")])
@@ -516,7 +516,7 @@ def test_async_cbsc010_event_properties(dash_duo, *args):
 
 
 def test_async_cbsc011_one_call_for_multiple_outputs_initial(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__)
     call_count = Value("i", 0)
@@ -554,7 +554,7 @@ def test_async_cbsc011_one_call_for_multiple_outputs_initial(dash_duo, *args):
 
 
 def test_async_cbsc012_one_call_for_multiple_outputs_update(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__, suppress_callback_exceptions=True)
     call_count = Value("i", 0)
@@ -606,7 +606,7 @@ def test_async_cbsc012_one_call_for_multiple_outputs_update(dash_duo, *args):
 
 
 def test_async_cbsc013_multi_output_out_of_order(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__)
     app.layout = html.Div(
@@ -649,7 +649,7 @@ def test_async_cbsc013_multi_output_out_of_order(dash_duo, *args):
 def test_async_cbsc014_multiple_properties_update_at_same_time_on_same_component(
     dash_duo,
 ):
-    if not test_async():
+    if not is_dash_async():
         return
     call_count = Value("i", 0)
     timestamp_1 = Value("d", -5)
@@ -707,7 +707,7 @@ def test_async_cbsc014_multiple_properties_update_at_same_time_on_same_component
 
 
 def test_async_cbsc015_input_output_callback(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     return
     # disabled because this is trying to look at a synchronous lock in an async environment
@@ -760,7 +760,7 @@ def test_async_cbsc015_input_output_callback(dash_duo, *args):
 
 
 def test_async_cbsc016_extra_components_callback(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
 
@@ -799,7 +799,7 @@ def test_async_cbsc016_extra_components_callback(dash_duo, *args):
 
 
 def test_async_cbsc017_callback_directly_callable():
-    if not test_async():
+    if not is_dash_async():
         return
     ## unneeded
     # app = Dash(__name__)
@@ -821,7 +821,7 @@ def test_async_cbsc017_callback_directly_callable():
 
 
 def test_async_cbsc018_callback_ndarray_output(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     app = Dash(__name__)
     app.layout = html.Div([dcc.Store(id="output"), html.Button("click", id="clicker")])
@@ -839,7 +839,7 @@ def test_async_cbsc018_callback_ndarray_output(dash_duo, *args):
 
 
 def test_async_cbsc019_callback_running(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
     app = Dash(__name__)
@@ -873,7 +873,7 @@ def test_async_cbsc019_callback_running(dash_duo, *args):
 
 
 def test_async_cbsc020_callback_running_non_existing_component(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
     app = Dash(__name__, suppress_callback_exceptions=True)
@@ -910,7 +910,7 @@ def test_async_cbsc020_callback_running_non_existing_component(dash_duo, *args):
 
 
 def test_async_cbsc021_callback_running_non_existing_component(dash_duo, *args):
-    if not test_async():
+    if not is_dash_async():
         return
     lock = Lock()
     app = Dash(__name__)

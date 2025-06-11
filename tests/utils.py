@@ -1,4 +1,4 @@
-def test_async():
+def is_dash_async():
     try:
 
         import asgiref  # pylint: disable=unused-import, # noqa: F401
