@@ -1,7 +1,7 @@
 from dash import Dash, Input, Output, html, callback, set_props
 import time
 
-from tests.integration.background_callback.utils import get_background_callback_manager
+from tests.background_callback.utils import get_background_callback_manager
 
 background_callback_manager = get_background_callback_manager()
 handle = background_callback_manager.handle
