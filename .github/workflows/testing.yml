@@ -135,9 +135,9 @@ jobs:
         run: |
           cd tests
           pytest compliance/test_typing.py
-  
+
   background-callbacks:
-    name: Run Background Callback Tests (Python ${{ matrix.python-version }})
+    name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
@@ -260,6 +260,11 @@ jobs:
           cd bgtests
           touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
+
+      - name: Run Async Callback Tests
+        run: |
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async]"' \;
+          pytest --headless --nopercyfinalize -k test_async -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
