@@ -270,11 +270,11 @@ jobs:
 
       - name: Run Async Callback Tests
         run: |
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async]"' \;
           mkdir astests
           cp -r tests astests/tests
           cd astests
           touch __init__.py
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async]"' \;
           pytest --headless --nopercyfinalize -k test_async -v -s
 
   table-unit:
