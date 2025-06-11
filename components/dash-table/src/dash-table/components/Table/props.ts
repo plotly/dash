@@ -187,14 +187,12 @@ export interface IMarkdownOptions {
     html?: boolean;
 }
 
-export type NumberFormat =
-    | {
-          locale: INumberLocale;
-          nully: any;
-          prefix?: number;
-          specifier: string;
-      }
-    | undefined;
+export type NumberFormat = {
+    locale: INumberLocale;
+    nully: any;
+    prefix?: number;
+    specifier: string;
+};
 
 export interface INumberColumn extends ITypeColumn {
     format?: NumberFormat;

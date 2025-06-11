@@ -499,8 +499,16 @@ def _handle_rest_background_callback(
         response["sideUpdate"] = updated_props
         has_update = True
 
-    if output_value is callback_manager.UNDEFINED:
-        return to_json(response), has_update, True
+        if output_value is callback_manager.UNDEFINED:
+            return to_json(response), has_update, True
+    else:
+        try:
+            output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
+        except PreventUpdate as err:
+            raise err
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            if error_handler:
+                output_value = error_handler(err)
     return output_value, has_update, False
 
 
@@ -547,7 +555,7 @@ def _prepare_response(
             if NoUpdate.is_no_update(val):
                 continue
             for vali, speci in (
-                zip(val, spec) if isinstance(spec, list) else [[val, spec]]
+                zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]
             ):
                 if not NoUpdate.is_no_update(vali):
                     has_update = True
@@ -580,6 +588,58 @@ def _prepare_response(
         response["dist"] = dist
     return response.update({"response": component_ids})
 
+# pylint: disable=too-many-branches,too-many-statements
+def register_callback(
+    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
+):
+    (
+        output,
+        flat_inputs,
+        flat_state,
+        inputs_state_indices,
+        prevent_initial_call,
+    ) = handle_grouped_callback_args(_args, _kwargs)
+    if isinstance(output, Output):
+        # Insert callback with scalar (non-multi) Output
+        insert_output = output
+        multi = False
+        has_output = True
+    else:
+        # Insert callback as multi Output
+        insert_output = flatten_grouping(output)
+        multi = True
+        has_output = len(output) > 0
+
+    background = _kwargs.get("background")
+    manager = _kwargs.get("manager")
+    running = _kwargs.get("running")
+    on_error = _kwargs.get("on_error")
+    if running is not None:
+        if not isinstance(running[0], (list, tuple)):
+            running = [running]
+        running = {
+            "running": {str(r[0]): r[1] for r in running},
+            "runningOff": {str(r[0]): r[2] for r in running},
+        }
+    allow_dynamic_callbacks = _kwargs.get("_allow_dynamic_callbacks")
+
+    output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
+    callback_id = insert_callback(
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
+        insert_output,
+        output_indices,
+        flat_inputs,
+        flat_state,
+        inputs_state_indices,
+        prevent_initial_call,
+        background=background,
+        manager=manager,
+        dynamic_creator=allow_dynamic_callbacks,
+        running=running,
+        no_output=not has_output,
+    )
 
 # pylint: disable=too-many-branches,too-many-statements
 def register_callback(
@@ -636,7 +696,9 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
-        if background is not None:
+        if background is None:
+            background_key = None
+        else:
             background_key = BaseBackgroundCallbackManager.register_func(
                 func,
                 background.get("progress") is not None,
@@ -662,6 +724,7 @@ def register_callback(
 
             response: dict = {"multi": True}
 
+            jsonResponse = None
             try:
                 if background is not None:
                     if not flask.request.args.get("cacheKey"):

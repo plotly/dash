@@ -121,14 +121,6 @@ const EnhancedTab = ({
     );
 };
 
-EnhancedTab.defaultProps = {
-    loading_state: {
-        is_loading: false,
-        component_name: '',
-        prop_name: '',
-    },
-};
-
 /**
  * A Dash component that lets you render pages with tabs - the Tabs component's children
  * can be dcc.Tab components, which can hold a label that will be displayed as a tab, and can in turn hold
@@ -439,3 +431,5 @@ Tabs.propTypes = {
      */
     persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
 };
+
+Tabs.dashChildrenUpdate = true;

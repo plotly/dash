@@ -1,3 +1,4 @@
+# type: ignore
 import asyncio
 import io
 import inspect
@@ -293,6 +294,8 @@ class JupyterDash:
         else:
             requests_pathname_prefix = "/"
 
+        routes_pathname_prefix = app.config.get("routes_pathname_prefix", "/")
+
         # FIXME Move config initialization to main dash __init__
         # low-level setter to circumvent Dash's config locking
         # normally it's unsafe to alter requests_pathname_prefix this late, but
@@ -354,7 +357,7 @@ class JupyterDash:
         self._servers[(host, port)] = server
 
         # Wait for server to start up
-        alive_url = f"http://{host}:{port}{requests_pathname_prefix}_alive_{JupyterDash.alive_token}"
+        alive_url = f"http://{host}:{port}{routes_pathname_prefix}_alive_{JupyterDash.alive_token}"
 
         def _get_error():
             try:

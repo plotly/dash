@@ -18,7 +18,7 @@ import hashlib
 import base64
 import traceback
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, Sequence
+from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
 import asyncio
 import flask
@@ -80,6 +80,8 @@ from ._pages import (
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
 from .types import RendererHooks
+
+RouteCallable = Callable[..., Any]
 
 # If dash_design_kit is installed, check for version
 ddk_version = None
@@ -277,6 +279,12 @@ class Dash(ObsoleteChecker):
         to sensitive files.
     :type assets_ignore: string
 
+    :param assets_path_ignore: A list of regex, each regex as a string to pass to ``re.compile``, for
+        assets path to omit from immediate loading. The files in these ignored paths will still be
+        served if specifically requested. You cannot use this to prevent access
+        to sensitive files.
+    :type assets_path_ignore: list of strings
+
     :param assets_external_path: an absolute URL from which to load assets.
         Use with ``serve_locally=False``. assets_external_path is joined
         with assets_url_path to determine the absolute url to the
@@ -414,6 +422,10 @@ class Dash(ObsoleteChecker):
 
     server: flask.Flask
 
+    # Layout is a complex type which can be many things
+    _layout: Any
+    _extra_components: Any
+
     def __init__(  # pylint: disable=too-many-statements
         self,
         name: Optional[str] = None,
@@ -423,6 +435,7 @@ class Dash(ObsoleteChecker):
         use_pages: Optional[bool] = None,
         assets_url_path: str = "assets",
         assets_ignore: str = "",
+        assets_path_ignore: List[str] = None,
         assets_external_path: Optional[str] = None,
         eager_loading: bool = False,
         include_assets_files: bool = True,
@@ -472,17 +485,16 @@ class Dash(ObsoleteChecker):
 
         _validate.check_obsolete(obsolete)
 
-        caller_name = None if name else get_caller_name()
+        caller_name: str = name if name is not None else get_caller_name()
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
         if isinstance(server, flask.Flask):
             self.server = server
             if name is None:
-                name = getattr(server, "name", caller_name)
+                caller_name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
-            name = name if name else caller_name
-            self.server = flask.Flask(name) if server else None  # type: ignore
+            self.server = flask.Flask(caller_name) if server else None  # type: ignore
         else:
             raise ValueError("server must be a Flask app or a boolean")
 
@@ -491,16 +503,17 @@ class Dash(ObsoleteChecker):
         )
 
         self.config = AttributeDict(
-            name=name,
+            name=caller_name,
             assets_folder=os.path.join(
-                flask.helpers.get_root_path(name), assets_folder
+                flask.helpers.get_root_path(caller_name), assets_folder
             ),  # type: ignore
             assets_url_path=assets_url_path,
             assets_ignore=assets_ignore,
+            assets_path_ignore=assets_path_ignore,
             assets_external_path=get_combined_config(
                 "assets_external_path", assets_external_path, ""
             ),
-            pages_folder=pages_folder_config(name, pages_folder, use_pages),
+            pages_folder=pages_folder_config(caller_name, pages_folder, use_pages),
             eager_loading=eager_loading,
             include_assets_files=get_combined_config(
                 "include_assets_files", include_assets_files, True
@@ -656,7 +669,7 @@ class Dash(ObsoleteChecker):
         if self._hooks.get_hooks("error"):
             self._on_error = self._hooks.HookErrorHandler(self._on_error)
 
-    def init_app(self, app=None, **kwargs):
+    def init_app(self, app: Optional[flask.Flask] = None, **kwargs) -> None:
         """Initialize the parts of Dash that require a flask app."""
 
         config = self.config
@@ -690,7 +703,7 @@ class Dash(ObsoleteChecker):
         if config.compress:
             try:
                 # pylint: disable=import-outside-toplevel
-                from flask_compress import Compress
+                from flask_compress import Compress  # type: ignore[reportMissingImports]
 
                 # gzip
                 Compress(self.server)
@@ -728,7 +741,7 @@ class Dash(ObsoleteChecker):
 
         self._setup_plotlyjs()
 
-    def _add_url(self, name, view_func, methods=("GET",)):
+    def _add_url(self, name: str, view_func: RouteCallable, methods=("GET",)) -> None:
         full_name = self.config.routes_pathname_prefix + name
 
         self.server.add_url_rule(
@@ -785,11 +798,11 @@ class Dash(ObsoleteChecker):
         self._plotlyjs_url = url
 
     @property
-    def layout(self):
+    def layout(self) -> Any:
         return self._layout
 
     @layout.setter
-    def layout(self, value):
+    def layout(self, value: Any):
         _validate.validate_layout_type(value)
         self._layout_is_function = callable(value)
         self._layout = value
@@ -801,26 +814,28 @@ class Dash(ObsoleteChecker):
             and not self.validation_layout
             and not self.config.suppress_callback_exceptions
         ):
-
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
             self.validation_layout = layout_value
 
     def _layout_value(self):
-        layout = self._layout() if self._layout_is_function else self._layout
+        if self._layout_is_function:
+            layout = self._layout()  # type: ignore[reportOptionalCall]
+        else:
+            layout = self._layout
 
         # Add any extra components
         if self._extra_components:
-            layout = html.Div(children=[layout] + self._extra_components)
+            layout = html.Div(children=[layout] + self._extra_components)  # type: ignore[reportArgumentType]
 
         return layout
 
     @property
-    def index_string(self):
+    def index_string(self) -> str:
         return self._index_string
 
     @index_string.setter
-    def index_string(self, value):
+    def index_string(self, value: str) -> None:
         checks = (_re_index_entry, _re_index_config, _re_index_scripts)
         _validate.validate_index("index string", checks, value)
         self._index_string = value
@@ -895,7 +910,7 @@ class Dash(ObsoleteChecker):
             }
         )
 
-    def get_dist(self, libraries):
+    def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []
         for dist_type in ("_js_dist", "_css_dist"):
             resources = ComponentRegistry.get_resources(dist_type, libraries)
@@ -921,8 +936,9 @@ class Dash(ObsoleteChecker):
             else:
                 version = importlib.import_module(namespace).__version__
 
-            module_path = os.path.join(
-                os.path.dirname(sys.modules[namespace].__file__), relative_package_path
+            module_path = os.path.join(  # type: ignore[reportCallIssue]
+                os.path.dirname(sys.modules[namespace].__file__),  # type: ignore[reportCallIssue]
+                relative_package_path,
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -996,7 +1012,7 @@ class Dash(ObsoleteChecker):
             ]
         )
 
-    def _generate_scripts_html(self):
+    def _generate_scripts_html(self) -> str:
         # Dash renderer has dependencies like React which need to be rendered
         # before every other script. However, the dash renderer bundle
         # itself needs to be rendered after all of the component's
@@ -1017,7 +1033,7 @@ class Dash(ObsoleteChecker):
         dev = self._dev_tools.serve_dev_bundles
         srcs = (
             self._collect_and_register_resources(
-                self.scripts._resources._filter_resources(deps, dev_bundles=dev)
+                self.scripts._resources._filter_resources(deps, dev_bundles=dev)  # type: ignore[reportArgumentType]
             )
             + self.config.external_scripts
             + self._collect_and_register_resources(
@@ -1053,10 +1069,10 @@ class Dash(ObsoleteChecker):
             + [f"<script>{src}</script>" for src in self._inline_scripts]
         )
 
-    def _generate_config_html(self):
+    def _generate_config_html(self) -> str:
         return f'<script id="_dash-config" type="application/json">{to_json(self._config())}</script>'
 
-    def _generate_renderer(self):
+    def _generate_renderer(self) -> str:
         return f'<script id="_dash-renderer" type="application/javascript">{self.renderer}</script>'
 
     def _generate_meta(self):
@@ -1557,11 +1573,18 @@ class Dash(ObsoleteChecker):
         walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r"[\\/]+")
         ignore_str = self.config.assets_ignore
+        ignore_path_list = self.config.assets_path_ignore
         ignore_filter = re.compile(ignore_str) if ignore_str else None
+        ignore_path_filters = [
+            re.compile(ignore_path)
+            for ignore_path in (ignore_path_list or [])
+            if ignore_path
+        ]
 
         for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
                 base = ""
+                s = ""
             else:
                 s = current.replace(walk_dir, "").lstrip("\\").lstrip("/")
                 splitted = slash_splitter.split(s)
@@ -1570,22 +1593,32 @@ class Dash(ObsoleteChecker):
                 else:
                     base = splitted[0]
 
-            if ignore_filter:
-                files_gen = (x for x in files if not ignore_filter.search(x))
+            # Check if any level of current path matches ignore path
+            if s and any(
+                ignore_path_filter.search(x)
+                for ignore_path_filter in ignore_path_filters
+                for x in s.split(os.path.sep)
+            ):
+                pass
             else:
-                files_gen = files
+                if ignore_filter:
+                    files_gen = (x for x in files if not ignore_filter.search(x))
+                else:
+                    files_gen = files
 
-            for f in sorted(files_gen):
-                path = "/".join([base, f]) if base else f
+                for f in sorted(files_gen):
+                    path = "/".join([base, f]) if base else f
 
-                full = os.path.join(current, f)
+                    full = os.path.join(current, f)
 
-                if f.endswith("js"):
-                    self.scripts.append_script(self._add_assets_resource(path, full))
-                elif f.endswith("css"):
-                    self.css.append_css(self._add_assets_resource(path, full))
-                elif f == "favicon.ico":
-                    self._favicon = path
+                    if f.endswith("js"):
+                        self.scripts.append_script(
+                            self._add_assets_resource(path, full)
+                        )
+                    elif f.endswith("css"):
+                        self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
+                    elif f == "favicon.ico":
+                        self._favicon = path
 
     @staticmethod
     def _invalid_resources_handler(err):
@@ -1597,7 +1630,7 @@ class Dash(ObsoleteChecker):
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
-    def csp_hashes(self, hash_algorithm="sha256"):
+    def csp_hashes(self, hash_algorithm="sha256") -> Sequence[str]:
         """Calculates CSP hashes (sha + base64) of all inline scripts, such that
         one of the biggest benefits of CSP (disallowing general inline scripts)
         can be utilized together with Dash clientside callbacks (inline scripts).
@@ -1636,7 +1669,7 @@ class Dash(ObsoleteChecker):
             for script in (self._inline_scripts + [self.renderer])
         ]
 
-    def get_asset_url(self, path):
+    def get_asset_url(self, path: str) -> str:
         """
         Return the URL for the provided `path` in the assets directory.
 
@@ -1707,7 +1740,7 @@ class Dash(ObsoleteChecker):
             self.config.requests_pathname_prefix, path
         )
 
-    def strip_relative_path(self, path):
+    def strip_relative_path(self, path: str) -> Union[str, None]:
         """
         Return a path with `requests_pathname_prefix` and leading and trailing
         slashes stripped from it. Also, if None is passed in, None is returned.
@@ -1759,7 +1792,9 @@ class Dash(ObsoleteChecker):
         )
 
     @staticmethod
-    def add_startup_route(name, view_func, methods):
+    def add_startup_route(
+        name: str, view_func: RouteCallable, methods: Sequence[Literal["POST", "GET"]]
+    ) -> None:
         """
         Add a route to the app to be initialized at the end of Dash initialization.
         Use this if the package requires a route to be added to the app, and you will not need to worry about at what point to add it.
@@ -1783,7 +1818,7 @@ class Dash(ObsoleteChecker):
 
         Dash.STARTUP_ROUTES.append((name, view_func, methods))
 
-    def setup_startup_routes(self):
+    def setup_startup_routes(self) -> None:
         """
         Initialize the startup routes stored in STARTUP_ROUTES.
         """
@@ -1826,18 +1861,18 @@ class Dash(ObsoleteChecker):
 
     def enable_dev_tools(
         self,
-        debug=None,
-        dev_tools_ui=None,
-        dev_tools_props_check=None,
-        dev_tools_serve_dev_bundles=None,
-        dev_tools_hot_reload=None,
-        dev_tools_hot_reload_interval=None,
-        dev_tools_hot_reload_watch_interval=None,
-        dev_tools_hot_reload_max_retry=None,
-        dev_tools_silence_routes_logging=None,
-        dev_tools_disable_version_check=None,
-        dev_tools_prune_errors=None,
-    ):
+        debug: Optional[bool] = None,
+        dev_tools_ui: Optional[bool] = None,
+        dev_tools_props_check: Optional[bool] = None,
+        dev_tools_serve_dev_bundles: Optional[bool] = None,
+        dev_tools_hot_reload: Optional[bool] = None,
+        dev_tools_hot_reload_interval: Optional[int] = None,
+        dev_tools_hot_reload_watch_interval: Optional[int] = None,
+        dev_tools_hot_reload_max_retry: Optional[int] = None,
+        dev_tools_silence_routes_logging: Optional[bool] = None,
+        dev_tools_disable_version_check: Optional[bool] = None,
+        dev_tools_prune_errors: Optional[bool] = None,
+    ) -> bool:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
         this method out of `__main__`.
@@ -1952,35 +1987,35 @@ class Dash(ObsoleteChecker):
 
             if "_pytest" in sys.modules:
                 from _pytest.assertion.rewrite import (  # pylint: disable=import-outside-toplevel
-                    AssertionRewritingHook,
+                    AssertionRewritingHook,  # type: ignore[reportPrivateImportUsage]
                 )
 
                 for index, package in enumerate(packages):
                     if isinstance(package, AssertionRewritingHook):
-                        dash_spec = importlib.util.find_spec("dash")
+                        dash_spec = importlib.util.find_spec("dash")  # type: ignore[reportAttributeAccess]
                         dash_test_path = dash_spec.submodule_search_locations[0]
                         setattr(dash_spec, "path", dash_test_path)
                         packages[index] = dash_spec
 
             component_packages_dist = [
-                dash_test_path
+                dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
                 if isinstance(package, ModuleSpec)
-                else os.path.dirname(package.path)
+                else os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
                 if hasattr(package, "path")
                 else os.path.dirname(
-                    package._path[0]  # pylint: disable=protected-access
+                    package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
                 )
                 if hasattr(package, "_path")
-                else package.filename
+                else package.filename  # type: ignore[reportAttributeAccessIssue]
                 for package in packages
             ]
 
             for i, package in enumerate(packages):
                 if hasattr(package, "path") and "dash/dash" in os.path.dirname(
-                    package.path
+                    package.path  # type: ignore[reportAttributeAccessIssue]
                 ):
                     component_packages_dist[i : i + 1] = [
-                        os.path.join(os.path.dirname(package.path), x)
+                        os.path.join(os.path.dirname(package.path), x)  # type: ignore[reportAttributeAccessIssue]
                         for x in ["dcc", "html", "dash_table"]
                     ]
 
@@ -2087,7 +2122,7 @@ class Dash(ObsoleteChecker):
                     if filename.endswith("js"):
                         self.scripts.append_script(res)
                     elif filename.endswith("css"):
-                        self.css.append_css(res)
+                        self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
                     if filename in self._assets_files:
@@ -2327,7 +2362,7 @@ class Dash(ObsoleteChecker):
         else:
             self.server.run(host=host, port=port, debug=debug, **flask_run_options)
 
-    def enable_pages(self):
+    def enable_pages(self) -> None:
         if not self.use_pages:
             return
         if self.pages_folder:
@@ -2343,7 +2378,7 @@ class Dash(ObsoleteChecker):
                 "pathname_": Input(_ID_LOCATION, "pathname"),
                 "search_": Input(_ID_LOCATION, "search"),
             }
-            inputs.update(self.routing_callback_inputs)
+            inputs.update(self.routing_callback_inputs)  # type: ignore[reportCallIssue]
 
             if self._use_async:
 
@@ -2458,19 +2493,22 @@ class Dash(ObsoleteChecker):
 
                 # Set validation_layout
                 if not self.config.suppress_callback_exceptions:
-                    self.validation_layout = html.Div(
+                    layout = self.layout
+                if not isinstance(layout, list):
+                    layout = [
+                        # pylint: disable=not-callable
+                        self.layout()
+                        if callable(self.layout)
+                        else self.layout
+                    ]self.validation_layout = html.Div(
                         [
                             page["layout"]()
                             if callable(page["layout"])
                             else page["layout"]
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
-                        + [
-                            # pylint: disable=not-callable
-                            self.layout()
-                            if callable(self.layout)
-                            else self.layout
-                        ]
+                        + layout
+
                     )
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")
@@ -2485,3 +2523,11 @@ class Dash(ObsoleteChecker):
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
             )
+
+    def __call__(self, environ, start_response):
+        """
+        This method makes instances of Dash WSGI-compliant callables.
+        It delegates the actual WSGI handling to the internal Flask app's
+        __call__ method.
+        """
+        return self.server(environ, start_response)
