@@ -684,13 +684,7 @@ def register_callback(
                     if skip:
                         return output_value
                 else:
-                    try:
-                        output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
-                    except PreventUpdate as err:
-                        raise err
-                    except Exception as err:  # pylint: disable=broad-exception-caught
-                        if error_handler:
-                            output_value = error_handler(err)
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
             except PreventUpdate:
                 raise
             except Exception as err:  # pylint: disable=broad-exception-caught
