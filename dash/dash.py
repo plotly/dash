@@ -2500,7 +2500,8 @@ class Dash(ObsoleteChecker):
                         self.layout()
                         if callable(self.layout)
                         else self.layout
-                    ]self.validation_layout = html.Div(
+                    ]
+                    self.validation_layout = html.Div(
                         [
                             page["layout"]()
                             if callable(page["layout"])
