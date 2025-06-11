@@ -195,7 +195,7 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<78.0.0"
           python -m pip install "selenium==4.32.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
 
       - name: Install Google Chrome
         run: |
@@ -260,7 +260,6 @@ jobs:
           cd bgtests
           touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async]"' \;
           pytest --headless --nopercyfinalize -k test_async -v -s
 
   table-unit:
