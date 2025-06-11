@@ -253,28 +253,14 @@ jobs:
         run: |
           python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
 
-      - name: Run Background Callback Tests
+      - name: Run Background & Async Callback Tests
         run: |
           mkdir bgtests
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
-
-      - name: Build/Setup test components
-        run: npm run setup-tests.py
-
-      - name: Verify Redis connection
-        run: |
-          python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
-
-      - name: Run Async Callback Tests
-        run: |
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async]"' \;
-          mkdir astests
-          cp -r tests astests/tests
-          cd astests
-          touch __init__.py
           pytest --headless --nopercyfinalize -k test_async -v -s
 
   table-unit:
