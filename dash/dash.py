@@ -2509,7 +2509,6 @@ class Dash(ObsoleteChecker):
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + layout
-
                     )
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")
