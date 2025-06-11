@@ -253,6 +253,9 @@ jobs:
         run: |
           python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
 
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
       - name: Run Background & Async Callback Tests
         run: |
           mkdir bgtests
