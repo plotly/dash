@@ -162,6 +162,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
