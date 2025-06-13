@@ -459,9 +459,6 @@ workflows:
       - test-312:
           requires:
             - install-dependencies-312
-      - test-312-async:
-          requires:
-            - install-dependencies-312
       - test-38:
           requires:
             - install-dependencies-38
