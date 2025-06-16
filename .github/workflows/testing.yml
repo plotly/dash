@@ -262,9 +262,8 @@ jobs:
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          rm -rf tests/integration
           pytest --headless --nopercyfinalize tests/background_callback -v -s
-          pytest --headless --nopercyfinalize -k tests/async_tests -v -s
+          pytest --headless --nopercyfinalize tests/async_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
