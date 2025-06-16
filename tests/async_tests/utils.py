@@ -1,3 +1,5 @@
+# pylint: disable=import-outside-toplevel,global-statement,subprocess-popen-preexec-fn,W0201
+
 import os
 import shutil
 import subprocess
@@ -37,7 +39,6 @@ def get_background_callback_manager():
     if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery":
         from dash.background_callback import CeleryManager
         from celery import Celery
-        import redis
 
         celery_app = Celery(
             __name__,
@@ -92,7 +93,7 @@ def setup_background_callback_app(manager_name, app_name):
             [
                 "celery",
                 "-A",
-                f"tests.integration.async_tests.{app_name}:handle",
+                f"tests.async_tests.{app_name}:handle",
                 "worker",
                 "-P",
                 "prefork",

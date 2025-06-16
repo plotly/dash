@@ -1,13 +1,13 @@
-from dash import Dash, Input, Output, html, callback, set_props
 import time
 
-from tests.background_callback.utils import get_background_callback_manager
+from dash import Dash, Input, Output, html, callback, set_props
+
+from .utils import get_background_callback_manager
 
 background_callback_manager = get_background_callback_manager()
 handle = background_callback_manager.handle
 
 app = Dash(__name__, background_callback_manager=background_callback_manager)
-app.test_lock = lock = background_callback_manager.test_lock
 
 app.layout = html.Div(
     [
@@ -40,7 +40,7 @@ async def on_click(_):
     prevent_initial_call=True,
     background=True,
 )
-async def on_click(_):
+async def on_click2(_):
     set_props("no-output", {"children": "started"})
     time.sleep(2)
     set_props("no-output", {"children": "completed"})

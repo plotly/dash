@@ -1,11 +1,12 @@
 import sys
+import time
+from multiprocessing import Lock
 
 import pytest
 from flaky import flaky
-from multiprocessing import Lock
-from tests.integration.async_tests.utils import setup_background_callback_app
-import time
+
 from tests.utils import is_dash_async
+from .utils import setup_background_callback_app
 
 
 def test_001ab_arbitrary(dash_duo, manager):

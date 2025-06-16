@@ -1,7 +1,8 @@
-from dash import Dash, Input, Output, dcc, html
 import time
 
-from tests.integration.async_tests.utils import get_background_callback_manager
+from dash import Dash, Input, Output, dcc, html
+
+from .utils import get_background_callback_manager
 
 background_callback_manager = get_background_callback_manager()
 handle = background_callback_manager.handle
