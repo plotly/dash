@@ -117,7 +117,7 @@ def setup_background_callback_app(manager_name, app_name):
             raise RuntimeError(f"celery failed to start: {error}")
 
         try:
-            yield import_app(f"tests.integration.async_tests.{app_name}")
+            yield import_app(f"tests.async_tests.{app_name}")
         finally:
             # Interval may run one more time after settling on final app state
             # Sleep for 1 interval of time
@@ -136,7 +136,7 @@ def setup_background_callback_app(manager_name, app_name):
         print(cache_directory)
         os.environ["DISKCACHE_DIR"] = cache_directory
         try:
-            app = import_app(f"tests.integration.async_tests.{app_name}")
+            app = import_app(f"tests.async_tests.{app_name}")
             yield app
         finally:
             # Interval may run one more time after settling on final app state
