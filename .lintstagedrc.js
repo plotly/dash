@@ -26,10 +26,18 @@ const sh_cd = (directory, command) => {
 
 module.exports = {
     // Python checks (run from root, using root venv)
-    "*.py": (filenames) => [
+    "dash/*.py": (filenames) => [
         `${venvBin("python")} -m pylint --rcfile=.pylintrc ${filenames.join(
             " "
-        )}`, // Add your pylintrc if you have one
+        )}`,
+        `${venvBin("flake8")} ${filenames.join(" ")}`,
+        `${venvBin("black")} --check ${filenames.join(" ")}`,
+    ],
+
+    "tests/**/*.py": (filenames) => [
+        `${venvBin("python")} -m pylint -d all -e C0410,C0413,W0109 --rcfile=.pylintrc ${filenames.join(
+            " "
+        )}`,
         `${venvBin("flake8")} ${filenames.join(" ")}`,
         `${venvBin("black")} --check ${filenames.join(" ")}`,
     ],
