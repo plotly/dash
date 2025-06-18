@@ -1,0 +1,29 @@
+{
+    "allowCompoundWords": true,
+    "ignorePaths": [
+        "**/package.json",
+        "**/package-lock.json",
+        "**/node_modules/**",
+        "**/.git/**",
+        ".vscode",
+        "build/**",
+        "venv/**"
+    ],
+    "language": "en",
+    "diagnosticLevel": "Warning",
+    "languageSettings": [
+        { "languageId": "*", "dictionaries": ["fonts", "css", "html", "npm", "typescript", "python"]}
+    ],
+    "words": [
+        "cbcx",
+        "diskcache",
+        "plotly",
+        "Plotly",
+        "pylint",
+        "Pylint",
+        "pylintrc",
+        "pytest",
+        "venv",
+        "xdist"
+    ]
+}
