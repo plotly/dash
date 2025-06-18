@@ -34,7 +34,7 @@ module.exports = {
         `${venvBin("black")} --check ${filenames.join(" ")}`,
     ],
 
-    "tests/**/*.py": (filenames) => [
+    "**/tests/**/*.py": (filenames) => [
         `${venvBin("python")} -m pylint -d all -e C0410,C0413,W0109 --rcfile=.pylintrc ${filenames.join(
             " "
         )}`,

@@ -1,5 +1,3 @@
-import pytest
-
 import dash.testing.wait as wait
 
 
