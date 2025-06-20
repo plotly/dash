@@ -17,6 +17,7 @@ jobs:
       # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      packaging_paths_changed: ${{ steps.filter.outputs.packaging_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,6 +36,14 @@ jobs:
               - 'dash/_callback.py'
               - 'dash/_callback_context.py'
               - 'requirements/**'
+            packaging_paths:
+              - 'setup.py'
+              - 'pyproject.toml'
+              - 'dash/version.py'
+              - 'MANIFEST.in'
+              - 'requirements/build.txt'
+              - 'requirements/install.txt'
+              - 'tests/test_build/**'
 
   build:
     name: Build Dash Package
@@ -63,20 +72,25 @@ jobs:
           python-version: '3.12'
           cache: pip
 
-      - name: Install build dependencies
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Create virtual environment and install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "setuptools<80.0.0"
-          python -m pip install build wheel
-          python -m pip install -e .[dev,ci]
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
+          uv sync --extra dev --extra ci --extra build
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       
       - name: Build Dash
         run: npm run build
 
-      - name: Build Dash sdist and wheel
+      - name: Build Dash wheel
         run: |
-          # This command will invoke hatchling (via hatch_dash.py) which includes building JS assets
-          python -m build --sdist --wheel
+          uv build --wheel
           echo "Built packages:"
           ls -lhR dist/
           mkdir packages
@@ -115,6 +129,18 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -124,17 +150,20 @@ jobs:
       
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
 
       - name: Build/Setup test components
-        run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
+        run: |
+          source .venv/bin/activate
+          npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
 
       - name: Run typing tests
         run: |
+          source .venv/bin/activate
           cd tests
-          pytest compliance/test_typing.py
+          uv run pytest compliance/test_typing.py
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
@@ -184,6 +213,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -192,10 +233,10 @@ jobs:
       
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<78.0.0"
-          python -m pip install "selenium==4.32.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
+          uv pip install "selenium==4.32.0"
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[async,ci,testing,dev,celery,diskcache]"
 
       - name: Install Google Chrome
         run: |
@@ -258,12 +299,19 @@ jobs:
 
       - name: Run Background & Async Callback Tests
         run: |
+          source .venv/bin/activate
           mkdir bgtests
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/background_callback -v -s
-          pytest --headless --nopercyfinalize tests/async_tests -v -s
+          uv run pytest --headless --nopercyfinalize tests/background_callback -v -s
+          uv run pytest --headless --nopercyfinalize tests/async_tests -v -s
+
+      - name: Run Async Callback Tests
+        run: |
+          source .venv/bin/activate
+          cd bgtests
+          uv run pytest --headless --nopercyfinalize tests/async_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -297,6 +345,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -305,9 +365,9 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
       
       - name: Lint
         run: |
@@ -355,6 +415,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -363,10 +435,10 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
-          pip install pytest-split
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
+          uv pip install pytest-split
 
       - name: Install Google Chrome
         run: |
@@ -427,4 +499,73 @@ jobs:
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+          uv run pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+
+  packaging-tests:
+    name: Package Build Tests
+    runs-on: ubuntu-latest
+    needs: [changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.packaging_paths_changed == 'true'
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      - name: Install JavaScript dependencies
+        run: npm ci
+      
+      - name: Build components (required for packaging tests)
+        run: npm run build
+      
+      - name: Run packaging tests
+        run: |
+          uv run pytest tests/test_build/ -v --tb=short
+      
+      - name: Test wheel installation with extras
+        run: |
+          # Build the wheel
+          uv build --wheel --out-dir dist-test
+          
+          # Find the wheel file
+          WHEEL_FILE=$(find dist-test -name "*.whl" | head -1)
+          echo "Found wheel: $WHEEL_FILE"
+          
+          # Test basic installation
+          uv pip install "$WHEEL_FILE"
+          
+          # Test dev extra installation  
+          uv pip install --force-reinstall "$WHEEL_FILE[dev]"
+          
+          # Test import and basic functionality
+          python -c "import dash; print(f'Dash {dash.__version__} imported successfully')"
+          
+          # Test dev tools are available
+          python -c "import fire, coloredlogs, yaml; print('Dev dependencies available')"

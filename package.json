@@ -14,7 +14,7 @@
     "private::build.jupyterlab": "cd @plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
     "private::lint.black": "black dash tests --exclude metadata_test.py --check",
     "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
-    "private::lint.pylint-dash": "pylint dash setup.py --rcfile=.pylintrc",
+    "private::lint.pylint-dash": "pylint dash --rcfile=.pylintrc",
     "private::lint.pylint-tests": "pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=.pylintrc",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
     "private::test.setup-components": "cd @plotly/dash-test-components && npm ci && npm run build",
