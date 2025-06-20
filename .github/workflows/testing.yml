@@ -77,9 +77,13 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install build dependencies
+      - name: Create virtual environment and install dependencies
         run: |
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
           uv sync --extra dev --extra ci --extra build
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       
       - name: Build Dash
         run: npm run build
@@ -147,7 +151,7 @@ jobs:
       - name: Run typing tests
         run: |
           cd tests
-          pytest compliance/test_typing.py
+          uv run pytest compliance/test_typing.py
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
@@ -449,7 +453,7 @@ jobs:
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+          uv run pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
 
   packaging-tests:
     name: Package Build Tests
@@ -469,7 +473,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
+          cache: 'pip'
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -482,11 +487,13 @@ jobs:
         with:
           enable-cache: true
       
-      - name: Install build dependencies
+      - name: Create virtual environment and install dependencies
         run: |
-          uv sync --extra build --extra dev
-          uv pip install pytest
-      
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
+          uv sync --extra build --extra dev --extra ci --extra testing
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - name: Install JavaScript dependencies
         run: npm ci
       
@@ -495,7 +502,7 @@ jobs:
       
       - name: Run packaging tests
         run: |
-          pytest tests/test_build/ -v --tb=short
+          uv run pytest tests/test_build/ -v --tb=short
       
       - name: Test wheel installation with extras
         run: |
