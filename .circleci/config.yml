@@ -54,7 +54,6 @@ jobs:
             uv venv .venv --python 3.12
             source .venv/bin/activate
             uv sync --extra ci --extra dev --extra testing --extra celery --extra diskcache --extra build
-            pip list | grep dash
             npm ci
             npm run build.sequential
             uv build
@@ -377,7 +376,6 @@ jobs:
           command: |
             . venv/bin/activate
             pip install dash-package/dash-package.tar.gz[ci,dev,testing,celery,diskcache] --progress-bar off
-            pip list | grep dash
             cd components/dash-html-components
             npm ci
             npm run prebuild

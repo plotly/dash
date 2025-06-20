@@ -139,7 +139,6 @@ jobs:
         run: |
           uv venv .venv --python 3.12
           source .venv/bin/activate
-          uv sync --extra ci --extra testing --extra dev
           echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
       
@@ -223,7 +222,6 @@ jobs:
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
           source .venv/bin/activate
-          uv sync --extra async --extra ci --extra testing --extra dev --extra celery --extra diskcache
           echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
@@ -356,7 +354,6 @@ jobs:
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
           source .venv/bin/activate
-          uv sync --extra ci --extra testing --extra dev
           echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
@@ -427,7 +424,6 @@ jobs:
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
           source .venv/bin/activate
-          uv sync --extra ci --extra testing --extra dev
           echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
@@ -541,7 +537,6 @@ jobs:
         run: |
           uv venv .venv --python 3.12
           source .venv/bin/activate
-          uv sync --extra build --extra dev --extra ci --extra testing
           echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - name: Install JavaScript dependencies
