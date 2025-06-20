@@ -17,6 +17,7 @@ jobs:
       # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      packaging_paths_changed: ${{ steps.filter.outputs.packaging_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,6 +36,14 @@ jobs:
               - 'dash/_callback.py'
               - 'dash/_callback_context.py'
               - 'requirements/**'
+            packaging_paths:
+              - 'setup.py'
+              - 'pyproject.toml'
+              - 'dash/version.py'
+              - 'MANIFEST.in'
+              - 'requirements/build.txt'
+              - 'requirements/install.txt'
+              - 'tests/test_build/**'
 
   build:
     name: Build Dash Package
@@ -441,3 +450,66 @@ jobs:
         run: |
           cd components/dash-table
           pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+
+  packaging-tests:
+    name: Package Build Tests
+    runs-on: ubuntu-latest
+    needs: [changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.packaging_paths_changed == 'true'
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Install build dependencies
+        run: |
+          uv sync --extra build --extra dev
+          uv pip install pytest
+      
+      - name: Install JavaScript dependencies
+        run: npm ci
+      
+      - name: Build components (required for packaging tests)
+        run: npm run build
+      
+      - name: Run packaging tests
+        run: |
+          pytest tests/test_build/ -v --tb=short
+      
+      - name: Test wheel installation with extras
+        run: |
+          # Build the wheel
+          uv build --wheel --out-dir dist-test
+          
+          # Test basic installation
+          uv pip install dist-test/*.whl
+          
+          # Test dev extra installation  
+          uv pip install --force-reinstall "dist-test/*.whl[dev]"
+          
+          # Test import and basic functionality
+          python -c "import dash; print(f'Dash {dash.__version__} imported successfully')"
+          
+          # Test dev tools are available
+          python -c "import fire, coloredlogs, yaml; print('Dev dependencies available')"
