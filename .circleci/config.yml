@@ -81,7 +81,7 @@ jobs:
   install-dependencies-39:
     <<: *install-dependencies
     docker:
-      - image: cimg/python:3.9.14-node
+      - image: cimg/python:3.9.20-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -142,7 +142,7 @@ jobs:
   lint-unit-39:
     <<: *lint-unit
     docker:
-      - image: cimg/python:3.9.14-browsers
+      - image: cimg/python:3.9.20-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -235,7 +235,7 @@ jobs:
   test-39:
     <<: *test
     docker:
-      - image: cimg/python:3.9.14-browsers
+      - image: cimg/python:3.9.20-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
@@ -270,15 +270,15 @@ jobs:
             npm ci
             npm run lint
 
-  dcc-lint-unit-38:
+  dcc-lint-unit-39:
     <<: *dcc-lint-unit
     docker:
-      - image: cimg/python:3.8.18-node
+      - image: cimg/python:3.9.20-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python38
+          PYVERSION: python39
           PERCY_ENABLE: 0
 
   dcc-312: &dcc-test
@@ -331,15 +331,15 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  dcc-38:
+  dcc-39:
     <<: *dcc-test
     docker:
-      - image: cimg/python:3.8.18-browsers
+      - image: cimg/python:3.9.20-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python38
+          PYVERSION: python39
           PERCY_ENABLE: 0
 
   html-312: &html-test
@@ -400,15 +400,15 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  html-38:
+  html-39:
     <<: *html-test
     docker:
-      - image: cimg/python:3.8.18-browsers
+      - image: cimg/python:3.9.20-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python38
+          PYVERSION: python39
           PERCY_ENABLE: 0
 
   table-visual-test:

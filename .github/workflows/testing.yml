@@ -156,7 +156,9 @@ jobs:
           uv pip install "$WHEEL_FILE[ci,testing,dev]"
 
       - name: Build/Setup test components
-        run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
+        run: |
+          source .venv/bin/activate
+          npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
 
       - name: Run typing tests
         run: |
@@ -302,8 +304,8 @@ jobs:
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/background_callback -v -s
-          pytest --headless --nopercyfinalize tests/async_tests -v -s
+          uv run pytest --headless --nopercyfinalize tests/background_callback -v -s
+          uv run pytest --headless --nopercyfinalize tests/async_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
