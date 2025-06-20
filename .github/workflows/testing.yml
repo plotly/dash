@@ -135,6 +135,14 @@ jobs:
         with:
           enable-cache: true
       
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python 3.12
+          source .venv/bin/activate
+          uv sync --extra ci --extra testing --extra dev
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+      
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -143,7 +151,9 @@ jobs:
       
       - name: Install Dash packages
         run: |
-          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
 
       - name: Build/Setup test components
         run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
@@ -206,6 +216,14 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          uv sync --extra async --extra ci --extra testing --extra dev --extra celery --extra diskcache
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -215,7 +233,9 @@ jobs:
       - name: Install Dash packages
         run: |
           uv pip install "selenium==4.32.0"
-          find packages -name dash-*.whl -print -exec uv pip install "{}[async,ci,testing,dev,celery,diskcache]" \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[async,ci,testing,dev,celery,diskcache]"
 
       - name: Install Google Chrome
         run: |
@@ -322,6 +342,14 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          uv sync --extra ci --extra testing --extra dev
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -330,7 +358,9 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
       
       - name: Lint
         run: |
@@ -383,6 +413,14 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Create virtual environment and install dependencies
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          source .venv/bin/activate
+          uv sync --extra ci --extra testing --extra dev
+          echo "VIRTUAL_ENV=$PWD/.venv" >> $GITHUB_ENV
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -391,7 +429,9 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
+          WHEEL_FILE=$(find packages -name "dash-*.whl" | head -1)
+          echo "Installing wheel: $WHEEL_FILE"
+          uv pip install "$WHEEL_FILE[ci,testing,dev]"
           uv pip install pytest-split
 
       - name: Install Google Chrome
@@ -509,11 +549,15 @@ jobs:
           # Build the wheel
           uv build --wheel --out-dir dist-test
           
+          # Find the wheel file
+          WHEEL_FILE=$(find dist-test -name "*.whl" | head -1)
+          echo "Found wheel: $WHEEL_FILE"
+          
           # Test basic installation
-          uv pip install dist-test/*.whl
+          uv pip install "$WHEEL_FILE"
           
           # Test dev extra installation  
-          uv pip install --force-reinstall "dist-test/*.whl[dev]"
+          uv pip install --force-reinstall "$WHEEL_FILE[dev]"
           
           # Test import and basic functionality
           python -c "import dash; print(f'Dash {dash.__version__} imported successfully')"
