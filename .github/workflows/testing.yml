@@ -162,6 +162,7 @@ jobs:
 
       - name: Run typing tests
         run: |
+          source .venv/bin/activate
           cd tests
           uv run pytest compliance/test_typing.py
 
@@ -300,11 +301,18 @@ jobs:
 
       - name: Run Background & Async Callback Tests
         run: |
+          source .venv/bin/activate
           mkdir bgtests
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
           uv run pytest --headless --nopercyfinalize tests/background_callback -v -s
+          uv run pytest --headless --nopercyfinalize tests/async_tests -v -s
+
+      - name: Run Async Callback Tests
+        run: |
+          source .venv/bin/activate
+          cd bgtests
           uv run pytest --headless --nopercyfinalize tests/async_tests -v -s
 
   table-unit:

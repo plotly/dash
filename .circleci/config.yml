@@ -47,11 +47,10 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}-uv-v1
       - run:
           name: Install uv
-          command: curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.cargo/env
+          command: curl -LsSf https://astral.sh/uv/install.sh | sh
       - run:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
-            source $HOME/.cargo/env
             uv venv .venv --python 3.12
             source .venv/bin/activate
             uv sync --extra ci --extra dev --extra testing --extra celery --extra diskcache --extra build
@@ -113,13 +112,12 @@ jobs:
           key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}-uv-v1
       - run:
           name: Install uv
-          command: curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.cargo/env
+          command: curl -LsSf https://astral.sh/uv/install.sh | sh
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
       - run:
           name: ️️🏗️ Install dependencies with uv
           command: |
-            source $HOME/.cargo/env
             uv venv .venv --python 3.12
             source .venv/bin/activate
             uv sync --extra ci --extra dev --extra testing
