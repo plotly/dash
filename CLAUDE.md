@@ -8,7 +8,7 @@
 - **Language**: Python + JavaScript/TypeScript (hybrid project)
 - **Architecture**: Monorepo with multiple components
 - **Framework**: Flask backend, React frontend, Plotly.js for charts
-- **Package Manager**: pip (Python) + npm (JavaScript)
+- **Package Manager**: uv (Python) + npm (JavaScript)
 
 ## Project Structure
 
@@ -37,6 +37,7 @@ dash/
 - Python 3.9+ 
 - Node.js (latest LTS) installed via nvm
 - Git Bash terminal (especially on Windows)
+- uv (modern Python package manager) - install from https://docs.astral.sh/uv/
 
 ### Initial Setup
 ```bash
@@ -44,13 +45,9 @@ dash/
 git clone <your-fork>
 cd dash
 
-# Create and activate virtual environment
-python -m venv .venv/dev
-source .venv/dev/bin/activate  # Linux/Mac
-# source .venv/dev/scripts/activate  # Windows
-
-# Install Python dependencies
-pip install -e .[ci,dev,testing,celery,diskcache]
+# Create virtual environment and sync dependencies using uv
+uv venv .venv --python 3.9
+uv sync --extra ci --extra dev --extra testing --extra celery --extra diskcache --extra build
 
 # Install JavaScript dependencies
 npm ci
@@ -150,6 +147,34 @@ npm run private::lint.renderer
 - `.flake8` - Flake8 configuration
 - `components/*/babel.config.js` - Babel configuration per component
 
+## Package Building & Distribution
+
+### Modern Build System
+- **Build Backend**: Hatchling (modern, fast Python build system)
+- **Package Manager**: uv (fast Python package installer and resolver)
+- **Configuration**: pyproject.toml (PEP 621 compliant)
+
+### Building Packages
+```bash
+# Build source distribution and wheel
+uv run python -m build
+
+# Build with uv (installs build dependencies automatically)
+uv build
+
+# Install in development mode
+uv sync --dev
+
+# Install with specific extras
+uv sync --extra testing --extra dev
+```
+
+### Package Structure
+- Dependencies managed via `requirements/*.txt` files
+- Build dependencies defined in `requirements/build.txt`
+- All extras available: async, ci, dev, testing, celery, diskcache, compress, build
+- **setup.py is deprecated** - kept only for backward compatibility
+
 ## Architecture & Key Components
 
 ### Core Architecture
@@ -213,9 +238,16 @@ git checkout -b feature/new-component
 
 ### Configuration
 - `package.json` - Root build scripts and dependencies
-- `setup.py` - Python package configuration
+- `pyproject.toml` - Modern Python package configuration (PEP 621)
+- `setup.py` - Legacy Python package configuration (deprecated)
 - `lerna.json` - Monorepo configuration
 - `pytest.ini` - Test configuration
+- `requirements/*.txt` - Dependency specifications by category
+
+### Path handling
+- Delete individual files, not directories.
+- Do not cd into subdirectories unless necessary.
+- If commands fails to find paths, cd back to project root.
 
 ### Entry Points
 - `dash/__init__.py` - Main Python API

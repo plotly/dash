@@ -1,0 +1,6 @@
+# Build dependencies for packaging
+hatchling>=1.18.0
+hatch-requirements-txt>=0.4.0
+build>=0.10.0
+wheel>=0.40.0
+twine>=4.0.0

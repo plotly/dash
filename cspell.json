@@ -12,11 +12,25 @@
     "language": "en",
     "diagnosticLevel": "Warning",
     "languageSettings": [
-        { "languageId": "*", "dictionaries": ["fonts", "css", "html", "npm", "typescript", "python"]}
+        {
+            "languageId": "*",
+            "dictionaries": [
+                "fonts",
+                "css",
+                "html",
+                "npm",
+                "typescript",
+                "python"
+            ]
+        }
     ],
     "words": [
         "cbcx",
         "diskcache",
+        "fspath",
+        "nbconfig",
+        "nbextension",
+        "nbextensions",
         "plotly",
         "Plotly",
         "pylint",
@@ -24,6 +38,6 @@
         "pylintrc",
         "pytest",
         "venv",
-        "xdist"
+        "xdist",
     ]
 }

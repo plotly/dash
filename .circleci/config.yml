@@ -44,19 +44,21 @@ jobs:
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}-uv-v1
+      - run:
+          name: Install uv
+          command: curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.cargo/env
       - run:
           name: 🏁 Build Component Packages & Update Dependencies/Artifacts
           command: |
-            python -m venv venv && . venv/bin/activate
-            pip install "pip<25.0"
-            pip install --upgrade wheel setuptools
-            set -eo pipefail
-            pip install -e .[ci,dev,testing,celery,diskcache] --progress-bar off
+            source $HOME/.cargo/env
+            uv venv .venv --python 3.12
+            source .venv/bin/activate
+            uv sync --extra ci --extra dev --extra testing --extra celery --extra diskcache --extra build
             pip list | grep dash
             npm ci
             npm run build.sequential
-            python setup.py sdist
+            uv build
             mkdir dash-package && cp dist/*.tar.gz dash-package/dash-package.tar.gz
             ls -la dash-package
           no_output_timeout: 30m
@@ -68,23 +70,23 @@ jobs:
               cat /home/circleci/.npm/_logs/*
             fi
       - save_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}-uv-v1
           paths:
-            - venv
+            - .venv
       - persist_to_workspace:
           root: ~/dash
           paths:
             - dash-package
 
-  install-dependencies-38:
+  install-dependencies-39:
     <<: *install-dependencies
     docker:
-      - image: cimg/python:3.8.18-node
+      - image: cimg/python:3.9.14-node
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python38
+          PYVERSION: python39
           PERCY_ENABLE: 0
 
   lint-unit-312: &lint-unit
@@ -108,39 +110,44 @@ jobs:
       - run: echo $PYVERSION > ver.txt
       - run: cat requirements/*.txt > requirements-all.txt
       - restore_cache:
-          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}
+          key: dep-{{ checksum ".circleci/config.yml" }}-{{ checksum "ver.txt" }}-{{ checksum "requirements-all.txt" }}-uv-v1
+      - run:
+          name: Install uv
+          command: curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.cargo/env
       - browser-tools/install-browser-tools:
           chrome-version: 120.0.6099.71
       - run:
-          name: ️️🏗️ pip dev requirements
+          name: ️️🏗️ Install dependencies with uv
           command: |
-            python -m venv venv && . venv/bin/activate
-            pip install --upgrade pip wheel
-            pip install -e .[ci,dev,testing] --no-cache-dir --progress-bar off
+            source $HOME/.cargo/env
+            uv venv .venv --python 3.12
+            source .venv/bin/activate
+            uv sync --extra ci --extra dev --extra testing
       - run:
           name: 🌸 Python & JS Lint
           command: |
-            . venv/bin/activate
+            source .venv/bin/activate
             set -eo pipefail
-            pip install -e . --progress-bar off && pip list | grep dash
-            npm ci npm run initialize
+            pip list | grep dash
+            npm ci
+            npm run initialize
             npm run build.sequential
             npm run lint
       - run:
           name: 🐍 Python Unit Tests & ☕ JS Unit Tests
           command: |
-            . venv/bin/activate
+            source .venv/bin/activate
             npm run citest.unit
 
-  lint-unit-38:
+  lint-unit-39:
     <<: *lint-unit
     docker:
-      - image: cimg/python:3.8.18-browsers
+      - image: cimg/python:3.9.14-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
-          PYVERSION: python38
+          PYVERSION: python39
           PERCY_ENABLE: 0
 
   build-windows-312:
@@ -225,17 +232,17 @@ jobs:
       - store_artifacts:
           path: /tmp/dash_artifacts
 
-  test-38:
+  test-39:
     <<: *test
     docker:
-      - image: cimg/python:3.8.18-browsers
+      - image: cimg/python:3.9.14-browsers
         auth:
           username: dashautomation
           password: $DASH_PAT_DOCKERHUB
         environment:
           PERCY_ENABLE: 0
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: True
-          PYVERSION: python38
+          PYVERSION: python39
 
   dcc-lint-unit-312: &dcc-lint-unit
     working_directory: ~/dash
@@ -445,44 +452,44 @@ workflows:
   tests:
     jobs:
       - install-dependencies-312
-      - install-dependencies-38
+      - install-dependencies-39
 
       - build-windows-312
 
       - lint-unit-312:
           requires:
             - install-dependencies-312
-      - lint-unit-38:
+      - lint-unit-39:
           requires:
-            - install-dependencies-38
+            - install-dependencies-39
 
       - test-312:
           requires:
             - install-dependencies-312
-      - test-38:
+      - test-39:
           requires:
-            - install-dependencies-38
+            - install-dependencies-39
 
       - dcc-lint-unit-312:
           requires:
             - install-dependencies-312
-      - dcc-lint-unit-38:
+      - dcc-lint-unit-39:
           requires:
-            - install-dependencies-38
+            - install-dependencies-39
 
       - dcc-312:
           requires:
             - install-dependencies-312
-      - dcc-38:
+      - dcc-39:
           requires:
-            - install-dependencies-38
+            - install-dependencies-39
 
       - html-312:
           requires:
             - install-dependencies-312
-      - html-38:
+      - html-39:
           requires:
-            - install-dependencies-38
+            - install-dependencies-39
 
       - table-visual-test
 

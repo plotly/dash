@@ -63,20 +63,21 @@ jobs:
           python-version: '3.12'
           cache: pip
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Install build dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "setuptools<80.0.0"
-          python -m pip install build wheel
-          python -m pip install -e .[dev,ci]
+          uv sync --extra dev --extra ci --extra build
       
       - name: Build Dash
         run: npm run build
 
-      - name: Build Dash sdist and wheel
+      - name: Build Dash wheel
         run: |
-          # This command will invoke hatchling (via hatch_dash.py) which includes building JS assets
-          python -m build --sdist --wheel
+          uv build --wheel
           echo "Built packages:"
           ls -lhR dist/
           mkdir packages
@@ -115,6 +116,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -124,9 +130,7 @@ jobs:
       
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
 
       - name: Build/Setup test components
         run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
@@ -184,6 +188,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -192,10 +201,8 @@ jobs:
       
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<78.0.0"
-          python -m pip install "selenium==4.32.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
+          uv pip install "selenium==4.32.0"
+          find packages -name dash-*.whl -print -exec uv pip install "{}[async,ci,testing,dev,celery,diskcache]" \;
 
       - name: Install Google Chrome
         run: |
@@ -297,6 +304,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -305,9 +317,7 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
       
       - name: Lint
         run: |
@@ -355,6 +365,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
         with:
@@ -363,10 +378,8 @@ jobs:
 
       - name: Install Dash packages
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
-          pip install pytest-split
+          find packages -name dash-*.whl -print -exec uv pip install "{}[ci,testing,dev]" \;
+          uv pip install pytest-split
 
       - name: Install Google Chrome
         run: |
