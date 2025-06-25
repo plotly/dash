@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Fixed
+- [#3341](https://github.com/plotly/dash/pull/3341) Fixed query string parsing regression introduced in 2.18.2 where values containing unencoded `&` characters were being truncated. [#3106](https://github.com/plotly/dash/issues/3106)
 - [#3279](https://github.com/plotly/dash/pull/3279) Fix an issue where persisted values were incorrectly pruned when updated via callback. Now, callback returned values are correctly stored in the persistence storage. Fix [#2678](https://github.com/plotly/dash/issues/2678)
 - [#3298](https://github.com/plotly/dash/pull/3298) Fix dev_only resources filtering.
 - [#3315](https://github.com/plotly/dash/pull/3315) Fix pages module is package check.
