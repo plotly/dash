@@ -1,5 +1,3 @@
-import werkzeug
-
 from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
 import json
@@ -117,11 +115,6 @@ def test_tagr001_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
-@pytest.mark.xfail(
-    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
-    reason="Bug with 204 and Transfer-Encoding",
-    strict=False,
-)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_tagr002_tabs_render_without_selected(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)

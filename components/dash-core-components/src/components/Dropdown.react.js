@@ -146,6 +146,11 @@ Dropdown.propTypes = {
     disabled: PropTypes.bool,
 
     /**
+     * If false, the menu of the dropdown will not close once a value is selected.
+     */
+    closeOnSelect: PropTypes.bool,
+
+    /**
      * height of each option. Can be increased when label lengths would wrap around
      */
     optionHeight: PropTypes.number,
@@ -214,6 +219,7 @@ Dropdown.defaultProps = {
     searchable: true,
     optionHeight: 35,
     maxHeight: 200,
+    closeOnSelect: true,
     persisted_props: ['value'],
     persistence_type: 'local',
 };

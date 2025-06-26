@@ -24,6 +24,7 @@ ResourceType = _tx.TypedDict(
         "asset_path": str,
         "external_only": bool,
         "filepath": str,
+        "dev_only": bool,
     },
     total=False,
 )
@@ -52,6 +53,7 @@ class Resources:
         filtered_resources = []
         for s in all_resources:
             filtered_resource = {}
+            valid_resource = True
             if "dynamic" in s:
                 filtered_resource["dynamic"] = s["dynamic"]
             if "async" in s:
@@ -78,12 +80,16 @@ class Resources:
                 )
             if "namespace" in s:
                 filtered_resource["namespace"] = s["namespace"]
+
             if "external_url" in s and (
                 s.get("external_only") or not self.config.serve_locally
             ):
                 filtered_resource["external_url"] = s["external_url"]
             elif "dev_package_path" in s and (dev_bundles or s.get("dev_only")):
-                filtered_resource["relative_package_path"] = s["dev_package_path"]
+                if dev_bundles:
+                    filtered_resource["relative_package_path"] = s["dev_package_path"]
+                else:
+                    valid_resource = False
             elif "relative_package_path" in s:
                 filtered_resource["relative_package_path"] = s["relative_package_path"]
             elif "absolute_path" in s:
@@ -96,7 +102,7 @@ class Resources:
                 warnings.warn(
                     (
                         "You have set your config to `serve_locally=True` but "
-                        f"A local version of {s['external_url']} is not available.\n"  # type: ignore
+                        f"A local version of {s.get('external_url', '')} is not available.\n"  # type: ignore
                         "If you added this file with "
                         "`app.scripts.append_script` "
                         "or `app.css.append_css`, use `external_scripts` "
@@ -113,7 +119,8 @@ class Resources:
                     """
                 )
 
-            filtered_resources.append(filtered_resource)
+            if valid_resource:
+                filtered_resources.append(filtered_resource)
 
         return filtered_resources
 

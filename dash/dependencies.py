@@ -35,6 +35,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     allow_duplicate: bool
     component_property: str
     allowed_wildcards: Sequence[_Wildcard]
+    allow_optional: bool
 
     def __init__(self, component_id: ComponentIdType, component_property: str):
 
@@ -45,6 +46,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
         self.component_property = component_property
         self.allow_duplicate = False
+        self.allow_optional = False
 
     def __str__(self):
         return f"{self.component_id_str()}.{self.component_property}"
@@ -56,7 +58,10 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         return stringify_id(self.component_id)
 
     def to_dict(self) -> dict:
-        return {"id": self.component_id_str(), "property": self.component_property}
+        specs = {"id": self.component_id_str(), "property": self.component_property}
+        if self.allow_optional:
+            specs["allow_optional"] = True
+        return specs
 
     def __eq__(self, other):
         """
@@ -134,11 +139,29 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
     """Input of callback: trigger an update when it is updated."""
 
+    def __init__(
+        self,
+        component_id: ComponentIdType,
+        component_property: str,
+        allow_optional: bool = False,
+    ):
+        super().__init__(component_id, component_property)
+        self.allow_optional = allow_optional
+
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
 
 class State(DashDependency):  # pylint: disable=too-few-public-methods
     """Use the value of a State in a callback but don't trigger updates."""
+
+    def __init__(
+        self,
+        component_id: ComponentIdType,
+        component_property: str,
+        allow_optional: bool = False,
+    ):
+        super().__init__(component_id, component_property)
+        self.allow_optional = allow_optional
 
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 

@@ -5,6 +5,7 @@ from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union
 
 
+import asyncio
 import flask
 
 from .dependencies import (
@@ -41,6 +42,16 @@ from ._utils import (
 from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+
+
+async def _async_invoke_callback(
+    func, *args, **kwargs
+):  # used to mark the frame for the debugger
+    # Check if the function is a coroutine function
+    if asyncio.iscoroutinefunction(func):
+        return await func(*args, **kwargs)  # %% callback invoked %%
+    # If the function is not a coroutine, call it directly
+    return func(*args, **kwargs)  # %% callback invoked %%
 
 
 def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
@@ -309,6 +320,269 @@ def _set_side_update(ctx, response) -> bool:
     return False
 
 
+def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_output):
+    """Initialize context and validate output specifications."""
+    app = kwargs.pop("app", None)
+    output_spec = kwargs.pop("outputs_list")
+    callback_ctx = kwargs.pop("callback_context", AttributeDict({"updated_props": {}}))
+    context_value.set(callback_ctx)
+    original_packages = set(ComponentRegistry.registry)
+
+    if has_output:
+        _validate.validate_output_spec(insert_output, output_spec, Output)
+
+    func_args, func_kwargs = _validate.validate_and_group_input_args(
+        args, inputs_state_indices
+    )
+    return (
+        output_spec,
+        callback_ctx,
+        func_args,
+        func_kwargs,
+        app,
+        original_packages,
+        False,
+    )
+
+
+def _get_callback_manager(
+    kwargs: dict, background: dict
+) -> Union[BaseBackgroundCallbackManager, None]:
+    """Set up the background callback and manage jobs."""
+    callback_manager = background.get(
+        "manager", kwargs.get("background_callback_manager", None)
+    )
+    if background is not None:
+        if not callback_manager:
+            raise MissingLongCallbackManagerError(
+                "Running `background` callbacks requires a manager to be installed.\n"
+                "Available managers:\n"
+                "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
+                " and store results on the local filesystem.\n"
+                "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
+                " and store results on redis.\n"
+            )
+
+    old_job = flask.request.args.getlist("oldJob")
+
+    if old_job:
+        for job in old_job:
+            callback_manager.terminate_job(job)
+
+    return callback_manager
+
+
+def _setup_background_callback(
+    kwargs, background, background_key, func, func_args, func_kwargs, callback_ctx
+):
+    """Set up the background callback and manage jobs."""
+    callback_manager = _get_callback_manager(kwargs, background)
+
+    progress_outputs = background.get("progress")
+
+    cache_ignore_triggered = background.get("cache_ignore_triggered", True)
+
+    cache_key = callback_manager.build_cache_key(
+        func,
+        # Inputs provided as dict is kwargs.
+        func_args if func_args else func_kwargs,
+        background.get("cache_args_to_ignore", []),
+        None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
+    )
+
+    job_fn = callback_manager.func_registry.get(background_key)
+
+    ctx_value = AttributeDict(**context_value.get())
+    ctx_value.ignore_register_page = True
+    ctx_value.pop("background_callback_manager")
+    ctx_value.pop("dash_response")
+
+    job = callback_manager.call_job_fn(
+        cache_key,
+        job_fn,
+        func_args if func_args else func_kwargs,
+        ctx_value,
+    )
+
+    data = {
+        "cacheKey": cache_key,
+        "job": job,
+    }
+
+    cancel = background.get("cancel")
+    if cancel:
+        data["cancel"] = cancel
+
+    progress_default = background.get("progressDefault")
+    if progress_default:
+        data["progressDefault"] = {
+            str(o): x for o, x in zip(progress_outputs, progress_default)
+        }
+    return to_json(data)
+
+
+def _progress_background_callback(response, callback_manager, background):
+    progress_outputs = background.get("progress")
+    cache_key = flask.request.args.get("cacheKey")
+
+    if progress_outputs:
+        # Get the progress before the result as it would be erased after the results.
+        progress = callback_manager.get_progress(cache_key)
+        if progress:
+            response["progress"] = {
+                str(x): progress[i] for i, x in enumerate(progress_outputs)
+            }
+
+
+def _update_background_callback(
+    error_handler, callback_ctx, response, kwargs, background, multi
+):
+    """Set up the background callback and manage jobs."""
+    callback_manager = _get_callback_manager(kwargs, background)
+
+    cache_key = flask.request.args.get("cacheKey")
+    job_id = flask.request.args.get("job")
+
+    _progress_background_callback(response, callback_manager, background)
+
+    output_value = callback_manager.get_result(cache_key, job_id)
+
+    return _handle_rest_background_callback(
+        output_value, callback_manager, response, error_handler, callback_ctx, multi
+    )
+
+
+def _handle_rest_background_callback(
+    output_value,
+    callback_manager,
+    response,
+    error_handler,
+    callback_ctx,
+    multi,
+    has_update=False,
+):
+    cache_key = flask.request.args.get("cacheKey")
+    job_id = flask.request.args.get("job")
+    # Must get job_running after get_result since get_results terminates it.
+    job_running = callback_manager.job_running(job_id)
+    if not job_running and output_value is callback_manager.UNDEFINED:
+        # Job canceled -> no output to close the loop.
+        output_value = NoUpdate()
+
+    elif isinstance(output_value, dict) and "background_callback_error" in output_value:
+        error = output_value.get("background_callback_error", {})
+        exc = BackgroundCallbackError(
+            f"An error occurred inside a background callback: {error['msg']}\n{error['tb']}"
+        )
+        if error_handler:
+            output_value = error_handler(exc)
+
+            if output_value is None:
+                output_value = NoUpdate()
+            # set_props from the error handler uses the original ctx
+            # instead of manager.get_updated_props since it runs in the
+            # request process.
+            has_update = (
+                _set_side_update(callback_ctx, response) or output_value is not None
+            )
+        else:
+            raise exc
+
+    if job_running and output_value is not callback_manager.UNDEFINED:
+        # cached results.
+        callback_manager.terminate_job(job_id)
+
+    if multi and isinstance(output_value, (list, tuple)):
+        output_value = [
+            NoUpdate() if NoUpdate.is_no_update(r) else r for r in output_value
+        ]
+    updated_props = callback_manager.get_updated_props(cache_key)
+    if len(updated_props) > 0:
+        response["sideUpdate"] = updated_props
+        has_update = True
+
+    if output_value is callback_manager.UNDEFINED:
+        return to_json(response), has_update, True
+    return output_value, has_update, False
+
+
+# pylint: disable=too-many-branches
+def _prepare_response(
+    output_value,
+    output_spec,
+    multi,
+    response,
+    callback_ctx,
+    app,
+    original_packages,
+    background,
+    has_update,
+    has_output,
+    output,
+    callback_id,
+    allow_dynamic_callbacks,
+):
+    """Prepare the response object based on the callback output."""
+    component_ids = collections.defaultdict(dict)
+
+    if has_output:
+        if not multi:
+            output_value, output_spec = [output_value], [output_spec]
+            flat_output_values = output_value
+        else:
+            if isinstance(output_value, (list, tuple)):
+                # For multi-output, allow top-level collection to be
+                # list or tuple
+                output_value = list(output_value)
+            if NoUpdate.is_no_update(output_value):
+                flat_output_values = [output_value]
+            else:
+                # Flatten grouping and validate grouping structure
+                flat_output_values = flatten_grouping(output_value, output)
+
+        if not NoUpdate.is_no_update(output_value):
+            _validate.validate_multi_return(
+                output_spec, flat_output_values, callback_id
+            )
+
+        for val, spec in zip(flat_output_values, output_spec):
+            if NoUpdate.is_no_update(val):
+                continue
+            for vali, speci in (
+                zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]
+            ):
+                if not NoUpdate.is_no_update(vali):
+                    has_update = True
+                    id_str = stringify_id(speci["id"])
+                    prop = clean_property_name(speci["property"])
+                    component_ids[id_str][prop] = vali
+
+    else:
+        if output_value is not None:
+            raise InvalidCallbackReturnValue(
+                f"No-output callback received return value: {output_value}"
+            )
+
+    if not background:
+        has_update = _set_side_update(callback_ctx, response) or has_output
+
+    if not has_update:
+        raise PreventUpdate
+
+    if len(ComponentRegistry.registry) != len(original_packages):
+        diff_packages = list(
+            set(ComponentRegistry.registry).difference(original_packages)
+        )
+        if not allow_dynamic_callbacks:
+            raise ImportedInsideCallbackError(
+                f"Component librar{'y' if len(diff_packages) == 1 else 'ies'} was imported during callback.\n"
+                "You can set `_allow_dynamic_callbacks` to allow for development purpose only."
+            )
+        dist = app.get_dist(diff_packages)
+        response["dist"] = dist
+    return response.update({"response": component_ids})
+
+
 # pylint: disable=too-many-branches,too-many-statements
 def register_callback(
     callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
@@ -364,7 +638,6 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
-
         if background is None:
             background_key = None
         else:
@@ -376,228 +649,69 @@ def register_callback(
 
         @wraps(func)
         def add_context(*args, **kwargs):
-            output_spec = kwargs.pop("outputs_list")
-            app_callback_manager = kwargs.pop("background_callback_manager", None)
-
-            callback_ctx = kwargs.pop(
-                "callback_context", AttributeDict({"updated_props": {}})
-            )
-            app = kwargs.pop("app", None)
-            callback_manager = background and background.get(
-                "manager", app_callback_manager
-            )
+            """Handles synchronous callbacks with context management."""
             error_handler = on_error or kwargs.pop("app_on_error", None)
-            original_packages = set(ComponentRegistry.registry)
 
-            if has_output:
-                _validate.validate_output_spec(insert_output, output_spec, Output)
-
-            context_value.set(callback_ctx)
-
-            func_args, func_kwargs = _validate.validate_and_group_input_args(
-                args, inputs_state_indices
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                has_update,
+            ) = _initialize_context(
+                args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
             response: dict = {"multi": True}
-            has_update = False
-
-            if background is not None:
-                if not callback_manager:
-                    raise MissingLongCallbackManagerError(
-                        "Running `background` callbacks requires a manager to be installed.\n"
-                        "Available managers:\n"
-                        "- Diskcache (`pip install dash[diskcache]`) to run callbacks in a separate Process"
-                        " and store results on the local filesystem.\n"
-                        "- Celery (`pip install dash[celery]`) to run callbacks in a celery worker"
-                        " and store results on redis.\n"
-                    )
-
-                progress_outputs = background.get("progress")
-                cache_key = flask.request.args.get("cacheKey")
-                job_id = flask.request.args.get("job")
-                old_job = flask.request.args.getlist("oldJob")
-
-                cache_ignore_triggered = background.get("cache_ignore_triggered", True)
-
-                current_key = callback_manager.build_cache_key(
-                    func,
-                    # Inputs provided as dict is kwargs.
-                    func_args if func_args else func_kwargs,
-                    background.get("cache_args_to_ignore", []),
-                    None
-                    if cache_ignore_triggered
-                    else callback_ctx.get("triggered_inputs", []),
-                )
-
-                if old_job:
-                    for job in old_job:
-                        callback_manager.terminate_job(job)
-
-                if not cache_key:
-                    cache_key = current_key
-
-                    job_fn = callback_manager.func_registry.get(background_key)
-
-                    ctx_value = AttributeDict(**context_value.get())
-                    ctx_value.ignore_register_page = True
-                    ctx_value.pop("background_callback_manager")
-                    ctx_value.pop("dash_response")
-
-                    job = callback_manager.call_job_fn(
-                        cache_key,
-                        job_fn,
-                        func_args if func_args else func_kwargs,
-                        ctx_value,
-                    )
-
-                    data = {
-                        "cacheKey": cache_key,
-                        "job": job,
-                    }
-
-                    cancel = background.get("cancel")
-                    if cancel:
-                        data["cancel"] = cancel
-
-                    progress_default = background.get("progressDefault")
-                    if progress_default:
-                        data["progressDefault"] = {
-                            str(o): x
-                            for o, x in zip(progress_outputs, progress_default)
-                        }
-                    return to_json(data)
-                if progress_outputs:
-                    # Get the progress before the result as it would be erased after the results.
-                    progress = callback_manager.get_progress(cache_key)
-                    if progress:
-                        response["progress"] = {
-                            str(x): progress[i] for i, x in enumerate(progress_outputs)
-                        }
-
-                output_value = callback_manager.get_result(cache_key, job_id)
-                # Must get job_running after get_result since get_results terminates it.
-                job_running = callback_manager.job_running(job_id)
-                if not job_running and output_value is callback_manager.UNDEFINED:
-                    # Job canceled -> no output to close the loop.
-                    output_value = NoUpdate()
-
-                elif (
-                    isinstance(output_value, dict)
-                    and "background_callback_error" in output_value
-                ):
-                    error = output_value.get("background_callback_error", {})
-                    exc = BackgroundCallbackError(
-                        f"An error occurred inside a background callback: {error['msg']}\n{error['tb']}"
-                    )
-                    if error_handler:
-                        output_value = error_handler(exc)
-
-                        if output_value is None:
-                            output_value = NoUpdate()
-                        # set_props from the error handler uses the original ctx
-                        # instead of manager.get_updated_props since it runs in the
-                        # request process.
-                        has_update = (
-                            _set_side_update(callback_ctx, response)
-                            or output_value is not None
-                        )
-                    else:
-                        raise exc
-
-                if job_running and output_value is not callback_manager.UNDEFINED:
-                    # cached results.
-                    callback_manager.terminate_job(job_id)
-
-                if multi and isinstance(output_value, (list, tuple)):
-                    output_value = [
-                        NoUpdate() if NoUpdate.is_no_update(r) else r
-                        for r in output_value
-                    ]
-                updated_props = callback_manager.get_updated_props(cache_key)
-                if len(updated_props) > 0:
-                    response["sideUpdate"] = updated_props
-                    has_update = True
-
-                if output_value is callback_manager.UNDEFINED:
-                    return to_json(response)
-            else:
-                try:
-                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
-                except PreventUpdate as err:
-                    raise err
-                except Exception as err:  # pylint: disable=broad-exception-caught
-                    if error_handler:
-                        output_value = error_handler(err)
-
-                        # If the error returns nothing, automatically puts NoUpdate for response.
-                        if output_value is None and has_output:
-                            output_value = NoUpdate()
-                    else:
-                        raise err
-
-            component_ids = collections.defaultdict(dict)
-
-            if has_output:
-                if not multi:
-                    output_value, output_spec = [output_value], [output_spec]
-                    flat_output_values = output_value
-                else:
-                    if isinstance(output_value, (list, tuple)):
-                        # For multi-output, allow top-level collection to be
-                        # list or tuple
-                        output_value = list(output_value)
-
-                    if NoUpdate.is_no_update(output_value):
-                        flat_output_values = [output_value]
-                    else:
-                        # Flatten grouping and validate grouping structure
-                        flat_output_values = flatten_grouping(output_value, output)
-
-                if not NoUpdate.is_no_update(output_value):
-                    _validate.validate_multi_return(
-                        output_spec, flat_output_values, callback_id
-                    )
-
-                for val, spec in zip(flat_output_values, output_spec):
-                    if NoUpdate.is_no_update(val):
-                        continue
-                    for vali, speci in (
-                        zip(val, spec) if isinstance(spec, list) else [[val, spec]]  # type: ignore[reportArgumentType]]
-                    ):
-                        if not NoUpdate.is_no_update(vali):
-                            has_update = True
-                            id_str = stringify_id(speci["id"])
-                            prop = clean_property_name(speci["property"])
-                            component_ids[id_str][prop] = vali
-            else:
-                if output_value is not None:
-                    raise InvalidCallbackReturnValue(
-                        f"No-output callback received return value: {output_value}"
-                    )
-                output_value = []
-                flat_output_values = []
-
-            if not background:
-                has_update = _set_side_update(callback_ctx, response) or has_update
-
-            if not has_update:
-                raise PreventUpdate
-
-            response["response"] = component_ids
-
-            if len(ComponentRegistry.registry) != len(original_packages):
-                diff_packages = list(
-                    set(ComponentRegistry.registry).difference(original_packages)
-                )
-                if not allow_dynamic_callbacks:
-                    raise ImportedInsideCallbackError(
-                        f"Component librar{'y' if len(diff_packages) == 1 else 'ies'} was imported during callback.\n"
-                        "You can set `_allow_dynamic_callbacks` to allow for development purpose only."
-                    )
-                dist = app.get_dist(diff_packages)
-                response["dist"] = dist
 
             jsonResponse = None
+            try:
+                if background is not None:
+                    if not flask.request.args.get("cacheKey"):
+                        return _setup_background_callback(
+                            kwargs,
+                            background,
+                            background_key,
+                            func,
+                            func_args,
+                            func_kwargs,
+                            callback_ctx,
+                        )
+
+                    output_value, has_update, skip = _update_background_callback(
+                        error_handler, callback_ctx, response, kwargs, background, multi
+                    )
+                    if skip:
+                        return output_value
+                else:
+                    output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
+            except PreventUpdate:
+                raise
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                if error_handler:
+                    output_value = error_handler(err)
+                    if output_value is None and output_spec:
+                        output_value = NoUpdate()
+                else:
+                    raise err
+
+            _prepare_response(
+                output_value,
+                output_spec,
+                multi,
+                response,
+                callback_ctx,
+                app,
+                original_packages,
+                background,
+                has_update,
+                has_output,
+                output,
+                callback_id,
+                allow_dynamic_callbacks,
+            )
             try:
                 jsonResponse = to_json(response)
             except TypeError:
@@ -605,7 +719,82 @@ def register_callback(
 
             return jsonResponse
 
-        callback_map[callback_id]["callback"] = add_context
+        @wraps(func)
+        async def async_add_context(*args, **kwargs):
+            """Handles async callbacks with context management."""
+            error_handler = on_error or kwargs.pop("app_on_error", None)
+
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                has_update,
+            ) = _initialize_context(
+                args, kwargs, inputs_state_indices, has_output, insert_output
+            )
+
+            response: dict = {"multi": True}
+
+            try:
+                if background is not None:
+                    if not flask.request.args.get("cacheKey"):
+                        return _setup_background_callback(
+                            kwargs,
+                            background,
+                            background_key,
+                            func,
+                            func_args,
+                            func_kwargs,
+                            callback_ctx,
+                        )
+                    output_value, has_update, skip = _update_background_callback(
+                        error_handler, callback_ctx, response, kwargs, background, multi
+                    )
+                    if skip:
+                        return output_value
+                else:
+                    output_value = await _async_invoke_callback(
+                        func, *func_args, **func_kwargs
+                    )
+            except PreventUpdate:
+                raise
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                if error_handler:
+                    output_value = error_handler(err)
+                    if output_value is None and output_spec:
+                        output_value = NoUpdate()
+                else:
+                    raise err
+
+            _prepare_response(
+                output_value,
+                output_spec,
+                multi,
+                response,
+                callback_ctx,
+                app,
+                original_packages,
+                background,
+                has_update,
+                has_output,
+                output,
+                callback_id,
+                allow_dynamic_callbacks,
+            )
+            try:
+                jsonResponse = to_json(response)
+            except TypeError:
+                _validate.fail_callback_output(output_value, output)
+
+            return jsonResponse
+
+        if asyncio.iscoroutinefunction(func):
+            callback_map[callback_id]["callback"] = async_add_context
+        else:
+            callback_map[callback_id]["callback"] = add_context
 
         return func
 
