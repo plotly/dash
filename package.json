@@ -31,10 +31,10 @@
     "private::test.unit-dash": "pytest tests/unit",
     "private::test.unit-renderer": "cd dash/dash-renderer && npm run test",
     "private::test.unit-generation": "cd @plotly/dash-generator-test-component-typescript && npm ci && npm test",
-    "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES}",
+    "private::test.integration-dash": "TESTFILES=$(circleci tests glob \"tests/integration/**/test_*.py\" | circleci tests split --split-by=timings) && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml ${TESTFILES} && python rerun_failed_tests.py",
     "private::test.integration-dash-import": "cd tests/integration/dash && python dash_import_test.py",
     "cibuild": "run-s private::cibuild.*",
-    "build": "run-s private::build.*",
+    "build": "run-p private::build.*",
     "build.sequential": "npm run private::build.jupyterlab && npm run private::build.renderer && npm run private::build.components -- --concurrency 1",
     "format": "run-s private::format.*",
     "initialize": "run-s private::initialize.*",
@@ -50,7 +50,8 @@
   "devDependencies": {
     "@lerna/filter-options": "^6.4.1",
     "husky": "8.0.3",
-    "lerna": "^6.6.2"
+    "lerna": "^6.6.2",
+    "lint-staged": "^16.1.0"
   },
   "dependencies": {
     "npm-run-all": "4.1.5",

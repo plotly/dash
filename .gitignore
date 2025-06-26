@@ -10,7 +10,7 @@ ignore
 .env
 .venv
 env/
-venv/
+venv*/
 ENV/
 env.bak/
 venv.bak/
@@ -78,6 +78,7 @@ DESCRIPTION
 NAMESPACE
 digest.json
 VERSION.txt
+packages/
 
 # vim
 *.swp
