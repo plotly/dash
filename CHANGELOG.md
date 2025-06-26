@@ -3,7 +3,7 @@ All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
-## [UNRELEASED]
+## [3.1.0] - 2025-06-27
 
 ## Fixed
 - [#3341](https://github.com/plotly/dash/pull/3341) Fixed query string parsing regression introduced in 2.18.2 where values containing unencoded `&` characters were being truncated. [#3106](https://github.com/plotly/dash/issues/3106)
@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3108](https://github.com/plotly/dash/pull/3108) Fix layout as list for pages.
 - [#1906](https://github.com/plotly/dash/pull/1906) Make graph height more responsive.
 - [#2927](https://github.com/plotly/dash/pull/2927) Fix unexpected behaviour of the cursor in dcc.Input
+- [#3344](https://github.com/plotly/dash/pull/3344) Fix dcc.Loading target_components with * prop.
 
 ## Added
 - [#3294](https://github.com/plotly/dash/pull/3294) Added the ability to pass `allow_optional` to Input and State to allow callbacks to work even if these components are not in the dash layout.
@@ -25,6 +26,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3303](https://github.com/plotly/dash/pull/3303) Improve flatten_grouping performance (callback with dictionary output/input)
 - [#3304](https://github.com/plotly/dash/pull/3304) Speed up function _operation by 80%
 - [#3323](https://github.com/plotly/dash/pull/3323) Make Dash instances WSGI compliant, can now call gunicorn on the dash app itself.
+
+## Updated
+
+- [#3333](https://github.com/plotly/dash/pull/3333) Update flask max version to <3.2
 
 ## [3.0.4] - 2025-04-24
 

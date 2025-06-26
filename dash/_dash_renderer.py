@@ -1,6 +1,6 @@
 import os
 
-__version__ = "2.0.8"
+__version__ = "2.1.0"
 
 _available_react_versions = {"18.3.1", "18.2.0", "16.14.0"}
 _available_reactdom_versions = {"18.3.1", "18.2.0", "16.14.0"}
@@ -64,7 +64,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@2.0.8"
+        "external_url": "https://unpkg.com/dash-renderer@2.1.0"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },
