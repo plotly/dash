@@ -58,7 +58,7 @@
     "@storybook/builder-webpack5": "^6.5.13",
     "@storybook/cli": "^6.5.13",
     "@storybook/manager-webpack5": "^6.5.16",
-    "@storybook/react": "^6.5.13",
+    "@storybook/react": "^9.0.13",
     "@storybook/semver": "^7.3.2",
     "@types/chai": "^4.3.5",
     "@types/d3-format": "^3.0.1",
