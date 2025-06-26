@@ -89,6 +89,10 @@ class Dropdown(Component):
         If True, this dropdown is disabled and the selection cannot be
         changed.
 
+    - closeOnSelect (boolean; default True):
+        If False, the menu of the dropdown will not close once a value is
+        selected.
+
     - optionHeight (number; default 35):
         height of each option. Can be increased when label lengths would
         wrap around.
@@ -161,6 +165,7 @@ class Dropdown(Component):
         search_value: typing.Optional[str] = None,
         placeholder: typing.Optional[str] = None,
         disabled: typing.Optional[bool] = None,
+        closeOnSelect: typing.Optional[bool] = None,
         optionHeight: typing.Optional[NumberType] = None,
         maxHeight: typing.Optional[NumberType] = None,
         style: typing.Optional[typing.Any] = None,
@@ -180,6 +185,7 @@ class Dropdown(Component):
             "search_value",
             "placeholder",
             "disabled",
+            "closeOnSelect",
             "optionHeight",
             "maxHeight",
             "style",
@@ -199,6 +205,7 @@ class Dropdown(Component):
             "search_value",
             "placeholder",
             "disabled",
+            "closeOnSelect",
             "optionHeight",
             "maxHeight",
             "style",
