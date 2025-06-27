@@ -616,3 +616,24 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
     dash_dcc.percy_snapshot("sliders-format-tooltips")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_slsl017_slider_marks_limit_exceeded(dash_dcc):
+    app = Dash()
+
+    # Create a slider with 5001 marks (should fail)
+    marks_5001 = {i: str(i) for i in range(5001)}
+
+    app.layout = html.Div(
+        [
+            html.Div(id="loaded", children="loaded"),
+            dcc.Slider(id="slider-5001", min=0, max=5000, marks=marks_5001, value=2500),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#loaded", "loaded")
+    # Check that an error was logged
+    logs = dash_dcc.get_logs()
+    assert any("Slider marks cannot exceed 5000 items" in str(log) for log in logs)

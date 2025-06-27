@@ -17,6 +17,8 @@ import {
 } from '../utils/formatSliderTooltip';
 import LoadingElement from '../utils/LoadingElement';
 
+const MAX_SLIDER_MARKS = 5000;
+
 const sliderProps = [
     'min',
     'max',
@@ -75,6 +77,15 @@ export default class Slider extends Component {
             verticalHeight,
         } = this.props;
         const value = this.state.value;
+
+        // Validate marks count
+        if (marks && Object.keys(marks).length > MAX_SLIDER_MARKS) {
+            throw new Error(
+                'Slider marks cannot exceed 5000 items. Received ' +
+                    Object.keys(marks).length +
+                    ' marks.'
+            );
+        }
 
         let tipProps, tipFormatter;
         if (tooltip) {
