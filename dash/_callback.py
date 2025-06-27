@@ -88,7 +88,7 @@ def callback(
     cache_args_to_ignore: Optional[list] = None,
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
-    api_path: Optional[str] = None,
+    api_endpoint: Optional[str] = None,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -227,7 +227,7 @@ def callback(
         manager=manager,
         running=running,
         on_error=on_error,
-        api_path=api_path,
+        api_endpoint=api_endpoint,
     )
 
 
@@ -648,9 +648,9 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
-        if _kwargs.get("api_path"):
-            api_path = _kwargs.get("api_path")
-            callback_api_paths[api_path] = func
+        if _kwargs.get("api_endpoint"):
+            api_endpoint = _kwargs.get("api_endpoint")
+            callback_api_paths[api_endpoint] = func
 
         if background is None:
             background_key = None

@@ -809,7 +809,6 @@ class Dash(ObsoleteChecker):
             return _parse_body_async
 
         for path, func in self.callback_api_paths.items():
-            print(path)
             if asyncio.iscoroutinefunction(func):
                 self._add_url(path, make_parse_body_async(func), ["POST"])
             else:
