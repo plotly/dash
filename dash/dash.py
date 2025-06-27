@@ -2491,9 +2491,9 @@ class Dash(ObsoleteChecker):
                 _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
                 _validate.validate_registry(_pages.PAGE_REGISTRY)
 
-                # Set validation_layout
-                if not self.config.suppress_callback_exceptions:
-                    layout = self.layout
+            # Set validation_layout
+            if not self.config.suppress_callback_exceptions:
+                layout = self.layout
                 if not isinstance(layout, list):
                     layout = [
                         # pylint: disable=not-callable
