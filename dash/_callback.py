@@ -72,6 +72,7 @@ class NoUpdate:
 GLOBAL_CALLBACK_LIST = []
 GLOBAL_CALLBACK_MAP = {}
 GLOBAL_INLINE_SCRIPTS = []
+GLOBAL_API_PATHS = {}
 
 
 # pylint: disable=too-many-locals
@@ -87,6 +88,7 @@ def callback(
     cache_args_to_ignore: Optional[list] = None,
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
+    api_path: Optional[str] = None,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -178,6 +180,7 @@ def callback(
     )
     callback_map = _kwargs.pop("callback_map", GLOBAL_CALLBACK_MAP)
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
+    callback_api_paths = _kwargs.pop("callback_api_paths", GLOBAL_API_PATHS)
 
     if background:
         background_spec: Any = {
@@ -217,12 +220,14 @@ def callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
+        callback_api_paths,
         *_args,
         **_kwargs,
         background=background_spec,
         manager=manager,
         running=running,
         on_error=on_error,
+        api_path=api_path,
     )
 
 
@@ -585,7 +590,12 @@ def _prepare_response(
 
 # pylint: disable=too-many-branches,too-many-statements
 def register_callback(
-    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+    callback_api_paths,
+    *_args,
+    **_kwargs,
 ):
     (
         output,
@@ -638,6 +648,10 @@ def register_callback(
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+        if _kwargs.get("api_path"):
+            api_path = _kwargs.get("api_path")
+            callback_api_paths[api_path] = func
+
         if background is None:
             background_key = None
         else:
