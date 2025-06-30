@@ -8,17 +8,6 @@ import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner.jsx';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner.jsx';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner.jsx';
 
-const stringifyId = id => {
-    if (typeof id !== 'object') {
-        return id;
-    }
-    const stringifyVal = v => (v && v.wild) || JSON.stringify(v);
-    const parts = Object.keys(id)
-        .sort()
-        .map(k => JSON.stringify(k) + ':' + stringifyVal(id[k]));
-    return '{' + parts.join(',') + '}';
-};
-
 const spinnerComponentOptions = {
     graph: GraphSpinner,
     cube: CubeSpinner,
@@ -51,7 +40,7 @@ const loadingSelector = (componentPath, targetComponents) => state => {
                 if (
                     targetComponents &&
                     !any(l => {
-                        const target = targetComponents[stringifyId(l.id)];
+                        const target = targetComponents[l.id];
                         if (!target) {
                             return false;
                         }
