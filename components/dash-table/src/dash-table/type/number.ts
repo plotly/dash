@@ -2,15 +2,11 @@ import * as R from 'ramda';
 import {formatLocale} from 'd3-format';
 import isNumeric from 'fast-isnumeric';
 
-import {
-    INumberColumn,
-    INumberLocale,
-    NumberFormat
-} from 'dash-table/components/Table/props';
+import {INumberColumn, NumberFormat} from 'dash-table/components/Table/props';
 import {reconcileNull, isNully} from './null';
 import {IReconciliation} from './reconcile';
 
-const convertToD3 = ({group, symbol, ...others}: INumberLocale) => ({
+const convertToD3 = ({group, symbol, ...others}: any): any => ({
     currency: symbol,
     thousands: group,
     ...R.omit(['separate_4digits', 'symbol'], others)

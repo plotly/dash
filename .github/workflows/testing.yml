@@ -1,0 +1,436 @@
+name: Dash Testing
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+
+  changes_filter:
+    name: Detect Relevant Path Changes
+    runs-on: ubuntu-latest
+    outputs:
+      # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
+      table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
+      background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed files for table tests
+        id: filter # Give an ID to this step to reference its outputs
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            table_related_paths:
+              - 'components/dash-table/**'
+              - 'dash/dash-renderer/**'
+            background_paths:
+              - 'dash/background_callback/**'
+              - 'dash/dash-renderer/**'
+              - 'dash/_callback.py'
+              - 'dash/_callback_context.py'
+              - 'tests/background_callback/**'
+              - 'tests/async_tests/**'
+              - 'requirements/**'
+
+  build:
+    name: Build Dash Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      artifact_name: dash-packages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js for frontend build
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Set up Python for build
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install build wheel
+          python -m pip install -e .[dev,ci]
+      
+      - name: Build Dash
+        run: npm run build
+
+      - name: Build Dash sdist and wheel
+        run: |
+          # This command will invoke hatchling (via hatch_dash.py) which includes building JS assets
+          python -m build --sdist --wheel
+          echo "Built packages:"
+          ls -lhR dist/
+          mkdir packages
+          cp dist/*.whl packages
+
+      - name: Upload Dash packages as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dash-packages # This name will be used by dependent jobs to download
+          path: packages/ # Upload the contents of the dist directory
+          retention-days: 1 # Keep artifact for 1 day (adjust as needed)
+
+  test-typing:
+    name: Typing Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+      
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
+
+      - name: Run typing tests
+        run: |
+          cd tests
+          pytest compliance/test_typing.py
+
+  background-callbacks:
+    name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.background_cb_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    # Service container for Redis
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Set REDIS_URL for your application/tests
+      # The service 'redis' will be available on localhost (or redis) at port 6379
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+      
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<78.0.0"
+          python -m pip install "selenium==4.32.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          # Attempt to install a specific recent, stable version or just google-chrome-stable
+          # For more deterministic builds, you might consider a specific version if available via apt,
+          # or using a Docker image with Chrome pre-installed if extreme consistency is needed.
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install ChromeDriver
+        run: |
+          echo "Determining Chrome version..."
+          CHROME_BROWSER_VERSION=$(google-chrome --version)
+          echo "Installed Chrome Browser version: $CHROME_BROWSER_VERSION"
+          # Extract the major version number (e.g., 124 from "Google Chrome 124.0.6367.207")
+          CHROME_MAJOR_VERSION=$(echo "$CHROME_BROWSER_VERSION" | cut -f 3 -d ' ' | cut -f 1 -d '.')
+          echo "Detected Chrome Major version: $CHROME_MAJOR_VERSION"
+
+          # For Chrome 115 and later, use the new Chrome for Testing (CfT) JSON endpoints
+          if [ "$CHROME_MAJOR_VERSION" -ge 115 ]; then
+            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using CfT endpoint..."
+            # Get the latest known good version of chromedriver for this major Chrome version
+            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+            if [ -z "$CHROMEDRIVER_VERSION_STRING" ]; then
+              echo "Could not automatically find ChromeDriver version for Chrome $CHROME_MAJOR_VERSION via LATEST_RELEASE. Please check CfT endpoints."
+              # As a fallback, attempt to fetch the known good versions and pick the latest chromedriver.
+              # This is more complex and might require parsing JSON with jq.
+              # For simplicity, we'll rely on LATEST_RELEASE_ for now.
+              # If that fails consistently, you might need a more robust script or a fixed ChromeDriver version.
+              # Alternative: List all known good versions
+              # curl -sS "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+              exit 1
+            fi
+            CHROMEDRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION_STRING}/linux64/chromedriver-linux64.zip"
+          else
+            # For older Chrome versions (less common now)
+            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using older method..."
+            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+            CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION_STRING}/chromedriver_linux64.zip"
+          fi
+
+          echo "Using ChromeDriver version string: $CHROMEDRIVER_VERSION_STRING"
+          echo "Downloading ChromeDriver from: $CHROMEDRIVER_URL"
+
+          wget -q -O chromedriver.zip "$CHROMEDRIVER_URL"
+          unzip -o chromedriver.zip -d /tmp/ # Unzip to /tmp
+          # The zip for CfT often contains a directory like chromedriver-linux64/
+          sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver || sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+          # Add /usr/local/bin to GITHUB_PATH to ensure chromedriver is found
+          echo "/usr/local/bin" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Verify Redis connection
+        run: |
+          python -c "import redis; r = redis.Redis(host='localhost', port=6379, db=0); r.ping(); print('Successfully connected to Redis!')"
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run Background & Async Callback Tests
+        run: |
+          mkdir bgtests
+          cp -r tests bgtests/tests
+          cd bgtests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/background_callback -v -s
+
+      - name: Run Async Callback Tests
+        run: |
+          cd bgtests
+          pytest --headless --nopercyfinalize tests/async_tests -v -s
+
+  table-unit:
+    name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.table_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages # Must match the name used in the 'build' job's upload step
+          path: packages/ # Download to a local 'dist' directory
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+      
+      - name: Lint
+        run: |
+          cd components/dash-table
+          npm ci
+          npm run lint
+
+      - name: Unit
+        run: |
+          cd components/dash-table
+          npm run test.unit
+
+  table-server:
+    name: Table Server Tests (Group ${{ matrix.test-group }})
+    needs: [build, changes_filter]
+    # Conditional execution:
+    # OR if the 'changes_filter' job detected changes in 'table_related_paths'.
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.table_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12"]
+        test-group: ["1", "2", "3"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          pip install pytest-split
+
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          # Attempt to install a specific recent, stable version or just google-chrome-stable
+          # For more deterministic builds, you might consider a specific version if available via apt,
+          # or using a Docker image with Chrome pre-installed if extreme consistency is needed.
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install ChromeDriver
+        run: |
+          echo "Determining Chrome version..."
+          CHROME_BROWSER_VERSION=$(google-chrome --version)
+          echo "Installed Chrome Browser version: $CHROME_BROWSER_VERSION"
+          # Extract the major version number (e.g., 124 from "Google Chrome 124.0.6367.207")
+          CHROME_MAJOR_VERSION=$(echo "$CHROME_BROWSER_VERSION" | cut -f 3 -d ' ' | cut -f 1 -d '.')
+          echo "Detected Chrome Major version: $CHROME_MAJOR_VERSION"
+
+          # For Chrome 115 and later, use the new Chrome for Testing (CfT) JSON endpoints
+          if [ "$CHROME_MAJOR_VERSION" -ge 115 ]; then
+            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using CfT endpoint..."
+            # Get the latest known good version of chromedriver for this major Chrome version
+            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+            if [ -z "$CHROMEDRIVER_VERSION_STRING" ]; then
+              echo "Could not automatically find ChromeDriver version for Chrome $CHROME_MAJOR_VERSION via LATEST_RELEASE. Please check CfT endpoints."
+              # As a fallback, attempt to fetch the known good versions and pick the latest chromedriver.
+              # This is more complex and might require parsing JSON with jq.
+              # For simplicity, we'll rely on LATEST_RELEASE_ for now.
+              # If that fails consistently, you might need a more robust script or a fixed ChromeDriver version.
+              # Alternative: List all known good versions
+              # curl -sS "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+              exit 1
+            fi
+            CHROMEDRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION_STRING}/linux64/chromedriver-linux64.zip"
+          else
+            # For older Chrome versions (less common now)
+            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using older method..."
+            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+            CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION_STRING}/chromedriver_linux64.zip"
+          fi
+
+          echo "Using ChromeDriver version string: $CHROMEDRIVER_VERSION_STRING"
+          echo "Downloading ChromeDriver from: $CHROMEDRIVER_URL"
+
+          wget -q -O chromedriver.zip "$CHROMEDRIVER_URL"
+          unzip -o chromedriver.zip -d /tmp/ # Unzip to /tmp
+          # The zip for CfT often contains a directory like chromedriver-linux64/
+          sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver || sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
+          # Add /usr/local/bin to GITHUB_PATH to ensure chromedriver is found
+          echo "/usr/local/bin" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Verify ChromeDriver Installation
+        run: |
+          chromedriver --version
+
+      - name: Run Table Server Tests
+        run: |
+          cd components/dash-table
+          pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}

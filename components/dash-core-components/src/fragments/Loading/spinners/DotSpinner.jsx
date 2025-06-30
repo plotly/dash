@@ -8,7 +8,7 @@ import DebugTitle from './DebugTitle.jsx';
  */
 const DotSpinner = ({status, color, fullscreen, debug, className, style}) => {
     let debugTitle;
-    if (debug) {
+    if (debug && status) {
         debugTitle = status.map((s) => <DebugTitle {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';

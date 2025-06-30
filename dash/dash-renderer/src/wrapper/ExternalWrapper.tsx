@@ -13,12 +13,13 @@ import {
 type Props = {
     component: DashComponent;
     componentPath: DashLayoutPath;
+    temp?: boolean; // If true, the component will be removed on unmount.
 };
 
 /**
  * For rendering components that are out of the regular layout tree.
  */
-function ExternalWrapper({component, componentPath}: Props) {
+function ExternalWrapper({component, componentPath, temp = false}: Props) {
     const dispatch: any = useDispatch();
     const [inserted, setInserted] = useState(false);
 
@@ -33,7 +34,9 @@ function ExternalWrapper({component, componentPath}: Props) {
         );
         setInserted(true);
         return () => {
-            dispatch(removeComponent({componentPath}));
+            if (temp) {
+                dispatch(removeComponent({componentPath}));
+            }
         };
     }, []);
 

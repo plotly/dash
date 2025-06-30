@@ -55,6 +55,9 @@ const loadingSelector = (componentPath, targetComponents) => state => {
                         if (!target) {
                             return false;
                         }
+                        if (target === '*') {
+                            return true;
+                        }
                         if (Array.isArray(target)) {
                             return includes(l.property, target);
                         }

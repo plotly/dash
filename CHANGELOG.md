@@ -2,12 +2,50 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+# [3.1.1] - 2025-06-29
+
+## Fixed
+[#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
+
+## [3.1.0] - 2025-06-27
+
+## Fixed
+- [#3341](https://github.com/plotly/dash/pull/3341) Fixed query string parsing regression introduced in 2.18.2 where values containing unencoded `&` characters were being truncated. [#3106](https://github.com/plotly/dash/issues/3106)
+- [#3279](https://github.com/plotly/dash/pull/3279) Fix an issue where persisted values were incorrectly pruned when updated via callback. Now, callback returned values are correctly stored in the persistence storage. Fix [#2678](https://github.com/plotly/dash/issues/2678)
+- [#3298](https://github.com/plotly/dash/pull/3298) Fix dev_only resources filtering.
+- [#3315](https://github.com/plotly/dash/pull/3315) Fix pages module is package check.
+- [#3319](https://github.com/plotly/dash/pull/3319) Fix issue where `ExternalWrapper` would remove props from the parent component, now there is a `temp` that is passed to check if it should be removed on unmount.
+- [#3108](https://github.com/plotly/dash/pull/3108) Fix layout as list for pages.
+- [#1906](https://github.com/plotly/dash/pull/1906) Make graph height more responsive.
+- [#2927](https://github.com/plotly/dash/pull/2927) Fix unexpected behaviour of the cursor in dcc.Input
+- [#3344](https://github.com/plotly/dash/pull/3344) Fix dcc.Loading target_components with * prop.
+
+## Added
+- [#3294](https://github.com/plotly/dash/pull/3294) Added the ability to pass `allow_optional` to Input and State to allow callbacks to work even if these components are not in the dash layout.
+- [#3077](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
+- [#3202](https://github.com/plotly/dash/pull/3202) expose the closeOnSelect option in dropdown component
+- [#3089](https://github.com/plotly/dash/pull/3089) adding support for async callbacks and page layouts, install with `pip install dash[async]`.
+
+## Changed
+
+- [#3303](https://github.com/plotly/dash/pull/3303) Improve flatten_grouping performance (callback with dictionary output/input)
+- [#3304](https://github.com/plotly/dash/pull/3304) Speed up function _operation by 80%
+- [#3323](https://github.com/plotly/dash/pull/3323) Make Dash instances WSGI compliant, can now call gunicorn on the dash app itself.
+
+## Updated
+
+- [#3333](https://github.com/plotly/dash/pull/3333) Update flask max version to <3.2
+
+## [3.0.4] - 2025-04-24
 
 ## Fixed
 - [#3278](https://github.com/plotly/dash/pull/3278) Fix loading selector with children starting at the same digit. Fix [#3276](https://github.com/plotly/dash/issues/3276)
 - [#3280](https://github.com/plotly/dash/pull/3280) Remove flask typing import not available in earlier versions.
 - [#3284](https://github.com/plotly/dash/pull/3284) Fix component as props having the same key when used in the same container.
+- [#3287](https://github.com/plotly/dash/pull/3287) Fix typing component generation & explicitize_args.
+- [#3282](https://github.com/plotly/dash/pull/3282) Fix incorrect cancellation of pattern matched long callbacks.
+- [#3289](https://github.com/plotly/dash/pull/3289) Fixed issue with debugTitle where status doesnt exist and allow_duplicates to ignore the hash for prop loading in the target.
+- [#3281](https://github.com/plotly/dash/pull/3281) Use routes_pathname_prefix for internal Alive URL in Dash app. Fix [#3270](https://github.com/plotly/dash/issues/3270)
 
 ## [3.0.3] - 2025-04-14
 
@@ -94,6 +132,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3093](https://github.com/plotly/dash/pull/3093) Changed default React version to 18.3.1
   - `defaultProps` on functional components now emits a deprecation warning.
   - Deprecation notice on strings refs.
+
+## Added
+
+- [#3068](https://github.com/plotly/dash/pull/3068) Add titles to labels in Checklist and RadioItems components
 
 ## Fixed
 

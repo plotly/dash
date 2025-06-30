@@ -163,6 +163,12 @@ class Browser(DashPageMixin):
         """
         if widths is None:
             widths = [1280]
+        try:
+            import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa: F401, C0415
+
+            name += "_async"
+        except ImportError:
+            pass
 
         logger.info("taking snapshot name => %s", name)
         try:
@@ -475,15 +481,12 @@ class Browser(DashPageMixin):
         )
 
         if self._headless:
-            options.headless = True
+            options.add_argument("--headless")
 
         return options
 
     def _get_chrome(self):
         options = self._get_wd_options()
-
-        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
-        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
 
         if "DASH_TEST_CHROMEPATH" in os.environ:
             options.binary_location = os.environ["DASH_TEST_CHROMEPATH"]
@@ -498,10 +501,13 @@ class Browser(DashPageMixin):
                 "safebrowsing.disable_download_protection": True,
             },
         )
+
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-gpu")
-        options.add_argument("--remote-debugging-port=9222")
+        options.add_argument("--remote-debugging-port=0")
+
+        options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
 
         chrome = (
             webdriver.Remote(command_executor=self._remote_url, options=options)  # type: ignore[reportAttributeAccessIssue]
@@ -529,7 +535,6 @@ class Browser(DashPageMixin):
     def _get_firefox(self):
         options = self._get_wd_options()
 
-        options.set_capability("loggingPrefs", {"browser": "SEVERE"})
         options.set_capability("marionette", True)
 
         options.set_preference("browser.download.dir", self.download_path)
