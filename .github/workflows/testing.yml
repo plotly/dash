@@ -34,6 +34,8 @@ jobs:
               - 'dash/dash-renderer/**'
               - 'dash/_callback.py'
               - 'dash/_callback_context.py'
+              - 'tests/background_callback/**'
+              - 'tests/async_tests/**'
               - 'requirements/**'
 
   build:
@@ -263,6 +265,10 @@ jobs:
           cd bgtests
           touch __init__.py
           pytest --headless --nopercyfinalize tests/background_callback -v -s
+
+      - name: Run Async Callback Tests
+        run: |
+          cd bgtests
           pytest --headless --nopercyfinalize tests/async_tests -v -s
 
   table-unit:

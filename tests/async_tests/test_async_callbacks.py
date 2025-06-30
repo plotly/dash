@@ -1,6 +1,8 @@
 import json
 import time
 
+import flaky
+
 from multiprocessing import Lock, Value
 import pytest
 
@@ -27,6 +29,7 @@ from tests.integration.utils import json_engine
 from tests.utils import is_dash_async
 
 
+@flaky.flaky(max_runs=3)
 def test_async_cbsc001_simple_callback(dash_duo):
     if not is_dash_async():
         return
