@@ -2,6 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+# [3.1.1] - 2025-06-29
+
+## Fixed
+[#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
 
 ## [3.1.0] - 2025-06-27
 
@@ -20,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3294](https://github.com/plotly/dash/pull/3294) Added the ability to pass `allow_optional` to Input and State to allow callbacks to work even if these components are not in the dash layout.
 - [#3077](https://github.com/plotly/dash/pull/3077) Add new parameter `assets_path_ignore` to `dash.Dash()`. Closes [#3076](https://github.com/plotly/dash/issues/3076)
 - [#3202](https://github.com/plotly/dash/pull/3202) expose the closeOnSelect option in dropdown component
+- [#3089](https://github.com/plotly/dash/pull/3089) adding support for async callbacks and page layouts, install with `pip install dash[async]`.
 
 ## Changed
 
