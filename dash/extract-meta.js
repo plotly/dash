@@ -47,6 +47,7 @@ function getTsConfigCompilerOptions() {
 
 let failedBuild = false;
 const excludedDocProps = ['setProps', 'id', 'className', 'style'];
+const errorFiles = [];
 
 const isOptional = prop => (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
 
@@ -91,14 +92,18 @@ function logError(error, filePath) {
     if (error instanceof Error) {
         process.stderr.write(error.stack + '\n');
     }
+    if (filePath && !errorFiles.includes(filePath)) {
+        errorFiles.push(filePath);
+    }
 }
 
-function isReservedPropName(propName) {
+function isReservedPropName(propName, filepath) {
     reservedPatterns.forEach(reservedPattern => {
         if (reservedPattern.test(propName)) {
-            process.stderr.write(
-                `\nERROR: "${propName}" matches reserved word ` +
-                    `pattern: ${reservedPattern.toString()}\n`
+            logError(
+                `\nERROR:${filepath}: "${propName}" matches reserved word ` +
+                    `pattern: ${reservedPattern.toString()}\n`,
+                filepath
             );
             failedBuild = true;
         }
@@ -140,7 +145,7 @@ function parseJSX(filepath) {
         const src = fs.readFileSync(filepath);
         const doc = reactDocs.parse(src);
         Object.keys(doc.props).forEach(propName =>
-            isReservedPropName(propName)
+            isReservedPropName(propName, filepath)
         );
         docstringWarning(doc);
         return doc;
@@ -152,6 +157,7 @@ function parseJSX(filepath) {
 function gatherComponents(sources, components = {}) {
     const names = [];
     const filepaths = [];
+    let currentFilepath = "";  // For debugging purposes.
 
     const gather = filepath => {
         if (ignorePattern && ignorePattern.test(filepath)) {
@@ -166,8 +172,9 @@ function gatherComponents(sources, components = {}) {
                 filepaths.push(filepath);
                 names.push(name);
             } catch (err) {
-                process.stderr.write(
-                    `ERROR: Invalid component file ${filepath}: ${err}`
+                logError(
+                    `ERROR: Invalid component file ${filepath}: ${err}`,
+                    filepath,
                 );
             }
         }
@@ -594,7 +601,7 @@ function gatherComponents(sources, components = {}) {
 
         properties.forEach(prop => {
             const name = prop.getName();
-            if (isReservedPropName(name)) {
+            if (isReservedPropName(name, currentFilepath)) {
                 return;
             }
             const propType = checker.getTypeOfSymbolAtLocation(
@@ -660,6 +667,7 @@ function gatherComponents(sources, components = {}) {
     };
 
     zipArrays(filepaths, names).forEach(([filepath, name]) => {
+        currentFilepath = filepath;
         const source = program.getSourceFile(filepath);
         const moduleSymbol = checker.getSymbolAtLocation(source);
         const exports = checker.getExportsOfModule(moduleSymbol);
@@ -791,5 +799,9 @@ if (!failedBuild) {
     process.stdout.write(JSON.stringify(metadata, null, 2));
 } else {
     logError('extract-meta failed');
+    logError('Check these files for errors:')
+    errorFiles.forEach((errorFile) => {
+        logError(`Error in: ${errorFile}`)
+    })
     process.exit(1);
 }
