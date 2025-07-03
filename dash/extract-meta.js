@@ -97,11 +97,11 @@ function logError(error, filePath) {
     }
 }
 
-function isReservedPropName(propName, filepath) {
+function isReservedPropName(propName, filepath, baseProp) {
     reservedPatterns.forEach(reservedPattern => {
         if (reservedPattern.test(propName)) {
             logError(
-                `\nERROR:${filepath}: "${propName}" matches reserved word ` +
+                `\nERROR:${filepath}: "${baseProp ? baseProp + "." : ""}${propName}" matches reserved word ` +
                     `pattern: ${reservedPattern.toString()}\n`,
                 filepath
             );
@@ -157,7 +157,7 @@ function parseJSX(filepath) {
 function gatherComponents(sources, components = {}) {
     const names = [];
     const filepaths = [];
-    let currentFilepath = "";  // For debugging purposes.
+    let currentFilepath = "", currentBasePropName = "";  // For debugging purposes.
 
     const gather = filepath => {
         if (ignorePattern && ignorePattern.test(filepath)) {
@@ -601,7 +601,11 @@ function gatherComponents(sources, components = {}) {
 
         properties.forEach(prop => {
             const name = prop.getName();
-            if (isReservedPropName(name, currentFilepath)) {
+
+            if (parentType === null) {
+                currentBasePropName = name;
+            }
+            if (isReservedPropName(name, currentFilepath, currentBasePropName)) {
                 return;
             }
             const propType = checker.getTypeOfSymbolAtLocation(
