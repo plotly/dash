@@ -753,7 +753,7 @@ export function executeCallback(
             const loadingOutputs = outputs.map(out => ({
                 path: getPath(paths, out.id),
                 property: out.property?.split('@')[0],
-                id: out.id
+                id: stringifyId(out.id)
             }));
             dispatch(loading(loadingOutputs));
             try {

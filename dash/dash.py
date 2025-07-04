@@ -2444,8 +2444,8 @@ class Dash(ObsoleteChecker):
                             else self.layout
                         ]
                     )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
             else:
 
                 @self.callback(
