@@ -8,7 +8,7 @@ import os
 import argparse
 import shutil
 import functools
-import pkg_resources
+from importlib import resources
 import yaml
 
 from ._r_components_generation import write_class_file
@@ -57,7 +57,7 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
-    extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
+    extract_path = os.path.join(str(resources.files("dash")), "extract-meta.js")
 
     reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 

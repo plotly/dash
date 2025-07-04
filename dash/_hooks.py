@@ -244,7 +244,7 @@ class HooksManager:
         return cls.hooks.get_hooks(hook)
 
     @classmethod
-    def register_setuptools(cls):
+    def register_plugins(cls):
         if cls._registered:
             # Only have to register once.
             return

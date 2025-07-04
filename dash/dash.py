@@ -642,7 +642,7 @@ class Dash(ObsoleteChecker):
         from ._hooks import HooksManager
 
         self._hooks = HooksManager
-        self._hooks.register_setuptools()
+        self._hooks.register_plugins()
 
         for setup in self._hooks.get_hooks("setup"):
             setup(self)
