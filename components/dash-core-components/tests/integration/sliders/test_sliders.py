@@ -616,3 +616,50 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
     dash_dcc.percy_snapshot("sliders-format-tooltips")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_slsl017_marks_limit_500(dash_dcc):
+    """Test that slider works with exactly 500 marks"""
+    app = Dash(__name__)
+    marks_500 = {str(i): f"Mark {i}" for i in range(500)}
+    app.layout = html.Div(
+        [
+            dcc.Slider(id="slider", min=0, max=499, marks=marks_500, value=250),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), [Input("slider", "value")])
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#output", "Selected: 250")
+
+    # No warnings should be logged for 500 marks
+    assert dash_dcc.get_logs() == []
+
+
+def test_slsl018_marks_limit_exceeded(dash_dcc):
+    """Test behavior when marks exceed 500 limit"""
+    app = Dash(__name__)
+    marks_501 = {str(i): f"Mark {i}" for i in range(501)}
+    app.layout = html.Div(
+        [
+            dcc.Slider(id="slider", min=0, max=500, marks=marks_501, value=250),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), [Input("slider", "value")])
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#output", "Selected: 250")
+
+    # Check that warning is logged
+    logs = dash_dcc.get_logs()
+    assert len(logs) > 0
+    warning_found = any("Too many marks" in log["message"] for log in logs)
+    assert warning_found, "Expected warning about too many marks not found in logs"
