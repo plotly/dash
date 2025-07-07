@@ -1,21 +1,21 @@
 import collections
 import importlib
+import importlib.util  # to make the type checker happy
 import os
 import re
 import sys
 from fnmatch import fnmatch
-from pathlib import Path
 from os.path import isfile, join
-from urllib.parse import parse_qs, unquote
+from pathlib import Path
+from urllib.parse import parse_qs
 
 import flask
 
 from . import _validate
-from ._utils import AttributeDict
-from ._get_paths import get_relative_path
 from ._callback_context import context_value
 from ._get_app import get_app
-
+from ._get_paths import get_relative_path
+from ._utils import AttributeDict
 
 CONFIG = AttributeDict()
 PAGE_REGISTRY = collections.OrderedDict()
@@ -85,10 +85,10 @@ def _infer_path(module_name, template):
 
 
 def _module_name_is_package(module_name):
-    return (
-        module_name in sys.modules
-        and Path(sys.modules[module_name].__file__).name == "__init__.py"
-    )
+    if module_name not in sys.modules:
+        return False
+    file = sys.modules[module_name].__file__
+    return file and file.endswith("__init__.py")
 
 
 def _path_to_module_name(path):
@@ -113,17 +113,14 @@ def _infer_module_name(page_path):
 
 
 def _parse_query_string(search):
-    search = unquote(search)
-    if search and len(search) > 0 and search[0] == "?":
-        search = search[1:]
-    else:
+    if not search or not search.startswith("?"):
         return {}
 
-    parsed_qs = {}
-    for (k, v) in parse_qs(search).items():
-        v = v[0] if len(v) == 1 else v
-        parsed_qs[k] = v
-    return parsed_qs
+    query_string = search[1:]
+
+    parsed_qs = parse_qs(query_string, keep_blank_values=True)
+
+    return {k: v[0] if len(v) == 1 else v for k, v in parsed_qs.items()}
 
 
 def _parse_path_variables(pathname, path_template):
@@ -441,8 +438,8 @@ def _import_layouts_from_pages(pages_folder):
 
             module_name = _infer_module_name(page_path)
             spec = importlib.util.spec_from_file_location(module_name, page_path)
-            page_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(page_module)
+            page_module = importlib.util.module_from_spec(spec)  # type: ignore[reportArgumentType]
+            spec.loader.exec_module(page_module)  # type: ignore[reportOptionalMemberAccess]
             sys.modules[module_name] = page_module
 
             if (

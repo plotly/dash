@@ -4,7 +4,7 @@ import React from 'react';
 /**
  * MyNestedComponent description
  */
-const MyNestedComponent = ({ id, value }) => (<div id={id}>{value}</div>);
+const MyNestedComponent = ({ id, value = '' }) => (<div id={id}>{value}</div>);
 
 MyNestedComponent.propTypes = {
     /**
@@ -16,10 +16,6 @@ MyNestedComponent.propTypes = {
      * The value to display
      */
     value: PropTypes.string
-};
-
-MyNestedComponent.defaultProps = {
-    value: ''
 };
 
 export default MyNestedComponent;

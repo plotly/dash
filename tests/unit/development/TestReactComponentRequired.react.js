@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 // A react component with all of the available proptypes to run tests over
 
 /**
@@ -7,7 +7,7 @@ import React from 'react';
  */
 class ReactComponent extends Component {
     render() {
-        return '';
+        return "";
     }
 }
 

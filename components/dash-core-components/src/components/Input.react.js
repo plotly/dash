@@ -3,6 +3,7 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import isNumeric from 'fast-isnumeric';
 import './css/input.css';
+import LoadingElement from '../utils/LoadingElement';
 
 // eslint-disable-next-line no-implicit-coercion
 const convert = val => (isNumeric(val) ? +val : NaN);
@@ -94,14 +95,11 @@ export default class Input extends PureComponent {
     render() {
         const valprops =
             this.props.type === 'number' ? {} : {value: this.state.value};
-        const {loading_state} = this.props;
         let {className} = this.props;
         className = 'dash-input' + (className ? ` ${className}` : '');
         return (
-            <input
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
+            <LoadingElement
+                elementType={'input'}
                 className={className}
                 ref={this.input}
                 onBlur={this.onBlur}
@@ -184,16 +182,23 @@ export default class Input extends PureComponent {
 
     onChange() {
         const {debounce} = this.props;
-        if (debounce) {
-            if (Number.isFinite(debounce)) {
-                this.debounceEvent(debounce);
+        const input = this.input.current;
+        const cursorPosition = input.selectionStart;
+        const currentValue = input.value;
+        this.setState({value: currentValue}, () => {
+            if (debounce) {
+                if (Number.isFinite(debounce)) {
+                    this.debounceEvent(debounce);
+                }
+                if (this.props.type !== 'number') {
+                    setTimeout(() => {
+                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    }, 0);
+                }
+            } else {
+                this.onEvent();
             }
-            if (this.props.type !== 'number') {
-                this.setState({value: this.input.current.value});
-            }
-        } else {
-            this.onEvent();
-        }
+        });
     }
 }
 
@@ -470,24 +475,6 @@ Input.propTypes = {
      * Dash-assigned callback that gets fired when the value changes.
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when

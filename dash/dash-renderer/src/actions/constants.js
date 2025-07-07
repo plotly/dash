@@ -8,7 +8,9 @@ const actionList = {
     SET_CONFIG: 1,
     ADD_HTTP_HEADERS: 1,
     ON_ERROR: 1,
-    SET_HOOKS: 1
+    SET_HOOKS: 1,
+    INSERT_COMPONENT: 1,
+    REMOVE_COMPONENT: 1
 };
 
 export const getAction = action => {

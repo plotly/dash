@@ -1,3 +1,5 @@
+# type: ignore
+
 import os as _os
 import sys as _sys
 import json

@@ -10,11 +10,12 @@ import {
     calcStep,
     setUndefined,
 } from '../utils/computeSliderMarkers';
-import {propTypes, defaultProps} from '../components/RangeSlider.react';
+import {propTypes} from '../components/RangeSlider.react';
 import {
     formatSliderTooltip,
     transformSliderTooltip,
 } from '../utils/formatSliderTooltip';
+import LoadingElement from '../utils/LoadingElement';
 
 const sliderProps = [
     'min',
@@ -63,7 +64,6 @@ export default class RangeSlider extends Component {
         const {
             className,
             id,
-            loading_state,
             setProps,
             tooltip,
             updatemode,
@@ -106,11 +106,8 @@ export default class RangeSlider extends Component {
         }
 
         return (
-            <div
+            <LoadingElement
                 id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
                 className={className}
                 style={this._computeStyle(vertical, verticalHeight, tooltip)}
             >
@@ -149,10 +146,9 @@ export default class RangeSlider extends Component {
                     }
                     {...pick(sliderProps, this.props)}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }
 
 RangeSlider.propTypes = propTypes;
-RangeSlider.defaultProps = defaultProps;

@@ -3,7 +3,6 @@ import pytest
 import time
 import json
 
-import werkzeug
 from selenium.webdriver import ActionChains
 
 from dash import Dash, Input, Output, State, dcc, html
@@ -14,6 +13,8 @@ from dash.testing.wait import until
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+from flaky import flaky
 
 
 @pytest.mark.parametrize("is_eager", [True, False])
@@ -227,10 +228,6 @@ def assert_graph_equals(browser, graph_id, graph_data):
         assert y == expected_y
 
 
-@pytest.mark.skipif(
-    werkzeug.__version__ in ("2.1.0", "2.1.1"),
-    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
-)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
@@ -378,10 +375,6 @@ def test_grva004_graph_prepend_trace(dash_dcc, is_eager):
     assert dash_dcc.get_logs() == []
 
 
-@pytest.mark.skipif(
-    werkzeug.__version__ in ("2.1.0", "2.1.1"),
-    reason="Bug with no_update 204 responses get Transfer-Encoding header.",
-)
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grva005_graph_extend_trace(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
@@ -681,6 +674,7 @@ def test_grva007_external_plotlyjs_prevents_lazy(is_eager, dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_grva008_shapes_not_lost(dash_dcc):
     # See issue #879 and pr #905
     app = Dash(__name__)

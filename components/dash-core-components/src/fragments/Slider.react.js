@@ -10,11 +10,14 @@ import {
     calcStep,
     setUndefined,
 } from '../utils/computeSliderMarkers';
-import {propTypes, defaultProps} from '../components/Slider.react';
+import {propTypes} from '../components/Slider.react';
 import {
     formatSliderTooltip,
     transformSliderTooltip,
 } from '../utils/formatSliderTooltip';
+import LoadingElement from '../utils/LoadingElement';
+
+const MAX_MARKS = 500;
 
 const sliderProps = [
     'min',
@@ -63,7 +66,6 @@ export default class Slider extends Component {
         const {
             className,
             id,
-            loading_state,
             setProps,
             tooltip,
             updatemode,
@@ -75,6 +77,21 @@ export default class Slider extends Component {
             verticalHeight,
         } = this.props;
         const value = this.state.value;
+
+        // Check if marks exceed 500 limit for performance
+        let processedMarks = marks;
+        if (marks && typeof marks === 'object' && marks !== null) {
+            const marksCount = Object.keys(marks).length;
+            if (marksCount > MAX_MARKS) {
+                /* eslint-disable no-console */
+                console.error(
+                    `dcc.Slider: Too many marks (${marksCount}) provided. ` +
+                        `For performance reasons, marks are limited to 500. ` +
+                        `Using auto-generated marks instead.`
+                );
+                processedMarks = undefined;
+            }
+        }
 
         let tipProps, tipFormatter;
         if (tooltip) {
@@ -106,11 +123,8 @@ export default class Slider extends Component {
         }
 
         return (
-            <div
+            <LoadingElement
                 id={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
                 className={className}
                 style={this._computeStyle(vertical, verticalHeight, tooltip)}
             >
@@ -139,20 +153,24 @@ export default class Slider extends Component {
                     tipFormatter={tipFormatter}
                     style={{position: 'relative'}}
                     value={value}
-                    marks={sanitizeMarks({min, max, marks, step})}
-                    max={setUndefined(min, max, marks).max_mark}
-                    min={setUndefined(min, max, marks).min_mark}
+                    marks={sanitizeMarks({
+                        min,
+                        max,
+                        marks: processedMarks,
+                        step,
+                    })}
+                    max={setUndefined(min, max, processedMarks).max_mark}
+                    min={setUndefined(min, max, processedMarks).min_mark}
                     step={
-                        step === null && !isNil(marks)
+                        step === null && !isNil(processedMarks)
                             ? null
                             : calcStep(min, max, step)
                     }
                     {...pick(sliderProps, this.props)}
                 />
-            </div>
+            </LoadingElement>
         );
     }
 }
 
 Slider.propTypes = propTypes;
-Slider.defaultProps = defaultProps;

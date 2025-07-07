@@ -146,6 +146,11 @@ Dropdown.propTypes = {
     disabled: PropTypes.bool,
 
     /**
+     * If false, the menu of the dropdown will not close once a value is selected.
+     */
+    closeOnSelect: PropTypes.bool,
+
+    /**
      * height of each option. Can be increased when label lengths would wrap around
      */
     optionHeight: PropTypes.number,
@@ -176,24 +181,6 @@ Dropdown.propTypes = {
      * Dash-assigned callback that gets fired when the input changes
      */
     setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
 
     /**
      * Used to allow user interactions in this component to be persisted when
@@ -232,6 +219,7 @@ Dropdown.defaultProps = {
     searchable: true,
     optionHeight: 35,
     maxHeight: 200,
+    closeOnSelect: true,
     persisted_props: ['value'],
     persistence_type: 'local',
 };

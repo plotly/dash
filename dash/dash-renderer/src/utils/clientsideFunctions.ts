@@ -1,22 +1,37 @@
 import {updateProps, notifyObservers} from '../actions/index';
 import {getPath} from '../actions/paths';
+import {getStores} from './stores';
 
-const set_props = (id: string | object, props: {[k: string]: any}) => {
-    const ds = ((window as any).dash_stores =
-        (window as any).dash_stores || []);
+/**
+ * Set the props of a dash component by id or path.
+ *
+ * @param idOrPath Path or id of the dash component to update.
+ * @param props The props to update.
+ */
+function set_props(
+    idOrPath: string | object | string[],
+    props: {[k: string]: any}
+) {
+    const ds = getStores();
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
+        let componentPath;
         const {paths} = getState();
-        const componentPath = getPath(paths, id);
+        if (!Array.isArray(idOrPath)) {
+            componentPath = getPath(paths, idOrPath);
+        } else {
+            componentPath = idOrPath;
+        }
         dispatch(
             updateProps({
                 props,
-                itempath: componentPath
+                itempath: componentPath,
+                renderType: 'clientsideApi'
             })
         );
-        dispatch(notifyObservers({id, props}));
+        dispatch(notifyObservers({id: idOrPath, props}));
     }
-};
+}
 
 // Clean url code adapted from https://github.com/braintree/sanitize-url/blob/main/src/constants.ts
 // to allow for data protocol.

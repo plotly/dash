@@ -1,7 +1,5 @@
 import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
 import React, {Component} from 'react';
-// /build/withPolyfill for IE11 support - https://github.com/maslianok/react-resize-detector/issues/144
-import ResizeDetector from 'react-resize-detector/build/withPolyfill';
 import {
     equals,
     filter,
@@ -14,7 +12,12 @@ import {
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
+
+import LoadingElement from '../utils/LoadingElement';
+
 /* global Plotly:true */
+
+import ResizeDetector from '../utils/ResizeDetector';
 
 /**
  * `autosize: true` causes Plotly.js to conform to the parent element size.
@@ -147,6 +150,8 @@ class PlotlyGraph extends Component {
         this._hasPlotted = false;
         this._prevGd = null;
         this._queue = Promise.resolve();
+
+        this.parentElement = React.createRef();
 
         this.bindEvents = this.bindEvents.bind(this);
         this.getConfig = this.getConfig.bind(this);
@@ -453,6 +458,27 @@ class PlotlyGraph extends Component {
         });
     }
 
+    getStyle() {
+        const {responsive} = this.props;
+        let {style} = this.props;
+
+        // When there is no forced responsive style, return the original style property
+        if (!responsive) {
+            return style;
+        }
+
+        // Otherwise, if the height is not set, we make the graph size equal to the parent one
+        if (!style) {
+            style = {};
+        }
+
+        if (!style.height) {
+            return Object.assign({height: '100%'}, style);
+        }
+
+        return style;
+    }
+
     componentDidMount() {
         const p = this.plot(this.props);
         this._queue = this.amendTraces(p, {}, this.props);
@@ -471,10 +497,7 @@ class PlotlyGraph extends Component {
     shouldComponentUpdate(nextProps) {
         return (
             this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !==
-                JSON.stringify(nextProps.style) ||
-            JSON.stringify(this.props.loading_state) !==
-                JSON.stringify(nextProps.loading_state)
+            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
         );
     }
 
@@ -514,28 +537,23 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
+        const {className, id} = this.props;
+        const style = this.getStyle();
 
         return (
-            <div
+            <LoadingElement
                 id={id}
                 key={id}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
                 className={className}
                 style={style}
+                ref={this.parentElement}
             >
                 <ResizeDetector
-                    handleHeight={true}
-                    handleWidth={true}
-                    refreshMode="debounce"
-                    refreshOptions={{trailing: true}}
-                    refreshRate={50}
                     onResize={this.graphResize}
+                    targets={[this.parentElement, this.gd]}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </div>
+            </LoadingElement>
         );
     }
 }

@@ -25,7 +25,7 @@ app.layout = dash_table.DataTable(
 )
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
 ```
 
 ![Interactive Dash DataTable](https://user-images.githubusercontent.com/1280389/47935912-67187080-deb2-11e8-8936-34b0c99b518f.png)
