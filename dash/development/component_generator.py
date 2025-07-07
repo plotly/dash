@@ -57,7 +57,9 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
-    extract_path = os.path.join(str(resources.files("dash")), "extract-meta.js")
+    # Python 3.8 compatible approach using importlib.resources.path()
+    with resources.path("dash", "extract-meta.js") as resource_path:
+        extract_path = str(resource_path)
 
     reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 
