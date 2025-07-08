@@ -1,5 +1,5 @@
 import traceback
-from contextvars import copy_context
+from contextvars import Context
 import asyncio
 from functools import partial
 
@@ -227,7 +227,8 @@ def _make_job_fn(fn, cache, progress):
         def _set_props(_id, props):
             cache.set(f"{result_key}-set_props", {_id: props})
 
-        ctx = copy_context()
+        # Create a minimal context to avoid copying ThreadPoolExecutor from parent
+        ctx = Context()
 
         def run():
             c = AttributeDict(**context)
