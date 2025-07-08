@@ -85,9 +85,14 @@ DiskcacheManager requires extra dependencies which can be installed doing
                     pass
 
                 try:
-                    process.wait(1)
+                    process.wait(2)  # Increased timeout
                 except (psutil.TimeoutExpired, psutil.NoSuchProcess):
-                    pass
+                    # Force kill if still running
+                    try:
+                        process.kill()
+                        process.wait(1)
+                    except (psutil.TimeoutExpired, psutil.NoSuchProcess):
+                        pass
 
     def terminate_unhealthy_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error

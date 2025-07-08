@@ -147,7 +147,26 @@ def setup_background_callback_app(manager_name, app_name):
                 for job in manager.running_jobs:
                     manager.terminate_job(job)
 
-            shutil.rmtree(cache_directory, ignore_errors=True)
+                # Wait for processes to actually terminate
+                import time
+
+                for _ in range(10):  # Wait up to 5 seconds
+                    if not manager.running_jobs:
+                        break
+                    time.sleep(0.5)
+
+            # Force cleanup with retry logic
+            import os
+
+            for _ in range(5):
+                try:
+                    shutil.rmtree(cache_directory, ignore_errors=False)
+                    break
+                except OSError:
+                    time.sleep(0.5)
+            else:
+                # Final attempt with ignore_errors=True
+                shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")
             from dash import page_registry
