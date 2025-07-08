@@ -151,16 +151,12 @@ def setup_background_callback_app(manager_name, app_name):
                     manager.terminate_job(job)
 
                 # Wait for processes to actually terminate
-                import time
-
                 for _ in range(10):  # Wait up to 5 seconds
                     if not manager.running_jobs:
                         break
                     time.sleep(0.5)
 
             # Force cleanup with retry logic
-            import os
-
             for _ in range(5):
                 try:
                     shutil.rmtree(cache_directory, ignore_errors=False)
