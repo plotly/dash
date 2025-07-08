@@ -602,6 +602,12 @@ function gatherComponents(sources, components = {}) {
         properties.forEach(prop => {
             const name = prop.getName();
 
+            // Skip symbol properties (e.g., __@iterator@3570, __@asyncIterator@3571, etc.)
+            // These come from TypeScript's getApparentProperties() including inherited symbols
+            if (name.startsWith('__@') && /@\d+$/.test(name)) {
+                return;
+            }
+
             if (parentType === null) {
                 currentBasePropName = name;
             }
