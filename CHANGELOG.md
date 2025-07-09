@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+- [#3353](https://github.com/plotly/dash/pull/3353) Support pattern-matching/dict ids in `dcc.Loading` `target_components`
+
+
 # [3.1.1] - 2025-06-29
 
 ## Fixed

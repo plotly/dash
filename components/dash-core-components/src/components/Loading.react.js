@@ -87,6 +87,7 @@ function Loading({
     custom_spinner,
 }) {
     const ctx = window.dash_component_api.useDashContext();
+
     const loading = ctx.useSelector(
         loadingSelector(ctx.componentPath, target_components),
         equals

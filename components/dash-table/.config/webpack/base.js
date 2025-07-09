@@ -31,7 +31,7 @@ module.exports = (options = {}) => {
                 type: 'window',
             }
         },
-        devtool: 'source-map',
+        devtool: mode === 'development' ? 'source-map' : false,
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
@@ -53,16 +53,16 @@ module.exports = (options = {}) => {
                     test: /\.ts(x?)$/,
                     include: /node_modules[\\\/](highlight[.]js|d3-format)[\\\/]/,
                     use: [
-                        { loader: 'babel-loader', options: babel },
-                        { loader: 'ts-loader', options: ts },
+                        { loader: 'babel-loader', options: { ...babel, cacheDirectory: true } },
+                        { loader: 'ts-loader', options: { ...ts, transpileOnly: true } },
                     ]
                 },
                 {
                     test: /\.ts(x?)$/,
                     exclude: /node_modules/,
                     use: [
-                        { loader: 'babel-loader', options: babel },
-                        { loader: 'ts-loader', options: ts },
+                        { loader: 'babel-loader', options: { ...babel, cacheDirectory: true } },
+                        { loader: 'ts-loader', options: { ...ts, transpileOnly: true } },
                         { loader: 'webpack-preprocessor', options: JSON.stringify(preprocessor) }
                     ]
                 },
@@ -70,14 +70,14 @@ module.exports = (options = {}) => {
                     test: /\.js$/,
                     include: /node_modules[\\\/](highlight[.]js|d3-format)[\\\/]/,
                     use: [
-                        { loader: 'babel-loader', options: babel }
+                        { loader: 'babel-loader', options: { ...babel, cacheDirectory: true } }
                     ]
                 },
                 {
                     test: /\.js$/,
                     exclude: /node_modules/,
                     use: [
-                        { loader: 'babel-loader', options: babel },
+                        { loader: 'babel-loader', options: { ...babel, cacheDirectory: true } },
                         { loader: 'webpack-preprocessor', options: JSON.stringify(preprocessor) }
                     ]
                 },
@@ -97,6 +97,12 @@ module.exports = (options = {}) => {
                     ]
                 }
             ]
+        },
+        cache: {
+            type: 'filesystem',
+            buildDependencies: {
+                config: [__filename]
+            }
         },
         resolve: {
             alias: {
