@@ -2482,8 +2482,8 @@ class Dash(ObsoleteChecker):
                             else self.layout
                         ]
                     )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
             else:
 
                 @self.callback(
@@ -2532,24 +2532,24 @@ class Dash(ObsoleteChecker):
                 # Set validation_layout
                 if not self.config.suppress_callback_exceptions:
                     layout = self.layout
-                if not isinstance(layout, list):
-                    layout = [
-                        # pylint: disable=not-callable
-                        self.layout()
-                        if callable(self.layout)
-                        else self.layout
-                    ]
-                    self.validation_layout = html.Div(
-                        [
-                            page["layout"]()
-                            if callable(page["layout"])
-                            else page["layout"]
-                            for page in _pages.PAGE_REGISTRY.values()
+                    if not isinstance(layout, list):
+                        layout = [
+                            # pylint: disable=not-callable
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
                         ]
-                        + layout
-                    )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+                        self.validation_layout = html.Div(
+                            [
+                                page["layout"]()
+                                if callable(page["layout"])
+                                else page["layout"]
+                                for page in _pages.PAGE_REGISTRY.values()
+                            ]
+                            + layout
+                        )
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(

@@ -1,11 +1,12 @@
 import json
 import time
 
+import flaky
+
 from multiprocessing import Lock, Value
 import pytest
 
 import numpy as np
-import werkzeug
 
 from dash_test_components import (
     AsyncComponent,
@@ -28,6 +29,7 @@ from tests.integration.utils import json_engine
 from tests.utils import is_dash_async
 
 
+@flaky.flaky(max_runs=3)
 def test_async_cbsc001_simple_callback(dash_duo):
     if not is_dash_async():
         return
@@ -316,11 +318,6 @@ def test_async_cbsc006_array_of_objects(dash_duo, engine):
             dash_duo.select_dcc_dropdown("#dd", f"opt{i}")
 
 
-@pytest.mark.xfail(
-    condition=werkzeug.__version__ in ("2.1.0", "2.1.1"),
-    reason="Bug with 204 and Transfer-Encoding",
-    strict=False,
-)
 @pytest.mark.parametrize("refresh", [False, True])
 def test_async_cbsc007_parallel_updates(refresh, dash_duo):
     # This is a funny case, that seems to mostly happen with dcc.Location

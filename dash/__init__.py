@@ -30,6 +30,7 @@ from .background_callback import (  # noqa: F401,E402
     CeleryManager,
     DiskcacheManager,
 )
+from ._utils import stringify_id  # noqa: F401,E402
 
 
 from ._pages import register_page, PAGE_REGISTRY as page_registry  # noqa: F401,E402
@@ -90,4 +91,5 @@ __all__ = [
     "jupyter_dash",
     "ctx",
     "hooks",
+    "stringify_id",
 ]

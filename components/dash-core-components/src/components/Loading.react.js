@@ -44,6 +44,9 @@ const loadingSelector = (componentPath, targetComponents) => state => {
                         if (!target) {
                             return false;
                         }
+                        if (target === '*') {
+                            return true;
+                        }
                         if (Array.isArray(target)) {
                             return includes(l.property, target);
                         }
@@ -84,6 +87,7 @@ function Loading({
     custom_spinner,
 }) {
     const ctx = window.dash_component_api.useDashContext();
+
     const loading = ctx.useSelector(
         loadingSelector(ctx.componentPath, target_components),
         equals

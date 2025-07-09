@@ -42,6 +42,7 @@ from ._utils import (
 from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from ._no_update import NoUpdate
 
 
 async def _async_invoke_callback(
@@ -56,17 +57,6 @@ async def _async_invoke_callback(
 
 def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
     return func(*args, **kwargs)  # %% callback invoked %%
-
-
-class NoUpdate:
-    def to_plotly_json(self):  # pylint: disable=no-self-use
-        return {"_dash_no_update": "_dash_no_update"}
-
-    @staticmethod
-    def is_no_update(obj):
-        return isinstance(obj, NoUpdate) or (
-            isinstance(obj, dict) and obj == {"_dash_no_update": "_dash_no_update"}
-        )
 
 
 GLOBAL_CALLBACK_LIST = []
