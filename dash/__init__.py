@@ -19,13 +19,14 @@ from . import html  # noqa: F401,E402
 from . import dash_table  # noqa: F401,E402
 from .version import __version__  # noqa: F401,E402
 from ._callback_context import callback_context, set_props  # noqa: F401,E402
-from ._callback import callback, clientside_callback, NoUpdate  # noqa: F401,E402
+from ._callback import callback, clientside_callback  # noqa: F401,E402
 from ._get_app import get_app  # noqa: F401,E402
 from ._get_paths import (  # noqa: F401,E402
     get_asset_url,
     get_relative_path,
     strip_relative_path,
 )
+from ._no_update import NoUpdate  # noqa: F401,E402
 from .background_callback import (  # noqa: F401,E402
     CeleryManager,
     DiskcacheManager,
