@@ -89,7 +89,7 @@ function triggerDefaultState(dispatch, getState) {
 
     dispatch(
         addRequestedCallbacks(
-            getLayoutCallbacks(graphs, paths, layout, {
+            getLayoutCallbacks(graphs, paths, layout.components, {
                 outputsOnly: true
             })
         )

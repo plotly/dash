@@ -572,9 +572,9 @@ export function validateCallbacksToLayout(state_, dispatchError) {
             const fcb = flatten(values(idProps));
             const optional = all(
                 ({allow_optional}) => allow_optional,
-                flatten(fcb.map(cb => concat(cb.outputs, cb.inputs))).filter(
-                    dep => dep.id === id
-                )
+                flatten(
+                    fcb.map(cb => concat(cb.outputs, cb.inputs, cb.states))
+                ).filter(dep => dep.id === id)
             );
             if (optional) {
                 continue;
