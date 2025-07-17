@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Added
+- [#3369](https://github.com/plotly/dash/pull/3369) Expose `dash.NoUpdate` type
+
 ## Fixed
 - [#3353](https://github.com/plotly/dash/pull/3353) Support pattern-matching/dict ids in `dcc.Loading` `target_components`
 
