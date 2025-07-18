@@ -361,10 +361,9 @@ export function recordUiEdit(layout, newProps, dispatch) {
  * callbacks) to apply previously-stored UI edits to components
  */
 export function applyPersistence(layout, dispatch) {
-    if (type(layout) !== 'Object' || !layout.props) {
-        return layout;
+    if (Array.isArray(layout)) {
+        return layout.map(lay => persistenceMods(lay, lay, [], dispatch));
     }
-
     return persistenceMods(layout, layout, [], dispatch);
 }
 

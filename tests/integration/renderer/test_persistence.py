@@ -560,3 +560,45 @@ def test_rdps013_persisted_props_nested(dash_duo):
     # persistenceTransforms should return upper case strings
     dash_duo.wait_for_text_to_equal("#component-propName", "ALPACA")
     dash_duo.wait_for_text_to_equal("#component-propPart", "ARTICHOKE")
+
+
+def test_rdps014_layout_as_list(dash_duo):
+    # testing persistence with layout as list
+    app = dash.Dash(__name__)
+    app.layout = [
+        dcc.Input(id="input-1", value="initial", persistence=True),
+        html.Div(id="output-1"),
+        dcc.Input(id="input-2", value="second", persistence=True),
+        html.Div(id="output-2"),
+    ]
+
+    @app.callback(Output("output-1", "children"), [Input("input-1", "value")])
+    def update_output_1(value):
+        return f"Output 1: {value}"
+
+    @app.callback(Output("output-2", "children"), [Input("input-2", "value")])
+    def update_output_2(value):
+        return f"Output 2: {value}"
+
+    dash_duo.start_server(app)
+
+    # Check initial values
+    dash_duo.wait_for_text_to_equal("#output-1", "Output 1: initial")
+    dash_duo.wait_for_text_to_equal("#output-2", "Output 2: second")
+
+    # Change the input values
+    dash_duo.clear_input("#input-1")
+    dash_duo.find_element("#input-1").send_keys("changed1")
+    dash_duo.clear_input("#input-2")
+    dash_duo.find_element("#input-2").send_keys("changed2")
+
+    # Verify changes
+    dash_duo.wait_for_text_to_equal("#output-1", "Output 1: changed1")
+    dash_duo.wait_for_text_to_equal("#output-2", "Output 2: changed2")
+
+    # Reload the page to test persistence
+    dash_duo.wait_for_page()
+
+    # Check that persisted values are restored
+    dash_duo.wait_for_text_to_equal("#output-1", "Output 1: changed1")
+    dash_duo.wait_for_text_to_equal("#output-2", "Output 2: changed2")
