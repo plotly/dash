@@ -6,10 +6,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - [#3369](https://github.com/plotly/dash/pull/3369) Expose `dash.NoUpdate` type
+- [#3371](https://github.com/plotly/dash/pull/3371) Add devtool hook to add components to the devtool bar ui.
 
 ## Fixed
 - [#3353](https://github.com/plotly/dash/pull/3353) Support pattern-matching/dict ids in `dcc.Loading` `target_components`
-
+- [#3371](https://github.com/plotly/dash/pull/3371) Fix allow_optional triggering a warning for not found input.
 
 # [3.1.1] - 2025-06-29
 

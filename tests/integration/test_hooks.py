@@ -15,6 +15,7 @@ def hook_cleanup():
     hooks._ns["callback"] = []
     hooks._ns["index"] = []
     hooks._ns["custom_data"] = []
+    hooks._ns["dev_tools"] = []
     hooks._css_dist = []
     hooks._js_dist = []
     hooks._finals = {}
@@ -210,3 +211,32 @@ def test_hook010_hook_custom_data(hook_cleanup, dash_duo):
     dash_duo.start_server(app)
     dash_duo.wait_for_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#output", "custom-data")
+
+
+def test_hook011_devtool_hook(hook_cleanup, dash_duo):
+    hooks.devtool(
+        "dash_html_components", "Button", {"children": "devtool", "id": "devtool"}
+    )
+
+    app = Dash()
+    app.layout = html.Div(["hooked", html.Div(id="output")])
+
+    @app.callback(
+        Output("output", "children"),
+        Input("devtool", "n_clicks", allow_optional=True),
+        prevent_initial_call=True,
+    )
+    def cb(_):
+        return "hooked from devtools"
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+        dev_tools_props_check=False,
+        dev_tools_disable_version_check=True,
+    )
+    dash_duo.wait_for_element("#devtool").click()
+    dash_duo.wait_for_text_to_equal("#output", "hooked from devtools")

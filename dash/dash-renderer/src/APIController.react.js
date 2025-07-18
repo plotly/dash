@@ -103,14 +103,14 @@ const UnconnectedContainer = props => {
 
         content = (
             <>
-                {Array.isArray(layout) ? (
-                    layout.map((c, i) =>
+                {Array.isArray(layout.components) ? (
+                    layout.components.map((c, i) =>
                         isSimpleComponent(c) ? (
                             c
                         ) : (
                             <DashWrapper
                                 _dashprivate_error={error}
-                                componentPath={[i]}
+                                componentPath={['components', i]}
                                 key={i}
                             />
                         )
@@ -118,7 +118,7 @@ const UnconnectedContainer = props => {
                 ) : (
                     <DashWrapper
                         _dashprivate_error={error}
-                        componentPath={[]}
+                        componentPath={['components']}
                     />
                 )}
             </>
@@ -153,7 +153,7 @@ function storeEffect(props, events, setErrorLoading) {
             }
             dispatch(apiThunk('_dash-layout', 'GET', 'layoutRequest'));
         } else if (layoutRequest.status === STATUS.OK) {
-            if (isEmpty(layout)) {
+            if (isEmpty(layout.components)) {
                 if (typeof hooks.layout_post === 'function') {
                     hooks.layout_post(layoutRequest.content);
                 }
@@ -163,7 +163,12 @@ function storeEffect(props, events, setErrorLoading) {
                 );
                 dispatch(
                     setPaths(
-                        computePaths(finalLayout, [], null, events.current)
+                        computePaths(
+                            finalLayout,
+                            ['components'],
+                            null,
+                            events.current
+                        )
                     )
                 );
                 dispatch(setLayout(finalLayout));
@@ -194,7 +199,7 @@ function storeEffect(props, events, setErrorLoading) {
             !isEmpty(graphs) &&
             // LayoutRequest and its computed stores
             layoutRequest.status === STATUS.OK &&
-            !isEmpty(layout) &&
+            !isEmpty(layout.components) &&
             // Hasn't already hydrated
             appLifecycle === getAppState('STARTED')
         ) {
