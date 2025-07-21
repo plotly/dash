@@ -70,6 +70,7 @@ import {createAction} from 'redux-actions';
 
 import Registry from './registry';
 import {stringifyId} from './actions/dependencies';
+import {isDryComponent} from './wrapper/wrapping';
 
 export const storePrefix = '_dash_persistence.';
 
@@ -362,7 +363,9 @@ export function recordUiEdit(layout, newProps, dispatch) {
  */
 export function applyPersistence(layout, dispatch) {
     if (Array.isArray(layout)) {
-        return layout.map(lay => persistenceMods(lay, lay, [], dispatch));
+        return layout.map(lay =>
+            isDryComponent(lay) ? persistenceMods(lay, lay, [], dispatch) : lay
+        );
     }
     return persistenceMods(layout, layout, [], dispatch);
 }
