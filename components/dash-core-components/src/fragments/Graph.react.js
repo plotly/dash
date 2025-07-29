@@ -13,8 +13,6 @@ import {
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
 
-import LoadingElement from '../utils/LoadingElement';
-
 /* global Plotly:true */
 
 import ResizeDetector from '../utils/ResizeDetector';
@@ -537,23 +535,32 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id} = this.props;
+        const {className, id, loading_state} = this.props;
         const style = this.getStyle();
 
+        let isLoading;
+        if (window.dash_component_api !== undefined) {
+            const ctx = window.dash_component_api.useDashContext();
+            isLoading = ctx.useLoading();
+        } else {
+            isLoading = loading_state && loading_state.is_loading;
+        }
+
         return (
-            <LoadingElement
+            <div
                 id={id}
                 key={id}
                 className={className}
                 style={style}
                 ref={this.parentElement}
+                data-dash-is-loading={isLoading ? true : undefined}
             >
                 <ResizeDetector
                     onResize={this.graphResize}
                     targets={[this.parentElement, this.gd]}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </LoadingElement>
+            </div>
         );
     }
 }
