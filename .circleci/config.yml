@@ -172,7 +172,8 @@ jobs:
           command: |
             nvm use 18
             . venv/Scripts/activate
-            npm run private::build.jupyterlab && npm run private::build.renderer && python dash/development/update_components.py 'dash-html-components'
+            npm run private::build.jupyterlab && npm run private::build.renderer
+            cd components/dash-html-components && npm run build
           no_output_timeout: 30m
 
   test-312: &test
