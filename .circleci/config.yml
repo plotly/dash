@@ -159,7 +159,7 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
            command: |
-             nvm install 18 && nvm use 18
+             nvm install lts/iron && nvm use lts/iron
       - run:
           name: npm prereqs
           command: |
