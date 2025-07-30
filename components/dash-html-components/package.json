@@ -49,10 +49,9 @@
     "react": "^16.14.0",
     "react-docgen": "^5.4.3",
     "react-dom": "^16.14.0",
-    "request": "^2.88.2",
     "rimraf": "^5.0.5",
     "string": "^3.3.3",
-    "webpack": "^5.99.9",
+    "webpack": "^5.101.0",
     "webpack-cli": "^5.1.4"
   },
   "files": [
