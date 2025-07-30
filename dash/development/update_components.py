@@ -48,12 +48,15 @@ def bootstrap_components(components_source, concurrency, install_type):
     status_print(cmdstr)
 
     with subprocess.Popen(
-        cmd, shell=is_windows
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
     ) as proc:
-        proc.wait()
-        status = proc.returncode
+        out, err = proc.communicate()
+        status = proc.poll()
 
-    if status:
+    if err:
+        status_print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
+
+    if status or not out:
         status_print(
             f"🚨 Failed installing npm dependencies for component packages: {source_glob} (status={status}) 🚨",
             file=sys.stderr,
@@ -81,12 +84,15 @@ def build_components(components_source, concurrency):
     status_print(cmdstr)
 
     with subprocess.Popen(
-        cmd, shell=is_windows
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=is_windows
     ) as proc:
-        proc.wait()
-        status = proc.returncode
+        out, err = proc.communicate()
+        status = proc.poll()
 
-    if status:
+    if err:
+        status_print(("🛑 " if status else "") + err.decode(), file=sys.stderr)
+
+    if status or not out:
         status_print(
             f"🚨 Finished updating component packages: {source_glob} (status={status}) 🚨",
             file=sys.stderr,
