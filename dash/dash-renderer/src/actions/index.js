@@ -3,7 +3,7 @@ import {createAction} from 'redux-actions';
 import {addRequestedCallbacks} from './callbacks';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
-import cookie from 'cookie';
+import * as cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
