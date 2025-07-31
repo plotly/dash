@@ -890,6 +890,16 @@ class Dash(ObsoleteChecker):
 
             config["validation_layout"] = validation_layout
 
+        if self._dev_tools.ui:
+            # Add custom dev tools hooks if the ui is activated.
+            custom_dev_tools = []
+            for hook_dev_tools in self._hooks.get_hooks("dev_tools"):
+                props = hook_dev_tools.get("props", {})
+                if callable(props):
+                    props = props()
+                custom_dev_tools.append({**hook_dev_tools, "props": props})
+            config["dev_tools"] = custom_dev_tools
+
         return config
 
     def serve_reload_hash(self):
@@ -2444,8 +2454,8 @@ class Dash(ObsoleteChecker):
                             else self.layout
                         ]
                     )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
             else:
 
                 @self.callback(
@@ -2491,27 +2501,27 @@ class Dash(ObsoleteChecker):
                 _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
                 _validate.validate_registry(_pages.PAGE_REGISTRY)
 
-            # Set validation_layout
-            if not self.config.suppress_callback_exceptions:
-                layout = self.layout
-                if not isinstance(layout, list):
-                    layout = [
-                        # pylint: disable=not-callable
-                        self.layout()
-                        if callable(self.layout)
-                        else self.layout
-                    ]
-                    self.validation_layout = html.Div(
-                        [
-                            page["layout"]()
-                            if callable(page["layout"])
-                            else page["layout"]
-                            for page in _pages.PAGE_REGISTRY.values()
+                # Set validation_layout
+                if not self.config.suppress_callback_exceptions:
+                    layout = self.layout
+                    if not isinstance(layout, list):
+                        layout = [
+                            # pylint: disable=not-callable
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
                         ]
-                        + layout
-                    )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
+                        self.validation_layout = html.Div(
+                            [
+                                page["layout"]()
+                                if callable(page["layout"])
+                                else page["layout"]
+                                for page in _pages.PAGE_REGISTRY.values()
+                            ]
+                            + layout
+                        )
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
 
             # Update the page title on page navigation
             self.clientside_callback(

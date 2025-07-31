@@ -319,7 +319,9 @@ def test_cbmo004_removing_element_while_waiting_to_update(dash_duo):
         dash_duo.wait_for_text_to_equal("#body", "Chapter 2")
 
         layout = dash_duo.driver.execute_script(
-            "return JSON.parse(JSON.stringify(" "window.store.getState().layout" "))"
+            "return JSON.parse(JSON.stringify("
+            "window.store.getState().layout"
+            ")).components"
         )
 
         dcc_radio = layout["props"]["children"][0]

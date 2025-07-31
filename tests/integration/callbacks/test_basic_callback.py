@@ -113,9 +113,10 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     paths = dash_duo.redux_state_paths
     assert paths["objs"] == {}
     assert paths["strs"] == {
-        "input": ["props", "children", 0],
-        "output": ["props", "children", 1],
+        "input": ["components", "props", "children", 0],
+        "output": ["components", "props", "children", 1],
         "sub-input-1": [
+            "components",
             "props",
             "children",
             1,
@@ -126,6 +127,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
             0,
         ],
         "sub-output-1": [
+            "components",
             "props",
             "children",
             1,

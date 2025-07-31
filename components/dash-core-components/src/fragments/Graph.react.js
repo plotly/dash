@@ -13,11 +13,10 @@ import {
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
 
-import LoadingElement from '../utils/LoadingElement';
-
 /* global Plotly:true */
 
 import ResizeDetector from '../utils/ResizeDetector';
+import LoadingElement from '../utils/LoadingElement';
 
 /**
  * `autosize: true` causes Plotly.js to conform to the parent element size.
@@ -537,23 +536,46 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id} = this.props;
+        const {className, id, loading_state} = this.props;
         const style = this.getStyle();
 
+        if (window.dash_component_api) {
+            return (
+                <LoadingElement
+                    id={id}
+                    key={id}
+                    className={className}
+                    style={style}
+                    ref={this.parentElement}
+                >
+                    <ResizeDetector
+                        onResize={this.graphResize}
+                        targets={[this.parentElement, this.gd]}
+                    />
+                    <div
+                        ref={this.gd}
+                        style={{height: '100%', width: '100%'}}
+                    />
+                </LoadingElement>
+            );
+        }
         return (
-            <LoadingElement
+            <div
                 id={id}
                 key={id}
                 className={className}
                 style={style}
                 ref={this.parentElement}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
             >
                 <ResizeDetector
                     onResize={this.graphResize}
                     targets={[this.parentElement, this.gd]}
                 />
                 <div ref={this.gd} style={{height: '100%', width: '100%'}} />
-            </LoadingElement>
+            </div>
         );
     }
 }

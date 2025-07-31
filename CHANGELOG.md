@@ -2,6 +2,21 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [3.2.0] - 2025-07-31
+
+## Added
+- [#3369](https://github.com/plotly/dash/pull/3369) Expose `dash.NoUpdate` type
+- [#3371](https://github.com/plotly/dash/pull/3371) Add devtool hook to add components to the devtool bar ui.
+
+## Fixed
+- [#3353](https://github.com/plotly/dash/pull/3353) Support pattern-matching/dict ids in `dcc.Loading` `target_components`
+- [#3371](https://github.com/plotly/dash/pull/3371) Fix allow_optional triggering a warning for not found input.
+- [#3379](https://github.com/plotly/dash/pull/3379) Fix dcc.Graph backward compatibility with dash 2.0 for ddk.Graph
+- [#3373](https://github.com/plotly/dash/pull/3373) Fix layout as list and persistence.
+
+# Changed
+- [#3365](https://github.com/plotly/dash/pull/3365) Warn if dcc.Slider has more than 500 marks and use default instead.
+
 # [3.1.1] - 2025-06-29
 
 ## Fixed

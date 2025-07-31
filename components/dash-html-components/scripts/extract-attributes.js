@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const cheerio = require('cheerio');
-const request = require('request');
 const str = require('string');
 
 const htmlURL = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes';
@@ -136,24 +135,31 @@ function extractElements(attributes) {
 
 // A local copy of the MDN attributes web page has been saved for reference:
 // fs.readFile('./data/attributes.html', 'utf-8', (error, html) => {
-request(htmlURL, (error, response, html) => {
-    if (error) {
+fetch(htmlURL)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const html2 = html.split(/\n\r|\r\n|\r|\n/).map(l => l.trimRight()).join('\n');
+        // write back to the saved copy of MDN attributes so we can see the diff
+        fs.writeFileSync(htmlPath, html2);
+
+        const $ = cheerio.load(html);
+        const attributes = extractAttributes($);
+        const elements = extractElements(attributes);
+        const out = {
+            attributes,
+            elements
+        };
+
+        // Print out JSON with 4-space indentation formatting.
+        // http://stackoverflow.com/a/11276104
+        const tabWidth = 4;
+        fs.writeFileSync(dataPath, JSON.stringify(out, null, tabWidth));
+    })
+    .catch(error => {
         throw error;
-    }
-    const html2 = html.split(/\n\r|\r\n|\r|\n/).map(l => l.trimRight()).join('\n');
-    // write back to the saved copy of MDN attributes so we can see the diff
-    fs.writeFileSync(htmlPath, html2);
-
-    const $ = cheerio.load(html);
-    const attributes = extractAttributes($);
-    const elements = extractElements(attributes);
-    const out = {
-        attributes,
-        elements
-    };
-
-    // Print out JSON with 4-space indentation formatting.
-    // http://stackoverflow.com/a/11276104
-    const tabWidth = 4;
-    fs.writeFileSync(dataPath, JSON.stringify(out, null, tabWidth));
-});
+    });

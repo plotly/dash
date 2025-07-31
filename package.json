@@ -50,7 +50,7 @@
   "devDependencies": {
     "@lerna/filter-options": "^6.4.1",
     "husky": "8.0.3",
-    "lerna": "^6.6.2",
+    "lerna": "^8.2.3",
     "lint-staged": "^16.1.0"
   },
   "dependencies": {
