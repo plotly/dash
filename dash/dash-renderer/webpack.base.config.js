@@ -16,7 +16,7 @@ const defaults = {
             },
             {
                 test: /\.jsx?$/,
-                include: /node_modules[\\\/](cytoscape-fcose|ramda|react-cytoscapejs|react-redux)[\\\/]/,
+                include: /node_modules[\\\/](cytoscape-fcose|ramda|react-cytoscapejs|react-redux|cookie)[\\\/]/,
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -24,6 +24,9 @@ const defaults = {
                         configFile: false,
                         presets: [
                             '@babel/preset-env'
+                        ],
+                        plugins: [
+                            '@babel/plugin-transform-optional-chaining'
                         ]
                     }
                 }
