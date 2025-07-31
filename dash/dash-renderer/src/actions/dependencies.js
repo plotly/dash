@@ -5,6 +5,7 @@ import {
     any,
     ap,
     assoc,
+    concat,
     difference,
     equals,
     evolve,
@@ -568,10 +569,20 @@ export function validateCallbacksToLayout(state_, dispatchError) {
     function validateMap(map, cls, doState) {
         for (const id in map) {
             const idProps = map[id];
+            const fcb = flatten(values(idProps));
+            const optional = all(
+                ({allow_optional}) => allow_optional,
+                flatten(
+                    fcb.map(cb => concat(cb.outputs, cb.inputs, cb.states))
+                ).filter(dep => dep.id === id)
+            );
+            if (optional) {
+                continue;
+            }
             const idPath = getPath(paths, id);
             if (!idPath) {
                 if (validateIds) {
-                    missingId(id, cls, flatten(values(idProps)));
+                    missingId(id, cls, fcb);
                 }
             } else {
                 for (const property in idProps) {
