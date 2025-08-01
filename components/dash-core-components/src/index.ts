@@ -9,7 +9,7 @@ import Download from './components/Download.react';
 import Dropdown from './components/Dropdown.react';
 import Geolocation from './components/Geolocation.react';
 import Graph from './components/Graph.react';
-import Input from './components/Input.react';
+import Input from './components/Input';
 import Interval from './components/Interval.react';
 import Link from './components/Link.react';
 import Loading from './components/Loading.react';

@@ -25,6 +25,19 @@
     "jasmine": true,
     "node": true
   },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        // You can add TypeScript-specific rules here
+      }
+    }
+  ],
   "plugins": [
     "react",
     "import"
