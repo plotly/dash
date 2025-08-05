@@ -151,7 +151,7 @@ def get_jl_prop_types(type_object):
         node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
-            ", ".join("{}".format(str(t["value"])) for t in type_object["value"])
+            ", ".join("{}".format(str(t.get("value"))) for t in type_object["value"])
         ),
         # React's PropTypes.oneOfType
         union=lambda: "{}".format(

@@ -68,7 +68,7 @@ def generate_any(*_):
 
 
 def generate_enum(prop_info):
-    values = str([v["value"] for v in prop_info["value"]])
+    values = str([v.get("value") for v in prop_info["value"]])
     return f"pt.oneOf({values})"
 
 
