@@ -36,13 +36,13 @@ import {
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
-import {getCSRFHeader, dispatchError} from '.';
+import {getCSRFHeader, dispatchError, setPaths} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {handlePatch, isPatch} from './patch';
-import {getPath} from './paths';
+import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
 
@@ -51,6 +51,7 @@ import {loadLibrary} from '../utils/libraries';
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 import {loaded, loading} from './loading';
+import {getComponentLayout} from '../wrapper/wrapping';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -409,7 +410,25 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 return acc;
             }, [] as any[])
             .forEach(([id, idProps]) => {
+                const state = getState();
                 dispatch(updateComponent(id, idProps, cb));
+
+                const componentPath = getPath(state.paths, id);
+                const oldComponent = getComponentLayout(componentPath, state);
+
+                dispatch(
+                    setPaths(
+                        computePaths(
+                            {
+                                ...oldComponent,
+                                props: {...oldComponent.props, ...idProps}
+                            },
+                            [...componentPath],
+                            state.paths,
+                            state.paths.events
+                        )
+                    )
+                );
             });
     };
 }
