@@ -414,6 +414,11 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 dispatch(updateComponent(id, idProps, cb));
 
                 const componentPath = getPath(state.paths, id);
+                if (!componentPath) {
+                    // Component doesn't exist, doesn't matter just allow the
+                    // callback to continue.
+                    return;
+                }
                 const oldComponent = getComponentLayout(componentPath, state);
 
                 dispatch(
