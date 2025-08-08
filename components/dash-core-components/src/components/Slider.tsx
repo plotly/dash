@@ -1,39 +1,25 @@
 import React, {Component, lazy, Suspense} from 'react';
-import PropTypes from 'prop-types';
 import slider from '../utils/LazyLoader/slider';
 
 import './css/sliders.css';
 
 const RealSlider = lazy(slider);
 
-/**
- * A slider component with a single handle.
- */
-export default class Slider extends Component {
-    render() {
-        return (
-            <Suspense fallback={null}>
-                <RealSlider {...this.props} />
-            </Suspense>
-        );
-    }
-}
-
-Slider.propTypes = {
+type SliderProps = {
     /**
      * Minimum allowed value of the slider
      */
-    min: PropTypes.number,
+    min: number;
 
     /**
      * Maximum allowed value of the slider
      */
-    max: PropTypes.number,
+    max: number;
 
     /**
      * Value by which increments or decrements are made
      */
-    step: PropTypes.number,
+    step?: number;
 
     /**
      * Marks on the slider.
@@ -43,53 +29,47 @@ Slider.propTypes = {
      * the value should be an object which
      * contains style and label properties.
      */
-    marks: PropTypes.objectOf(
-        PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.exact({
-                label: PropTypes.string,
-                style: PropTypes.object,
-            }),
-        ])
-    ),
+    marks?: {
+        [key: number]: string | {label: string; style?: React.CSSProperties};
+    };
 
     /**
      * The value of the input
      */
-    value: PropTypes.number,
+    value?: number;
 
     /**
      * The value of the input during a drag
      */
-    drag_value: PropTypes.number,
+    drag_value?: number;
 
     /**
      * If true, the handles can't be moved.
      */
-    disabled: PropTypes.bool,
+    disabled?: boolean;
 
     /**
      * When the step value is greater than 1,
      * you can set the dots to true if you want to
      * render the slider with dots.
      */
-    dots: PropTypes.bool,
+    dots?: boolean;
 
     /**
      * If the value is true, it means a continuous
      * value is included. Otherwise, it is an independent value.
      */
-    included: PropTypes.bool,
+    included?: boolean;
 
     /**
      * Configuration for tooltips describing the current slider value
      */
-    tooltip: PropTypes.exact({
+    tooltip?: {
         /**
          * Determines whether tooltips should always be visible
          * (as opposed to the default, visible on hover)
          */
-        always_visible: PropTypes.bool,
+        always_visible?: boolean;
 
         /**
          * Determines the placement of tooltips
@@ -97,27 +77,29 @@ Slider.propTypes = {
          * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
          * will in reality appear to be on the top right of the handle
          */
-        placement: PropTypes.oneOf([
-            'left',
-            'right',
-            'top',
-            'bottom',
-            'topLeft',
-            'topRight',
-            'bottomLeft',
-            'bottomRight',
-        ]),
+        placement?:
+            | 'left'
+            | 'right'
+            | 'top'
+            | 'bottom'
+            | 'topLeft'
+            | 'topRight'
+            | 'bottomLeft'
+            | 'bottomRight';
+
         /**
          * Template string to display the tooltip in.
          * Must contain `{value}`, which will be replaced with either
          * the default string representation of the value or the result of the
          * transform function if there is one.
          */
-        template: PropTypes.string,
+        template?: string;
+
         /**
          * Custom style for the tooltip.
          */
-        style: PropTypes.object,
+        style?: React.CSSProperties;
+
         /**
          * Reference to a function in the `window.dccFunctions` namespace.
          * This can be added in a script in the asset folder.
@@ -131,8 +113,8 @@ Slider.propTypes = {
          * ```
          * Then in the component `tooltip={'transform': 'multByTen'}`
          */
-        transform: PropTypes.string,
-    }),
+        transform?: string;
+    };
 
     /**
      * Determines when the component should update its `value`
@@ -144,34 +126,34 @@ Slider.propTypes = {
      * leave `updatemode` as `mouseup` and use `drag_value`
      * for the continuously updating value.
      */
-    updatemode: PropTypes.oneOf(['mouseup', 'drag']),
+    updatemode?: 'mouseup' | 'drag';
 
     /**
      * If true, the slider will be vertical
      */
-    vertical: PropTypes.bool,
+    vertical?: boolean;
 
     /**
      * The height, in px, of the slider if it is vertical.
      */
-    verticalHeight: PropTypes.number,
+    verticalHeight?: number;
 
     /**
      * Additional CSS class for the root DOM node
      */
-    className: PropTypes.string,
+    className?: string;
 
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
-    id: PropTypes.string,
+    id?: string;
 
     /**
      * Dash-assigned callback that gets fired when the value or drag_value changes.
      */
-    setProps: PropTypes.func,
+    setProps: (props: Partial<SliderProps>) => void;
 
     /**
      * Used to allow user interactions in this component to be persisted when
@@ -181,18 +163,14 @@ Slider.propTypes = {
      * the new `value` also matches what was given originally.
      * Used in conjunction with `persistence_type`.
      */
-    persistence: PropTypes.oneOfType([
-        PropTypes.bool,
-        PropTypes.string,
-        PropTypes.number,
-    ]),
+    persistence?: boolean | string | number;
 
     /**
      * Properties whose user interactions will persist after refreshing the
      * component or the page. Since only `value` is allowed this prop can
      * normally be ignored.
      */
-    persisted_props: PropTypes.arrayOf(PropTypes.oneOf(['value'])),
+    persisted_props?: ['value'];
 
     /**
      * Where persisted user changes will be stored:
@@ -200,15 +178,34 @@ Slider.propTypes = {
      * local: window.localStorage, data is kept after the browser quit.
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
-    persistence_type: PropTypes.oneOf(['local', 'session', 'memory']),
+    persistence_type?: 'local' | 'session' | 'memory';
 };
 
-Slider.defaultProps = {
+const defaultProps: Partial<SliderProps> = {
     updatemode: 'mouseup',
     persisted_props: ['value'],
     persistence_type: 'local',
     verticalHeight: 400,
 };
 
-export const propTypes = Slider.propTypes;
-export const defaultProps = Slider.defaultProps;
+/**
+ * A slider component with a single handle.
+ */
+export default function Slider(props: SliderProps) {
+    props = {...defaultProps, ...props};
+
+    return (
+        <Suspense fallback={null}>
+            <RealSlider {...props} />
+        </Suspense>
+    );
+}
+// export default class Slider extends Component {
+//     render() {
+//         return (
+//             <Suspense fallback={null}>
+//                 <RealSlider {...this.props} />
+//             </Suspense>
+//         );
+//     }
+// }

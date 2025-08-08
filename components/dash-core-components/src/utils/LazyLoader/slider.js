@@ -1,2 +1,2 @@
-export default () => import(/* webpackChunkName: "slider" */ '../../fragments/Slider.react');
-
+export default () =>
+    import(/* webpackChunkName: "slider" */ '../../fragments/Slider.tsx');

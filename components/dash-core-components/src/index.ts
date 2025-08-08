@@ -17,7 +17,7 @@ import Location from './components/Location.react';
 import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems.react';
 import RangeSlider from './components/RangeSlider.react';
-import Slider from './components/Slider.react';
+import Slider from './components/Slider';
 import Store from './components/Store.react';
 import Tab from './components/Tab.react';
 import Tabs from './components/Tabs.react';
