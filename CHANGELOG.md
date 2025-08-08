@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 - [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)
+- [#3397](https://github.com/plotly/dash/pull/3397) Add optional callbacks, suppressing callback warning for missing component ids for a single callback.
 
 ## [3.2.0] - 2025-07-31
 
