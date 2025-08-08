@@ -25,6 +25,7 @@ import Textarea from './components/Textarea.react';
 import Tooltip from './components/Tooltip.react';
 import Upload from './components/Upload.react';
 
+import './components/css/dcc.css';
 import 'react-dates/lib/css/_datepicker.css';
 import './components/css/react-dates@20.1.0-fix.css';
 

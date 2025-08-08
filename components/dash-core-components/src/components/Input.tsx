@@ -1,9 +1,16 @@
 import {pick} from 'ramda';
-import React, {KeyboardEvent, KeyboardEventHandler, useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+    KeyboardEvent,
+    KeyboardEventHandler,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    useId,
+} from 'react';
 import fastIsNumeric from 'fast-isnumeric';
 import LoadingElement from '../utils/_LoadingElement';
-import { styled } from 'styled-components';
-
+import './css/input.css';
 
 const isNumeric = (val: unknown): val is number => fastIsNumeric(val);
 const convert = (val: unknown) => (isNumeric(val) ? +val : NaN);
@@ -258,8 +265,6 @@ const inputProps: (keyof InputProps)[] = [
     'maxLength',
     'pattern',
     'size',
-    'style',
-    'id',
 ];
 
 const defaultProps: Partial<InputProps> = {
@@ -274,8 +279,6 @@ const defaultProps: Partial<InputProps> = {
     persistence_type: 'local',
 };
 
-const StyledInput = styled.input``;
-
 /**
  * A basic HTML input control for entering text, numbers, or passwords.
  *
@@ -288,8 +291,9 @@ export default function Input(props: InputProps) {
     const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
+    const inputId = useId();
 
-    const valprops = props.type === 'number' ? {} : {value};
+    const valprops = props.type === 'number' ? {} : {value: value ?? ''};
     let {className} = props;
     className = 'dash-input' + (className ? ` ${className}` : '');
 
@@ -307,13 +311,17 @@ export default function Input(props: InputProps) {
     );
 
     const onEvent = useCallback(() => {
-        const {value} = input.current;
+        const {value: inputValue} = input.current;
         const {setProps} = props;
-        const valueAsNumber = convert(value);
+        const valueAsNumber = convert(inputValue);
         if (props.type === 'number') {
             setPropValue(props.value, valueAsNumber ?? value);
         } else {
-            setProps({value});
+            const propValue =
+                inputValue === '' && props.value === undefined
+                    ? undefined
+                    : inputValue;
+            setProps({value: propValue});
         }
         setPendingEvent(undefined);
     }, [props.setProps]);
@@ -374,9 +382,40 @@ export default function Input(props: InputProps) {
         [pendingEvent]
     );
 
+    const handleStepperClick = useCallback(
+        (direction: 'increment' | 'decrement') => {
+            const currentValue = parseFloat(input.current.value) || 0;
+            const step = parseFloat(props.step as string) || 1;
+            const newValue =
+                direction === 'increment'
+                    ? currentValue + step
+                    : currentValue - step;
+
+            // Apply min/max constraints
+            let constrainedValue = newValue;
+            if (props.min !== undefined) {
+                constrainedValue = Math.max(
+                    constrainedValue,
+                    parseFloat(props.min as string)
+                );
+            }
+            if (props.max !== undefined) {
+                constrainedValue = Math.min(
+                    constrainedValue,
+                    parseFloat(props.max as string)
+                );
+            }
+
+            input.current.value = constrainedValue.toString();
+            setValue(constrainedValue.toString());
+            onEvent();
+        },
+        [props.step, props.min, props.max, onEvent]
+    );
+
     useEffect(() => {
         const {value} = input.current;
-        if (pendingEvent) {
+        if (pendingEvent || props.value === value) {
             return;
         }
         const valueAsNumber = convert(value);
@@ -387,6 +426,11 @@ export default function Input(props: InputProps) {
     }, [props.value, props.type, pendingEvent]);
 
     useEffect(() => {
+        // Skip this effect if the value change came from props update (not user input)
+        if (value === props.value) {
+            return;
+        }
+
         const {debounce, type} = props;
         const {selectionStart: cursorPosition} = input.current;
         if (debounce) {
@@ -404,23 +448,67 @@ export default function Input(props: InputProps) {
         } else {
             onEvent();
         }
-    }, [value, props.debounce]);
+    }, [value, props.debounce, props.value]);
 
     const pickedInputs = pick(inputProps, props);
 
+    const isNumberInput = props.type === 'number';
+    const currentNumericValue = convert(input.current.value || '0');
+    const minValue = convert(props.min);
+    const maxValue = convert(props.max);
+    const disabled = [true, 'disabled', 'DISABLED'].includes(
+        props.disabled ?? false
+    );
+    const isDecrementDisabled = disabled || currentNumericValue <= minValue;
+    const isIncrementDisabled = disabled || currentNumericValue >= maxValue;
+
     return (
         <LoadingElement>
-            {(loadingProps) => (
-                <StyledInput
-                    className={className}
-                    ref={input}
-                    onBlur={onBlur}
-                    onChange={onChange}
-                    onKeyPress={onKeyPress}
-                    {...valprops}
-                    {...pickedInputs}
-                    {...loadingProps}
-                />
+            {loadingProps => (
+                <div
+                    id={props.id}
+                    className={`dash-input-container ${className}${
+                        props.type === 'hidden' ? ' dash-input-hidden' : ''
+                    }`.trim()}
+                    style={props.style}
+                >
+                    <input
+                        id={inputId}
+                        ref={input}
+                        className="dash-input-element"
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        onKeyPress={onKeyPress}
+                        {...valprops}
+                        {...pickedInputs}
+                        {...loadingProps}
+                        disabled={disabled}
+                    />
+                    {isNumberInput && (
+                        <button
+                            type="button"
+                            className="dash-input-stepper dash-stepper-decrement"
+                            onClick={() => handleStepperClick('decrement')}
+                            disabled={isDecrementDisabled}
+                            aria-controls={inputId}
+                            aria-label="Decrease value"
+                        >
+                            −
+                        </button>
+                    )}
+                    {isNumberInput && (
+                        <button
+                            type="button"
+                            className="dash-input-stepper dash-stepper-increment"
+                            onClick={() => handleStepperClick('increment')}
+                            disabled={isIncrementDisabled}
+                            aria-controls={inputId}
+                            aria-label="Increase value"
+                        >
+                            +
+                        </button>
+                    )}
+                </div>
             )}
         </LoadingElement>
     );
