@@ -286,7 +286,7 @@ const defaultProps: Partial<InputProps> = {
  * the Checklist and RadioItems component. Dates, times, and file uploads
  * are also supported through separate components.
  */
-export default function Input(props: InputProps) {
+function Input(props: InputProps) {
     props = {...defaultProps, ...props};
     const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
@@ -448,7 +448,7 @@ export default function Input(props: InputProps) {
         } else {
             onEvent();
         }
-    }, [value, props.debounce, props.value]);
+    }, [value, props.debounce, props.type]);
 
     const pickedInputs = pick(inputProps, props);
 
@@ -466,14 +466,13 @@ export default function Input(props: InputProps) {
         <LoadingElement>
             {loadingProps => (
                 <div
-                    id={props.id}
                     className={`dash-input-container ${className}${
                         props.type === 'hidden' ? ' dash-input-hidden' : ''
                     }`.trim()}
                     style={props.style}
                 >
                     <input
-                        id={inputId}
+                        id={props.id || inputId}
                         ref={input}
                         className="dash-input-element"
                         onBlur={onBlur}
@@ -490,7 +489,7 @@ export default function Input(props: InputProps) {
                             className="dash-input-stepper dash-stepper-decrement"
                             onClick={() => handleStepperClick('decrement')}
                             disabled={isDecrementDisabled}
-                            aria-controls={inputId}
+                            aria-controls={props.id || inputId}
                             aria-label="Decrease value"
                         >
                             −
@@ -502,7 +501,7 @@ export default function Input(props: InputProps) {
                             className="dash-input-stepper dash-stepper-increment"
                             onClick={() => handleStepperClick('increment')}
                             disabled={isIncrementDisabled}
-                            aria-controls={inputId}
+                            aria-controls={props.id || inputId}
                             aria-label="Increase value"
                         >
                             +
@@ -513,3 +512,10 @@ export default function Input(props: InputProps) {
         </LoadingElement>
     );
 }
+
+Input.dashPersistence = pick(
+    ['persisted_props', 'persistence_type'],
+    defaultProps
+);
+
+export default Input;
