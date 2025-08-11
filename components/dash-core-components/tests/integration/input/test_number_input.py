@@ -67,6 +67,60 @@ def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
     assert dash_dcc.get_logs() == []
 
 
+def test_inni004_steppers(dash_dcc, debounce_number_app):
+    dash_dcc.start_server(debounce_number_app)
+
+    # Test input with min=10, max=10000, step=3 (#input-fast)
+    input_elem = dash_dcc.find_element("#input-fast")
+    increment_btn = dash_dcc.find_element("#input-fast~.dash-stepper-increment")
+    decrement_btn = dash_dcc.find_element("#input-fast~.dash-stepper-decrement")
+
+    # Verify steppers exist
+    assert increment_btn.is_displayed(), "Increment stepper should be visible"
+    assert decrement_btn.is_displayed(), "Decrement stepper should be visible"
+
+    # Set initial value to 100
+    input_elem.send_keys("100")
+    dash_dcc.wait_for_text_to_equal("#div-fast", "100")
+
+    # Test increment stepper - should increase by step=3
+    increment_btn.click()
+    dash_dcc.wait_for_text_to_equal("#div-fast", "103")
+
+    # Test decrement stepper - should decrease by step=3
+    decrement_btn.click()
+    dash_dcc.wait_for_text_to_equal("#div-fast", "100")
+
+    # Test multiple increments
+    increment_btn.click()
+    increment_btn.click()
+    dash_dcc.wait_for_text_to_equal("#div-fast", "106")
+
+    # Test that steppers respect min constraint
+    dash_dcc.clear_input(input_elem)
+    input_elem.send_keys("11")  # Close to min=10
+    decrement_btn.click()  # Should go to 10 (min)
+    dash_dcc.wait_for_text_to_equal("#div-fast", "10")
+
+    # Verify decrement button is disabled at minimum
+    assert (
+        decrement_btn.get_attribute("disabled") == "true"
+    ), "Decrement should be disabled at minimum"
+
+    # Test that steppers respect max constraint
+    dash_dcc.clear_input(input_elem)
+    input_elem.send_keys("9999")  # Close to max=10000
+    increment_btn.click()  # Should go to 10000 (max)
+    dash_dcc.wait_for_text_to_equal("#div-fast", "10000")
+
+    # Verify increment button is disabled at maximum
+    assert (
+        increment_btn.get_attribute("disabled") == "true"
+    ), "Increment should be disabled at maximum"
+
+    assert dash_dcc.get_logs() == []
+
+
 def test_inni010_valid_numbers(dash_dcc, ninput_app):
     dash_dcc.start_server(ninput_app)
     for num, op in (
