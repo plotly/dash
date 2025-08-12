@@ -18,6 +18,29 @@ const convert = (val: unknown) => (isNumeric(val) ? +val : NaN);
 const isEquivalent = (v1: number, v2: number) =>
     v1 === v2 || (isNaN(v1) && isNaN(v2));
 
+enum PersistenceTypes {
+    'local' = 'local',
+    'session' = 'session',
+    'memory' = 'memory',
+}
+
+enum PersistedProps {
+    'value' = 'value',
+}
+
+enum HTMLInputTypes {
+    // Only allowing the input types with wide browser compatibility
+    'text' = 'text',
+    'number' = 'number',
+    'password' = 'password',
+    'email' = 'email',
+    'range' = 'range',
+    'search' = 'search',
+    'tel' = 'tel',
+    'url' = 'url',
+    'hidden' = 'hidden',
+}
+
 type InputProps = {
     /**
      * The value of the input
@@ -222,28 +245,19 @@ type InputProps = {
      * component or the page. Since only `value` is allowed this prop can
      * normally be ignored.
      */
-    persisted_props?: ['value'];
+    persisted_props?: PersistedProps[];
     /**
      * Where persisted user changes will be stored:
      * memory: only kept in memory, reset on page refresh.
      * local: window.localStorage, data is kept after the browser quit.
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
-    persistence_type?: 'local' | 'session' | 'memory';
+    persistence_type?: PersistenceTypes;
 
     /**
      * The type of control to render.
      */
-    type?: // Only allowing the input types with wide browser compatibility
-    | 'text'
-        | 'number'
-        | 'password'
-        | 'email'
-        | 'range'
-        | 'search'
-        | 'tel'
-        | 'url'
-        | 'hidden';
+    type?: HTMLInputTypes;
 };
 
 const inputProps: (keyof InputProps)[] = [
@@ -268,15 +282,16 @@ const inputProps: (keyof InputProps)[] = [
 ];
 
 const defaultProps: Partial<InputProps> = {
-    type: 'text',
+    type: HTMLInputTypes.text,
+    inputMode: 'verbatim',
     n_blur: 0,
     n_blur_timestamp: -1,
     n_submit: 0,
     n_submit_timestamp: -1,
     debounce: false,
     step: 'any',
-    persisted_props: ['value'],
-    persistence_type: 'local',
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
 };
 
 /**
@@ -286,14 +301,39 @@ const defaultProps: Partial<InputProps> = {
  * the Checklist and RadioItems component. Dates, times, and file uploads
  * are also supported through separate components.
  */
-function Input(props: InputProps) {
-    props = {...defaultProps, ...props};
+function Input({
+    type = defaultProps.type,
+    inputMode = defaultProps.inputMode,
+    n_blur = defaultProps.n_blur,
+    n_blur_timestamp = defaultProps.n_blur_timestamp,
+    n_submit = defaultProps.n_submit,
+    n_submit_timestamp = defaultProps.n_submit_timestamp,
+    debounce = defaultProps.debounce,
+    step = defaultProps.step,
+    persisted_props = defaultProps.persisted_props,
+    persistence_type = defaultProps.persistence_type,
+    ...rest
+}: InputProps) {
+    const props = {
+        type,
+        inputMode,
+        n_blur,
+        n_blur_timestamp,
+        n_submit,
+        n_submit_timestamp,
+        debounce,
+        step,
+        persisted_props,
+        persistence_type,
+        ...rest,
+    };
     const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
     const inputId = useId();
 
-    const valprops = props.type === 'number' ? {} : {value: value ?? ''};
+    const valprops =
+        props.type === HTMLInputTypes.number ? {} : {value: value ?? ''};
     let {className} = props;
     className = 'dash-input' + (className ? ` ${className}` : '');
 
@@ -314,7 +354,7 @@ function Input(props: InputProps) {
         const {value: inputValue} = input.current;
         const {setProps} = props;
         const valueAsNumber = convert(inputValue);
-        if (props.type === 'number') {
+        if (props.type === HTMLInputTypes.number) {
             setPropValue(props.value, valueAsNumber ?? value);
         } else {
             const propValue =
@@ -420,7 +460,7 @@ function Input(props: InputProps) {
         }
         const valueAsNumber = convert(value);
         setInputValue(valueAsNumber ?? value, props.value);
-        if (props.type !== 'number') {
+        if (props.type !== HTMLInputTypes.number) {
             setValue(props.value);
         }
     }, [props.value, props.type, pendingEvent]);
@@ -437,7 +477,7 @@ function Input(props: InputProps) {
             if (typeof debounce === 'number' && Number.isFinite(debounce)) {
                 debounceEvent(debounce);
             }
-            if (type !== 'number') {
+            if (type !== HTMLInputTypes.number) {
                 setTimeout(() => {
                     input.current.setSelectionRange(
                         cursorPosition,
@@ -452,7 +492,7 @@ function Input(props: InputProps) {
 
     const pickedInputs = pick(inputProps, props);
 
-    const isNumberInput = props.type === 'number';
+    const isNumberInput = props.type === HTMLInputTypes.number;
     const currentNumericValue = convert(input.current.value || '0');
     const minValue = convert(props.min);
     const maxValue = convert(props.max);
@@ -467,7 +507,9 @@ function Input(props: InputProps) {
             {loadingProps => (
                 <div
                     className={`dash-input-container ${className}${
-                        props.type === 'hidden' ? ' dash-input-hidden' : ''
+                        props.type === HTMLInputTypes.hidden
+                            ? ' dash-input-hidden'
+                            : ''
                     }`.trim()}
                     style={props.style}
                 >

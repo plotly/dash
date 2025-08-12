@@ -289,6 +289,40 @@ describe('Test Typescript component metadata generation', () => {
                 expect(propType.value[1].value).toBe('small');
             }
         )
+
+        test(
+            'union of boolean and literal values', () => {
+                const propType = R.path(
+                    propPath('TypeScriptComponent', 'boolean_enum').concat(
+                        'type'
+                    ),
+                    metadata
+                );
+                expect(propType.name).toBe('union');
+                expect(propType.value.length).toBe(3);
+                expect(propType.value[0].name).toBe('bool');
+                expect(propType.value[1].name).toBe('literal');
+                expect(propType.value[2].name).toBe('literal');
+                expect(propType.value[0].value).toBe(undefined);
+                expect(propType.value[1].value).toBe('small');
+                expect(propType.value[2].value).toBe('large');
+            }
+        )
+
+        test(
+            'union of duplicated types', () => {
+                const propType = R.path(
+                    propPath('TypeScriptComponent', 'duplicated_enum').concat(
+                        'type'
+                    ),
+                    metadata
+                );
+                expect(propType.name).toBe('union');
+                expect(propType.value.length).toBe(2);
+                expect(propType.value[0].name).toBe('number');
+                expect(propType.value[1].name).toBe('bool');
+            }
+        )
     });
 
     describe('Test component comments', () => {
