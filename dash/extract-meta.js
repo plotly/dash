@@ -67,7 +67,7 @@ const BANNED_TYPES = [
     'ChildNode',
     'ParentNode',
 ];
-const unionSupport = PRIMITIVES.concat('boolean', 'Element', 'enum');
+const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum');
 
 const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
 
@@ -269,8 +269,18 @@ function gatherComponents(sources, components = {}) {
                     unionSupport.includes(typeName) ||
                     isArray(checker.typeToString(t))
                 );
-            })
-            .map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
+            });
+        value = value.map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
+
+        // de-dupe any types in this union
+        value = value.reduce((acc, t) => {
+            const key = `${t.name}:${t.value}`;
+            if (!acc.seen.has(key)) {
+                acc.seen.add(key);
+                acc.result.push(t);
+            }
+            return acc;
+        }, { seen: new Set(), result: [] }).result;
 
         if (!value.length) {
             name = 'any';
@@ -285,7 +295,7 @@ function gatherComponents(sources, components = {}) {
     const getPropTypeName = propName => {
         if (propName.includes('=>') || propName === 'Function') {
             return 'func';
-        } else if (propName === 'boolean') {
+        } else if (['boolean', 'false', 'true'].includes(propName)) {
             return 'bool';
         } else if (propName === '[]') {
             return 'array';
