@@ -1,0 +1,100 @@
+/* Component Showcase Styles */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fafafa;
+}
+
+/* Home page component grid */
+.component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.component-card {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.component-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.component-card.placeholder {
+    background: #f5f5f5;
+    cursor: default;
+    border: 2px dashed #ddd;
+}
+
+.component-card.placeholder:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Component showcase grid */
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin: 30px 0;
+}
+
+.showcase-item {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.showcase-item h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.showcase-item p {
+    margin: 0 0 15px 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Dropdown specific styling */
+.showcase-item .Select {
+    margin-bottom: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .component-grid,
+    .showcase-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .component-card,
+    .showcase-item {
+        padding: 20px;
+    }
+}
+
+/* Navigation improvements */
+nav a {
+    color: #007bff !important;
+}
+
+nav a:hover {
+    color: #0056b3 !important;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
