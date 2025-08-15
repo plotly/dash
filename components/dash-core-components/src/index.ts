@@ -16,7 +16,7 @@ import Loading from './components/Loading.react';
 import Location from './components/Location.react';
 import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems.react';
-import RangeSlider from './components/RangeSlider.react';
+import RangeSlider from './components/RangeSlider';
 import Slider from './components/Slider';
 import Store from './components/Store.react';
 import Tab from './components/Tab.react';

@@ -1,9 +1,7 @@
-import React, {Component} from 'react';
-import ReactSlider, {createSliderWithTooltip} from 'rc-slider';
-import {assoc, isNil, pick, pipe, omit} from 'ramda';
-import computeSliderStyle from '../utils/computeSliderStyle';
-
-import 'rc-slider/assets/index.css';
+import React, {useEffect, useState, useMemo, useRef} from 'react';
+import * as RadixSlider from '@radix-ui/react-slider';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import {isNil} from 'ramda';
 
 import {
     sanitizeMarks,
@@ -14,346 +12,421 @@ import {
     formatSliderTooltip,
     transformSliderTooltip,
 } from '../utils/formatSliderTooltip';
-import LoadingElement from '../utils/LoadingElement';
+import LoadingElement from '../utils/_LoadingElement';
+import {SliderProps} from '../types';
 
 const MAX_MARKS = 500;
-
-const sliderProps = [
-    'min',
-    'max',
-    'disabled',
-    'dots',
-    'included',
-    'tooltip',
-    'vertical',
-    'id',
-] as const;
-
-interface SliderProps {
-    /**
-     * Minimum allowed value of the slider
-     */
-    min: number;
-
-    /**
-     * Maximum allowed value of the slider
-     */
-    max: number;
-
-    /**
-     * Value by which increments or decrements are made
-     */
-    step?: number | null;
-
-    /**
-     * Marks on the slider.
-     * The key determines the position (a number),
-     * and the value determines what will show.
-     * If you want to set the style of a specific mark point,
-     * the value should be an object which
-     * contains style and label properties.
-     */
-    marks?: {
-        [key: number]: string | {label: string; style?: React.CSSProperties};
-    };
-
-    /**
-     * The value of the input
-     */
-    value?: number | null;
-
-    /**
-     * The value of the input during a drag
-     */
-    drag_value?: number;
-
-    /**
-     * If true, the handles can't be moved.
-     */
-    disabled?: boolean;
-
-    /**
-     * When the step value is greater than 1,
-     * you can set the dots to true if you want to
-     * render the slider with dots.
-     */
-    dots?: boolean;
-
-    /**
-     * If the value is true, it means a continuous
-     * value is included. Otherwise, it is an independent value.
-     */
-    included?: boolean;
-
-    /**
-     * Configuration for tooltips describing the current slider value
-     */
-    tooltip?: {
-        /**
-         * Determines whether tooltips should always be visible
-         * (as opposed to the default, visible on hover)
-         */
-        always_visible?: boolean;
-
-        /**
-         * Determines the placement of tooltips
-         * See https://github.com/react-component/tooltip#api
-         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
-         * will in reality appear to be on the top right of the handle
-         */
-        placement?:
-            | 'left'
-            | 'right'
-            | 'top'
-            | 'bottom'
-            | 'topLeft'
-            | 'topRight'
-            | 'bottomLeft'
-            | 'bottomRight';
-
-        /**
-         * Template string to display the tooltip in.
-         * Must contain `{value}`, which will be replaced with either
-         * the default string representation of the value or the result of the
-         * transform function if there is one.
-         */
-        template?: string;
-
-        /**
-         * Custom style for the tooltip.
-         */
-        style?: React.CSSProperties;
-
-        /**
-         * Reference to a function in the `window.dccFunctions` namespace.
-         * This can be added in a script in the asset folder.
-         *
-         * For example, in `assets/tooltip.js`:
-         * ```
-         * window.dccFunctions = window.dccFunctions || {};
-         * window.dccFunctions.multByTen = function(value) {
-         *     return value * 10;
-         * }
-         * ```
-         * Then in the component `tooltip={'transform': 'multByTen'}`
-         */
-        transform?: string;
-    };
-
-    /**
-     * Determines when the component should update its `value`
-     * property. If `mouseup` (the default) then the slider
-     * will only trigger its value when the user has finished
-     * dragging the slider. If `drag`, then the slider will
-     * update its value continuously as it is being dragged.
-     * If you want different actions during and after drag,
-     * leave `updatemode` as `mouseup` and use `drag_value`
-     * for the continuously updating value.
-     */
-    updatemode?: 'mouseup' | 'drag';
-
-    /**
-     * If true, the slider will be vertical
-     */
-    vertical?: boolean;
-
-    /**
-     * The height, in px, of the slider if it is vertical.
-     */
-    verticalHeight?: number;
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className?: string;
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
-    /**
-     * Dash-assigned callback that gets fired when the value or drag_value changes.
-     */
-    setProps: (props: Partial<SliderProps>) => void;
-
-    /**
-     * Used to allow user interactions in this component to be persisted when
-     * the component - or the page - is refreshed. If `persisted` is truthy and
-     * hasn't changed from its previous value, a `value` that the user has
-     * changed while using the app will keep that change, as long as
-     * the new `value` also matches what was given originally.
-     * Used in conjunction with `persistence_type`.
-     */
-    persistence?: boolean | string | number;
-
-    /**
-     * Properties whose user interactions will persist after refreshing the
-     * component or the page. Since only `value` is allowed this prop can
-     * normally be ignored.
-     */
-    persisted_props?: ['value'];
-
-    /**
-     * Where persisted user changes will be stored:
-     * memory: only kept in memory, reset on page refresh.
-     * local: window.localStorage, data is kept after the browser quit.
-     * session: window.sessionStorage, data is cleared once the browser quit.
-     */
-    persistence_type?: 'local' | 'session' | 'memory';
-}
-
-interface SliderState {
-    value: number | null;
-}
 
 /**
  * A slider component with a single handle.
  */
-export default class Slider extends Component<SliderProps, SliderState> {
-    private DashSlider: any;
-    private _computeStyle: any;
+export default function Slider(props: SliderProps) {
+    const {
+        className,
+        id,
+        setProps,
+        tooltip,
+        updatemode,
+        min,
+        max,
+        marks,
+        step,
+        vertical,
+        verticalHeight,
+        value: propValue,
+        disabled,
+        dots,
+        included,
+    } = props;
 
-    constructor(props: SliderProps) {
-        super(props);
-        this.DashSlider = props.tooltip
-            ? createSliderWithTooltip(ReactSlider)
-            : ReactSlider;
-        this._computeStyle = computeSliderStyle();
-        this.state = {value: props.value || null};
-    }
+    // Radix UI expects arrays, so we normalize the value
+    const [value, setValue] = useState<number | null>(propValue || null);
 
-    UNSAFE_componentWillReceiveProps(newProps: SliderProps) {
-        if (newProps.tooltip !== this.props.tooltip) {
-            this.DashSlider = newProps.tooltip
-                ? createSliderWithTooltip(ReactSlider)
-                : ReactSlider;
+    // Track slider dimension (width for horizontal, height for vertical) for dynamic mark density
+    const [sliderWidth, setSliderWidth] = useState<number | null>(null);
+    const [showInput, setShowInput] = useState<boolean>(true);
+    const sliderRef = useRef<HTMLDivElement>(null);
+
+    // Convert single value to array format for Radix UI
+    const radixValue = useMemo(() => {
+        return value !== null ? [value] : undefined;
+    }, [value]);
+
+    // Handle initial mount - equivalent to componentWillMount
+    useEffect(() => {
+        if (propValue !== null && propValue !== undefined) {
+            setProps({drag_value: propValue});
+            setValue(propValue);
+        } else {
+            // No value came down, so we send the slider default value back up: the value prop will always be set after this point.
+            setProps({value: min});
         }
-        if (newProps.value !== this.props.value) {
-            this.props.setProps({drag_value: newProps.value || undefined});
-            this.setState({value: newProps.value || null});
-        }
-    }
+    }, []);
 
-    UNSAFE_componentWillMount() {
-        if (this.props.value !== null) {
-            this.props.setProps({drag_value: this.props.value});
-            this.setState({value: this.props.value});
-        }
-    }
-
-    render() {
-        const {
-            className,
-            id,
-            setProps,
-            tooltip,
-            updatemode,
-            min,
-            max,
-            marks,
-            step,
-            vertical,
-            verticalHeight,
-        } = this.props;
-        const value = this.state.value;
-
-        // Check if marks exceed 500 limit for performance
-        let processedMarks = marks;
-        if (marks && typeof marks === 'object' && marks !== null) {
-            const marksCount = Object.keys(marks).length;
-            if (marksCount > MAX_MARKS) {
-                /* eslint-disable no-console */
-                console.error(
-                    `dcc.Slider: Too many marks (${marksCount}) provided. ` +
-                        `For performance reasons, marks are limited to 500. ` +
-                        `Using auto-generated marks instead.`
-                );
-                processedMarks = undefined;
-            }
+    // Dynamic dimension detection using ResizeObserver (width for horizontal, height for vertical)
+    useEffect(() => {
+        if (!sliderRef.current) {
+            return;
         }
 
-        let tipProps: any,
-            tipFormatter: ((value: number) => JSX.Element) | undefined;
-        if (tooltip) {
-            /**
-             * clone `tooltip` but with renamed key `always_visible` -> `visible`
-             * the rc-tooltip API uses `visible`, but `always_visible` is more semantic
-             * assigns the new (renamed) key to the old key and deletes the old key
-             */
-            tipProps = pipe(
-                assoc('visible', tooltip.always_visible),
-                omit(['always_visible', 'template', 'style', 'transform'])
-            )(tooltip);
-            if (tooltip.template || tooltip.style || tooltip.transform) {
-                tipFormatter = (tipValue: number) => {
-                    let t: number | string = tipValue;
-                    if (tooltip.transform) {
-                        t = transformSliderTooltip(tooltip.transform, tipValue);
+        const measureWidth = () => {
+            if (sliderRef.current) {
+                const rect = sliderRef.current.getBoundingClientRect();
+                // Use height for vertical sliders, width for horizontal sliders
+                const dimension = vertical ? rect.height : rect.width;
+                if (dimension > 0) {
+                    setSliderWidth(dimension);
+
+                    const HIDE_AT_WIDTH = 200;
+                    const SHOW_AT_WIDTH = 300;
+                    if (showInput && dimension < HIDE_AT_WIDTH) {
+                        setShowInput(false);
+                    } else if (!showInput && dimension >= SHOW_AT_WIDTH) {
+                        setShowInput(true);
                     }
-                    return (
-                        <div style={tooltip.style}>
-                            {formatSliderTooltip(
-                                tooltip.template || '{value}',
-                                t
-                            )}
-                        </div>
-                    );
-                };
+                }
             }
+        };
+
+        // Initial measurement
+        measureWidth();
+
+        // Set up ResizeObserver for dynamic resizing
+        const resizeObserver = new ResizeObserver(() => {
+            measureWidth();
+        });
+
+        resizeObserver.observe(sliderRef.current);
+
+        // Cleanup function when component unmounts
+        // eslint-disable-next-line consistent-return
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [showInput, vertical]);
+
+    // Handle prop value changes - equivalent to componentWillReceiveProps
+    useEffect(() => {
+        if (propValue !== value) {
+            setProps({drag_value: propValue || undefined});
+            setValue(propValue || null);
         }
+    }, [propValue]);
+
+    // Check if marks exceed 500 limit for performance
+    let processedMarks = marks;
+    if (marks && typeof marks === 'object' && marks !== null) {
+        const marksCount = Object.keys(marks).length;
+        if (marksCount > MAX_MARKS) {
+            /* eslint-disable no-console */
+            console.error(
+                `dcc.Slider: Too many marks (${marksCount}) provided. ` +
+                    `For performance reasons, marks are limited to 500. ` +
+                    `Using auto-generated marks instead.`
+            );
+            processedMarks = undefined;
+        }
+    }
+
+    // Tooltip configuration for Radix UI
+    const tooltipContent = useMemo(() => {
+        if (!tooltip || value === null) {
+            return null;
+        }
+
+        let displayValue: number | string = value;
+        if (tooltip.transform) {
+            displayValue = transformSliderTooltip(tooltip.transform, value);
+        }
+
+        const content = formatSliderTooltip(
+            tooltip.template || '{value}',
+            displayValue
+        );
 
         return (
-            <LoadingElement
-                id={id}
-                className={className}
-                style={this._computeStyle(vertical, verticalHeight, tooltip)}
-            >
-                <this.DashSlider
-                    onChange={(value: number) => {
-                        if (updatemode === 'drag') {
-                            setProps({value: value, drag_value: value});
-                        } else {
-                            this.setState({value: value});
-                            setProps({drag_value: value});
-                        }
-                    }}
-                    onAfterChange={(value: number) => {
-                        if (updatemode === 'mouseup') {
-                            setProps({value});
-                        }
-                    }}
-                    /*
-                    if/when rc-slider or rc-tooltip are updated to latest versions,
-                    we will need to revisit this code as the getTooltipContainer function will need to be a prop instead of a nested property
-                    */
-                    tipProps={{
-                        ...tipProps,
-                        getTooltipContainer: (node: any) => node,
-                    }}
-                    tipFormatter={tipFormatter}
-                    style={{position: 'relative'}}
-                    value={value}
-                    marks={sanitizeMarks({
-                        min,
-                        max,
-                        marks: processedMarks,
-                        step,
-                    })}
-                    max={setUndefined(min, max, processedMarks).max_mark}
-                    min={setUndefined(min, max, processedMarks).min_mark}
-                    step={
-                        step === null && !isNil(processedMarks)
-                            ? null
-                            : calcStep(min, max, step)
-                    }
-                    {...pick(sliderProps, this.props)}
-                />
-            </LoadingElement>
+            <div id={`${id}-tooltip-content`} style={tooltip.style}>
+                {content}
+            </div>
         );
-    }
-}
+    }, [tooltip, value]);
 
-// PropTypes removed - handled by TypeScript in the new Slider component
+    const minMaxValues = useMemo(() => {
+        return setUndefined(min, max, processedMarks);
+    }, [min, max, processedMarks]);
+
+    const stepValue: number | undefined = useMemo(() => {
+        return step === null && !isNil(processedMarks)
+            ? undefined
+            : calcStep(min, max, step);
+    }, [step, processedMarks, min, max]);
+
+    // Generate marks for rendering (if needed)
+    const renderedMarks = useMemo(() => {
+        return sanitizeMarks({
+            min,
+            max,
+            marks: processedMarks,
+            step,
+            sliderWidth,
+        });
+    }, [min, max, processedMarks, step, sliderWidth]);
+
+    // Replicate Radix UI's exact positioning logic including pixel offsets
+    const convertValueToPercentage = (
+        value: number,
+        min: number,
+        max: number
+    ) => {
+        const maxSteps = max - min;
+        const percentPerStep = 100 / maxSteps;
+        const percentage = percentPerStep * (value - min);
+        // Clamp to 0-100 range like Radix does
+        return Math.max(0, Math.min(100, percentage));
+    };
+
+    const linearScale = (
+        input: readonly [number, number],
+        output: readonly [number, number]
+    ) => {
+        return (value: number) => {
+            if (input[0] === input[1] || output[0] === output[1]) {
+                return output[0];
+            }
+            const ratio = (output[1] - output[0]) / (input[1] - input[0]);
+            return output[0] + ratio * (value - input[0]);
+        };
+    };
+
+    const getThumbInBoundsOffset = (
+        width: number,
+        left: number,
+        direction: number
+    ) => {
+        const halfWidth = width / 2;
+        const halfPercent = 50;
+        const offset = linearScale([0, halfPercent], [0, halfWidth]);
+        return (halfWidth - offset(left) * direction) * direction;
+    };
+
+    // Calculate the exact position including pixel offset as Radix does
+    const getRadixThumbPosition = (value: number, thumbWidth = 16) => {
+        const percentage = convertValueToPercentage(
+            value,
+            minMaxValues.min_mark,
+            minMaxValues.max_mark
+        );
+        const direction = 1; // LTR direction
+        const thumbInBoundsOffset = getThumbInBoundsOffset(
+            thumbWidth,
+            percentage,
+            direction
+        );
+        return {percentage, offset: thumbInBoundsOffset};
+    };
+
+    return (
+        <LoadingElement>
+            {loadingProps => (
+                <div className="dash-slider-container" {...loadingProps}>
+                    <div className="dash-slider-wrapper">
+                        <Tooltip.Provider>
+                            <RadixSlider.Root
+                                ref={sliderRef}
+                                className={`dash-slider-root ${
+                                    renderedMarks ? 'has-marks' : ''
+                                } ${className || ''}`.trim()}
+                                style={{
+                                    position: 'relative',
+                                    ...(vertical && {
+                                        height: `${verticalHeight}px`,
+                                    }),
+                                }}
+                                value={radixValue}
+                                onValueChange={(newValue: number[]) => {
+                                    const singleValue = newValue[0];
+
+                                    setValue(singleValue);
+                                    if (updatemode === 'drag') {
+                                        setProps({
+                                            value: singleValue,
+                                            drag_value: singleValue,
+                                        });
+                                    } else {
+                                        setProps({drag_value: singleValue});
+                                    }
+                                }}
+                                onValueCommit={() => {
+                                    if (updatemode === 'mouseup') {
+                                        setProps({value});
+                                    }
+                                }}
+                                min={minMaxValues.min_mark}
+                                max={minMaxValues.max_mark}
+                                step={stepValue}
+                                disabled={disabled}
+                                orientation={
+                                    vertical ? 'vertical' : 'horizontal'
+                                }
+                                data-included={included !== false}
+                            >
+                                <RadixSlider.Track className="dash-slider-track">
+                                    {included !== false && (
+                                        <RadixSlider.Range className="dash-slider-range" />
+                                    )}
+                                </RadixSlider.Track>
+
+                                {/* Render marks if they exist */}
+                                {renderedMarks &&
+                                    Object.entries(renderedMarks).map(
+                                        ([position, mark]) => {
+                                            const pos = parseFloat(position);
+                                            // Use the exact same positioning logic as Radix UI thumbs
+                                            const thumbPosition =
+                                                getRadixThumbPosition(pos);
+                                            const style = vertical
+                                                ? {
+                                                      bottom: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px - 13px)`,
+                                                      left: 'calc(100% + 8px)',
+                                                      transform:
+                                                          'translateY(-50%)',
+                                                  }
+                                                : {
+                                                      left: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px)`,
+                                                      bottom: 0,
+                                                      transform:
+                                                          'translateX(-50%)',
+                                                  };
+
+                                            return (
+                                                <div
+                                                    key={position}
+                                                    className="dash-slider-mark"
+                                                    style={{
+                                                        ...style,
+                                                        ...(typeof mark ===
+                                                            'object' &&
+                                                        mark.style
+                                                            ? mark.style
+                                                            : {}),
+                                                    }}
+                                                >
+                                                    {typeof mark === 'string'
+                                                        ? mark
+                                                        : mark?.label || pos}
+                                                </div>
+                                            );
+                                        }
+                                    )}
+
+                                {/* Render dots if enabled */}
+                                {dots &&
+                                    stepValue &&
+                                    Array.from(
+                                        {
+                                            length:
+                                                Math.floor(
+                                                    (minMaxValues.max_mark -
+                                                        minMaxValues.min_mark) /
+                                                        stepValue
+                                                ) + 1,
+                                        },
+                                        (_, i) => {
+                                            const dotValue =
+                                                minMaxValues.min_mark +
+                                                i * stepValue;
+                                            const percentage =
+                                                ((dotValue -
+                                                    minMaxValues.min_mark) /
+                                                    (minMaxValues.max_mark -
+                                                        minMaxValues.min_mark)) *
+                                                100;
+                                            const dotStyle = vertical
+                                                ? {
+                                                      bottom: `${percentage}%`,
+                                                      left: '50%',
+                                                      transform:
+                                                          'translateX(-50%)',
+                                                  }
+                                                : {
+                                                      left: `${percentage}%`,
+                                                      top: '50%',
+                                                      transform:
+                                                          'translateY(-50%)',
+                                                  };
+
+                                            return (
+                                                <div
+                                                    key={i}
+                                                    className="dash-slider-dot"
+                                                    style={{
+                                                        position: 'absolute',
+                                                        width: '8px',
+                                                        height: '8px',
+                                                        borderRadius: '50%',
+                                                        backgroundColor: '#ddd',
+                                                        ...dotStyle,
+                                                    }}
+                                                />
+                                            );
+                                        }
+                                    )}
+
+                                {/* Thumb with tooltip */}
+                                {tooltip ? (
+                                    <Tooltip.Root
+                                        open={
+                                            tooltip.always_visible || undefined
+                                        }
+                                    >
+                                        <Tooltip.Trigger asChild>
+                                            <RadixSlider.Thumb className="dash-slider-thumb" />
+                                        </Tooltip.Trigger>
+                                        <Tooltip.Portal>
+                                            <Tooltip.Content
+                                                className="dash-slider-tooltip"
+                                                side={
+                                                    vertical ? 'right' : 'top'
+                                                }
+                                                sideOffset={5}
+                                            >
+                                                {tooltipContent}
+                                                <Tooltip.Arrow />
+                                            </Tooltip.Content>
+                                        </Tooltip.Portal>
+                                    </Tooltip.Root>
+                                ) : (
+                                    <RadixSlider.Thumb className="dash-slider-thumb" />
+                                )}
+                            </RadixSlider.Root>
+                        </Tooltip.Provider>
+                    </div>
+                    {showInput && !vertical && (
+                        <input
+                            type="number"
+                            className="dash-input-container dash-slider-input"
+                            value={value || ''}
+                            onChange={e => {
+                                setValue(parseFloat(e.target.value));
+                            }}
+                            onBlur={e => {
+                                // Constrain value to the given min and max
+                                let value = parseFloat(e.target.value) || 0;
+                                value = isNaN(value) ? 0 : value;
+                                const constrainedValue = Math.max(
+                                    minMaxValues.min_mark,
+                                    Math.min(minMaxValues.max_mark, value || 0)
+                                );
+                                setValue(constrainedValue);
+                            }}
+                            pattern="^\\d*\\.?\\d*$"
+                            min={minMaxValues.min_mark}
+                            max={minMaxValues.max_mark}
+                            disabled={disabled}
+                        />
+                    )}
+                </div>
+            )}
+        </LoadingElement>
+    );
+}

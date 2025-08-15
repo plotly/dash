@@ -1,12 +1,12 @@
 import React, {lazy, Suspense} from 'react';
-import { SliderProps } from '../types';
-import slider from '../utils/LazyLoader/slider';
+import {RangeSliderProps} from '../types';
+import rangeSlider from '../utils/LazyLoader/rangeSlider';
 
 import './css/sliders.css';
 
-const RealSlider = lazy(slider);
+const RealRangeSlider = lazy(rangeSlider);
 
-const defaultProps: Partial<SliderProps> = {
+const defaultProps: Partial<RangeSliderProps> = {
     updatemode: 'mouseup',
     persisted_props: ['value'],
     persistence_type: 'local',
@@ -14,15 +14,16 @@ const defaultProps: Partial<SliderProps> = {
 };
 
 /**
- * A slider component with a single handle.
+ * A double slider with two handles.
+ * Used for specifying a range of numerical values.
  */
-export default function Slider({
+export default function RangeSlider({
     updatemode = defaultProps.updatemode,
     persisted_props = defaultProps.persisted_props,
     persistence_type = defaultProps.persistence_type,
     verticalHeight = defaultProps.verticalHeight,
     ...rest
-}: SliderProps) {
+}: RangeSliderProps) {
     const props = {
         updatemode,
         persisted_props,
@@ -33,7 +34,7 @@ export default function Slider({
 
     return (
         <Suspense fallback={null}>
-            <RealSlider {...props} />
+            <RealRangeSlider {...props} />
         </Suspense>
     );
 }

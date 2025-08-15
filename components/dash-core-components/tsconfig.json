@@ -5,7 +5,7 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
-    "types": ["node", "react", "react-dom"]
+    "types": ["node", "react", "react-dom", "jest"]
   },
   "include": ["src"]
 }

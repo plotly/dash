@@ -1,5 +1,191 @@
-/* Fix the default tooltip style height conflicting with the actual size of the tooltip. */
-.rc-slider-tooltip-content > .rc-slider-tooltip-inner {
-    height: unset;
-    min-height: 20px;
+.dash-slider-root {
+    position: relative;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    touch-action: none;
+    width: 100%;
+    height: 14px;
+    padding: 8px 0;
+    box-sizing: border-box;
+    /* Override Radix's default margin/padding behavior */
+    --radix-slider-thumb-width: 16px;
+}
+
+/* Add space for marks when they exist */
+.dash-slider-root.has-marks {
+    padding-bottom: 28px; /* Space for horizontal mark labels below */
+}
+
+.dash-slider-root[data-orientation="vertical"].has-marks {
+    padding-bottom: 0px;
+}
+
+.dash-slider-root[data-orientation="vertical"] {
+    flex-direction: column;
+    width: 20px;
+    height: 100%;
+}
+
+.dash-slider-track {
+    position: relative;
+    flex-grow: 1;
+    border-radius: 9999px;
+    height: 4px;
+    background-color: #d1d5db;
+}
+
+.dash-slider-root[data-orientation="vertical"] .dash-slider-track {
+    width: 4px;
+    height: auto;
+    overflow-y: hidden;
+}
+
+.dash-slider-range {
+    position: absolute;
+    border-radius: 9999px;
+    height: 100%;
+    background-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+/* Allow Radix to control range height for multi-thumb sliders */
+.dash-range-slider-root .dash-slider-range {
+    height: 4px;
+}
+
+.dash-slider-root[data-orientation="vertical"] .dash-slider-range {
+    width: 100%;
+    height: auto;
+}
+
+.dash-slider-thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-color: var(--Dash-Fill-Interactive-Strong);
+    border: 2px solid var(--Dash-Fill-Inverse-Strong);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.dash-slider-thumb:hover {
+    transform: scale(1.125); /* Scale to make 16px thumb appear as 18px */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dash-slider-thumb[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.dash-slider-mark {
+    position: absolute;
+    font-size: 12px;
+    line-height: 12px;
+    color: #6b7280;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.dash-slider-mark:before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--Dash-Fill-Disabled);
+  width: 4px;
+  height: 6px;
+  border-radius: 2px;
+  margin-bottom: 2px;
+}
+
+.dash-slider-root[data-orientation="vertical"] .dash-slider-mark:before {
+  content: initial;
+}
+
+.dash-slider-dot {
+    pointer-events: none;
+}
+
+.dash-slider-tooltip {
+    border-radius: var(--Dash-Spacing);
+    padding: calc(var(--Dash-Spacing) * 3);
+    font-size: 12px;
+    line-height: 1;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    background-color: var(--Dash-Fill-Inverse-strong);
+    user-select: none;
+    animation-duration: 400ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+    z-index: 1000;
+}
+
+/* Include property to mimic rc-slider behavior */
+.dash-slider-root:not([data-included="false"]) .dash-slider-range {
+    background-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-slider-root[data-included="false"] .dash-slider-range {
+    background-color: transparent;
+}
+
+/* Disabled state */
+.dash-slider-root[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dash-slider-root[data-disabled] .dash-slider-track {
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-root[data-disabled] .dash-slider-range {
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-root[data-disabled] .dash-slider-thumb {
+    cursor: not-allowed;
+    border-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.dash-slider-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.dash-slider-input {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.dash-range-slider-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 64px;
+}
+
+.dash-range-slider-min-input {
+    min-width: 64px;
+}
+
+.dash-range-slider-input {
+    width: 64px;
+    margin-top: 8px;
 }

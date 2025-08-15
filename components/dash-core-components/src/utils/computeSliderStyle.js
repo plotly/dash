@@ -3,7 +3,7 @@ import {memoizeWith, identity, includes} from 'ramda';
 export default () => {
     return memoizeWith(identity, (vertical, verticalHeight, tooltip) => {
         const style = {
-            padding: '25px',
+            padding: '0px',
         };
 
         if (vertical) {
