@@ -13,6 +13,8 @@ import Expand from '../icons/Expand.svg';
 import {VersionInfo} from './VersionInfo.react';
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
 import {FrontEndErrorContainer} from '../FrontEnd/FrontEndErrorContainer.react';
+import ExternalWrapper from '../../../wrapper/ExternalWrapper';
+import {useSelector} from 'react-redux';
 
 const classes = (base, variant, variant2) =>
     `${base} ${base}--${variant}` + (variant2 ? ` ${base}--${variant2}` : '');
@@ -35,6 +37,7 @@ const MenuContent = ({
     toggleCallbackGraph,
     config
 }) => {
+    const ready = useSelector(state => state.appLifecycle === 'HYDRATED');
     const _StatusIcon = hotReload
         ? connected
             ? CheckIcon
@@ -47,8 +50,31 @@ const MenuContent = ({
             : 'unavailable'
         : 'cold';
 
+    let custom = null;
+    if (config.dev_tools?.length && ready) {
+        custom = config.dev_tools.reduce(
+            (acc, devtool, i) => {
+                const comp = (
+                    <ExternalWrapper
+                        component={devtool}
+                        componentPath={['__dash_devtools', i]}
+                        key={devtool?.props?.id ? devtool.props.id : i}
+                    />
+                );
+                if (devtool.position === 'left') {
+                    acc.left.push(comp);
+                } else {
+                    acc.right.push(comp);
+                }
+                return acc;
+            },
+            {left: [], right: []}
+        );
+    }
+
     return (
         <div className='dash-debug-menu__content'>
+            {custom && <>{custom.left}</>}
             <button
                 onClick={toggleErrors}
                 className={
@@ -87,6 +113,7 @@ const MenuContent = ({
                 Server
                 <_StatusIcon className='dash-debug-menu__icon' />
             </div>
+            {custom && <>{custom.right}</>}
             <div
                 className='dash-debug-menu__divider'
                 style={{marginRight: 0}}

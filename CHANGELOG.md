@@ -4,9 +4,27 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Added
+- [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
+
+## Fixed
+- [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)
+- [#3397](https://github.com/plotly/dash/pull/3397) Add optional callbacks, suppressing callback warning for missing component ids for a single callback.
+
+## [3.2.0] - 2025-07-31
+
+## Added
+- [#3369](https://github.com/plotly/dash/pull/3369) Expose `dash.NoUpdate` type
+- [#3371](https://github.com/plotly/dash/pull/3371) Add devtool hook to add components to the devtool bar ui.
+
 ## Fixed
 - [#3353](https://github.com/plotly/dash/pull/3353) Support pattern-matching/dict ids in `dcc.Loading` `target_components`
+- [#3371](https://github.com/plotly/dash/pull/3371) Fix allow_optional triggering a warning for not found input.
+- [#3379](https://github.com/plotly/dash/pull/3379) Fix dcc.Graph backward compatibility with dash 2.0 for ddk.Graph
+- [#3373](https://github.com/plotly/dash/pull/3373) Fix layout as list and persistence.
 
+# Changed
+- [#3365](https://github.com/plotly/dash/pull/3365) Warn if dcc.Slider has more than 500 marks and use default instead.
 
 # [3.1.1] - 2025-06-29
 

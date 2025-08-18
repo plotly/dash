@@ -22,6 +22,7 @@ else:
 
 
 HookDataType = _tx.TypeVar("HookDataType")
+DevtoolPosition = _tx.Literal["right", "left"]
 
 
 # pylint: disable=too-few-public-methods
@@ -46,6 +47,7 @@ class _Hooks:
             "callback": [],
             "index": [],
             "custom_data": [],
+            "dev_tools": [],
         }
         self._js_dist = []
         self._css_dist = []
@@ -215,6 +217,31 @@ class _Hooks:
             return func
 
         return wrap
+
+    def devtool(
+        self,
+        namespace: str,
+        component_type: str,
+        props=None,
+        position: DevtoolPosition = "right",
+    ):
+        """
+        Add a component to be rendered inside the dev tools.
+
+        If it's a dash component, it can be used in callbacks provided
+        that it has an id and the dependency is set with allow_optional=True.
+
+        `props` can be a function, in which case it will be called before
+        sending the component to the frontend.
+        """
+        self._ns["dev_tools"].append(
+            {
+                "namespace": namespace,
+                "type": component_type,
+                "props": props or {},
+                "position": position,
+            }
+        )
 
 
 hooks = _Hooks()

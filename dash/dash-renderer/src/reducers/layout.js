@@ -10,12 +10,15 @@ import {
 
 import {getAction} from '../actions/constants';
 
-const layout = (state = {}, action) => {
+const layout = (state = {components: []}, action) => {
     if (action.type === getAction('SET_LAYOUT')) {
         if (Array.isArray(action.payload)) {
-            return [...action.payload];
+            state.components = [...action.payload];
+        } else {
+            state.components = {...action.payload};
         }
-        return {...action.payload};
+
+        return state;
     } else if (
         includes(action.type, [
             'UNDO_PROP_CHANGE',

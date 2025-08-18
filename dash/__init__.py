@@ -26,6 +26,7 @@ from ._get_paths import (  # noqa: F401,E402
     get_relative_path,
     strip_relative_path,
 )
+from ._no_update import NoUpdate  # noqa: F401,E402
 from .background_callback import (  # noqa: F401,E402
     CeleryManager,
     DiskcacheManager,
@@ -86,6 +87,7 @@ __all__ = [
     "page_registry",
     "Dash",
     "no_update",
+    "NoUpdate",
     "page_container",
     "Patch",
     "jupyter_dash",

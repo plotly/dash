@@ -926,6 +926,16 @@ class Dash(ObsoleteChecker):
 
             config["validation_layout"] = validation_layout
 
+        if self._dev_tools.ui:
+            # Add custom dev tools hooks if the ui is activated.
+            custom_dev_tools = []
+            for hook_dev_tools in self._hooks.get_hooks("dev_tools"):
+                props = hook_dev_tools.get("props", {})
+                if callable(props):
+                    props = props()
+                custom_dev_tools.append({**hook_dev_tools, "props": props})
+            config["dev_tools"] = custom_dev_tools
+
         return config
 
     def serve_reload_hash(self):
