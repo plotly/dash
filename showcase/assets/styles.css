@@ -317,6 +317,39 @@ body.theme-indigo .showcase-item {
     color: var(--accent-12);
 }
 
+/* Invert pill layout: move close icon to right side */
+.dash-dropdown .Select--multi .Select-value {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* Move close icon to the right using CSS order */
+.dash-dropdown .Select--multi .Select-value-icon {
+    order: 2 !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.2) !important;
+    border-right: none !important;
+}
+
+/* Keep label on the left */
+.dash-dropdown .Select--multi .Select-value-label {
+    order: 1 !important;
+}
+
+/* Apply themed colors to the divider */
+[class*="theme-"] .dash-dropdown .Select--multi .Select-value-icon {
+    border-left-color: var(--accent-8) !important;
+}
+
+/* Ensure multi-select container flows horizontally and centers pills vertically */
+.dash-dropdown .Select-multi-value-wrapper {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 2px !important;
+    margin-top: -2px !important;
+}
+
+
 [class*="theme-"] .dash-dropdown .Select-menu {
     border-color: var(--accent-8);
 }
