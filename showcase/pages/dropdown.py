@@ -1,5 +1,5 @@
 import dash
-from dash import html, dcc
+from dash import html, dcc, callback, Input, Output, clientside_callback
 
 # Register this page
 dash.register_page(__name__, name='Dropdown Showcase')
@@ -16,6 +16,39 @@ complex_options = [
 layout = html.Div([
     html.Div([
         html.H2("Dropdown Component Variations", style={'marginBottom': '30px'}),
+        
+        # Theme Filter Row  
+        html.Div([
+            html.Label("Color Theme:", style={'fontWeight': '500', 'marginRight': '8px'}),
+            dcc.Dropdown(
+                options=[
+                    {'label': 'Purple', 'value': 'purple'},
+                    {'label': 'Blue', 'value': 'blue'},
+                    {'label': 'Green', 'value': 'green'},
+                    {'label': 'Red', 'value': 'red'},
+                    {'label': 'Orange', 'value': 'orange'},
+                    {'label': 'Teal', 'value': 'teal'},
+                    {'label': 'Pink', 'value': 'pink'},
+                    {'label': 'Indigo', 'value': 'indigo'},
+                ],
+                value='purple',
+                id='color-theme-select',
+                style={'width': '120px', 'display': 'inline-block'}
+            ),
+            html.Label("Scaling:", style={'fontWeight': '500', 'marginLeft': '20px', 'marginRight': '8px'}),
+            dcc.Dropdown(
+                options=[
+                    {'label': '90%', 'value': 0.9},
+                    {'label': '95%', 'value': 0.95},
+                    {'label': '100%', 'value': 1.0},
+                    {'label': '105%', 'value': 1.05},
+                    {'label': '110%', 'value': 1.1},
+                ],
+                value=1.0,
+                id='scaling-select',
+                style={'width': '120px', 'display': 'inline-block'}
+            )
+        ], className="theme-filter-row", style={'alignItems': 'center'}),
         
         # Component showcase grid
         html.Div([
@@ -86,9 +119,9 @@ layout = html.Div([
                     options=complex_options,
                     value='NYC',
                     style={
-                        'backgroundColor': '#f0f8ff',
-                        'border': '2px solid #4CAF50',
-                        'borderRadius': '8px'
+                        'backgroundColor': 'var(--accent-2)',
+                        'border': '2px solid var(--accent-8)',
+                        'borderRadius': 'var(--radius-2)'
                     },
                     id='styled-dropdown'
                 )
@@ -99,7 +132,42 @@ layout = html.Div([
         html.Div([
             dcc.Link("← Back to Home", href='/', 
                     style={'display': 'inline-block', 'marginTop': '40px', 'textDecoration': 'none'})
-        ])
+        ]),
+        
         
     ], style={'maxWidth': '1200px', 'margin': '0 auto', 'padding': '40px 20px'})
 ])
+
+# Clientside callbacks for theme switching
+clientside_callback(
+    """
+    function(color) {
+        if (!color) return window.dash_clientside.no_update;
+        
+        console.log('Color theme changed to:', color);
+        
+        // Remove all existing theme classes
+        document.body.classList.remove('theme-purple', 'theme-blue', 'theme-green', 'theme-red', 'theme-orange', 'theme-teal', 'theme-pink', 'theme-indigo');
+        
+        // Add the new theme class (CSS variables are defined in styles.css per theme)
+        document.body.classList.add('theme-' + color);
+        
+        console.log('Applied theme class: theme-' + color);
+        
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('color-theme-select', 'style'),  # dummy output
+    Input('color-theme-select', 'value')
+)
+
+clientside_callback(
+    """
+    function(scale) {
+        document.documentElement.style.setProperty('--scaling', scale);
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('scaling-select', 'id'),  # dummy output
+    Input('scaling-select', 'value')
+)

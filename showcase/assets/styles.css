@@ -1,78 +1,333 @@
 /* Component Showcase Styles */
 
+/* Radix Design Tokens */
+:root {
+    /* Default theme: purple accent, 100% scaling */
+    --accent-1: #fdfcfe;
+    --accent-2: #faf8ff;
+    --accent-3: #f4f0fe;
+    --accent-4: #ebe4ff;
+    --accent-5: #e1d9ff;
+    --accent-6: #d4c7fb;
+    --accent-7: #c4aff5;
+    --accent-8: #ad8bee;
+    --accent-9: #8e4ec6;
+    --accent-10: #8347b9;
+    --accent-11: #744aac;
+    --accent-12: #402060;
+    
+    /* Gray scale */
+    --gray-1: #fcfcfc;
+    --gray-2: #f9f9f9;
+    --gray-3: #f0f0f0;
+    --gray-4: #e8e8e8;
+    --gray-5: #e0e0e0;
+    --gray-6: #d9d9d9;
+    --gray-7: #cecece;
+    --gray-8: #bbbbbb;
+    --gray-9: #8d8d8d;
+    --gray-10: #838383;
+    --gray-11: #646464;
+    --gray-12: #202020;
+    
+    /* Spacing scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 40px;
+    --space-8: 48px;
+    --space-9: 64px;
+    
+    /* Radius scale */
+    --radius-1: 2px;
+    --radius-2: 4px;
+    --radius-3: 6px;
+    --radius-4: 8px;
+    --radius-5: 12px;
+    --radius-6: 16px;
+    
+    /* Scaling factor */
+    --scaling: 100%;
+}
+
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #fafafa;
+    background-color: var(--gray-2);
+}
+
+/* Theme Filter Row */
+.theme-filter-row {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    margin: var(--space-4) 0 var(--space-6) 0;
+    background: var(--gray-1);
+    border: 1px solid var(--gray-5);
+    border-radius: var(--radius-2);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.theme-filter-row label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-12);
+}
+
+.theme-filter-row select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-2);
+    background: var(--gray-1);
+    color: var(--gray-12);
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.theme-filter-row select:focus {
+    outline: 2px solid var(--accent-8);
+    outline-offset: -1px;
 }
 
 /* Home page component grid */
 .component-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 20px 0;
+    gap: var(--space-5);
+    padding: var(--space-5) 0;
 }
 
 .component-card {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
+    background: var(--gray-1);
+    padding: var(--space-6);
+    border-radius: var(--radius-3);
+    box-shadow: 0 var(--space-1) var(--space-3) rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--gray-5);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
 }
 
 .component-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 var(--space-2) var(--space-4) rgba(0, 0, 0, 0.15);
 }
 
 .component-card.placeholder {
-    background: #f5f5f5;
+    background: var(--gray-2);
     cursor: default;
-    border: 2px dashed #ddd;
+    border: 2px dashed var(--gray-6);
 }
 
 .component-card.placeholder:hover {
     transform: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 var(--space-1) var(--space-3) rgba(0, 0, 0, 0.1);
 }
 
 /* Component showcase grid */
 .showcase-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    margin: 30px 0;
+    gap: var(--space-6);
+    margin: var(--space-6) 0;
+    transform: scale(var(--scaling));
+    transform-origin: top left;
 }
 
 .showcase-item {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
+    background: var(--gray-1);
+    padding: var(--space-6);
+    border-radius: var(--radius-3);
+    box-shadow: 0 var(--space-1) var(--space-3) rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--gray-5);
 }
 
 .showcase-item h4 {
-    margin: 0 0 8px 0;
-    color: #333;
+    margin: 0 0 var(--space-2) 0;
+    color: var(--gray-12);
     font-size: 16px;
     font-weight: 600;
 }
 
 .showcase-item p {
-    margin: 0 0 15px 0;
-    color: #666;
+    margin: 0 0 var(--space-4) 0;
+    color: var(--gray-11);
     font-size: 14px;
     line-height: 1.4;
 }
 
-/* Dropdown specific styling */
-.showcase-item .Select {
-    margin-bottom: 10px;
+
+/* Purple Theme (default) */
+body.theme-purple {
+    --accent-1: #fdfcfe;
+    --accent-3: #f4f0fe;
+    --accent-8: #ad8bee;
+    --accent-9: #8e4ec6;
+    --accent-11: #744aac;
+    --accent-12: #402060;
+}
+
+body.theme-purple .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Blue Theme */
+body.theme-blue {
+    --accent-1: #fbfdff;
+    --accent-3: #edf6ff;
+    --accent-8: #5eb0ef;
+    --accent-9: #0091ff;
+    --accent-11: #006adc;
+    --accent-12: #00254d;
+}
+
+body.theme-blue .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Green Theme */
+body.theme-green {
+    --accent-1: #fbfefc;
+    --accent-3: #e9f9ee;
+    --accent-8: #5bb98c;
+    --accent-9: #30a46c;
+    --accent-11: #18794e;
+    --accent-12: #153226;
+}
+
+body.theme-green .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Red Theme */
+body.theme-red {
+    --accent-1: #fffcfc;
+    --accent-3: #ffefef;
+    --accent-8: #eb9091;
+    --accent-9: #e5484d;
+    --accent-11: #cd2b31;
+    --accent-12: #381316;
+}
+
+body.theme-red .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Orange Theme */
+body.theme-orange {
+    --accent-1: #fefcfb;
+    --accent-3: #fdeee4;
+    --accent-8: #df8371;
+    --accent-9: #e54d2e;
+    --accent-11: #ca2621;
+    --accent-12: #341711;
+}
+
+body.theme-orange .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Teal Theme */
+body.theme-teal {
+    --accent-1: #fafefd;
+    --accent-3: #e7f9f5;
+    --accent-8: #53b1a7;
+    --accent-9: #12a594;
+    --accent-11: #067a6f;
+    --accent-12: #10302b;
+}
+
+body.theme-teal .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Pink Theme */
+body.theme-pink {
+    --accent-1: #fffcfe;
+    --accent-3: #fee9f5;
+    --accent-8: #dd84c6;
+    --accent-9: #d6409f;
+    --accent-11: #c2298a;
+    --accent-12: #651249;
+}
+
+body.theme-pink .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Indigo Theme */
+body.theme-indigo {
+    --accent-1: #fdfdfe;
+    --accent-3: #f0f4ff;
+    --accent-8: #8da4ef;
+    --accent-9: #3e63dd;
+    --accent-11: #2d4bc5;
+    --accent-12: #1f2d5c;
+}
+
+body.theme-indigo .showcase-item {
+    border-left: 4px solid var(--accent-9);
+    background-color: var(--accent-1);
+}
+
+/* Universal dropdown styling for all themes */
+[class*="theme-"] .dash-dropdown .Select-control {
+    border-color: var(--accent-8);
+}
+
+[class*="theme-"] .dash-dropdown .Select-option.is-selected {
+    background-color: var(--accent-9);
+    color: var(--gray-1);
+}
+
+[class*="theme-"] .dash-dropdown .Select-option:hover {
+    background-color: var(--accent-3);
+}
+
+[class*="theme-"] .dash-dropdown .Select-value {
+    background-color: var(--accent-3);
+    color: var(--accent-12);
+}
+
+[class*="theme-"] .dash-dropdown .Select-value-label {
+    color: var(--accent-12);
+}
+
+[class*="theme-"] .dash-dropdown .Select-multi-value-wrapper .Select-value {
+    background-color: var(--accent-3);
+    color: var(--accent-12);
+}
+
+[class*="theme-"] .dash-dropdown .Select-multi-value-wrapper .Select-value-label {
+    color: var(--accent-12);
+}
+
+[class*="theme-"] .dash-dropdown .Select-menu {
+    border-color: var(--accent-8);
+}
+
+[class*="theme-"] .dash-dropdown .Select-menu-outer {
+    border-color: var(--accent-8);
+}
+
+/* Remove red test styling */
+.showcase-item h4 {
+    margin: 0 0 var(--space-2) 0;
+    color: var(--gray-12);
+    font-size: 16px;
+    font-weight: 600;
 }
 
 /* Responsive design */
@@ -84,7 +339,12 @@ body {
     
     .component-card,
     .showcase-item {
-        padding: 20px;
+        padding: var(--space-5);
+    }
+    
+    .theme-filter-row {
+        flex-direction: column;
+        gap: var(--space-3);
     }
 }
 
