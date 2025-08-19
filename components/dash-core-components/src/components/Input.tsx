@@ -1,13 +1,14 @@
 import {pick} from 'ramda';
 import React, {
+    InputHTMLAttributes,
     KeyboardEvent,
     KeyboardEventHandler,
     useCallback,
     useEffect,
     useRef,
     useState,
-    useId,
 } from 'react';
+import uniqid from 'uniqid';
 import fastIsNumeric from 'fast-isnumeric';
 import LoadingElement from '../utils/_LoadingElement';
 import './css/input.css';
@@ -260,7 +261,7 @@ type InputProps = {
     type?: HTMLInputTypes;
 };
 
-const inputProps: (keyof InputProps)[] = [
+const inputProps = [
     'type',
     'placeholder',
     'inputMode',
@@ -279,7 +280,12 @@ const inputProps: (keyof InputProps)[] = [
     'maxLength',
     'pattern',
     'size',
-];
+] as const;
+
+type HTMLInputProps = Extract<
+    (typeof inputProps)[number],
+    keyof InputHTMLAttributes<HTMLInputElement>
+>;
 
 const defaultProps: Partial<InputProps> = {
     type: HTMLInputTypes.text,
@@ -330,7 +336,7 @@ function Input({
     const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
-    const inputId = useId();
+    const inputId = useState(() => uniqid('input-'))[0];
 
     const valprops =
         props.type === HTMLInputTypes.number ? {} : {value: value ?? ''};
@@ -401,7 +407,11 @@ function Input({
             value = convert(value);
 
             if (!isEquivalent(base, value)) {
-                input.current.value = `${value}` ?? '';
+                if (typeof value === 'undefined') {
+                    input.current.value = '';
+                } else {
+                    input.current.value = `${value}`;
+                }
             }
         },
         []
@@ -490,7 +500,10 @@ function Input({
         }
     }, [value, props.debounce, props.type]);
 
-    const pickedInputs = pick(inputProps, props);
+    const pickedInputs = pick(inputProps, props) as Pick<
+        InputHTMLAttributes<HTMLInputElement>,
+        HTMLInputProps
+    >;
 
     const isNumberInput = props.type === HTMLInputTypes.number;
     const currentNumericValue = convert(input.current.value || '0');
