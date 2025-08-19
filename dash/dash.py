@@ -26,6 +26,7 @@ import flask
 from importlib_metadata import version as _get_distribution_version
 
 from dash import dcc
+from dash import dcc_refresh
 from dash import html
 from dash import dash_table
 
@@ -937,7 +938,7 @@ class Dash(ObsoleteChecker):
         def _relative_url_path(relative_package_path="", namespace=""):
             if any(
                 relative_package_path.startswith(x + "/")
-                for x in ["dcc", "html", "dash_table"]
+                for x in ["dcc", "html", "dash_table", "dcc_refresh"]
             ):
                 relative_package_path = relative_package_path.replace("dash.", "")
                 version = importlib.import_module(
@@ -967,7 +968,10 @@ class Dash(ObsoleteChecker):
                 paths = [paths] if isinstance(paths, str) else paths
 
                 for rel_path in paths:
-                    if any(x in rel_path for x in ["dcc", "html", "dash_table"]):
+                    if any(
+                        x in rel_path
+                        for x in ["dcc", "html", "dash_table", "dcc_refresh"]
+                    ):
                         rel_path = rel_path.replace("dash.", "")
 
                     self.registered_paths[resource["namespace"]].add(rel_path)
@@ -1059,6 +1063,9 @@ class Dash(ObsoleteChecker):
                 )
                 + self.scripts._resources._filter_resources(
                     dash_table._js_dist, dev_bundles=dev
+                )
+                + self.scripts._resources._filter_resources(
+                    dcc_refresh._js_dist, dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
                     self._hooks.hooks._js_dist, dev_bundles=dev
@@ -2026,7 +2033,7 @@ class Dash(ObsoleteChecker):
                 ):
                     component_packages_dist[i : i + 1] = [
                         os.path.join(os.path.dirname(package.path), x)  # type: ignore[reportAttributeAccessIssue]
-                        for x in ["dcc", "html", "dash_table"]
+                        for x in ["dcc", "html", "dash_table", "dcc_refresh"]
                     ]
 
             _reload.watch_thread = threading.Thread(

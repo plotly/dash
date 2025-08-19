@@ -49,6 +49,8 @@ dash/dcc/*
 !dash/dcc/.gitkeep
 dash/dash_table/*
 !dash/dash_table/.gitkeep
+dash/dcc_refresh/*
+!dash/dcc_refresh/.gitkeep
 develop-eggs/
 dist/
 downloads/

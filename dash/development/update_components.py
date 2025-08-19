@@ -23,6 +23,7 @@ dest_dir_map = {
     "dash-core-components": "dcc",
     "dash-html-components": "html",
     "dash-table": "dash_table",
+    "dash-core-components-refresh": "dcc_refresh",
 }
 
 
@@ -40,7 +41,7 @@ def bootstrap_components(components_source, concurrency, install_type):
     source_glob = (
         components_source
         if components_source != "all"
-        else "{dash-core-components,dash-html-components,dash-table}"
+        else "{dash-core-components,dash-html-components,dash-table,dash-core-components-refresh}"
     )
 
     cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm {install_type}"
@@ -76,7 +77,7 @@ def build_components(components_source, concurrency):
     source_glob = (
         components_source
         if components_source != "all"
-        else "{dash-core-components,dash-html-components,dash-table}"
+        else "{dash-core-components,dash-html-components,dash-table,dash-core-components-refresh}"
     )
 
     cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm run build"

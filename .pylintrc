@@ -16,6 +16,7 @@ ignore-patterns=
 # Add files or directories matching the regex patterns to the ignore-list.
 # The regex matches against paths.
 ignore-paths=^dash/dcc/.*$,
+             ^dash/dcc_refresh/.*$,
              ^dash/html/.*$,
              ^dash/dash_table/.*$
 

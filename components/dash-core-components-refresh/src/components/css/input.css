@@ -1,0 +1,7 @@
+input.dash-input:invalid {
+    outline: solid red;
+}
+
+input.dash-input:valid {
+    outline: none black;
+}

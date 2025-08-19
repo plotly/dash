@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Dash Core Components</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap;
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #d14; }
+code > span.fl { color: #d14; }
+code > span.ch { color: #d14; }
+code > span.st { color: #d14; }
+code > span.co { color: #888888; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #900; font-weight: bold; }
+code > span.er { color: #a61717; background-color: #e3d2d2; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Dash Core Components</h1>
+
+
+
+<p>Dash ships with supercharged components for interactive user interfaces. A core set of components, written and maintained by the Dash team, is available in the <code>dashCoreComponents</code> package. The source is on GitHub at <a href="https://github.com/plotly/dash-core-components">plotly/dash-core-components</a>.</p>
+<p>Please visit our online documentation, which is interactive and frequently updated: <a href="https://dashr.plotly.com" class="uri">https://dashr.plotly.com</a>.</p>
+<div id="dropdown-component" class="section level3">
+<h3>Dropdown Component</h3>
+<p><strong><em>Default Dropdown</em></strong></p>
+<p>An example of a default dropdown without any extra properties.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb1-4"><a href="#cb1-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb1-5"><a href="#cb1-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a>  ),</span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">value=</span><span class="kw">list</span>(<span class="st">&quot;MTL&quot;</span>, <span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="dt">multi=</span><span class="ot">TRUE</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>)</span></code></pre></div>
+<p><strong><em>Multi-Value Dropdown</em></strong></p>
+<p>A dropdown component with the <code>multi</code> property set to <code>TRUE</code> will allow the user to select more than one value at a time.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  ),</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="dt">id=</span><span class="st">&quot;my-dropdown&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>)</span></code></pre></div>
+<p><strong><em>Disable Search</em></strong></p>
+<p>The <code>searchable</code> property is set to <code>TRUE</code> by default on all Dropdown components. To prevent searching the dropdown value, just set the <code>searchable</code> property to <code>FALSE</code>. Try searching for ‘New York’ on this dropdown below and compare it to the other dropdowns on the page to see the difference.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  ),</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="dt">searchable =</span> <span class="ot">FALSE</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>)</span></code></pre></div>
+<p><strong><em>Dropdown Clear</em></strong></p>
+<p>The <code>clearable</code> property is set to <code>TRUE</code> by default on all Dropdown components. To prevent the clearing of the selected dropdown value, just set the clearable property to <code>FALSE</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  ),</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="dt">value =</span> <span class="st">&quot;MTL&quot;</span>,</span>
+<span id="cb4-8"><a href="#cb4-8"></a>  <span class="dt">clearable =</span> <span class="ot">FALSE</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>)</span></code></pre></div>
+<p><strong><em>Placeholder Text</em></strong></p>
+<p>The placeholder property allows you to define default text shown when no value is selected.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  ),</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="dt">placeholder=</span><span class="st">&quot;Select a city&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>)</span></code></pre></div>
+<p><strong><em>Disable Dropdown</em></strong></p>
+<p>To disable the dropdown just set <code>disabled=TRUE</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>),</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6"></a>  ),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="dt">disabled=</span><span class="ot">TRUE</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>)</span></code></pre></div>
+<p><strong><em>Disable Options</em></strong></p>
+<p>To disable a particular option inside the dropdown menu, set the disabled property in the options.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">dccDropdown</span>(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;New York City&quot;</span>, <span class="dt">value=</span><span class="st">&quot;NYC&quot;</span>, <span class="st">&quot;disabled&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;Montréal&quot;</span>, <span class="dt">value=</span><span class="st">&quot;MTL&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="kw">list</span>(<span class="dt">label=</span><span class="st">&quot;San Francisco&quot;</span>, <span class="dt">value=</span><span class="st">&quot;SF&quot;</span>, <span class="st">&quot;disabled&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>)</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  )</span>
+<span id="cb7-7"><a href="#cb7-7"></a>)</span></code></pre></div>
+</div>
+<div id="slider-component" class="section level3">
+<h3>Slider Component</h3>
+<p><strong><em>Simple Slider Example</em></strong></p>
+<p>An example of a basic slider tied to a callback.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb8-8"><a href="#cb8-8"></a>      <span class="kw">dccSlider</span>(</span>
+<span id="cb8-9"><a href="#cb8-9"></a>        <span class="dt">id=</span><span class="st">&#39;my-slider&#39;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10"></a>        <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb8-11"><a href="#cb8-11"></a>        <span class="dt">max=</span><span class="dv">20</span>,</span>
+<span id="cb8-12"><a href="#cb8-12"></a>        <span class="dt">step=</span><span class="fl">0.5</span>,</span>
+<span id="cb8-13"><a href="#cb8-13"></a>        <span class="dt">value=</span><span class="dv">10</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>      ),</span>
+<span id="cb8-15"><a href="#cb8-15"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;slider-output-container&#39;</span>)</span>
+<span id="cb8-16"><a href="#cb8-16"></a>    )</span>
+<span id="cb8-17"><a href="#cb8-17"></a>  )</span>
+<span id="cb8-18"><a href="#cb8-18"></a>)</span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb8-21"><a href="#cb8-21"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;slider-output-container&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb8-22"><a href="#cb8-22"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;my-slider&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb8-23"><a href="#cb8-23"></a>  <span class="cf">function</span>(value) {</span>
+<span id="cb8-24"><a href="#cb8-24"></a>    <span class="kw">sprintf</span>(<span class="st">&quot;you have selected %0.1f&quot;</span>, value)</span>
+<span id="cb8-25"><a href="#cb8-25"></a>  })</span>
+<span id="cb8-26"><a href="#cb8-26"></a></span>
+<span id="cb8-27"><a href="#cb8-27"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p><strong><em>Marks and Steps</em></strong></p>
+<p>If slider marks are defined and step is set to <code>NULL</code> then the slider will only be able to select values that have been predefined by the marks. marks is a list where the keys represent the numerical values and the values represent their labels.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">dccSlider</span>(</span>
+<span id="cb9-2"><a href="#cb9-2"></a>    <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="dt">max=</span><span class="dv">10</span>,</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="dt">marks =</span> <span class="kw">list</span>(</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="st">&quot;0&quot;</span> =<span class="st"> &quot;0 °F&quot;</span>,</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    <span class="st">&quot;3&quot;</span> =<span class="st"> &quot;3 °F&quot;</span>,</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="st">&quot;5&quot;</span> =<span class="st"> &quot;5 °F&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="st">&quot;7.65&quot;</span> =<span class="st"> &quot;7.65 °F&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    <span class="st">&quot;10&quot;</span> =<span class="st"> &quot;10 °F&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>    ),</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    <span class="dt">value=</span><span class="dv">5</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>)</span></code></pre></div>
+<p>By default, <code>included=TRUE</code>, meaning the rail trailing the handle will be highlighted. To have the handle act as a discrete value set <code>included=FALSE</code>. To style <code>marks</code>, include a style css attribute alongside the list value.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">dccSlider</span>(</span>
+<span id="cb10-2"><a href="#cb10-2"></a>    <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="dt">max=</span><span class="dv">100</span>,</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="dt">value =</span> <span class="dv">65</span>,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="dt">marks =</span> <span class="kw">list</span>(</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    <span class="st">&quot;0&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;0 °C&quot;</span>, <span class="st">&quot;style&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;color&quot;</span> =<span class="st"> &quot;#77b0b1&quot;</span>)),</span>
+<span id="cb10-7"><a href="#cb10-7"></a>    <span class="st">&quot;26&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;26 °C&quot;</span>),</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="st">&quot;37&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;37 °C&quot;</span>),</span>
+<span id="cb10-9"><a href="#cb10-9"></a>    <span class="st">&quot;100&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;100 °C&quot;</span>, <span class="st">&quot;style&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;color&quot;</span> =<span class="st"> &quot;#FF4500&quot;</span>))</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    )</span>
+<span id="cb10-11"><a href="#cb10-11"></a>)</span></code></pre></div>
+<p><strong><em>Non-Linear Slider and Updatemode</em></strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb11-2"><a href="#cb11-2"></a></span>
+<span id="cb11-3"><a href="#cb11-3"></a>transform_value =<span class="st"> </span><span class="cf">function</span>(value){</span>
+<span id="cb11-4"><a href="#cb11-4"></a>  <span class="kw">return</span>(<span class="dv">10</span><span class="op">**</span>value)</span>
+<span id="cb11-5"><a href="#cb11-5"></a>}</span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb11-8"><a href="#cb11-8"></a></span>
+<span id="cb11-9"><a href="#cb11-9"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb11-10"><a href="#cb11-10"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb11-11"><a href="#cb11-11"></a>    <span class="kw">list</span>(</span>
+<span id="cb11-12"><a href="#cb11-12"></a>      <span class="kw">dccSlider</span>(</span>
+<span id="cb11-13"><a href="#cb11-13"></a>        <span class="dt">id=</span><span class="st">&#39;slider-updatemode&#39;</span>,</span>
+<span id="cb11-14"><a href="#cb11-14"></a>        <span class="dt">marks=</span><span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="kw">list</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>), <span class="cf">function</span>(x){<span class="dv">10</span><span class="op">**</span>x})),</span>
+<span id="cb11-15"><a href="#cb11-15"></a>        <span class="dt">max=</span><span class="dv">3</span>,</span>
+<span id="cb11-16"><a href="#cb11-16"></a>        <span class="dt">value=</span><span class="dv">2</span>,</span>
+<span id="cb11-17"><a href="#cb11-17"></a>        <span class="dt">step=</span><span class="fl">0.01</span>,</span>
+<span id="cb11-18"><a href="#cb11-18"></a>        <span class="dt">updatemode=</span><span class="st">&#39;drag&#39;</span></span>
+<span id="cb11-19"><a href="#cb11-19"></a>      ),</span>
+<span id="cb11-20"><a href="#cb11-20"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;updatemode-output-container&#39;</span>, <span class="dt">style=</span><span class="kw">list</span>(<span class="st">&#39;margin-top&#39;</span> =<span class="st"> </span><span class="dv">20</span>))</span>
+<span id="cb11-21"><a href="#cb11-21"></a>    )</span>
+<span id="cb11-22"><a href="#cb11-22"></a>  )</span>
+<span id="cb11-23"><a href="#cb11-23"></a>)</span>
+<span id="cb11-24"><a href="#cb11-24"></a></span>
+<span id="cb11-25"><a href="#cb11-25"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb11-26"><a href="#cb11-26"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;updatemode-output-container&#39;</span>, <span class="dt">property=</span><span class="st">&#39;children&#39;</span>),</span>
+<span id="cb11-27"><a href="#cb11-27"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;slider-updatemode&#39;</span>, <span class="dt">property=</span><span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb11-28"><a href="#cb11-28"></a>  <span class="cf">function</span>(value) {</span>
+<span id="cb11-29"><a href="#cb11-29"></a>    <span class="kw">sprintf</span>(<span class="st">&#39;Linear Value: %g | Log Value: %0.2f&#39;</span>, value, <span class="kw">transform_value</span>(value))</span>
+<span id="cb11-30"><a href="#cb11-30"></a>  })</span>
+<span id="cb11-31"><a href="#cb11-31"></a></span>
+<span id="cb11-32"><a href="#cb11-32"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="rangeslider-component" class="section level3">
+<h3>RangeSlider Component</h3>
+<p><strong><em>Simple RangeSlider Example</em></strong></p>
+<p>An example of a basic RangeSlider tied to a callback.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb12-7"><a href="#cb12-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb12-8"><a href="#cb12-8"></a>      <span class="kw">dccRangeSlider</span>(</span>
+<span id="cb12-9"><a href="#cb12-9"></a>        <span class="dt">id=</span><span class="st">&#39;my-range-slider&#39;</span>,</span>
+<span id="cb12-10"><a href="#cb12-10"></a>        <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb12-11"><a href="#cb12-11"></a>        <span class="dt">max=</span><span class="dv">20</span>,</span>
+<span id="cb12-12"><a href="#cb12-12"></a>        <span class="dt">step=</span><span class="fl">0.5</span>,</span>
+<span id="cb12-13"><a href="#cb12-13"></a>        <span class="dt">value=</span><span class="kw">list</span>(<span class="dv">5</span>, <span class="dv">15</span>)</span>
+<span id="cb12-14"><a href="#cb12-14"></a>      ),</span>
+<span id="cb12-15"><a href="#cb12-15"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-container-range-slider&#39;</span>)</span>
+<span id="cb12-16"><a href="#cb12-16"></a>    )</span>
+<span id="cb12-17"><a href="#cb12-17"></a>  )</span>
+<span id="cb12-18"><a href="#cb12-18"></a>)</span>
+<span id="cb12-19"><a href="#cb12-19"></a></span>
+<span id="cb12-20"><a href="#cb12-20"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb12-21"><a href="#cb12-21"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;output-container-range-slider&#39;</span>, <span class="dt">property=</span><span class="st">&#39;children&#39;</span>),</span>
+<span id="cb12-22"><a href="#cb12-22"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;my-range-slider&#39;</span>, <span class="dt">property=</span><span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb12-23"><a href="#cb12-23"></a>  <span class="cf">function</span>(value) {</span>
+<span id="cb12-24"><a href="#cb12-24"></a>    <span class="kw">sprintf</span>(<span class="st">&#39;You have selected [%0.1f, %0.1f]&#39;</span>, value[<span class="dv">1</span>], value[<span class="dv">2</span>])</span>
+<span id="cb12-25"><a href="#cb12-25"></a>  })</span>
+<span id="cb12-26"><a href="#cb12-26"></a></span>
+<span id="cb12-27"><a href="#cb12-27"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p><strong><em>Marks and Steps</em></strong></p>
+<p>If slider marks are defined and step is set to <code>NULL</code> then the slider will only be able to select values that have been predefined by the marks.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">dccRangeSlider</span>(</span>
+<span id="cb13-2"><a href="#cb13-2"></a>      <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb13-3"><a href="#cb13-3"></a>      <span class="dt">max=</span><span class="dv">10</span>,</span>
+<span id="cb13-4"><a href="#cb13-4"></a>      <span class="dt">marks=</span><span class="kw">list</span>(</span>
+<span id="cb13-5"><a href="#cb13-5"></a>        <span class="st">&quot;0&quot;</span> =<span class="st"> &quot;0 °F&quot;</span>,</span>
+<span id="cb13-6"><a href="#cb13-6"></a>        <span class="st">&quot;3&quot;</span> =<span class="st"> &quot;3 °F&quot;</span>,</span>
+<span id="cb13-7"><a href="#cb13-7"></a>        <span class="st">&quot;5&quot;</span> =<span class="st"> &quot;5 °F&quot;</span>,</span>
+<span id="cb13-8"><a href="#cb13-8"></a>        <span class="st">&quot;7.65&quot;</span> =<span class="st"> &quot;7.65 °F&quot;</span>,</span>
+<span id="cb13-9"><a href="#cb13-9"></a>        <span class="st">&quot;10&quot;</span> =<span class="st"> &quot;10 °F&quot;</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a>      ),</span>
+<span id="cb13-11"><a href="#cb13-11"></a>      <span class="dt">value=</span><span class="kw">list</span>(<span class="dv">3</span>, <span class="fl">7.65</span>)</span>
+<span id="cb13-12"><a href="#cb13-12"></a>)</span></code></pre></div>
+<p><strong><em>Included and Styling Marks</em></strong></p>
+<p>By default, <code>included=TRUE</code>, meaning the rail trailing the handle will be highlighted. To have the handle act as a discrete value set <code>included=FALSE</code>. To style marks, include a style css attribute alongside the key value.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb14-2"><a href="#cb14-2"></a></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="kw">dccRangeSlider</span>(</span>
+<span id="cb14-4"><a href="#cb14-4"></a>    <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb14-5"><a href="#cb14-5"></a>    <span class="dt">max=</span><span class="dv">100</span>,</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    <span class="dt">marks =</span> <span class="kw">list</span>(</span>
+<span id="cb14-7"><a href="#cb14-7"></a>    <span class="st">&quot;0&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;0 °C&quot;</span>, <span class="st">&quot;style&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;color&quot;</span> =<span class="st"> &quot;#77b0b1&quot;</span>)),</span>
+<span id="cb14-8"><a href="#cb14-8"></a>    <span class="st">&quot;26&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;26 °C&quot;</span>),</span>
+<span id="cb14-9"><a href="#cb14-9"></a>    <span class="st">&quot;37&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;37 °C&quot;</span>),</span>
+<span id="cb14-10"><a href="#cb14-10"></a>    <span class="st">&quot;100&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;100°C&quot;</span> , <span class="st">&quot;style&quot;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="st">&quot;color&quot;</span> =<span class="st"> &quot;#FF4500&quot;</span>))</span>
+<span id="cb14-11"><a href="#cb14-11"></a>    )</span>
+<span id="cb14-12"><a href="#cb14-12"></a>)</span></code></pre></div>
+<p><strong><em>Multiple Handles</em></strong></p>
+<p>To create multiple handles just define more values for <code>value</code>!</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">dccRangeSlider</span>(</span>
+<span id="cb15-2"><a href="#cb15-2"></a>    <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb15-3"><a href="#cb15-3"></a>    <span class="dt">max=</span><span class="dv">30</span>,</span>
+<span id="cb15-4"><a href="#cb15-4"></a>    <span class="dt">value=</span><span class="kw">list</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">12</span>, <span class="dv">17</span>)</span>
+<span id="cb15-5"><a href="#cb15-5"></a>)</span></code></pre></div>
+<p><strong><em>Crossing Handles</em></strong></p>
+<p>If <code>allowCross=FALSE</code>, the handles will not be allowed to cross over each other.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">dccRangeSlider</span>(</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="dt">min=</span><span class="dv">0</span>,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="dt">max=</span><span class="dv">30</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="dt">value=</span><span class="kw">list</span>(<span class="dv">10</span>,<span class="dv">15</span>),</span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="dt">allowCross =</span> <span class="ot">FALSE</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>)</span></code></pre></div>
+<p><strong><em>Non-Linear Slider and Updatemode</em></strong></p>
+<p>Create a logarithmic slider by setting <code>marks</code> to be logarithmic and adjusting the slider’s output value in the callbacks. The <code>updatemode</code> property allows us to determine when we want a callback to be triggered. The following example has <code>updatemode=&#39;drag&#39;</code> which means a callback is triggered everytime the handle is moved. Contrast the callback output with the first example on this page to see the difference.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb17-2"><a href="#cb17-2"></a></span>
+<span id="cb17-3"><a href="#cb17-3"></a>transform_value =<span class="st"> </span><span class="cf">function</span>(value){</span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="kw">return</span>(<span class="dv">10</span> <span class="op">**</span><span class="st"> </span>value)</span>
+<span id="cb17-5"><a href="#cb17-5"></a>}</span>
+<span id="cb17-6"><a href="#cb17-6"></a></span>
+<span id="cb17-7"><a href="#cb17-7"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb17-8"><a href="#cb17-8"></a></span>
+<span id="cb17-9"><a href="#cb17-9"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb17-10"><a href="#cb17-10"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    <span class="kw">list</span>(</span>
+<span id="cb17-12"><a href="#cb17-12"></a>      <span class="kw">dccRangeSlider</span>(</span>
+<span id="cb17-13"><a href="#cb17-13"></a>        <span class="dt">id=</span><span class="st">&#39;non-linear-range-slider&#39;</span>,</span>
+<span id="cb17-14"><a href="#cb17-14"></a>        <span class="dt">marks=</span><span class="kw">unlist</span>(<span class="kw">lapply</span>(<span class="kw">list</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>), <span class="cf">function</span>(x){<span class="dv">10</span><span class="op">**</span>x})),</span>
+<span id="cb17-15"><a href="#cb17-15"></a>        <span class="dt">max=</span><span class="dv">3</span>,</span>
+<span id="cb17-16"><a href="#cb17-16"></a>        <span class="dt">value=</span><span class="kw">list</span>(<span class="fl">0.1</span>, <span class="dv">2</span>),</span>
+<span id="cb17-17"><a href="#cb17-17"></a>        <span class="dt">dots=</span><span class="ot">FALSE</span>,</span>
+<span id="cb17-18"><a href="#cb17-18"></a>        <span class="dt">step=</span><span class="fl">0.01</span>,</span>
+<span id="cb17-19"><a href="#cb17-19"></a>        <span class="dt">updatemode=</span><span class="st">&#39;drag&#39;</span></span>
+<span id="cb17-20"><a href="#cb17-20"></a>      ),</span>
+<span id="cb17-21"><a href="#cb17-21"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-container-range-slider-non-linear&#39;</span>, <span class="dt">style=</span><span class="kw">list</span>(<span class="st">&#39;margin-top&#39;</span> =<span class="st"> </span><span class="dv">20</span>))</span>
+<span id="cb17-22"><a href="#cb17-22"></a>  )</span>
+<span id="cb17-23"><a href="#cb17-23"></a>))</span>
+<span id="cb17-24"><a href="#cb17-24"></a></span>
+<span id="cb17-25"><a href="#cb17-25"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb17-26"><a href="#cb17-26"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;output-container-range-slider-non-linear&#39;</span>, <span class="dt">property=</span><span class="st">&#39;children&#39;</span>),</span>
+<span id="cb17-27"><a href="#cb17-27"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;non-linear-range-slider&#39;</span>, <span class="dt">property=</span><span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb17-28"><a href="#cb17-28"></a>  <span class="cf">function</span>(value) {</span>
+<span id="cb17-29"><a href="#cb17-29"></a>    transformed_value =<span class="st"> </span><span class="kw">lapply</span>(value, transform_value)</span>
+<span id="cb17-30"><a href="#cb17-30"></a>    <span class="kw">sprintf</span>(<span class="st">&#39;Linear Value: %g, Log Value: [%0.2f, %0.2f]&#39;</span>, value[<span class="dv">2</span>],transformed_value[<span class="dv">1</span>], transformed_value[<span class="dv">2</span>])</span>
+<span id="cb17-31"><a href="#cb17-31"></a>  })</span>
+<span id="cb17-32"><a href="#cb17-32"></a></span>
+<span id="cb17-33"><a href="#cb17-33"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="input-component" class="section level3">
+<h3>Input Component</h3>
+<p><strong><em>Update Value on Keypress</em></strong></p>
+<pre><code>library(dash)
+
+app &lt;- Dash$new()
+
+app$layout(
+  htmlDiv(
+    list(
+      dccInput(id=&#39;input-1-keypress&#39;, type=&#39;text&#39;, value=&#39;Montreal&#39;),
+      dccInput(id=&#39;input-2-keypress&#39;, type=&#39;text&#39;, value=&#39;Canada&#39;),
+      htmlDiv(id=&#39;output-keypress1&#39;)
+    )
+  )
+)
+
+app$callback(
+  output(id = &#39;output-keypress1&#39;, property=&#39;children&#39;),
+  params=list(input(id=&#39;input-1-keypress&#39;, property=&#39;value&#39;),
+              input(id=&#39;input-2-keypress&#39;, property=&#39;value&#39;)),
+  function(input1, input2) {
+    sprintf(&#39;Input 1 is %s and input 2 is %s&#39;, input1,input2)
+  })
+
+app$run_server()</code></pre>
+<p><strong><em>Update Value on Enter/Blur</em></strong></p>
+<p><code>dccInput</code> has properties <code>n_submit</code>, which updates when the enter button is pressed, and <code>n_blur</code>, which updates when the component loses focus (e.g. tab is pressed or the user clicks outside of the input field).</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb19-2"><a href="#cb19-2"></a></span>
+<span id="cb19-3"><a href="#cb19-3"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb19-4"><a href="#cb19-4"></a></span>
+<span id="cb19-5"><a href="#cb19-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb19-6"><a href="#cb19-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb19-7"><a href="#cb19-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb19-8"><a href="#cb19-8"></a>      <span class="kw">dccInput</span>(<span class="dt">id=</span><span class="st">&#39;input-1-submit&#39;</span>, <span class="dt">type=</span><span class="st">&#39;text&#39;</span>, <span class="dt">value=</span><span class="st">&#39;Montreal&#39;</span>),</span>
+<span id="cb19-9"><a href="#cb19-9"></a>      <span class="kw">dccInput</span>(<span class="dt">id=</span><span class="st">&#39;input-2-submit&#39;</span>, <span class="dt">type=</span><span class="st">&#39;text&#39;</span>, <span class="dt">value=</span><span class="st">&#39;Canada&#39;</span>),</span>
+<span id="cb19-10"><a href="#cb19-10"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-keypress&#39;</span>)</span>
+<span id="cb19-11"><a href="#cb19-11"></a>    )</span>
+<span id="cb19-12"><a href="#cb19-12"></a>  ))</span>
+<span id="cb19-13"><a href="#cb19-13"></a></span>
+<span id="cb19-14"><a href="#cb19-14"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb19-15"><a href="#cb19-15"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;output-keypress&#39;</span>, <span class="dt">property=</span><span class="st">&#39;children&#39;</span>),</span>
+<span id="cb19-16"><a href="#cb19-16"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;input-1-submit&#39;</span>, <span class="dt">property=</span><span class="st">&#39;n_submit&#39;</span>),</span>
+<span id="cb19-17"><a href="#cb19-17"></a>              <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;input-1-submit&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;n_blur&#39;</span>),</span>
+<span id="cb19-18"><a href="#cb19-18"></a>              <span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;input-2-submit&#39;</span>, <span class="dt">property=</span><span class="st">&#39;n_submit&#39;</span>),</span>
+<span id="cb19-19"><a href="#cb19-19"></a>              <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;input-2-submit&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;n_blur&#39;</span>),</span>
+<span id="cb19-20"><a href="#cb19-20"></a>              <span class="kw">state</span>(<span class="st">&#39;input-1-submit&#39;</span>, <span class="st">&#39;value&#39;</span>),</span>
+<span id="cb19-21"><a href="#cb19-21"></a>              <span class="kw">state</span>(<span class="st">&#39;input-2-submit&#39;</span>, <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb19-22"><a href="#cb19-22"></a>  <span class="cf">function</span>(ns1, nb1, ns2, nb2, input1, input2) {</span>
+<span id="cb19-23"><a href="#cb19-23"></a>    <span class="kw">sprintf</span>(<span class="st">&#39;Input 1 is %s and input 2 is %s&#39;</span>, input1, input2)</span>
+<span id="cb19-24"><a href="#cb19-24"></a>  })</span>
+<span id="cb19-25"><a href="#cb19-25"></a></span>
+<span id="cb19-26"><a href="#cb19-26"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="textarea-component" class="section level3">
+<h3>Textarea Component</h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb20-2"><a href="#cb20-2"></a></span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="kw">dccTextarea</span>(</span>
+<span id="cb20-4"><a href="#cb20-4"></a>  <span class="dt">placeholder =</span> <span class="st">&quot;Enter a value...&quot;</span>,</span>
+<span id="cb20-5"><a href="#cb20-5"></a>  <span class="dt">value =</span> <span class="st">&quot;This is a TextArea component&quot;</span>,</span>
+<span id="cb20-6"><a href="#cb20-6"></a>  <span class="dt">style =</span> <span class="kw">list</span>(<span class="st">&quot;width&quot;</span> =<span class="st"> &quot;100%&quot;</span>)</span>
+<span id="cb20-7"><a href="#cb20-7"></a>)</span></code></pre></div>
+</div>
+<div id="checklist-component" class="section level3">
+<h3>Checklist Component</h3>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb21-2"><a href="#cb21-2"></a></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="kw">dccChecklist</span>(</span>
+<span id="cb21-4"><a href="#cb21-4"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb21-5"><a href="#cb21-5"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;New York City&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;NYC&quot;</span>),</span>
+<span id="cb21-6"><a href="#cb21-6"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;Montréal&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;MTL&quot;</span>),</span>
+<span id="cb21-7"><a href="#cb21-7"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;San Francisco&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;SF&quot;</span>)</span>
+<span id="cb21-8"><a href="#cb21-8"></a>  ),</span>
+<span id="cb21-9"><a href="#cb21-9"></a>  <span class="dt">value=</span><span class="kw">list</span>(<span class="st">&quot;MTL&quot;</span>, <span class="st">&quot;SF&quot;</span>)</span>
+<span id="cb21-10"><a href="#cb21-10"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb22-2"><a href="#cb22-2"></a></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="kw">dccChecklist</span>(</span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb22-5"><a href="#cb22-5"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;New York City&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;NYC&quot;</span>),</span>
+<span id="cb22-6"><a href="#cb22-6"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;Montréal&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;MTL&quot;</span>),</span>
+<span id="cb22-7"><a href="#cb22-7"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;San Francisco&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;SF&quot;</span>)</span>
+<span id="cb22-8"><a href="#cb22-8"></a>  ),</span>
+<span id="cb22-9"><a href="#cb22-9"></a>  <span class="dt">value=</span><span class="kw">list</span>(<span class="st">&quot;MTL&quot;</span>, <span class="st">&quot;SF&quot;</span>),</span>
+<span id="cb22-10"><a href="#cb22-10"></a>  <span class="dt">labelStyle =</span> <span class="kw">list</span>(<span class="st">&quot;display&quot;</span> =<span class="st"> &quot;inline-block&quot;</span>)</span>
+<span id="cb22-11"><a href="#cb22-11"></a>)</span></code></pre></div>
+</div>
+<div id="radioitems-component" class="section level3">
+<h3>RadioItems Component</h3>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb23-2"><a href="#cb23-2"></a></span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="kw">dccRadioItems</span>(</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb23-5"><a href="#cb23-5"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;New York City&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;NYC&quot;</span>),</span>
+<span id="cb23-6"><a href="#cb23-6"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;Montréal&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;MTL&quot;</span>),</span>
+<span id="cb23-7"><a href="#cb23-7"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;San Francisco&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;SF&quot;</span>)</span>
+<span id="cb23-8"><a href="#cb23-8"></a>  ),</span>
+<span id="cb23-9"><a href="#cb23-9"></a>  <span class="dt">value =</span> <span class="st">&quot;MTL&quot;</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb24-2"><a href="#cb24-2"></a></span>
+<span id="cb24-3"><a href="#cb24-3"></a><span class="kw">dccRadioItems</span>(</span>
+<span id="cb24-4"><a href="#cb24-4"></a>  <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb24-5"><a href="#cb24-5"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;New York City&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;NYC&quot;</span>),</span>
+<span id="cb24-6"><a href="#cb24-6"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;Montréal&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;MTL&quot;</span>),</span>
+<span id="cb24-7"><a href="#cb24-7"></a>  <span class="kw">list</span>(<span class="st">&quot;label&quot;</span> =<span class="st"> &quot;San Francisco&quot;</span>, <span class="st">&quot;value&quot;</span> =<span class="st"> &quot;SF&quot;</span>)</span>
+<span id="cb24-8"><a href="#cb24-8"></a>  ),</span>
+<span id="cb24-9"><a href="#cb24-9"></a>  <span class="dt">value =</span> <span class="st">&quot;MTL&quot;</span>,</span>
+<span id="cb24-10"><a href="#cb24-10"></a>  <span class="dt">labelStyle =</span> <span class="kw">list</span>(<span class="st">&quot;display&quot;</span> =<span class="st"> &quot;inline-block&quot;</span>)</span>
+<span id="cb24-11"><a href="#cb24-11"></a>)</span></code></pre></div>
+</div>
+<div id="button-component" class="section level3">
+<h3>Button Component</h3>
+<p><strong><em>Button Basic Example</em></strong></p>
+<p>An example of a default button without any extra properties and <code>n_clicks</code> in the callback. <code>n_clicks</code> is an integer that represents that number of times the button has been clicked. Note that the original value is <code>NULL</code>.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb25-2"><a href="#cb25-2"></a></span>
+<span id="cb25-3"><a href="#cb25-3"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb25-4"><a href="#cb25-4"></a></span>
+<span id="cb25-5"><a href="#cb25-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb25-6"><a href="#cb25-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb25-7"><a href="#cb25-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb25-8"><a href="#cb25-8"></a>      <span class="kw">htmlDiv</span>(<span class="kw">dccInput</span>(<span class="dt">id=</span><span class="st">&quot;input-box&quot;</span>, <span class="dt">type=</span><span class="st">&quot;text&quot;</span>)),</span>
+<span id="cb25-9"><a href="#cb25-9"></a>      <span class="kw">htmlButton</span>(<span class="st">&quot;Submit&quot;</span>, <span class="dt">id=</span><span class="st">&quot;button&quot;</span>),</span>
+<span id="cb25-10"><a href="#cb25-10"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&quot;output-container-button&quot;</span>,</span>
+<span id="cb25-11"><a href="#cb25-11"></a>              <span class="dt">children=</span><span class="st">&quot;Enter a value and press submit&quot;</span>)</span>
+<span id="cb25-12"><a href="#cb25-12"></a>    )</span>
+<span id="cb25-13"><a href="#cb25-13"></a>  )</span>
+<span id="cb25-14"><a href="#cb25-14"></a>)</span>
+<span id="cb25-15"><a href="#cb25-15"></a></span>
+<span id="cb25-16"><a href="#cb25-16"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb25-17"><a href="#cb25-17"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id =</span> <span class="st">&quot;output-container-button&quot;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb25-18"><a href="#cb25-18"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&quot;button&quot;</span>, <span class="dt">property =</span> <span class="st">&quot;n_clicks&quot;</span>),</span>
+<span id="cb25-19"><a href="#cb25-19"></a>              <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&quot;input-box&quot;</span>, <span class="dt">property =</span> <span class="st">&quot;value&quot;</span>)),</span>
+<span id="cb25-20"><a href="#cb25-20"></a>  <span class="cf">function</span>(n_clicks, value) {</span>
+<span id="cb25-21"><a href="#cb25-21"></a>    <span class="kw">sprintf</span>(<span class="st">&quot;The input value was </span><span class="ch">\&#39;</span><span class="st">%s</span><span class="ch">\&#39;</span><span class="st"> and the button has been clicked </span><span class="ch">\&#39;</span><span class="st">%s</span><span class="ch">\&#39;</span><span class="st"> times&quot;</span>, value, n_clicks)</span>
+<span id="cb25-22"><a href="#cb25-22"></a>  })</span>
+<span id="cb25-23"><a href="#cb25-23"></a></span>
+<span id="cb25-24"><a href="#cb25-24"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p><strong><em>Button with n_clicks_timestamp</em></strong></p>
+<p>This example utilizes the <code>n_clicks_timestamp</code> property, which returns an integer representation of time. This is useful for determining when the button was last clicked.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb26-2"><a href="#cb26-2"></a></span>
+<span id="cb26-3"><a href="#cb26-3"></a>app &lt;-<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb26-4"><a href="#cb26-4"></a></span>
+<span id="cb26-5"><a href="#cb26-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb26-6"><a href="#cb26-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb26-7"><a href="#cb26-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb26-8"><a href="#cb26-8"></a>      <span class="kw">htmlButton</span>(<span class="st">&#39;Button 1&#39;</span>, <span class="dt">id=</span><span class="st">&#39;btn-1&#39;</span>, <span class="dt">n_clicks_timestamp=</span><span class="dv">0</span>),</span>
+<span id="cb26-9"><a href="#cb26-9"></a>      <span class="kw">htmlButton</span>(<span class="st">&#39;Button 2&#39;</span>, <span class="dt">id=</span><span class="st">&#39;btn-2&#39;</span>, <span class="dt">n_clicks_timestamp=</span><span class="dv">0</span>),</span>
+<span id="cb26-10"><a href="#cb26-10"></a>      <span class="kw">htmlButton</span>(<span class="st">&#39;Button 3&#39;</span>, <span class="dt">id=</span><span class="st">&#39;btn-3&#39;</span>, <span class="dt">n_clicks_timestamp=</span><span class="dv">0</span>),</span>
+<span id="cb26-11"><a href="#cb26-11"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;container-button-timestamp&#39;</span>)</span>
+<span id="cb26-12"><a href="#cb26-12"></a>    )</span>
+<span id="cb26-13"><a href="#cb26-13"></a>  )</span>
+<span id="cb26-14"><a href="#cb26-14"></a>)</span>
+<span id="cb26-15"><a href="#cb26-15"></a></span>
+<span id="cb26-16"><a href="#cb26-16"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb26-17"><a href="#cb26-17"></a>  <span class="kw">output</span>(<span class="dt">id =</span> <span class="st">&#39;container-button-timestamp&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb26-18"><a href="#cb26-18"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;btn-1&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;n_clicks_timestamp&#39;</span>),</span>
+<span id="cb26-19"><a href="#cb26-19"></a>                <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;btn-2&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;n_clicks_timestamp&#39;</span>),</span>
+<span id="cb26-20"><a href="#cb26-20"></a>                <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;btn-3&#39;</span>, <span class="dt">property =</span><span class="st">&#39;n_clicks_timestamp&#39;</span>)),</span>
+<span id="cb26-21"><a href="#cb26-21"></a>             <span class="cf">function</span>(btn1, btn2, btn3){</span>
+<span id="cb26-22"><a href="#cb26-22"></a>               <span class="cf">if</span>((btn1) <span class="op">&gt;</span><span class="st"> </span>(btn2) <span class="op">&amp;</span><span class="st"> </span>(btn1) <span class="op">&gt;</span><span class="st"> </span>(btn3)){</span>
+<span id="cb26-23"><a href="#cb26-23"></a>                 msg =<span class="st"> &#39;Button 1 was most recently clicked&#39;</span></span>
+<span id="cb26-24"><a href="#cb26-24"></a>               } <span class="cf">else</span> <span class="cf">if</span>((btn2) <span class="op">&gt;</span><span class="st"> </span>(btn1) <span class="op">&amp;</span><span class="st"> </span>(btn2) <span class="op">&gt;</span><span class="st"> </span>(btn3)){</span>
+<span id="cb26-25"><a href="#cb26-25"></a>                 msg =<span class="st"> &#39;Button 2 was most recently clicked&#39;</span></span>
+<span id="cb26-26"><a href="#cb26-26"></a>               } <span class="cf">else</span> <span class="cf">if</span>((btn3) <span class="op">&gt;</span><span class="st"> </span>(btn1) <span class="op">&amp;</span><span class="st"> </span>(btn3) <span class="op">&gt;</span><span class="st"> </span>(btn2)){</span>
+<span id="cb26-27"><a href="#cb26-27"></a>                 msg =<span class="st"> &#39;Button 3 was most recently clicked&#39;</span></span>
+<span id="cb26-28"><a href="#cb26-28"></a>               } </span>
+<span id="cb26-29"><a href="#cb26-29"></a>               <span class="cf">else</span>{</span>
+<span id="cb26-30"><a href="#cb26-30"></a>                 msg =<span class="st"> &#39;None of the buttons have been clicked yet&#39;</span></span>
+<span id="cb26-31"><a href="#cb26-31"></a>               }</span>
+<span id="cb26-32"><a href="#cb26-32"></a>               <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb26-33"><a href="#cb26-33"></a>                 <span class="kw">htmlDiv</span>(<span class="kw">sprintf</span>(<span class="st">&#39;btn1: %s&#39;</span>, <span class="kw">format</span>(btn1, <span class="dt">scientific =</span> <span class="ot">FALSE</span>))),</span>
+<span id="cb26-34"><a href="#cb26-34"></a>                 <span class="kw">htmlDiv</span>(<span class="kw">sprintf</span>(<span class="st">&#39;btn2: %s&#39;</span>, <span class="kw">format</span>(btn2, <span class="dt">scientific =</span> <span class="ot">FALSE</span>))),</span>
+<span id="cb26-35"><a href="#cb26-35"></a>                 <span class="kw">htmlDiv</span>(<span class="kw">sprintf</span>(<span class="st">&#39;btn3: %s&#39;</span>, <span class="kw">format</span>(btn3, <span class="dt">scientific =</span> <span class="ot">FALSE</span>))),</span>
+<span id="cb26-36"><a href="#cb26-36"></a>                 <span class="kw">htmlDiv</span>(msg))</span>
+<span id="cb26-37"><a href="#cb26-37"></a>                 ))</span>
+<span id="cb26-38"><a href="#cb26-38"></a>             }</span>
+<span id="cb26-39"><a href="#cb26-39"></a>)</span>
+<span id="cb26-40"><a href="#cb26-40"></a></span>
+<span id="cb26-41"><a href="#cb26-41"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="datepickersingle-component" class="section level3">
+<h3>DatePickerSingle Component</h3>
+<p><strong><em>Calendar Clear and Portals</em></strong></p>
+<p>When the <code>clearable</code> property is set to <code>TRUE</code> the component will be rendered with a small ‘x’ that will remove all selected dates when selected.</p>
+<p>The <code>DatePickerSingle</code> component supports two different portal types, one being a full screen portal (<code>with_full_screen_portal</code>) and another being a simple screen overlay, like the one shown below (<code>with_portal</code>).</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb27-3"><a href="#cb27-3"></a></span>
+<span id="cb27-4"><a href="#cb27-4"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb27-5"><a href="#cb27-5"></a></span>
+<span id="cb27-6"><a href="#cb27-6"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb27-7"><a href="#cb27-7"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb27-8"><a href="#cb27-8"></a>    <span class="kw">list</span>(</span>
+<span id="cb27-9"><a href="#cb27-9"></a>      <span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb27-10"><a href="#cb27-10"></a>        <span class="dt">id=</span><span class="st">&#39;my-date-picker-single&#39;</span>,</span>
+<span id="cb27-11"><a href="#cb27-11"></a>        <span class="dt">min_date_allowed=</span><span class="kw">as.Date</span>(<span class="st">&#39;1995-8-5&#39;</span>),</span>
+<span id="cb27-12"><a href="#cb27-12"></a>        <span class="dt">max_date_allowed=</span><span class="kw">as.Date</span>(<span class="st">&#39;2017-9-19&#39;</span>),</span>
+<span id="cb27-13"><a href="#cb27-13"></a>        <span class="dt">initial_visible_month=</span><span class="kw">as.Date</span>(<span class="st">&#39;2017-8-5&#39;</span>),</span>
+<span id="cb27-14"><a href="#cb27-14"></a>        <span class="dt">date =</span> <span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-08-25 23:59:59&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;GMT&quot;</span>)</span>
+<span id="cb27-15"><a href="#cb27-15"></a>      ),</span>
+<span id="cb27-16"><a href="#cb27-16"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-container-date-picker-single&#39;</span>)</span>
+<span id="cb27-17"><a href="#cb27-17"></a>    )</span>
+<span id="cb27-18"><a href="#cb27-18"></a>  )</span>
+<span id="cb27-19"><a href="#cb27-19"></a>)</span>
+<span id="cb27-20"><a href="#cb27-20"></a></span>
+<span id="cb27-21"><a href="#cb27-21"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb27-22"><a href="#cb27-22"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;output-container-date-picker-single&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb27-23"><a href="#cb27-23"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;my-date-picker-single&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;date&#39;</span>)),</span>
+<span id="cb27-24"><a href="#cb27-24"></a>  <span class="cf">function</span>(date){</span>
+<span id="cb27-25"><a href="#cb27-25"></a>    <span class="cf">if</span>(<span class="kw">is.null</span>(date) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb27-26"><a href="#cb27-26"></a>      date =<span class="st"> </span><span class="kw">format</span>(<span class="kw">as.Date</span>(date), <span class="dt">format =</span> <span class="st">&#39;%B %d,%Y&#39;</span>)</span>
+<span id="cb27-27"><a href="#cb27-27"></a>      <span class="kw">sprintf</span>(<span class="st">&#39;You have selected: %s&#39;</span>, date)</span>
+<span id="cb27-28"><a href="#cb27-28"></a>    }</span>
+<span id="cb27-29"><a href="#cb27-29"></a>  }</span>
+<span id="cb27-30"><a href="#cb27-30"></a>)</span></code></pre></div>
+<p><strong><em>Month and Display Format</em></strong></p>
+<p>The <code>display_format</code> property determines how selected dates are displayed in the <code>DatePickerRange</code> component. The <code>month_format</code> property determines how calendar headers are displayed when the calendar is opened.</p>
+<p>Both of these properties are configured through strings that utilize a combination of any of the following tokens.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">String Token</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>YYYY</code></td>
+<td align="left"><code>2014</code></td>
+<td align="left">4 or 2 digit year</td>
+</tr>
+<tr class="even">
+<td align="left"><code>YY</code></td>
+<td align="left"><code>14</code></td>
+<td align="left">2 digit year</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>Y</code></td>
+<td align="left"><code>-25</code></td>
+<td align="left">Year with any number of digits and sign</td>
+</tr>
+<tr class="even">
+<td align="left"><code>Q</code></td>
+<td align="left"><code>1..4</code></td>
+<td align="left">Quarter of year. Sets month to first month in quarter.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>M MM</code></td>
+<td align="left"><code>1..12</code></td>
+<td align="left">Month number</td>
+</tr>
+<tr class="even">
+<td align="left"><code>MMM MMMM</code></td>
+<td align="left"><code>Jan..December</code></td>
+<td align="left">Month name</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>D DD</code></td>
+<td align="left"><code>1..31</code></td>
+<td align="left">Day of month</td>
+</tr>
+<tr class="even">
+<td align="left"><code>Do</code></td>
+<td align="left"><code>1st..31st</code></td>
+<td align="left">Day of month with ordinal</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DDD DDDD</code></td>
+<td align="left"><code>1..365</code></td>
+<td align="left">Day of year</td>
+</tr>
+<tr class="even">
+<td align="left"><code>X</code></td>
+<td align="left"><code>1410715640.579</code></td>
+<td align="left">Unix timestamp</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>X</code></td>
+<td align="left"><code>1410715640579</code></td>
+<td align="left">Unix ms timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>Display Format Examples</em></strong></p>
+<p>You can utilize any permutation of the string tokens shown in the table above to change how selected dates are displayed in the <code>DatePickerRange</code> component.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb28-2"><a href="#cb28-2"></a>    <span class="dt">date=</span><span class="st">&quot;2017-06-21&quot;</span>,</span>
+<span id="cb28-3"><a href="#cb28-3"></a>    <span class="dt">display_format=</span><span class="st">&quot;MMM Do, YY&quot;</span></span>
+<span id="cb28-4"><a href="#cb28-4"></a>)</span>
+<span id="cb28-5"><a href="#cb28-5"></a></span>
+<span id="cb28-6"><a href="#cb28-6"></a><span class="co"># Displays &quot;Jun 21st, 17&quot;&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb29-2"><a href="#cb29-2"></a>    <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb29-3"><a href="#cb29-3"></a>  <span class="dt">display_format=</span><span class="st">&quot;M-D-Y-Q&quot;</span></span>
+<span id="cb29-4"><a href="#cb29-4"></a>)</span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="co"># Displays &quot;6-21-2017-2&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb30-2"><a href="#cb30-2"></a>    <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb30-3"><a href="#cb30-3"></a>  <span class="dt">display_format=</span><span class="st">&quot;MMMM Y, DD&quot;</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a>)</span>
+<span id="cb30-5"><a href="#cb30-5"></a><span class="co"># Displays &quot;June 2017, 21&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb31-2"><a href="#cb31-2"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="dt">display_format=</span><span class="st">&quot;X&quot;</span></span>
+<span id="cb31-4"><a href="#cb31-4"></a>)</span>
+<span id="cb31-5"><a href="#cb31-5"></a><span class="co"># Displays &quot;1498017600&quot;</span></span></code></pre></div>
+<p><strong><em>Month Format Examples</em></strong></p>
+<p>Similar to the <code>display_format</code>, you can set <code>month_format</code> to any permutation of the string tokens shown in the table above to change how calendar titles are displayed in the <code>DatePickerRange</code> component.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="dt">month_format=</span><span class="st">&quot;MMM Do, YY&quot;</span>,</span>
+<span id="cb32-3"><a href="#cb32-3"></a>  <span class="dt">placeholder=</span><span class="st">&quot;MMM Do, YY&quot;</span>,</span>
+<span id="cb32-4"><a href="#cb32-4"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb32-5"><a href="#cb32-5"></a>)</span>
+<span id="cb32-6"><a href="#cb32-6"></a><span class="co"># Displays &quot;06/21/2017&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb33-2"><a href="#cb33-2"></a>  <span class="dt">month_format=</span><span class="st">&quot;M-D-Y-Q&quot;</span>,</span>
+<span id="cb33-3"><a href="#cb33-3"></a>  <span class="dt">placeholder=</span><span class="st">&quot;M-D-Y-Q&quot;</span>,</span>
+<span id="cb33-4"><a href="#cb33-4"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb33-5"><a href="#cb33-5"></a>)</span>
+<span id="cb33-6"><a href="#cb33-6"></a><span class="co"># Displays &quot;06/21/2017&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb34-2"><a href="#cb34-2"></a>  <span class="dt">month_format=</span><span class="st">&quot;MMMM Y&quot;</span>,</span>
+<span id="cb34-3"><a href="#cb34-3"></a>  <span class="dt">placeholder=</span><span class="st">&quot;MMMM Y&quot;</span>,</span>
+<span id="cb34-4"><a href="#cb34-4"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2020-2-29&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb34-5"><a href="#cb34-5"></a>)</span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co"># Displays &quot;02/29/2020&quot;</span></span></code></pre></div>
+<p><strong><em>Vertical Calendar and Placeholder Text</em></strong></p>
+<p>The <code>DatePickerRange</code> component can be rendered in two orientations, either horizontally or vertically. If <code>calendar_orientation</code> is set to ‘vertical’, it will be rendered vertically and will default to ‘horizontal’ if not defined.</p>
+<p>The <code>start_date_placeholder_text</code> and <code>end_date_placeholder_text</code> define the grey default text defined in the calendar input boxes when no date is selected.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb35-2"><a href="#cb35-2"></a>  <span class="dt">calendar_orientation=</span><span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="dt">placeholder=</span><span class="st">&quot;Select a date&quot;</span>,</span>
+<span id="cb35-4"><a href="#cb35-4"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb35-5"><a href="#cb35-5"></a>)</span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="co"># Displays &quot;06/21/2017&quot;</span></span></code></pre></div>
+<p><strong><em>Calendar Clear and Portals</em></strong></p>
+<p>When the <code>clearable</code> property is set to <code>TRUE</code> the component will be rendered with a small ‘x’ that will remove all selected dates when selected.</p>
+<p>The <code>DatePickerSingle</code> component supports two different portal types, one being a full screen portal (<code>with_full_screen_portal</code>) and another being a simple screen overlay, like the one shown below (<code>with_portal</code>).</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a></span>
+<span id="cb36-2"><a href="#cb36-2"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb36-3"><a href="#cb36-3"></a>    <span class="dt">clearable=</span><span class="ot">TRUE</span>,</span>
+<span id="cb36-4"><a href="#cb36-4"></a>    <span class="dt">with_portal=</span><span class="ot">TRUE</span>,</span>
+<span id="cb36-5"><a href="#cb36-5"></a>    <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb36-6"><a href="#cb36-6"></a>)</span>
+<span id="cb36-7"><a href="#cb36-7"></a><span class="co"># Displays &quot;06/21/2017&quot;</span></span></code></pre></div>
+<p><strong><em>Right to Left Calendars and First Day of Week</em></strong></p>
+<p>When the <code>is_RTL</code> property is set to <code>TRUE</code> the calendar will be rendered from right to left.</p>
+<p>The <code>first_day_of_week</code> property allows you to define which day of the week will be set as the first day of the week. In the example below, Tuesday is the first day of the week.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">dccDatePickerSingle</span>(</span>
+<span id="cb37-2"><a href="#cb37-2"></a>  <span class="dt">is_RTL=</span><span class="ot">TRUE</span>,</span>
+<span id="cb37-3"><a href="#cb37-3"></a>  <span class="dt">first_day_of_week=</span><span class="dv">3</span>,</span>
+<span id="cb37-4"><a href="#cb37-4"></a>  <span class="dt">date=</span><span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb37-5"><a href="#cb37-5"></a>  )</span>
+<span id="cb37-6"><a href="#cb37-6"></a><span class="co"># Displays &quot;06/21/2017&quot;</span></span></code></pre></div>
+</div>
+<div id="datepickerrange-component" class="section level3">
+<h3>DatePickerRange Component</h3>
+<p><strong><em>Simple DatePickerRange Example</em></strong></p>
+<p>This is a simple example of a <code>DatePickerRange</code> component tied to a callback. The <code>min_date_allowed</code> and <code>max_date_allowed</code> properties define the minimum and maximum selectable dates on the calendar while <code>initial_visible_month</code> defines the calendar month that is first displayed when the <code>DatePickerRange</code> component is opened.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb38-3"><a href="#cb38-3"></a></span>
+<span id="cb38-4"><a href="#cb38-4"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb38-5"><a href="#cb38-5"></a></span>
+<span id="cb38-6"><a href="#cb38-6"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb38-7"><a href="#cb38-7"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb38-8"><a href="#cb38-8"></a>    <span class="kw">list</span>(</span>
+<span id="cb38-9"><a href="#cb38-9"></a>      <span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb38-10"><a href="#cb38-10"></a>        <span class="dt">id=</span><span class="st">&#39;my-date-picker-single&#39;</span>,</span>
+<span id="cb38-11"><a href="#cb38-11"></a>        <span class="dt">min_date_allowed=</span><span class="kw">as.Date</span>(<span class="st">&#39;1995-8-5&#39;</span>),</span>
+<span id="cb38-12"><a href="#cb38-12"></a>        <span class="dt">max_date_allowed=</span><span class="kw">as.Date</span>(<span class="st">&#39;2017-9-19&#39;</span>),</span>
+<span id="cb38-13"><a href="#cb38-13"></a>        <span class="dt">initial_visible_month=</span><span class="kw">as.Date</span>(<span class="st">&#39;2017-8-5&#39;</span>),</span>
+<span id="cb38-14"><a href="#cb38-14"></a>        <span class="dt">end_date =</span> <span class="kw">as.Date</span>(<span class="st">&#39;2017-8-5&#39;</span>)</span>
+<span id="cb38-15"><a href="#cb38-15"></a>      ),</span>
+<span id="cb38-16"><a href="#cb38-16"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-container-date-picker-range&#39;</span>)</span>
+<span id="cb38-17"><a href="#cb38-17"></a>    )</span>
+<span id="cb38-18"><a href="#cb38-18"></a>  )</span>
+<span id="cb38-19"><a href="#cb38-19"></a>)</span>
+<span id="cb38-20"><a href="#cb38-20"></a></span>
+<span id="cb38-21"><a href="#cb38-21"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb38-22"><a href="#cb38-22"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;output-container-date-picker-range&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb38-23"><a href="#cb38-23"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;my-date-picker-range&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;start_date&#39;</span>),</span>
+<span id="cb38-24"><a href="#cb38-24"></a>                <span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;my-date-picker-range&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;end_date&#39;</span>)),</span>
+<span id="cb38-25"><a href="#cb38-25"></a>  <span class="cf">function</span>(start_date, end_date){</span>
+<span id="cb38-26"><a href="#cb38-26"></a>    string_prefix =<span class="st"> &#39;You have selected: &#39;</span></span>
+<span id="cb38-27"><a href="#cb38-27"></a></span>
+<span id="cb38-28"><a href="#cb38-28"></a>    <span class="cf">if</span>(<span class="kw">is.null</span>(start_date) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb38-29"><a href="#cb38-29"></a>      start_date =<span class="st"> </span><span class="kw">format</span>(<span class="kw">as.Date</span>(start_date), <span class="dt">format =</span> <span class="st">&#39;%B %d,%Y&#39;</span>)</span>
+<span id="cb38-30"><a href="#cb38-30"></a>      string_prefix =<span class="st"> </span><span class="kw">paste</span>(string_prefix, <span class="st">&#39;Start Date &#39;</span>, start_date, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb38-31"><a href="#cb38-31"></a>    }</span>
+<span id="cb38-32"><a href="#cb38-32"></a>    <span class="cf">if</span>(<span class="kw">is.null</span>(end_date) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb38-33"><a href="#cb38-33"></a>      end_date =<span class="st"> </span><span class="kw">format</span>(<span class="kw">as.Date</span>(end_date), <span class="dt">format =</span> <span class="st">&#39;%B %d,%Y&#39;</span>)</span>
+<span id="cb38-34"><a href="#cb38-34"></a>      string_prefix =<span class="st"> </span><span class="kw">paste</span>(string_prefix, <span class="st">&#39;End Date: &#39;</span>, end_date, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb38-35"><a href="#cb38-35"></a></span>
+<span id="cb38-36"><a href="#cb38-36"></a>    }</span>
+<span id="cb38-37"><a href="#cb38-37"></a>    <span class="cf">if</span>(<span class="kw">nchar</span>(string_prefix) <span class="op">==</span><span class="st"> </span><span class="kw">nchar</span>(<span class="st">&#39;You have selected: &#39;</span>)){</span>
+<span id="cb38-38"><a href="#cb38-38"></a>      <span class="kw">return</span>(<span class="st">&#39;Select a date to see it displayed here&#39;</span>)</span>
+<span id="cb38-39"><a href="#cb38-39"></a>    }</span>
+<span id="cb38-40"><a href="#cb38-40"></a>    <span class="cf">else</span>{</span>
+<span id="cb38-41"><a href="#cb38-41"></a>      <span class="kw">return</span>(string_prefix)</span>
+<span id="cb38-42"><a href="#cb38-42"></a>    }</span>
+<span id="cb38-43"><a href="#cb38-43"></a>  }</span>
+<span id="cb38-44"><a href="#cb38-44"></a></span>
+<span id="cb38-45"><a href="#cb38-45"></a>)</span>
+<span id="cb38-46"><a href="#cb38-46"></a></span>
+<span id="cb38-47"><a href="#cb38-47"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p><strong><em>Month and Display Format</em></strong></p>
+<p>The <code>display_format</code> property determines how selected dates are displayed in the <code>DatePickerRange</code> component. The <code>month_format</code> property determines how calendar headers are displayed when the calendar is opened.</p>
+<p>Both of these properties are configured through strings that utilize a combination of any of the following tokens.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">String Token</th>
+<th align="left">Example</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>YYYY</code></td>
+<td align="left"><code>2014</code></td>
+<td align="left">4 or 2 digit year</td>
+</tr>
+<tr class="even">
+<td align="left"><code>YY</code></td>
+<td align="left"><code>14</code></td>
+<td align="left">2 digit year</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>Y</code></td>
+<td align="left"><code>-25</code></td>
+<td align="left">Year with any number of digits and sign</td>
+</tr>
+<tr class="even">
+<td align="left"><code>Q</code></td>
+<td align="left"><code>1..4</code></td>
+<td align="left">Quarter of year. Sets month to first month in quarter.</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>M MM</code></td>
+<td align="left"><code>1..12</code></td>
+<td align="left">Month number</td>
+</tr>
+<tr class="even">
+<td align="left"><code>MMM MMMM</code></td>
+<td align="left"><code>Jan..December</code></td>
+<td align="left">Month name</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>D DD</code></td>
+<td align="left"><code>1..31</code></td>
+<td align="left">Day of month</td>
+</tr>
+<tr class="even">
+<td align="left"><code>Do</code></td>
+<td align="left"><code>1st..31st</code></td>
+<td align="left">Day of month with ordinal</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>DDD DDDD</code></td>
+<td align="left"><code>1..365</code></td>
+<td align="left">Day of year</td>
+</tr>
+<tr class="even">
+<td align="left"><code>X</code></td>
+<td align="left"><code>1410715640.579</code></td>
+<td align="left">Unix timestamp</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>X</code></td>
+<td align="left"><code>1410715640579</code></td>
+<td align="left">Unix ms timestamp</td>
+</tr>
+</tbody>
+</table>
+<p><strong><em>Display Format Examples</em></strong></p>
+<p>You can utilize any permutation of the string tokens shown in the table above to change how selected dates are displayed in the <code>DatePickerRange</code> component.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb39-2"><a href="#cb39-2"></a>  <span class="dt">end_date  =</span>  <span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-6-21 23:59:59&quot;</span>, <span class="dt">tz  =</span>  <span class="st">&quot;GMT&quot;</span>),</span>
+<span id="cb39-3"><a href="#cb39-3"></a>  <span class="dt">display_format =</span> <span class="st">&quot;MMM Do, YY&quot;</span>,</span>
+<span id="cb39-4"><a href="#cb39-4"></a>  <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;MMM Do, YY&quot;</span></span>
+<span id="cb39-5"><a href="#cb39-5"></a>)</span>
+<span id="cb39-6"><a href="#cb39-6"></a><span class="co"># Displays &quot;Jun 21st, 17&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb40-2"><a href="#cb40-2"></a>    <span class="dt">end_date =</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb40-3"><a href="#cb40-3"></a>    <span class="dt">display_format =</span> <span class="st">&quot;M-D-Y-Q&quot;</span>,</span>
+<span id="cb40-4"><a href="#cb40-4"></a>    <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;M-D-Y-Q&quot;</span></span>
+<span id="cb40-5"><a href="#cb40-5"></a>)</span>
+<span id="cb40-6"><a href="#cb40-6"></a><span class="co"># Displays &quot;6-21-2017-2&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb41-2"><a href="#cb41-2"></a>    <span class="dt">end_date =</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb41-3"><a href="#cb41-3"></a>    <span class="dt">display_format =</span> <span class="st">&quot;MMMM Y, DD&quot;</span>,</span>
+<span id="cb41-4"><a href="#cb41-4"></a>    <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;MMMM Y, DD&quot;</span></span>
+<span id="cb41-5"><a href="#cb41-5"></a>)</span>
+<span id="cb41-6"><a href="#cb41-6"></a><span class="co"># Displays &quot;June 2017, 21&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb42-2"><a href="#cb42-2"></a>  <span class="dt">end_date =</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>),</span>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="dt">display_format =</span> <span class="st">&quot;X&quot;</span>,</span>
+<span id="cb42-4"><a href="#cb42-4"></a>  <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;X&quot;</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a>)</span>
+<span id="cb42-6"><a href="#cb42-6"></a><span class="co"># Displays &quot;1498017600&quot;</span></span></code></pre></div>
+<p><strong><em>Month Format Examples</em></strong></p>
+<p>Similar to the <code>display_format</code>, you can set <code>month_format</code> to any permutation of the string tokens shown in the table above to change how calendar titles are displayed in the <code>DatePickerRange</code> component.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb43-2"><a href="#cb43-2"></a>  <span class="dt">display_format =</span> <span class="st">&quot;MMM Do, YY&quot;</span>,</span>
+<span id="cb43-3"><a href="#cb43-3"></a>  <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;MMM Do, YY&quot;</span>,</span>
+<span id="cb43-4"><a href="#cb43-4"></a>  <span class="dt">start_date =</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb43-5"><a href="#cb43-5"></a>)</span>
+<span id="cb43-6"><a href="#cb43-6"></a><span class="co"># Displays &quot;Jun 21st, 17&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb44-2"><a href="#cb44-2"></a>  <span class="dt">display_format =</span> <span class="st">&quot;M-D-Y-Q&quot;</span>,</span>
+<span id="cb44-3"><a href="#cb44-3"></a>  <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;M-D-Y-Q&quot;</span>,</span>
+<span id="cb44-4"><a href="#cb44-4"></a>  <span class="dt">start_date =</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb44-5"><a href="#cb44-5"></a>)</span>
+<span id="cb44-6"><a href="#cb44-6"></a><span class="co"># Displays &quot;6-21-2017-2&quot;</span></span></code></pre></div>
+<pre><code>dccDatePickerRange(
+  display_format = &quot;MMMM Y&quot;,
+  start_date_placeholder_text = &quot;MMMM Y&quot;,
+  start_date = format(as.Date(&quot;2017-6-21&quot;), format  =  &quot;%Y,%m,%d&quot;)
+)
+# Displays &quot;June 2017&quot;</code></pre>
+<pre><code>dccDatePickerRange(
+  display_format = &quot;X&quot;,
+  start_date_placeholder_text = &quot;X&quot;,
+  start_date = format(as.Date(&quot;2017-6-21&quot;), format  =  &quot;%Y,%m,%d&quot;)
+)
+# Displays &quot;1498017600&quot;</code></pre>
+<p><strong><em>Vertical Calendar and Placeholder Text</em></strong></p>
+<p>The <code>DatePickerRange</code> component can be rendered in two orientations, either horizontally or vertically. If <code>calendar_orientation</code> is set to ‘vertical’, it will be rendered vertically and will default to ‘horizontal’ if not defined.</p>
+<p>The <code>start_date_placeholder_text</code> and <code>end_date_placeholder_text</code> define the grey default text defined in the calendar input boxes when no date is selected.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb47-2"><a href="#cb47-2"></a>  <span class="dt">start_date_placeholder_text =</span> <span class="st">&quot;Start Period&quot;</span>,</span>
+<span id="cb47-3"><a href="#cb47-3"></a>  <span class="dt">end_date_placeholder_text =</span> <span class="st">&quot;End Period&quot;</span>,</span>
+<span id="cb47-4"><a href="#cb47-4"></a>  <span class="dt">calendar_orientation =</span> <span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb47-5"><a href="#cb47-5"></a>)</span></code></pre></div>
+<p><strong><em>Minimum Nights, Calendar Clear, and Portals</em></strong></p>
+<p>The <code>minimum_nights property</code> defines the number of nights that must be in between the range of two selected dates.</p>
+<p>When the <code>clearable</code> property is set to <code>TRUE</code> the component will be rendered with a small ‘x’ that will remove all selected dates when selected.</p>
+<p>The <code>DatePickerRange</code> component supports two different portal types, one being a full screen portal (<code>with_full_screen_portal</code>) and another being a simple screen overlay, like the one shown below (<code>with_portal</code>).</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb48-2"><a href="#cb48-2"></a>  <span class="dt">minimum_nights =</span> <span class="dv">5</span>,</span>
+<span id="cb48-3"><a href="#cb48-3"></a>  <span class="dt">clearable =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb48-4"><a href="#cb48-4"></a>  <span class="dt">with_portal =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb48-5"><a href="#cb48-5"></a>  <span class="dt">start_date  =</span>  <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format  =</span>  <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb48-6"><a href="#cb48-6"></a>)</span></code></pre></div>
+<p><strong><em>Right to Left Calendars and First Day of Week</em></strong></p>
+<p>When the <code>is_RTL</code> property is set to <code>TRUE</code> the calendar will be rendered from right to left.</p>
+<p>The <code>first_day_of_week</code> property allows you to define which day of the week will be set as the first day of the week. In the example below, Tuesday is the first day of the week.</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">dccDatePickerRange</span>(</span>
+<span id="cb49-2"><a href="#cb49-2"></a>  <span class="dt">is_RTL =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb49-3"><a href="#cb49-3"></a>  <span class="dt">first_day_of_week =</span> <span class="dv">3</span>,</span>
+<span id="cb49-4"><a href="#cb49-4"></a>  <span class="dt">start_date=</span> <span class="kw">format</span>(<span class="kw">as.Date</span>(<span class="st">&quot;2017-6-21&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;%Y,%m,%d&quot;</span>)</span>
+<span id="cb49-5"><a href="#cb49-5"></a>)</span></code></pre></div>
+</div>
+<div id="markdown-component" class="section level3">
+<h3>Markdown Component</h3>
+<p><strong><em>Syntax Guide</em></strong></p>
+<p>These examples are based on the <a href="https://guides.github.com/features/mastering-markdown/">GitHub Markdown Guide</a>. The Dash Markdown component uses the <a href="http://commonmark.org/">CommonMark</a> specification of Markdown.</p>
+<p><strong><em>Headers</em></strong></p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb50-2"><a href="#cb50-2"></a></span>
+<span id="cb50-3"><a href="#cb50-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb50-4"><a href="#cb50-4"></a></span>
+<span id="cb50-5"><a href="#cb50-5"></a><span class="st"># This is an &lt;h1&gt; tag</span></span>
+<span id="cb50-6"><a href="#cb50-6"></a></span>
+<span id="cb50-7"><a href="#cb50-7"></a><span class="st">## This is an &lt;h2&gt; tag</span></span>
+<span id="cb50-8"><a href="#cb50-8"></a></span>
+<span id="cb50-9"><a href="#cb50-9"></a><span class="st">###### This is an &lt;h6&gt; tag)</span></span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb51-2"><a href="#cb51-2"></a></span>
+<span id="cb51-3"><a href="#cb51-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb51-4"><a href="#cb51-4"></a></span>
+<span id="cb51-5"><a href="#cb51-5"></a><span class="st">  *This text will be italic*</span></span>
+<span id="cb51-6"><a href="#cb51-6"></a></span>
+<span id="cb51-7"><a href="#cb51-7"></a><span class="st">  _This will also be italic_</span></span>
+<span id="cb51-8"><a href="#cb51-8"></a></span>
+<span id="cb51-9"><a href="#cb51-9"></a></span>
+<span id="cb51-10"><a href="#cb51-10"></a><span class="st">  **This text will be bold**</span></span>
+<span id="cb51-11"><a href="#cb51-11"></a></span>
+<span id="cb51-12"><a href="#cb51-12"></a><span class="st">  __This will also be bold__</span></span>
+<span id="cb51-13"><a href="#cb51-13"></a></span>
+<span id="cb51-14"><a href="#cb51-14"></a><span class="st">  _You **can** combine them_</span></span>
+<span id="cb51-15"><a href="#cb51-15"></a><span class="st">&#39;</span></span>
+<span id="cb51-16"><a href="#cb51-16"></a>)</span></code></pre></div>
+<p><strong><em>Lists</em></strong></p>
+<p><em>Unordered</em></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb52-2"><a href="#cb52-2"></a></span>
+<span id="cb52-3"><a href="#cb52-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb52-4"><a href="#cb52-4"></a><span class="st">* Item 1</span></span>
+<span id="cb52-5"><a href="#cb52-5"></a><span class="st">* Item 2</span></span>
+<span id="cb52-6"><a href="#cb52-6"></a><span class="st">  * Item 2a</span></span>
+<span id="cb52-7"><a href="#cb52-7"></a><span class="st">  * Item 2b</span></span>
+<span id="cb52-8"><a href="#cb52-8"></a><span class="st">&#39;</span>)</span></code></pre></div>
+<p><strong><em>Block Quotes</em></strong></p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb53-2"><a href="#cb53-2"></a></span>
+<span id="cb53-3"><a href="#cb53-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb53-4"><a href="#cb53-4"></a><span class="st">&gt;</span></span>
+<span id="cb53-5"><a href="#cb53-5"></a><span class="st">&gt; Block quotes are used to highlight text.</span></span>
+<span id="cb53-6"><a href="#cb53-6"></a><span class="st">&gt;</span></span>
+<span id="cb53-7"><a href="#cb53-7"></a><span class="st">&#39;</span>)</span></code></pre></div>
+<p><strong><em>Links</em></strong></p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb54-2"><a href="#cb54-2"></a></span>
+<span id="cb54-3"><a href="#cb54-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb54-4"><a href="#cb54-4"></a><span class="st">[Dash User Guide](https://dash.plotly.com/)&#39;</span>)</span></code></pre></div>
+<p><strong><em>Inline Code</em></strong></p>
+<p>Any block of text surrounded by <code></code> will rendered as inline-code.</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb55-2"><a href="#cb55-2"></a></span>
+<span id="cb55-3"><a href="#cb55-3"></a><span class="kw">dccMarkdown</span>(<span class="st">&#39;</span></span>
+<span id="cb55-4"><a href="#cb55-4"></a><span class="st">Inline code snippet = `TRUE` &#39;</span>)</span></code></pre></div>
+</div>
+<div id="interactive-tables" class="section level3">
+<h3>Interactive Tables</h3>
+<p>The <code>dashHtmlComponents</code> package exposes all of the HTML tags. This includes the <code>Table</code>, <code>Tr</code>, and <code>Tbody</code> tags that can be used to create an HTML table. See Create Your First Dash App, Part 1 for an example. Dash provides an interactive DataTable as part of the <code>dash-table</code> project. This table includes built-in filtering, row-selection, editing, and sorting.</p>
+</div>
+<div id="upload-component" class="section level3">
+<h3>Upload Component</h3>
+<p>The Dash upload component allows your app’s viewers to upload files, like excel spreadsheets or images, into your application. Your Dash app can access the contents of an upload by listening to the <code>contents</code> property of the dccUpload component. <code>contents</code> is a base64 encoded string that contains the files contents, no matter what type of file: text files, images, zip files, excel spreadsheets, etc.</p>
+<p>Here’s an example that parses CSV or Excel files and displays the results in a table. Note that this example uses the <code>DataTable</code> from the <code>dash-table</code> project.</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb56-2"><a href="#cb56-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb56-3"><a href="#cb56-3"></a><span class="kw">library</span>(anytime)</span>
+<span id="cb56-4"><a href="#cb56-4"></a></span>
+<span id="cb56-5"><a href="#cb56-5"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb56-6"><a href="#cb56-6"></a></span>
+<span id="cb56-7"><a href="#cb56-7"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb56-8"><a href="#cb56-8"></a>  <span class="kw">dccUpload</span>(</span>
+<span id="cb56-9"><a href="#cb56-9"></a>    <span class="dt">id=</span><span class="st">&#39;upload-data&#39;</span>,</span>
+<span id="cb56-10"><a href="#cb56-10"></a>    <span class="dt">children=</span><span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb56-11"><a href="#cb56-11"></a>      <span class="st">&#39;Drag and Drop or &#39;</span>,</span>
+<span id="cb56-12"><a href="#cb56-12"></a>      <span class="kw">htmlA</span>(<span class="st">&#39;Select Files&#39;</span>)</span>
+<span id="cb56-13"><a href="#cb56-13"></a>    )),</span>
+<span id="cb56-14"><a href="#cb56-14"></a>    <span class="dt">style=</span><span class="kw">list</span>(</span>
+<span id="cb56-15"><a href="#cb56-15"></a>      <span class="st">&#39;width&#39;</span>=<span class="st"> &#39;100%&#39;</span>,</span>
+<span id="cb56-16"><a href="#cb56-16"></a>      <span class="st">&#39;height&#39;</span>=<span class="st"> &#39;60px&#39;</span>,</span>
+<span id="cb56-17"><a href="#cb56-17"></a>      <span class="st">&#39;lineHeight&#39;</span>=<span class="st"> &#39;60px&#39;</span>,</span>
+<span id="cb56-18"><a href="#cb56-18"></a>      <span class="st">&#39;borderWidth&#39;</span>=<span class="st"> &#39;1px&#39;</span>,</span>
+<span id="cb56-19"><a href="#cb56-19"></a>      <span class="st">&#39;borderStyle&#39;</span>=<span class="st"> &#39;dashed&#39;</span>,</span>
+<span id="cb56-20"><a href="#cb56-20"></a>      <span class="st">&#39;borderRadius&#39;</span>=<span class="st"> &#39;5px&#39;</span>,</span>
+<span id="cb56-21"><a href="#cb56-21"></a>      <span class="st">&#39;textAlign&#39;</span>=<span class="st"> &#39;center&#39;</span>,</span>
+<span id="cb56-22"><a href="#cb56-22"></a>      <span class="st">&#39;margin&#39;</span>=<span class="st"> &#39;10px&#39;</span></span>
+<span id="cb56-23"><a href="#cb56-23"></a>    ),</span>
+<span id="cb56-24"><a href="#cb56-24"></a>    <span class="co"># Allow multiple files to be uploaded</span></span>
+<span id="cb56-25"><a href="#cb56-25"></a>    <span class="dt">multiple=</span><span class="ot">TRUE</span></span>
+<span id="cb56-26"><a href="#cb56-26"></a>  ),</span>
+<span id="cb56-27"><a href="#cb56-27"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-data-upload&#39;</span>)</span>
+<span id="cb56-28"><a href="#cb56-28"></a>)))</span>
+<span id="cb56-29"><a href="#cb56-29"></a></span>
+<span id="cb56-30"><a href="#cb56-30"></a>parse_contents =<span class="st"> </span><span class="cf">function</span>(contents, filename, date){</span>
+<span id="cb56-31"><a href="#cb56-31"></a>  content_type =<span class="st"> </span><span class="kw">strsplit</span>(contents, <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb56-32"><a href="#cb56-32"></a>  content_string =<span class="st"> </span><span class="kw">strsplit</span>(contents, <span class="st">&quot;,&quot;</span>)</span>
+<span id="cb56-33"><a href="#cb56-33"></a>  decoded =<span class="st"> </span><span class="kw">base64_dec</span>(content_string)</span>
+<span id="cb56-34"><a href="#cb56-34"></a></span>
+<span id="cb56-35"><a href="#cb56-35"></a>  <span class="cf">if</span>(<span class="st">&#39;csv&#39;</span> <span class="op">%in%</span><span class="st"> </span>filename){</span>
+<span id="cb56-36"><a href="#cb56-36"></a>    df =<span class="st"> </span><span class="kw">read.csv</span>(utf8<span class="op">::</span><span class="kw">as_utf8</span>(decoded))</span>
+<span id="cb56-37"><a href="#cb56-37"></a>  } <span class="cf">else</span> <span class="cf">if</span>(<span class="st">&#39;xls&#39;</span> <span class="op">%in%</span><span class="st"> </span>filename){</span>
+<span id="cb56-38"><a href="#cb56-38"></a>    df =<span class="st"> </span><span class="kw">read.table</span>(decoded, <span class="dt">encoding =</span> <span class="st">&#39;bytes&#39;</span>)</span>
+<span id="cb56-39"><a href="#cb56-39"></a>  } <span class="cf">else</span>{</span>
+<span id="cb56-40"><a href="#cb56-40"></a>    <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb56-41"><a href="#cb56-41"></a>      <span class="st">&#39;There was an error processing this file.&#39;</span></span>
+<span id="cb56-42"><a href="#cb56-42"></a>    )))</span>
+<span id="cb56-43"><a href="#cb56-43"></a>  }</span>
+<span id="cb56-44"><a href="#cb56-44"></a></span>
+<span id="cb56-45"><a href="#cb56-45"></a>  <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb56-46"><a href="#cb56-46"></a>    <span class="kw">htmlH5</span>(filename),</span>
+<span id="cb56-47"><a href="#cb56-47"></a>    <span class="kw">htmlH6</span>(<span class="kw">anytime</span>(date)),</span>
+<span id="cb56-48"><a href="#cb56-48"></a>    <span class="kw">dashDataTable</span>(<span class="kw">df_to_list</span>(<span class="st">&#39;records&#39;</span>),<span class="dt">columns =</span> <span class="kw">lapply</span>(<span class="kw">colnames</span>(df), <span class="cf">function</span>(x){<span class="kw">list</span>(<span class="st">&#39;name&#39;</span> =<span class="st"> </span>x, <span class="st">&#39;id&#39;</span> =<span class="st"> </span>x)})),</span>
+<span id="cb56-49"><a href="#cb56-49"></a>    <span class="kw">htmlHr</span>(),</span>
+<span id="cb56-50"><a href="#cb56-50"></a>    <span class="kw">htmlDiv</span>(<span class="st">&#39;Raw Content&#39;</span>),</span>
+<span id="cb56-51"><a href="#cb56-51"></a>    <span class="kw">htmlPre</span>(<span class="kw">paste</span>(<span class="kw">substr</span>(<span class="kw">toJSON</span>(contents), <span class="dv">1</span>, <span class="dv">100</span>), <span class="st">&quot;...&quot;</span>), <span class="dt">style=</span><span class="kw">list</span>(</span>
+<span id="cb56-52"><a href="#cb56-52"></a>      <span class="st">&#39;whiteSpace&#39;</span>=<span class="st"> &#39;pre-wrap&#39;</span>,</span>
+<span id="cb56-53"><a href="#cb56-53"></a>      <span class="st">&#39;wordBreak&#39;</span>=<span class="st"> &#39;break-all&#39;</span></span>
+<span id="cb56-54"><a href="#cb56-54"></a>    ))</span>
+<span id="cb56-55"><a href="#cb56-55"></a>  )))</span>
+<span id="cb56-56"><a href="#cb56-56"></a>}</span>
+<span id="cb56-57"><a href="#cb56-57"></a></span>
+<span id="cb56-58"><a href="#cb56-58"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb56-59"><a href="#cb56-59"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;output-data-upload&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb56-60"><a href="#cb56-60"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;upload-data&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;contents&#39;</span>),</span>
+<span id="cb56-61"><a href="#cb56-61"></a>                <span class="kw">state</span>(<span class="dt">id =</span> <span class="st">&#39;upload-data&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;filename&#39;</span>),</span>
+<span id="cb56-62"><a href="#cb56-62"></a>                <span class="kw">state</span>(<span class="dt">id =</span> <span class="st">&#39;upload-data&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;last_modified&#39;</span>)),</span>
+<span id="cb56-63"><a href="#cb56-63"></a>  <span class="cf">function</span>(list_of_contents, list_of_names, list_of_dates){</span>
+<span id="cb56-64"><a href="#cb56-64"></a>    <span class="cf">if</span>(<span class="kw">is.null</span>(list_of_contents) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb56-65"><a href="#cb56-65"></a>      children =<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(list_of_contents), <span class="cf">function</span>(x){</span>
+<span id="cb56-66"><a href="#cb56-66"></a>        <span class="kw">parse_content</span>(list_of_contents[[x]], list_of_names[[x]], list_of_dates[[x]])</span>
+<span id="cb56-67"><a href="#cb56-67"></a>      })</span>
+<span id="cb56-68"><a href="#cb56-68"></a></span>
+<span id="cb56-69"><a href="#cb56-69"></a>    }</span>
+<span id="cb56-70"><a href="#cb56-70"></a>    <span class="kw">return</span>(children)</span>
+<span id="cb56-71"><a href="#cb56-71"></a>  })</span>
+<span id="cb56-72"><a href="#cb56-72"></a></span>
+<span id="cb56-73"><a href="#cb56-73"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>This next example responds to image uploads by displaying them in the app with the <code>htmlImg</code> component.</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb57-2"><a href="#cb57-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb57-3"><a href="#cb57-3"></a><span class="kw">library</span>(anytime)</span>
+<span id="cb57-4"><a href="#cb57-4"></a></span>
+<span id="cb57-5"><a href="#cb57-5"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb57-6"><a href="#cb57-6"></a></span>
+<span id="cb57-7"><a href="#cb57-7"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb57-8"><a href="#cb57-8"></a>  <span class="kw">dccUpload</span>(</span>
+<span id="cb57-9"><a href="#cb57-9"></a>    <span class="dt">id=</span><span class="st">&#39;upload-image&#39;</span>,</span>
+<span id="cb57-10"><a href="#cb57-10"></a>    <span class="dt">children=</span><span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb57-11"><a href="#cb57-11"></a>      <span class="st">&#39;Drag and Drop or &#39;</span>,</span>
+<span id="cb57-12"><a href="#cb57-12"></a>      <span class="kw">htmlA</span>(<span class="st">&#39;Select Files&#39;</span>)</span>
+<span id="cb57-13"><a href="#cb57-13"></a>    )),</span>
+<span id="cb57-14"><a href="#cb57-14"></a>    <span class="dt">style=</span><span class="kw">list</span>(</span>
+<span id="cb57-15"><a href="#cb57-15"></a>      <span class="st">&#39;width&#39;</span>=<span class="st"> &#39;100%&#39;</span>,</span>
+<span id="cb57-16"><a href="#cb57-16"></a>      <span class="st">&#39;height&#39;</span>=<span class="st"> &#39;60px&#39;</span>,</span>
+<span id="cb57-17"><a href="#cb57-17"></a>      <span class="st">&#39;lineHeight&#39;</span>=<span class="st"> &#39;60px&#39;</span>,</span>
+<span id="cb57-18"><a href="#cb57-18"></a>      <span class="st">&#39;borderWidth&#39;</span>=<span class="st"> &#39;1px&#39;</span>,</span>
+<span id="cb57-19"><a href="#cb57-19"></a>      <span class="st">&#39;borderStyle&#39;</span>=<span class="st"> &#39;dashed&#39;</span>,</span>
+<span id="cb57-20"><a href="#cb57-20"></a>      <span class="st">&#39;borderRadius&#39;</span>=<span class="st"> &#39;5px&#39;</span>,</span>
+<span id="cb57-21"><a href="#cb57-21"></a>      <span class="st">&#39;textAlign&#39;</span>=<span class="st"> &#39;center&#39;</span>,</span>
+<span id="cb57-22"><a href="#cb57-22"></a>      <span class="st">&#39;margin&#39;</span>=<span class="st"> &#39;10px&#39;</span></span>
+<span id="cb57-23"><a href="#cb57-23"></a>    ),</span>
+<span id="cb57-24"><a href="#cb57-24"></a>    <span class="co"># Allow multiple files to be uploaded</span></span>
+<span id="cb57-25"><a href="#cb57-25"></a>    <span class="dt">multiple=</span><span class="ot">TRUE</span></span>
+<span id="cb57-26"><a href="#cb57-26"></a>  ),</span>
+<span id="cb57-27"><a href="#cb57-27"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-image-upload&#39;</span>)</span>
+<span id="cb57-28"><a href="#cb57-28"></a>)))</span>
+<span id="cb57-29"><a href="#cb57-29"></a></span>
+<span id="cb57-30"><a href="#cb57-30"></a>parse_content =<span class="st"> </span><span class="cf">function</span>(contents, filename, date){</span>
+<span id="cb57-31"><a href="#cb57-31"></a>  <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb57-32"><a href="#cb57-32"></a>    <span class="kw">htmlH5</span>(filename),</span>
+<span id="cb57-33"><a href="#cb57-33"></a>    <span class="kw">htmlH6</span>(<span class="kw">anytime</span>(date)),</span>
+<span id="cb57-34"><a href="#cb57-34"></a>           <span class="kw">htmlImg</span>(<span class="dt">src=</span>contents),</span>
+<span id="cb57-35"><a href="#cb57-35"></a>           <span class="kw">htmlHr</span>(),</span>
+<span id="cb57-36"><a href="#cb57-36"></a>           <span class="kw">htmlDiv</span>(<span class="st">&#39;Raw Content&#39;</span>),</span>
+<span id="cb57-37"><a href="#cb57-37"></a>            <span class="kw">htmlPre</span>(<span class="kw">paste</span>(<span class="kw">substr</span>(<span class="kw">toJSON</span>(contents), <span class="dv">1</span>, <span class="dv">100</span>), <span class="st">&quot;...&quot;</span>), <span class="dt">style=</span><span class="kw">list</span>(</span>
+<span id="cb57-38"><a href="#cb57-38"></a>              <span class="st">&#39;whiteSpace&#39;</span>=<span class="st"> &#39;pre-wrap&#39;</span>,</span>
+<span id="cb57-39"><a href="#cb57-39"></a>              <span class="st">&#39;wordBreak&#39;</span>=<span class="st"> &#39;break-all&#39;</span></span>
+<span id="cb57-40"><a href="#cb57-40"></a>            ))</span>
+<span id="cb57-41"><a href="#cb57-41"></a>    )))</span>
+<span id="cb57-42"><a href="#cb57-42"></a>}</span>
+<span id="cb57-43"><a href="#cb57-43"></a></span>
+<span id="cb57-44"><a href="#cb57-44"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb57-45"><a href="#cb57-45"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;output-image-upload&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb57-46"><a href="#cb57-46"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;upload-image&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;contents&#39;</span>),</span>
+<span id="cb57-47"><a href="#cb57-47"></a>                <span class="kw">state</span>(<span class="dt">id =</span> <span class="st">&#39;upload-image&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;filename&#39;</span>),</span>
+<span id="cb57-48"><a href="#cb57-48"></a>                <span class="kw">state</span>(<span class="dt">id =</span> <span class="st">&#39;upload-image&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;last_modified&#39;</span>)),</span>
+<span id="cb57-49"><a href="#cb57-49"></a>  <span class="cf">function</span>(list_of_contents, list_of_names, list_of_dates){</span>
+<span id="cb57-50"><a href="#cb57-50"></a>    <span class="cf">if</span>(<span class="kw">is.null</span>(list_of_contents) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb57-51"><a href="#cb57-51"></a>      children =<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(list_of_contents), <span class="cf">function</span>(x){</span>
+<span id="cb57-52"><a href="#cb57-52"></a>        <span class="kw">parse_content</span>(list_of_contents[[x]], list_of_names[[x]], list_of_dates[[x]])</span>
+<span id="cb57-53"><a href="#cb57-53"></a>      })</span>
+<span id="cb57-54"><a href="#cb57-54"></a>    } <span class="cf">else</span>{</span>
+<span id="cb57-55"><a href="#cb57-55"></a></span>
+<span id="cb57-56"><a href="#cb57-56"></a>    }</span>
+<span id="cb57-57"><a href="#cb57-57"></a>    <span class="kw">return</span>(children)</span>
+<span id="cb57-58"><a href="#cb57-58"></a>  }</span>
+<span id="cb57-59"><a href="#cb57-59"></a>)</span>
+<span id="cb57-60"><a href="#cb57-60"></a></span>
+<span id="cb57-61"><a href="#cb57-61"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>The <code>children</code> attribute of the <code>Upload</code> component accepts any Dash component. Clicking on the children element will trigger the upload action, as will dragging and dropping files. Here are a few different ways that you could style the upload component using standard dash components.</p>
+<pre><code>library(dashHtmlComponents)
+library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(list(
+  dccUpload(htmlButton(&#39;Upload File&#39;)),
+
+  htmlHr(),
+
+  dccUpload(htmlA(&#39;Upload File&#39;)),
+
+  htmlHr(),
+
+  dccUpload(list(
+    &#39;Drag and Drop or &#39;,
+    htmlA(&#39;Select a File&#39;)
+    ), style=list(
+      &#39;width&#39;= &#39;100%&#39;,
+      &#39;height&#39;= &#39;60px&#39;,
+      &#39;lineHeight&#39;= &#39;60px&#39;,
+      &#39;borderWidth&#39;= &#39;1px&#39;,
+      &#39;borderStyle&#39;= &#39;dashed&#39;,
+      &#39;borderRadius&#39;= &#39;5px&#39;,
+      &#39;textAlign&#39;= &#39;center&#39;
+    ))
+  )))
+
+app$run_server()</code></pre>
+</div>
+<div id="tabs-component" class="section level3">
+<h3>Tabs Component</h3>
+<p>The Tabs and Tab components can be used to create tabbed sections in your app. The <code>Tab</code> component controls the style and value of the individual tab and the <code>Tabs</code> component hold a collection of Tab components.</p>
+<ul>
+<li>Method 1. Content as Callback</li>
+<li>Method 2. Content as Tab children</li>
+<li>Styling the Tabs component
+<ul>
+<li>with CSS classes</li>
+<li>with inline styles</li>
+<li>with props</li>
+</ul></li>
+</ul>
+<p><strong><em>Method 1. Content as Callback</em></strong></p>
+<p>Attach a callback to the Tabs <code>value</code> prop and update a container’s <code>children</code> property in your callback.</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb59-2"><a href="#cb59-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb59-3"><a href="#cb59-3"></a></span>
+<span id="cb59-4"><a href="#cb59-4"></a>utils &lt;-<span class="st"> </span><span class="kw">new.env</span>()</span>
+<span id="cb59-5"><a href="#cb59-5"></a><span class="kw">source</span>(<span class="st">&#39;dashr/utils.R&#39;</span>, <span class="dt">local=</span>utils)</span>
+<span id="cb59-6"><a href="#cb59-6"></a></span>
+<span id="cb59-7"><a href="#cb59-7"></a>examples &lt;-<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb59-8"><a href="#cb59-8"></a>  <span class="dt">button =</span> utils<span class="op">$</span><span class="kw">LoadExampleCode</span>(<span class="st">&#39;dashr/chapters/dash-core-components/Button/examples/button.R&#39;</span>),</span>
+<span id="cb59-9"><a href="#cb59-9"></a>  <span class="dt">tabs =</span> utils<span class="op">$</span><span class="kw">LoadExampleCode</span>(<span class="st">&#39;dashr/chapters/dash-core-components/Tabs/examples/tabs.R&#39;</span>)</span>
+<span id="cb59-10"><a href="#cb59-10"></a>)</span>
+<span id="cb59-11"><a href="#cb59-11"></a></span>
+<span id="cb59-12"><a href="#cb59-12"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb59-13"><a href="#cb59-13"></a></span>
+<span id="cb59-14"><a href="#cb59-14"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb59-15"><a href="#cb59-15"></a>  <span class="kw">htmlH1</span>(<span class="st">&#39;Dash Tabs component demo&#39;</span>),</span>
+<span id="cb59-16"><a href="#cb59-16"></a>  <span class="kw">dccTabs</span>(<span class="dt">id=</span><span class="st">&quot;tabs-example&quot;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1-example&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb59-17"><a href="#cb59-17"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab One&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1-example&#39;</span>),</span>
+<span id="cb59-18"><a href="#cb59-18"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab Two&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-2-example&#39;</span>)</span>
+<span id="cb59-19"><a href="#cb59-19"></a>  )),</span>
+<span id="cb59-20"><a href="#cb59-20"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-example&#39;</span>)</span>
+<span id="cb59-21"><a href="#cb59-21"></a>)))</span>
+<span id="cb59-22"><a href="#cb59-22"></a></span>
+<span id="cb59-23"><a href="#cb59-23"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb59-24"><a href="#cb59-24"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-example&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb59-25"><a href="#cb59-25"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;tabs-example&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb59-26"><a href="#cb59-26"></a>  <span class="cf">function</span>(tab){</span>
+<span id="cb59-27"><a href="#cb59-27"></a>    <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-1-example&#39;</span>){</span>
+<span id="cb59-28"><a href="#cb59-28"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb59-29"><a href="#cb59-29"></a>        <span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 1&#39;</span>),</span>
+<span id="cb59-30"><a href="#cb59-30"></a>        <span class="kw">dccGraph</span>(</span>
+<span id="cb59-31"><a href="#cb59-31"></a>          <span class="dt">id=</span><span class="st">&#39;graph-1-tabs&#39;</span>,</span>
+<span id="cb59-32"><a href="#cb59-32"></a>          <span class="dt">figure=</span><span class="kw">list</span>(</span>
+<span id="cb59-33"><a href="#cb59-33"></a>            <span class="st">&#39;data&#39;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="kw">list</span>(</span>
+<span id="cb59-34"><a href="#cb59-34"></a>              <span class="st">&#39;x&#39;</span> =<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb59-35"><a href="#cb59-35"></a>              <span class="st">&#39;y&#39;</span> =<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb59-36"><a href="#cb59-36"></a>              <span class="st">&#39;type&#39;</span> =<span class="st"> &#39;bar&#39;</span></span>
+<span id="cb59-37"><a href="#cb59-37"></a>            ))</span>
+<span id="cb59-38"><a href="#cb59-38"></a>          )</span>
+<span id="cb59-39"><a href="#cb59-39"></a>        )</span>
+<span id="cb59-40"><a href="#cb59-40"></a>      )))</span>
+<span id="cb59-41"><a href="#cb59-41"></a>    }</span>
+<span id="cb59-42"><a href="#cb59-42"></a></span>
+<span id="cb59-43"><a href="#cb59-43"></a>    <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-2-example&#39;</span>){</span>
+<span id="cb59-44"><a href="#cb59-44"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb59-45"><a href="#cb59-45"></a>        <span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 2&#39;</span>),</span>
+<span id="cb59-46"><a href="#cb59-46"></a>        <span class="kw">dccGraph</span>(</span>
+<span id="cb59-47"><a href="#cb59-47"></a>          <span class="dt">id=</span><span class="st">&#39;graph-2-tabs&#39;</span>,</span>
+<span id="cb59-48"><a href="#cb59-48"></a>          <span class="dt">figure=</span><span class="kw">list</span>(</span>
+<span id="cb59-49"><a href="#cb59-49"></a>            <span class="st">&#39;data&#39;</span> =<span class="st"> </span><span class="kw">list</span>(<span class="kw">list</span>(</span>
+<span id="cb59-50"><a href="#cb59-50"></a>              <span class="st">&#39;x&#39;</span> =<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb59-51"><a href="#cb59-51"></a>              <span class="st">&#39;y&#39;</span> =<span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">6</span>),</span>
+<span id="cb59-52"><a href="#cb59-52"></a>              <span class="st">&#39;type&#39;</span> =<span class="st"> &#39;bar&#39;</span></span>
+<span id="cb59-53"><a href="#cb59-53"></a>            ))</span>
+<span id="cb59-54"><a href="#cb59-54"></a>          )</span>
+<span id="cb59-55"><a href="#cb59-55"></a>        )</span>
+<span id="cb59-56"><a href="#cb59-56"></a>      )))</span>
+<span id="cb59-57"><a href="#cb59-57"></a>    }</span>
+<span id="cb59-58"><a href="#cb59-58"></a>  }</span>
+<span id="cb59-59"><a href="#cb59-59"></a></span>
+<span id="cb59-60"><a href="#cb59-60"></a></span>
+<span id="cb59-61"><a href="#cb59-61"></a></span>
+<span id="cb59-62"><a href="#cb59-62"></a>)</span>
+<span id="cb59-63"><a href="#cb59-63"></a></span>
+<span id="cb59-64"><a href="#cb59-64"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p><strong><em>Method 2. Content as Tab Children</em></strong></p>
+<p>Instead of displaying the content through a callback, you can embed the content directly as the <code>children</code> property in the <code>Tab</code> component:</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb60-2"><a href="#cb60-2"></a>  <span class="kw">dccTabs</span>(<span class="dt">id=</span><span class="st">&quot;tabs&quot;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb60-3"><a href="#cb60-3"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab one&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb60-4"><a href="#cb60-4"></a>      <span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb60-5"><a href="#cb60-5"></a>        <span class="kw">dccGraph</span>(</span>
+<span id="cb60-6"><a href="#cb60-6"></a>          <span class="dt">id=</span><span class="st">&#39;example-graph&#39;</span>,</span>
+<span id="cb60-7"><a href="#cb60-7"></a>          <span class="dt">figure=</span><span class="kw">list</span>(</span>
+<span id="cb60-8"><a href="#cb60-8"></a>            <span class="st">&#39;data&#39;</span>=<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb60-9"><a href="#cb60-9"></a>              <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb60-10"><a href="#cb60-10"></a>                <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;SF&#39;</span>),</span>
+<span id="cb60-11"><a href="#cb60-11"></a>              <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>),</span>
+<span id="cb60-12"><a href="#cb60-12"></a>                <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;Montréal&#39;</span>)</span>
+<span id="cb60-13"><a href="#cb60-13"></a>              )</span>
+<span id="cb60-14"><a href="#cb60-14"></a>          )</span>
+<span id="cb60-15"><a href="#cb60-15"></a>        )</span>
+<span id="cb60-16"><a href="#cb60-16"></a>        ))</span>
+<span id="cb60-17"><a href="#cb60-17"></a>      )),</span>
+<span id="cb60-18"><a href="#cb60-18"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab two&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb60-19"><a href="#cb60-19"></a>      <span class="kw">dccGraph</span>(</span>
+<span id="cb60-20"><a href="#cb60-20"></a>        <span class="dt">id=</span><span class="st">&#39;example-graph-1&#39;</span>,</span>
+<span id="cb60-21"><a href="#cb60-21"></a>        <span class="dt">figure=</span><span class="kw">list</span>(</span>
+<span id="cb60-22"><a href="#cb60-22"></a>          <span class="st">&#39;data&#39;</span>=<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb60-23"><a href="#cb60-23"></a>            <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">1</span>),</span>
+<span id="cb60-24"><a href="#cb60-24"></a>              <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;SF&#39;</span>),</span>
+<span id="cb60-25"><a href="#cb60-25"></a>            <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb60-26"><a href="#cb60-26"></a>              <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;Montréal&#39;</span>)</span>
+<span id="cb60-27"><a href="#cb60-27"></a>            )</span>
+<span id="cb60-28"><a href="#cb60-28"></a>        )</span>
+<span id="cb60-29"><a href="#cb60-29"></a>      )</span>
+<span id="cb60-30"><a href="#cb60-30"></a>      )),</span>
+<span id="cb60-31"><a href="#cb60-31"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab three&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb60-32"><a href="#cb60-32"></a>      <span class="kw">dccGraph</span>(</span>
+<span id="cb60-33"><a href="#cb60-33"></a>        <span class="dt">id=</span><span class="st">&#39;example-graph-2&#39;</span>,</span>
+<span id="cb60-34"><a href="#cb60-34"></a>        <span class="dt">figure=</span><span class="kw">list</span>(</span>
+<span id="cb60-35"><a href="#cb60-35"></a>          <span class="st">&#39;data&#39;</span>=<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb60-36"><a href="#cb60-36"></a>            <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">3</span>),</span>
+<span id="cb60-37"><a href="#cb60-37"></a>              <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;SF&#39;</span>),</span>
+<span id="cb60-38"><a href="#cb60-38"></a>            <span class="kw">list</span>(<span class="st">&#39;x&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">3</span>),</span>
+<span id="cb60-39"><a href="#cb60-39"></a>              <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;bar&#39;</span>, <span class="st">&#39;name&#39;</span>=<span class="st"> &#39;Montréal&#39;</span>)</span>
+<span id="cb60-40"><a href="#cb60-40"></a>            )</span>
+<span id="cb60-41"><a href="#cb60-41"></a>        )</span>
+<span id="cb60-42"><a href="#cb60-42"></a>      )</span>
+<span id="cb60-43"><a href="#cb60-43"></a>      ))</span>
+<span id="cb60-44"><a href="#cb60-44"></a>    ))</span>
+<span id="cb60-45"><a href="#cb60-45"></a>  )))</span>
+<span id="cb60-46"><a href="#cb60-46"></a></span>
+<span id="cb60-47"><a href="#cb60-47"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>Note that this method has a drawback: it requires that you compute the children property for each individual tab upfront and send all of the tab’s content over the network at once. The callback method allows you to compute the tab’s content on the fly (that is, when the tab is clicked).</p>
+<p><strong><em>Styling the Tabs component</em></strong></p>
+<p><em>With CSS classes</em></p>
+<p>Styling the Tabs (and Tab) component can either be done using CSS classes by providing your own to the <code>className</code> property:</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb61-2"><a href="#cb61-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb61-3"><a href="#cb61-3"></a></span>
+<span id="cb61-4"><a href="#cb61-4"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb61-5"><a href="#cb61-5"></a></span>
+<span id="cb61-6"><a href="#cb61-6"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb61-7"><a href="#cb61-7"></a>  <span class="kw">dccTabs</span>(</span>
+<span id="cb61-8"><a href="#cb61-8"></a>    <span class="dt">id=</span><span class="st">&quot;tabs-with-classes&quot;</span>,</span>
+<span id="cb61-9"><a href="#cb61-9"></a>    <span class="dt">value=</span><span class="st">&#39;tab-2&#39;</span>,</span>
+<span id="cb61-10"><a href="#cb61-10"></a>    <span class="dt">parent_className=</span><span class="st">&#39;custom-tabs&#39;</span>,</span>
+<span id="cb61-11"><a href="#cb61-11"></a>    <span class="dt">className=</span><span class="st">&#39;custom-tabs-container&#39;</span>,</span>
+<span id="cb61-12"><a href="#cb61-12"></a>    <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb61-13"><a href="#cb61-13"></a>      <span class="kw">dccTab</span>(</span>
+<span id="cb61-14"><a href="#cb61-14"></a>        <span class="dt">label=</span><span class="st">&#39;Tab one&#39;</span>,</span>
+<span id="cb61-15"><a href="#cb61-15"></a>        <span class="dt">value=</span><span class="st">&#39;tab-1&#39;</span>,</span>
+<span id="cb61-16"><a href="#cb61-16"></a>        <span class="dt">className=</span><span class="st">&#39;custom-tab&#39;</span>,</span>
+<span id="cb61-17"><a href="#cb61-17"></a>        <span class="dt">selected_className=</span><span class="st">&#39;custom-tab--selected&#39;</span></span>
+<span id="cb61-18"><a href="#cb61-18"></a>      ),</span>
+<span id="cb61-19"><a href="#cb61-19"></a>      <span class="kw">dccTab</span>(</span>
+<span id="cb61-20"><a href="#cb61-20"></a>        <span class="dt">label=</span><span class="st">&#39;Tab two&#39;</span>,</span>
+<span id="cb61-21"><a href="#cb61-21"></a>        <span class="dt">value=</span><span class="st">&#39;tab-2&#39;</span>,</span>
+<span id="cb61-22"><a href="#cb61-22"></a>        <span class="dt">className=</span><span class="st">&#39;custom-tab&#39;</span>,</span>
+<span id="cb61-23"><a href="#cb61-23"></a>        <span class="dt">selected_className=</span><span class="st">&#39;custom-tab--selected&#39;</span></span>
+<span id="cb61-24"><a href="#cb61-24"></a>      ),</span>
+<span id="cb61-25"><a href="#cb61-25"></a>      <span class="kw">dccTab</span>(</span>
+<span id="cb61-26"><a href="#cb61-26"></a>        <span class="dt">label=</span><span class="st">&#39;Tab three, multiline&#39;</span>,</span>
+<span id="cb61-27"><a href="#cb61-27"></a>        <span class="dt">value=</span><span class="st">&#39;tab-3&#39;</span>, <span class="dt">className=</span><span class="st">&#39;custom-tab&#39;</span>,</span>
+<span id="cb61-28"><a href="#cb61-28"></a>        <span class="dt">selected_className=</span><span class="st">&#39;custom-tab--selected&#39;</span></span>
+<span id="cb61-29"><a href="#cb61-29"></a>      ),</span>
+<span id="cb61-30"><a href="#cb61-30"></a>      <span class="kw">dccTab</span>(</span>
+<span id="cb61-31"><a href="#cb61-31"></a>        <span class="dt">label=</span><span class="st">&#39;Tab four&#39;</span>,</span>
+<span id="cb61-32"><a href="#cb61-32"></a>        <span class="dt">value=</span><span class="st">&#39;tab-4&#39;</span>,</span>
+<span id="cb61-33"><a href="#cb61-33"></a>        <span class="dt">className=</span><span class="st">&#39;custom-tab&#39;</span>,</span>
+<span id="cb61-34"><a href="#cb61-34"></a>        <span class="dt">selected_className=</span><span class="st">&#39;custom-tab--selected&#39;</span></span>
+<span id="cb61-35"><a href="#cb61-35"></a>      )</span>
+<span id="cb61-36"><a href="#cb61-36"></a>      )),</span>
+<span id="cb61-37"><a href="#cb61-37"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-classes&#39;</span>)</span>
+<span id="cb61-38"><a href="#cb61-38"></a>  )))</span>
+<span id="cb61-39"><a href="#cb61-39"></a></span>
+<span id="cb61-40"><a href="#cb61-40"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb61-41"><a href="#cb61-41"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-classes&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb61-42"><a href="#cb61-42"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;tabs-with-classes&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb61-43"><a href="#cb61-43"></a>  <span class="cf">function</span>(tab){</span>
+<span id="cb61-44"><a href="#cb61-44"></a>    <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-1&#39;</span>){</span>
+<span id="cb61-45"><a href="#cb61-45"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb61-46"><a href="#cb61-46"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 1&#39;</span>))</span>
+<span id="cb61-47"><a href="#cb61-47"></a>      ))</span>
+<span id="cb61-48"><a href="#cb61-48"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-2&#39;</span>){</span>
+<span id="cb61-49"><a href="#cb61-49"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb61-50"><a href="#cb61-50"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 2&#39;</span>))</span>
+<span id="cb61-51"><a href="#cb61-51"></a>      ))</span>
+<span id="cb61-52"><a href="#cb61-52"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-3&#39;</span>){</span>
+<span id="cb61-53"><a href="#cb61-53"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb61-54"><a href="#cb61-54"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 3&#39;</span>))</span>
+<span id="cb61-55"><a href="#cb61-55"></a>      ))</span>
+<span id="cb61-56"><a href="#cb61-56"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-4&#39;</span>){</span>
+<span id="cb61-57"><a href="#cb61-57"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb61-58"><a href="#cb61-58"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 4&#39;</span>))</span>
+<span id="cb61-59"><a href="#cb61-59"></a>      ))</span>
+<span id="cb61-60"><a href="#cb61-60"></a>    }</span>
+<span id="cb61-61"><a href="#cb61-61"></a>  }</span>
+<span id="cb61-62"><a href="#cb61-62"></a>)</span>
+<span id="cb61-63"><a href="#cb61-63"></a></span>
+<span id="cb61-64"><a href="#cb61-64"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>Notice how the container of the Tabs can be styled as well by supplying a class to the <code>parent_className</code> prop, which we use here to draw a border below it, positioning the actual Tabs (with padding) more in the center. We also added <code>display: flex</code> and <code>justify-content: center</code> to the regular <code>Tab</code> components, so that labels with multiple lines will not break the flow of the text. The corresponding CSS file (<code>assets/tabs.css</code>) looks like this. Save the file in an <code>assets</code> folder (it can be named anything you want). Dash will automatically include this CSS when the app is loaded.</p>
+<pre><code>.custom-tabs-container { width: 85%; } .custom-tabs { border-top-left-radius: 3px; background-color: #f9f9f9; padding: 0px 24px; border-bottom: 1px solid #d6d6d6; }
+
+.custom-tab { color:#586069; border-top-left-radius: 3px; border-top: 3px solid transparent !important; border-left: 0px !important; border-right: 0px !important; border-bottom: 0px !important; background-color: #fafbfc; padding: 12px !important; font-family: &quot;system-ui&quot;; display: flex !important; align-items: center; justify-content: center; } .custom-tab--selected { color: black; box-shadow: 1px 1px 0px white; border-left: 1px solid lightgrey !important; border-right: 1px solid lightgrey !important; border-top: 3px solid #e36209 !important; }</code></pre>
+<p><em>With inline styles</em></p>
+<p>An alternative to providing CSS classes is to provide style dictionaries directly:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb63-2"><a href="#cb63-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb63-3"><a href="#cb63-3"></a></span>
+<span id="cb63-4"><a href="#cb63-4"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb63-5"><a href="#cb63-5"></a></span>
+<span id="cb63-6"><a href="#cb63-6"></a>tabs_styles =<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb63-7"><a href="#cb63-7"></a>  <span class="st">&#39;height&#39;</span>=<span class="st"> &#39;44px&#39;</span></span>
+<span id="cb63-8"><a href="#cb63-8"></a>)</span>
+<span id="cb63-9"><a href="#cb63-9"></a>tab_style =<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb63-10"><a href="#cb63-10"></a>  <span class="st">&#39;borderBottom&#39;</span>=<span class="st"> &#39;1px solid #d6d6d6&#39;</span>,</span>
+<span id="cb63-11"><a href="#cb63-11"></a>  <span class="st">&#39;padding&#39;</span>=<span class="st"> &#39;6px&#39;</span>,</span>
+<span id="cb63-12"><a href="#cb63-12"></a>  <span class="st">&#39;fontWeight&#39;</span>=<span class="st"> &#39;bold&#39;</span></span>
+<span id="cb63-13"><a href="#cb63-13"></a>)</span>
+<span id="cb63-14"><a href="#cb63-14"></a></span>
+<span id="cb63-15"><a href="#cb63-15"></a>tab_selected_style =<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb63-16"><a href="#cb63-16"></a>  <span class="st">&#39;borderTop&#39;</span>=<span class="st"> &#39;1px solid #d6d6d6&#39;</span>,</span>
+<span id="cb63-17"><a href="#cb63-17"></a>  <span class="st">&#39;borderBottom&#39;</span>=<span class="st"> &#39;1px solid #d6d6d6&#39;</span>,</span>
+<span id="cb63-18"><a href="#cb63-18"></a>  <span class="st">&#39;backgroundColor&#39;</span>=<span class="st"> &#39;#119DFF&#39;</span>,</span>
+<span id="cb63-19"><a href="#cb63-19"></a>  <span class="st">&#39;color&#39;</span>=<span class="st"> &#39;white&#39;</span>,</span>
+<span id="cb63-20"><a href="#cb63-20"></a>  <span class="st">&#39;padding&#39;</span>=<span class="st"> &#39;6px&#39;</span></span>
+<span id="cb63-21"><a href="#cb63-21"></a>)</span>
+<span id="cb63-22"><a href="#cb63-22"></a></span>
+<span id="cb63-23"><a href="#cb63-23"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb63-24"><a href="#cb63-24"></a>  <span class="kw">dccTabs</span>(<span class="dt">id=</span><span class="st">&quot;tabs-styled-with-inline&quot;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb63-25"><a href="#cb63-25"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab 1&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1&#39;</span>, <span class="dt">style=</span>tab_style, <span class="dt">selected_style=</span>tab_selected_style),</span>
+<span id="cb63-26"><a href="#cb63-26"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab 2&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-2&#39;</span>, <span class="dt">style=</span>tab_style, <span class="dt">selected_style=</span>tab_selected_style),</span>
+<span id="cb63-27"><a href="#cb63-27"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab 3&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-3&#39;</span>, <span class="dt">style=</span>tab_style, <span class="dt">selected_style=</span>tab_selected_style),</span>
+<span id="cb63-28"><a href="#cb63-28"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;Tab 4&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-4&#39;</span>, <span class="dt">style=</span>tab_style, <span class="dt">selected_style=</span>tab_selected_style)</span>
+<span id="cb63-29"><a href="#cb63-29"></a>    ), <span class="dt">style=</span>tabs_styles),</span>
+<span id="cb63-30"><a href="#cb63-30"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-inline&#39;</span>)</span>
+<span id="cb63-31"><a href="#cb63-31"></a>  )))</span>
+<span id="cb63-32"><a href="#cb63-32"></a></span>
+<span id="cb63-33"><a href="#cb63-33"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb63-34"><a href="#cb63-34"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-inline&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb63-35"><a href="#cb63-35"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;tabs-styled-with-inline&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb63-36"><a href="#cb63-36"></a>  <span class="cf">function</span>(tab){</span>
+<span id="cb63-37"><a href="#cb63-37"></a>    <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-1&#39;</span>){</span>
+<span id="cb63-38"><a href="#cb63-38"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb63-39"><a href="#cb63-39"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 1&#39;</span>))</span>
+<span id="cb63-40"><a href="#cb63-40"></a>      ))</span>
+<span id="cb63-41"><a href="#cb63-41"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-2&#39;</span>){</span>
+<span id="cb63-42"><a href="#cb63-42"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb63-43"><a href="#cb63-43"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 2&#39;</span>))</span>
+<span id="cb63-44"><a href="#cb63-44"></a>      ))</span>
+<span id="cb63-45"><a href="#cb63-45"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-3&#39;</span>){</span>
+<span id="cb63-46"><a href="#cb63-46"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb63-47"><a href="#cb63-47"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 3&#39;</span>))</span>
+<span id="cb63-48"><a href="#cb63-48"></a>      ))</span>
+<span id="cb63-49"><a href="#cb63-49"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-4&#39;</span>){</span>
+<span id="cb63-50"><a href="#cb63-50"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb63-51"><a href="#cb63-51"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 4&#39;</span>))</span>
+<span id="cb63-52"><a href="#cb63-52"></a>      ))</span>
+<span id="cb63-53"><a href="#cb63-53"></a>    }</span>
+<span id="cb63-54"><a href="#cb63-54"></a>  }</span>
+<span id="cb63-55"><a href="#cb63-55"></a>)</span>
+<span id="cb63-56"><a href="#cb63-56"></a></span>
+<span id="cb63-57"><a href="#cb63-57"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>Lastly, you can set the colors of the Tabs components in the <code>color</code> prop, by specifying the “border”, “primary”, and “background” colors in a dict. Make sure you set them all, if you are using them!</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1"></a><span class="kw">library</span>(dashHtmlComponents)</span>
+<span id="cb64-2"><a href="#cb64-2"></a><span class="kw">library</span>(dash)</span>
+<span id="cb64-3"><a href="#cb64-3"></a></span>
+<span id="cb64-4"><a href="#cb64-4"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb64-5"><a href="#cb64-5"></a></span>
+<span id="cb64-6"><a href="#cb64-6"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb64-7"><a href="#cb64-7"></a>  <span class="kw">dccTabs</span>(<span class="dt">id=</span><span class="st">&quot;tabs-styled-with-props&quot;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1&#39;</span>, <span class="dt">children=</span><span class="kw">list</span>(</span>
+<span id="cb64-8"><a href="#cb64-8"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;1&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-1&#39;</span>),</span>
+<span id="cb64-9"><a href="#cb64-9"></a>    <span class="kw">dccTab</span>(<span class="dt">label=</span><span class="st">&#39;2&#39;</span>, <span class="dt">value=</span><span class="st">&#39;tab-2&#39;</span>)</span>
+<span id="cb64-10"><a href="#cb64-10"></a>    ), <span class="dt">colors=</span><span class="kw">list</span>(</span>
+<span id="cb64-11"><a href="#cb64-11"></a>      <span class="st">&quot;border&quot;</span>=<span class="st"> &quot;white&quot;</span>,</span>
+<span id="cb64-12"><a href="#cb64-12"></a>      <span class="st">&quot;primary&quot;</span>=<span class="st"> &quot;gold&quot;</span>,</span>
+<span id="cb64-13"><a href="#cb64-13"></a>      <span class="st">&quot;background&quot;</span>=<span class="st"> &quot;cornsilk&quot;</span></span>
+<span id="cb64-14"><a href="#cb64-14"></a>    )),</span>
+<span id="cb64-15"><a href="#cb64-15"></a>  <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-props&#39;</span>)</span>
+<span id="cb64-16"><a href="#cb64-16"></a>  )))</span>
+<span id="cb64-17"><a href="#cb64-17"></a></span>
+<span id="cb64-18"><a href="#cb64-18"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb64-19"><a href="#cb64-19"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;tabs-content-props&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb64-20"><a href="#cb64-20"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;tabs-styled-with-props&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb64-21"><a href="#cb64-21"></a>  <span class="cf">function</span>(tab){</span>
+<span id="cb64-22"><a href="#cb64-22"></a>    <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-1&#39;</span>){</span>
+<span id="cb64-23"><a href="#cb64-23"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb64-24"><a href="#cb64-24"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 1&#39;</span>))</span>
+<span id="cb64-25"><a href="#cb64-25"></a>      ))</span>
+<span id="cb64-26"><a href="#cb64-26"></a>    } <span class="cf">else</span> <span class="cf">if</span>(tab <span class="op">==</span><span class="st"> &#39;tab-2&#39;</span>){</span>
+<span id="cb64-27"><a href="#cb64-27"></a>      <span class="kw">return</span>(<span class="kw">htmlDiv</span>(</span>
+<span id="cb64-28"><a href="#cb64-28"></a>        <span class="kw">list</span>(<span class="kw">htmlH3</span>(<span class="st">&#39;Tab content 2&#39;</span>))</span>
+<span id="cb64-29"><a href="#cb64-29"></a>      ))</span>
+<span id="cb64-30"><a href="#cb64-30"></a>    }</span>
+<span id="cb64-31"><a href="#cb64-31"></a>  })</span>
+<span id="cb64-32"><a href="#cb64-32"></a></span>
+<span id="cb64-33"><a href="#cb64-33"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="graph-component" class="section level3">
+<h3>Graph Component</h3>
+<p>Customize the <a href="https://plotly.com/javascript/configuration-options/">Plotly.js config options</a> of your graph using the <code>config</code> property. The example below uses the <code>showSendToCloud</code> and <code>plotlyServerURL</code> options include a save button in the modebar of the graph which exports the figure to URL specified by <code>plotlyServerURL</code>.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>app<span class="op">$</span><span class="kw">layout</span>(<span class="kw">htmlDiv</span>(<span class="kw">list</span>(</span>
+<span id="cb65-2"><a href="#cb65-2"></a>  <span class="kw">dccDropdown</span>(</span>
+<span id="cb65-3"><a href="#cb65-3"></a>    <span class="dt">id=</span><span class="st">&#39;my-dropdown1&#39;</span>,</span>
+<span id="cb65-4"><a href="#cb65-4"></a>    <span class="dt">options=</span><span class="kw">list</span>(</span>
+<span id="cb65-5"><a href="#cb65-5"></a>      <span class="kw">list</span>(<span class="st">&#39;label&#39;</span>=<span class="st"> &#39;New York City&#39;</span>, <span class="st">&#39;value&#39;</span>=<span class="st"> &#39;NYC&#39;</span>),</span>
+<span id="cb65-6"><a href="#cb65-6"></a>      <span class="kw">list</span>(<span class="st">&#39;label&#39;</span>=<span class="st"> &#39;Montreal&#39;</span>, <span class="st">&#39;value&#39;</span>=<span class="st"> &#39;MTL&#39;</span>),</span>
+<span id="cb65-7"><a href="#cb65-7"></a>      <span class="kw">list</span>(<span class="st">&#39;label&#39;</span>=<span class="st"> &#39;San Francisco&#39;</span>, <span class="st">&#39;value&#39;</span>=<span class="st"> &#39;SF&#39;</span>)</span>
+<span id="cb65-8"><a href="#cb65-8"></a>    ),</span>
+<span id="cb65-9"><a href="#cb65-9"></a>    <span class="dt">value=</span><span class="st">&#39;NYC&#39;</span></span>
+<span id="cb65-10"><a href="#cb65-10"></a>  ),</span>
+<span id="cb65-11"><a href="#cb65-11"></a>  <span class="kw">dccGraph</span>(</span>
+<span id="cb65-12"><a href="#cb65-12"></a>    <span class="dt">id=</span><span class="st">&#39;graph1&#39;</span>,</span>
+<span id="cb65-13"><a href="#cb65-13"></a>    <span class="dt">config=</span><span class="kw">list</span>(</span>
+<span id="cb65-14"><a href="#cb65-14"></a>      <span class="st">&#39;showSendToCloud&#39;</span>=<span class="st"> </span><span class="ot">TRUE</span>,</span>
+<span id="cb65-15"><a href="#cb65-15"></a>      <span class="st">&#39;plotlyServerURL&#39;</span>=<span class="st"> &#39;https=//plotly.com&#39;</span></span>
+<span id="cb65-16"><a href="#cb65-16"></a>    )</span>
+<span id="cb65-17"><a href="#cb65-17"></a>  )</span>
+<span id="cb65-18"><a href="#cb65-18"></a>)))</span>
+<span id="cb65-19"><a href="#cb65-19"></a></span>
+<span id="cb65-20"><a href="#cb65-20"></a></span>
+<span id="cb65-21"><a href="#cb65-21"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb65-22"><a href="#cb65-22"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id=</span><span class="st">&#39;graph1&#39;</span>, <span class="dt">property=</span><span class="st">&#39;figure&#39;</span>),</span>
+<span id="cb65-23"><a href="#cb65-23"></a>  <span class="dt">params =</span> <span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id=</span><span class="st">&#39;my-dropdown1&#39;</span>, <span class="dt">property=</span><span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb65-24"><a href="#cb65-24"></a>  <span class="cf">function</span>(value) {</span>
+<span id="cb65-25"><a href="#cb65-25"></a>    y_list =<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb65-26"><a href="#cb65-26"></a>      <span class="st">&#39;NYC&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
+<span id="cb65-27"><a href="#cb65-27"></a>      <span class="st">&#39;MTL&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>),</span>
+<span id="cb65-28"><a href="#cb65-28"></a>      <span class="st">&#39;SF&#39;</span>=<span class="st"> </span><span class="kw">list</span>(<span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">6</span>)</span>
+<span id="cb65-29"><a href="#cb65-29"></a>    )</span>
+<span id="cb65-30"><a href="#cb65-30"></a>    <span class="kw">return</span>(<span class="kw">list</span>(</span>
+<span id="cb65-31"><a href="#cb65-31"></a>      <span class="st">&#39;data&#39;</span> =<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb65-32"><a href="#cb65-32"></a>        <span class="kw">list</span>(</span>
+<span id="cb65-33"><a href="#cb65-33"></a>          <span class="st">&#39;type&#39;</span>=<span class="st"> &#39;scatter&#39;</span>,</span>
+<span id="cb65-34"><a href="#cb65-34"></a>          <span class="st">&#39;y&#39;</span>=<span class="st"> </span><span class="kw">c</span>(<span class="kw">unlist</span>(y_list[value]))</span>
+<span id="cb65-35"><a href="#cb65-35"></a>        )),</span>
+<span id="cb65-36"><a href="#cb65-36"></a>      <span class="st">&#39;layout&#39;</span>=<span class="st"> </span><span class="kw">list</span>(</span>
+<span id="cb65-37"><a href="#cb65-37"></a>        <span class="st">&#39;title&#39;</span>=<span class="st"> </span>value</span>
+<span id="cb65-38"><a href="#cb65-38"></a>      )</span>
+<span id="cb65-39"><a href="#cb65-39"></a>    ))</span>
+<span id="cb65-40"><a href="#cb65-40"></a></span>
+<span id="cb65-41"><a href="#cb65-41"></a>  }</span>
+<span id="cb65-42"><a href="#cb65-42"></a>)</span>
+<span id="cb65-43"><a href="#cb65-43"></a></span>
+<span id="cb65-44"><a href="#cb65-44"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+</div>
+<div id="confirmdialog-component" class="section level3">
+<h3>ConfirmDialog Component</h3>
+<p>ConfirmDialog is used to display the browser’s native ‘confirm’ modal, with an optional message and two buttons (‘OK’ and ‘Cancel’).</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb66-2"><a href="#cb66-2"></a></span>
+<span id="cb66-3"><a href="#cb66-3"></a>confirm &lt;-<span class="st"> </span><span class="kw">dccConfirmDialog</span>(</span>
+<span id="cb66-4"><a href="#cb66-4"></a>  <span class="dt">id =</span> <span class="st">&quot;confirm&quot;</span>,</span>
+<span id="cb66-5"><a href="#cb66-5"></a>  <span class="dt">message =</span> <span class="st">&quot;Danger danger! Are you sure you want to continue?&quot;</span></span>
+<span id="cb66-6"><a href="#cb66-6"></a>)</span></code></pre></div>
+<p>This ConfirmDialog can be used in conjunction with buttons when the user is performing an action that should require an extra step of verification.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb67-2"><a href="#cb67-2"></a></span>
+<span id="cb67-3"><a href="#cb67-3"></a>app =<span class="st"> </span>Dash<span class="op">$</span><span class="kw">new</span>()</span>
+<span id="cb67-4"><a href="#cb67-4"></a></span>
+<span id="cb67-5"><a href="#cb67-5"></a>app<span class="op">$</span><span class="kw">layout</span>(</span>
+<span id="cb67-6"><a href="#cb67-6"></a>  <span class="kw">htmlDiv</span>(</span>
+<span id="cb67-7"><a href="#cb67-7"></a>    <span class="kw">list</span>(</span>
+<span id="cb67-8"><a href="#cb67-8"></a>      <span class="kw">dccConfirmDialog</span>(</span>
+<span id="cb67-9"><a href="#cb67-9"></a>        <span class="dt">id=</span><span class="st">&#39;confirm&#39;</span>,</span>
+<span id="cb67-10"><a href="#cb67-10"></a>        <span class="dt">message=</span><span class="st">&#39;Danger danger! Are you sure you want to continue?&#39;</span></span>
+<span id="cb67-11"><a href="#cb67-11"></a>      ),</span>
+<span id="cb67-12"><a href="#cb67-12"></a></span>
+<span id="cb67-13"><a href="#cb67-13"></a>      <span class="kw">dccDropdown</span>(</span>
+<span id="cb67-14"><a href="#cb67-14"></a>        <span class="dt">options=</span><span class="kw">lapply</span>(<span class="kw">list</span>(<span class="st">&#39;Safe&#39;</span>, <span class="st">&#39;Danger!!&#39;</span>),<span class="cf">function</span>(x){<span class="kw">list</span>(<span class="st">&#39;label&#39;</span>=<span class="st"> </span>x, <span class="st">&#39;value&#39;</span>=<span class="st"> </span>x)}),</span>
+<span id="cb67-15"><a href="#cb67-15"></a>        <span class="dt">id=</span><span class="st">&#39;dropdown&#39;</span></span>
+<span id="cb67-16"><a href="#cb67-16"></a>      ),</span>
+<span id="cb67-17"><a href="#cb67-17"></a>      <span class="kw">htmlDiv</span>(<span class="dt">id=</span><span class="st">&#39;output-confirm1&#39;</span>)</span>
+<span id="cb67-18"><a href="#cb67-18"></a>    )</span>
+<span id="cb67-19"><a href="#cb67-19"></a>  )</span>
+<span id="cb67-20"><a href="#cb67-20"></a>)</span>
+<span id="cb67-21"><a href="#cb67-21"></a></span>
+<span id="cb67-22"><a href="#cb67-22"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb67-23"><a href="#cb67-23"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id =</span> <span class="st">&#39;confirm&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;displayed&#39;</span>),</span>
+<span id="cb67-24"><a href="#cb67-24"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;dropdown&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;value&#39;</span>)),</span>
+<span id="cb67-25"><a href="#cb67-25"></a>  <span class="cf">function</span>(value){</span>
+<span id="cb67-26"><a href="#cb67-26"></a>    <span class="cf">if</span>(value <span class="op">==</span><span class="st"> &#39;Danger!!&#39;</span>){</span>
+<span id="cb67-27"><a href="#cb67-27"></a>      <span class="kw">return</span>(<span class="ot">TRUE</span>)}</span>
+<span id="cb67-28"><a href="#cb67-28"></a>    <span class="cf">else</span>{</span>
+<span id="cb67-29"><a href="#cb67-29"></a>      <span class="kw">return</span>(<span class="ot">FALSE</span>)}</span>
+<span id="cb67-30"><a href="#cb67-30"></a>  })</span>
+<span id="cb67-31"><a href="#cb67-31"></a></span>
+<span id="cb67-32"><a href="#cb67-32"></a></span>
+<span id="cb67-33"><a href="#cb67-33"></a>app<span class="op">$</span><span class="kw">callback</span>(</span>
+<span id="cb67-34"><a href="#cb67-34"></a>  <span class="dt">output =</span> <span class="kw">list</span>(<span class="dt">id =</span> <span class="st">&#39;output-confirm1&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;children&#39;</span>),</span>
+<span id="cb67-35"><a href="#cb67-35"></a>  <span class="dt">params=</span><span class="kw">list</span>(<span class="kw">input</span>(<span class="dt">id =</span> <span class="st">&#39;confirm&#39;</span>, <span class="dt">property =</span> <span class="st">&#39;submit_n_clicks&#39;</span>)),</span>
+<span id="cb67-36"><a href="#cb67-36"></a>  <span class="cf">function</span>(n_clicks, value) {</span>
+<span id="cb67-37"><a href="#cb67-37"></a>    <span class="cf">if</span>(<span class="kw">length</span>(submit_n_clicks) <span class="op">==</span><span class="st"> </span><span class="ot">FALSE</span>){</span>
+<span id="cb67-38"><a href="#cb67-38"></a>      <span class="kw">sprintf</span>(<span class="st">&#39;It wasnt easy but we did it %s&#39;</span>, <span class="kw">str</span>(submit_n_clicks))</span>
+<span id="cb67-39"><a href="#cb67-39"></a>    }</span>
+<span id="cb67-40"><a href="#cb67-40"></a>  })</span>
+<span id="cb67-41"><a href="#cb67-41"></a></span>
+<span id="cb67-42"><a href="#cb67-42"></a>app<span class="op">$</span><span class="kw">run_server</span>()</span></code></pre></div>
+<p>There is also a <code>dccConfirmDialogProvider</code>, it will automatically wrap a child component to send a <code>dccConfirmDialog</code> when clicked.</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1"></a>confirm &lt;-<span class="st"> </span><span class="kw">dccConfirmDialogProvider</span>(</span>
+<span id="cb68-2"><a href="#cb68-2"></a>  <span class="dt">children =</span> <span class="kw">htmlButton</span>(<span class="st">&quot;Click Me&quot;</span>),</span>
+<span id="cb68-3"><a href="#cb68-3"></a>  <span class="dt">id =</span> <span class="st">&quot;danger-danger&quot;</span>,</span>
+<span id="cb68-4"><a href="#cb68-4"></a>  <span class="dt">message =</span> <span class="st">&quot;Danger danger! Are you sure you want to continue?&quot;</span></span>
+<span id="cb68-5"><a href="#cb68-5"></a>)</span></code></pre></div>
+</div>
+<div id="store-component" class="section level3">
+<h3>Store Component</h3>
+<p>The store component can be used to keep data in the visitor’s browser. The data is scoped to the user accessing the page. Three types of storage (<code>storage_type</code> prop):</p>
+<ul>
+<li><code>memory</code>: default, keep the data as long the page is not refreshed.</li>
+<li><code>local</code>: keep the data until it is manually cleared.</li>
+<li><code>session</code>: keep the data until the browser/tab closes. <em>For local/session, the data is serialized as json when stored.</em></li>
+</ul>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw">library</span>(dash)</span>
+<span id="cb69-2"><a href="#cb69-2"></a></span>
+<span id="cb69-3"><a href="#cb69-3"></a>store &lt;-<span class="st"> </span><span class="kw">dccStore</span>(<span class="dt">id =</span> <span class="st">&quot;my-store&quot;</span>, <span class="dt">data =</span> <span class="kw">list</span>(<span class="st">&quot;my-data&quot;</span> =<span class="st"> &quot;data&quot;</span>))</span></code></pre></div>
+</div>
+<div id="loading-component" class="section level3">
+<h3>Loading Component</h3>
+<p>Here’s a simple example that wraps the outputs for a couple of <code>Input</code> components in the <code>Loading</code> component. As you can see, you can define the type of spinner you would like to show (refer to the reference table below for all possible types of spinners). You can modify other attributes as well, such as <code>fullscreen=TRUE</code> if you would like the spinner to be displayed fullscreen. Notice that, the Loading component traverses all of it’s children to find a loading state, as demonstrated in the second callback, so that even nested children will get picked up.</p>
+<pre><code>library(dash)
+
+app = Dash$new()
+
+app$layout(htmlDiv(
+  children=list(
+    htmlH3(&quot;Edit text input to see loading state&quot;),
+    dccInput(id=&quot;input-1&quot;, value=&#39;Input triggers local spinner&#39;),
+    dccLoading(id=&quot;loading-1&quot;, children=list(htmlDiv(id=&quot;loading-output-1&quot;)), type=&quot;default&quot;),
+    htmlDiv(
+      list(
+        dccInput(id=&quot;input-2&quot;, value=&#39;Input triggers nested spinner&#39;),
+        dccLoading(
+          id=&quot;loading-2&quot;,
+          children=list(htmlDiv(list(htmlDiv(id=&quot;loading-output-2&quot;)))),
+          type=&quot;circle&quot;
+        )
+      )
+    )
+  )
+))
+
+app$callback(
+  output = list(id=&#39;loading-output-1&#39;, property = &#39;children&#39;),
+  params = list(input(id = &#39;input-1&#39;, property = &#39;value&#39;)),
+  function(value){
+    Sys.sleep(1)
+    return(value)
+  }
+)
+
+
+app$callback(
+  output = list(id=&#39;loading-output-2&#39;, property = &#39;children&#39;),
+  params = list(input(id = &#39;input-2&#39;, property = &#39;value&#39;)),
+  function(value){
+    Sys.sleep(1)
+    return(value)
+  }
+)
+
+
+app$run_server()</code></pre>
+</div>
+<div id="location-component" class="section level3">
+<h3>Location Component</h3>
+<p>The location component represents the location bar in your web browser. Through its <code>href</code>, <code>pathname</code>, <code>search</code> and <code>hash</code> properties you can access different portions of your app’s url. For example, given the url <code>http://127.0.0.1:8050/page-2?a=test#quiz</code>:</p>
+<ul>
+<li><code>href</code> = <code>&#39;http://127.0.0.1:8050/page-2?a=test#quiz&#39;</code></li>
+<li><code>pathname</code> = <code>&#39;/page-2&#39;</code></li>
+<li><code>search</code> = <code>&#39;?a=test&#39;</code></li>
+<li><code>hash</code> = <code>&#39;#quiz&#39;</code></li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
