@@ -354,6 +354,11 @@ body.theme-indigo .showcase-item {
     transform: translateY(1px) !important;
 }
 
+/* Add neutral background for disabled dropdowns only */
+.dash-dropdown .Select.is-disabled .Select-control {
+    background-color: var(--gray-3) !important;
+}
+
 
 
 [class*="theme-"] .dash-dropdown .Select-menu {
