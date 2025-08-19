@@ -119,7 +119,6 @@ layout = html.Div([
                     options=complex_options,
                     value='NYC',
                     style={
-                        'backgroundColor': 'var(--accent-2)',
                         'border': '2px solid var(--accent-8)',
                         'borderRadius': 'var(--radius-2)'
                     },
@@ -157,7 +156,7 @@ clientside_callback(
         return window.dash_clientside.no_update;
     }
     """,
-    Output('color-theme-select', 'style'),  # dummy output
+    Output('basic-dropdown', 'style'),  # dummy output to a different component
     Input('color-theme-select', 'value')
 )
 
@@ -168,6 +167,6 @@ clientside_callback(
         return window.dash_clientside.no_update;
     }
     """,
-    Output('scaling-select', 'id'),  # dummy output
+    Output('multi-dropdown', 'style'),  # dummy output to a different component
     Input('scaling-select', 'value')
 )

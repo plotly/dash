@@ -285,6 +285,7 @@ body.theme-indigo .showcase-item {
 /* Universal dropdown styling for all themes */
 [class*="theme-"] .dash-dropdown .Select-control {
     border-color: var(--accent-8);
+    background-color: var(--gray-1); /* Keep control background neutral */
 }
 
 [class*="theme-"] .dash-dropdown .Select-option.is-selected {
@@ -296,21 +297,23 @@ body.theme-indigo .showcase-item {
     background-color: var(--accent-3);
 }
 
+/* Remove accent backgrounds from ALL Select-value elements */
 [class*="theme-"] .dash-dropdown .Select-value {
-    background-color: var(--accent-3);
-    color: var(--accent-12);
+    background-color: transparent;
+    color: var(--gray-12);
 }
 
 [class*="theme-"] .dash-dropdown .Select-value-label {
-    color: var(--accent-12);
+    color: var(--gray-12);
 }
 
-[class*="theme-"] .dash-dropdown .Select-multi-value-wrapper .Select-value {
+/* Only theme ACTUAL multi-select pills (not single-select values in multi-wrapper) */
+[class*="theme-"] .dash-dropdown .Select--multi .Select-multi-value-wrapper .Select-value {
     background-color: var(--accent-3);
     color: var(--accent-12);
 }
 
-[class*="theme-"] .dash-dropdown .Select-multi-value-wrapper .Select-value-label {
+[class*="theme-"] .dash-dropdown .Select--multi .Select-multi-value-wrapper .Select-value-label {
     color: var(--accent-12);
 }
 
