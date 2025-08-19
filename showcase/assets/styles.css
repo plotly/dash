@@ -328,6 +328,7 @@ body.theme-indigo .showcase-item {
     order: 2 !important;
     border-left: 1px solid rgba(0, 0, 0, 0.2) !important;
     border-right: none !important;
+    transform: translateY(2px) !important;
 }
 
 /* Keep label on the left */
