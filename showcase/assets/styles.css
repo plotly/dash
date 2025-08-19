@@ -328,7 +328,6 @@ body.theme-indigo .showcase-item {
     order: 2 !important;
     border-left: 1px solid rgba(0, 0, 0, 0.2) !important;
     border-right: none !important;
-    transform: translateY(2px) !important;
 }
 
 /* Keep label on the left */
@@ -349,6 +348,12 @@ body.theme-indigo .showcase-item {
     gap: 2px !important;
     margin-top: -2px !important;
 }
+
+/* Fix clear button vertical alignment */
+.dash-dropdown .Select-clear-zone {
+    transform: translateY(1px) !important;
+}
+
 
 
 [class*="theme-"] .dash-dropdown .Select-menu {
