@@ -1,5 +1,6 @@
-import {updateProps, notifyObservers} from '../actions/index';
-import {getPath} from '../actions/paths';
+import {updateProps, notifyObservers, setPaths} from '../actions/index';
+import {computePaths, getPath} from '../actions/paths';
+import {getComponentLayout} from '../wrapper/wrapping';
 import {getStores} from './stores';
 
 /**
@@ -16,9 +17,9 @@ function set_props(
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
         let componentPath;
-        const {paths} = getState();
+        const state = getState();
         if (!Array.isArray(idOrPath)) {
-            componentPath = getPath(paths, idOrPath);
+            componentPath = getPath(state.paths, idOrPath);
         } else {
             componentPath = idOrPath;
         }
@@ -30,6 +31,21 @@ function set_props(
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));
+        const oldComponent = getComponentLayout(componentPath, state);
+
+        dispatch(
+            setPaths(
+                computePaths(
+                    {
+                        ...oldComponent,
+                        props: {...oldComponent.props, ...props}
+                    },
+                    [...componentPath],
+                    state.paths,
+                    state.paths.events
+                )
+            )
+        );
     }
 }
 
