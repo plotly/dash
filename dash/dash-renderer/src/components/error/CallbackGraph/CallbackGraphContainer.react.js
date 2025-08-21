@@ -78,7 +78,11 @@ function generateElements(graphs, profile, extraLinks) {
         });
     }
 
-    (graphs.callbacks || []).forEach((callback, i) => {
+    (graphs.callbacks || []).reduce((visibleIndex, callback) => {
+        if (callback.hidden) {
+            return visibleIndex;
+        }
+
         const cb = `__dash_callback__.${callback.output}`;
         const cbProfile = profile.callbacks[callback.output] || {};
         const count = cbProfile.count || 0;
@@ -87,7 +91,7 @@ function generateElements(graphs, profile, extraLinks) {
         elements.push({
             data: {
                 id: cb,
-                label: `callback.${i}`,
+                label: `callback.${visibleIndex}`,
                 type: 'callback',
                 mode: callback.clientside_function ? 'client' : 'server',
                 count: count,
@@ -97,21 +101,23 @@ function generateElements(graphs, profile, extraLinks) {
             }
         });
 
-        callback.outputs.map(({id, property}) => {
+        callback.outputs.forEach(({id, property}) => {
             const nodeId = recordNode(id, property);
             recordEdge(cb, nodeId, 'output');
         });
 
-        callback.inputs.map(({id, property}) => {
+        callback.inputs.forEach(({id, property}) => {
             const nodeId = recordNode(id, property);
             recordEdge(nodeId, cb, 'input');
         });
 
-        callback.state.map(({id, property}) => {
+        callback.state.forEach(({id, property}) => {
             const nodeId = recordNode(id, property);
             recordEdge(nodeId, cb, 'state');
         });
-    });
+
+        return visibleIndex + 1;
+    }, 0);
 
     // pull together props in the same component
     if (extraLinks) {
