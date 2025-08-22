@@ -52,14 +52,10 @@ export default function Slider(props: SliderProps) {
         return value !== null ? [value] : undefined;
     }, [value]);
 
-    // Handle initial mount - equivalent to componentWillMount
     useEffect(() => {
         if (propValue !== null && propValue !== undefined) {
             setProps({drag_value: propValue});
             setValue(propValue);
-        } else {
-            // No value came down, so we send the slider default value back up: the value prop will always be set after this point.
-            setProps({value: min});
         }
     }, []);
 
@@ -105,7 +101,6 @@ export default function Slider(props: SliderProps) {
         };
     }, [showInput, vertical]);
 
-    // Handle prop value changes - equivalent to componentWillReceiveProps
     useEffect(() => {
         if (propValue !== value) {
             setProps({drag_value: propValue || undefined});
@@ -172,7 +167,7 @@ export default function Slider(props: SliderProps) {
         });
     }, [min, max, processedMarks, step, sliderWidth]);
 
-    // Replicate Radix UI's exact positioning logic including pixel offsets
+    // Replicate Radix UI's exact positioning logic for displaying marks
     const convertValueToPercentage = (
         value: number,
         min: number,
