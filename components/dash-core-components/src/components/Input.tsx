@@ -287,19 +287,6 @@ type HTMLInputProps = Extract<
     keyof InputHTMLAttributes<HTMLInputElement>
 >;
 
-const defaultProps: Partial<InputProps> = {
-    type: HTMLInputTypes.text,
-    inputMode: 'verbatim',
-    n_blur: 0,
-    n_blur_timestamp: -1,
-    n_submit: 0,
-    n_submit_timestamp: -1,
-    debounce: false,
-    step: 'any',
-    persisted_props: [PersistedProps.value],
-    persistence_type: PersistenceTypes.local,
-};
-
 /**
  * A basic HTML input control for entering text, numbers, or passwords.
  *
@@ -308,38 +295,25 @@ const defaultProps: Partial<InputProps> = {
  * are also supported through separate components.
  */
 function Input({
-    type = defaultProps.type,
-    inputMode = defaultProps.inputMode,
-    n_blur = defaultProps.n_blur,
-    n_blur_timestamp = defaultProps.n_blur_timestamp,
-    n_submit = defaultProps.n_submit,
-    n_submit_timestamp = defaultProps.n_submit_timestamp,
-    debounce = defaultProps.debounce,
-    step = defaultProps.step,
-    persisted_props = defaultProps.persisted_props,
-    persistence_type = defaultProps.persistence_type,
-    ...rest
+    type = HTMLInputTypes.text,
+    inputMode = 'verbatim',
+    n_blur = 0,
+    n_blur_timestamp = -1,
+    n_submit = 0,
+    n_submit_timestamp = -1,
+    debounce = false,
+    step = 'any',
+    persisted_props = [PersistedProps.value],
+    persistence_type = PersistenceTypes.local,
+    disabled,
+    ...props
 }: InputProps) {
-    const props = {
-        type,
-        inputMode,
-        n_blur,
-        n_blur_timestamp,
-        n_submit,
-        n_submit_timestamp,
-        debounce,
-        step,
-        persisted_props,
-        persistence_type,
-        ...rest,
-    };
     const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
     const inputId = useState(() => uniqid('input-'))[0];
 
-    const valprops =
-        props.type === HTMLInputTypes.number ? {} : {value: value ?? ''};
+    const valprops = type === HTMLInputTypes.number ? {} : {value: value ?? ''};
     let {className} = props;
     className = 'dash-input' + (className ? ` ${className}` : '');
 
@@ -356,49 +330,46 @@ function Input({
         [props.setProps]
     );
 
-    const onEvent = useCallback(() => {
+    const onEvent = () => {
         const {value: inputValue} = input.current;
-        const {setProps} = props;
         const valueAsNumber = convert(inputValue);
-        if (props.type === HTMLInputTypes.number) {
+        if (type === HTMLInputTypes.number) {
             setPropValue(props.value, valueAsNumber ?? value);
         } else {
             const propValue =
                 inputValue === '' && props.value === undefined
                     ? undefined
                     : inputValue;
-            setProps({value: propValue});
+            props.setProps({value: propValue});
         }
         setPendingEvent(undefined);
-    }, [props.setProps]);
+    };
 
     const onBlur = useCallback(() => {
-        const {debounce, n_blur, setProps} = props;
-        setProps({
+        props.setProps({
             n_blur: (n_blur ?? 0) + 1,
             n_blur_timestamp: Date.now(),
         });
         input.current.checkValidity();
         return debounce === true && onEvent();
-    }, [props.setProps, props.n_blur, props.debounce]);
+    }, [n_blur, debounce]);
 
     const onChange = useCallback(() => {
         const {value} = input.current;
         setValue(value);
-    }, [setValue]);
+    }, []);
 
     const onKeyPress: KeyboardEventHandler<HTMLInputElement> = useCallback(
         (e: KeyboardEvent) => {
-            const {setProps} = props;
             if (e.key === 'Enter') {
-                setProps({
-                    n_submit: (props.n_submit ?? 0) + 1,
+                props.setProps({
+                    n_submit: (n_submit ?? 0) + 1,
                     n_submit_timestamp: Date.now(),
                 });
             }
-            return props.debounce === true && e.key === 'Enter' && onEvent();
+            return debounce === true && e.key === 'Enter' && onEvent();
         },
-        [props.setProps, props.n_submit, props.debounce]
+        [n_submit, debounce]
     );
 
     const setInputValue = useCallback(
@@ -435,11 +406,11 @@ function Input({
     const handleStepperClick = useCallback(
         (direction: 'increment' | 'decrement') => {
             const currentValue = parseFloat(input.current.value) || 0;
-            const step = parseFloat(props.step as string) || 1;
+            const stepAsNum = parseFloat(step as string) || 1;
             const newValue =
                 direction === 'increment'
-                    ? currentValue + step
-                    : currentValue - step;
+                    ? currentValue + stepAsNum
+                    : currentValue - stepAsNum;
 
             // Apply min/max constraints
             let constrainedValue = newValue;
@@ -460,7 +431,7 @@ function Input({
             setValue(constrainedValue.toString());
             onEvent();
         },
-        [props.step, props.min, props.max, onEvent]
+        [step, props.min, props.max, onEvent]
     );
 
     useEffect(() => {
@@ -470,10 +441,10 @@ function Input({
         }
         const valueAsNumber = convert(value);
         setInputValue(valueAsNumber ?? value, props.value);
-        if (props.type !== HTMLInputTypes.number) {
+        if (type !== HTMLInputTypes.number) {
             setValue(props.value);
         }
-    }, [props.value, props.type, pendingEvent]);
+    }, [props.value, type, pendingEvent]);
 
     useEffect(() => {
         // Skip this effect if the value change came from props update (not user input)
@@ -481,7 +452,6 @@ function Input({
             return;
         }
 
-        const {debounce, type} = props;
         const {selectionStart: cursorPosition} = input.current;
         if (debounce) {
             if (typeof debounce === 'number' && Number.isFinite(debounce)) {
@@ -498,29 +468,35 @@ function Input({
         } else {
             onEvent();
         }
-    }, [value, props.debounce, props.type]);
+    }, [value, debounce, type]);
 
-    const pickedInputs = pick(inputProps, props) as Pick<
-        InputHTMLAttributes<HTMLInputElement>,
-        HTMLInputProps
-    >;
+    const disabledAsBool = [true, 'disabled', 'DISABLED'].includes(
+        disabled ?? false
+    );
 
-    const isNumberInput = props.type === HTMLInputTypes.number;
+    const pickedInputs = pick(inputProps, {
+        ...props,
+        type,
+        inputMode,
+        step,
+        disabled: disabledAsBool,
+    }) as Pick<InputHTMLAttributes<HTMLInputElement>, HTMLInputProps>;
+
+    const isNumberInput = type === HTMLInputTypes.number;
     const currentNumericValue = convert(input.current.value || '0');
     const minValue = convert(props.min);
     const maxValue = convert(props.max);
-    const disabled = [true, 'disabled', 'DISABLED'].includes(
-        props.disabled ?? false
-    );
-    const isDecrementDisabled = disabled || currentNumericValue <= minValue;
-    const isIncrementDisabled = disabled || currentNumericValue >= maxValue;
+    const isDecrementDisabled =
+        disabledAsBool || currentNumericValue <= minValue;
+    const isIncrementDisabled =
+        disabledAsBool || currentNumericValue >= maxValue;
 
     return (
         <LoadingElement>
             {loadingProps => (
                 <div
                     className={`dash-input-container ${className}${
-                        props.type === HTMLInputTypes.hidden
+                        type === HTMLInputTypes.hidden
                             ? ' dash-input-hidden'
                             : ''
                     }`.trim()}
@@ -536,7 +512,7 @@ function Input({
                         {...valprops}
                         {...pickedInputs}
                         {...loadingProps}
-                        disabled={disabled}
+                        disabled={disabledAsBool}
                     />
                     {isNumberInput && (
                         <button
@@ -568,9 +544,9 @@ function Input({
     );
 }
 
-Input.dashPersistence = pick(
-    ['persisted_props', 'persistence_type'],
-    defaultProps
-);
+Input.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};
 
 export default Input;
