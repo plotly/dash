@@ -1,3 +1,4 @@
+import {pick} from 'ramda';
 import React, {lazy, Suspense} from 'react';
 import {RangeSliderProps} from '../types';
 import rangeSlider from '../utils/LazyLoader/rangeSlider';
@@ -38,3 +39,8 @@ export default function RangeSlider({
         </Suspense>
     );
 }
+
+RangeSlider.dashPersistence = pick(
+    ['persisted_props', 'persistence_type'],
+    defaultProps
+);

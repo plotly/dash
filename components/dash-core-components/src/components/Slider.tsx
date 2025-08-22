@@ -1,5 +1,6 @@
+import {pick} from 'ramda';
 import React, {lazy, Suspense} from 'react';
-import { SliderProps } from '../types';
+import {SliderProps} from '../types';
 import slider from '../utils/LazyLoader/slider';
 
 import './css/sliders.css';
@@ -37,3 +38,8 @@ export default function Slider({
         </Suspense>
     );
 }
+
+Slider.dashPersistence = pick(
+    ['persisted_props', 'persistence_type'],
+    defaultProps
+);
