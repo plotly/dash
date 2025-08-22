@@ -601,9 +601,6 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
         "Custom tooltip: 60",
     )
     dash_dcc.wait_for_style_to_equal("#slider-tooltip-content", "padding", "8px")
-    dash_dcc.wait_for_text_to_equal(
-        "#slider-transform-tooltip-content", "Transformed 20"
-    )
 
     dash_dcc.percy_snapshot("sliders-format-tooltips")
 

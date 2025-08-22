@@ -235,7 +235,11 @@ export default function RangeSlider(props: RangeSliderProps) {
     return (
         <LoadingElement>
             {loadingProps => (
-                <div className="dash-slider-container" {...loadingProps}>
+                <div
+                    id={id}
+                    className="dash-slider-container"
+                    {...loadingProps}
+                >
                     {showInputs && !vertical && (
                         <input
                             type="number"

@@ -49,7 +49,7 @@ export default function Slider(props: SliderProps) {
 
     // Convert single value to array format for Radix UI
     const radixValue = useMemo(() => {
-        return value !== null ? [value] : undefined;
+        return value !== null ? [value] : [NaN];
     }, [value]);
 
     useEffect(() => {
@@ -223,7 +223,11 @@ export default function Slider(props: SliderProps) {
     return (
         <LoadingElement>
             {loadingProps => (
-                <div className="dash-slider-container" {...loadingProps}>
+                <div
+                    id={id}
+                    className="dash-slider-container"
+                    {...loadingProps}
+                >
                     <div className="dash-slider-wrapper">
                         <Tooltip.Provider>
                             <RadixSlider.Root
