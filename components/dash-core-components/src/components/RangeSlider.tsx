@@ -1,4 +1,3 @@
-import {pick} from 'ramda';
 import React, {lazy, Suspense} from 'react';
 import {RangeSliderProps} from '../types';
 import rangeSlider from '../utils/LazyLoader/rangeSlider';
@@ -7,22 +6,26 @@ import './css/sliders.css';
 
 const RealRangeSlider = lazy(rangeSlider);
 
-const defaultProps: Partial<RangeSliderProps> = {
-    updatemode: 'mouseup',
-    persisted_props: ['value'],
-    persistence_type: 'local',
-    verticalHeight: 400,
-};
+enum PersistenceTypes {
+    'local' = 'local',
+    'session' = 'session',
+    'memory' = 'memory',
+}
+
+enum PersistedProps {
+    'value' = 'value',
+}
 
 /**
  * A double slider with two handles.
  * Used for specifying a range of numerical values.
  */
 export default function RangeSlider({
-    updatemode = defaultProps.updatemode,
-    persisted_props = defaultProps.persisted_props,
-    persistence_type = defaultProps.persistence_type,
-    verticalHeight = defaultProps.verticalHeight,
+    updatemode = 'mouseup',
+    persisted_props = [PersistedProps.value],
+    persistence_type = PersistenceTypes.local,
+    // eslint-disable-next-line no-magic-numbers
+    verticalHeight = 400,
     ...rest
 }: RangeSliderProps) {
     const props = {
@@ -40,7 +43,7 @@ export default function RangeSlider({
     );
 }
 
-RangeSlider.dashPersistence = pick(
-    ['persisted_props', 'persistence_type'],
-    defaultProps
-);
+RangeSlider.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};

@@ -1,4 +1,3 @@
-import {pick} from 'ramda';
 import React, {lazy, Suspense} from 'react';
 import {SliderProps} from '../types';
 import slider from '../utils/LazyLoader/slider';
@@ -7,21 +6,25 @@ import './css/sliders.css';
 
 const RealSlider = lazy(slider);
 
-const defaultProps: Partial<SliderProps> = {
-    updatemode: 'mouseup',
-    persisted_props: ['value'],
-    persistence_type: 'local',
-    verticalHeight: 400,
-};
+enum PersistenceTypes {
+    'local' = 'local',
+    'session' = 'session',
+    'memory' = 'memory',
+}
+
+enum PersistedProps {
+    'value' = 'value',
+}
 
 /**
  * A slider component with a single handle.
  */
 export default function Slider({
-    updatemode = defaultProps.updatemode,
-    persisted_props = defaultProps.persisted_props,
-    persistence_type = defaultProps.persistence_type,
-    verticalHeight = defaultProps.verticalHeight,
+    updatemode = 'mouseup',
+    persisted_props = [PersistedProps.value],
+    persistence_type = PersistenceTypes.local,
+    // eslint-disable-next-line no-magic-numbers
+    verticalHeight = 400,
     ...rest
 }: SliderProps) {
     const props = {
@@ -39,7 +42,7 @@ export default function Slider({
     );
 }
 
-Slider.dashPersistence = pick(
-    ['persisted_props', 'persistence_type'],
-    defaultProps
-);
+Slider.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};
