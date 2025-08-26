@@ -226,8 +226,16 @@ function refErr(errors: any, paths: any) {
 const getVals = (input: any) =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
-const zipIfArray = (a: any, b: any) =>
-    Array.isArray(a) ? zip(a, b) : [[a, b]];
+const zipIfArray = (a: any, b: any) => {
+    if (Array.isArray(a)) {
+        // For client-side callbacks with multiple Outputs, only return a single dash_clientside.no_update
+        if (b === (window as any).dash_clientside.no_update) {
+            return zip(a, [b]);
+        }
+        return zip(a, b);
+    }
+    return [[a, b]];
+};
 
 function cleanOutputProp(property: string) {
     return property.split('@')[0];
