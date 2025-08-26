@@ -2213,10 +2213,6 @@ class Dash(ObsoleteChecker):
             env: ``DASH_PROXY``
         :type proxy: string
 
-        :param debug: Set Flask debug mode and enable dev tools.
-            env: ``DASH_DEBUG``
-        :type debug: bool
-
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
             ``enable_dev_tools`` is called directly, and ``False`` when called
