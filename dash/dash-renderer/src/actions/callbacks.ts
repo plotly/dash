@@ -229,7 +229,7 @@ const getVals = (input: any) =>
 const zipIfArray = (a: any, b: any) => {
     if (Array.isArray(a)) {
         // For client-side callbacks with multiple Outputs, only return a single dash_clientside.no_update
-        if (b?.description === 'Return to prevent updating an Output.') {
+        if (b === (window as any).dash_clientside.no_update) {
             return zip(a, [b]);
         }
         return zip(a, b);
