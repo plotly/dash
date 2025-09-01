@@ -41,7 +41,7 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
-import {handlePatch, isPatch} from './patch';
+import {handlePatch, isPatch, parsePatchProps} from './patch';
 import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
@@ -419,7 +419,6 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
             }, [] as any[])
             .forEach(([id, idProps]) => {
                 const state = getState();
-                dispatch(updateComponent(id, idProps, cb));
 
                 const componentPath = getPath(state.paths, id);
                 if (!componentPath) {
@@ -429,12 +428,18 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 }
                 const oldComponent = getComponentLayout(componentPath, state);
 
+                const oldProps = oldComponent?.props || {};
+
+                const patchedProps = parsePatchProps(idProps, oldProps)
+
+                dispatch(updateComponent(id, patchedProps, cb));
+
                 dispatch(
                     setPaths(
                         computePaths(
                             {
                                 ...oldComponent,
-                                props: {...oldComponent.props, ...idProps}
+                                props: {...oldComponent.props, ...patchedProps}
                             },
                             [...componentPath],
                             state.paths,
