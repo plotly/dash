@@ -167,6 +167,14 @@ def callback(
             Mark all dependencies as not required on the initial layout checks.
         :param hidden:
             Hide the callback from the devtools callbacks tab.
+        :param api_endpoint:
+            If provided, the callback will be available at the given API endpoint.
+            This allows you to call the callback directly through HTTP requests
+            instead of through the Dash front-end. The endpoint should be a string
+            that starts with a forward slash (e.g. `/my_callback`).
+            The endpoint is relative to the Dash app's base URL.
+            Note that the endpoint will not appear in the list of registered
+            callbacks in the Dash devtools.
     """
 
     background_spec = None
