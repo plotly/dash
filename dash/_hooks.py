@@ -22,6 +22,7 @@ else:
 
 
 HookDataType = _tx.TypeVar("HookDataType")
+DevtoolPosition = _tx.Literal["right", "left"]
 
 
 # pylint: disable=too-few-public-methods
@@ -217,7 +218,13 @@ class _Hooks:
 
         return wrap
 
-    def devtool(self, namespace: str, component_type: str, props=None):
+    def devtool(
+        self,
+        namespace: str,
+        component_type: str,
+        props=None,
+        position: DevtoolPosition = "right",
+    ):
         """
         Add a component to be rendered inside the dev tools.
 
@@ -232,6 +239,7 @@ class _Hooks:
                 "namespace": namespace,
                 "type": component_type,
                 "props": props or {},
+                "position": position,
             }
         )
 

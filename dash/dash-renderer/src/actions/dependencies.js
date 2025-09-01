@@ -570,12 +570,18 @@ export function validateCallbacksToLayout(state_, dispatchError) {
         for (const id in map) {
             const idProps = map[id];
             const fcb = flatten(values(idProps));
-            const optional = all(
-                ({allow_optional}) => allow_optional,
-                flatten(
-                    fcb.map(cb => concat(cb.outputs, cb.inputs, cb.states))
-                ).filter(dep => dep.id === id)
-            );
+            const optional = fcb.reduce((acc, cb) => {
+                if (acc === false || cb.optional) {
+                    return acc;
+                }
+                const deps = concat(cb.outputs, cb.inputs, cb.states).filter(
+                    dep => dep.id === id
+                );
+                return (
+                    !deps.length ||
+                    all(({allow_optional}) => allow_optional, deps)
+                );
+            }, true);
             if (optional) {
                 continue;
             }

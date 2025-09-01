@@ -36,13 +36,13 @@ import {
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
-import {getCSRFHeader, dispatchError} from '.';
+import {getCSRFHeader, dispatchError, setPaths} from '.';
 import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {handlePatch, isPatch} from './patch';
-import {getPath} from './paths';
+import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
 
@@ -51,6 +51,7 @@ import {loadLibrary} from '../utils/libraries';
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 import {loaded, loading} from './loading';
+import {getComponentLayout} from '../wrapper/wrapping';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -225,8 +226,16 @@ function refErr(errors: any, paths: any) {
 const getVals = (input: any) =>
     Array.isArray(input) ? pluck('value', input) : input.value;
 
-const zipIfArray = (a: any, b: any) =>
-    Array.isArray(a) ? zip(a, b) : [[a, b]];
+const zipIfArray = (a: any, b: any) => {
+    if (Array.isArray(a)) {
+        // For client-side callbacks with multiple Outputs, only return a single dash_clientside.no_update
+        if (b === (window as any).dash_clientside.no_update) {
+            return zip(a, [b]);
+        }
+        return zip(a, b);
+    }
+    return [[a, b]];
+};
 
 function cleanOutputProp(property: string) {
     return property.split('@')[0];
@@ -409,7 +418,30 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 return acc;
             }, [] as any[])
             .forEach(([id, idProps]) => {
+                const state = getState();
                 dispatch(updateComponent(id, idProps, cb));
+
+                const componentPath = getPath(state.paths, id);
+                if (!componentPath) {
+                    // Component doesn't exist, doesn't matter just allow the
+                    // callback to continue.
+                    return;
+                }
+                const oldComponent = getComponentLayout(componentPath, state);
+
+                dispatch(
+                    setPaths(
+                        computePaths(
+                            {
+                                ...oldComponent,
+                                props: {...oldComponent.props, ...idProps}
+                            },
+                            [...componentPath],
+                            state.paths,
+                            state.paths.events
+                        )
+                    )
+                );
             });
     };
 }
