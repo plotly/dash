@@ -421,11 +421,7 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 const state = getState();
 
                 const componentPath = getPath(state.paths, id);
-                if (!componentPath) {
-                    // Component doesn't exist, doesn't matter just allow the
-                    // callback to continue.
-                    return;
-                }
+
                 const oldComponent = getComponentLayout(componentPath, state);
 
                 const oldProps = oldComponent?.props || {};
@@ -433,6 +429,12 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 const patchedProps = parsePatchProps(idProps, oldProps)
 
                 dispatch(updateComponent(id, patchedProps, cb));
+
+                if (!componentPath) {
+                    // Component doesn't exist, doesn't matter just allow the
+                    // callback to continue.
+                    return;
+                }
 
                 dispatch(
                     setPaths(

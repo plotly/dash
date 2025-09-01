@@ -25,15 +25,11 @@ function set_props(
             componentPath = idOrPath;
         }
         const oldComponent = getComponentLayout(componentPath, state);
-        if (!oldComponent) {
-            console.error(
-                `Could not find component with id or path: ${idOrPath}`
-            );
-            return;
-        }
-        // Handle any patch props
-        props = parsePatchProps(props, oldComponent.props);
 
+        // Handle any patch props
+        props = parsePatchProps(props, oldComponent?.props || {});
+
+        // Update the props
         dispatch(
             updateProps({
                 props,
@@ -43,6 +39,12 @@ function set_props(
         );
         dispatch(notifyObservers({id: idOrPath, props}));
 
+        if (!oldComponent) {
+            console.error(
+                `Could not find component with id or path: ${idOrPath}`
+            );
+            return;
+        }
 
         dispatch(
             setPaths(
