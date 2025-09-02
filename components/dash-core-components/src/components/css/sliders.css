@@ -116,8 +116,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: var(--Dash-Fill-Weak);
-    background-color: red;
+    background-color: var(--Dash-Fill-Disabled);
 }
 
 .dash-slider-tooltip {
@@ -126,12 +125,13 @@
     font-size: 12px;
     line-height: 1;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    background-color: var(--Dash-Fill-Inverse-strong);
+    background-color: var(--Dash-Fill-Inverse-Strong);
     user-select: none;
     animation-duration: 400ms;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform, opacity;
     z-index: 1000;
+    fill: var(--Dash-Fill-Inverse-Strong);
 }
 
 /* Include property to mimic rc-slider behavior */
@@ -176,9 +176,9 @@
 
 .dash-slider-input {
     width: 80px;
-    padding: 4px 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    padding: 4px 12px;
+    color: var(--Dash-Text-Strong);
+    border-radius: var(--Dash-Spacing);
     font-size: 14px;
     font-family: inherit;
 }

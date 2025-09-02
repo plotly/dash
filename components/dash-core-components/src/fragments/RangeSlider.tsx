@@ -50,7 +50,7 @@ export default function RangeSlider(props: RangeSliderProps) {
 
     // Track slider dimension (width for horizontal, height for vertical) for conditional input rendering
     const [sliderWidth, setSliderWidth] = useState<number | null>(null);
-    const [showInputs, setShowInputs] = useState<boolean>(true);
+    const [showInputs, setShowInputs] = useState<boolean>(value.length === 2);
     const sliderRef = useRef<HTMLDivElement>(null);
 
     // Handle initial mount - equivalent to componentWillMount
@@ -69,6 +69,19 @@ export default function RangeSlider(props: RangeSliderProps) {
     // Dynamic dimension detection using ResizeObserver (width for horizontal, height for vertical)
     useEffect(() => {
         if (!sliderRef.current) {
+            return;
+        }
+
+        if (step === null) {
+            // If the user has explicitly disabled stepping (step=None), then
+            // the slider values are constrained to the given marks and user
+            // cannot enter arbitrary values via the input element
+            setShowInputs(false);
+            return;
+        }
+
+        if (value.length !== 2) {
+            setShowInputs(false);
             return;
         }
 
@@ -106,7 +119,7 @@ export default function RangeSlider(props: RangeSliderProps) {
         return () => {
             resizeObserver.disconnect();
         };
-    }, [showInputs, vertical]);
+    }, [showInputs, vertical, step, value]);
 
     // Handle prop value changes - equivalent to componentWillReceiveProps
     useEffect(() => {
@@ -209,32 +222,49 @@ export default function RangeSlider(props: RangeSliderProps) {
                         <input
                             type="number"
                             className="dash-input-container dash-range-slider-input dash-range-slider-min-input"
-                            value={value[0] || ''}
+                            value={value[0] ?? ''}
                             onChange={e => {
-                                const newMin = parseFloat(e.target.value);
-                                if (!isNaN(newMin)) {
-                                    const newValue = [newMin, value[1]];
-                                    setValue(newValue);
-                                    if (updatemode === 'drag') {
-                                        setProps({
-                                            value: newValue,
-                                            drag_value: newValue,
-                                        });
-                                    } else {
-                                        setProps({drag_value: newValue});
+                                const inputValue = e.target.value;
+                                // Allow empty string (user is clearing the field)
+                                if (inputValue === '') {
+                                    // Don't update props while user is typing, just update local state
+                                    setValue([null as any, value[1]]);
+                                } else {
+                                    const newMin = parseFloat(inputValue);
+                                    if (!isNaN(newMin)) {
+                                        const newValue = [newMin, value[1]];
+                                        setValue(newValue);
+                                        if (updatemode === 'drag') {
+                                            setProps({
+                                                value: newValue,
+                                                drag_value: newValue,
+                                            });
+                                        } else {
+                                            setProps({drag_value: newValue});
+                                        }
                                     }
                                 }
                             }}
                             onBlur={e => {
-                                let newMin =
-                                    parseFloat(e.target.value) ||
-                                    minMaxValues.min_mark;
-                                newMin = isNaN(newMin)
-                                    ? minMaxValues.min_mark
-                                    : newMin;
+                                const inputValue = e.target.value;
+                                let newMin: number;
+
+                                // If empty, default to current value or min_mark
+                                if (inputValue === '') {
+                                    newMin = value[0] ?? minMaxValues.min_mark;
+                                } else {
+                                    newMin = parseFloat(inputValue);
+                                    newMin = isNaN(newMin)
+                                        ? minMaxValues.min_mark
+                                        : newMin;
+                                }
+
                                 const constrainedMin = Math.max(
                                     minMaxValues.min_mark,
-                                    Math.min(value[1], newMin)
+                                    Math.min(
+                                        value[1] ?? minMaxValues.max_mark,
+                                        newMin
+                                    )
                                 );
                                 const newValue = [constrainedMin, value[1]];
                                 setValue(newValue);
@@ -244,6 +274,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                             }}
                             min={minMaxValues.min_mark}
                             max={value[1]}
+                            step={step || undefined}
                             disabled={disabled}
                         />
                     )}
@@ -347,32 +378,49 @@ export default function RangeSlider(props: RangeSliderProps) {
                         <input
                             type="number"
                             className="dash-input-container dash-range-slider-input"
-                            value={value[1] || ''}
+                            value={value[1] ?? ''}
                             onChange={e => {
-                                const newMax = parseFloat(e.target.value);
-                                if (!isNaN(newMax)) {
-                                    const newValue = [value[0], newMax];
-                                    setValue(newValue);
-                                    if (updatemode === 'drag') {
-                                        setProps({
-                                            value: newValue,
-                                            drag_value: newValue,
-                                        });
-                                    } else {
-                                        setProps({drag_value: newValue});
+                                const inputValue = e.target.value;
+                                // Allow empty string (user is clearing the field)
+                                if (inputValue === '') {
+                                    // Don't update props while user is typing, just update local state
+                                    setValue([value[0], null as any]);
+                                } else {
+                                    const newMax = parseFloat(inputValue);
+                                    if (!isNaN(newMax)) {
+                                        const newValue = [value[0], newMax];
+                                        setValue(newValue);
+                                        if (updatemode === 'drag') {
+                                            setProps({
+                                                value: newValue,
+                                                drag_value: newValue,
+                                            });
+                                        } else {
+                                            setProps({drag_value: newValue});
+                                        }
                                     }
                                 }
                             }}
                             onBlur={e => {
-                                let newMax =
-                                    parseFloat(e.target.value) ||
-                                    minMaxValues.max_mark;
-                                newMax = isNaN(newMax)
-                                    ? minMaxValues.max_mark
-                                    : newMax;
+                                const inputValue = e.target.value;
+                                let newMax: number;
+
+                                // If empty, default to current value or max_mark
+                                if (inputValue === '') {
+                                    newMax = value[1] ?? minMaxValues.max_mark;
+                                } else {
+                                    newMax = parseFloat(inputValue);
+                                    newMax = isNaN(newMax)
+                                        ? minMaxValues.max_mark
+                                        : newMax;
+                                }
+
                                 const constrainedMax = Math.min(
                                     minMaxValues.max_mark,
-                                    Math.max(value[0], newMax)
+                                    Math.max(
+                                        value[0] ?? minMaxValues.min_mark,
+                                        newMax
+                                    )
                                 );
                                 const newValue = [value[0], constrainedMax];
                                 setValue(newValue);
@@ -382,6 +430,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                             }}
                             min={value[0]}
                             max={minMaxValues.max_mark}
+                            step={step || undefined}
                             disabled={disabled}
                         />
                     )}

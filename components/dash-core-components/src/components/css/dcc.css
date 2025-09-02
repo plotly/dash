@@ -2,11 +2,12 @@
     --Dash-Spacing: 4px;
     --Dash-Stroke-Strong: rgba(0, 18, 77, 0.45);
     --Dash-Stroke-Weak: rgba(0, 24, 102, 0.1);
-    --Dash-Fill-Interactive-Strong: #7F4BC4;
+    --Dash-Fill-Interactive-Strong: #7f4bc4;
     --Dash-Fill-Weak: rgba(0, 30, 128, 0.04);
-    --Dash-Fill-Inverse-strong: #fff;
+    --Dash-Fill-Inverse-Strong: #fff;
     --Dash-Text-Primary: rgba(0, 18, 77, 0.87);
+    --Dash-Text-Strong: rgba(0, 9, 38, 0.9);
     --Dash-Fill-Primary-Hover: rgba(0, 18, 77, 0.04);
     --Dash-Fill-Primary-Active: rgba(0, 18, 77, 0.08);
-    --Dash-Fill-Disabled: rgba(0, 24, 102, 0.10);
+    --Dash-Fill-Disabled: rgba(0, 24, 102, 0.1);
 }

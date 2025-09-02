@@ -67,6 +67,14 @@ export default function Slider(props: SliderProps) {
             return;
         }
 
+        if (step === null) {
+            // If the user has explicitly disabled stepping (step=None), then
+            // the slider values are constrained to the given marks and user
+            // cannot enter arbitrary values via the input element
+            setShowInput(false);
+            return;
+        }
+
         const measureWidth = () => {
             if (sliderRef.current) {
                 const rect = sliderRef.current.getBoundingClientRect();
@@ -101,7 +109,7 @@ export default function Slider(props: SliderProps) {
         return () => {
             resizeObserver.disconnect();
         };
-    }, [showInput, vertical]);
+    }, [showInput, vertical, step]);
 
     useEffect(() => {
         if (propValue !== value) {
@@ -288,23 +296,47 @@ export default function Slider(props: SliderProps) {
                         <input
                             type="number"
                             className="dash-input-container dash-slider-input"
-                            value={value || ''}
+                            value={value ?? ''}
                             onChange={e => {
-                                setValue(parseFloat(e.target.value));
+                                const inputValue = e.target.value;
+                                // Allow empty string (user is clearing the field)
+                                if (inputValue === '') {
+                                    setValue(null);
+                                } else {
+                                    const numericValue = parseFloat(inputValue);
+                                    if (!isNaN(numericValue)) {
+                                        setValue(numericValue);
+                                    }
+                                }
                             }}
                             onBlur={e => {
-                                // Constrain value to the given min and max
-                                let value = parseFloat(e.target.value) || 0;
-                                value = isNaN(value) ? 0 : value;
+                                const inputValue = e.target.value;
+                                // If empty, use the current slider value or default to min
+                                if (inputValue === '') {
+                                    const defaultValue =
+                                        value ?? minMaxValues.min_mark;
+                                    setValue(defaultValue);
+                                    return;
+                                }
+
+                                // Otherwise, constrain value to the given min and max
+                                let numericValue = parseFloat(inputValue);
+                                numericValue = isNaN(numericValue)
+                                    ? minMaxValues.min_mark
+                                    : numericValue;
                                 const constrainedValue = Math.max(
                                     minMaxValues.min_mark,
-                                    Math.min(minMaxValues.max_mark, value || 0)
+                                    Math.min(
+                                        minMaxValues.max_mark,
+                                        numericValue
+                                    )
                                 );
                                 setValue(constrainedValue);
                             }}
                             pattern="^\\d*\\.?\\d*$"
                             min={minMaxValues.min_mark}
                             max={minMaxValues.max_mark}
+                            step={step || undefined}
                             disabled={disabled}
                         />
                     )}
