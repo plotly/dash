@@ -51,7 +51,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Assign',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -60,7 +60,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Merge',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -69,7 +69,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Extend',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -87,7 +87,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Insert',
             location,
-            params: { index, value }
+            params: {index, value}
         });
         return this;
     }
@@ -96,7 +96,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Append',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -105,7 +105,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Prepend',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -114,7 +114,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Add',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -123,7 +123,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Sub',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -132,7 +132,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Mul',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -141,7 +141,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Div',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -168,7 +168,7 @@ export class PatchBuilder {
         this.operations.push({
             operation: 'Remove',
             location,
-            params: { value }
+            params: {value}
         });
         return this;
     }
@@ -309,7 +309,7 @@ export function parsePatchProps(props: any, previousProps: any): {} {
         return props;
     }
 
-    let patchedProps: any = {};
+    const patchedProps: any = {};
 
     for (const key of Object.keys(props)) {
         const val = props[key];

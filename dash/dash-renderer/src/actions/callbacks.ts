@@ -421,14 +421,14 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 const state = getState();
 
                 const componentPath = getPath(state.paths, id);
-                let oldComponent = null;
+                let oldComponent = {};
                 if (componentPath) {
-                    oldComponent = getComponentLayout(componentPath, state)
+                    oldComponent = getComponentLayout(componentPath, state);
                 }
 
                 const oldProps = oldComponent?.props || {};
 
-                const patchedProps = parsePatchProps(idProps, oldProps)
+                const patchedProps = parsePatchProps(idProps, oldProps);
 
                 dispatch(updateComponent(id, patchedProps, cb));
 

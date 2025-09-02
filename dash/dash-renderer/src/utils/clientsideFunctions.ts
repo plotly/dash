@@ -40,9 +40,9 @@ function set_props(
         dispatch(notifyObservers({id: idOrPath, props}));
 
         if (!oldComponent) {
-            console.error(
-                `Could not find component with id or path: ${idOrPath}`
-            );
+            //             console.error(
+            //                 `Could not find component with id or path: ${idOrPath}`
+            //             );
             return;
         }
 
