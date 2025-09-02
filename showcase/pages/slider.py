@@ -54,7 +54,7 @@ layout = html.Div([
                 dcc.Slider(
                     min=0,
                     max=100,
-                    step=1,
+                    step=10,
                     value=50,
                     id='basic-slider'
                 ),
@@ -104,7 +104,6 @@ layout = html.Div([
                 dcc.RangeSlider(
                     min=0,
                     max=100,
-                    step=1,
                     marks={0: '0', 25: '25', 50: '50', 75: '75', 100: '100'},
                     value=[20, 80],
                     id='range-slider'
@@ -120,7 +119,7 @@ layout = html.Div([
                     dcc.Slider(
                         min=0,
                         max=100,
-                        step=1,
+                        step=10,
                         value=30,
                         vertical=True,
                         verticalHeight=150,
@@ -137,12 +136,12 @@ layout = html.Div([
                 dcc.Slider(
                     min=0,
                     max=100,
-                    step=1,
-                    value=75,
+                    step=10,
+                    value=70,
                     disabled=True,
                     id='disabled-slider'
                 ),
-                html.Div("Value: 75 (disabled)", style={'marginTop': '10px', 'fontSize': '14px', 'color': '#999'})
+                html.Div("Value: 70 (disabled)", style={'marginTop': '10px', 'fontSize': '14px', 'color': '#999'})
             ], className='showcase-item'),
             
             # Tooltip variations
@@ -152,7 +151,7 @@ layout = html.Div([
                 dcc.Slider(
                     min=0,
                     max=100,
-                    step=1,
+                    step=5,
                     value=65,
                     tooltip={
                         "placement": "bottom", 
@@ -171,7 +170,7 @@ layout = html.Div([
                 dcc.Slider(
                     min=0,
                     max=100,
-                    step=1,
+                    step=5,
                     value=40,
                     updatemode='drag',
                     id='drag-slider'

@@ -195,7 +195,7 @@ export default class DatePickerRange extends Component {
                     keepOpenOnDateSelect={stay_open_on_select}
                     minimumNights={minimum_nights}
                     monthFormat={month_format}
-                    numberOfMonths={number_of_months_shown}
+                    numberOfMonths={1}
                     onDatesChange={this.onDatesChange}
                     onFocusChange={focusedInput =>
                         this.setState({focusedInput})

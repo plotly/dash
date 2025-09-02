@@ -469,28 +469,34 @@ nav a:hover {
     color: var(--gray-1);
 }
 
-/* Range selection background - ACCESSIBLE COLORS */
+/* Range selection background - Subtle and clean */
 .DateRangePicker__month .CalendarDay__selected_span {
-    background-color: var(--gray-5); /* Darker for better contrast */
+    background-color: var(--gray-4); /* Very subtle background for neutral theme */
     color: var(--gray-12);
+    border: none;
 }
 
 [class*="theme-"] .DateRangePicker__month .CalendarDay__selected_span {
-    background-color: var(--accent-6); /* Use accent-6 instead of accent-3 for better contrast */
+    background-color: var(--accent-3); /* Light subtle accent background */
     color: var(--accent-12);
+    border: none;
 }
 
-/* Range selection start/end */
+/* Range selection start/end - clearly defined endpoints */
 .DateRangePicker__month .CalendarDay__selected_start,
 .DateRangePicker__month .CalendarDay__selected_end {
     background-color: var(--gray-9);
     color: var(--gray-1);
+    font-weight: 600; /* Make start/end dates stand out more */
+    border: none;
 }
 
 [class*="theme-"] .DateRangePicker__month .CalendarDay__selected_start,
 [class*="theme-"] .DateRangePicker__month .CalendarDay__selected_end {
     background-color: var(--accent-9);
     color: var(--gray-1);
+    font-weight: 600; /* Make start/end dates stand out more */
+    border: none;
 }
 
 /* Today indicator */
@@ -498,13 +504,23 @@ nav a:hover {
     font-weight: 600;
 }
 
-/* Hover states - also use better contrast */
+/* Hover states - subtle and consistent */
 .CalendarDay__default:hover {
-    background-color: var(--gray-4); /* Slightly darker */
+    background-color: var(--gray-3); /* Light hover effect */
+    border-radius: var(--radius-2);
 }
 
 [class*="theme-"] .CalendarDay__default:hover {
-    background-color: var(--accent-5); /* Use accent-5 instead of accent-3 */
+    background-color: var(--accent-3); /* Light themed hover effect */
+    border-radius: var(--radius-2);
+}
+
+/* Ensure hover state doesn't override selected dates */
+.CalendarDay__selected_span:hover,
+.CalendarDay__selected_start:hover,
+.CalendarDay__selected_end:hover,
+.CalendarDay__selected:hover {
+    border-radius: var(--radius-2);
 }
 
 /* Fix calendar month container to prevent cutoff */
@@ -515,4 +531,48 @@ nav a:hover {
 /* Ensure day picker is sized properly */
 .DayPicker {
     min-height: auto !important;
+}
+
+/* Improve calendar day spacing and appearance */
+.CalendarDay {
+    border-radius: var(--radius-2);
+    transition: all 0.15s ease;
+}
+
+/* Clean up calendar header */
+.DayPickerNavigation_button {
+    border: none;
+    background: transparent;
+    color: var(--gray-11);
+    border-radius: var(--radius-2);
+    transition: background-color 0.15s ease;
+}
+
+.DayPickerNavigation_button:hover {
+    background-color: var(--gray-3);
+    color: var(--gray-12);
+}
+
+[class*="theme-"] .DayPickerNavigation_button:hover {
+    background-color: var(--accent-3);
+    color: var(--accent-11);
+}
+
+/* Calendar month title styling */
+.CalendarMonth_caption {
+    color: var(--gray-12);
+    font-weight: 600;
+}
+
+/* Ensure consistent single panel display */
+.DateRangePicker_picker .DayPicker {
+    display: flex;
+    justify-content: center;
+}
+
+/* Clean weekday headers */
+.DayPicker_weekHeader {
+    color: var(--gray-11);
+    font-size: 13px;
+    font-weight: 500;
 }
