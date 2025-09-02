@@ -576,3 +576,128 @@ nav a:hover {
     font-size: 13px;
     font-weight: 500;
 }
+
+/* Slider Header Styling */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+    font-size: 14px;
+}
+
+.range-label-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.range-label {
+    color: var(--gray-11);
+    font-weight: 500;
+}
+
+.info-icon {
+    color: var(--gray-9);
+    font-size: 12px;
+}
+
+.reset-link {
+    color: var(--accent-9);
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.reset-link:hover {
+    text-decoration: underline;
+    color: var(--accent-11);
+}
+
+/* Single Slider Input Container - Input LEFT, Slider RIGHT */
+.slider-input-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+}
+
+.slider-input-container .slider-text-input {
+    width: var(--space-7);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-2);
+    background-color: var(--gray-1);
+    color: var(--gray-12);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    text-align: center;
+}
+
+.slider-input-container .slider-wrapper {
+    flex: 1;
+}
+
+.slider-input-container .slider-text-input:focus {
+    outline: none;
+    border-color: var(--gray-8);
+}
+
+[class*="theme-"] .slider-input-container .slider-text-input:focus {
+    border-color: var(--accent-8);
+}
+
+.slider-input-container .slider-text-input:disabled {
+    background-color: var(--gray-3);
+    color: var(--gray-9);
+    cursor: not-allowed;
+    border-color: var(--gray-5);
+}
+
+/* Range Slider Container - Min Input LEFT, Slider CENTER, Max Input RIGHT */
+.range-slider-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    width: 100%;
+}
+
+.range-slider-container .slider-text-input {
+    width: var(--space-7);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-2);
+    background-color: var(--gray-1);
+    color: var(--gray-12);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    text-align: center;
+}
+
+.range-slider-container .slider-wrapper {
+    flex: 1;
+}
+
+.range-slider-container .slider-text-input:focus {
+    outline: none;
+    border-color: var(--gray-8);
+}
+
+[class*="theme-"] .range-slider-container .slider-text-input:focus {
+    border-color: var(--accent-8);
+}
+
+/* Gentle slider centering adjustment */
+.slider-wrapper {
+    display: flex;
+    align-items: center;
+    min-height: var(--space-5);
+}
+
+/* Subtle spacing adjustment for cleaner alignment */
+.slider-wrapper > div {
+    width: 100%;
+}
