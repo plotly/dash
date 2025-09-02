@@ -9,7 +9,7 @@ import Download from './components/Download.react';
 import Dropdown from './components/Dropdown.react';
 import Geolocation from './components/Geolocation.react';
 import Graph from './components/Graph.react';
-import Input from './components/Input.react';
+import Input from './components/Input';
 import Interval from './components/Interval.react';
 import Link from './components/Link.react';
 import Loading from './components/Loading.react';
@@ -25,6 +25,7 @@ import Textarea from './components/Textarea.react';
 import Tooltip from './components/Tooltip.react';
 import Upload from './components/Upload.react';
 
+import './components/css/dcc.css';
 import 'react-dates/lib/css/_datepicker.css';
 import './components/css/react-dates@20.1.0-fix.css';
 
@@ -39,8 +40,8 @@ export {
     Dropdown,
     Geolocation,
     Graph,
-    Input,
     Interval,
+    Input,
     Link,
     Loading,
     Location,

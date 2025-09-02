@@ -33,7 +33,7 @@ module.exports = (env, argv) => {
         filename = `${dashLibraryName}.js`;
     }
 
-    const entry = overrides.entry || { main: './src/index.js' };
+    const entry = overrides.entry || { main: './src/index.ts' };
 
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
@@ -55,9 +55,27 @@ module.exports = (env, argv) => {
             }
         },
         externals,
+        resolve: {
+            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+        },
         module: {
             noParse: /node_modules[\\\/]plotly.js-dist-min/,
             rules: [
+                // TypeScript loader
+                {
+                    test: /\.tsx?$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                '@babel/preset-env',
+                                '@babel/preset-react',
+                                '@babel/preset-typescript'
+                            ]
+                        }
+                    }
+                },
                 {
                     test: /\.jsx?$/,
                     exclude: /node_modules/,

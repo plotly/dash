@@ -99,6 +99,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     pad_input, pad_div = dash_duo.dash_innerhtml_dom.select_one(
         "#output > div"
     ).contents
+    pad_input = pad_input.next  # get the input element, not the wrapper
 
     assert (
         pad_input.attrs["value"] == "sub input initial value"

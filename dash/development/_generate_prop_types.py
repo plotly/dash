@@ -68,8 +68,9 @@ def generate_any(*_):
 
 
 def generate_enum(prop_info):
-    values = str([v["value"] for v in prop_info["value"]])
-    return f"pt.oneOf({values})"
+    values = [v["value"] for v in prop_info["value"] if v.get("value") is not None]
+    csv = ",".join(str(v) for v in values)
+    return f"pt.oneOf([{csv}])"
 
 
 def generate_object_of(prop_info):

@@ -122,6 +122,11 @@ _js_dist.extend(
             "namespace": "dash",
             "dynamic": True,
         },
+        {
+            "dev_package_path": "dcc/proptypes.js",
+            "dev_only": True,
+            "namespace": "dash",
+        },
     ]
 )
 

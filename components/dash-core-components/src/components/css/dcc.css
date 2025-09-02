@@ -1,0 +1,10 @@
+:root {
+    --Dash-Spacing: 4px;
+    --Dash-Stroke-Strong: rgba(0, 18, 77, 0.45);
+    --Dash-Stroke-Weak: rgba(0, 24, 102, 0.1);
+    --Dash-Fill-Weak: rgba(0, 30, 128, 0.04);
+    --Dash-Fill-Inverse-strong: #fff;
+    --Dash-Text-Primary: rgba(0, 18, 77, 0.87);
+    --Dash-Fill-Primary-Hover: rgba(0, 18, 77, 0.04);
+    --Dash-Fill-Primary-Active: rgba(0, 18, 77, 0.08);
+}
