@@ -421,7 +421,7 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 const state = getState();
 
                 const componentPath = getPath(state.paths, id);
-                let oldComponent = {};
+                let oldComponent = {props: {}};
                 if (componentPath) {
                     oldComponent = getComponentLayout(componentPath, state);
                 }
