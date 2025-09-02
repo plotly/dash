@@ -15,6 +15,10 @@ complex_options = [
 
 layout = html.Div([
     html.Div([
+        html.Div([
+            dcc.Link("← Back to Home", href='/', 
+                    style={'display': 'inline-block', 'marginBottom': '20px', 'textDecoration': 'none'})
+        ]),
         html.H2("Dropdown Component Variations", style={'marginBottom': '30px'}),
         
         # Theme Filter Row  
@@ -128,13 +132,9 @@ layout = html.Div([
             
         ], className='showcase-grid'),
         
-        html.Div([
-            dcc.Link("← Back to Home", href='/', 
-                    style={'display': 'inline-block', 'marginTop': '40px', 'textDecoration': 'none'})
-        ]),
         
         
-    ], style={'maxWidth': '1200px', 'margin': '0 auto', 'padding': '40px 20px'})
+    ], style={'maxWidth': '1400px', 'margin': '0 auto', 'padding': '40px 20px'})
 ])
 
 # Clientside callbacks for theme switching

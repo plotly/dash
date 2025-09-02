@@ -405,3 +405,114 @@ nav a:hover {
     background-color: #f8f9fa;
     border-radius: 4px;
 }
+
+/* Date Picker Styling - Accessible, Clean Design */
+
+/* Remove unwanted container borders that create "boxes" */
+.SingleDatePickerInput,
+.DateRangePickerInput {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+/* Base date picker input styling - match dropdown exactly */
+.DateInput_input {
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-2);
+    padding: var(--space-2) var(--space-3);
+    font-size: 14px;
+    font-family: inherit;
+    background-color: var(--gray-1);
+    color: var(--gray-12);
+    transition: border-color 0.2s ease;
+}
+
+/* ONLY on focus should we see accent colors */
+.DateInput_input:focus {
+    outline: none;
+    border-color: var(--gray-8);
+}
+
+/* Themed focus state - subtle like dropdown */
+[class*="theme-"] .DateInput_input:focus {
+    border-color: var(--accent-8);
+}
+
+/* Disabled state - match dropdown */
+.DateInput_input:disabled {
+    background-color: var(--gray-3);
+    color: var(--gray-9);
+    cursor: not-allowed;
+    border-color: var(--gray-5);
+}
+
+/* Calendar picker container - clean and unobtrusive */
+.DateRangePicker_picker,
+.SingleDatePicker_picker {
+    border: 1px solid var(--gray-6);
+    border-radius: var(--radius-3);
+    background-color: var(--gray-1);
+    box-shadow: 0 var(--space-2) var(--space-4) rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: visible; /* Fix content cutoff */
+}
+
+/* Selected day - use theme accent */
+.CalendarDay__selected {
+    background-color: var(--gray-9);
+    color: var(--gray-1);
+}
+
+[class*="theme-"] .CalendarDay__selected {
+    background-color: var(--accent-9);
+    color: var(--gray-1);
+}
+
+/* Range selection background - ACCESSIBLE COLORS */
+.DateRangePicker__month .CalendarDay__selected_span {
+    background-color: var(--gray-5); /* Darker for better contrast */
+    color: var(--gray-12);
+}
+
+[class*="theme-"] .DateRangePicker__month .CalendarDay__selected_span {
+    background-color: var(--accent-6); /* Use accent-6 instead of accent-3 for better contrast */
+    color: var(--accent-12);
+}
+
+/* Range selection start/end */
+.DateRangePicker__month .CalendarDay__selected_start,
+.DateRangePicker__month .CalendarDay__selected_end {
+    background-color: var(--gray-9);
+    color: var(--gray-1);
+}
+
+[class*="theme-"] .DateRangePicker__month .CalendarDay__selected_start,
+[class*="theme-"] .DateRangePicker__month .CalendarDay__selected_end {
+    background-color: var(--accent-9);
+    color: var(--gray-1);
+}
+
+/* Today indicator */
+.CalendarDay__today {
+    font-weight: 600;
+}
+
+/* Hover states - also use better contrast */
+.CalendarDay__default:hover {
+    background-color: var(--gray-4); /* Slightly darker */
+}
+
+[class*="theme-"] .CalendarDay__default:hover {
+    background-color: var(--accent-5); /* Use accent-5 instead of accent-3 */
+}
+
+/* Fix calendar month container to prevent cutoff */
+.CalendarMonth {
+    overflow: visible !important;
+}
+
+/* Ensure day picker is sized properly */
+.DayPicker {
+    min-height: auto !important;
+}

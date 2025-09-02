@@ -8,20 +8,6 @@ app = Dash(__name__, use_pages=True, assets_folder='assets')
 
 # Main layout with navigation and page container
 app.layout = html.Div([
-    html.Header([
-        html.H1("Component Showcase", style={'margin': '20px 0'}),
-        html.Nav([
-            html.Div([
-                dcc.Link(
-                    f"{page.get('name', page['module'].split('.')[-1])} - {page['path']}",
-                    href=page['path'],
-                    style={'display': 'block', 'padding': '10px', 'textDecoration': 'none'}
-                )
-                for page in dash.page_registry.values()
-            ])
-        ])
-    ], style={'padding': '20px', 'borderBottom': '1px solid #ddd'}),
-    
     # Page content goes here
     dash.page_container,
     

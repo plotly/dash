@@ -23,12 +23,26 @@ layout = html.Div([
             ], className='component-card'),
             
             html.Div([
-                html.H3("More Components Coming Soon...", style={'margin': '0', 'color': '#999'}),
-                html.P("Input, Slider, RadioItems, and more", 
-                       style={'margin': '10px 0 0 0', 'fontSize': '14px', 'color': '#999'})
-            ], className='component-card placeholder')
+                dcc.Link([
+                    html.Div([
+                        html.H3("Date Picker", style={'margin': '0 0 10px 0'}),
+                        html.P("Single and range date pickers with calendar interface", 
+                               style={'margin': '0', 'fontSize': '14px', 'color': '#666'})
+                    ])
+                ], href='/datepicker', style={'textDecoration': 'none', 'color': 'inherit'})
+            ], className='component-card'),
+            
+            html.Div([
+                dcc.Link([
+                    html.Div([
+                        html.H3("Slider", style={'margin': '0 0 10px 0'}),
+                        html.P("Range sliders with various configurations and orientations", 
+                               style={'margin': '0', 'fontSize': '14px', 'color': '#666'})
+                    ])
+                ], href='/slider', style={'textDecoration': 'none', 'color': 'inherit'})
+            ], className='component-card')
             
         ], className='component-grid')
         
-    ], style={'maxWidth': '800px', 'margin': '0 auto', 'padding': '40px 20px'})
+    ], style={'maxWidth': '1400px', 'margin': '0 auto', 'padding': '40px 20px'})
 ])
