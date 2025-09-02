@@ -10,26 +10,32 @@
  * - Marks are properly spaced to avoid visual overlap
  */
 
-import { SliderMarks } from '../types';
-import { sanitizeMarks } from './computeSliderMarkers';
+import {SliderMarks} from '../../src/types';
+import {sanitizeMarks} from '../../src/utils/computeSliderMarkers';
 
 // Helper function to extract numeric mark positions
 const getMarkPositions = (marks: SliderMarks): number[] => {
     if (!marks) {
-      return [];
+        return [];
     }
-    return Object.keys(marks).map(Number).sort((a, b) => a - b);
+    return Object.keys(marks)
+        .map(Number)
+        .sort((a, b) => a - b);
 };
 
 // Helper function to check if all marks are valid step positions
-const areAllMarksValidSteps = (marks: SliderMarks, min: number, step: number): boolean => {
+const areAllMarksValidSteps = (
+    marks: SliderMarks,
+    min: number,
+    step: number
+): boolean => {
     if (!marks) {
-      return false;
+        return false;
     }
     const positions = getMarkPositions(marks);
     return positions.every(pos => {
         const stepsFromMin = Math.round((pos - min) / step);
-        const expectedPosition = min + (stepsFromMin * step);
+        const expectedPosition = min + stepsFromMin * step;
         return Math.abs(pos - expectedPosition) === 0;
     });
 };
@@ -42,7 +48,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             expect(marks).toBeDefined();
@@ -60,7 +66,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const positions = getMarkPositions(marks);
@@ -75,7 +81,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 10,
                 marks: undefined,
                 step: 1, // Step of 1 (equivalent to no step constraint)
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             expect(marks).toBeDefined();
@@ -94,7 +100,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 10,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const largeRange = sanitizeMarks({
@@ -102,14 +108,16 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 10000,
                 marks: undefined,
                 step: 1000,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const smallPositions = getMarkPositions(smallRange);
             const largePositions = getMarkPositions(largeRange);
 
             // Large numbers (5 chars like "10000") should have fewer marks than small numbers (2-3 chars like "10", "100")
-            expect(largePositions.length).toBeLessThanOrEqual(smallPositions.length);
+            expect(largePositions.length).toBeLessThanOrEqual(
+                smallPositions.length
+            );
 
             // Both should be valid steps
             expect(areAllMarksValidSteps(smallRange, 0, 10)).toBe(true);
@@ -127,7 +135,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const narrow = sanitizeMarks({
@@ -135,13 +143,15 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 100
+                sliderWidth: 100,
             });
 
             const baselinePositions = getMarkPositions(baseline);
             const narrowPositions = getMarkPositions(narrow);
 
-            expect(narrowPositions.length).toBeLessThan(baselinePositions.length);
+            expect(narrowPositions.length).toBeLessThan(
+                baselinePositions.length
+            );
             expect(areAllMarksValidSteps(narrow, 0, 5)).toBe(true);
         });
 
@@ -151,7 +161,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 100
+                sliderWidth: 100,
             });
 
             const positions = getMarkPositions(marks);
@@ -167,7 +177,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const wide = sanitizeMarks({
@@ -175,13 +185,15 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 660
+                sliderWidth: 660,
             });
 
             const baselinePositions = getMarkPositions(baseline);
             const widePositions = getMarkPositions(wide);
 
-            expect(widePositions.length).toBeGreaterThan(baselinePositions.length);
+            expect(widePositions.length).toBeGreaterThan(
+                baselinePositions.length
+            );
             expect(areAllMarksValidSteps(wide, 0, 5)).toBe(true);
         });
     });
@@ -193,7 +205,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 10,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const positions = getMarkPositions(marks);
@@ -214,7 +226,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 10,
                 marks: undefined,
                 step: 1, // Integer step
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const fractionalStep = sanitizeMarks({
@@ -222,15 +234,19 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 10,
                 marks: undefined,
                 step: 0.5, // Fractional step
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const integerPositions = getMarkPositions(integerStep);
             const fractionalPositions = getMarkPositions(fractionalStep);
 
             // Fractional step should have roughly half the marks of integer step
-            expect(fractionalPositions.length).toBeLessThan(integerPositions.length);
-            expect(fractionalPositions.length).toBeLessThanOrEqual(Math.ceil(integerPositions.length / 2) + 1);
+            expect(fractionalPositions.length).toBeLessThan(
+                integerPositions.length
+            );
+            expect(fractionalPositions.length).toBeLessThanOrEqual(
+                Math.ceil(integerPositions.length / 2) + 1
+            );
 
             // Both should be valid steps
             expect(areAllMarksValidSteps(integerStep, 0, 1)).toBe(true);
@@ -243,7 +259,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 5,
                 marks: undefined,
                 step: 0.5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const positions = getMarkPositions(marks);
@@ -266,7 +282,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: undefined
+                sliderWidth: undefined,
             });
 
             const positions = getMarkPositions(marks);
@@ -285,7 +301,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 100
+                sliderWidth: 100,
             });
 
             const width330 = sanitizeMarks({
@@ -293,7 +309,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 330
+                sliderWidth: 330,
             });
 
             const width660 = sanitizeMarks({
@@ -301,7 +317,7 @@ describe('Dynamic Slider Mark Density', () => {
                 max: 100,
                 marks: undefined,
                 step: 5,
-                sliderWidth: 660
+                sliderWidth: 660,
             });
 
             const positions100 = getMarkPositions(width100);
@@ -309,8 +325,12 @@ describe('Dynamic Slider Mark Density', () => {
             const positions660 = getMarkPositions(width660);
 
             // Width increases should generally result in more marks
-            expect(positions100.length).toBeLessThanOrEqual(positions330.length);
-            expect(positions330.length).toBeLessThanOrEqual(positions660.length);
+            expect(positions100.length).toBeLessThanOrEqual(
+                positions330.length
+            );
+            expect(positions330.length).toBeLessThanOrEqual(
+                positions660.length
+            );
 
             // All should be valid steps
             expect(areAllMarksValidSteps(width100, 0, 5)).toBe(true);

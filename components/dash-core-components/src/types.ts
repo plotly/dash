@@ -1,3 +1,13 @@
+export enum PersistenceTypes {
+    'local' = 'local',
+    'session' = 'session',
+    'memory' = 'memory',
+}
+
+export enum PersistedProps {
+    'value' = 'value',
+}
+
 export type SliderMarks = {
     [key: number]: string | {label: string; style?: React.CSSProperties};
 };
@@ -165,7 +175,7 @@ export interface SliderProps {
      * component or the page. Since only `value` is allowed this prop can
      * normally be ignored.
      */
-    persisted_props?: ['value'];
+    persisted_props?: PersistedProps[];
 
     /**
      * Where persisted user changes will be stored:
@@ -173,7 +183,7 @@ export interface SliderProps {
      * local: window.localStorage, data is kept after the browser quit.
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
-    persistence_type?: 'local' | 'session' | 'memory';
+    persistence_type?: PersistenceTypes;
 }
 
 export interface RangeSliderProps {
@@ -357,7 +367,7 @@ export interface RangeSliderProps {
      * component or the page. Since only `value` is allowed this prop can
      * normally be ignored.
      */
-    persisted_props?: ['value'];
+    persisted_props?: PersistedProps[];
 
     /**
      * Where persisted user changes will be stored:
@@ -365,5 +375,5 @@ export interface RangeSliderProps {
      * local: window.localStorage, data is kept after the browser quit.
      * session: window.sessionStorage, data is cleared once the browser quit.
      */
-    persistence_type?: 'local' | 'session' | 'memory';
+    persistence_type?: PersistenceTypes;
 }

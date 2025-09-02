@@ -1,20 +1,10 @@
 import React, {lazy, Suspense} from 'react';
-import {RangeSliderProps} from '../types';
+import {PersistedProps, PersistenceTypes, RangeSliderProps} from '../types';
 import rangeSlider from '../utils/LazyLoader/rangeSlider';
 
 import './css/sliders.css';
 
 const RealRangeSlider = lazy(rangeSlider);
-
-enum PersistenceTypes {
-    'local' = 'local',
-    'session' = 'session',
-    'memory' = 'memory',
-}
-
-enum PersistedProps {
-    'value' = 'value',
-}
 
 /**
  * A double slider with two handles.
@@ -22,23 +12,23 @@ enum PersistedProps {
  */
 export default function RangeSlider({
     updatemode = 'mouseup',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     persisted_props = [PersistedProps.value],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     persistence_type = PersistenceTypes.local,
     // eslint-disable-next-line no-magic-numbers
     verticalHeight = 400,
-    ...rest
+    step = 1,
+    ...props
 }: RangeSliderProps) {
-    const props = {
-        updatemode,
-        persisted_props,
-        persistence_type,
-        verticalHeight,
-        ...rest,
-    };
-
     return (
         <Suspense fallback={null}>
-            <RealRangeSlider {...props} />
+            <RealRangeSlider
+                updatemode={updatemode}
+                verticalHeight={verticalHeight}
+                step={step}
+                {...props}
+            />
         </Suspense>
     );
 }

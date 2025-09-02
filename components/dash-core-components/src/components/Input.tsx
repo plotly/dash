@@ -11,6 +11,7 @@ import React, {
 import uniqid from 'uniqid';
 import fastIsNumeric from 'fast-isnumeric';
 import LoadingElement from '../utils/_LoadingElement';
+import {PersistedProps, PersistenceTypes} from '../types';
 import './css/input.css';
 
 const isNumeric = (val: unknown): val is number => fastIsNumeric(val);
@@ -18,16 +19,6 @@ const convert = (val: unknown) => (isNumeric(val) ? +val : NaN);
 
 const isEquivalent = (v1: number, v2: number) =>
     v1 === v2 || (isNaN(v1) && isNaN(v2));
-
-enum PersistenceTypes {
-    'local' = 'local',
-    'session' = 'session',
-    'memory' = 'memory',
-}
-
-enum PersistedProps {
-    'value' = 'value',
-}
 
 enum HTMLInputTypes {
     // Only allowing the input types with wide browser compatibility
