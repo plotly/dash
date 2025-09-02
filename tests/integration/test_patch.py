@@ -239,7 +239,8 @@ def test_pch001_patch_operations(dash_duo):
     dash_duo.find_element("#extend-btn").click()
 
     until(
-        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"], 2
+        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"],
+        2,
     )
 
     undef = object()
@@ -571,6 +572,7 @@ def test_pch006_base_operators(dash_duo):
         "#dict-store-output", '{"initial":"initial","merged":"merged"}'
     )
 
+
 @flaky.flaky(max_runs=3)
 def test_pch007_patch_operations_side_updates(dash_duo):
 
@@ -640,7 +642,6 @@ def test_pch007_patch_operations_side_updates(dash_duo):
     )
 
     @app.callback(
-
         Input("set-btn", "n_clicks"),
         State("set-value", "value"),
         prevent_initial_call=True,
@@ -650,7 +651,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p.value = value
         p.n_clicks += 1
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("append-btn", "n_clicks"),
@@ -662,7 +663,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p.array.append(value)
         p.n_clicks += 1
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("prepend-btn", "n_clicks"),
@@ -674,7 +675,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p.array.prepend(value)
         p.n_clicks += 1
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("extend-btn", "n_clicks"),
@@ -686,7 +687,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p.array.extend([value])
         p.n_clicks += 1
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("merge-btn", "n_clicks"),
@@ -698,7 +699,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p.update({"merged": value})
         p.n_clicks += 1
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("delete-btn", "n_clicks"),
@@ -707,7 +708,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
     def on_click(_):
         p = Patch()
         del p.delete
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("insert-btn", "n_clicks"),
@@ -719,7 +720,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p = Patch()
         p.array.insert(index, value)
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("delete-index", "n_clicks"),
@@ -730,7 +731,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         del p.array[1]
         del p.array[-2]
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("clear-btn", "n_clicks"),
@@ -740,7 +741,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p = Patch()
         p.array.clear()
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("reverse-btn", "n_clicks"),
@@ -750,7 +751,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
         p = Patch()
         p.array.reverse()
 
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     @app.callback(
         Input("remove-btn", "n_clicks"),
@@ -759,7 +760,7 @@ def test_pch007_patch_operations_side_updates(dash_duo):
     def on_remove(_):
         p = Patch()
         p.array.remove("initial")
-        set_props('store', {'data': p})
+        set_props("store", {"data": p})
 
     dash_duo.start_server(app)
 
@@ -792,7 +793,8 @@ def test_pch007_patch_operations_side_updates(dash_duo):
     dash_duo.find_element("#extend-btn").click()
 
     until(
-        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"], 2
+        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"],
+        2,
     )
 
     undef = object()

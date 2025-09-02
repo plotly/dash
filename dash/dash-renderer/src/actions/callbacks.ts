@@ -623,7 +623,9 @@ function handleServerside(
                     }
 
                     if (data.sideUpdate) {
-                        dispatch(sideUpdate(data.sideUpdate, payload));
+                        setTimeout(() =>
+                            dispatch(sideUpdate(data.sideUpdate, payload))
+                        ); // always force side-updates
                     }
 
                     if (data.progress) {
@@ -831,9 +833,20 @@ export function executeCallback(
                             const outputPath = getPath(paths, out.id);
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
-                            const oldProps = path(outputPath.concat(['props']), currentLayout) || {};
-                            const newProps = parsePatchProps({ [propName]: outputValue }, oldProps);
-                            data = assocPath(dataPath, newProps[propName], data);
+                            const oldProps =
+                                path(
+                                    outputPath.concat(['props']),
+                                    currentLayout
+                                ) || {};
+                            const newProps = parsePatchProps(
+                                {[propName]: outputValue},
+                                oldProps
+                            );
+                            data = assocPath(
+                                dataPath,
+                                newProps[propName],
+                                data
+                            );
                         });
                         return {data, payload};
                     } catch (error: any) {
@@ -900,9 +913,20 @@ export function executeCallback(
                             const outputPath = getPath(paths, out.id);
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
-                            const oldProps = path(outputPath.concat(['props']), currentLayout) || {};
-                            const newProps = parsePatchProps({ [propName]: outputValue }, oldProps);
-                            data = assocPath(dataPath, newProps[propName], data);
+                            const oldProps =
+                                path(
+                                    outputPath.concat(['props']),
+                                    currentLayout
+                                ) || {};
+                            const newProps = parsePatchProps(
+                                {[propName]: outputValue},
+                                oldProps
+                            );
+                            data = assocPath(
+                                dataPath,
+                                newProps[propName],
+                                data
+                            );
                         });
 
                         if (dynamic_creator) {

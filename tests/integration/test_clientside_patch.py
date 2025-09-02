@@ -15,15 +15,28 @@ def test_pch_cs001_patch_operations_clientside(dash_duo):
     app.layout = html.Div(
         [
             html.Div([dcc.Input(id="set-value"), html.Button("Set", id="set-btn")]),
-            html.Div([dcc.Input(id="append-value"), html.Button("Append", id="append-btn")]),
-            html.Div([dcc.Input(id="prepend-value"), html.Button("prepend", id="prepend-btn")]),
-            html.Div([
-                dcc.Input(id="insert-value"),
-                dcc.Input(id="insert-index", type="number", value=1),
-                html.Button("insert", id="insert-btn"),
-            ]),
-            html.Div([dcc.Input(id="extend-value"), html.Button("extend", id="extend-btn")]),
-            html.Div([dcc.Input(id="merge-value"), html.Button("Merge", id="merge-btn")]),
+            html.Div(
+                [dcc.Input(id="append-value"), html.Button("Append", id="append-btn")]
+            ),
+            html.Div(
+                [
+                    dcc.Input(id="prepend-value"),
+                    html.Button("prepend", id="prepend-btn"),
+                ]
+            ),
+            html.Div(
+                [
+                    dcc.Input(id="insert-value"),
+                    dcc.Input(id="insert-index", type="number", value=1),
+                    html.Button("insert", id="insert-btn"),
+                ]
+            ),
+            html.Div(
+                [dcc.Input(id="extend-value"), html.Button("extend", id="extend-btn")]
+            ),
+            html.Div(
+                [dcc.Input(id="merge-value"), html.Button("Merge", id="merge-btn")]
+            ),
             html.Button("Delete", id="delete-btn"),
             html.Button("Delete index", id="delete-index"),
             html.Button("Clear", id="clear-btn"),
@@ -227,7 +240,7 @@ def test_pch_cs001_patch_operations_clientside(dash_duo):
     _input.send_keys("Set Value")
     dash_duo.find_element("#set-btn").click()
 
-    until(lambda: get_output().get('value') == "Set Value", 2)
+    until(lambda: get_output().get("value") == "Set Value", 2)
 
     _input = dash_duo.find_element("#append-value")
     _input.send_keys("Append")
@@ -246,7 +259,8 @@ def test_pch_cs001_patch_operations_clientside(dash_duo):
     dash_duo.find_element("#extend-btn").click()
 
     until(
-        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"], 2
+        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"],
+        2,
     )
 
     undef = object()
@@ -337,6 +351,7 @@ def test_pch_cs001_patch_operations_clientside(dash_duo):
     dash_duo.find_element("#clear-btn").click()
     until(lambda: get_output()["array"] == [], 2)
 
+
 @flaky.flaky(max_runs=3)
 def test_pch_cs002_patch_operations_set_props(dash_duo):
     app = Dash(__name__)
@@ -344,15 +359,28 @@ def test_pch_cs002_patch_operations_set_props(dash_duo):
     app.layout = html.Div(
         [
             html.Div([dcc.Input(id="set-value"), html.Button("Set", id="set-btn")]),
-            html.Div([dcc.Input(id="append-value"), html.Button("Append", id="append-btn")]),
-            html.Div([dcc.Input(id="prepend-value"), html.Button("prepend", id="prepend-btn")]),
-            html.Div([
-                dcc.Input(id="insert-value"),
-                dcc.Input(id="insert-index", type="number", value=1),
-                html.Button("insert", id="insert-btn"),
-            ]),
-            html.Div([dcc.Input(id="extend-value"), html.Button("extend", id="extend-btn")]),
-            html.Div([dcc.Input(id="merge-value"), html.Button("Merge", id="merge-btn")]),
+            html.Div(
+                [dcc.Input(id="append-value"), html.Button("Append", id="append-btn")]
+            ),
+            html.Div(
+                [
+                    dcc.Input(id="prepend-value"),
+                    html.Button("prepend", id="prepend-btn"),
+                ]
+            ),
+            html.Div(
+                [
+                    dcc.Input(id="insert-value"),
+                    dcc.Input(id="insert-index", type="number", value=1),
+                    html.Button("insert", id="insert-btn"),
+                ]
+            ),
+            html.Div(
+                [dcc.Input(id="extend-value"), html.Button("extend", id="extend-btn")]
+            ),
+            html.Div(
+                [dcc.Input(id="merge-value"), html.Button("Merge", id="merge-btn")]
+            ),
             html.Button("Delete", id="delete-btn"),
             html.Button("Delete index", id="delete-index"),
             html.Button("Clear", id="clear-btn"),
@@ -545,7 +573,7 @@ def test_pch_cs002_patch_operations_set_props(dash_duo):
     _input.send_keys("Set Value")
     dash_duo.find_element("#set-btn").click()
 
-    until(lambda: get_output().get('value') == "Set Value", 2)
+    until(lambda: get_output().get("value") == "Set Value", 2)
 
     _input = dash_duo.find_element("#append-value")
     _input.send_keys("Append")
@@ -564,7 +592,8 @@ def test_pch_cs002_patch_operations_set_props(dash_duo):
     dash_duo.find_element("#extend-btn").click()
 
     until(
-        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"], 2
+        lambda: get_output().get("array") == ["Prepend", "initial", "Append", "Extend"],
+        2,
     )
 
     undef = object()

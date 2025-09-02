@@ -175,7 +175,7 @@ export class PatchBuilder {
 
     build() {
         return {
-            __dash_patch_update: "__dash_patch_update",
+            __dash_patch_update: '__dash_patch_update',
             operations: this.operations
         };
     }
@@ -304,7 +304,10 @@ export function handlePatch<T>(previousValue: T, patchValue: any): T {
     return reducedValue;
 }
 
-export function parsePatchProps(props: any, previousProps: any): Record<string, any> {
+export function parsePatchProps(
+    props: any,
+    previousProps: any
+): Record<string, any> {
     if (!is(Object, props)) {
         return props;
     }
