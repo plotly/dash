@@ -12,6 +12,8 @@ import {
     formatSliderTooltip,
     transformSliderTooltip,
 } from '../utils/formatSliderTooltip';
+import {snapToNearestMark} from '../utils/sliderSnapToMark';
+import {renderSliderMarks, renderSliderDots} from '../utils/sliderRendering';
 import LoadingElement from '../utils/_LoadingElement';
 import {RangeSliderProps} from '../types';
 
@@ -129,13 +131,16 @@ export default function RangeSlider(props: RangeSliderProps) {
     }, [min, max, processedMarks]);
 
     const stepValue = useMemo(() => {
-        return step === null && !isNil(processedMarks)
+        return step === null && isNil(processedMarks)
             ? undefined
             : calcStep(min, max, step);
     }, [min, max, processedMarks, step]);
 
     // Sanitize marks for rendering
     const renderedMarks = useMemo(() => {
+        if (processedMarks === null) {
+            return null;
+        }
         return sanitizeMarks({
             min,
             max,
@@ -146,11 +151,24 @@ export default function RangeSlider(props: RangeSliderProps) {
     }, [min, max, processedMarks, step, sliderWidth]);
 
     const handleValueChange = (newValue: number[]) => {
-        setValue(newValue);
+        let adjustedValue = newValue;
+
+        // Snap to nearest marks if step is null and marks exist
+        if (
+            step === null &&
+            processedMarks &&
+            typeof processedMarks === 'object'
+        ) {
+            adjustedValue = newValue.map(val =>
+                snapToNearestMark(val, processedMarks)
+            );
+        }
+
+        setValue(adjustedValue);
         if (updatemode === 'drag') {
-            setProps({value: newValue, drag_value: newValue});
+            setProps({value: adjustedValue, drag_value: adjustedValue});
         } else {
-            setProps({drag_value: newValue});
+            setProps({drag_value: adjustedValue});
         }
     };
 
@@ -177,59 +195,6 @@ export default function RangeSlider(props: RangeSliderProps) {
                 )}
             </div>
         );
-    };
-
-    // Replicate Radix UI's exact positioning logic including pixel offsets
-    const convertValueToPercentage = (
-        value: number,
-        min: number,
-        max: number
-    ) => {
-        const maxSteps = max - min;
-        const percentPerStep = 100 / maxSteps;
-        const percentage = percentPerStep * (value - min);
-        // Clamp to 0-100 range like Radix does
-        return Math.max(0, Math.min(100, percentage));
-    };
-
-    const linearScale = (
-        input: readonly [number, number],
-        output: readonly [number, number]
-    ) => {
-        return (value: number) => {
-            if (input[0] === input[1] || output[0] === output[1]) {
-                return output[0];
-            }
-            const ratio = (output[1] - output[0]) / (input[1] - input[0]);
-            return output[0] + ratio * (value - input[0]);
-        };
-    };
-
-    const getThumbInBoundsOffset = (
-        width: number,
-        left: number,
-        direction: number
-    ) => {
-        const halfWidth = width / 2;
-        const halfPercent = 50;
-        const offset = linearScale([0, halfPercent], [0, halfWidth]);
-        return (halfWidth - offset(left) * direction) * direction;
-    };
-
-    // Calculate the exact position including pixel offset as Radix does
-    const getRadixThumbPosition = (value: number, thumbWidth = 16) => {
-        const percentage = convertValueToPercentage(
-            value,
-            minMaxValues.min_mark,
-            minMaxValues.max_mark
-        );
-        const direction = 1; // LTR direction
-        const thumbInBoundsOffset = getThumbInBoundsOffset(
-            thumbWidth,
-            percentage,
-            direction
-        );
-        return {percentage, offset: thumbInBoundsOffset};
     };
 
     return (
@@ -317,58 +282,19 @@ export default function RangeSlider(props: RangeSliderProps) {
                                         <RadixSlider.Range className="dash-slider-range" />
                                     )}
                                 </RadixSlider.Track>
-                                {/* Render marks if they exist */}
                                 {renderedMarks &&
-                                    Object.entries(renderedMarks).map(
-                                        ([position, mark]) => {
-                                            const pos = parseFloat(position);
-                                            // Use the exact same positioning logic as Radix UI thumbs
-                                            const thumbPosition =
-                                                getRadixThumbPosition(pos);
-                                            const markStyle: React.CSSProperties =
-                                                vertical
-                                                    ? {
-                                                          bottom: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px - 13px)`,
-                                                          left: 'calc(100% + 8px)',
-                                                          transform:
-                                                              'translateY(-50%)',
-                                                      }
-                                                    : {
-                                                          left: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px)`,
-                                                          bottom: 0, // Position at the bottom edge of container
-                                                          transform:
-                                                              'translateX(-50%)',
-                                                      };
-
-                                            const markContent =
-                                                typeof mark === 'string'
-                                                    ? mark
-                                                    : mark.label;
-                                            const markLabelStyle =
-                                                typeof mark === 'object'
-                                                    ? mark.style
-                                                    : undefined;
-
-                                            return (
-                                                <div
-                                                    key={position}
-                                                    className="dash-slider-mark"
-                                                    style={markStyle}
-                                                >
-                                                    <div className="dash-slider-mark-dot" />
-                                                    {markContent && (
-                                                        <div
-                                                            className="dash-slider-mark-label"
-                                                            style={
-                                                                markLabelStyle
-                                                            }
-                                                        >
-                                                            {markContent}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        }
+                                    renderSliderMarks(
+                                        renderedMarks,
+                                        !!vertical,
+                                        minMaxValues,
+                                        !!dots
+                                    )}
+                                {dots &&
+                                    stepValue &&
+                                    renderSliderDots(
+                                        stepValue,
+                                        minMaxValues,
+                                        !!vertical
                                     )}
                                 {/* Render thumbs with tooltips for each value */}
                                 {value.map((val, index) => {

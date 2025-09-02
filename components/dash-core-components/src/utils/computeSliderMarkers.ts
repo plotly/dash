@@ -1,12 +1,15 @@
 import {pickBy, isEmpty, isNil} from 'ramda';
 import {formatPrefix} from 'd3-format';
-import { SliderMarks } from '../types';
+import {SliderMarks} from '../types';
 
 /**
  * Truncate marks if they are out of Slider interval
  */
-const truncateMarks = (min: number, max: number, marks: SliderMarks): SliderMarks =>
-    pickBy((k, mark) => mark >= min && mark <= max, marks);
+const truncateMarks = (
+    min: number,
+    max: number,
+    marks: SliderMarks
+): SliderMarks => pickBy((k, mark) => mark >= min && mark <= max, marks);
 
 const truncateNumber = (num: number) => {
     const match = num.toString().match(/^-?\d+(?:\.\d{0,0})?/);
@@ -22,12 +25,19 @@ const alignIntValue = (v: number, d: number) =>
 const alignDecimalValue = (v: number, d: number) =>
     d < 10
         ? parseFloat(v.toFixed(decimalCount(d)))
-        : parseFloat((parseFloat((v / d).toFixed(0)) * d).toFixed(decimalCount(d)));
+        : parseFloat(
+              (parseFloat((v / d).toFixed(0)) * d).toFixed(decimalCount(d))
+          );
 
 const alignValue = (v: number, d: number) =>
     decimalCount(d) < 1 ? alignIntValue(v, d) : alignDecimalValue(v, d);
 
-const estimateBestSteps = (minValue: number, maxValue: number, stepValue: number, sliderWidth?: number | null) => {
+const estimateBestSteps = (
+    minValue: number,
+    maxValue: number,
+    stepValue: number,
+    sliderWidth?: number | null
+) => {
     // Base desired count for 330px slider with 0-100 scale (10 marks = 11 total including endpoints)
     let targetMarkCount = 11; // Default baseline
 
@@ -79,8 +89,10 @@ const estimateBestSteps = (minValue: number, maxValue: number, stepValue: number
 
     // Find the best interval that's a multiple of stepValue
     // Start with multiples of stepValue and find the one closest to idealInterval
-    // eslint-disable-next-line no-magic-numbers
-    const stepMultipliers = [1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
+    const stepMultipliers = [
+        // eslint-disable-next-line no-magic-numbers
+        1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000,
+    ];
 
     let bestInterval = stepValue;
     let bestDifference = Math.abs(idealInterval - stepValue);
@@ -108,13 +120,9 @@ const estimateBestSteps = (minValue: number, maxValue: number, stepValue: number
     // Find the first mark position that's aligned with our interval
     // This ensures we don't have overlapping marks at narrow widths
     const firstMarkSteps = Math.max(1, stepsInInterval);
-    const firstStepAfterMin = minValue + (firstMarkSteps * stepValue);
+    const firstStepAfterMin = minValue + firstMarkSteps * stepValue;
 
-    return [
-        firstStepAfterMin,
-        actualInterval,
-        stepValue,
-    ];
+    return [firstStepAfterMin, actualInterval, stepValue];
 };
 
 /**
@@ -126,7 +134,7 @@ export const calcStep = (min?: number, max?: number, step?: number | null) => {
     }
 
     if (isNil(min) || isNil(max)) {
-      return 1;
+        return 1;
     }
 
     const diff = max > min ? max - min : min - max;
@@ -143,7 +151,11 @@ export const calcStep = (min?: number, max?: number, step?: number | null) => {
 /**
  * Set min and max if they are undefined and marks are defined
  */
-export const setUndefined = (min: number | undefined, max: number | undefined, marks: SliderMarks | undefined) => {
+export const setUndefined = (
+    min: number | undefined,
+    max: number | undefined,
+    marks: SliderMarks | undefined | null
+) => {
     const definedMarks = {min_mark: min ?? 0, max_mark: max ?? 1};
 
     if (isNil(marks)) {
@@ -179,19 +191,53 @@ export const applyD3Format = (mark: number, min: number, max: number) => {
     return String(si_formatter(mark));
 };
 
-export const autoGenerateMarks = (min: number, max: number, step?: number | null, sliderWidth?: number | null) => {
+export const autoGenerateMarks = (
+    min: number,
+    max: number,
+    step?: number | null,
+    sliderWidth?: number | null
+) => {
     const marks = [];
     // Always use dynamic logic, but pass the provided step as a constraint
     const effectiveStep = step || calcStep(min, max, 0);
-    const [start, interval, chosenStep] = estimateBestSteps(min, max, effectiveStep, sliderWidth);
+    const [start, interval, chosenStep] = estimateBestSteps(
+        min,
+        max,
+        effectiveStep,
+        sliderWidth
+    );
     let cursor = start;
 
-    // make sure we don't step into infinite loop
-    if ((max - cursor) / interval > 0) {
+    // Apply a safety cap to prevent excessive mark generation while preserving existing behavior
+    // Only restrict when marks would be truly excessive (much higher than the existing UPPER_BOUND)
+    const MARK_WIDTH_PX = 20; // More generous spacing for width-based calculation
+    const FALLBACK_MAX_MARKS = 200; // High fallback to preserve existing behavior when no width
+    const ABSOLUTE_MAX_MARKS = 200; // Safety cap against extreme cases
+
+    const widthBasedMax = sliderWidth
+        ? Math.max(10, Math.floor(sliderWidth / MARK_WIDTH_PX))
+        : FALLBACK_MAX_MARKS;
+
+    const maxAutoGeneratedMarks = Math.min(widthBasedMax, ABSOLUTE_MAX_MARKS);
+
+    // Calculate how many marks would be generated with current interval
+    const estimatedMarkCount = Math.floor((max - start) / interval) + 1;
+
+    // If we would exceed the limit, increase the interval to fit within the limit
+    let actualInterval = interval;
+    if (estimatedMarkCount > maxAutoGeneratedMarks) {
+        // Recalculate interval to fit exactly within the limit
+        actualInterval = (max - start) / (maxAutoGeneratedMarks - 1);
+        // Round to a reasonable step multiple to keep marks clean
+        const stepMultiple = Math.ceil(actualInterval / chosenStep);
+        actualInterval = stepMultiple * chosenStep;
+    }
+
+    if ((max - cursor) / actualInterval > 0) {
         do {
             marks.push(alignValue(cursor, chosenStep));
-            cursor += interval;
-        } while (cursor < max);
+            cursor += actualInterval;
+        } while (cursor < max && marks.length < maxAutoGeneratedMarks);
 
         // do some cosmetic
         const discardThreshold = 1.5;
@@ -223,7 +269,13 @@ type SanitizeMarksParams = {
     step?: number | null;
     sliderWidth?: number | null;
 };
-export const sanitizeMarks = ({min, max, marks, step, sliderWidth}: SanitizeMarksParams): SliderMarks => {
+export const sanitizeMarks = ({
+    min,
+    max,
+    marks,
+    step,
+    sliderWidth,
+}: SanitizeMarksParams): SliderMarks => {
     const {min_mark, max_mark} = setUndefined(min, max, marks);
 
     const truncated_marks =

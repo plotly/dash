@@ -26,7 +26,7 @@ export interface SliderProps {
      * the value should be an object which
      * contains style and label properties.
      */
-    marks?: SliderMarks;
+    marks?: SliderMarks | null;
 
     /**
      * The value of the input
@@ -200,9 +200,7 @@ export interface RangeSliderProps {
      * the value should be an object which
      * contains style and label properties.
      */
-    marks?: {
-        [key: number]: string | {label: string; style?: React.CSSProperties};
-    };
+    marks?: SliderMarks | null;
 
     /**
      * The value of the input

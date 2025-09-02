@@ -17,11 +17,11 @@
     padding-bottom: 28px; /* Space for horizontal mark labels below */
 }
 
-.dash-slider-root[data-orientation="vertical"].has-marks {
+.dash-slider-root[data-orientation='vertical'].has-marks {
     padding-bottom: 0px;
 }
 
-.dash-slider-root[data-orientation="vertical"] {
+.dash-slider-root[data-orientation='vertical'] {
     flex-direction: column;
     width: 20px;
     height: 100%;
@@ -32,10 +32,10 @@
     flex-grow: 1;
     border-radius: 9999px;
     height: 4px;
-    background-color: #d1d5db;
+    background-color: var(--Dash-Fill-Disabled);
 }
 
-.dash-slider-root[data-orientation="vertical"] .dash-slider-track {
+.dash-slider-root[data-orientation='vertical'] .dash-slider-track {
     width: 4px;
     height: auto;
     overflow-y: hidden;
@@ -53,7 +53,7 @@
     height: 4px;
 }
 
-.dash-slider-root[data-orientation="vertical"] .dash-slider-range {
+.dash-slider-root[data-orientation='vertical'] .dash-slider-range {
     width: 100%;
     height: auto;
 }
@@ -91,24 +91,33 @@
 }
 
 .dash-slider-mark:before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--Dash-Fill-Disabled);
-  width: 4px;
-  height: 6px;
-  border-radius: 2px;
-  margin-bottom: 2px;
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--Dash-Fill-Disabled);
+    width: 4px;
+    height: 6px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+}
+.dash-slider-mark.with-dots:before {
+    content: initial;
 }
 
-.dash-slider-root[data-orientation="vertical"] .dash-slider-mark:before {
-  content: initial;
+.dash-slider-root[data-orientation='vertical'] .dash-slider-mark:before {
+    content: initial;
 }
 
 .dash-slider-dot {
     pointer-events: none;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--Dash-Fill-Weak);
+    background-color: red;
 }
 
 .dash-slider-tooltip {
@@ -126,11 +135,11 @@
 }
 
 /* Include property to mimic rc-slider behavior */
-.dash-slider-root:not([data-included="false"]) .dash-slider-range {
+.dash-slider-root:not([data-included='false']) .dash-slider-range {
     background-color: var(--Dash-Fill-Interactive-Strong);
 }
 
-.dash-slider-root[data-included="false"] .dash-slider-range {
+.dash-slider-root[data-included='false'] .dash-slider-range {
     background-color: transparent;
 }
 

@@ -25,6 +25,7 @@ export default function Slider({
     persistence_type = PersistenceTypes.local,
     // eslint-disable-next-line no-magic-numbers
     verticalHeight = 400,
+    step = 1,
     ...rest
 }: SliderProps) {
     const props = {
@@ -32,6 +33,7 @@ export default function Slider({
         persisted_props,
         persistence_type,
         verticalHeight,
+        step,
         ...rest,
     };
 

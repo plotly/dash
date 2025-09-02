@@ -23,6 +23,7 @@ def test_slsl001_always_visible_slider(dash_dcc):
         return f"You have selected {value}"
 
     dash_dcc.start_server(app)
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 5")
 
     slider = dash_dcc.find_element("#slider")
@@ -256,6 +257,7 @@ def test_slsl007_drag_value_slider(dash_dcc):
         return f"You have selected {value}"
 
     dash_dcc.start_server(app)
+    dash_dcc.driver.set_window_size(800, 600)
     slider = dash_dcc.find_element("#slider")
 
     dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 5")

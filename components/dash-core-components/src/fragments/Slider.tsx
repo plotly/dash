@@ -12,6 +12,8 @@ import {
     formatSliderTooltip,
     transformSliderTooltip,
 } from '../utils/formatSliderTooltip';
+import {snapToNearestMark} from '../utils/sliderSnapToMark';
+import {renderSliderMarks, renderSliderDots} from '../utils/sliderRendering';
 import LoadingElement from '../utils/_LoadingElement';
 import {SliderProps} from '../types';
 
@@ -151,13 +153,16 @@ export default function Slider(props: SliderProps) {
     }, [min, max, processedMarks]);
 
     const stepValue: number | undefined = useMemo(() => {
-        return step === null && !isNil(processedMarks)
+        return step === null && isNil(processedMarks)
             ? undefined
             : calcStep(min, max, step);
     }, [step, processedMarks, min, max]);
 
     // Generate marks for rendering (if needed)
     const renderedMarks = useMemo(() => {
+        if (processedMarks === null) {
+            return null;
+        }
         return sanitizeMarks({
             min,
             max,
@@ -166,59 +171,6 @@ export default function Slider(props: SliderProps) {
             sliderWidth,
         });
     }, [min, max, processedMarks, step, sliderWidth]);
-
-    // Replicate Radix UI's exact positioning logic for displaying marks
-    const convertValueToPercentage = (
-        value: number,
-        min: number,
-        max: number
-    ) => {
-        const maxSteps = max - min;
-        const percentPerStep = 100 / maxSteps;
-        const percentage = percentPerStep * (value - min);
-        // Clamp to 0-100 range like Radix does
-        return Math.max(0, Math.min(100, percentage));
-    };
-
-    const linearScale = (
-        input: readonly [number, number],
-        output: readonly [number, number]
-    ) => {
-        return (value: number) => {
-            if (input[0] === input[1] || output[0] === output[1]) {
-                return output[0];
-            }
-            const ratio = (output[1] - output[0]) / (input[1] - input[0]);
-            return output[0] + ratio * (value - input[0]);
-        };
-    };
-
-    const getThumbInBoundsOffset = (
-        width: number,
-        left: number,
-        direction: number
-    ) => {
-        const halfWidth = width / 2;
-        const halfPercent = 50;
-        const offset = linearScale([0, halfPercent], [0, halfWidth]);
-        return (halfWidth - offset(left) * direction) * direction;
-    };
-
-    // Calculate the exact position including pixel offset as Radix does
-    const getRadixThumbPosition = (value: number, thumbWidth = 16) => {
-        const percentage = convertValueToPercentage(
-            value,
-            minMaxValues.min_mark,
-            minMaxValues.max_mark
-        );
-        const direction = 1; // LTR direction
-        const thumbInBoundsOffset = getThumbInBoundsOffset(
-            thumbWidth,
-            percentage,
-            direction
-        );
-        return {percentage, offset: thumbInBoundsOffset};
-    };
 
     return (
         <LoadingElement>
@@ -243,7 +195,19 @@ export default function Slider(props: SliderProps) {
                                 }}
                                 value={radixValue}
                                 onValueChange={(newValue: number[]) => {
-                                    const singleValue = newValue[0];
+                                    let singleValue = newValue[0];
+
+                                    // Snap to nearest mark if step is null and marks exist
+                                    if (
+                                        step === null &&
+                                        processedMarks &&
+                                        typeof processedMarks === 'object'
+                                    ) {
+                                        singleValue = snapToNearestMark(
+                                            singleValue,
+                                            processedMarks
+                                        );
+                                    }
 
                                     setValue(singleValue);
                                     if (updatemode === 'drag') {
@@ -275,100 +239,20 @@ export default function Slider(props: SliderProps) {
                                     )}
                                 </RadixSlider.Track>
 
-                                {/* Render marks if they exist */}
                                 {renderedMarks &&
-                                    Object.entries(renderedMarks).map(
-                                        ([position, mark]) => {
-                                            const pos = parseFloat(position);
-                                            // Use the exact same positioning logic as Radix UI thumbs
-                                            const thumbPosition =
-                                                getRadixThumbPosition(pos);
-                                            const style = vertical
-                                                ? {
-                                                      bottom: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px - 13px)`,
-                                                      left: 'calc(100% + 8px)',
-                                                      transform:
-                                                          'translateY(-50%)',
-                                                  }
-                                                : {
-                                                      left: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px)`,
-                                                      bottom: 0,
-                                                      transform:
-                                                          'translateX(-50%)',
-                                                  };
-
-                                            return (
-                                                <div
-                                                    key={position}
-                                                    className="dash-slider-mark"
-                                                    style={{
-                                                        ...style,
-                                                        ...(typeof mark ===
-                                                            'object' &&
-                                                        mark.style
-                                                            ? mark.style
-                                                            : {}),
-                                                    }}
-                                                >
-                                                    {typeof mark === 'string'
-                                                        ? mark
-                                                        : mark?.label || pos}
-                                                </div>
-                                            );
-                                        }
+                                    renderSliderMarks(
+                                        renderedMarks,
+                                        !!vertical,
+                                        minMaxValues,
+                                        !!dots
                                     )}
 
-                                {/* Render dots if enabled */}
                                 {dots &&
                                     stepValue &&
-                                    Array.from(
-                                        {
-                                            length:
-                                                Math.floor(
-                                                    (minMaxValues.max_mark -
-                                                        minMaxValues.min_mark) /
-                                                        stepValue
-                                                ) + 1,
-                                        },
-                                        (_, i) => {
-                                            const dotValue =
-                                                minMaxValues.min_mark +
-                                                i * stepValue;
-                                            const percentage =
-                                                ((dotValue -
-                                                    minMaxValues.min_mark) /
-                                                    (minMaxValues.max_mark -
-                                                        minMaxValues.min_mark)) *
-                                                100;
-                                            const dotStyle = vertical
-                                                ? {
-                                                      bottom: `${percentage}%`,
-                                                      left: '50%',
-                                                      transform:
-                                                          'translateX(-50%)',
-                                                  }
-                                                : {
-                                                      left: `${percentage}%`,
-                                                      top: '50%',
-                                                      transform:
-                                                          'translateY(-50%)',
-                                                  };
-
-                                            return (
-                                                <div
-                                                    key={i}
-                                                    className="dash-slider-dot"
-                                                    style={{
-                                                        position: 'absolute',
-                                                        width: '8px',
-                                                        height: '8px',
-                                                        borderRadius: '50%',
-                                                        backgroundColor: '#ddd',
-                                                        ...dotStyle,
-                                                    }}
-                                                />
-                                            );
-                                        }
+                                    renderSliderDots(
+                                        stepValue,
+                                        minMaxValues,
+                                        !!vertical
                                     )}
 
                                 {/* Thumb with tooltip */}
