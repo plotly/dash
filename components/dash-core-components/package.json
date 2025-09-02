@@ -81,6 +81,7 @@
     "@types/ramda": "^0.31.0",
     "@types/react": "^16.14.8",
     "@types/react-dom": "^16.9.13",
+    "@types/uniqid": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "babel-loader": "^9.2.1",
