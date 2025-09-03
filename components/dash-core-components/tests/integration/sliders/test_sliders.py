@@ -594,7 +594,7 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
     dash_dcc.start_server(app)
     # dash_dcc.wait_for_element("#slider")
 
-    dash_dcc.wait_for_text_to_equal("#slider-tooltip-content", "Custom tooltip: 34")
+    dash_dcc.wait_for_text_to_equal("#slider-tooltip-1-content", "Custom tooltip: 34")
     dash_dcc.wait_for_text_to_equal(
         "#range-slider-tooltip-1-content", "Custom tooltip: 48"
     )
@@ -602,7 +602,7 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
         "#range-slider-tooltip-2-content",
         "Custom tooltip: 60",
     )
-    dash_dcc.wait_for_style_to_equal("#slider-tooltip-content", "padding", "8px")
+    dash_dcc.wait_for_style_to_equal("#slider-tooltip-1-content", "padding", "8px")
 
     dash_dcc.percy_snapshot("sliders-format-tooltips")
 

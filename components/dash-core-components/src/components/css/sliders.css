@@ -6,15 +6,10 @@
     touch-action: none;
     width: 100%;
     height: 14px;
-    padding: 8px 0;
+    padding: 8px 0 28px 0;
     box-sizing: border-box;
     /* Override Radix's default margin/padding behavior */
     --radix-slider-thumb-width: 16px;
-}
-
-/* Add space for marks when they exist */
-.dash-slider-root.has-marks {
-    padding-bottom: 28px; /* Space for horizontal mark labels below */
 }
 
 .dash-slider-root[data-orientation='vertical'].has-marks {
@@ -127,9 +122,6 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     background-color: var(--Dash-Fill-Inverse-Strong);
     user-select: none;
-    animation-duration: 400ms;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform, opacity;
     z-index: 1000;
     fill: var(--Dash-Fill-Inverse-Strong);
 }
@@ -174,15 +166,6 @@
     min-width: 0;
 }
 
-.dash-slider-input {
-    width: 80px;
-    padding: 4px 12px;
-    color: var(--Dash-Text-Strong);
-    border-radius: var(--Dash-Spacing);
-    font-size: 14px;
-    font-family: inherit;
-}
-
 .dash-range-slider-inputs {
     display: flex;
     flex-direction: column;
@@ -197,4 +180,12 @@
 .dash-range-slider-input {
     width: 64px;
     margin-top: 8px;
+    -moz-appearance: textfield;
+}
+
+/* Hide the number input spinners */
+.dash-range-slider-input::-webkit-inner-spin-button,
+.dash-range-slider-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

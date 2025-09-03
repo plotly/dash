@@ -30,8 +30,8 @@ export default function RangeSlider(props: RangeSliderProps) {
         setProps,
         tooltip,
         updatemode,
-        min = 0,
-        max = 100,
+        min,
+        max,
         marks,
         step,
         vertical,
@@ -46,7 +46,7 @@ export default function RangeSlider(props: RangeSliderProps) {
     } = props;
 
     // For range slider, we expect an array of values
-    const [value, setValue] = useState<number[]>(propValue || [min, max]);
+    const [value, setValue] = useState<number[]>(propValue || []);
 
     // Track slider dimension (width for horizontal, height for vertical) for conditional input rendering
     const [sliderWidth, setSliderWidth] = useState<number | null>(null);
@@ -60,8 +60,7 @@ export default function RangeSlider(props: RangeSliderProps) {
             setValue(propValue);
         } else {
             // Default to range from min to max if no value provided
-            const defaultValue = [min, max];
-            setProps({drag_value: defaultValue});
+            const defaultValue = [min ?? (propValue ? propValue[0] : 0)];
             setValue(defaultValue);
         }
     }, []);
@@ -80,7 +79,7 @@ export default function RangeSlider(props: RangeSliderProps) {
             return;
         }
 
-        if (value.length !== 2) {
+        if (!value || value.length > 2) {
             setShowInputs(false);
             return;
         }
@@ -93,8 +92,10 @@ export default function RangeSlider(props: RangeSliderProps) {
                 if (dimension > 0) {
                     setSliderWidth(dimension);
 
-                    const HIDE_AT_WIDTH = 250;
-                    const SHOW_AT_WIDTH = 450;
+                    // eslint-disable-next-line no-magic-numbers
+                    const HIDE_AT_WIDTH = value.length === 1 ? 200 : 250;
+                    // eslint-disable-next-line no-magic-numbers
+                    const SHOW_AT_WIDTH = value.length === 1 ? 300 : 450;
                     if (showInputs && dimension < HIDE_AT_WIDTH) {
                         setShowInputs(false);
                     } else if (!showInputs && dimension >= SHOW_AT_WIDTH) {
@@ -131,12 +132,17 @@ export default function RangeSlider(props: RangeSliderProps) {
 
     // Check if marks exceed 500 limit for performance
     let processedMarks = marks;
-    if (marks && Object.keys(marks).length > MAX_MARKS) {
-        /* eslint-disable no-console */
-        console.warn(
-            `RangeSlider marks exceed ${MAX_MARKS} limit for performance. Marks have been disabled.`
-        );
-        processedMarks = undefined;
+    if (marks && typeof marks === 'object' && marks !== null) {
+        const marksCount = Object.keys(marks).length;
+        if (marksCount > MAX_MARKS) {
+            /* eslint-disable no-console */
+            console.error(
+                `Slider: Too many marks (${marksCount}) provided. ` +
+                    `For performance reasons, marks are limited to 500. ` +
+                    `Using auto-generated marks instead.`
+            );
+            processedMarks = undefined;
+        }
     }
 
     const minMaxValues = useMemo(() => {
@@ -218,7 +224,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                     className="dash-slider-container"
                     {...loadingProps}
                 >
-                    {showInputs && !vertical && (
+                    {showInputs && value.length === 2 && !vertical && (
                         <input
                             type="number"
                             className="dash-input-container dash-range-slider-input dash-range-slider-min-input"
@@ -272,6 +278,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                                     setProps({value: newValue});
                                 }
                             }}
+                            pattern="^\\d*\\.?\\d*$"
                             min={minMaxValues.min_mark}
                             max={value[1]}
                             step={step || undefined}
@@ -378,26 +385,29 @@ export default function RangeSlider(props: RangeSliderProps) {
                         <input
                             type="number"
                             className="dash-input-container dash-range-slider-input"
-                            value={value[1] ?? ''}
+                            value={value[value.length - 1] ?? ''}
                             onChange={e => {
                                 const inputValue = e.target.value;
                                 // Allow empty string (user is clearing the field)
                                 if (inputValue === '') {
                                     // Don't update props while user is typing, just update local state
-                                    setValue([value[0], null as any]);
+                                    const newValue = [...value];
+                                    newValue[newValue.length - 1] = '' as any;
+                                    setValue(newValue);
                                 } else {
                                     const newMax = parseFloat(inputValue);
-                                    if (!isNaN(newMax)) {
-                                        const newValue = [value[0], newMax];
-                                        setValue(newValue);
-                                        if (updatemode === 'drag') {
-                                            setProps({
-                                                value: newValue,
-                                                drag_value: newValue,
-                                            });
-                                        } else {
-                                            setProps({drag_value: newValue});
-                                        }
+                                    const constrainedMax = Math.max(
+                                        minMaxValues.min_mark,
+                                        Math.min(minMaxValues.max_mark, newMax)
+                                    );
+
+                                    if (newMax === constrainedMax) {
+                                        const newValue = [...value];
+                                        newValue[newValue.length - 1] = newMax;
+                                        setProps({
+                                            value: newValue,
+                                            drag_value: newValue,
+                                        });
                                     }
                                 }
                             }}
@@ -407,7 +417,9 @@ export default function RangeSlider(props: RangeSliderProps) {
 
                                 // If empty, default to current value or max_mark
                                 if (inputValue === '') {
-                                    newMax = value[1] ?? minMaxValues.max_mark;
+                                    newMax =
+                                        value[value.length - 1] ??
+                                        minMaxValues.max_mark;
                                 } else {
                                     newMax = parseFloat(inputValue);
                                     newMax = isNaN(newMax)
@@ -422,13 +434,19 @@ export default function RangeSlider(props: RangeSliderProps) {
                                         newMax
                                     )
                                 );
-                                const newValue = [value[0], constrainedMax];
+                                const newValue = [...value];
+                                newValue[newValue.length - 1] = constrainedMax;
                                 setValue(newValue);
                                 if (updatemode === 'mouseup') {
                                     setProps({value: newValue});
                                 }
                             }}
-                            min={value[0]}
+                            pattern="^\\d*\\.?\\d*$"
+                            min={
+                                value.length === 1
+                                    ? minMaxValues.min_mark
+                                    : value[0]
+                            }
                             max={minMaxValues.max_mark}
                             step={step || undefined}
                             disabled={disabled}
