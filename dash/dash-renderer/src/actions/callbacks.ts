@@ -623,9 +623,7 @@ function handleServerside(
                     }
 
                     if (data.sideUpdate) {
-                        setTimeout(() =>
-                            dispatch(sideUpdate(data.sideUpdate, payload))
-                        ); // always force side-updates
+                        dispatch(sideUpdate(data.sideUpdate, payload));
                     }
 
                     if (data.progress) {
@@ -913,6 +911,9 @@ export function executeCallback(
                             const outputPath = getPath(paths, out.id);
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
+                            if (outputValue === undefined) {
+                                return;
+                            }
                             const oldProps =
                                 path(
                                     outputPath.concat(['props']),
@@ -922,6 +923,7 @@ export function executeCallback(
                                 {[propName]: outputValue},
                                 oldProps
                             );
+
                             data = assocPath(
                                 dataPath,
                                 newProps[propName],
