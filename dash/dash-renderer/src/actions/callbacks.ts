@@ -831,6 +831,9 @@ export function executeCallback(
                             const outputPath = getPath(paths, out.id);
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
+                            if (outputValue === undefined) {
+                                return;
+                            }
                             const oldProps =
                                 path(
                                     outputPath.concat(['props']),
