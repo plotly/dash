@@ -22,12 +22,12 @@ try:
     from IPython.core.display import HTML
     from IPython.core.ultratb import FormattedTB
     from retrying import retry
-    from ipykernel.comm import Comm
+    from comm import create_comm
     import nest_asyncio
 
     import requests
 
-    _dash_comm = Comm(target_name="dash")
+    _dash_comm = create_comm(target_name="dash")
     _dep_installed = True
 except ImportError:
     _dep_installed = False
@@ -97,10 +97,14 @@ _caller = {}
 def _send_jupyter_config_comm_request():
     # If running in an ipython kernel,
     # request that the front end extension send us the notebook server base URL
-    if get_ipython() is not None:
-        if _dash_comm.kernel is not None:
-            _caller["parent"] = _dash_comm.kernel.get_parent()
-            _dash_comm.send({"type": "base_url_request"})
+    ipython = get_ipython()
+    if (
+        ipython is not None
+        and hasattr(ipython, "kernel")
+        and ipython.kernel is not None
+    ):
+        _caller["parent"] = ipython.kernel.get_parent()
+        _dash_comm.send({"type": "base_url_request"})
 
 
 def _jupyter_comm_response_received():
@@ -109,7 +113,8 @@ def _jupyter_comm_response_received():
 
 def _request_jupyter_config(timeout=2):
     # Heavily inspired by implementation of CaptureExecution in the
-    if _dash_comm.kernel is None:
+    ipython = get_ipython()
+    if ipython is None or not hasattr(ipython, "kernel") or ipython.kernel is None:
         # Not in jupyter setting
         return
 
@@ -215,8 +220,15 @@ class JupyterDash:
             @_dash_comm.on_msg
             def _receive_message(msg):
                 prev_parent = _caller.get("parent")
-                if prev_parent and prev_parent != _dash_comm.kernel.get_parent():
-                    _dash_comm.kernel.set_parent(
+                ipython = get_ipython()
+                if (
+                    prev_parent
+                    and ipython is not None
+                    and hasattr(ipython, "kernel")
+                    and ipython.kernel is not None
+                    and prev_parent != ipython.kernel.get_parent()
+                ):
+                    ipython.kernel.set_parent(
                         [prev_parent["header"]["session"]], prev_parent
                     )
                     del _caller["parent"]
