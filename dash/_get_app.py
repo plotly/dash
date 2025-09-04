@@ -23,7 +23,6 @@ def with_app_context_async(func):
     async def wrap(self, *args, **kwargs):
         app_context.set(self)
         ctx = copy_context()
-        print("copied and set")
         return await ctx.run(func, self, *args, **kwargs)
 
     return wrap
