@@ -67,6 +67,12 @@ npm run setup-tests.py
 npm run setup-tests.R
 ```
 
+### Showcase App
+```bash
+# Run the component showcase app
+python3 showcase/component_showcase.py
+```
+
 ## Architecture Overview
 
 ### Core Structure
