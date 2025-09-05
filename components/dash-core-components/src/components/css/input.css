@@ -5,17 +5,25 @@
     align-items: center;
     width: 170px; /* default input width */
     height: 32px;
+    background: var(--Dash-Fill-Inverse-Strong);
     border-radius: var(--Dash-Spacing);
     border: 1px solid var(--Dash-Stroke-Strong);
     box-sizing: border-box;
     container-type: inline-size;
     vertical-align: middle;
+    color: inherit;
+    overflow: hidden;
+}
+
+.dash-input-container:has(input[type='range']) {
+    background: inherit;
 }
 
 /* Input field styles */
 .dash-input-element {
     padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
-    background: var(--Dash-Fill-Inverse-Strong);
+    color: inherit;
+    background: inherit;
     border: none;
     border-radius: var(--Dash-Spacing);
     flex: 1 1 0;

@@ -285,7 +285,10 @@ export default function RangeSlider(props: RangeSliderProps) {
                             disabled={disabled}
                         />
                     )}
-                    <div className="dash-slider-wrapper">
+                    <div
+                        className="dash-slider-wrapper"
+                        onClickCapture={e => e.preventDefault()} // prevent interactions from "clicking" the parent, particularly when slider is inside a label tag
+                    >
                         <Tooltip.Provider>
                             <RadixSlider.Root
                                 ref={sliderRef}

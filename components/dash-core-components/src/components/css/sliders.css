@@ -66,6 +66,7 @@
     transition: all 0.15s ease-in-out;
 }
 
+.dash-slider-thumb:focus,
 .dash-slider-thumb:hover {
     transform: scale(1.125); /* Scale to make 16px thumb appear as 18px */
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -80,7 +81,7 @@
     position: absolute;
     font-size: 12px;
     line-height: 12px;
-    color: #6b7280;
+    color: var(--Dash-Text-Strong);
     white-space: nowrap;
     pointer-events: none;
 }
