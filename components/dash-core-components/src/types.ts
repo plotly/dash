@@ -12,6 +12,58 @@ export type SliderMarks = {
     [key: number]: string | {label: string; style?: React.CSSProperties};
 };
 
+export type SliderTooltip = {
+    /**
+     * Determines whether tooltips should always be visible
+     * (as opposed to the default, visible on hover)
+     */
+    always_visible?: boolean;
+
+    /**
+     * Determines the placement of tooltips
+     * See https://github.com/react-component/tooltip#api
+     * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
+     * will in reality appear to be on the top right of the handle
+     */
+    placement?:
+        | 'left'
+        | 'right'
+        | 'top'
+        | 'bottom'
+        | 'topLeft'
+        | 'topRight'
+        | 'bottomLeft'
+        | 'bottomRight';
+
+    /**
+     * Template string to display the tooltip in.
+     * Must contain `{value}`, which will be replaced with either
+     * the default string representation of the value or the result of the
+     * transform function if there is one.
+     */
+    template?: string;
+
+    /**
+     * Custom style for the tooltip.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Reference to a function in the `window.dccFunctions` namespace.
+     * This can be added in a script in the asset folder.
+     *
+     * For example, in `assets/tooltip.js`:
+     * ```
+     * window.dccFunctions = window.dccFunctions || {};
+     * window.dccFunctions.multByTen = function(value) {
+     *     return value * 10;
+     * }
+     * ```
+     * Then in the component `tooltip={'transform': 'multByTen'}`
+     */
+    transform?: string;
+};
+
 export interface SliderProps {
     /**
      * Minimum allowed value of the slider
@@ -69,57 +121,7 @@ export interface SliderProps {
     /**
      * Configuration for tooltips describing the current slider value
      */
-    tooltip?: {
-        /**
-         * Determines whether tooltips should always be visible
-         * (as opposed to the default, visible on hover)
-         */
-        always_visible?: boolean;
-
-        /**
-         * Determines the placement of tooltips
-         * See https://github.com/react-component/tooltip#api
-         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
-         * will in reality appear to be on the top right of the handle
-         */
-        placement?:
-            | 'left'
-            | 'right'
-            | 'top'
-            | 'bottom'
-            | 'topLeft'
-            | 'topRight'
-            | 'bottomLeft'
-            | 'bottomRight';
-
-        /**
-         * Template string to display the tooltip in.
-         * Must contain `{value}`, which will be replaced with either
-         * the default string representation of the value or the result of the
-         * transform function if there is one.
-         */
-        template?: string;
-
-        /**
-         * Custom style for the tooltip.
-         */
-        style?: React.CSSProperties;
-
-        /**
-         * Reference to a function in the `window.dccFunctions` namespace.
-         * This can be added in a script in the asset folder.
-         *
-         * For example, in `assets/tooltip.js`:
-         * ```
-         * window.dccFunctions = window.dccFunctions || {};
-         * window.dccFunctions.multByTen = function(value) {
-         *     return value * 10;
-         * }
-         * ```
-         * Then in the component `tooltip={'transform': 'multByTen'}`
-         */
-        transform?: string;
-    };
+    tooltip?: SliderTooltip;
 
     /**
      * Determines when the component should update its `value`
@@ -262,57 +264,7 @@ export interface RangeSliderProps {
     /**
      * Configuration for tooltips describing the current slider values
      */
-    tooltip?: {
-        /**
-         * Determines whether tooltips should always be visible
-         * (as opposed to the default, visible on hover)
-         */
-        always_visible?: boolean;
-
-        /**
-         * Determines the placement of tooltips
-         * See https://github.com/react-component/tooltip#api
-         * top/bottom{*} sets the _origin_ of the tooltip, so e.g. `topLeft`
-         * will in reality appear to be on the top right of the handle
-         */
-        placement?:
-            | 'left'
-            | 'right'
-            | 'top'
-            | 'bottom'
-            | 'topLeft'
-            | 'topRight'
-            | 'bottomLeft'
-            | 'bottomRight';
-
-        /**
-         * Template string to display the tooltip in.
-         * Must contain `{value}`, which will be replaced with either
-         * the default string representation of the value or the result of the
-         * transform function if there is one.
-         */
-        template?: string;
-
-        /**
-         * Custom style for the tooltip.
-         */
-        style?: React.CSSProperties;
-
-        /**
-         * Reference to a function in the `window.dccFunctions` namespace.
-         * This can be added in a script in the asset folder.
-         *
-         * For example, in `assets/tooltip.js`:
-         * ```
-         * window.dccFunctions = window.dccFunctions || {};
-         * window.dccFunctions.multByTen = function(value) {
-         *     return value * 10;
-         * }
-         * ```
-         * Then in the component `tooltip={'transform': 'multByTen'}`
-         */
-        transform?: string;
-    };
+    tooltip?: SliderTooltip;
 
     /**
      * Determines when the component should update its `value`

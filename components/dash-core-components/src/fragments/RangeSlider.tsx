@@ -1,6 +1,5 @@
 import React, {useEffect, useState, useMemo, useRef} from 'react';
 import * as RadixSlider from '@radix-ui/react-slider';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import {isNil} from 'ramda';
 
 import {
@@ -8,13 +7,10 @@ import {
     calcStep,
     setUndefined,
 } from '../utils/computeSliderMarkers';
-import {
-    formatSliderTooltip,
-    transformSliderTooltip,
-} from '../utils/formatSliderTooltip';
 import {snapToNearestMark} from '../utils/sliderSnapToMark';
 import {renderSliderMarks, renderSliderDots} from '../utils/sliderRendering';
 import LoadingElement from '../utils/_LoadingElement';
+import {Tooltip} from '../utils/sliderTooltip';
 import {RangeSliderProps} from '../types';
 
 const MAX_MARKS = 500;
@@ -51,6 +47,7 @@ export default function RangeSlider(props: RangeSliderProps) {
     // Track slider dimension (width for horizontal, height for vertical) for conditional input rendering
     const [sliderWidth, setSliderWidth] = useState<number | null>(null);
     const [showInputs, setShowInputs] = useState<boolean>(value.length === 2);
+
     const sliderRef = useRef<HTMLDivElement>(null);
 
     // Handle initial mount - equivalent to componentWillMount
@@ -178,9 +175,8 @@ export default function RangeSlider(props: RangeSliderProps) {
             processedMarks &&
             typeof processedMarks === 'object'
         ) {
-            adjustedValue = newValue.map(val =>
-                snapToNearestMark(val, processedMarks)
-            );
+            const marks = processedMarks;
+            adjustedValue = newValue.map(val => snapToNearestMark(val, marks));
         }
 
         setValue(adjustedValue);
@@ -195,25 +191,6 @@ export default function RangeSlider(props: RangeSliderProps) {
         if (updatemode === 'mouseup') {
             setProps({value: newValue});
         }
-    };
-
-    // Format tooltip content
-    const formatTooltipContent = (value: number, index: number) => {
-        let displayValue: string | number = value;
-        if (tooltip?.transform) {
-            displayValue = transformSliderTooltip(tooltip.transform, value);
-        }
-        return (
-            <div
-                id={`${id}-tooltip-${index + 1}-content`}
-                style={tooltip?.style}
-            >
-                {formatSliderTooltip(
-                    tooltip?.template || '{value}',
-                    displayValue
-                )}
-            </div>
-        );
     };
 
     return (
@@ -289,100 +266,73 @@ export default function RangeSlider(props: RangeSliderProps) {
                         className="dash-slider-wrapper"
                         onClickCapture={e => e.preventDefault()} // prevent interactions from "clicking" the parent, particularly when slider is inside a label tag
                     >
-                        <Tooltip.Provider>
-                            <RadixSlider.Root
-                                ref={sliderRef}
-                                className={`dash-slider-root dash-range-slider-root ${
-                                    renderedMarks ? 'has-marks' : ''
-                                } ${className || ''}`.trim()}
-                                style={{
-                                    position: 'relative',
-                                    ...(vertical && {
-                                        height: `${verticalHeight}px`,
-                                    }),
-                                }}
-                                value={value}
-                                onValueChange={handleValueChange}
-                                onValueCommit={handleValueCommit}
-                                min={minMaxValues.min_mark}
-                                max={minMaxValues.max_mark}
-                                step={stepValue}
-                                disabled={disabled}
-                                orientation={
-                                    vertical ? 'vertical' : 'horizontal'
-                                }
-                                data-included={included !== false}
-                                minStepsBetweenThumbs={
-                                    typeof pushable === 'number'
-                                        ? pushable
-                                        : undefined
-                                }
-                            >
-                                <RadixSlider.Track className="dash-slider-track">
-                                    {included !== false && (
-                                        <RadixSlider.Range className="dash-slider-range" />
-                                    )}
-                                </RadixSlider.Track>
-                                {renderedMarks &&
-                                    renderSliderMarks(
-                                        renderedMarks,
-                                        !!vertical,
-                                        minMaxValues,
-                                        !!dots
-                                    )}
-                                {dots &&
-                                    stepValue &&
-                                    renderSliderDots(
-                                        stepValue,
-                                        minMaxValues,
-                                        !!vertical
-                                    )}
-                                {/* Render thumbs with tooltips for each value */}
-                                {value.map((val, index) => {
-                                    const thumbClassName = `dash-slider-thumb dash-slider-thumb-${
-                                        index + 1
-                                    }`;
+                        <RadixSlider.Root
+                            ref={sliderRef}
+                            className={`dash-slider-root ${
+                                renderedMarks ? 'has-marks' : ''
+                            } ${className || ''}`.trim()}
+                            style={{
+                                ...(vertical && {
+                                    height: `${verticalHeight}px`,
+                                }),
+                            }}
+                            value={value}
+                            onValueChange={handleValueChange}
+                            onValueCommit={handleValueCommit}
+                            min={minMaxValues.min_mark}
+                            max={minMaxValues.max_mark}
+                            step={stepValue}
+                            disabled={disabled}
+                            orientation={vertical ? 'vertical' : 'horizontal'}
+                            data-included={included !== false}
+                            minStepsBetweenThumbs={
+                                typeof pushable === 'number'
+                                    ? pushable
+                                    : undefined
+                            }
+                        >
+                            <RadixSlider.Track className="dash-slider-track">
+                                {included !== false && (
+                                    <RadixSlider.Range className="dash-slider-range" />
+                                )}
+                            </RadixSlider.Track>
+                            {renderedMarks &&
+                                renderSliderMarks(
+                                    renderedMarks,
+                                    !!vertical,
+                                    minMaxValues,
+                                    !!dots
+                                )}
+                            {dots &&
+                                stepValue &&
+                                renderSliderDots(
+                                    stepValue,
+                                    minMaxValues,
+                                    !!vertical
+                                )}
+                            {/* Render thumbs with tooltips for each value */}
+                            {value.map((val, index) => {
+                                const thumbClassName = `dash-slider-thumb dash-slider-thumb-${
+                                    index + 1
+                                }`;
 
-                                    return tooltip ? (
-                                        <Tooltip.Root
-                                            key={index}
-                                            open={
-                                                tooltip.always_visible ||
-                                                undefined
-                                            }
-                                        >
-                                            <Tooltip.Trigger asChild>
-                                                <RadixSlider.Thumb
-                                                    className={thumbClassName}
-                                                />
-                                            </Tooltip.Trigger>
-                                            <Tooltip.Portal>
-                                                <Tooltip.Content
-                                                    className="dash-slider-tooltip"
-                                                    side={
-                                                        vertical
-                                                            ? 'right'
-                                                            : 'top'
-                                                    }
-                                                    align="center"
-                                                >
-                                                    {formatTooltipContent(
-                                                        val,
-                                                        index
-                                                    )}
-                                                    <Tooltip.Arrow />
-                                                </Tooltip.Content>
-                                            </Tooltip.Portal>
-                                        </Tooltip.Root>
-                                    ) : (
-                                        <RadixSlider.Thumb
-                                            key={index}
-                                            className={thumbClassName}
-                                        />
-                                    );
-                                })}
-                            </RadixSlider.Root>
-                        </Tooltip.Provider>
+                                return (
+                                    <RadixSlider.Thumb
+                                        key={'thumb' + index}
+                                        className={thumbClassName}
+                                    >
+                                        {tooltip && (
+                                            <Tooltip
+                                                id={id}
+                                                index={index}
+                                                value={val}
+                                                tooltip={tooltip}
+                                            />
+                                        )}
+                                    </RadixSlider.Thumb>
+                                );
+                            })}
+                        </RadixSlider.Root>
                     </div>
                     {showInputs && !vertical && (
                         <input
