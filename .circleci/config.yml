@@ -5,7 +5,6 @@ orbs:
   percy: percy/agent@0.1.3
   browser-tools: circleci/browser-tools@1.5.1
 
-
 jobs:
   artifacts:
     docker:
@@ -158,8 +157,8 @@ jobs:
             python -m venv venv && . venv/Scripts/activate
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
-           command: |
-             nvm install 18 && nvm use 18
+          command: |
+            nvm install 18 && nvm use 18
       - run:
           name: npm prereqs
           command: |
@@ -318,6 +317,8 @@ jobs:
           command: |
             . venv/bin/activate && rm -rf components/dash-core-components/dash_core_components
             cd components/dash-core-components
+            npm ci
+            npm run test:jest
             TESTFILES=$(circleci tests glob "tests/integration/**/test_*.py" | circleci tests split --split-by=timings)
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" ${TESTFILES}
       - store_artifacts:
