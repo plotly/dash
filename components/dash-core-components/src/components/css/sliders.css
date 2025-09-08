@@ -189,7 +189,6 @@
     width: 64px;
     margin-top: 8px;
     -moz-appearance: textfield;
-    z-index: -1;
 }
 
 /* Hide the number input spinners */
