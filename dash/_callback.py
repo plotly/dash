@@ -184,7 +184,6 @@ def callback(
     )
     callback_map = _kwargs.pop("callback_map", GLOBAL_CALLBACK_MAP)
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
-    callback_api_paths = _kwargs.pop("callback_api_paths", GLOBAL_API_PATHS)
 
     if background:
         background_spec: Any = {
@@ -224,7 +223,6 @@ def callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
-        callback_api_paths,
         *_args,
         **_kwargs,
         background=background_spec,
@@ -603,7 +601,6 @@ def register_callback(
     callback_list,
     callback_map,
     config_prevent_initial_callbacks,
-    callback_api_paths,
     *_args,
     **_kwargs,
 ):
@@ -662,7 +659,7 @@ def register_callback(
     def wrap_func(func):
         if _kwargs.get("api_endpoint"):
             api_endpoint = _kwargs.get("api_endpoint")
-            callback_api_paths[api_endpoint] = func
+            GLOBAL_API_PATHS[api_endpoint] = func
 
         if background is None:
             background_key = None
