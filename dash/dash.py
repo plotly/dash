@@ -785,7 +785,20 @@ class Dash(ObsoleteChecker):
         self._add_url("<path:path>", self.index)
 
     def setup_apis(self):
-        # Copy over global callback data structures assigned with `dash.callback`
+        """
+        Register API endpoints for all callbacks defined using `dash.callback`.
+
+        This method must be called after all callbacks are registered and before the app is served.
+        It ensures that all callback API routes are available for the Dash app to function correctly.
+
+        Typical usage:
+            app = Dash(__name__)
+            # Register callbacks here
+            app.setup_apis()
+            app.run()
+
+        If not called, callback endpoints will not be available and the app will not function as expected.
+        """
         for k in list(_callback.GLOBAL_API_PATHS):
             if k in self.callback_api_paths:
                 raise DuplicateCallback(
