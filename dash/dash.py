@@ -17,6 +17,7 @@ import mimetypes
 import hashlib
 import base64
 import traceback
+import inspect
 from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
@@ -67,6 +68,8 @@ from . import _dash_renderer
 from . import _validate
 from . import _watch
 from . import _get_app
+from .server_factories.flask_factory import FlaskServerFactory
+from .server_factories.base_factory import BaseServerFactory
 
 from ._get_app import with_app_context, with_app_context_async, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
@@ -421,7 +424,7 @@ class Dash(ObsoleteChecker):
     _plotlyjs_url: str
     STARTUP_ROUTES: list = []
 
-    server: flask.Flask
+    server: Any
 
     # Layout is a complex type which can be many things
     _layout: Any
@@ -430,7 +433,7 @@ class Dash(ObsoleteChecker):
     def __init__(  # pylint: disable=too-many-statements
         self,
         name: Optional[str] = None,
-        server: Union[bool, flask.Flask] = True,
+        server: Union[bool, Callable[[], Any]] = True,
         assets_folder: str = "assets",
         pages_folder: str = "pages",
         use_pages: Optional[bool] = None,
@@ -466,6 +469,7 @@ class Dash(ObsoleteChecker):
         description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
+        server_factory: Optional[BaseServerFactory] = None,
         **obsolete,
     ):
 
@@ -488,16 +492,23 @@ class Dash(ObsoleteChecker):
 
         caller_name: str = name if name is not None else get_caller_name()
 
+        self.server_factory = server_factory or FlaskServerFactory()
+
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
-        if isinstance(server, flask.Flask):
+        if callable(server) and not (hasattr(server, 'route') and hasattr(server, 'run')):
+            # Server factory function
+            self.server = server()
+            if name is None:
+                caller_name = getattr(self.server, "name", caller_name)
+        elif hasattr(server, 'route') and hasattr(server, 'run'):
             self.server = server
             if name is None:
                 caller_name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
-            self.server = flask.Flask(caller_name) if server else None  # type: ignore
+            self.server = self.server_factory.create_app(caller_name) if server else None
         else:
-            raise ValueError("server must be a Flask app or a boolean")
+            raise ValueError("server must be a Flask app, a boolean, or a server factory function")
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -671,11 +682,8 @@ class Dash(ObsoleteChecker):
         if self._hooks.get_hooks("error"):
             self._on_error = self._hooks.HookErrorHandler(self._on_error)
 
-    def init_app(self, app: Optional[flask.Flask] = None, **kwargs) -> None:
-        """Initialize the parts of Dash that require a flask app."""
-
+    def init_app(self, app: Optional[Any] = None, **kwargs) -> None:
         config = self.config
-
         config.update(kwargs)
         config.set_read_only(
             [
@@ -685,89 +693,58 @@ class Dash(ObsoleteChecker):
             ],
             "Read-only: can only be set in the Dash constructor or during init_app()",
         )
-
         if app is not None:
             self.server = app
-
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
-
-        self.server.register_blueprint(
-            flask.Blueprint(
-                assets_blueprint_name,
-                config.name,
-                static_folder=self.config.assets_folder,
-                static_url_path=config.routes_pathname_prefix
-                + self.config.assets_url_path.lstrip("/"),
-            )
+        self.server_factory.register_assets_blueprint(
+            self.server,
+            assets_blueprint_name,
+            config.routes_pathname_prefix + self.config.assets_url_path.lstrip("/"),
+            self.config.assets_folder,
         )
-
         if config.compress:
             try:
-                # pylint: disable=import-outside-toplevel
-                from flask_compress import Compress  # type: ignore[reportMissingImports]
-
-                # gzip
+                from flask_compress import Compress
                 Compress(self.server)
-
                 _flask_compress_version = parse_version(
                     _get_distribution_version("flask_compress")
                 )
-
                 if not hasattr(
                     self.server.config, "COMPRESS_ALGORITHM"
                 ) and _flask_compress_version >= parse_version("1.6.0"):
-                    # flask-compress==1.6.0 changed default to ['br', 'gzip']
-                    # and non-overridable default compression with Brotli is
-                    # causing performance issues
                     self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
             except ImportError as error:
                 raise ImportError(
                     "To use the compress option, you need to install dash[compress]"
                 ) from error
-
-        @self.server.errorhandler(PreventUpdate)
-        def _handle_error(_):
-            """Handle a halted callback and return an empty 204 response."""
-            return "", 204
-
-        self.server.before_request(self._setup_server)
-
-        # add a handler for components suites errors to return 404
-        self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
-
+        self.server_factory.register_error_handlers(self.server)
+        self.server_factory.before_request(self.server, self._setup_server)
         self._setup_routes()
-
         _get_app.APP = self
         self.enable_pages()
-
         self._setup_plotlyjs()
 
     def _add_url(self, name: str, view_func: RouteCallable, methods=("GET",)) -> None:
         full_name = self.config.routes_pathname_prefix + name
-
-        self.server.add_url_rule(
-            full_name, view_func=view_func, endpoint=full_name, methods=list(methods)
+        self.server_factory.add_url_rule(
+            self.server,
+            full_name,
+            view_func=view_func,
+            endpoint=full_name,
+            methods=list(methods),
         )
-
-        # record the url in Dash.routes so that it can be accessed later
-        # e.g. for adding authentication with flask_login
         self.routes.append(full_name)
 
     def _setup_routes(self):
-        self._add_url(
-            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
-            self.serve_component_suites,
-        )
+        self.server_factory.setup_component_suites(self.server, self)
         self._add_url("_dash-layout", self.serve_layout)
         self._add_url("_dash-dependencies", self.dependencies)
-        if self._use_async:
-            self._add_url("_dash-update-component", self.async_dispatch, ["POST"])
-        else:
-            self._add_url("_dash-update-component", self.dispatch, ["POST"])
+        self._add_url("_dash-update-component", self.server_factory.dispatch(self.server, self, self._use_async), ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
-        self._add_url("_favicon.ico", self._serve_default_favicon)
-        self._add_url("", self.index)
+        self._add_url("_favicon.ico", self.server_factory._serve_default_favicon)
+        self.server_factory.setup_index(self.server, self)
+        self.server_factory.setup_catchall(self.server, self)
 
         if jupyter_dash.active:
             self._add_url(
@@ -781,8 +758,6 @@ class Dash(ObsoleteChecker):
                 hook.data["methods"],
             )
 
-        # catch-all for front-end routes, used by dcc.Location
-        self._add_url("<path:path>", self.index)
 
     def setup_apis(self):
         """
@@ -902,7 +877,7 @@ class Dash(ObsoleteChecker):
             layout = hook(layout)
 
         # TODO - Set browser cache limit - pass hash into frontend
-        return flask.Response(
+        return self.server_factory.make_response(
             to_json(layout),
             mimetype="application/json",
         )
@@ -966,7 +941,7 @@ class Dash(ObsoleteChecker):
             _reload.hard = False
             _reload.changed_assets = []
 
-        return flask.jsonify(
+        return self.server_factory.jsonify(
             {
                 "reloadHash": _hash,
                 "hard": hard,
@@ -1159,54 +1134,12 @@ class Dash(ObsoleteChecker):
 
         return meta_tags + self.config.meta_tags
 
-    # Serve the JS bundles for each package
-    def serve_component_suites(self, package_name, fingerprinted_path):
-        path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
-
-        _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
-
-        extension = "." + path_in_pkg.split(".")[-1]
-        mimetype = mimetypes.types_map.get(extension, "application/octet-stream")
-
-        package = sys.modules[package_name]
-        self.logger.debug(
-            "serving -- package: %s[%s] resource: %s => location: %s",
-            package_name,
-            package.__version__,
-            path_in_pkg,
-            package.__path__,
-        )
-
-        response = flask.Response(
-            pkgutil.get_data(package_name, path_in_pkg), mimetype=mimetype
-        )
-
-        if has_fingerprint:
-            # Fingerprinted resources are good forever (1 year)
-            # No need for ETag as the fingerprint changes with each build
-            response.cache_control.max_age = 31536000  # 1 year
-        else:
-            # Non-fingerprinted resources are given an ETag that
-            # will be used / check on future requests
-            response.add_etag()
-            tag = response.get_etag()[0]
-
-            request_etag = flask.request.headers.get("If-None-Match")
-
-            if f'"{tag}"' == request_etag:
-                response = flask.Response(None, status=304)
-
-        return response
-
-    @with_app_context
-    def index(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def render_index(self, *args, **kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta()
         renderer = self._generate_renderer()
-
-        # use self.title instead of app.config.title for backwards compatibility
         title = self.title
 
         if self.use_pages and self.config.include_pages_meta:
@@ -1314,7 +1247,7 @@ class Dash(ObsoleteChecker):
 
     @with_app_context
     def dependencies(self):
-        return flask.Response(
+        return self.server_factory.make_response(
             to_json(self._callback_list),
             content_type="application/json",
         )
@@ -1417,8 +1350,11 @@ class Dash(ObsoleteChecker):
             **_kwargs,
         )
 
+    def _inputs_to_vals(self, inputs):
+        return inputs_to_vals(inputs)
+
     # pylint: disable=R0915
-    def _initialize_context(self, body):
+    def _initialize_context(self, body, adapter):
         """Initialize the global context for the request."""
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
@@ -1430,12 +1366,12 @@ class Dash(ObsoleteChecker):
             {"prop_id": x, "value": g.input_values.get(x)}
             for x in body.get("changedPropIds", [])
         ]
-        g.dash_response = flask.Response(mimetype="application/json")
-        g.cookies = dict(**flask.request.cookies)
-        g.headers = dict(**flask.request.headers)
-        g.path = flask.request.full_path
-        g.remote = flask.request.remote_addr
-        g.origin = flask.request.origin
+        g.dash_response = self.server_factory.make_response(mimetype="application/json", data=None)
+        g.cookies = dict(adapter.get_cookies())
+        g.headers = dict(adapter.get_headers())
+        g.path = adapter.get_full_path()
+        g.remote = adapter.get_remote_addr()
+        g.origin = adapter.get_origin()
         g.updated_props = {}
         return g
 
@@ -1499,11 +1435,6 @@ class Dash(ObsoleteChecker):
 
     def _execute_callback(self, func, args, outputs_list, g):
         """Execute the callback with the prepared arguments."""
-        g.cookies = dict(**flask.request.cookies)
-        g.headers = dict(**flask.request.headers)
-        g.path = flask.request.full_path
-        g.remote = flask.request.remote_addr
-        g.origin = flask.request.origin
         g.custom_data = AttributeDict({})
 
         for hook in self._hooks.get_hooks("custom_data"):
@@ -1521,47 +1452,6 @@ class Dash(ObsoleteChecker):
             app_use_async=self._use_async,
         )
         return partial_func
-
-    @with_app_context_async
-    async def async_dispatch(self):
-        body = flask.request.get_json()
-        g = self._initialize_context(body)
-        func = self._prepare_callback(g, body)
-        args = inputs_to_vals(g.inputs_list + g.states_list)
-
-        ctx = copy_context()
-        partial_func = self._execute_callback(func, args, g.outputs_list, g)
-        if asyncio.iscoroutine(func):
-            response_data = await ctx.run(partial_func)
-        else:
-            response_data = ctx.run(partial_func)
-
-        if asyncio.iscoroutine(response_data):
-            response_data = await response_data
-
-        g.dash_response.set_data(response_data)
-        return g.dash_response
-
-    @with_app_context
-    def dispatch(self):
-        body = flask.request.get_json()
-        g = self._initialize_context(body)
-        func = self._prepare_callback(g, body)
-        args = inputs_to_vals(g.inputs_list + g.states_list)
-
-        ctx = copy_context()
-        partial_func = self._execute_callback(func, args, g.outputs_list, g)
-        response_data = ctx.run(partial_func)
-
-        if asyncio.iscoroutine(response_data):
-            raise Exception(
-                "You are trying to use a coroutine without dash[async]. "
-                "Please install the dependencies via `pip install dash[async]` and ensure "
-                "that `use_async=False` is not being passed to the app."
-            )
-
-        g.dash_response.set_data(response_data)
-        return g.dash_response
 
     def _setup_server(self):
         if self._got_first_request["setup_server"]:
@@ -1694,12 +1584,6 @@ class Dash(ObsoleteChecker):
     @staticmethod
     def _invalid_resources_handler(err):
         return err.args[0], 404
-
-    @staticmethod
-    def _serve_default_favicon():
-        return flask.Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
-        )
 
     def csp_hashes(self, hash_algorithm="sha256") -> Sequence[str]:
         """Calculates CSP hashes (sha + base64) of all inline scripts, such that
@@ -2112,14 +1996,19 @@ class Dash(ObsoleteChecker):
             elif dev_tools.prune_errors:
                 secret = gen_salt(20)
 
-                @self.server.errorhandler(Exception)
-                def _wrap_errors(error):
-                    # find the callback invocation, if the error is from a callback
-                    # and skip the traceback up to that point
-                    # if the error didn't come from inside a callback, we won't
-                    # skip anything.
-                    tb = _get_traceback(secret, error)
-                    return tb, 500
+                if hasattr(self.server, "errorhandler"):
+                    # Flask
+                    @self.server.errorhandler(Exception)
+                    def _wrap_errors(error):
+                        tb = _get_traceback(secret, error)
+                        return tb, 500
+                elif hasattr(self.server, "exception_handler"):
+                    # FastAPI
+                    @self.server.exception_handler(Exception)
+                    async def _wrap_errors(request, error):
+                        tb = _get_traceback(secret, error)
+                        from fastapi.responses import PlainTextResponse
+                        return PlainTextResponse(tb, status_code=500)
 
         if debug and dev_tools.ui:
 
@@ -2149,9 +2038,8 @@ class Dash(ObsoleteChecker):
 
                 return response
 
-            self.server.before_request(_before_request)
-
-            self.server.after_request(_after_request)
+            self.server_factory.before_request(self.server, _before_request)
+            self.server_factory.after_request(self.server, _after_request)
 
         if (
             debug
@@ -2435,7 +2323,7 @@ class Dash(ObsoleteChecker):
                 server_url=jupyter_server_url,
             )
         else:
-            self.server.run(host=host, port=port, debug=debug, **flask_run_options)
+            self.server_factory.run(self.server, host=host, port=port, debug=debug, **flask_run_options)
 
     def enable_pages(self) -> None:
         if not self.use_pages:
@@ -2495,7 +2383,7 @@ class Dash(ObsoleteChecker):
                         )
                     if callable(title):
                         title = await execute_async_function(
-                            title, **(path_variables or {})
+                            title, **{**(path_variables or {})}
                         )
 
                     return layout, {"title": title}
@@ -2559,7 +2447,7 @@ class Dash(ObsoleteChecker):
                             **{**(path_variables or {}), **query_parameters, **states}
                         )
                     if callable(title):
-                        title = title(**(path_variables or {}))
+                        title = title(**{**(path_variables or {})})
 
                     return layout, {"title": title}
 
@@ -2599,10 +2487,5 @@ class Dash(ObsoleteChecker):
                 Input(_ID_STORE, "data"),
             )
 
-    def __call__(self, environ, start_response):
-        """
-        This method makes instances of Dash WSGI-compliant callables.
-        It delegates the actual WSGI handling to the internal Flask app's
-        __call__ method.
-        """
-        return self.server(environ, start_response)
+    def __call__(self, *args, **kwargs):
+        return self.server_factory.__call__(self.server, *args, **kwargs)
