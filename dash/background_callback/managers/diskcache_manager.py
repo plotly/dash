@@ -1,5 +1,5 @@
 import traceback
-from contextvars import copy_context
+from contextvars import Context
 import asyncio
 from functools import partial
 
@@ -85,9 +85,14 @@ DiskcacheManager requires extra dependencies which can be installed doing
                     pass
 
                 try:
-                    process.wait(1)
+                    process.wait(2)  # Increased timeout
                 except (psutil.TimeoutExpired, psutil.NoSuchProcess):
-                    pass
+                    # Force kill if still running
+                    try:
+                        process.kill()
+                        process.wait(1)
+                    except (psutil.TimeoutExpired, psutil.NoSuchProcess):
+                        pass
 
     def terminate_unhealthy_job(self, job):
         import psutil  # pylint: disable=import-outside-toplevel,import-error
@@ -222,7 +227,8 @@ def _make_job_fn(fn, cache, progress):
         def _set_props(_id, props):
             cache.set(f"{result_key}-set_props", {_id: props})
 
-        ctx = copy_context()
+        # Create a minimal context to avoid copying ThreadPoolExecutor from parent
+        ctx = Context()
 
         def run():
             c = AttributeDict(**context)
