@@ -148,7 +148,7 @@ class FlaskServerFactory(BaseServerFactory):
             _dispatch = _dispatch_async
         return _dispatch
 
-    def _serve_default_favicon():
+    def _serve_default_favicon(self):
         import flask
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
