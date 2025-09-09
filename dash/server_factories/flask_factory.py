@@ -58,7 +58,7 @@ class FlaskServerFactory(BaseServerFactory):
 
     def setup_catchall(self, app, dash_app):
         def catchall(path, *args, **kwargs):
-            return dash_app.index(*args, **kwargs)
+            return dash_app.render_index(*args, **kwargs)
         self.add_url_rule(app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"])
 
     def setup_index(self, app, dash_app):
