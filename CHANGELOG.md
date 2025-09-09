@@ -2,6 +2,9 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [bringyourownserver]
+- [#3430] Adds support to bring your own server, eg (Quart, FastAPI, etc).
+
 ## [UNRELEASED]
 
 ## Added
