@@ -2,20 +2,28 @@
 .dash-input-container {
     position: relative;
     display: inline-flex;
-align-items: center;
+    align-items: center;
     width: 170px; /* default input width */
     height: 32px;
+    background: var(--Dash-Fill-Inverse-Strong);
     border-radius: var(--Dash-Spacing);
     border: 1px solid var(--Dash-Stroke-Strong);
     box-sizing: border-box;
     container-type: inline-size;
     vertical-align: middle;
+    color: inherit;
+    overflow: hidden;
+}
+
+.dash-input-container:has(input[type='range']) {
+    background: inherit;
 }
 
 /* Input field styles */
 .dash-input-element {
     padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
-    background: var(--Dash-Fill-Inverse-strong);
+    color: inherit;
+    background: inherit;
     border: none;
     border-radius: var(--Dash-Spacing);
     flex: 1 1 0;
@@ -58,7 +66,7 @@ align-items: center;
     width: 32px;
     height: 100%;
     border: none;
-    background: var(--Dash-Fill-Inverse-strong);
+    background: var(--Dash-Fill-Inverse-Strong);
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
@@ -74,7 +82,7 @@ align-items: center;
 }
 
 .dash-input-stepper:disabled {
-    background: var(--Dash-Fill-Inverse-strong);
+    background: var(--Dash-Fill-Inverse-Strong);
     opacity: 0.5;
     cursor: default;
 }

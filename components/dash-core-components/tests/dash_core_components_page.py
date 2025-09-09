@@ -104,7 +104,7 @@ class DashCoreComponentsMixin(object):
     def move_to_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
 
-        ActionChains(self.driver).move_to_element_with_offset(
+        ActionChains(self.driver).click_and_hold().move_to_element_with_offset(
             elem, elem.size["width"] * fx, elem.size["height"] * fy
         ).perform()
 
