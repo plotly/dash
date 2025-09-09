@@ -55,15 +55,27 @@ class FastAPIServerFactory(BaseServerFactory):
         return wrapped
 
     def setup_index(self, app, dash_app):
-        async def index():
+        async def index(request: Request):
+            adapter = FastAPIRequestAdapter()
+            set_request_adapter(adapter)
+            adapter.set_request(request)
             return Response(content=dash_app.render_index(), media_type="text/html")
         self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
 
     def setup_catchall(self, app, dash_app):
-        async def catchall(path: str):
-            return Response(content=dash_app.render_index(), media_type="text/html")
+        @dash_app.server.on_event("startup")
+        def _setup_catchall():
+            from fastapi import Request, Response
 
-        # self.add_url_rule(app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"])
+            async def catchall(path: str, request: Request):
+                adapter = FastAPIRequestAdapter()
+                set_request_adapter(adapter)
+                adapter.set_request(request)
+                return Response(content=dash_app.render_index(), media_type="text/html")
+
+            self.add_url_rule(app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"])
+
+        pass # catchall needs to be last to not override other routes
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         if rule == "":
@@ -228,3 +240,6 @@ class FastAPIRequestAdapter:
 
     def get_origin(self):
         return self._request.headers.get("origin")
+
+    def get_path(self):
+        return self._request.url.path  # <-- Add this method

@@ -58,11 +58,17 @@ class FlaskServerFactory(BaseServerFactory):
 
     def setup_catchall(self, app, dash_app):
         def catchall(path, *args, **kwargs):
+            adapter = FlaskRequestAdapter()
+            set_request_adapter(adapter)
+            adapter.set_request(flask.request)
             return dash_app.render_index(*args, **kwargs)
         self.add_url_rule(app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"])
 
     def setup_index(self, app, dash_app):
         def index(*args, **kwargs):
+            adapter = FlaskRequestAdapter()
+            set_request_adapter(adapter)
+            adapter.set_request(flask.request)
             return dash_app.render_index(dash_app, *args, **kwargs)
 
         self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
@@ -186,3 +192,7 @@ class FlaskRequestAdapter:
     @staticmethod
     def get_origin():
         return getattr(flask.request, 'origin', None)
+
+    @staticmethod
+    def get_path():
+        return flask.request.path

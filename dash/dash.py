@@ -44,6 +44,7 @@ from .exceptions import (
     ProxyError,
     DuplicateCallback,
 )
+from .server_factories import get_request_adapter
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs, pages_folder_config
 from ._utils import (
@@ -1141,9 +1142,10 @@ class Dash(ObsoleteChecker):
         metas = self._generate_meta()
         renderer = self._generate_renderer()
         title = self.title
+        request = get_request_adapter()
 
         if self.use_pages and self.config.include_pages_meta:
-            metas = _page_meta_tags(self) + metas
+            metas = _page_meta_tags(self, request) + metas
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
@@ -2331,7 +2333,7 @@ class Dash(ObsoleteChecker):
         if self.pages_folder:
             _import_layouts_from_pages(self.config.pages_folder)
 
-        @self.server.before_request
+
         def router():
             if self._got_first_request["pages"]:
                 return
@@ -2487,5 +2489,6 @@ class Dash(ObsoleteChecker):
                 Input(_ID_STORE, "data"),
             )
 
+        self.server_factory.before_request(self.server, router)
     def __call__(self, *args, **kwargs):
         return self.server_factory.__call__(self.server, *args, **kwargs)
