@@ -8,6 +8,7 @@ from .base_factory import BaseServerFactory
 import inspect
 import pkgutil
 from contextvars import copy_context
+import importlib.util
 
 class FastAPIServerFactory(BaseServerFactory):
     def __call__(self, server, *args, **kwargs):
@@ -81,12 +82,15 @@ class FastAPIServerFactory(BaseServerFactory):
         app.middleware("http")(self._make_after_middleware(func))
 
     def run(self, app, host, port, debug, **kwargs):
+        frame = inspect.stack()[2]
         import uvicorn
+
         reload = debug
         if reload:
-            # Assume app is created in 'main.py' as 'app'
-            # Adjust 'main:app' as needed for your project structure
-            uvicorn.run("app:app", host=host, port=port, reload=reload, **kwargs)
+            # Dynamically determine the module name from the file path
+            file_path = frame.filename
+            module_name = importlib.util.spec_from_file_location("app", file_path).name
+            uvicorn.run(f"{module_name}:app.server", host=host, port=port, reload=reload, **kwargs)
         else:
             uvicorn.run(app, host=host, port=port, reload=reload, **kwargs)
 
