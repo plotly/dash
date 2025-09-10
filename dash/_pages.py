@@ -389,15 +389,15 @@ def _path_to_page(path_id):
     return {}, None
 
 
-def _page_meta_tags(app):
-    start_page, path_variables = _path_to_page(flask.request.path.strip("/"))
+def _page_meta_tags(app, request):
+    request_url = request.get_path()
+    start_page, path_variables = _path_to_page(request_url.strip("/"))
 
-    # use the supplied image_url or create url based on image in the assets folder
     image = start_page.get("image", "")
     if image:
         image = app.get_asset_url(image)
     assets_image_url = (
-        "".join([flask.request.url_root, image.lstrip("/")]) if image else None
+        "".join([request.url_root, image.lstrip("/")]) if image else None
     )
     supplied_image_url = start_page.get("image_url")
     image_url = supplied_image_url if supplied_image_url else assets_image_url
@@ -413,7 +413,7 @@ def _page_meta_tags(app):
     return [
         {"name": "description", "content": description},
         {"property": "twitter:card", "content": "summary_large_image"},
-        {"property": "twitter:url", "content": flask.request.url},
+        {"property": "twitter:url", "content": request_url},
         {"property": "twitter:title", "content": title},
         {"property": "twitter:description", "content": description},
         {"property": "twitter:image", "content": image_url or ""},

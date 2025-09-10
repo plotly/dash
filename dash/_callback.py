@@ -6,7 +6,7 @@ from typing import Callable, Optional, Any, List, Tuple, Union
 
 
 import asyncio
-import flask
+from dash.server_factories import get_request_adapter
 
 from .dependencies import (
     handle_callback_args,
@@ -376,7 +376,7 @@ def _get_callback_manager(
                 " and store results on redis.\n"
             )
 
-    old_job = flask.request.args.getlist("oldJob")
+    old_job = get_request_adapter().get_args().getlist("oldJob")
 
     if old_job:
         for job in old_job:
@@ -436,7 +436,7 @@ def _setup_background_callback(
 
 def _progress_background_callback(response, callback_manager, background):
     progress_outputs = background.get("progress")
-    cache_key = flask.request.args.get("cacheKey")
+    cache_key = get_request_adapter().get_args().get("cacheKey")
 
     if progress_outputs:
         # Get the progress before the result as it would be erased after the results.
@@ -453,8 +453,8 @@ def _update_background_callback(
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    cache_key = flask.request.args.get("cacheKey")
-    job_id = flask.request.args.get("job")
+    cache_key = get_request_adapter().get_args().get("cacheKey")
+    job_id = get_request_adapter().get_args().get("job")
 
     _progress_background_callback(response, callback_manager, background)
 
@@ -474,8 +474,8 @@ def _handle_rest_background_callback(
     multi,
     has_update=False,
 ):
-    cache_key = flask.request.args.get("cacheKey")
-    job_id = flask.request.args.get("job")
+    cache_key = get_request_adapter().get_args().get("cacheKey")
+    job_id = get_request_adapter().get_args().get("job")
     # Must get job_running after get_result since get_results terminates it.
     job_running = callback_manager.job_running(job_id)
     if not job_running and output_value is callback_manager.UNDEFINED:
@@ -688,11 +688,10 @@ def register_callback(
             )
 
             response: dict = {"multi": True}
-
             jsonResponse = None
             try:
                 if background is not None:
-                    if not flask.request.args.get("cacheKey"):
+                    if not get_request_adapter().get_args().get("cacheKey"):
                         return _setup_background_callback(
                             kwargs,
                             background,
@@ -763,7 +762,7 @@ def register_callback(
 
             try:
                 if background is not None:
-                    if not flask.request.args.get("cacheKey"):
+                    if not get_request_adapter().get_args().get("cacheKey"):
                         return _setup_background_callback(
                             kwargs,
                             background,
