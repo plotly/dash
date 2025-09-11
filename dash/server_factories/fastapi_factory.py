@@ -12,6 +12,10 @@ import importlib.util
 
 
 class FastAPIServerFactory(BaseServerFactory):
+    def __init__(self):
+        self.config = {}
+        super().__init__()
+
     def __call__(self, server, *args, **kwargs):
         # ASGI: (scope, receive, send)
         if len(args) == 3 and isinstance(args[0], dict) and "type" in args[0]:
@@ -71,6 +75,7 @@ class FastAPIServerFactory(BaseServerFactory):
     def setup_catchall(self, app, dash_app):
         @dash_app.server.on_event("startup")
         def _setup_catchall():
+            dash_app.enable_dev_tools(**self.config) # do this to make sure dev tools are enabled
             from fastapi import Request, Response
 
             async def catchall(path: str, request: Request):
@@ -110,6 +115,9 @@ class FastAPIServerFactory(BaseServerFactory):
     def run(self, app, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
         import uvicorn
+
+        self.config = dict({'debug': debug} if debug else {}, **kwargs)
+
 
         reload = debug
         if reload:
