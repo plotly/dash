@@ -121,8 +121,7 @@ class FlaskServerFactory(BaseServerFactory):
                 dash_app, package_name, fingerprinted_path
             )
 
-        self.add_url_rule(
-            app,
+        dash_app._add_url(
             "/_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
         )

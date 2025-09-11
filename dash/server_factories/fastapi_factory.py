@@ -219,9 +219,8 @@ class FastAPIServerFactory(BaseServerFactory):
                 dash_app, package_name, fingerprinted_path, request
             )
 
-        self.add_url_rule(
-            app,
-            "/_dash-component-suites/{package_name}/{fingerprinted_path:path}",
+        dash_app._add_url(
+            "/_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
         )
 

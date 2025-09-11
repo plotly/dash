@@ -71,7 +71,7 @@ def test_pare002_relative_path_with_url_base_pathname(
     for page in dash.page_registry.values():
         dash_br.find_element("#" + page["id"]).click()
         dash_br.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
-        assert dash_br.driver.title == page["title"], "check that page title updates"
+        until(lambda: dash_br.driver.title == page["title"], timeout=3)
 
     assert dash_br.get_logs() == [], "browser console should contain no error"
 
