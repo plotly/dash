@@ -6,7 +6,7 @@ import ConfirmDialogProvider from './components/ConfirmDialogProvider.react';
 import DatePickerRange from './components/DatePickerRange.react';
 import DatePickerSingle from './components/DatePickerSingle.react';
 import Download from './components/Download.react';
-import Dropdown from './components/Dropdown.react';
+import Dropdown from './components/Dropdown';
 import Geolocation from './components/Geolocation.react';
 import Graph from './components/Graph.react';
 import Input from './components/Input';
