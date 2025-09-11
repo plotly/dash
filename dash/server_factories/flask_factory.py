@@ -77,7 +77,7 @@ class FlaskServerFactory(BaseServerFactory):
             set_request_adapter(adapter)
             return dash_app.render_index(dash_app, *args, **kwargs)
 
-        self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
+        self.add_url_rule(app, "/", index, endpoint="/", methods=["GET"])
 
     def serve_component_suites(
         self, dash_app, package_name, fingerprinted_path, request=None
