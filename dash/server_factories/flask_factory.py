@@ -73,7 +73,7 @@ class FlaskServerFactory(BaseServerFactory):
         return FlaskRequestAdapter
 
     def setup_catchall(self, app, dash_app):
-        def catchall(_path, *args, **kwargs):
+        def catchall(*args, **kwargs):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
             return dash_app.render_index(*args, **kwargs)

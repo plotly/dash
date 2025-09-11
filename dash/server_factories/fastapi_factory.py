@@ -89,7 +89,7 @@ class FastAPIServerFactory(BaseServerFactory):
                 **self.config, first_run=False
             )  # do this to make sure dev tools are enabled
 
-            async def catchall(_path: str, request: Request):
+            async def catchall(request: Request):
                 adapter = FastAPIRequestAdapter()
                 set_request_adapter(adapter)
                 adapter.set_request(request)
