@@ -215,7 +215,9 @@ class FastAPIServerFactory(BaseServerFactory):
             serve,
         )
 
-    def dispatch(self, _app, dash_app, _use_async):
+    def dispatch(
+        self, app, dash_app, use_async=False
+    ):  # pylint: disable=unused-argument
         async def _dispatch(request: Request):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)

@@ -127,7 +127,9 @@ class FlaskServerFactory(BaseServerFactory):
             serve,
         )
 
-    def dispatch(self, _app, dash_app, use_async=False):
+    def dispatch(
+        self, app, dash_app, use_async=False
+    ):  # pylint: disable=unused-argument
         def _dispatch():
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
