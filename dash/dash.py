@@ -70,6 +70,7 @@ from .server_factories.base_factory import BaseServerFactory
 from ._get_app import with_app_context, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
 from ._obsolete import ObsoleteChecker
+from ._callback_context import callback_context
 
 from . import _pages
 from ._pages import (
@@ -1382,6 +1383,7 @@ class Dash(ObsoleteChecker):
         )
         g.cookies = dict(adapter.get_cookies())
         g.headers = dict(adapter.get_headers())
+        g.args = adapter.get_args()
         g.path = adapter.get_full_path()
         g.remote = adapter.get_remote_addr()
         g.origin = adapter.get_origin()
@@ -1529,7 +1531,7 @@ class Dash(ObsoleteChecker):
                     manager=manager,
                 )
                 def cancel_call(*_):
-                    job_ids = flask.request.args.getlist("cancelJob")
+                    job_ids = callback_context.args.getlist("cancelJob")
                     executor = _callback.context_value.get().background_callback_manager
                     if job_ids:
                         for job_id in job_ids:

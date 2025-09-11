@@ -290,6 +290,14 @@ class CallbackContext:
 
     @property
     @has_context
+    def args(self):
+        """
+        Query parameters of the callback request as a dictionary-like object.
+        """
+        return _get_from_context("args", "")
+
+    @property
+    @has_context
     def remote(self):
         """
         Remote addr of the callback request.
