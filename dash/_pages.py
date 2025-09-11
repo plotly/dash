@@ -396,7 +396,7 @@ def _page_meta_tags(app, request):
     image = start_page.get("image", "")
     if image:
         image = app.get_asset_url(image)
-    assets_image_url = "".join([request.url_root, image.lstrip("/")]) if image else None
+    assets_image_url = "".join([request.get_root(), image.lstrip("/")]) if image else None
     supplied_image_url = start_page.get("image_url")
     image_url = supplied_image_url if supplied_image_url else assets_image_url
 
@@ -411,7 +411,7 @@ def _page_meta_tags(app, request):
     return [
         {"name": "description", "content": description},
         {"property": "twitter:card", "content": "summary_large_image"},
-        {"property": "twitter:url", "content": request_url},
+        {"property": "twitter:url", "content": request.get_url()},
         {"property": "twitter:title", "content": title},
         {"property": "twitter:description", "content": description},
         {"property": "twitter:image", "content": image_url or ""},

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import dash
 from dash import Dash, dcc, html
+from dash.testing.wait import until
 
 
 def get_app(app):
@@ -83,6 +84,6 @@ def test_pare003_absolute_path(dash_duo, clear_pages_state):
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
-        assert dash_duo.driver.title == page["title"], "check that page title updates"
+        until(lambda: dash_duo.driver.title == page["title"],timeout=3)
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"

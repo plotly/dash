@@ -6,12 +6,22 @@ import pkgutil
 from contextvars import copy_context
 import importlib.util
 import time
-import uvicorn
-from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse, PlainTextResponse
-from fastapi.staticfiles import StaticFiles
-from starlette.responses import Response as StarletteResponse
-from starlette.datastructures import MutableHeaders
+
+try:
+    import uvicorn
+    from fastapi import FastAPI, Request, Response
+    from fastapi.responses import JSONResponse, PlainTextResponse
+    from fastapi.staticfiles import StaticFiles
+    from starlette.responses import Response as StarletteResponse
+    from starlette.datastructures import MutableHeaders
+except ImportError:
+    uvicorn = None
+    FastAPI = Request = Response = None
+    JSONResponse = PlainTextResponse = None
+    StaticFiles = None
+    StarletteResponse = None
+    MutableHeaders = None
+
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
@@ -285,6 +295,9 @@ class FastAPIRequestAdapter:
     def set_request(self, request: Request):
         self._request = request
 
+    def get_root(self):
+        return str(self._request.base_url)
+
     def get_args(self):
         return self._request.query_params
 
@@ -303,6 +316,9 @@ class FastAPIRequestAdapter:
         return self._request.headers
 
     def get_full_path(self):
+        return str(self._request.url)
+
+    def get_url(self):
         return str(self._request.url)
 
     def get_remote_addr(self):

@@ -208,6 +208,10 @@ class FlaskRequestAdapter:
         return flask.request.args
 
     @staticmethod
+    def get_root():
+        return flask.request.url_root
+
+    @staticmethod
     def get_json():
         return flask.request.get_json()
 
@@ -222,6 +226,10 @@ class FlaskRequestAdapter:
     @staticmethod
     def get_headers():
         return flask.request.headers
+
+    @staticmethod
+    def get_url():
+        return flask.request.url
 
     @staticmethod
     def get_full_path():
