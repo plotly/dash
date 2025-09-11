@@ -1,14 +1,22 @@
-import traceback
-
-from fastapi import FastAPI, Request, Response, APIRouter
-from fastapi.responses import JSONResponse
-from dash.exceptions import PreventUpdate, InvalidResourceError
-from dash.server_factories import set_request_adapter, get_request_adapter
-from .base_factory import BaseServerFactory
+import sys
+import mimetypes
+import hashlib
 import inspect
 import pkgutil
 from contextvars import copy_context
 import importlib.util
+import time
+import uvicorn
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import Response as StarletteResponse
+from starlette.datastructures import MutableHeaders
+from dash.fingerprint import check_fingerprint
+from dash import _validate
+from dash.exceptions import PreventUpdate, InvalidResourceError
+from dash.server_factories import set_request_adapter
+from .base_factory import BaseServerFactory
 
 
 class FastAPIServerFactory(BaseServerFactory):
@@ -32,8 +40,6 @@ class FastAPIServerFactory(BaseServerFactory):
     def register_assets_blueprint(
         self, app, blueprint_name, assets_url_path, assets_folder
     ):
-        from fastapi.staticfiles import StaticFiles
-
         try:
             app.mount(
                 assets_url_path,
@@ -46,17 +52,21 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def register_error_handlers(self, app):
         @app.exception_handler(PreventUpdate)
-        async def _handle_error(request: Request, exc: PreventUpdate):
+        async def _handle_error(_request, _exc):
             return Response(status_code=204)
 
         @app.exception_handler(InvalidResourceError)
-        async def _invalid_resources_handler(
-            request: Request, exc: InvalidResourceError
-        ):
+        async def _invalid_resources_handler(_request, exc):
             return Response(content=exc.args[0], status_code=404)
 
+    def register_prune_error_handler(self, app, secret, get_traceback_func):
+        @app.exception_handler(Exception)
+        async def _wrap_errors(_error_request, error):
+            tb = get_traceback_func(secret, error)
+            return PlainTextResponse(tb, status_code=500)
+
     def _html_response_wrapper(self, view_func):
-        async def wrapped(*args, **kwargs):
+        async def wrapped(*_args, **_kwargs):
             # If view_func is a function, call it; if it's a string, use it directly
             html = view_func() if callable(view_func) else view_func
             return Response(content=html, media_type="text/html")
@@ -75,10 +85,11 @@ class FastAPIServerFactory(BaseServerFactory):
     def setup_catchall(self, app, dash_app):
         @dash_app.server.on_event("startup")
         def _setup_catchall():
-            dash_app.enable_dev_tools(**self.config) # do this to make sure dev tools are enabled
-            from fastapi import Request, Response
+            dash_app.enable_dev_tools(
+                **self.config, first_run=False
+            )  # do this to make sure dev tools are enabled
 
-            async def catchall(path: str, request: Request):
+            async def catchall(_path: str, request: Request):
                 adapter = FastAPIRequestAdapter()
                 set_request_adapter(adapter)
                 adapter.set_request(request)
@@ -87,8 +98,6 @@ class FastAPIServerFactory(BaseServerFactory):
             self.add_url_rule(
                 app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"]
             )
-
-        pass  # catchall needs to be last to not override other routes
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         if rule == "":
@@ -114,11 +123,7 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def run(self, app, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
-        import uvicorn
-
-        self.config = dict({'debug': debug} if debug else {}, **kwargs)
-
-
+        self.config = dict({"debug": debug} if debug else {}, **kwargs)
         reload = debug
         if reload:
             # Dynamically determine the module name from the file path
@@ -149,8 +154,6 @@ class FastAPIServerFactory(BaseServerFactory):
         return FastAPIRequestAdapter
 
     def _make_before_middleware(self, func):
-        pass
-
         async def middleware(request, call_next):
             if func is not None:
                 if inspect.iscoroutinefunction(func):
@@ -163,11 +166,13 @@ class FastAPIServerFactory(BaseServerFactory):
         return middleware
 
     def _make_after_middleware(self, func):
-        pass
-
         async def middleware(request, call_next):
             response = await call_next(request)
-            await func()
+            if func is not None:
+                if inspect.iscoroutinefunction(func):
+                    await func()
+                else:
+                    func()
             return response
 
         return middleware
@@ -175,12 +180,6 @@ class FastAPIServerFactory(BaseServerFactory):
     def serve_component_suites(
         self, dash_app, package_name, fingerprinted_path, request
     ):
-        import sys
-        import mimetypes
-        import pkgutil
-        from dash.fingerprint import check_fingerprint
-        from dash import _validate
-
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
         _validate.validate_js_path(dash_app.registered_paths, package_name, path_in_pkg)
         extension = "." + path_in_pkg.split(".")[-1]
@@ -194,24 +193,17 @@ class FastAPIServerFactory(BaseServerFactory):
             package.__path__,
         )
         data = pkgutil.get_data(package_name, path_in_pkg)
-        from starlette.responses import Response as StarletteResponse
-
         headers = {}
         if has_fingerprint:
             headers["Cache-Control"] = "public, max-age=31536000"
             return StarletteResponse(content=data, media_type=mimetype, headers=headers)
-        else:
-            import hashlib
-
-            etag = hashlib.md5(data).hexdigest() if data else ""
-            headers["ETag"] = etag
-            if request.headers.get("if-none-match") == etag:
-                return StarletteResponse(status_code=304)
-            return StarletteResponse(content=data, media_type=mimetype, headers=headers)
+        etag = hashlib.md5(data).hexdigest() if data else ""
+        headers["ETag"] = etag
+        if request.headers.get("if-none-match") == etag:
+            return StarletteResponse(status_code=304)
+        return StarletteResponse(content=data, media_type=mimetype, headers=headers)
 
     def setup_component_suites(self, app, dash_app):
-        from fastapi import Request
-
         async def serve(request: Request, package_name: str, fingerprinted_path: str):
             return self.serve_component_suites(
                 dash_app, package_name, fingerprinted_path, request
@@ -223,17 +215,26 @@ class FastAPIServerFactory(BaseServerFactory):
             serve,
         )
 
-    def dispatch(self, app, dash_app, use_async):
+    def dispatch(self, _app, dash_app, _use_async):
         async def _dispatch(request: Request):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)
             adapter.set_request(request)
+            # pylint: disable=protected-access
             body = await request.json()
-            g = dash_app._initialize_context(body, adapter)
-            func = dash_app._prepare_callback(g, body)
-            args = dash_app._inputs_to_vals(g.inputs_list + g.states_list)
+            g = dash_app._initialize_context(
+                body, adapter
+            )  # pylint: disable=protected-access
+            func = dash_app._prepare_callback(
+                g, body
+            )  # pylint: disable=protected-access
+            args = dash_app._inputs_to_vals(
+                g.inputs_list + g.states_list
+            )  # pylint: disable=protected-access
             ctx = copy_context()
-            partial_func = dash_app._execute_callback(func, args, g.outputs_list, g)
+            partial_func = dash_app._execute_callback(
+                func, args, g.outputs_list, g
+            )  # pylint: disable=protected-access
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):
                 response_data = await response_data
@@ -246,6 +247,33 @@ class FastAPIServerFactory(BaseServerFactory):
         return Response(
             content=pkgutil.get_data("dash", "favicon.ico"), media_type="image/x-icon"
         )
+
+    def register_timing_hooks(self, app, first_run):
+        if not first_run:
+            return
+
+        @app.middleware("http")
+        async def timing_middleware(request, call_next):
+            # Before request
+            request.state.timing_information = {
+                "__dash_server": {"dur": time.time(), "desc": None}
+            }
+            response = await call_next(request)
+            # After request
+            timing_information = getattr(request.state, "timing_information", None)
+            if timing_information is not None:
+                dash_total = timing_information.get("__dash_server", None)
+                if dash_total is not None:
+                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+                headers = MutableHeaders(response.headers)
+                for name, info in timing_information.items():
+                    value = name
+                    if info.get("desc") is not None:
+                        value += f';desc="{info["desc"]}"'
+                    if info.get("dur") is not None:
+                        value += f";dur={info['dur']}"
+                    headers.append("Server-Timing", value)
+            return response
 
 
 class FastAPIRequestAdapter:
@@ -266,7 +294,7 @@ class FastAPIRequestAdapter:
             "application/json"
         )
 
-    def get_cookies(self, request=None):
+    def get_cookies(self, _request=None):
         return self._request.cookies
 
     def get_headers(self):
@@ -282,4 +310,4 @@ class FastAPIRequestAdapter:
         return self._request.headers.get("origin")
 
     def get_path(self):
-        return self._request.url.path  # <-- Add this method
+        return self._request.url.path

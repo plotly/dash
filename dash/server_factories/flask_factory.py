@@ -1,10 +1,15 @@
-import flask
-from dash.exceptions import PreventUpdate, InvalidResourceError
-from dash.server_factories import set_request_adapter, get_request_adapter
-from .base_factory import BaseServerFactory
 from contextvars import copy_context
 import asyncio
 import pkgutil
+import sys
+import mimetypes
+import time
+import flask
+from dash.fingerprint import check_fingerprint
+from dash import _validate
+from dash.exceptions import PreventUpdate, InvalidResourceError
+from dash.server_factories import set_request_adapter
+from .base_factory import BaseServerFactory
 
 
 class FlaskServerFactory(BaseServerFactory):
@@ -38,6 +43,12 @@ class FlaskServerFactory(BaseServerFactory):
         def _invalid_resources_handler(err):
             return err.args[0], 404
 
+    def register_prune_error_handler(self, app, secret, get_traceback_func):
+        @app.errorhandler(Exception)
+        def _wrap_errors(error):
+            tb = get_traceback_func(secret, error)
+            return tb, 500
+
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         app.add_url_rule(
             rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
@@ -62,7 +73,7 @@ class FlaskServerFactory(BaseServerFactory):
         return FlaskRequestAdapter
 
     def setup_catchall(self, app, dash_app):
-        def catchall(path, *args, **kwargs):
+        def catchall(_path, *args, **kwargs):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
             return dash_app.render_index(*args, **kwargs)
@@ -75,20 +86,11 @@ class FlaskServerFactory(BaseServerFactory):
         def index(*args, **kwargs):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
-            return dash_app.render_index(dash_app, *args, **kwargs)
+            return dash_app.render_index(*args, **kwargs)
 
         self.add_url_rule(app, "/", index, endpoint="/", methods=["GET"])
 
-    def serve_component_suites(
-        self, dash_app, package_name, fingerprinted_path, request=None
-    ):
-        import sys
-        import mimetypes
-        import pkgutil
-        from dash.fingerprint import check_fingerprint
-        from dash import _validate
-        import flask
-
+    def serve_component_suites(self, dash_app, package_name, fingerprinted_path):
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
         _validate.validate_js_path(dash_app.registered_paths, package_name, path_in_pkg)
         extension = "." + path_in_pkg.split(".")[-1]
@@ -116,7 +118,7 @@ class FlaskServerFactory(BaseServerFactory):
     def setup_component_suites(self, app, dash_app):
         def serve(package_name, fingerprinted_path):
             return self.serve_component_suites(
-                dash_app, package_name, fingerprinted_path, flask.request
+                dash_app, package_name, fingerprinted_path
             )
 
         self.add_url_rule(
@@ -125,11 +127,12 @@ class FlaskServerFactory(BaseServerFactory):
             serve,
         )
 
-    def dispatch(self, app, dash_app, use_async=False):
+    def dispatch(self, _app, dash_app, use_async=False):
         def _dispatch():
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
             body = flask.request.get_json()
+            # pylint: disable=protected-access
             g = dash_app._initialize_context(body, adapter)
             func = dash_app._prepare_callback(g, body)
             args = dash_app._inputs_to_vals(g.inputs_list + g.states_list)
@@ -149,6 +152,7 @@ class FlaskServerFactory(BaseServerFactory):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
             body = flask.request.get_json()
+            # pylint: disable=protected-access
             g = dash_app._initialize_context(body, adapter)
             func = dash_app._prepare_callback(g, body)
             args = dash_app._inputs_to_vals(g.inputs_list + g.states_list)
@@ -161,15 +165,39 @@ class FlaskServerFactory(BaseServerFactory):
             return g.dash_response
 
         if use_async:
-            _dispatch = _dispatch_async
+            return _dispatch_async
         return _dispatch
 
     def _serve_default_favicon(self):
-        import flask
 
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
+
+    def register_timing_hooks(self, app, _first_run):
+        def _before_request():
+            flask.g.timing_information = {
+                "__dash_server": {"dur": time.time(), "desc": None}
+            }
+
+        def _after_request(response):
+            timing_information = flask.g.get("timing_information", None)
+            if timing_information is None:
+                return response
+            dash_total = timing_information.get("__dash_server", None)
+            if dash_total is not None:
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+            for name, info in timing_information.items():
+                value = name
+                if info.get("desc") is not None:
+                    value += f';desc="{info["desc"]}"'
+                if info.get("dur") is not None:
+                    value += f";dur={info['dur']}"
+                response.headers.add("Server-Timing", value)
+            return response
+
+        self.before_request(app, _before_request)
+        self.after_request(app, _after_request)
 
 
 class FlaskRequestAdapter:

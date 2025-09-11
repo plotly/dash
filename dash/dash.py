@@ -4,7 +4,6 @@ import sys
 import collections
 import importlib
 import warnings
-from contextvars import copy_context
 from importlib.machinery import ModuleSpec
 from importlib.util import find_spec
 from importlib import metadata
@@ -12,12 +11,10 @@ import pkgutil
 import threading
 import re
 import logging
-import time
 import mimetypes
 import hashlib
 import base64
 import traceback
-import inspect
 from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
@@ -30,7 +27,7 @@ from dash import dcc
 from dash import html
 from dash import dash_table
 
-from .fingerprint import build_fingerprint, check_fingerprint
+from .fingerprint import build_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
     Input,
@@ -39,8 +36,6 @@ from .dependencies import (
 )
 from .development.base_component import ComponentRegistry
 from .exceptions import (
-    PreventUpdate,
-    InvalidResourceError,
     ProxyError,
     DuplicateCallback,
 )
@@ -72,7 +67,7 @@ from . import _get_app
 from .server_factories.flask_factory import FlaskServerFactory
 from .server_factories.base_factory import BaseServerFactory
 
-from ._get_app import with_app_context, with_app_context_async, with_app_context_factory
+from ._get_app import with_app_context, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
 from ._obsolete import ObsoleteChecker
 
@@ -712,8 +707,9 @@ class Dash(ObsoleteChecker):
         )
         if config.compress:
             try:
-                from flask_compress import Compress
+                import flask_compress  # pylint: disable=import-outside-toplevel
 
+                Compress = flask_compress.Compress
                 Compress(self.server)
                 _flask_compress_version = parse_version(
                     _get_distribution_version("flask_compress")
@@ -754,7 +750,10 @@ class Dash(ObsoleteChecker):
             ["POST"],
         )
         self._add_url("_reload-hash", self.serve_reload_hash)
-        self._add_url("_favicon.ico", self.server_factory._serve_default_favicon)
+        self._add_url(
+            "_favicon.ico",
+            self.server_factory._serve_default_favicon,  # pylint: disable=protected-access
+        )
         self.server_factory.setup_index(self.server, self)
         self.server_factory.setup_catchall(self.server, self)
 
@@ -1145,7 +1144,7 @@ class Dash(ObsoleteChecker):
 
         return meta_tags + self.config.meta_tags
 
-    def render_index(self, *args, **kwargs):
+    def render_index(self, *_args, **_kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
@@ -1845,6 +1844,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
+        first_run: bool = True,
     ) -> bool:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
@@ -2009,53 +2009,12 @@ class Dash(ObsoleteChecker):
                 )
             elif dev_tools.prune_errors:
                 secret = gen_salt(20)
-
-                if hasattr(self.server, "errorhandler"):
-                    # Flask
-                    @self.server.errorhandler(Exception)
-                    def _wrap_errors(error):
-                        tb = _get_traceback(secret, error)
-                        return tb, 500
-
-                elif hasattr(self.server, "exception_handler"):
-                    # FastAPI
-                    @self.server.exception_handler(Exception)
-                    async def _wrap_errors(request, error):
-                        tb = _get_traceback(secret, error)
-                        from fastapi.responses import PlainTextResponse
-
-                        return PlainTextResponse(tb, status_code=500)
+                self.server_factory.register_prune_error_handler(
+                    self.server, secret, _get_traceback
+                )
 
         if debug and dev_tools.ui:
-
-            def _before_request():
-                flask.g.timing_information = {  # pylint: disable=assigning-non-slot
-                    "__dash_server": {"dur": time.time(), "desc": None}
-                }
-
-            def _after_request(response):
-                timing_information = flask.g.get("timing_information", None)
-                if timing_information is None:
-                    return response
-
-                dash_total = timing_information.get("__dash_server", None)
-                if dash_total is not None:
-                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
-
-                for name, info in timing_information.items():
-                    value = name
-                    if info.get("desc") is not None:
-                        value += f';desc="{info["desc"]}"'
-
-                    if info.get("dur") is not None:
-                        value += f";dur={info['dur']}"
-
-                    response.headers.add("Server-Timing", value)
-
-                return response
-
-            self.server_factory.before_request(self.server, _before_request)
-            self.server_factory.after_request(self.server, _after_request)
+            self.server_factory.register_timing_hooks(self.server, first_run)
 
         if (
             debug
