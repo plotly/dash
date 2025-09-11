@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class BaseServerFactory(ABC):
     def __call__(self, server, *args, **kwargs):
         # Default: WSGI
@@ -10,7 +11,9 @@ class BaseServerFactory(ABC):
         pass
 
     @abstractmethod
-    def register_assets_blueprint(self, app, blueprint_name, assets_url_path, assets_folder):
+    def register_assets_blueprint(
+        self, app, blueprint_name, assets_url_path, assets_folder
+    ):
         pass
 
     @abstractmethod
@@ -44,4 +47,3 @@ class BaseServerFactory(ABC):
     @abstractmethod
     def get_request_adapter(self):
         pass
-

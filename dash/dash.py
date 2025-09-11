@@ -497,19 +497,25 @@ class Dash(ObsoleteChecker):
 
         # We have 3 cases: server is either True (we create the server), False
         # (defer server creation) or a Flask app instance (we use their server)
-        if callable(server) and not (hasattr(server, 'route') and hasattr(server, 'run')):
+        if callable(server) and not (
+            hasattr(server, "route") and hasattr(server, "run")
+        ):
             # Server factory function
             self.server = server()
             if name is None:
                 caller_name = getattr(self.server, "name", caller_name)
-        elif hasattr(server, 'route') and hasattr(server, 'run'):
+        elif hasattr(server, "route") and hasattr(server, "run"):
             self.server = server
             if name is None:
                 caller_name = getattr(server, "name", caller_name)
         elif isinstance(server, bool):
-            self.server = self.server_factory.create_app(caller_name) if server else None
+            self.server = (
+                self.server_factory.create_app(caller_name) if server else None
+            )
         else:
-            raise ValueError("server must be a Flask app, a boolean, or a server factory function")
+            raise ValueError(
+                "server must be a Flask app, a boolean, or a server factory function"
+            )
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -707,6 +713,7 @@ class Dash(ObsoleteChecker):
         if config.compress:
             try:
                 from flask_compress import Compress
+
                 Compress(self.server)
                 _flask_compress_version = parse_version(
                     _get_distribution_version("flask_compress")
@@ -741,7 +748,11 @@ class Dash(ObsoleteChecker):
         self.server_factory.setup_component_suites(self.server, self)
         self._add_url("_dash-layout", self.serve_layout)
         self._add_url("_dash-dependencies", self.dependencies)
-        self._add_url("_dash-update-component", self.server_factory.dispatch(self.server, self, self._use_async), ["POST"])
+        self._add_url(
+            "_dash-update-component",
+            self.server_factory.dispatch(self.server, self, self._use_async),
+            ["POST"],
+        )
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self.server_factory._serve_default_favicon)
         self.server_factory.setup_index(self.server, self)
@@ -758,7 +769,6 @@ class Dash(ObsoleteChecker):
                 with_app_context_factory(hook.func, self),
                 hook.data["methods"],
             )
-
 
     def setup_apis(self):
         """
@@ -1368,7 +1378,9 @@ class Dash(ObsoleteChecker):
             {"prop_id": x, "value": g.input_values.get(x)}
             for x in body.get("changedPropIds", [])
         ]
-        g.dash_response = self.server_factory.make_response(mimetype="application/json", data=None)
+        g.dash_response = self.server_factory.make_response(
+            mimetype="application/json", data=None
+        )
         g.cookies = dict(adapter.get_cookies())
         g.headers = dict(adapter.get_headers())
         g.path = adapter.get_full_path()
@@ -2004,12 +2016,14 @@ class Dash(ObsoleteChecker):
                     def _wrap_errors(error):
                         tb = _get_traceback(secret, error)
                         return tb, 500
+
                 elif hasattr(self.server, "exception_handler"):
                     # FastAPI
                     @self.server.exception_handler(Exception)
                     async def _wrap_errors(request, error):
                         tb = _get_traceback(secret, error)
                         from fastapi.responses import PlainTextResponse
+
                         return PlainTextResponse(tb, status_code=500)
 
         if debug and dev_tools.ui:
@@ -2325,14 +2339,15 @@ class Dash(ObsoleteChecker):
                 server_url=jupyter_server_url,
             )
         else:
-            self.server_factory.run(self.server, host=host, port=port, debug=debug, **flask_run_options)
+            self.server_factory.run(
+                self.server, host=host, port=port, debug=debug, **flask_run_options
+            )
 
     def enable_pages(self) -> None:
         if not self.use_pages:
             return
         if self.pages_folder:
             _import_layouts_from_pages(self.config.pages_folder)
-
 
         def router():
             if self._got_first_request["pages"]:
@@ -2490,5 +2505,6 @@ class Dash(ObsoleteChecker):
             )
 
         self.server_factory.before_request(self.server, router)
+
     def __call__(self, *args, **kwargs):
         return self.server_factory.__call__(self.server, *args, **kwargs)

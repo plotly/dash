@@ -6,6 +6,7 @@ from contextvars import copy_context
 import asyncio
 import pkgutil
 
+
 class FlaskServerFactory(BaseServerFactory):
     def __call__(self, server, *args, **kwargs):
         # Always WSGI
@@ -17,7 +18,9 @@ class FlaskServerFactory(BaseServerFactory):
             app.config.update(config)
         return app
 
-    def register_assets_blueprint(self, app, blueprint_name, assets_url_path, assets_folder):
+    def register_assets_blueprint(
+        self, app, blueprint_name, assets_url_path, assets_folder
+    ):
         bp = flask.Blueprint(
             blueprint_name,
             __name__,
@@ -36,7 +39,9 @@ class FlaskServerFactory(BaseServerFactory):
             return err.args[0], 404
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
-        app.add_url_rule(rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"])
+        app.add_url_rule(
+            rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
+        )
 
     def before_request(self, app, func):
         app.before_request(func)
@@ -61,7 +66,10 @@ class FlaskServerFactory(BaseServerFactory):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
             return dash_app.render_index(*args, **kwargs)
-        self.add_url_rule(app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"])
+
+        self.add_url_rule(
+            app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"]
+        )
 
     def setup_index(self, app, dash_app):
         def index(*args, **kwargs):
@@ -71,7 +79,9 @@ class FlaskServerFactory(BaseServerFactory):
 
         self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
 
-    def serve_component_suites(self, dash_app, package_name, fingerprinted_path, request=None):
+    def serve_component_suites(
+        self, dash_app, package_name, fingerprinted_path, request=None
+    ):
         import sys
         import mimetypes
         import pkgutil
@@ -105,7 +115,9 @@ class FlaskServerFactory(BaseServerFactory):
 
     def setup_component_suites(self, app, dash_app):
         def serve(package_name, fingerprinted_path):
-            return self.serve_component_suites(dash_app, package_name, fingerprinted_path, flask.request)
+            return self.serve_component_suites(
+                dash_app, package_name, fingerprinted_path, flask.request
+            )
 
         self.add_url_rule(
             app,
@@ -154,9 +166,11 @@ class FlaskServerFactory(BaseServerFactory):
 
     def _serve_default_favicon(self):
         import flask
+
         return flask.Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
+
 
 class FlaskRequestAdapter:
     @staticmethod
@@ -189,7 +203,7 @@ class FlaskRequestAdapter:
 
     @staticmethod
     def get_origin():
-        return getattr(flask.request, 'origin', None)
+        return getattr(flask.request, "origin", None)
 
     @staticmethod
     def get_path():

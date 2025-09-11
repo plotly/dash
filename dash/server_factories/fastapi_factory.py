@@ -10,17 +10,13 @@ import pkgutil
 from contextvars import copy_context
 import importlib.util
 
+
 class FastAPIServerFactory(BaseServerFactory):
     def __call__(self, server, *args, **kwargs):
         # ASGI: (scope, receive, send)
-        if (
-            len(args) == 3
-            and isinstance(args[0], dict)
-            and "type" in args[0]
-        ):
+        if len(args) == 3 and isinstance(args[0], dict) and "type" in args[0]:
             return server(*args, **kwargs)
         raise TypeError("FastAPI app must be called with (scope, receive, send)")
-
 
     def create_app(self, name="__main__", config=None):
         app = FastAPI()
@@ -29,10 +25,17 @@ class FastAPIServerFactory(BaseServerFactory):
                 setattr(app.state, key, value)
         return app
 
-    def register_assets_blueprint(self, app, blueprint_name, assets_url_path, assets_folder):
+    def register_assets_blueprint(
+        self, app, blueprint_name, assets_url_path, assets_folder
+    ):
         from fastapi.staticfiles import StaticFiles
+
         try:
-            app.mount(assets_url_path, StaticFiles(directory=assets_folder), name=blueprint_name)
+            app.mount(
+                assets_url_path,
+                StaticFiles(directory=assets_folder),
+                name=blueprint_name,
+            )
         except RuntimeError:
             # directory doesnt exist
             pass
@@ -43,7 +46,9 @@ class FastAPIServerFactory(BaseServerFactory):
             return Response(status_code=204)
 
         @app.exception_handler(InvalidResourceError)
-        async def _invalid_resources_handler(request: Request, exc: InvalidResourceError):
+        async def _invalid_resources_handler(
+            request: Request, exc: InvalidResourceError
+        ):
             return Response(content=exc.args[0], status_code=404)
 
     def _html_response_wrapper(self, view_func):
@@ -60,6 +65,7 @@ class FastAPIServerFactory(BaseServerFactory):
             set_request_adapter(adapter)
             adapter.set_request(request)
             return Response(content=dash_app.render_index(), media_type="text/html")
+
         self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
 
     def setup_catchall(self, app, dash_app):
@@ -73,9 +79,11 @@ class FastAPIServerFactory(BaseServerFactory):
                 adapter.set_request(request)
                 return Response(content=dash_app.render_index(), media_type="text/html")
 
-            self.add_url_rule(app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"])
+            self.add_url_rule(
+                app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"]
+            )
 
-        pass # catchall needs to be last to not override other routes
+        pass  # catchall needs to be last to not override other routes
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         if rule == "":
@@ -83,7 +91,13 @@ class FastAPIServerFactory(BaseServerFactory):
         if isinstance(view_func, str):
             # Wrap string or sync function to async FastAPI handler
             view_func = self._html_response_wrapper(view_func)
-        app.add_api_route(rule, view_func, methods=methods or ["GET"], name=endpoint, include_in_schema=False)
+        app.add_api_route(
+            rule,
+            view_func,
+            methods=methods or ["GET"],
+            name=endpoint,
+            include_in_schema=False,
+        )
 
     def before_request(self, app, func):
         # FastAPI does not have before_request, but we can use middleware
@@ -102,7 +116,13 @@ class FastAPIServerFactory(BaseServerFactory):
             # Dynamically determine the module name from the file path
             file_path = frame.filename
             module_name = importlib.util.spec_from_file_location("app", file_path).name
-            uvicorn.run(f"{module_name}:app.server", host=host, port=port, reload=reload, **kwargs)
+            uvicorn.run(
+                f"{module_name}:app.server",
+                host=host,
+                port=port,
+                reload=reload,
+                **kwargs,
+            )
         else:
             uvicorn.run(app, host=host, port=port, reload=reload, **kwargs)
 
@@ -122,6 +142,7 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def _make_before_middleware(self, func):
         pass
+
         async def middleware(request, call_next):
             if func is not None:
                 if inspect.iscoroutinefunction(func):
@@ -135,13 +156,17 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def _make_after_middleware(self, func):
         pass
+
         async def middleware(request, call_next):
             response = await call_next(request)
             await func()
             return response
+
         return middleware
 
-    def serve_component_suites(self, dash_app, package_name, fingerprinted_path, request):
+    def serve_component_suites(
+        self, dash_app, package_name, fingerprinted_path, request
+    ):
         import sys
         import mimetypes
         import pkgutil
@@ -162,12 +187,14 @@ class FastAPIServerFactory(BaseServerFactory):
         )
         data = pkgutil.get_data(package_name, path_in_pkg)
         from starlette.responses import Response as StarletteResponse
+
         headers = {}
         if has_fingerprint:
             headers["Cache-Control"] = "public, max-age=31536000"
             return StarletteResponse(content=data, media_type=mimetype, headers=headers)
         else:
             import hashlib
+
             etag = hashlib.md5(data).hexdigest() if data else ""
             headers["ETag"] = etag
             if request.headers.get("if-none-match") == etag:
@@ -176,8 +203,11 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def setup_component_suites(self, app, dash_app):
         from fastapi import Request
+
         async def serve(request: Request, package_name: str, fingerprinted_path: str):
-            return self.serve_component_suites(dash_app, package_name, fingerprinted_path, request)
+            return self.serve_component_suites(
+                dash_app, package_name, fingerprinted_path, request
+            )
 
         self.add_url_rule(
             app,
@@ -206,9 +236,9 @@ class FastAPIServerFactory(BaseServerFactory):
 
     def _serve_default_favicon(self):
         return Response(
-            content=pkgutil.get_data("dash", "favicon.ico"),
-            media_type="image/x-icon"
+            content=pkgutil.get_data("dash", "favicon.ico"), media_type="image/x-icon"
         )
+
 
 class FastAPIRequestAdapter:
     def __init__(self):
@@ -224,7 +254,9 @@ class FastAPIRequestAdapter:
         return await self._request.json()
 
     def is_json(self):
-        return self._request.headers.get("content-type", "").startswith("application/json")
+        return self._request.headers.get("content-type", "").startswith(
+            "application/json"
+        )
 
     def get_cookies(self, request=None):
         return self._request.cookies
