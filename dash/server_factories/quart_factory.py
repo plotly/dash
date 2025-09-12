@@ -164,7 +164,6 @@ class QuartAPIServerFactory(BaseServerFactory):
         headers = {}
         if has_fingerprint:
             headers["Cache-Control"] = "public, max-age=31536000"
-            return Response(data, content_type=mimetype, headers=headers)
 
         return Response(data, content_type=mimetype, headers=headers)
 
