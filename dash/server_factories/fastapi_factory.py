@@ -219,14 +219,14 @@ class FastAPIServerFactory(BaseServerFactory):
                 dash_app, package_name, fingerprinted_path, request
             )
 
+        # pylint: disable=protected-access
         dash_app._add_url(
             "/_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
         )
 
-    def dispatch(
-        self, app, dash_app, use_async=False
-    ):  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def dispatch(self, app, dash_app, use_async=False):
         async def _dispatch(request: Request):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)
