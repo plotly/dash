@@ -76,7 +76,7 @@ class FlaskServerFactory(BaseServerFactory):
         def catchall(*args, **kwargs):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
-            return dash_app.render_index(*args, **kwargs)
+            return dash_app.index(*args, **kwargs)
 
         # pylint: disable=protected-access
         dash_app._add_url("<path:path>", catchall, methods=["GET"])
@@ -85,7 +85,7 @@ class FlaskServerFactory(BaseServerFactory):
         def index(*args, **kwargs):
             adapter = FlaskRequestAdapter()
             set_request_adapter(adapter)
-            return dash_app.render_index(*args, **kwargs)
+            return dash_app.index(*args, **kwargs)
 
         # pylint: disable=protected-access
         dash_app._add_url("", index, methods=["GET"])

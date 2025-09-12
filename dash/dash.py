@@ -1145,16 +1145,20 @@ class Dash(ObsoleteChecker):
 
         return meta_tags + self.config.meta_tags
 
-    def render_index(self, *_args, **_kwargs):
+    def index(self, *_args, **_kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta()
         renderer = self._generate_renderer()
         title = self.title
-        request = get_request_adapter()
+        try:
+            request = get_request_adapter()
+        except LookupError:
+            # no request context
+            request = None
 
-        if self.use_pages and self.config.include_pages_meta:
+        if self.use_pages and self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
 
         if self._favicon:

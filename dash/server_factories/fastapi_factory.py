@@ -88,7 +88,7 @@ class FastAPIServerFactory(BaseServerFactory):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)
             adapter.set_request(request)
-            return Response(content=dash_app.render_index(), media_type="text/html")
+            return Response(content=dash_app.index(), media_type="text/html")
 
         # pylint: disable=protected-access
         dash_app._add_url("", index, methods=["GET"])
@@ -104,7 +104,7 @@ class FastAPIServerFactory(BaseServerFactory):
                 adapter = FastAPIRequestAdapter()
                 set_request_adapter(adapter)
                 adapter.set_request(request)
-                return Response(content=dash_app.render_index(), media_type="text/html")
+                return Response(content=dash_app.index(), media_type="text/html")
 
             # pylint: disable=protected-access
             dash_app._add_url("{path:path}", catchall, methods=["GET"])
