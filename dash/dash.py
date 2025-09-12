@@ -526,7 +526,7 @@ class Dash(ObsoleteChecker):
             raise ValueError("Invalid backend argument")
 
         # Determine server and backend instance
-        if server is not None and server is not True and server is not False:
+        if server not in (None, True, False):
             # User provided a server instance (e.g., Flask, Quart, FastAPI)
             if _is_flask_instance(server):
                 backend_cls = get_backend("flask")
