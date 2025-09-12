@@ -6,7 +6,7 @@ from typing import Callable, Optional, Any, List, Tuple, Union
 
 
 import asyncio
-from dash.server_factories import get_request_adapter
+from dash.backend import get_request_adapter
 
 from .dependencies import (
     handle_callback_args,

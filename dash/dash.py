@@ -39,7 +39,7 @@ from .exceptions import (
     ProxyError,
     DuplicateCallback,
 )
-from .server_factories import get_request_adapter
+from .backend import get_request_adapter, get_backend
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs, pages_folder_config
 from ._utils import (
@@ -64,8 +64,7 @@ from . import _dash_renderer
 from . import _validate
 from . import _watch
 from . import _get_app
-from .server_factories.flask_factory import FlaskServerFactory
-from .server_factories.base_factory import BaseServerFactory
+from .backend.flask import FlaskDashServer
 
 from ._get_app import with_app_context, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
@@ -155,6 +154,27 @@ try:
 # pylint: disable-next=bare-except
 except:  # noqa: E722
     page_container = None
+
+def _is_flask_instance(obj):
+    try:
+        from flask import Flask
+        return isinstance(obj, Flask)
+    except ImportError:
+        return False
+
+def _is_fastapi_instance(obj):
+    try:
+        from fastapi import FastAPI
+        return isinstance(obj, FastAPI)
+    except ImportError:
+        return False
+
+def _is_quart_instance(obj):
+    try:
+        from quart import Quart
+        return isinstance(obj, Quart)
+    except ImportError:
+        return False
 
 
 def _get_traceback(secret, error: Exception):
@@ -248,6 +268,12 @@ class Dash(ObsoleteChecker):
             where ``server`` is a ``flask.Flask`` instance.
         ``flask.Flask``: use this pre-existing Flask server.
     :type server: boolean or flask.Flask
+
+    :param backend: The backend to use for the Dash app. Can be a string
+        (name of the backend) or a backend class. Default is None, which
+        selects the Flask backend. Currently, "flask" and "fastapi" backends
+        are supported.
+    :type backend: string or type
 
     :param assets_folder: a path, relative to the current working directory,
         for extra files to be used in the browser. Default ``'assets'``.
@@ -431,6 +457,7 @@ class Dash(ObsoleteChecker):
         self,
         name: Optional[str] = None,
         server: Union[bool, Callable[[], Any]] = True,
+        backend: Union[str, type, None] = None,
         assets_folder: str = "assets",
         pages_folder: str = "pages",
         use_pages: Optional[bool] = None,
@@ -466,7 +493,6 @@ class Dash(ObsoleteChecker):
         description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
-        server_factory: Optional[BaseServerFactory] = None,
         **obsolete,
     ):
 
@@ -489,29 +515,33 @@ class Dash(ObsoleteChecker):
 
         caller_name: str = name if name is not None else get_caller_name()
 
-        self.server_factory = server_factory or FlaskServerFactory()
-
-        # We have 3 cases: server is either True (we create the server), False
-        # (defer server creation) or a Flask app instance (we use their server)
-        if callable(server) and not (
-            hasattr(server, "route") and hasattr(server, "run")
-        ):
-            # Server factory function
-            self.server = server()
-            if name is None:
-                caller_name = getattr(self.server, "name", caller_name)
-        elif hasattr(server, "route") and hasattr(server, "run"):
-            self.server = server
-            if name is None:
-                caller_name = getattr(server, "name", caller_name)
-        elif isinstance(server, bool):
-            self.server = (
-                self.server_factory.create_app(caller_name) if server else None
-            )
+        # Determine backend
+        if backend is None:
+            backend_cls = FlaskDashServer
+        elif isinstance(backend, str):
+            backend_cls = get_backend(backend)
+        elif isinstance(backend, type):
+            backend_cls = backend
         else:
-            raise ValueError(
-                "server must be a Flask app, a boolean, or a server factory function"
-            )
+            raise ValueError("Invalid backend argument")
+
+        # Determine server and backend instance
+        if server is not None and server is not True and server is not False:
+            # User provided a server instance (e.g., Flask, Quart, FastAPI)
+            if _is_flask_instance(server):
+                backend_cls = get_backend("flask")
+            elif _is_quart_instance(server):
+                backend_cls = get_backend("quart")
+            elif _is_fastapi_instance(server):
+                backend_cls = get_backend("fastapi")
+            else:
+                raise ValueError("Unsupported server type")
+            self.backend = backend_cls()
+            self.server = server
+        else:
+            # No server instance provided, create backend and let backend create server
+            self.backend = backend_cls()
+            self.server = server
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -700,7 +730,7 @@ class Dash(ObsoleteChecker):
             self.server = app
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
-        self.server_factory.register_assets_blueprint(
+        self.backend.register_assets_blueprint(
             self.server,
             assets_blueprint_name,
             config.routes_pathname_prefix + self.config.assets_url_path.lstrip("/"),
@@ -723,8 +753,8 @@ class Dash(ObsoleteChecker):
                 raise ImportError(
                     "To use the compress option, you need to install dash[compress]"
                 ) from error
-        self.server_factory.register_error_handlers(self.server)
-        self.server_factory.before_request(self.server, self._setup_server)
+        self.backend.register_error_handlers(self.server)
+        self.backend.before_request(self.server, self._setup_server)
         self._setup_routes()
         _get_app.APP = self
         self.enable_pages()
@@ -732,7 +762,7 @@ class Dash(ObsoleteChecker):
 
     def _add_url(self, name: str, view_func: RouteCallable, methods=("GET",)) -> None:
         full_name = self.config.routes_pathname_prefix + name
-        self.server_factory.add_url_rule(
+        self.backend.add_url_rule(
             self.server,
             full_name,
             view_func=view_func,
@@ -742,21 +772,21 @@ class Dash(ObsoleteChecker):
         self.routes.append(full_name)
 
     def _setup_routes(self):
-        self.server_factory.setup_component_suites(self)
+        self.backend.setup_component_suites(self)
         self._add_url("_dash-layout", self.serve_layout)
         self._add_url("_dash-dependencies", self.dependencies)
         self._add_url(
             "_dash-update-component",
-            self.server_factory.dispatch(self.server, self, self._use_async),
+            self.backend.dispatch(self.server, self, self._use_async),
             ["POST"],
         )
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url(
             "_favicon.ico",
-            self.server_factory._serve_default_favicon,  # pylint: disable=protected-access
+            self.backend._serve_default_favicon,  # pylint: disable=protected-access
         )
-        self.server_factory.setup_index(self)
-        self.server_factory.setup_catchall(self)
+        self.backend.setup_index(self)
+        self.backend.setup_catchall(self)
 
         if jupyter_dash.active:
             self._add_url(
@@ -794,7 +824,7 @@ class Dash(ObsoleteChecker):
             self.callback_api_paths[k] = _callback.GLOBAL_API_PATHS.pop(k)
 
         # Delegate to the server factory for route registration
-        self.server_factory.register_callback_api_routes(self.server, self.callback_api_paths)
+        self.backend.register_callback_api_routes(self.server, self.callback_api_paths)
 
     def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
@@ -866,7 +896,7 @@ class Dash(ObsoleteChecker):
             layout = hook(layout)
 
         # TODO - Set browser cache limit - pass hash into frontend
-        return self.server_factory.make_response(
+        return self.backend.make_response(
             to_json(layout),
             mimetype="application/json",
         )
@@ -930,7 +960,7 @@ class Dash(ObsoleteChecker):
             _reload.hard = False
             _reload.changed_assets = []
 
-        return self.server_factory.jsonify(
+        return self.backend.jsonify(
             {
                 "reloadHash": _hash,
                 "hard": hard,
@@ -1241,7 +1271,7 @@ class Dash(ObsoleteChecker):
 
     @with_app_context
     def dependencies(self):
-        return self.server_factory.make_response(
+        return self.backend.make_response(
             to_json(self._callback_list),
             content_type="application/json",
         )
@@ -1360,7 +1390,7 @@ class Dash(ObsoleteChecker):
             {"prop_id": x, "value": g.input_values.get(x)}
             for x in body.get("changedPropIds", [])
         ]
-        g.dash_response = self.server_factory.make_response(
+        g.dash_response = self.backend.make_response(
             mimetype="application/json", data=None
         )
         g.cookies = dict(adapter.get_cookies())
@@ -1736,7 +1766,7 @@ class Dash(ObsoleteChecker):
 
         For nested URLs, slashes are still included:
         `app.strip_relative_path('/page-1/sub-page-1/')` will return
-        `page-1/sub-page-1`
+        `page-1/sub-page-1
         ```
         """
         return _get_paths.app_strip_relative_path(
@@ -1993,12 +2023,12 @@ class Dash(ObsoleteChecker):
                 )
             elif dev_tools.prune_errors:
                 secret = gen_salt(20)
-                self.server_factory.register_prune_error_handler(
+                self.backend.register_prune_error_handler(
                     self.server, secret, _get_traceback
                 )
 
         if debug and dev_tools.ui:
-            self.server_factory.register_timing_hooks(self.server, first_run)
+            self.backend.register_timing_hooks(self.server, first_run)
 
         if (
             debug
@@ -2282,7 +2312,7 @@ class Dash(ObsoleteChecker):
                 server_url=jupyter_server_url,
             )
         else:
-            self.server_factory.run(
+            self.backend.run(
                 self.server, host=host, port=port, debug=debug, **flask_run_options
             )
 
@@ -2447,7 +2477,7 @@ class Dash(ObsoleteChecker):
                 Input(_ID_STORE, "data"),
             )
 
-        self.server_factory.before_request(self.server, router)
+        self.backend.before_request(self.server, router)
 
     def __call__(self, *args, **kwargs):
-        return self.server_factory.__call__(self.server, *args, **kwargs)
+        return self.backend.__call__(self.server, *args, **kwargs)

@@ -1,7 +1,7 @@
-from .base_factory import BaseServerFactory
+from .base_server import BaseDashServer
 from quart import Quart, Request, Response, jsonify, request
 from dash.exceptions import PreventUpdate, InvalidResourceError
-from dash.server_factories import set_request_adapter
+from dash.backend import set_request_adapter
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from contextvars import copy_context
@@ -12,7 +12,7 @@ import sys
 import time
 
 
-class QuartAPIServerFactory(BaseServerFactory):
+class QuartDashServer(BaseDashServer):
     """Quart implementation of the Dash server factory.
 
     All Quart/async specific imports are at the top-level (per user request) so
@@ -195,6 +195,30 @@ class QuartAPIServerFactory(BaseServerFactory):
             return Response(response_data, content_type="application/json")
 
         return _dispatch
+
+    def register_callback_api_routes(self, app, callback_api_paths):
+        """
+        Register callback API endpoints on the Quart app.
+        Each key in callback_api_paths is a route, each value is a handler (sync or async).
+        The view function parses the JSON body and passes it to the handler.
+        """
+        for path, handler in callback_api_paths.items():
+            endpoint = f"dash_callback_api_{path}"
+            route = path if path.startswith("/") else f"/{path}"
+            methods = ["POST"]
+
+            if inspect.iscoroutinefunction(handler):
+                async def view_func(*args, handler=handler, **kwargs):
+                    data = await request.get_json()
+                    result = await handler(**data) if data else await handler()
+                    return jsonify(result)
+            else:
+                async def view_func(*args, handler=handler, **kwargs):
+                    data = await request.get_json()
+                    result = handler(**data) if data else handler()
+                    return jsonify(result)
+
+            app.add_url_rule(route, endpoint=endpoint, view_func=view_func, methods=methods)
 
     def _serve_default_favicon(self):
         return Response(
