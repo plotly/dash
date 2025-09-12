@@ -529,13 +529,33 @@ class Dash(ObsoleteChecker):
         if server not in (None, True, False):
             # User provided a server instance (e.g., Flask, Quart, FastAPI)
             if _is_flask_instance(server):
-                backend_cls = get_backend("flask")
+                inferred_backend = "flask"
             elif _is_quart_instance(server):
-                backend_cls = get_backend("quart")
+                inferred_backend = "quart"
             elif _is_fastapi_instance(server):
-                backend_cls = get_backend("fastapi")
+                inferred_backend = "fastapi"
             else:
                 raise ValueError("Unsupported server type")
+            # Validate that backend matches server type if both are provided
+            if backend is not None:
+                if isinstance(backend, str):
+                    requested_backend = backend
+                elif isinstance(backend, type):
+                    # get_backend returns the backend class for a string
+                    # So we compare the class names
+                    requested_backend = get_backend(inferred_backend).__name__.lower()
+                    backend_name = backend.__name__.lower()
+                    if backend_name != requested_backend:
+                        raise ValueError(
+                            f"Conflict between provided backend '{backend_name}' and server type '{inferred_backend}'."
+                        )
+                else:
+                    raise ValueError("Invalid backend argument")
+                if isinstance(backend, str) and backend.lower() != inferred_backend:
+                    raise ValueError(
+                        f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
+                    )
+            backend_cls = get_backend(inferred_backend)
             self.backend = backend_cls()
             self.server = server
         else:
