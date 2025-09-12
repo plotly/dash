@@ -1,15 +1,13 @@
 from .base_factory import BaseServerFactory
-from quart import Quart, request, Response, jsonify, send_from_directory
+from quart import Quart, request, Response, jsonify
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.server_factories import set_request_adapter
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from contextvars import copy_context
 import inspect
-import os
 import pkgutil
 import mimetypes
-import hashlib
 import sys
 import time
 
@@ -26,21 +24,18 @@ class QuartAPIServerFactory(BaseServerFactory):
         super().__init__()
 
     def __call__(self, server, *args, **kwargs):
-        # ASGI style (scope, receive, send) or standard call-through handled by BaseServerFactory
         return super().__call__(server, *args, **kwargs)
 
     def create_app(self, name="__main__", config=None):
         app = Quart(name)
         if config:
             for key, value in config.items():
-                # Mirror Flask usage of config dict
                 app.config[key] = value
         return app
 
     def register_assets_blueprint(
         self, app, blueprint_name, assets_url_path, assets_folder
     ):
-        # Mirror Flask implementation using a blueprint serving static files
         from quart import Blueprint
 
         bp = Blueprint(
@@ -109,41 +104,6 @@ class QuartAPIServerFactory(BaseServerFactory):
             rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
         )
 
-    # def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
-    #     if rule == "":
-    #         rule = "/"
-    #     if isinstance(view_func, str):
-    #         # Literal HTML content
-    #         view_func = self._html_response_wrapper(view_func)
-    #     elif not inspect.iscoroutinefunction(view_func):
-    #         # Sync function: wrap to make async but preserve Response objects
-    #         original = view_func
-
-    #         async def _async_adapter(*args, **kwargs):
-    #             result = original(*args, **kwargs)
-    #             # Pass through existing Response (Quart/Flask style)
-    #             if isinstance(result, Response) or (
-    #                 hasattr(result, "status_code")
-    #                 and hasattr(result, "headers")
-    #                 and hasattr(result, "get_data")
-    #             ):
-    #                 return result
-    #             # If it's bytes or str treat as HTML
-    #             if isinstance(result, (str, bytes)):
-    #                 return Response(result, content_type="text/html")
-    #             # Fallback: JSON encode arbitrary python objects
-    #             try:
-    #                 import json
-
-    #                 return Response(
-    #                     json.dumps(result), content_type="application/json"
-    #                 )
-    #             except Exception:  # pragma: no cover
-    #                 return Response(str(result), content_type="text/plain")
-
-    #         view_func = _async_adapter
-    #     app.add_url_rule(rule, endpoint or rule, view_func, methods=methods or ["GET"])
-
     def setup_index(self, app, dash_app):
         async def index():
             adapter = QuartRequestAdapter()
@@ -175,20 +135,8 @@ class QuartAPIServerFactory(BaseServerFactory):
             return response
 
     def run(self, app, host, port, debug, **kwargs):
-        # Store only dev tools related configuration (exclude server-only kwargs unsupported by Quart)
-        # Quart's run does NOT accept 'threaded' (Flask-specific). Drop silently (or log) if present.
-        unsupported = {"threaded", "processes"}
-        filtered_kwargs = {}
-        for k, v in kwargs.items():
-            if k in unsupported:
-                continue
-            filtered_kwargs[k] = v
-
-        # Keep a slim config for potential future use (dev tools already enabled in Dash.run)
-        self.config = {'debug': debug}
-        self.config.update({k: v for k, v in filtered_kwargs.items() if k.startswith('dev_tools_')})
-
-        app.run(host=host, port=port, debug=debug, **filtered_kwargs)
+        self.config = dict({'debug': debug} if debug else {}, **kwargs)
+        app.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(self, data, mimetype=None, content_type=None):
         return Response(data, mimetype=mimetype, content_type=content_type)
