@@ -271,7 +271,7 @@ class Dash(ObsoleteChecker):
 
     :param backend: The backend to use for the Dash app. Can be a string
         (name of the backend) or a backend class. Default is None, which
-        selects the Flask backend. Currently, "flask" and "fastapi" backends
+        selects the Flask backend. Currently, "flask", "fastapi", and "quart" backends
         are supported.
     :type backend: string or type
 
