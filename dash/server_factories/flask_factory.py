@@ -5,6 +5,7 @@ import sys
 import mimetypes
 import time
 import flask
+import inspect
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
@@ -199,6 +200,31 @@ class FlaskServerFactory(BaseServerFactory):
 
         self.before_request(app, _before_request)
         self.after_request(app, _after_request)
+
+    def register_callback_api_routes(self, app, callback_api_paths):
+        """
+        Register callback API endpoints on the Flask app.
+        Each key in callback_api_paths is a route, each value is a handler (sync or async).
+        The view function parses the JSON body and passes it to the handler.
+        """
+        for path, handler in callback_api_paths.items():
+            endpoint = f"dash_callback_api_{path}"
+            route = path if path.startswith("/") else f"/{path}"
+            methods = ["POST"]
+
+            if inspect.iscoroutinefunction(handler):
+                async def view_func(*args, handler=handler, **kwargs):
+                    data = flask.request.get_json()
+                    result = await handler(**data) if data else await handler()
+                    return flask.jsonify(result)
+            else:
+                def view_func(*args, handler=handler, **kwargs):
+                    data = flask.request.get_json()
+                    result = handler(**data) if data else handler()
+                    return flask.jsonify(result)
+
+            # Flask 2.x+ supports async views natively
+            app.add_url_rule(route, endpoint=endpoint, view_func=view_func, methods=methods)
 
 
 class FlaskRequestAdapter:

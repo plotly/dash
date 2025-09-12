@@ -793,30 +793,8 @@ class Dash(ObsoleteChecker):
                 )
             self.callback_api_paths[k] = _callback.GLOBAL_API_PATHS.pop(k)
 
-        def make_parse_body(func):
-            def _parse_body():
-                if flask.request.is_json:
-                    data = flask.request.get_json()
-                    return flask.jsonify(func(**data))
-                return flask.jsonify({})
-
-            return _parse_body
-
-        def make_parse_body_async(func):
-            async def _parse_body_async():
-                if flask.request.is_json:
-                    data = flask.request.get_json()
-                    result = await func(**data)
-                    return flask.jsonify(result)
-                return flask.jsonify({})
-
-            return _parse_body_async
-
-        for path, func in self.callback_api_paths.items():
-            if asyncio.iscoroutinefunction(func):
-                self._add_url(path, make_parse_body_async(func), ["POST"])
-            else:
-                self._add_url(path, make_parse_body(func), ["POST"])
+        # Delegate to the server factory for route registration
+        self.server_factory.register_callback_api_routes(self.server, self.callback_api_paths)
 
     def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
