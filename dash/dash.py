@@ -1768,7 +1768,7 @@ class Dash(ObsoleteChecker):
 
         For nested URLs, slashes are still included:
         `app.strip_relative_path('/page-1/sub-page-1/')` will return
-        `page-1/sub-page-1
+        `page-1/sub-page-1`
         ```
         """
         return _get_paths.app_strip_relative_path(
