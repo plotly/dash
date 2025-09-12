@@ -742,7 +742,7 @@ class Dash(ObsoleteChecker):
         self.routes.append(full_name)
 
     def _setup_routes(self):
-        self.server_factory.setup_component_suites(self.server, self)
+        self.server_factory.setup_component_suites(self)
         self._add_url("_dash-layout", self.serve_layout)
         self._add_url("_dash-dependencies", self.dependencies)
         self._add_url(
@@ -755,8 +755,8 @@ class Dash(ObsoleteChecker):
             "_favicon.ico",
             self.server_factory._serve_default_favicon,  # pylint: disable=protected-access
         )
-        self.server_factory.setup_index(self.server, self)
-        self.server_factory.setup_catchall(self.server, self)
+        self.server_factory.setup_index(self)
+        self.server_factory.setup_catchall(self)
 
         if jupyter_dash.active:
             self._add_url(
