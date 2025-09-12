@@ -543,11 +543,10 @@ class Dash(ObsoleteChecker):
                 elif isinstance(backend, type):
                     # get_backend returns the backend class for a string
                     # So we compare the class names
-                    requested_backend = get_backend(inferred_backend).__name__.lower()
-                    backend_name = backend.__name__.lower()
-                    if backend_name != requested_backend:
+                    expected_backend_cls = get_backend(inferred_backend)
+                    if backend is not expected_backend_cls:
                         raise ValueError(
-                            f"Conflict between provided backend '{backend_name}' and server type '{inferred_backend}'."
+                            f"Conflict between provided backend '{backend.__name__}' and server type '{inferred_backend}'."
                         )
                 else:
                     raise ValueError("Invalid backend argument")
