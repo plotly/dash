@@ -540,8 +540,10 @@ class Dash(ObsoleteChecker):
             self.server = server
         else:
             # No server instance provided, create backend and let backend create server
+            if server is True and backend_cls is None:
+                backend_cls = FlaskDashServer
             self.backend = backend_cls()
-            self.server = server
+            self.server = self.backend.create_app(caller_name)  # type: ignore
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
