@@ -1,15 +1,13 @@
 from .base_factory import BaseServerFactory
-from quart import Quart, request, Response, jsonify, send_from_directory
+from quart import Quart, Request, Response, jsonify, request
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.server_factories import set_request_adapter
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from contextvars import copy_context
 import inspect
-import os
 import pkgutil
 import mimetypes
-import hashlib
 import sys
 import time
 
@@ -26,21 +24,18 @@ class QuartAPIServerFactory(BaseServerFactory):
         super().__init__()
 
     def __call__(self, server, *args, **kwargs):
-        # ASGI style (scope, receive, send) or standard call-through handled by BaseServerFactory
         return super().__call__(server, *args, **kwargs)
 
     def create_app(self, name="__main__", config=None):
         app = Quart(name)
         if config:
             for key, value in config.items():
-                # Mirror Flask usage of config dict
                 app.config[key] = value
         return app
 
     def register_assets_blueprint(
         self, app, blueprint_name, assets_url_path, assets_folder
     ):
-        # Mirror Flask implementation using a blueprint serving static files
         from quart import Blueprint
 
         bp = Blueprint(
@@ -109,58 +104,23 @@ class QuartAPIServerFactory(BaseServerFactory):
             rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
         )
 
-    # def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
-    #     if rule == "":
-    #         rule = "/"
-    #     if isinstance(view_func, str):
-    #         # Literal HTML content
-    #         view_func = self._html_response_wrapper(view_func)
-    #     elif not inspect.iscoroutinefunction(view_func):
-    #         # Sync function: wrap to make async but preserve Response objects
-    #         original = view_func
-
-    #         async def _async_adapter(*args, **kwargs):
-    #             result = original(*args, **kwargs)
-    #             # Pass through existing Response (Quart/Flask style)
-    #             if isinstance(result, Response) or (
-    #                 hasattr(result, "status_code")
-    #                 and hasattr(result, "headers")
-    #                 and hasattr(result, "get_data")
-    #             ):
-    #                 return result
-    #             # If it's bytes or str treat as HTML
-    #             if isinstance(result, (str, bytes)):
-    #                 return Response(result, content_type="text/html")
-    #             # Fallback: JSON encode arbitrary python objects
-    #             try:
-    #                 import json
-
-    #                 return Response(
-    #                     json.dumps(result), content_type="application/json"
-    #                 )
-    #             except Exception:  # pragma: no cover
-    #                 return Response(str(result), content_type="text/plain")
-
-    #         view_func = _async_adapter
-    #     app.add_url_rule(rule, endpoint or rule, view_func, methods=methods or ["GET"])
-
-    def setup_index(self, app, dash_app):
+    def setup_index(self, dash_app):
         async def index():
             adapter = QuartRequestAdapter()
             set_request_adapter(adapter)
-            return Response(dash_app.render_index(), content_type="text/html")
+            adapter.set_request(request)
+            return Response(dash_app.index(), content_type="text/html")
 
-        self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
+        dash_app._add_url("", index, methods=["GET"])
 
-    def setup_catchall(self, app, dash_app):
-        async def catchall(path):
+    def setup_catchall(self, dash_app):
+        async def catchall(path):  # noqa: ARG001 - path is unused but kept for route signature
             adapter = QuartRequestAdapter()
             set_request_adapter(adapter)
-            return Response(dash_app.render_index(), content_type="text/html")
+            adapter.set_request(request)
+            return Response(dash_app.index(), content_type="text/html")
 
-        self.add_url_rule(
-            app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"]
-        )
+        dash_app._add_url("<path:path>", catchall, methods=["GET"])
 
     def before_request(self, app, func):
         app.before_request(func)
@@ -175,20 +135,8 @@ class QuartAPIServerFactory(BaseServerFactory):
             return response
 
     def run(self, app, host, port, debug, **kwargs):
-        # Store only dev tools related configuration (exclude server-only kwargs unsupported by Quart)
-        # Quart's run does NOT accept 'threaded' (Flask-specific). Drop silently (or log) if present.
-        unsupported = {"threaded", "processes"}
-        filtered_kwargs = {}
-        for k, v in kwargs.items():
-            if k in unsupported:
-                continue
-            filtered_kwargs[k] = v
-
-        # Keep a slim config for potential future use (dev tools already enabled in Dash.run)
-        self.config = {'debug': debug}
-        self.config.update({k: v for k, v in filtered_kwargs.items() if k.startswith('dev_tools_')})
-
-        app.run(host=host, port=port, debug=debug, **filtered_kwargs)
+        self.config = {'debug': debug, **kwargs} if debug else kwargs
+        app.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(self, data, mimetype=None, content_type=None):
         return Response(data, mimetype=mimetype, content_type=content_type)
@@ -199,9 +147,7 @@ class QuartAPIServerFactory(BaseServerFactory):
     def get_request_adapter(self):
         return QuartRequestAdapter
 
-    def serve_component_suites(
-        self, dash_app, package_name, fingerprinted_path, req
-    ):
+    def serve_component_suites(self, dash_app, package_name, fingerprinted_path, req):  # noqa: ARG002 unused req preserved for interface parity
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
         _validate.validate_js_path(dash_app.registered_paths, package_name, path_in_pkg)
         extension = "." + path_in_pkg.split(".")[-1]
@@ -222,23 +168,22 @@ class QuartAPIServerFactory(BaseServerFactory):
 
         return Response(data, content_type=mimetype, headers=headers)
 
-    def setup_component_suites(self, app, dash_app):
+    def setup_component_suites(self, dash_app):
         async def serve(package_name, fingerprinted_path):
             return self.serve_component_suites(
                 dash_app, package_name, fingerprinted_path, request
             )
 
-        self.add_url_rule(
-            app,
-            "/_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
+        dash_app._add_url(
+            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
-            methods=["GET"],
         )
 
     def dispatch(self, app, dash_app, use_async=True):  # Quart always async
         async def _dispatch():
             adapter = QuartRequestAdapter()
             set_request_adapter(adapter)
+            adapter.set_request(request)
             body = await request.get_json()
             g = dash_app._initialize_context(body, adapter)
             func = dash_app._prepare_callback(g, body)
@@ -259,40 +204,42 @@ class QuartAPIServerFactory(BaseServerFactory):
 
 
 class QuartRequestAdapter:
-    """Adapter that normalizes Quart's request API to what Dash expects."""
+    def __init__(self) -> None:
+        self._request = None
 
-    @staticmethod
-    def get_args():
-        return request.args
+    def set_request(self, request: Request) -> None:
+        self._request = request
 
-    @staticmethod
-    async def get_json():
-        return await request.get_json()
+    # Accessors (instance-based)
+    def get_root(self):
+        return self._request.root_url
 
-    @staticmethod
-    def is_json():
-        return request.is_json
+    def get_args(self):
+        return self._request.args
 
-    @staticmethod
-    def get_cookies():
-        return request.cookies
+    async def get_json(self):
+        return await self._request.get_json()
 
-    @staticmethod
-    def get_headers():
-        return request.headers
+    def is_json(self):
+        return self._request.is_json
 
-    @staticmethod
-    def get_full_path():
-        return request.full_path
+    def get_cookies(self):
+        return self._request.cookies
 
-    @staticmethod
-    def get_remote_addr():
-        return request.remote_addr
+    def get_headers(self):
+        return self._request.headers
 
-    @staticmethod
-    def get_origin():
-        return request.headers.get("Origin")
+    def get_full_path(self):
+        return self._request.full_path
 
-    @staticmethod
-    def get_path():
-        return request.path
+    def get_url(self):
+        return str(self._request.url)
+
+    def get_remote_addr(self):
+        return self._request.remote_addr
+
+    def get_origin(self):
+        return self._request.headers.get("origin")
+
+    def get_path(self):
+        return self._request.path
