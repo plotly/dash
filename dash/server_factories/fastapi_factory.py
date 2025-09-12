@@ -83,16 +83,17 @@ class FastAPIServerFactory(BaseServerFactory):
 
         return wrapped
 
-    def setup_index(self, app, dash_app):
+    def setup_index(self, dash_app):
         async def index(request: Request):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)
             adapter.set_request(request)
-            return Response(content=dash_app.render_index(), media_type="text/html")
+            return Response(content=dash_app.index(), media_type="text/html")
 
-        self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
+        # pylint: disable=protected-access
+        dash_app._add_url("", index, methods=["GET"])
 
-    def setup_catchall(self, app, dash_app):
+    def setup_catchall(self, dash_app):
         @dash_app.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
@@ -103,11 +104,10 @@ class FastAPIServerFactory(BaseServerFactory):
                 adapter = FastAPIRequestAdapter()
                 set_request_adapter(adapter)
                 adapter.set_request(request)
-                return Response(content=dash_app.render_index(), media_type="text/html")
+                return Response(content=dash_app.index(), media_type="text/html")
 
-            self.add_url_rule(
-                app, "/{path:path}", catchall, endpoint="catchall", methods=["GET"]
-            )
+            # pylint: disable=protected-access
+            dash_app._add_url("{path:path}", catchall, methods=["GET"])
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         if rule == "":
@@ -213,20 +213,20 @@ class FastAPIServerFactory(BaseServerFactory):
             return StarletteResponse(status_code=304)
         return StarletteResponse(content=data, media_type=mimetype, headers=headers)
 
-    def setup_component_suites(self, app, dash_app):
+    def setup_component_suites(self, dash_app):
         async def serve(request: Request, package_name: str, fingerprinted_path: str):
             return self.serve_component_suites(
                 dash_app, package_name, fingerprinted_path, request
             )
 
+        # pylint: disable=protected-access
         dash_app._add_url(
-            "/_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
+            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
         )
 
-    def dispatch(
-        self, app, dash_app, use_async=False
-    ):  # pylint: disable=unused-argument
+    # pylint: disable=unused-argument
+    def dispatch(self, app, dash_app, use_async=False):
         async def _dispatch(request: Request):
             adapter = FastAPIRequestAdapter()
             set_request_adapter(adapter)

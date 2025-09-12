@@ -84,6 +84,6 @@ def test_pare003_absolute_path(dash_duo, clear_pages_state):
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
-        until(lambda: dash_duo.driver.title == page["title"],timeout=3)
+        until(lambda: dash_duo.driver.title == page["title"], timeout=3)
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"

@@ -742,7 +742,7 @@ class Dash(ObsoleteChecker):
         self.routes.append(full_name)
 
     def _setup_routes(self):
-        self.server_factory.setup_component_suites(self.server, self)
+        self.server_factory.setup_component_suites(self)
         self._add_url("_dash-layout", self.serve_layout)
         self._add_url("_dash-dependencies", self.dependencies)
         self._add_url(
@@ -755,8 +755,8 @@ class Dash(ObsoleteChecker):
             "_favicon.ico",
             self.server_factory._serve_default_favicon,  # pylint: disable=protected-access
         )
-        self.server_factory.setup_index(self.server, self)
-        self.server_factory.setup_catchall(self.server, self)
+        self.server_factory.setup_index(self)
+        self.server_factory.setup_catchall(self)
 
         if jupyter_dash.active:
             self._add_url(
@@ -1145,16 +1145,20 @@ class Dash(ObsoleteChecker):
 
         return meta_tags + self.config.meta_tags
 
-    def render_index(self, *_args, **_kwargs):
+    def index(self, *_args, **_kwargs):
         scripts = self._generate_scripts_html()
         css = self._generate_css_dist_html()
         config = self._generate_config_html()
         metas = self._generate_meta()
         renderer = self._generate_renderer()
         title = self.title
-        request = get_request_adapter()
+        try:
+            request = get_request_adapter()
+        except LookupError:
+            # no request context
+            request = None
 
-        if self.use_pages and self.config.include_pages_meta:
+        if self.use_pages and self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
 
         if self._favicon:
