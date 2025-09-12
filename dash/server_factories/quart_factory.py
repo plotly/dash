@@ -1,5 +1,5 @@
 from .base_factory import BaseServerFactory
-from quart import Quart, request, Response as QuartResponse, jsonify, send_from_directory
+from quart import Quart, request, Response, jsonify, send_from_directory
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.server_factories import set_request_adapter
 from dash.fingerprint import check_fingerprint
@@ -11,6 +11,7 @@ import pkgutil
 import mimetypes
 import hashlib
 import sys
+import time
 
 
 class QuartAPIServerFactory(BaseServerFactory):
@@ -39,12 +40,50 @@ class QuartAPIServerFactory(BaseServerFactory):
     def register_assets_blueprint(
         self, app, blueprint_name, assets_url_path, assets_folder
     ):
-        if os.path.isdir(assets_folder):
-            route = f"{assets_url_path}/<path:filename>"
+        # Mirror Flask implementation using a blueprint serving static files
+        from quart import Blueprint
 
-            @app.route(route)
-            async def serve_asset(filename):  # pragma: no cover - simple passthrough
-                return await send_from_directory(assets_folder, filename)
+        bp = Blueprint(
+            blueprint_name,
+            __name__,
+            static_folder=assets_folder,
+            static_url_path=assets_url_path,
+        )
+        app.register_blueprint(bp)
+
+    def register_prune_error_handler(self, app, secret, get_traceback_func):
+        @app.errorhandler(Exception)
+        async def _wrap_errors(_error_request, error):
+            tb = get_traceback_func(secret, error)
+            return tb, 500
+
+    def register_timing_hooks(self, app, _first_run):  # parity with Flask factory
+        from quart import g
+
+        @app.before_request
+        async def _before_request():  # pragma: no cover - timing infra
+            g.timing_information = {"__dash_server": {"dur": time.time(), "desc": None}}
+
+        @app.after_request
+        async def _after_request(response):  # pragma: no cover - timing infra
+            timing_information = getattr(g, "timing_information", None)
+            if timing_information is None:
+                return response
+            dash_total = timing_information.get("__dash_server", None)
+            if dash_total is not None:
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+            for name, info in timing_information.items():
+                value = name
+                if info.get("desc") is not None:
+                    value += f';desc="{info["desc"]}"'
+                if info.get("dur") is not None:
+                    value += f";dur={info['dur']}"
+                # Quart/Werkzeug headers expose 'add' (not 'append')
+                if hasattr(response.headers, "add"):
+                    response.headers.add("Server-Timing", value)
+                else:  # fallback just in case
+                    response.headers["Server-Timing"] = value
+            return response
 
     def register_error_handlers(self, app):
         @app.errorhandler(PreventUpdate)
@@ -61,49 +100,72 @@ class QuartAPIServerFactory(BaseServerFactory):
             if inspect.iscoroutine(html_val):  # handle async function returning html
                 html_val = await html_val
             html = str(html_val)
-            return QuartResponse(html, content_type="text/html")
+            return Response(html, content_type="text/html")
 
         return wrapped
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
-        if rule == "":
-            rule = "/"
-        if isinstance(view_func, str) or not inspect.iscoroutinefunction(view_func):
-            # Wrap plain strings or sync callables in async handler returning HTML
-            if isinstance(view_func, str) or not inspect.iscoroutinefunction(view_func):
-                view_func = self._html_response_wrapper(view_func)
-        app.add_url_rule(rule, endpoint or rule, view_func, methods=methods or ["GET"])
+        app.add_url_rule(
+            rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
+        )
 
-    # ---- Index & Catchall ------------------------------------------------
+    # def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
+    #     if rule == "":
+    #         rule = "/"
+    #     if isinstance(view_func, str):
+    #         # Literal HTML content
+    #         view_func = self._html_response_wrapper(view_func)
+    #     elif not inspect.iscoroutinefunction(view_func):
+    #         # Sync function: wrap to make async but preserve Response objects
+    #         original = view_func
+
+    #         async def _async_adapter(*args, **kwargs):
+    #             result = original(*args, **kwargs)
+    #             # Pass through existing Response (Quart/Flask style)
+    #             if isinstance(result, Response) or (
+    #                 hasattr(result, "status_code")
+    #                 and hasattr(result, "headers")
+    #                 and hasattr(result, "get_data")
+    #             ):
+    #                 return result
+    #             # If it's bytes or str treat as HTML
+    #             if isinstance(result, (str, bytes)):
+    #                 return Response(result, content_type="text/html")
+    #             # Fallback: JSON encode arbitrary python objects
+    #             try:
+    #                 import json
+
+    #                 return Response(
+    #                     json.dumps(result), content_type="application/json"
+    #                 )
+    #             except Exception:  # pragma: no cover
+    #                 return Response(str(result), content_type="text/plain")
+
+    #         view_func = _async_adapter
+    #     app.add_url_rule(rule, endpoint or rule, view_func, methods=methods or ["GET"])
+
     def setup_index(self, app, dash_app):
         async def index():
             adapter = QuartRequestAdapter()
             set_request_adapter(adapter)
-            return QuartResponse(dash_app.render_index(), content_type="text/html")
+            return Response(dash_app.render_index(), content_type="text/html")
 
         self.add_url_rule(app, "/", index, endpoint="index", methods=["GET"])
 
     def setup_catchall(self, app, dash_app):
-        @app.before_serving
-        async def _enable_dev_tools():  # pragma: no cover - environmental
-            dash_app.enable_dev_tools(**self.config)
-
         async def catchall(path):
             adapter = QuartRequestAdapter()
             set_request_adapter(adapter)
-            return QuartResponse(dash_app.render_index(), content_type="text/html")
+            return Response(dash_app.render_index(), content_type="text/html")
 
-        # Must be added after other routes
         self.add_url_rule(
             app, "/<path:path>", catchall, endpoint="catchall", methods=["GET"]
         )
 
-    # ---- Middleware-esque hooks -----------------------------------------
     def before_request(self, app, func):
         app.before_request(func)
 
     def after_request(self, app, func):
-        # Quart after_request expects (response) -> response
         @app.after_request
         async def _after(response):
             if func is not None:
@@ -112,19 +174,24 @@ class QuartAPIServerFactory(BaseServerFactory):
                     await result
             return response
 
-    # ---- Running ---------------------------------------------------------
     def run(self, app, host, port, debug, **kwargs):
-        self.config = dict({'debug': debug} if debug else {}, **kwargs)
-        app.run(host=host, port=port, debug=debug, **kwargs)
+        # Store only dev tools related configuration (exclude server-only kwargs unsupported by Quart)
+        # Quart's run does NOT accept 'threaded' (Flask-specific). Drop silently (or log) if present.
+        unsupported = {"threaded", "processes"}
+        filtered_kwargs = {}
+        for k, v in kwargs.items():
+            if k in unsupported:
+                continue
+            filtered_kwargs[k] = v
 
-    # ---- Responses / JSON ------------------------------------------------
+        # Keep a slim config for potential future use (dev tools already enabled in Dash.run)
+        self.config = {'debug': debug}
+        self.config.update({k: v for k, v in filtered_kwargs.items() if k.startswith('dev_tools_')})
+
+        app.run(host=host, port=port, debug=debug, **filtered_kwargs)
+
     def make_response(self, data, mimetype=None, content_type=None):
-        headers = {}
-        if mimetype:
-            headers["Content-Type"] = mimetype
-        if content_type:
-            headers["Content-Type"] = content_type
-        return QuartResponse(data, headers=headers)
+        return Response(data, mimetype=mimetype, content_type=content_type)
 
     def jsonify(self, obj):
         return jsonify(obj)
@@ -132,7 +199,6 @@ class QuartAPIServerFactory(BaseServerFactory):
     def get_request_adapter(self):
         return QuartRequestAdapter
 
-    # ---- Component Suites ------------------------------------------------
     def serve_component_suites(
         self, dash_app, package_name, fingerprinted_path, req
     ):
@@ -152,12 +218,9 @@ class QuartAPIServerFactory(BaseServerFactory):
         headers = {}
         if has_fingerprint:
             headers["Cache-Control"] = "public, max-age=31536000"
-            return QuartResponse(data, content_type=mimetype, headers=headers)
-        etag = hashlib.md5(data).hexdigest() if data else ""
-        headers["ETag"] = etag
-        if req.headers.get("If-None-Match") == etag:
-            return QuartResponse(None, status=304)
-        return QuartResponse(data, content_type=mimetype, headers=headers)
+            return Response(data, content_type=mimetype, headers=headers)
+
+        return Response(data, content_type=mimetype, headers=headers)
 
     def setup_component_suites(self, app, dash_app):
         async def serve(package_name, fingerprinted_path):
@@ -172,7 +235,6 @@ class QuartAPIServerFactory(BaseServerFactory):
             methods=["GET"],
         )
 
-    # ---- Dispatch (Callbacks) -------------------------------------------
     def dispatch(self, app, dash_app, use_async=True):  # Quart always async
         async def _dispatch():
             adapter = QuartRequestAdapter()
@@ -186,13 +248,12 @@ class QuartAPIServerFactory(BaseServerFactory):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
-            return QuartResponse(response_data, content_type="application/json")
+            return Response(response_data, content_type="application/json")
 
         return _dispatch
 
-    # ---- Favicon ---------------------------------------------------------
     def _serve_default_favicon(self):
-        return QuartResponse(
+        return Response(
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
@@ -235,4 +296,3 @@ class QuartRequestAdapter:
     @staticmethod
     def get_path():
         return request.path
-
