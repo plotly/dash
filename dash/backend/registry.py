@@ -17,6 +17,8 @@ def get_backend(name):
         return getattr(module, class_name)
     except KeyError:
         raise ValueError(f"Unknown backend: {name}")
-    except (ImportError, AttributeError) as e:
-        raise ImportError(f"Could not import backend '{name}': {e}")
+    except ImportError as e:
+        raise ImportError(f"Could not import module '{module_name}' for backend '{name}': {e}")
+    except AttributeError as e:
+        raise AttributeError(f"Module '{module_name}' does not have class '{class_name}' for backend '{name}': {e}")
 
