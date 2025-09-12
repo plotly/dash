@@ -14,13 +14,21 @@ try:
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
+    from pydantic import create_model
+    from typing import Any, Optional
 except ImportError:
     uvicorn = None
-    FastAPI = Request = Response = None
-    JSONResponse = PlainTextResponse = None
+    FastAPI = None
+    Request = None
+    Response = None
+    JSONResponse = None
+    PlainTextResponse = None
     StaticFiles = None
     StarletteResponse = None
     MutableHeaders = None
+    create_model = None
+    Any = None
+    Optional = None
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
@@ -109,7 +117,7 @@ class FastAPIServerFactory(BaseServerFactory):
             # pylint: disable=protected-access
             dash_app._add_url("{path:path}", catchall, methods=["GET"])
 
-    def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
+    def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None, include_in_schema=False):
         if rule == "":
             rule = "/"
         if isinstance(view_func, str):
@@ -120,7 +128,7 @@ class FastAPIServerFactory(BaseServerFactory):
             view_func,
             methods=methods or ["GET"],
             name=endpoint,
-            include_in_schema=False,
+            include_in_schema=include_in_schema,
         )
 
     def before_request(self, app, func):
@@ -285,6 +293,38 @@ class FastAPIServerFactory(BaseServerFactory):
                         value += f";dur={info['dur']}"
                     headers.append("Server-Timing", value)
             return response
+
+    def register_callback_api_routes(self, app, callback_api_paths):
+        """
+        Register callback API endpoints on the FastAPI app.
+        Each key in callback_api_paths is a route, each value is a handler (sync or async).
+        Dynamically creates a Pydantic model for the handler's parameters and uses it as the body parameter.
+        """
+        for path, handler in callback_api_paths.items():
+            endpoint = f"dash_callback_api_{path}"
+            route = path if path.startswith("/") else f"/{path}"
+            methods = ["POST"]
+            sig = inspect.signature(handler)
+            param_names = list(sig.parameters.keys())
+            fields = {name: (Optional[Any], None) for name in param_names}
+            Model = create_model(f"Payload_{endpoint}", **fields)
+
+            async def view_func(request: Request, body: Model):
+                kwargs = body.dict(exclude_unset=True)
+                if inspect.iscoroutinefunction(handler):
+                    result = await handler(**kwargs)
+                else:
+                    result = handler(**kwargs)
+                return JSONResponse(content=result)
+
+
+            app.add_api_route(
+                route,
+                view_func,
+                methods=methods,
+                name=endpoint,
+                include_in_schema=True,
+            )
 
 
 class FastAPIRequestAdapter:
