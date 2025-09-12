@@ -50,7 +50,6 @@ class FlaskServerFactory(BaseServerFactory):
             return tb, 500
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
-        print(rule, endpoint, methods)
         app.add_url_rule(
             rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
         )
