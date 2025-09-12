@@ -538,9 +538,7 @@ class Dash(ObsoleteChecker):
                 raise ValueError("Unsupported server type")
             # Validate that backend matches server type if both are provided
             if backend is not None:
-                if isinstance(backend, str):
-                    requested_backend = backend
-                elif isinstance(backend, type):
+                if isinstance(backend, type):
                     # get_backend returns the backend class for a string
                     # So we compare the class names
                     expected_backend_cls = get_backend(inferred_backend)
@@ -548,9 +546,9 @@ class Dash(ObsoleteChecker):
                         raise ValueError(
                             f"Conflict between provided backend '{backend.__name__}' and server type '{inferred_backend}'."
                         )
-                else:
+                elif not isinstance(backend, str):
                     raise ValueError("Invalid backend argument")
-                if isinstance(backend, str) and backend.lower() != inferred_backend:
+                elif backend.lower() != inferred_backend:
                     raise ValueError(
                         f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
                     )
