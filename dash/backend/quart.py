@@ -207,17 +207,21 @@ class QuartDashServer(BaseDashServer):
             route = path if path.startswith("/") else f"/{path}"
             methods = ["POST"]
 
-            if inspect.iscoroutinefunction(handler):
-                async def view_func(*args, handler=handler, **kwargs):
-                    data = await request.get_json()
-                    result = await handler(**data) if data else await handler()
-                    return jsonify(result)
-            else:
-                async def view_func(*args, handler=handler, **kwargs):
-                    data = await request.get_json()
-                    result = handler(**data) if data else handler()
-                    return jsonify(result)
+            def _make_view_func(handler):
+                if inspect.iscoroutinefunction(handler):
+                    async def async_view_func(*args, **kwargs):
+                        data = await request.get_json()
+                        result = await handler(**data) if data else await handler()
+                        return jsonify(result)
+                    return async_view_func
+                else:
+                    async def sync_view_func(*args, **kwargs):
+                        data = await request.get_json()
+                        result = handler(**data) if data else handler()
+                        return jsonify(result)
+                    return sync_view_func
 
+            view_func = _make_view_func(handler)
             app.add_url_rule(route, endpoint=endpoint, view_func=view_func, methods=methods)
 
     def _serve_default_favicon(self):
