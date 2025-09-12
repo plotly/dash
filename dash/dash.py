@@ -542,7 +542,10 @@ class Dash(ObsoleteChecker):
                     # get_backend returns the backend class for a string
                     # So we compare the class names
                     expected_backend_cls = get_backend(inferred_backend)
-                    if backend is not expected_backend_cls:
+                    if (
+                        backend.__module__ != expected_backend_cls.__module__
+                        or backend.__name__ != expected_backend_cls.__name__
+                    ):
                         raise ValueError(
                             f"Conflict between provided backend '{backend.__name__}' and server type '{inferred_backend}'."
                         )
