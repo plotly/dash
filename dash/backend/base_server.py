@@ -8,7 +8,9 @@ class BaseDashServer(ABC):
         return server(*args, **kwargs)
 
     @abstractmethod
-    def create_app(self, name: str = "__main__", config=None) -> Any:  # pragma: no cover - interface
+    def create_app(
+        self, name: str = "__main__", config=None
+    ) -> Any:  # pragma: no cover - interface
         pass
 
     @abstractmethod
@@ -22,7 +24,9 @@ class BaseDashServer(ABC):
         pass
 
     @abstractmethod
-    def add_url_rule(self, app, rule: str, view_func, endpoint=None, methods=None) -> None:  # pragma: no cover - interface
+    def add_url_rule(
+        self, app, rule: str, view_func, endpoint=None, methods=None
+    ) -> None:  # pragma: no cover - interface
         pass
 
     @abstractmethod
@@ -34,11 +38,15 @@ class BaseDashServer(ABC):
         pass
 
     @abstractmethod
-    def run(self, app, host: str, port: int, debug: bool, **kwargs) -> None:  # pragma: no cover - interface
+    def run(
+        self, app, host: str, port: int, debug: bool, **kwargs
+    ) -> None:  # pragma: no cover - interface
         pass
 
     @abstractmethod
-    def make_response(self, data, mimetype=None, content_type=None) -> Any:  # pragma: no cover - interface
+    def make_response(
+        self, data, mimetype=None, content_type=None
+    ) -> Any:  # pragma: no cover - interface
         pass
 
     @abstractmethod

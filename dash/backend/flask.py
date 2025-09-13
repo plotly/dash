@@ -4,8 +4,8 @@ import pkgutil
 import sys
 import mimetypes
 import time
-import flask
 import inspect
+import flask
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
@@ -213,18 +213,23 @@ class FlaskDashServer(BaseDashServer):
             methods = ["POST"]
 
             if inspect.iscoroutinefunction(handler):
+
                 async def view_func(*args, handler=handler, **kwargs):
                     data = flask.request.get_json()
                     result = await handler(**data) if data else await handler()
                     return flask.jsonify(result)
+
             else:
+
                 def view_func(*args, handler=handler, **kwargs):
                     data = flask.request.get_json()
                     result = handler(**data) if data else handler()
                     return flask.jsonify(result)
 
             # Flask 2.x+ supports async views natively
-            app.add_url_rule(route, endpoint=endpoint, view_func=view_func, methods=methods)
+            app.add_url_rule(
+                route, endpoint=endpoint, view_func=view_func, methods=methods
+            )
 
 
 class FlaskRequestAdapter:

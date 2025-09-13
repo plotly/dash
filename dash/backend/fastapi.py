@@ -117,7 +117,9 @@ class FastAPIDashServer(BaseDashServer):
             # pylint: disable=protected-access
             dash_app._add_url("{path:path}", catchall, methods=["GET"])
 
-    def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None, include_in_schema=False):
+    def add_url_rule(
+        self, app, rule, view_func, endpoint=None, methods=None, include_in_schema=False
+    ):
         if rule == "":
             rule = "/"
         if isinstance(view_func, str):
@@ -307,8 +309,11 @@ class FastAPIDashServer(BaseDashServer):
             sig = inspect.signature(handler)
             param_names = list(sig.parameters.keys())
             fields = {name: (Optional[Any], None) for name in param_names}
-            Model = create_model(f"Payload_{endpoint}", **fields)
+            Model = create_model(
+                f"Payload_{endpoint}", **fields
+            )  # pylint: disable=cell-var-from-loop
 
+            # pylint: disable=cell-var-from-loop
             async def view_func(request: Request, body: Model):
                 kwargs = body.dict(exclude_unset=True)
                 if inspect.iscoroutinefunction(handler):
@@ -316,7 +321,6 @@ class FastAPIDashServer(BaseDashServer):
                 else:
                     result = handler(**kwargs)
                 return JSONResponse(content=result)
-
 
             app.add_api_route(
                 route,

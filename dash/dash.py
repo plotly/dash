@@ -155,23 +155,32 @@ try:
 except:  # noqa: E722
     page_container = None
 
+
 def _is_flask_instance(obj):
     try:
+        # pylint: disable=import-outside-toplevel
         from flask import Flask
+
         return isinstance(obj, Flask)
     except ImportError:
         return False
 
+
 def _is_fastapi_instance(obj):
     try:
+        # pylint: disable=import-outside-toplevel
         from fastapi import FastAPI
+
         return isinstance(obj, FastAPI)
     except ImportError:
         return False
 
+
 def _is_quart_instance(obj):
     try:
+        # pylint: disable=import-outside-toplevel
         from quart import Quart
+
         return isinstance(obj, Quart)
     except ImportError:
         return False
@@ -453,7 +462,7 @@ class Dash(ObsoleteChecker):
     _layout: Any
     _extra_components: Any
 
-    def __init__(  # pylint: disable=too-many-statements
+    def __init__(  # pylint: disable=too-many-statements, too-many-branches
         self,
         name: Optional[str] = None,
         server: Union[bool, Callable[[], Any]] = True,
