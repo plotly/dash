@@ -567,9 +567,6 @@ class Dash(ObsoleteChecker):
             backend_cls = get_backend(inferred_backend)
             self.backend = backend_cls()
             self.server = server
-            # Update caller_name from server's name attribute if available
-            if hasattr(server, "name"):
-                caller_name = server.name
         else:
             # No server instance provided, create backend and let backend create server
             self.backend = backend_cls()
@@ -702,9 +699,6 @@ class Dash(ObsoleteChecker):
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
-
-        if self.server is not None:
-            self.init_app()
 
         self.logger.setLevel(logging.INFO)
 
