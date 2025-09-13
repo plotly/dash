@@ -231,7 +231,7 @@ class FastAPIDashServer(BaseDashServer):
 
         # pylint: disable=protected-access
         dash_app._add_url(
-            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
+            "_dash-component-suites/{package_name}/{fingerprinted_path:path}",
             serve,
         )
 
