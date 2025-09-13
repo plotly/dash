@@ -390,8 +390,8 @@ def _path_to_page(path_id):
 
 
 def _page_meta_tags(app, request):
-    request_url = request.get_path()
-    start_page, path_variables = _path_to_page(request_url.strip("/"))
+    request_path = request.get_path()
+    start_page, path_variables = _path_to_page(request_path.strip("/"))
 
     image = start_page.get("image", "")
     if image:

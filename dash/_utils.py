@@ -104,6 +104,11 @@ class AttributeDict(dict):
         else:
             object.__setattr__(self, "_read_only", new_read_only)
 
+    def unset_read_only(self, keys):
+        if hasattr(self, "_read_only"):
+            for key in keys:
+                self._read_only.pop(key, None)
+
     def finalize(self, msg="Object is final: No new keys may be added."):
         """Prevent any new keys being set."""
         object.__setattr__(self, "_final", msg)

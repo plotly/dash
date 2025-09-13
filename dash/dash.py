@@ -565,6 +565,8 @@ class Dash(ObsoleteChecker):
                         f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
                     )
             backend_cls = get_backend(inferred_backend)
+            if name is None:
+                caller_name = getattr(server, "name", caller_name)
             self.backend = backend_cls()
             self.server = server
         else:
@@ -700,6 +702,9 @@ class Dash(ObsoleteChecker):
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
 
+        if self.server is not None:
+            self.init_app()
+
         self.logger.setLevel(logging.INFO)
 
         if self.__class__.__name__ == "JupyterDash":
@@ -743,6 +748,11 @@ class Dash(ObsoleteChecker):
 
     def init_app(self, app: Optional[Any] = None, **kwargs) -> None:
         config = self.config
+        config.unset_read_only([
+            "url_base_pathname",
+            "routes_pathname_prefix",
+            "requests_pathname_prefix",
+        ])
         config.update(kwargs)
         config.set_read_only(
             [
