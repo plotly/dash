@@ -748,11 +748,13 @@ class Dash(ObsoleteChecker):
 
     def init_app(self, app: Optional[Any] = None, **kwargs) -> None:
         config = self.config
-        config.unset_read_only([
-            "url_base_pathname",
-            "routes_pathname_prefix",
-            "requests_pathname_prefix",
-        ])
+        config.unset_read_only(
+            [
+                "url_base_pathname",
+                "routes_pathname_prefix",
+                "requests_pathname_prefix",
+            ]
+        )
         config.update(kwargs)
         config.set_read_only(
             [
