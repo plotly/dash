@@ -525,7 +525,7 @@ class Dash(ObsoleteChecker):
 
         # Determine backend
         if backend is None:
-            backend_cls = get_backend('flask')
+            backend_cls = get_backend("flask")
         elif isinstance(backend, str):
             backend_cls = get_backend(backend)
         elif isinstance(backend, type):
