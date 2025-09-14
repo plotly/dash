@@ -2474,7 +2474,7 @@ class Dash(ObsoleteChecker):
                             **{**(path_variables or {}), **query_parameters, **states}
                         )
                     if callable(title):
-                        title = title(**{**(path_variables or {})})
+                        title = title(**(path_variables or {}))
 
                     return layout, {"title": title}
 
