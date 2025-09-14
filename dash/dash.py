@@ -64,7 +64,6 @@ from . import _dash_renderer
 from . import _validate
 from . import _watch
 from . import _get_app
-from .backend.flask import FlaskDashServer
 
 from ._get_app import with_app_context, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
@@ -526,7 +525,7 @@ class Dash(ObsoleteChecker):
 
         # Determine backend
         if backend is None:
-            backend_cls = FlaskDashServer
+            backend_cls = get_backend('flask')
         elif isinstance(backend, str):
             backend_cls = get_backend(backend)
         elif isinstance(backend, type):
