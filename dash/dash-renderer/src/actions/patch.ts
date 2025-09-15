@@ -44,6 +44,143 @@ function getLocationPath(location: LocationIndex[], obj: any) {
     return current;
 }
 
+export class PatchBuilder {
+    private operations: PatchOperation[] = [];
+
+    assign(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Assign',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    merge(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Merge',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    extend(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Extend',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    delete(location: LocationIndex[]) {
+        this.operations.push({
+            operation: 'Delete',
+            location,
+            params: {}
+        });
+        return this;
+    }
+
+    insert(location: LocationIndex[], index: number, value: any) {
+        this.operations.push({
+            operation: 'Insert',
+            location,
+            params: {index, value}
+        });
+        return this;
+    }
+
+    append(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Append',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    prepend(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Prepend',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    add(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Add',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    sub(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Sub',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    mul(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Mul',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    div(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Div',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    clear(location: LocationIndex[]) {
+        this.operations.push({
+            operation: 'Clear',
+            location,
+            params: {}
+        });
+        return this;
+    }
+
+    reverse(location: LocationIndex[]) {
+        this.operations.push({
+            operation: 'Reverse',
+            location,
+            params: {}
+        });
+        return this;
+    }
+
+    remove(location: LocationIndex[], value: any) {
+        this.operations.push({
+            operation: 'Remove',
+            location,
+            params: {value}
+        });
+        return this;
+    }
+
+    build() {
+        return {
+            __dash_patch_update: '__dash_patch_update',
+            operations: this.operations
+        };
+    }
+}
+
 const patchHandlers: {[k: string]: PatchHandler} = {
     Assign: (previous, patchOperation) => {
         const {params, location} = patchOperation;
@@ -165,4 +302,30 @@ export function handlePatch<T>(previousValue: T, patchValue: any): T {
     }
 
     return reducedValue;
+}
+
+export function parsePatchProps(
+    props: any,
+    previousProps: any
+): Record<string, any> {
+    if (!is(Object, props)) {
+        return props;
+    }
+
+    const patchedProps: any = {};
+
+    for (const key of Object.keys(props)) {
+        const val = props[key];
+        if (isPatch(val)) {
+            const previousValue = previousProps[key];
+            if (previousValue === undefined) {
+                throw new Error('Cannot patch undefined');
+            }
+            patchedProps[key] = handlePatch(previousValue, val);
+        } else {
+            patchedProps[key] = val;
+        }
+    }
+
+    return patchedProps;
 }
