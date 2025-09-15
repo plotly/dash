@@ -63,6 +63,11 @@ const DropdownOption: React.FC<DropdownOptionProps> = ({
             <input
                 type="checkbox"
                 checked={isSelected}
+                value={
+                    typeof option.value === 'boolean'
+                        ? `${option.value}`
+                        : option.value
+                }
                 disabled={!!option.disabled}
                 onChange={() => onClick(option)}
                 readOnly
@@ -449,7 +454,7 @@ const Dropdown = (props: DropdownProps) => {
                         )}
                         {clearable && !disabled && !!sanitizedValues.length && (
                             <a
-                                className="dash-dropdown-search-clear"
+                                className="dash-dropdown-clear"
                                 onClick={e => {
                                     e.preventDefault();
                                     handleClear();
@@ -493,7 +498,7 @@ const Dropdown = (props: DropdownProps) => {
                                 {search_value && (
                                     <button
                                         type="button"
-                                        className="dash-dropdown-search-clear"
+                                        className="dash-dropdown-clear"
                                         onClick={handleClearSearch}
                                         aria-label="Clear search"
                                     >
@@ -544,6 +549,12 @@ const Dropdown = (props: DropdownProps) => {
                                         />
                                     );
                                 })}
+                                {search_value &&
+                                    displayOptions.length === 0 && (
+                                        <span className="dash-dropdown-option">
+                                            No options found
+                                        </span>
+                                    )}
                             </div>
                         )}
                     </Popover.Content>
