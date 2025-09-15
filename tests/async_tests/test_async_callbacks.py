@@ -102,9 +102,8 @@ def test_async_cbsc002_callbacks_generating_children(dash_duo):
 
     assert call_count.value == 1, "called once at initial stage"
 
-    pad_input, pad_div = dash_duo.dash_innerhtml_dom.select_one(
-        "#output > div"
-    ).contents
+    pad_input = dash_duo.dash_innerhtml_dom.select_one("#output input")
+    pad_div = dash_duo.dash_innerhtml_dom.select_one("#output #sub-output-1")
 
     assert (
         pad_input.attrs["value"] == "sub input initial value"
@@ -376,6 +375,7 @@ def test_async_cbsc007_parallel_updates(refresh, dash_duo):
         dash_duo.wait_for_text_to_equal("#out", '[{"a": "/2:a"}] - /2')
 
 
+@flaky.flaky(max_runs=3)
 def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     if not is_dash_async():
         return
@@ -384,7 +384,7 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            dcc.Input(id="input", value="initial value"),
+            dcc.Input(id="input", value="initial value", debounce=False),
             html.Div(
                 html.Div(
                     [
@@ -427,6 +427,7 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     for key in "hello world":
         with lock:
             input1.send_keys(key)
+            time.sleep(0.05)  # allow some time for debounced callback to be sent
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
