@@ -11,6 +11,7 @@ from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.backend import set_request_adapter
 from .base_server import BaseDashServer
+import traceback
 
 
 class FlaskDashServer(BaseDashServer):
@@ -44,11 +45,52 @@ class FlaskDashServer(BaseDashServer):
         def _invalid_resources_handler(err):
             return err.args[0], 404
 
-    def register_prune_error_handler(self, app, secret, get_traceback_func):
-        @app.errorhandler(Exception)
-        def _wrap_errors(error):
-            tb = get_traceback_func(secret, error)
-            return tb, 500
+    def _get_traceback(self, secret, error: Exception):
+        try:
+            from werkzeug.debug import tbtools
+        except ImportError:
+            tbtools = None
+
+        def _get_skip(error):
+            from dash._callback import _invoke_callback, _async_invoke_callback
+
+            tb = error.__traceback__
+            skip = 1
+            while tb.tb_next is not None:
+                skip += 1
+                tb = tb.tb_next
+                if tb.tb_frame.f_code in [
+                    _invoke_callback.__code__,
+                    _async_invoke_callback.__code__,
+                ]:
+                    return skip
+            return skip
+
+        def _do_skip(error):
+            from dash._callback import _invoke_callback, _async_invoke_callback
+
+            tb = error.__traceback__
+            while tb.tb_next is not None:
+                if tb.tb_frame.f_code in [
+                    _invoke_callback.__code__,
+                    _async_invoke_callback.__code__,
+                ]:
+                    return tb.tb_next
+                tb = tb.tb_next
+            return error.__traceback__
+
+        if hasattr(tbtools, "get_current_traceback"):
+            return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
+        if hasattr(tbtools, "DebugTraceback"):
+            return tbtools.DebugTraceback(error, skip=_get_skip(error)).render_debugger_html(True, secret, True)
+        return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
+
+    def register_prune_error_handler(self, app, secret, prune_errors):
+        if prune_errors:
+            @app.errorhandler(Exception)
+            def _wrap_errors(error):
+                tb = self._get_traceback(secret, error)
+                return tb, 500
 
     def add_url_rule(self, app, rule, view_func, endpoint=None, methods=None):
         app.add_url_rule(
@@ -61,7 +103,7 @@ class FlaskDashServer(BaseDashServer):
     def after_request(self, app, func):
         app.after_request(func)
 
-    def run(self, app, host, port, debug, **kwargs):
+    def run(self, _dash_app, app, host, port, debug, **kwargs):
         app.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(self, data, mimetype=None, content_type=None):

@@ -185,63 +185,6 @@ def _is_quart_instance(obj):
         return False
 
 
-def _get_traceback(secret, error: Exception):
-    try:
-        # pylint: disable=import-outside-toplevel
-        from werkzeug.debug import tbtools
-    except ImportError:
-        tbtools = None
-
-    def _get_skip(error):
-        from dash._callback import (  # pylint: disable=import-outside-toplevel
-            _invoke_callback,
-            _async_invoke_callback,
-        )
-
-        tb = error.__traceback__
-        skip = 1
-        while tb.tb_next is not None:
-            skip += 1
-            tb = tb.tb_next
-            if tb.tb_frame.f_code in [
-                _invoke_callback.__code__,
-                _async_invoke_callback.__code__,
-            ]:
-                return skip
-
-        return skip
-
-    def _do_skip(error):
-        from dash._callback import (  # pylint: disable=import-outside-toplevel
-            _invoke_callback,
-            _async_invoke_callback,
-        )
-
-        tb = error.__traceback__
-        while tb.tb_next is not None:
-            if tb.tb_frame.f_code in [
-                _invoke_callback.__code__,
-                _async_invoke_callback.__code__,
-            ]:
-                return tb.tb_next
-            tb = tb.tb_next
-        return error.__traceback__
-
-    # werkzeug<2.1.0
-    if hasattr(tbtools, "get_current_traceback"):
-        return tbtools.get_current_traceback(  # type: ignore
-            skip=_get_skip(error)
-        ).render_full()
-
-    if hasattr(tbtools, "DebugTraceback"):
-        # pylint: disable=no-member
-        return tbtools.DebugTraceback(  # type: ignore
-            error, skip=_get_skip(error)
-        ).render_debugger_html(True, secret, True)
-
-    return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
-
-
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
@@ -2058,11 +2001,10 @@ class Dash(ObsoleteChecker):
                 jupyter_dash.configure_callback_exception_handling(
                     self, dev_tools.prune_errors
                 )
-            elif dev_tools.prune_errors:
-                secret = gen_salt(20)
-                self.backend.register_prune_error_handler(
-                    self.server, secret, _get_traceback
-                )
+            secret = gen_salt(20)
+            self.backend.register_prune_error_handler(
+                self.server, secret, dev_tools.prune_errors
+            )
 
         if debug and dev_tools.ui:
             self.backend.register_timing_hooks(self.server, first_run)
@@ -2350,7 +2292,7 @@ class Dash(ObsoleteChecker):
             )
         else:
             self.backend.run(
-                self.server, host=host, port=port, debug=debug, **flask_run_options
+                self, self.server, host=host, port=port, debug=debug, **flask_run_options
             )
 
     def enable_pages(self) -> None:

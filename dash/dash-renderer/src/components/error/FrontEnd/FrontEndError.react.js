@@ -121,13 +121,17 @@ function BackendError({error, base}) {
 const MAX_MESSAGE_LENGTH = 40;
 /* eslint-disable no-inline-comments */
 function UnconnectedErrorContent({error, base}) {
+    // Helper to detect full HTML document
+    const isFullHtmlDoc = typeof error.html === 'string' &&
+        error.html.trim().toLowerCase().startsWith('<!doctype');
+
+    // Helper to detect HTML fragment
+    const isHtmlFragment = typeof error.html === 'string' &&
+        error.html.trim().startsWith('<');
+
     return (
         <div className='error-container'>
-            {/*
-             * 40 is a rough heuristic - if longer than 40 then the
-             * message might overflow into ellipses in the title above &
-             * will need to be displayed in full in this error body
-             */}
+            {/* Frontend error message */}
             {typeof error.message !== 'string' ||
             error.message.length < MAX_MESSAGE_LENGTH ? null : (
                 <div className='dash-fe-error__st'>
@@ -137,6 +141,7 @@ function UnconnectedErrorContent({error, base}) {
                 </div>
             )}
 
+            {/* Frontend stack trace */}
             {typeof error.stack !== 'string' ? null : (
                 <div className='dash-fe-error__st'>
                     <div className='dash-fe-error__info'>
@@ -149,7 +154,6 @@ function UnconnectedErrorContent({error, base}) {
                                     browser's console.)
                                 </i>
                             </summary>
-
                             {error.stack.split('\n').map((line, i) => (
                                 <p key={i}>{line}</p>
                             ))}
@@ -157,24 +161,30 @@ function UnconnectedErrorContent({error, base}) {
                     </div>
                 </div>
             )}
-            {/* Backend Error */}
-            {typeof error.html !== 'string' ? null : error.html
-                  .substring(0, '<!doctype'.length)
-                  .toLowerCase() === '<!doctype' ? (
+
+            {/* Backend error: full HTML document */}
+            {isFullHtmlDoc ? (
                 <div className='dash-be-error__st'>
                     <div className='dash-backend-error'>
-                        {/* Embed werkzeug debugger in an iframe to prevent
-                            CSS leaking - werkzeug HTML includes a bunch
-                            of CSS on base html elements like `<body/>`
-                        */}
                         <BackendError error={error} base={base} />
                     </div>
                 </div>
-            ) : (
+            ) : isHtmlFragment ? (
+                // Backend error: HTML fragment
                 <div className='dash-be-error__str'>
-                    <div className='dash-backend-error'>{error.html}</div>
+                    <div
+                        className='dash-backend-error'
+                        dangerouslySetInnerHTML={{__html: error.html}}
+                    />
                 </div>
-            )}
+            ) : typeof error.html === 'string' ? (
+                // Backend error: plain text
+                <div className='dash-be-error__str'>
+                    <div className='dash-backend-error'>
+                        <pre>{error.html}</pre>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
