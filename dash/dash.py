@@ -14,7 +14,6 @@ import logging
 import mimetypes
 import hashlib
 import base64
-import traceback
 from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 

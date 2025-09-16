@@ -5,13 +5,14 @@ import sys
 import mimetypes
 import time
 import inspect
+import traceback
 import flask
 from dash.fingerprint import check_fingerprint
 from dash import _validate
+from dash._callback import _invoke_callback, _async_invoke_callback
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.backend import set_request_adapter
 from .base_server import BaseDashServer
-import traceback
 
 
 class FlaskDashServer(BaseDashServer):
@@ -47,13 +48,13 @@ class FlaskDashServer(BaseDashServer):
 
     def _get_traceback(self, secret, error: Exception):
         try:
-            from werkzeug.debug import tbtools
+            from werkzeug.debug import (
+                tbtools,
+            )  # pylint: disable=import-outside-toplevel
         except ImportError:
             tbtools = None
 
         def _get_skip(error):
-            from dash._callback import _invoke_callback, _async_invoke_callback
-
             tb = error.__traceback__
             skip = 1
             while tb.tb_next is not None:
@@ -67,8 +68,6 @@ class FlaskDashServer(BaseDashServer):
             return skip
 
         def _do_skip(error):
-            from dash._callback import _invoke_callback, _async_invoke_callback
-
             tb = error.__traceback__
             while tb.tb_next is not None:
                 if tb.tb_frame.f_code in [

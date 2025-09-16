@@ -7,11 +7,12 @@ from contextvars import copy_context
 import importlib.util
 import time
 import traceback
+import re
 
 try:
     import uvicorn
     from fastapi import FastAPI, Request, Response
-    from fastapi.responses import JSONResponse, PlainTextResponse
+    from fastapi.responses import JSONResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
@@ -23,7 +24,6 @@ except ImportError:
     Request = None
     Response = None
     JSONResponse = None
-    PlainTextResponse = None
     StaticFiles = None
     StarletteResponse = None
     MutableHeaders = None
@@ -31,19 +31,16 @@ except ImportError:
     Any = None
     Optional = None
 
+
+import json
+import os
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import (
     PreventUpdate,
-    InvalidResourceError,
-    InvalidCallbackReturnValue,
-    BackgroundCallbackError,
 )
 from dash.backend import set_request_adapter
 from .base_server import BaseDashServer
-
-import json
-import os
 
 CONFIG_PATH = "dash_config.json"
 
@@ -93,10 +90,8 @@ class FastAPIDashServer(BaseDashServer):
 
     def register_error_handlers(self, app):
         self.error_handling_mode = "prune"
-        # FastAPI uses exception handlers, but we will handle errors in middleware
-        pass
 
-    def _get_traceback(self, secret, error: Exception):
+    def _get_traceback(self, _secret, error: Exception):
         tb = error.__traceback__
         errors = traceback.format_exception(type(error), error, tb)
         pass_errs = []
@@ -113,15 +108,13 @@ class FastAPIDashServer(BaseDashServer):
         error_msg = str(error)
 
         # Parse traceback lines to group by file
-        import re
-
         file_cards = []
         pattern = re.compile(r'  File "(.+)", line (\d+), in (\w+)')
         lines = formatted_tb.split("\n")
         current_file = None
         card_lines = []
 
-        for i, line in enumerate(lines[:-1]):  # Skip the last line (error message)
+        for line in lines[:-1]:  # Skip the last line (error message)
             match = pattern.match(line)
             if match:
                 if current_file and card_lines:
@@ -274,7 +267,9 @@ class FastAPIDashServer(BaseDashServer):
         frame = inspect.stack()[2]
         config = dict(
             {"debug": debug} if debug else {},
-            **{f"dev_tools_{k}": v for k, v in dash_app._dev_tools.items()},
+            **{
+                f"dev_tools_{k}": v for k, v in dash_app._dev_tools.items()
+            },  # pylint: disable=protected-access
         )
         save_config(config)
         if debug:
@@ -307,7 +302,7 @@ class FastAPIDashServer(BaseDashServer):
     def get_request_adapter(self):
         return FastAPIRequestAdapter
 
-    def _make_before_middleware(self, func):
+    def _make_before_middleware(self, _func):
         async def middleware(request, call_next):
             try:
                 response = await call_next(request)

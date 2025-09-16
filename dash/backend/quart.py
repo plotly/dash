@@ -5,6 +5,7 @@ import sys
 import time
 from contextvars import copy_context
 import traceback
+import re
 
 try:
     import quart
@@ -56,7 +57,7 @@ class QuartDashServer(BaseDashServer):
         )
         app.register_blueprint(bp)
 
-    def _get_traceback(self, secret, error: Exception):
+    def _get_traceback(self, _secret, error: Exception):
         tb = error.__traceback__
         errors = traceback.format_exception(type(error), error, tb)
         pass_errs = []
@@ -73,15 +74,13 @@ class QuartDashServer(BaseDashServer):
         error_msg = str(error)
 
         # Parse traceback lines to group by file
-        import re
-
         file_cards = []
         pattern = re.compile(r'  File "(.+)", line (\d+), in (\w+)')
         lines = formatted_tb.split("\n")
         current_file = None
         card_lines = []
 
-        for i, line in enumerate(lines[:-1]):  # Skip the last line (error message)
+        for line in lines[:-1]:  # Skip the last line (error message)
             match = pattern.match(line)
             if match:
                 if current_file and card_lines:
