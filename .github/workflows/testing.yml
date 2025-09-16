@@ -17,6 +17,7 @@ jobs:
       # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      backend_cb_changed: ${{ steps.filter.outputs.backend_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,6 +38,9 @@ jobs:
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
               - 'requirements/**'
+            backend_paths:
+              - 'dash/backend/**'
+              - 'tests/backend/**'
 
   build:
     name: Build Dash Package
@@ -276,7 +280,7 @@ jobs:
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
-      needs.changes_filter.outputs.backend_tests_changed == 'true'
+      needs.changes_filter.outputs.backend_cb_changed == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
