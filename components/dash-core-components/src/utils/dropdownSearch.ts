@@ -36,7 +36,7 @@ export function createFilteredOptions(
     // Sanitize and prepare options
     let sanitized = sanitizeOptions(options);
 
-    const indexes = [];
+    const indexes = ['value'];
     let hasElement = false,
         hasSearch = false;
 

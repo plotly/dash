@@ -42,7 +42,7 @@ function DropdownLabel(
         );
     }
     const displayLabel = `${props.label ?? props.value}`;
-    return <span>{displayLabel}</span>;
+    return <span title={props.title}>{displayLabel}</span>;
 }
 
 const DropdownOption: React.FC<DropdownOptionProps> = ({
@@ -320,10 +320,19 @@ const Dropdown = (props: DropdownProps) => {
             return;
         }
 
+        // Don't interfere with the event if the user is using Home/End keys on the search input
+        if (
+            ['Home', 'End'].includes(e.key) &&
+            document.activeElement instanceof HTMLInputElement
+        ) {
+            return;
+        }
+
         const focusableElements = e.currentTarget.querySelectorAll(
             'input[type="search"], input[type="checkbox"]:not([disabled])'
         ) as NodeListOf<HTMLElement>;
 
+        // Don't interfere with the event if there aren't any options that the user can interact with
         if (focusableElements.length === 0) {
             return;
         }
