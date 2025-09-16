@@ -82,11 +82,14 @@ class FlaskDashServer(BaseDashServer):
         if hasattr(tbtools, "get_current_traceback"):
             return tbtools.get_current_traceback(skip=_get_skip(error)).render_full()
         if hasattr(tbtools, "DebugTraceback"):
-            return tbtools.DebugTraceback(error, skip=_get_skip(error)).render_debugger_html(True, secret, True)
+            return tbtools.DebugTraceback(
+                error, skip=_get_skip(error)
+            ).render_debugger_html(True, secret, True)
         return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
 
     def register_prune_error_handler(self, app, secret, prune_errors):
         if prune_errors:
+
             @app.errorhandler(Exception)
             def _wrap_errors(error):
                 tb = self._get_traceback(secret, error)

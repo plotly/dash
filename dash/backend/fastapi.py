@@ -33,7 +33,12 @@ except ImportError:
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
-from dash.exceptions import PreventUpdate, InvalidResourceError, InvalidCallbackReturnValue, BackgroundCallbackError
+from dash.exceptions import (
+    PreventUpdate,
+    InvalidResourceError,
+    InvalidCallbackReturnValue,
+    BackgroundCallbackError,
+)
 from dash.backend import set_request_adapter
 from .base_server import BaseDashServer
 
@@ -42,15 +47,18 @@ import os
 
 CONFIG_PATH = "dash_config.json"
 
+
 def save_config(config):
     with open(CONFIG_PATH, "w") as f:
         json.dump(config, f)
+
 
 def load_config():
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, "r") as f:
             return json.load(f)
     return {}
+
 
 class FastAPIDashServer(BaseDashServer):
     def __init__(self):
@@ -96,7 +104,7 @@ class FastAPIDashServer(BaseDashServer):
         for err in errors:
             if self.error_handling_mode == "prune":
                 if not callback_handled:
-                    if 'callback invoked' in str(err) and '_callback.py' in str(err):
+                    if "callback invoked" in str(err) and "_callback.py" in str(err):
                         callback_handled = True
                     continue
             pass_errs.append(err)
@@ -106,9 +114,10 @@ class FastAPIDashServer(BaseDashServer):
 
         # Parse traceback lines to group by file
         import re
+
         file_cards = []
         pattern = re.compile(r'  File "(.+)", line (\d+), in (\w+)')
-        lines = formatted_tb.split('\n')
+        lines = formatted_tb.split("\n")
         current_file = None
         card_lines = []
 
@@ -117,7 +126,9 @@ class FastAPIDashServer(BaseDashServer):
             if match:
                 if current_file and card_lines:
                     file_cards.append((current_file, card_lines))
-                current_file = f'{match.group(1)} (line {match.group(2)}, in {match.group(3)})'
+                current_file = (
+                    f"{match.group(1)} (line {match.group(2)}, in {match.group(3)})"
+                )
                 card_lines = [line]
             elif current_file:
                 card_lines.append(line)
@@ -126,12 +137,16 @@ class FastAPIDashServer(BaseDashServer):
 
         cards_html = ""
         for filename, card in file_cards:
-            cards_html += f"""
+            cards_html += (
+                f"""
             <div class="error-card">
                 <div class="error-card-header">{filename}</div>
-                <pre class="error-card-traceback">"""+ '\n'.join(card) + """</pre>
+                <pre class="error-card-traceback">"""
+                + "\n".join(card)
+                + """</pre>
             </div>
             """
+            )
 
         html = f"""
         <!doctype html>
@@ -198,7 +213,6 @@ class FastAPIDashServer(BaseDashServer):
         else:
             self.error_handling_mode = "raise"
 
-
     def _html_response_wrapper(self, view_func):
         async def wrapped(*_args, **_kwargs):
             # If view_func is a function, call it; if it's a string, use it directly
@@ -221,9 +235,7 @@ class FastAPIDashServer(BaseDashServer):
         @dash_app.server.on_event("startup")
         def _setup_catchall():
             config = load_config()
-            dash_app.enable_dev_tools(
-                **config, first_run=False
-            )
+            dash_app.enable_dev_tools(**config, first_run=False)
 
             async def catchall(request: Request):
                 adapter = FastAPIRequestAdapter()
@@ -260,13 +272,15 @@ class FastAPIDashServer(BaseDashServer):
 
     def run(self, dash_app, app, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
-        config = dict({"debug": debug} if debug else {}, **{
-            f'dev_tools_{k}': v for k, v in dash_app._dev_tools.items()})
+        config = dict(
+            {"debug": debug} if debug else {},
+            **{f"dev_tools_{k}": v for k, v in dash_app._dev_tools.items()},
+        )
         save_config(config)
         if debug:
-            if kwargs.get('reload') is None:
-                kwargs['reload'] = True
-        if kwargs.get('reload'):
+            if kwargs.get("reload") is None:
+                kwargs["reload"] = True
+        if kwargs.get("reload"):
             # Dynamically determine the module name from the file path
             file_path = frame.filename
             module_name = importlib.util.spec_from_file_location("app", file_path).name
@@ -305,7 +319,7 @@ class FastAPIDashServer(BaseDashServer):
                 if self.error_handling_mode in ["raise", "prune"]:
                     # Prune the traceback to remove internal Dash calls
                     tb = self._get_traceback(None, e)
-                    return Response(content=tb, media_type='text/html', status_code=500)
+                    return Response(content=tb, media_type="text/html", status_code=500)
                 return JSONResponse(
                     status_code=500,
                     content={"error": "InternalServerError", "message": str(e.args[0])},

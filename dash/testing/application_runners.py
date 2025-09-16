@@ -174,9 +174,7 @@ class ThreadedRunner(BaseDashRunner):
                 module = app.server.__class__.__module__
                 # FastAPI support
                 if not module.startswith("flask"):
-                    app.run(
-                        **options
-                    )
+                    app.run(**options)
                 # Dash/Flask fallback
                 else:
                     app.run(threaded=True, **options)
@@ -240,9 +238,7 @@ class MultiProcessRunner(BaseDashRunner):
                 module = app.server.__class__.__module__
                 # FastAPI support
                 if not module.startswith("flask"):
-                    app.run(
-                        **options
-                    )
+                    app.run(**options)
                 # Dash/Flask fallback
                 else:
                     app.run(threaded=True, **options)

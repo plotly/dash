@@ -64,7 +64,7 @@ class QuartDashServer(BaseDashServer):
         for err in errors:
             if self.error_handling_mode == "prune":
                 if not callback_handled:
-                    if 'callback invoked' in str(err) and '_callback.py' in str(err):
+                    if "callback invoked" in str(err) and "_callback.py" in str(err):
                         callback_handled = True
                     continue
             pass_errs.append(err)
@@ -74,9 +74,10 @@ class QuartDashServer(BaseDashServer):
 
         # Parse traceback lines to group by file
         import re
+
         file_cards = []
         pattern = re.compile(r'  File "(.+)", line (\d+), in (\w+)')
-        lines = formatted_tb.split('\n')
+        lines = formatted_tb.split("\n")
         current_file = None
         card_lines = []
 
@@ -85,7 +86,9 @@ class QuartDashServer(BaseDashServer):
             if match:
                 if current_file and card_lines:
                     file_cards.append((current_file, card_lines))
-                current_file = f'{match.group(1)} (line {match.group(2)}, in {match.group(3)})'
+                current_file = (
+                    f"{match.group(1)} (line {match.group(2)}, in {match.group(3)})"
+                )
                 card_lines = [line]
             elif current_file:
                 card_lines.append(line)
@@ -94,12 +97,16 @@ class QuartDashServer(BaseDashServer):
 
         cards_html = ""
         for filename, card in file_cards:
-            cards_html += f"""
+            cards_html += (
+                f"""
             <div class="error-card">
                 <div class="error-card-header">{filename}</div>
-                <pre class="error-card-traceback">""" + '\n'.join(card) + """</pre>
+                <pre class="error-card-traceback">"""
+                + "\n".join(card)
+                + """</pre>
             </div>
             """
+            )
 
         html = f"""
         <!doctype html>
@@ -169,7 +176,7 @@ class QuartDashServer(BaseDashServer):
         @app.errorhandler(Exception)
         async def _wrap_errors(error):
             tb = self._get_traceback(secret, error)
-            return Response(tb, status=500, content_type='text/html')
+            return Response(tb, status=500, content_type="text/html")
 
     def register_timing_hooks(self, app, _first_run):  # parity with Flask factory
         @app.before_request

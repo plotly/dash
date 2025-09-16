@@ -122,12 +122,13 @@ const MAX_MESSAGE_LENGTH = 40;
 /* eslint-disable no-inline-comments */
 function UnconnectedErrorContent({error, base}) {
     // Helper to detect full HTML document
-    const isFullHtmlDoc = typeof error.html === 'string' &&
+    const isFullHtmlDoc =
+        typeof error.html === 'string' &&
         error.html.trim().toLowerCase().startsWith('<!doctype');
 
     // Helper to detect HTML fragment
-    const isHtmlFragment = typeof error.html === 'string' &&
-        error.html.trim().startsWith('<');
+    const isHtmlFragment =
+        typeof error.html === 'string' && error.html.trim().startsWith('<');
 
     return (
         <div className='error-container'>

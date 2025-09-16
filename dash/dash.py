@@ -2292,7 +2292,12 @@ class Dash(ObsoleteChecker):
             )
         else:
             self.backend.run(
-                self, self.server, host=host, port=port, debug=debug, **flask_run_options
+                self,
+                self.server,
+                host=host,
+                port=port,
+                debug=debug,
+                **flask_run_options,
             )
 
     def enable_pages(self) -> None:
