@@ -70,24 +70,29 @@ class CurrentRequestMiddleware:
 CONFIG_PATH = "dash_config.json"
 
 
-def save_config(config):
-    with open(CONFIG_PATH, "w") as f:
+# Internal config helpers (local to this file)
+_CONFIG_PATH = "dash_config.json"
+
+def _save_config(config):
+    with open(_CONFIG_PATH, "w") as f:
         json.dump(config, f)
 
-
-def load_config():
-    if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH, "r") as f:
-            return json.load(f)
+def _load_config():
+    try:
+        if os.path.exists(_CONFIG_PATH):
+            with open(_CONFIG_PATH, "r") as f:
+                return json.load(f)
+    except Exception:
+        pass  # ignore errors
     return {}
 
 
 class FastAPIDashServer(BaseDashServer):
     def __init__(self, server: FastAPI):
-        self.config = {}
+        _save_config({"debug": False})  # ensure config file exists
         self.server_type = "fastapi"
         self.server: FastAPI = server
-        self.error_handling_mode = "prune"
+        self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
         super().__init__()
 
@@ -120,7 +125,7 @@ class FastAPIDashServer(BaseDashServer):
             pass
 
     def register_error_handlers(self):
-        self.error_handling_mode = "prune"
+        self.error_handling_mode = "ignore"
 
     def _get_traceback(self, _secret, error: Exception):
         tb = error.__traceback__
@@ -256,7 +261,7 @@ class FastAPIDashServer(BaseDashServer):
         @self.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
-                **load_config(), first_run=False
+                **_load_config(), first_run=False
             )  # do this to make sure dev tools are enabled
 
             async def catchall(request: Request):
@@ -298,12 +303,12 @@ class FastAPIDashServer(BaseDashServer):
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
         config = dict(
-            {"debug": debug} if debug else {},
+            {"debug": debug} if debug else {"debug": False},
             **{
                 f"dev_tools_{k}": v for k, v in dash_app._dev_tools.items()
             },  # pylint: disable=protected-access
         )
-        save_config(config)
+        _save_config(config)
         if debug:
             if kwargs.get("reload") is None:
                 kwargs["reload"] = True
@@ -352,7 +357,7 @@ class FastAPIDashServer(BaseDashServer):
                     return Response(content=tb, media_type="text/html", status_code=500)
                 return JSONResponse(
                     status_code=500,
-                    content={"error": "InternalServerError", "message": str(e.args[0])},
+                    content={"error": "InternalServerError", "message": "An internal server error occurred."},
                 )
 
         return middleware

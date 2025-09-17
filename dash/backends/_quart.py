@@ -34,7 +34,7 @@ class QuartDashServer(BaseDashServer):
         self.server_type = "quart"
         self.server: Quart = server
         self.config = {}
-        self.error_handling_mode = "prune"
+        self.error_handling_mode = "ignore"
         self.request_adapter = QuartRequestAdapter
         super().__init__()
 
@@ -184,6 +184,8 @@ class QuartDashServer(BaseDashServer):
 
         @self.server.errorhandler(Exception)
         async def _wrap_errors(error):
+            if self.error_handling_mode == "ignore":
+                return Response("Internal server error.", status=500, content_type="text/plain")
             tb = self._get_traceback(secret, error)
             return Response(tb, status=500, content_type="text/html")
 
