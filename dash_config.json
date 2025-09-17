@@ -1,0 +1,1 @@
+{"debug": true, "dev_tools_ui": true, "dev_tools_props_check": true, "dev_tools_serve_dev_bundles": true, "dev_tools_hot_reload": true, "dev_tools_silence_routes_logging": true, "dev_tools_prune_errors": true, "dev_tools_hot_reload_interval": 3.0, "dev_tools_hot_reload_watch_interval": 0.5, "dev_tools_hot_reload_max_retry": 8, "dev_tools_disable_version_check": false}

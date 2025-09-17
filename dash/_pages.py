@@ -318,18 +318,22 @@ def register_page(
     )
     page.update(
         supplied_title=title,
-        title=title
-        if title is not None
-        else CONFIG.title
-        if CONFIG.title != "Dash"
-        else page["name"],
+        title=(
+            title
+            if title is not None
+            else CONFIG.title
+            if CONFIG.title != "Dash"
+            else page["name"]
+        ),
     )
     page.update(
-        description=description
-        if description
-        else CONFIG.description
-        if CONFIG.description
-        else "",
+        description=(
+            description
+            if description
+            else CONFIG.description
+            if CONFIG.description
+            else ""
+        ),
         order=order,
         supplied_order=order,
         supplied_layout=layout,
@@ -390,15 +394,13 @@ def _path_to_page(path_id):
 
 
 def _page_meta_tags(app, request):
-    request_path = request.get_path()
+    request_path = request.path
     start_page, path_variables = _path_to_page(request_path.strip("/"))
 
     image = start_page.get("image", "")
     if image:
         image = app.get_asset_url(image)
-    assets_image_url = (
-        "".join([request.get_root(), image.lstrip("/")]) if image else None
-    )
+    assets_image_url = "".join([request.root, image.lstrip("/")]) if image else None
     supplied_image_url = start_page.get("image_url")
     image_url = supplied_image_url if supplied_image_url else assets_image_url
 
@@ -413,7 +415,7 @@ def _page_meta_tags(app, request):
     return [
         {"name": "description", "content": description},
         {"property": "twitter:card", "content": "summary_large_image"},
-        {"property": "twitter:url", "content": request.get_url()},
+        {"property": "twitter:url", "content": request.url},
         {"property": "twitter:title", "content": title},
         {"property": "twitter:description", "content": description},
         {"property": "twitter:image", "content": image_url or ""},

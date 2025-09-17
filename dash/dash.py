@@ -25,7 +25,6 @@ from importlib_metadata import version as _get_distribution_version
 from dash import dcc
 from dash import html
 from dash import dash_table
-
 from .fingerprint import build_fingerprint
 from .resources import Scripts, Css
 from .dependencies import (
@@ -38,7 +37,7 @@ from .exceptions import (
     ProxyError,
     DuplicateCallback,
 )
-from .backend import get_request_adapter, get_backend
+from .backends import get_backend
 from .version import __version__
 from ._configs import get_combined_config, pathname_configs, pages_folder_config
 from ._utils import (
@@ -63,6 +62,7 @@ from . import _dash_renderer
 from . import _validate
 from . import _watch
 from . import _get_app
+from . import backends
 
 from ._get_app import with_app_context, with_app_context_factory
 from ._grouping import map_grouping, grouping_len, update_args_group
@@ -152,36 +152,6 @@ try:
 # pylint: disable-next=bare-except
 except:  # noqa: E722
     page_container = None
-
-
-def _is_flask_instance(obj):
-    try:
-        # pylint: disable=import-outside-toplevel
-        from flask import Flask
-
-        return isinstance(obj, Flask)
-    except ImportError:
-        return False
-
-
-def _is_fastapi_instance(obj):
-    try:
-        # pylint: disable=import-outside-toplevel
-        from fastapi import FastAPI
-
-        return isinstance(obj, FastAPI)
-    except ImportError:
-        return False
-
-
-def _is_quart_instance(obj):
-    try:
-        # pylint: disable=import-outside-toplevel
-        from quart import Quart
-
-        return isinstance(obj, Quart)
-    except ImportError:
-        return False
 
 
 # Singleton signal to not update an output, alternative to PreventUpdate
@@ -446,74 +416,41 @@ class Dash(ObsoleteChecker):
         **obsolete,
     ):
 
-        if use_async is None:
-            try:
-                import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
-
-                use_async = True
-            except ImportError:
-                pass
-        elif use_async:
-            try:
-                import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
-            except ImportError as exc:
-                raise Exception(
-                    "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"
-                ) from exc
-
+        _validate.check_async(use_async)
         _validate.check_obsolete(obsolete)
 
         caller_name: str = name if name is not None else get_caller_name()
 
         # Determine backend
         if backend is None:
-            backend_cls = get_backend("flask")
+            backend_cls, request_cls = get_backend("flask")
         elif isinstance(backend, str):
-            backend_cls = get_backend(backend)
+            backend_cls, request_cls = get_backend(backend)
         elif isinstance(backend, type):
             backend_cls = backend
+            _, request_cls = get_backend(backend.server_type)
         else:
             raise ValueError("Invalid backend argument")
 
         # Determine server and backend instance
         if server not in (None, True, False):
             # User provided a server instance (e.g., Flask, Quart, FastAPI)
-            if _is_flask_instance(server):
-                inferred_backend = "flask"
-            elif _is_quart_instance(server):
-                inferred_backend = "quart"
-            elif _is_fastapi_instance(server):
-                inferred_backend = "fastapi"
-            else:
-                raise ValueError("Unsupported server type")
-            # Validate that backend matches server type if both are provided
-            if backend is not None:
-                if isinstance(backend, type):
-                    # get_backend returns the backend class for a string
-                    # So we compare the class names
-                    expected_backend_cls = get_backend(inferred_backend)
-                    if (
-                        backend.__module__ != expected_backend_cls.__module__
-                        or backend.__name__ != expected_backend_cls.__name__
-                    ):
-                        raise ValueError(
-                            f"Conflict between provided backend '{backend.__name__}' and server type '{inferred_backend}'."
-                        )
-                elif not isinstance(backend, str):
-                    raise ValueError("Invalid backend argument")
-                elif backend.lower() != inferred_backend:
-                    raise ValueError(
-                        f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
-                    )
-            backend_cls = get_backend(inferred_backend)
+            inferred_backend = backends.get_server_type(server)
+            _validate.check_backend(backend, inferred_backend)
+            backend_cls, request_cls = get_backend(inferred_backend)
             if name is None:
                 caller_name = getattr(server, "name", caller_name)
-            self.backend = backend_cls()
+
+            self.backend = backend_cls(server)
             self.server = server
+            backends.backend = self.backend  # type: ignore
+            backends.request_adapter = request_cls
         else:
             # No server instance provided, create backend and let backend create server
-            self.backend = backend_cls()
-            self.server = self.backend.create_app(caller_name)  # type: ignore
+            self.server = backend_cls.create_app(caller_name)  # type: ignore
+            self.backend = backend_cls(self.server)
+            backends.backend = self.backend
+            backends.request_adapter = request_cls
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -710,7 +647,6 @@ class Dash(ObsoleteChecker):
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
         self.backend.register_assets_blueprint(
-            self.server,
             assets_blueprint_name,
             config.routes_pathname_prefix + self.config.assets_url_path.lstrip("/"),
             self.config.assets_folder,
@@ -732,8 +668,9 @@ class Dash(ObsoleteChecker):
                 raise ImportError(
                     "To use the compress option, you need to install dash[compress]"
                 ) from error
-        self.backend.register_error_handlers(self.server)
-        self.backend.before_request(self.server, self._setup_server)
+
+        self.backend.register_error_handlers()
+        self.backend.before_request(self._setup_server)
         self._setup_routes()
         _get_app.APP = self
         self.enable_pages()
@@ -742,7 +679,6 @@ class Dash(ObsoleteChecker):
     def _add_url(self, name: str, view_func: RouteCallable, methods=("GET",)) -> None:
         full_name = self.config.routes_pathname_prefix + name
         self.backend.add_url_rule(
-            self.server,
             full_name,
             view_func=view_func,
             endpoint=full_name,
@@ -756,7 +692,7 @@ class Dash(ObsoleteChecker):
         self._add_url("_dash-dependencies", self.dependencies)
         self._add_url(
             "_dash-update-component",
-            self.backend.dispatch(self.server, self, self._use_async),
+            self.backend.dispatch(self),
             ["POST"],
         )
         self._add_url("_reload-hash", self.serve_reload_hash)
@@ -803,7 +739,7 @@ class Dash(ObsoleteChecker):
             self.callback_api_paths[k] = _callback.GLOBAL_API_PATHS.pop(k)
 
         # Delegate to the server factory for route registration
-        self.backend.register_callback_api_routes(self.server, self.callback_api_paths)
+        self.backend.register_callback_api_routes(self.callback_api_paths)
 
     def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
@@ -1043,9 +979,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("link", link, opened=True)
-                if isinstance(link, dict)
-                else f'<link rel="stylesheet" href="{link}">'
+                (
+                    format_tag("link", link, opened=True)
+                    if isinstance(link, dict)
+                    else f'<link rel="stylesheet" href="{link}">'
+                )
                 for link in (external_links + links)
             ]
         )
@@ -1099,9 +1037,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("script", src)
-                if isinstance(src, dict)
-                else f'<script src="{src}"></script>'
+                (
+                    format_tag("script", src)
+                    if isinstance(src, dict)
+                    else f'<script src="{src}"></script>'
+                )
                 for src in srcs
             ]
             + [f"<script>{src}</script>" for src in self._inline_scripts]
@@ -1139,11 +1079,8 @@ class Dash(ObsoleteChecker):
         metas = self._generate_meta()
         renderer = self._generate_renderer()
         title = self.title
-        try:
-            request = get_request_adapter()
-        except LookupError:
-            # no request context
-            request = None
+        # Refactored: direct access to global request adapter
+        request = backends.request_adapter()
 
         if self.use_pages and self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
@@ -1357,8 +1294,9 @@ class Dash(ObsoleteChecker):
         return inputs_to_vals(inputs)
 
     # pylint: disable=R0915
-    def _initialize_context(self, body, adapter):
+    def _initialize_context(self, body):
         """Initialize the global context for the request."""
+        adapter = backends.request_adapter()
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
         g.states_list = body.get("state", [])
@@ -1372,12 +1310,12 @@ class Dash(ObsoleteChecker):
         g.dash_response = self.backend.make_response(
             mimetype="application/json", data=None
         )
-        g.cookies = dict(adapter.get_cookies())
-        g.headers = dict(adapter.get_headers())
-        g.args = adapter.get_args()
-        g.path = adapter.get_full_path()
-        g.remote = adapter.get_remote_addr()
-        g.origin = adapter.get_origin()
+        g.cookies = dict(adapter.cookies)
+        g.headers = dict(adapter.headers)
+        g.args = adapter.args
+        g.path = adapter.full_path
+        g.remote = adapter.remote_addr
+        g.origin = adapter.origin
         g.updated_props = {}
         return g
 
@@ -1964,15 +1902,21 @@ class Dash(ObsoleteChecker):
                         packages[index] = dash_spec
 
             component_packages_dist = [
-                dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
-                if isinstance(package, ModuleSpec)
-                else os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
-                if hasattr(package, "path")
-                else os.path.dirname(
-                    package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
-                )
-                if hasattr(package, "_path")
-                else package.filename  # type: ignore[reportAttributeAccessIssue]
+                (
+                    dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
+                    if isinstance(package, ModuleSpec)
+                    else (
+                        os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
+                        if hasattr(package, "path")
+                        else (
+                            os.path.dirname(
+                                package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
+                            )
+                            if hasattr(package, "_path")
+                            else package.filename
+                        )
+                    )
+                )  # type: ignore[reportAttributeAccessIssue]
                 for package in packages
             ]
 
@@ -2000,13 +1944,14 @@ class Dash(ObsoleteChecker):
                 jupyter_dash.configure_callback_exception_handling(
                     self, dev_tools.prune_errors
                 )
-            secret = gen_salt(20)
-            self.backend.register_prune_error_handler(
-                self.server, secret, dev_tools.prune_errors
-            )
+            elif dev_tools.prune_errors:
+                secret = gen_salt(20)
+                self.backend.register_prune_error_handler(
+                    secret, dev_tools.prune_errors
+                )
 
         if debug and dev_tools.ui:
-            self.backend.register_timing_hooks(self.server, first_run)
+            self.backend.register_timing_hooks(first_run)
 
         if (
             debug
@@ -2290,13 +2235,8 @@ class Dash(ObsoleteChecker):
                 server_url=jupyter_server_url,
             )
         else:
-            self.backend.run(
-                self,
-                self.server,
-                host=host,
-                port=port,
-                debug=debug,
-                **flask_run_options,
+            backends.backend.run(
+                dash_app=self, host=host, port=port, debug=debug, **flask_run_options
             )
 
     def enable_pages(self) -> None:
@@ -2368,9 +2308,11 @@ class Dash(ObsoleteChecker):
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            asyncio.run(execute_async_function(page["layout"]))
-                            if callable(page["layout"])
-                            else page["layout"]
+                            (
+                                asyncio.run(execute_async_function(page["layout"]))
+                                if callable(page["layout"])
+                                else page["layout"]
+                            )
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + [
@@ -2439,9 +2381,11 @@ class Dash(ObsoleteChecker):
                         ]
                         self.validation_layout = html.Div(
                             [
-                                page["layout"]()
-                                if callable(page["layout"])
-                                else page["layout"]
+                                (
+                                    page["layout"]()
+                                    if callable(page["layout"])
+                                    else page["layout"]
+                                )
                                 for page in _pages.PAGE_REGISTRY.values()
                             ]
                             + layout
@@ -2460,7 +2404,7 @@ class Dash(ObsoleteChecker):
                 Input(_ID_STORE, "data"),
             )
 
-        self.backend.before_request(self.server, router)
+        self.backend.before_request(router)
 
     def __call__(self, *args, **kwargs):
-        return self.backend.__call__(self.server, *args, **kwargs)
+        return self.backend.__call__(*args, **kwargs)

@@ -8,6 +8,7 @@ import flask
 from ._grouping import grouping_len, map_grouping
 from ._no_update import NoUpdate
 from .development.base_component import Component
+from . import backends
 from . import exceptions
 from ._utils import (
     patch_collections_abc,
@@ -585,3 +586,41 @@ def validate_duplicate_output(
         return
 
     _valid(output)
+
+
+def check_async(use_async):
+    if use_async is None:
+        try:
+            import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
+
+            use_async = True
+        except ImportError:
+            pass
+    elif use_async:
+        try:
+            import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
+        except ImportError as exc:
+            raise Exception(
+                "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"
+            ) from exc
+
+
+def check_backend(backend, inferred_backend):
+    if backend is not None:
+        if isinstance(backend, type):
+            # get_backend returns the backend class for a string
+            # So we compare the class names
+            expected_backend_cls, _ = backends.get_backend(inferred_backend)
+            if (
+                backend.__module__ != expected_backend_cls.__module__
+                or backend.__name__ != expected_backend_cls.__name__
+            ):
+                raise ValueError(
+                    f"Conflict between provided backend '{backend.__name__}' and server type '{inferred_backend}'."
+                )
+        elif not isinstance(backend, str):
+            raise ValueError("Invalid backend argument")
+        elif backend.lower() != inferred_backend:
+            raise ValueError(
+                f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
+            )

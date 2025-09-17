@@ -1,46 +1,71 @@
+from __future__ import annotations
+
+from contextvars import copy_context, ContextVar
+from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
 import hashlib
 import inspect
 import pkgutil
-from contextvars import copy_context
-import importlib.util
 import time
 import traceback
-import re
-
-try:
-    import uvicorn
-    from fastapi import FastAPI, Request, Response
-    from fastapi.responses import JSONResponse
-    from fastapi.staticfiles import StaticFiles
-    from starlette.responses import Response as StarletteResponse
-    from starlette.datastructures import MutableHeaders
-    from pydantic import create_model
-    from typing import Any, Optional
-except ImportError:
-    uvicorn = None
-    FastAPI = None
-    Request = None
-    Response = None
-    JSONResponse = None
-    StaticFiles = None
-    StarletteResponse = None
-    MutableHeaders = None
-    create_model = None
-    Any = None
-    Optional = None
-
-
+from importlib.util import spec_from_file_location
 import json
 import os
+import re
+
 from dash.fingerprint import check_fingerprint
 from dash import _validate
-from dash.exceptions import (
-    PreventUpdate,
-)
-from dash.backend import set_request_adapter
-from .base_server import BaseDashServer
+from dash.exceptions import PreventUpdate
+from .base_server import BaseDashServer, RequestAdapter
+
+from fastapi import FastAPI, Request, Response, Body
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import Response as StarletteResponse
+from starlette.datastructures import MutableHeaders
+from starlette.types import ASGIApp, Scope, Receive, Send
+import uvicorn
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from dash.dash import Dash
+
+
+_current_request_var = ContextVar("dash_current_request", default=None)
+
+
+def set_current_request(req):
+    return _current_request_var.set(req)
+
+
+def reset_current_request(token):
+    _current_request_var.reset(token)
+
+
+def get_current_request() -> Request:
+    req = _current_request_var.get()
+    if req is None:
+        raise RuntimeError("No active request in context")
+    return req
+
+
+class CurrentRequestMiddleware:
+    def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # type: ignore[name-defined]
+        # non-http/ws scopes pass through (lifespan etc.)
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope, receive=receive)
+        token = set_current_request(request)
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            reset_current_request(token)
+
 
 CONFIG_PATH = "dash_config.json"
 
@@ -58,28 +83,35 @@ def load_config():
 
 
 class FastAPIDashServer(BaseDashServer):
-    def __init__(self):
+
+    def __init__(self, server: FastAPI):
+        self.config = {}
+        self.server_type = "fastapi"
+        self.server: FastAPI = server
         self.error_handling_mode = "prune"
         super().__init__()
 
-    def __call__(self, server, *args, **kwargs):
+    def __call__(self, *args: Any, **kwargs: Any):
         # ASGI: (scope, receive, send)
         if len(args) == 3 and isinstance(args[0], dict) and "type" in args[0]:
-            return server(*args, **kwargs)
+            return self.server(*args, **kwargs)
         raise TypeError("FastAPI app must be called with (scope, receive, send)")
 
-    def create_app(self, name="__main__", config=None):
+    @staticmethod
+    def create_app(name: str = "__main__", config: Dict[str, Any] | None = None):
         app = FastAPI()
+        app.add_middleware(CurrentRequestMiddleware)
+
         if config:
             for key, value in config.items():
                 setattr(app.state, key, value)
         return app
 
     def register_assets_blueprint(
-        self, app, blueprint_name, assets_url_path, assets_folder
+        self, blueprint_name: str, assets_url_path: str, assets_folder: str
     ):
         try:
-            app.mount(
+            self.server.mount(
                 assets_url_path,
                 StaticFiles(directory=assets_folder),
                 name=blueprint_name,
@@ -88,7 +120,7 @@ class FastAPIDashServer(BaseDashServer):
             # directory doesnt exist
             pass
 
-    def register_error_handlers(self, app):
+    def register_error_handlers(self):
         self.error_handling_mode = "prune"
 
     def _get_traceback(self, _secret, error: Exception):
@@ -200,13 +232,13 @@ class FastAPIDashServer(BaseDashServer):
         """
         return html
 
-    def register_prune_error_handler(self, _app, _secret, prune_errors):
+    def register_prune_error_handler(self, _secret, prune_errors):
         if prune_errors:
             self.error_handling_mode = "prune"
         else:
             self.error_handling_mode = "raise"
 
-    def _html_response_wrapper(self, view_func):
+    def _html_response_wrapper(self, view_func: Callable[..., Any] | str):
         async def wrapped(*_args, **_kwargs):
             # If view_func is a function, call it; if it's a string, use it directly
             html = view_func() if callable(view_func) else view_func
@@ -214,40 +246,40 @@ class FastAPIDashServer(BaseDashServer):
 
         return wrapped
 
-    def setup_index(self, dash_app):
+    def setup_index(self, dash_app: Dash):
         async def index(request: Request):
-            adapter = FastAPIRequestAdapter()
-            set_request_adapter(adapter)
-            adapter.set_request(request)
             return Response(content=dash_app.index(), media_type="text/html")
 
         # pylint: disable=protected-access
         dash_app._add_url("", index, methods=["GET"])
 
-    def setup_catchall(self, dash_app):
-        @dash_app.server.on_event("startup")
+    def setup_catchall(self, dash_app: Dash):
+        @self.server.on_event("startup")
         def _setup_catchall():
-            config = load_config()
-            dash_app.enable_dev_tools(**config, first_run=False)
+            dash_app.enable_dev_tools(
+                **self.config, first_run=False
+            )  # do this to make sure dev tools are enabled
 
             async def catchall(request: Request):
-                adapter = FastAPIRequestAdapter()
-                set_request_adapter(adapter)
-                adapter.set_request(request)
                 return Response(content=dash_app.index(), media_type="text/html")
 
             # pylint: disable=protected-access
             dash_app._add_url("{path:path}", catchall, methods=["GET"])
 
     def add_url_rule(
-        self, app, rule, view_func, endpoint=None, methods=None, include_in_schema=False
+        self,
+        rule: str,
+        view_func: Callable[..., Any] | str,
+        endpoint: str | None = None,
+        methods: list[str] | None = None,
+        include_in_schema: bool = False,
     ):
         if rule == "":
             rule = "/"
         if isinstance(view_func, str):
             # Wrap string or sync function to async FastAPI handler
             view_func = self._html_response_wrapper(view_func)
-        app.add_api_route(
+        self.server.add_api_route(
             rule,
             view_func,
             methods=methods or ["GET"],
@@ -255,15 +287,15 @@ class FastAPIDashServer(BaseDashServer):
             include_in_schema=include_in_schema,
         )
 
-    def before_request(self, app, func):
+    def before_request(self, func: Callable[[], Any] | None):
         # FastAPI does not have before_request, but we can use middleware
-        app.middleware("http")(self._make_before_middleware(func))
+        self.server.middleware("http")(self._make_before_middleware(func))
 
-    def after_request(self, app, func):
+    def after_request(self, func: Callable[[], Any] | None):
         # FastAPI does not have after_request, but we can use middleware
-        app.middleware("http")(self._make_after_middleware(func))
+        self.server.middleware("http")(self._make_after_middleware(func))
 
-    def run(self, dash_app, app, host, port, debug, **kwargs):
+    def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
         config = dict(
             {"debug": debug} if debug else {},
@@ -278,7 +310,8 @@ class FastAPIDashServer(BaseDashServer):
         if kwargs.get("reload"):
             # Dynamically determine the module name from the file path
             file_path = frame.filename
-            module_name = importlib.util.spec_from_file_location("app", file_path).name
+            spec = spec_from_file_location("app", file_path)
+            module_name = spec.name if spec and getattr(spec, "name", None) else "app"
             uvicorn.run(
                 f"{module_name}:app.server",
                 host=host,
@@ -286,9 +319,14 @@ class FastAPIDashServer(BaseDashServer):
                 **kwargs,
             )
         else:
-            uvicorn.run(app, host=host, port=port, **kwargs)
+            uvicorn.run(self.server, host=host, port=port, **kwargs)
 
-    def make_response(self, data, mimetype=None, content_type=None):
+    def make_response(
+        self,
+        data: str | bytes | bytearray,
+        mimetype: str | None = None,
+        content_type: str | None = None,
+    ):
         headers = {}
         if mimetype:
             headers["content-type"] = mimetype
@@ -296,13 +334,10 @@ class FastAPIDashServer(BaseDashServer):
             headers["content-type"] = content_type
         return Response(content=data, headers=headers)
 
-    def jsonify(self, obj):
+    def jsonify(self, obj: Any):
         return JSONResponse(content=obj)
 
-    def get_request_adapter(self):
-        return FastAPIRequestAdapter
-
-    def _make_before_middleware(self, _func):
+    def _make_before_middleware(self, func: Callable[[], Any] | None):
         async def middleware(request, call_next):
             try:
                 response = await call_next(request)
@@ -322,7 +357,7 @@ class FastAPIDashServer(BaseDashServer):
 
         return middleware
 
-    def _make_after_middleware(self, func):
+    def _make_after_middleware(self, func: Callable[[], Any] | None):
         async def middleware(request, call_next):
             response = await call_next(request)
             if func is not None:
@@ -335,8 +370,13 @@ class FastAPIDashServer(BaseDashServer):
         return middleware
 
     def serve_component_suites(
-        self, dash_app, package_name, fingerprinted_path, request
+        self,
+        dash_app: Dash,
+        package_name: str,
+        fingerprinted_path: str,
+        request: Request,
     ):
+
         path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
         _validate.validate_js_path(dash_app.registered_paths, package_name, path_in_pkg)
         extension = "." + path_in_pkg.split(".")[-1]
@@ -360,7 +400,7 @@ class FastAPIDashServer(BaseDashServer):
             return StarletteResponse(status_code=304)
         return StarletteResponse(content=data, media_type=mimetype, headers=headers)
 
-    def setup_component_suites(self, dash_app):
+    def setup_component_suites(self, dash_app: Dash):
         async def serve(request: Request, package_name: str, fingerprinted_path: str):
             return self.serve_component_suites(
                 dash_app, package_name, fingerprinted_path, request
@@ -373,16 +413,12 @@ class FastAPIDashServer(BaseDashServer):
         )
 
     # pylint: disable=unused-argument
-    def dispatch(self, app, dash_app, use_async=False):
+    def dispatch(self, dash_app: Dash):
+
         async def _dispatch(request: Request):
-            adapter = FastAPIRequestAdapter()
-            set_request_adapter(adapter)
-            adapter.set_request(request)
             # pylint: disable=protected-access
             body = await request.json()
-            g = dash_app._initialize_context(
-                body, adapter
-            )  # pylint: disable=protected-access
+            g = dash_app._initialize_context(body)  # pylint: disable=protected-access
             func = dash_app._prepare_callback(
                 g, body
             )  # pylint: disable=protected-access
@@ -406,12 +442,12 @@ class FastAPIDashServer(BaseDashServer):
             content=pkgutil.get_data("dash", "favicon.ico"), media_type="image/x-icon"
         )
 
-    def register_timing_hooks(self, app, first_run):
+    def register_timing_hooks(self, first_run: bool):
         if not first_run:
             return
 
-        @app.middleware("http")
-        async def timing_middleware(request, call_next):
+        @self.server.middleware("http")
+        async def timing_middleware(request: Request, call_next):
             # Before request
             request.state.timing_information = {
                 "__dash_server": {"dur": time.time(), "desc": None}
@@ -433,11 +469,11 @@ class FastAPIDashServer(BaseDashServer):
                     headers.append("Server-Timing", value)
             return response
 
-    def register_callback_api_routes(self, app, callback_api_paths):
+    def register_callback_api_routes(self, callback_api_paths: Dict[str, Callable[..., Any]]):
         """
         Register callback API endpoints on the FastAPI app.
         Each key in callback_api_paths is a route, each value is a handler (sync or async).
-        Dynamically creates a Pydantic model for the handler's parameters and uses it as the body parameter.
+        Accepts a JSON body (dict) and filters keys based on the handler's signature.
         """
         for path, handler in callback_api_paths.items():
             endpoint = f"dash_callback_api_{path}"
@@ -445,21 +481,19 @@ class FastAPIDashServer(BaseDashServer):
             methods = ["POST"]
             sig = inspect.signature(handler)
             param_names = list(sig.parameters.keys())
-            fields = {name: (Optional[Any], None) for name in param_names}
-            Model = create_model(
-                f"Payload_{endpoint}", **fields
-            )  # pylint: disable=cell-var-from-loop
 
-            # pylint: disable=cell-var-from-loop
-            async def view_func(request: Request, body: Model):
-                kwargs = body.dict(exclude_unset=True)
+            async def view_func(request: Request, body: dict = Body(...)):
+                # Only pass expected params; ignore extras
+                kwargs = {
+                    k: v for k, v in body.items() if k in param_names and v is not None
+                }
                 if inspect.iscoroutinefunction(handler):
                     result = await handler(**kwargs)
                 else:
                     result = handler(**kwargs)
                 return JSONResponse(content=result)
 
-            app.add_api_route(
+            self.server.add_api_route(
                 route,
                 view_func,
                 methods=methods,
@@ -468,44 +502,58 @@ class FastAPIDashServer(BaseDashServer):
             )
 
 
-class FastAPIRequestAdapter:
+class FastAPIRequestAdapter(RequestAdapter):
+
     def __init__(self):
-        self._request = None
+        self._request: Request = get_current_request()
+        super().__init__()
 
-    def set_request(self, request: Request):
-        self._request = request
+    def __call__(self):
+        self._request = get_current_request()
+        return self
 
-    def get_root(self):
+    @property
+    def root(self):
         return str(self._request.base_url)
 
-    def get_args(self):
+    @property
+    def args(self):
         return self._request.query_params
 
-    async def get_json(self):
-        return await self._request.json()
-
+    @property
     def is_json(self):
         return self._request.headers.get("content-type", "").startswith(
             "application/json"
         )
 
-    def get_cookies(self, _request=None):
+    @property
+    def cookies(self):
         return self._request.cookies
 
-    def get_headers(self):
+    @property
+    def headers(self):
         return self._request.headers
 
-    def get_full_path(self):
+    @property
+    def full_path(self):
         return str(self._request.url)
 
-    def get_url(self):
+    @property
+    def url(self):
         return str(self._request.url)
 
-    def get_remote_addr(self):
-        return self._request.client.host if self._request.client else None
+    @property
+    def remote_addr(self):
+        client = getattr(self._request, "client", None)
+        return getattr(client, "host", None)
 
-    def get_origin(self):
+    @property
+    def origin(self):
         return self._request.headers.get("origin")
 
-    def get_path(self):
+    @property
+    def path(self):
         return self._request.url.path
+
+    async def get_json(self):  # async method retained
+        return await self._request.json()
