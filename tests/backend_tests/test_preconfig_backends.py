@@ -30,7 +30,7 @@ def test_backend_basic_callback(request, backend, fixture, input_value):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#output", f"You typed: {input_value}")
-    dash_duo.find_element("#input").clear()
+    dash_duo.clear_input(dash_duo.find_element("#input"))
     dash_duo.find_element("#input").send_keys(f"{backend.title()} Test")
     dash_duo.wait_for_text_to_equal("#output", f"You typed: {backend.title()} Test")
     assert dash_duo.get_logs() == []
@@ -93,7 +93,7 @@ def get_error_html(dash_duo, index):
                 "dev_tools_prune_errors": False,
                 "reload": False,
             },
-            "fastapi.py",
+            "_fastapi.py",
         ),
         (
             "quart",
@@ -104,7 +104,7 @@ def get_error_html(dash_duo, index):
                 "dev_tools_hot_reload": False,
                 "dev_tools_prune_errors": False,
             },
-            "quart.py",
+            "_quart.py",
         ),
     ],
 )
@@ -131,7 +131,7 @@ def test_backend_error_handling_no_prune(
     error0 = get_error_html(dash_duo, 0)
     assert "in error_callback" in error0
     assert "ZeroDivisionError" in error0
-    assert "backend" in error0 and error_msg in error0
+    assert "backends/" in error0 and error_msg in error0
 
 
 @pytest.mark.parametrize(
@@ -173,7 +173,7 @@ def test_backend_error_handling_prune(
     error0 = get_error_html(dash_duo, 0)
     assert "in error_callback" in error0
     assert "ZeroDivisionError" in error0
-    assert "dash/backend" not in error0 and error_msg not in error0
+    assert "dash/backends/" not in error0 and error_msg not in error0
 
 
 @pytest.mark.parametrize(
@@ -209,7 +209,7 @@ def test_backend_background_callback(request, backend, fixture, input_value):
 
     dash_duo.start_server(app)
     dash_duo.wait_for_text_to_equal("#output", f"Background typed: {input_value}")
-    dash_duo.find_element("#input").clear()
+    dash_duo.clear_input(dash_duo.find_element("#input"))
     dash_duo.find_element("#input").send_keys(f"{backend.title()} BG Test")
     dash_duo.wait_for_text_to_equal(
         "#output", f"Background typed: {backend.title()} BG Test"

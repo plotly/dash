@@ -52,6 +52,7 @@ def get_current_request() -> Request:
 class CurrentRequestMiddleware:
     def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
         self.app = app
+        print('loaded CurrentRequestMiddleware')
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # type: ignore[name-defined]
         # non-http/ws scopes pass through (lifespan etc.)
@@ -100,7 +101,6 @@ class FastAPIDashServer(BaseDashServer):
     @staticmethod
     def create_app(name: str = "__main__", config: Dict[str, Any] | None = None):
         app = FastAPI()
-        app.add_middleware(CurrentRequestMiddleware)
 
         if config:
             for key, value in config.items():
@@ -257,7 +257,7 @@ class FastAPIDashServer(BaseDashServer):
         @self.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
-                **self.config, first_run=False
+                **load_config(), first_run=False
             )  # do this to make sure dev tools are enabled
 
             async def catchall(request: Request):
@@ -289,6 +289,7 @@ class FastAPIDashServer(BaseDashServer):
 
     def before_request(self, func: Callable[[], Any] | None):
         # FastAPI does not have before_request, but we can use middleware
+        self.server.add_middleware(CurrentRequestMiddleware)
         self.server.middleware("http")(self._make_before_middleware(func))
 
     def after_request(self, func: Callable[[], Any] | None):

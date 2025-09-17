@@ -1944,11 +1944,10 @@ class Dash(ObsoleteChecker):
                 jupyter_dash.configure_callback_exception_handling(
                     self, dev_tools.prune_errors
                 )
-            elif dev_tools.prune_errors:
-                secret = gen_salt(20)
-                self.backend.register_prune_error_handler(
-                    secret, dev_tools.prune_errors
-                )
+            secret = gen_salt(20)
+            self.backend.register_prune_error_handler(
+                secret, dev_tools.prune_errors
+            )
 
         if debug and dev_tools.ui:
             self.backend.register_timing_hooks(first_run)
