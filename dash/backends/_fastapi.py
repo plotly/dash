@@ -66,30 +66,32 @@ class CurrentRequestMiddleware:
         finally:
             reset_current_request(token)
 
-
-CONFIG_PATH = "dash_config.json"
-
-
 # Internal config helpers (local to this file)
-_CONFIG_PATH = "dash_config.json"
+_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "dash_config.json")
 
 def _save_config(config):
     with open(_CONFIG_PATH, "w") as f:
         json.dump(config, f)
 
 def _load_config():
+    resp = {"debug": False}
     try:
         if os.path.exists(_CONFIG_PATH):
             with open(_CONFIG_PATH, "r") as f:
-                return json.load(f)
+                resp = json.load(f)
     except Exception:
         pass  # ignore errors
-    return {}
+    return resp
+
+def _remove_config():
+    try:
+        os.remove(_CONFIG_PATH)
+    except FileNotFoundError:
+        pass
 
 
 class FastAPIDashServer(BaseDashServer):
     def __init__(self, server: FastAPI):
-        _save_config({"debug": False})  # ensure config file exists
         self.server_type = "fastapi"
         self.server: FastAPI = server
         self.error_handling_mode = "ignore"
@@ -258,6 +260,10 @@ class FastAPIDashServer(BaseDashServer):
         dash_app._add_url("", index, methods=["GET"])
 
     def setup_catchall(self, dash_app: Dash):
+        @self.server.on_event("shutdown")
+        def cleanup_config():
+            _remove_config()
+
         @self.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
