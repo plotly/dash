@@ -29,7 +29,6 @@ from .base_server import BaseDashServer
 
 
 class QuartDashServer(BaseDashServer):
-
     def __init__(self, server: Quart) -> None:
         self.server_type = "quart"
         self.server: Quart = server
@@ -41,7 +40,9 @@ class QuartDashServer(BaseDashServer):
         return self.server(*args, **kwargs)
 
     @staticmethod
-    def create_app(name: str = "__main__", config: _t.Optional[_t.Dict[str, _t.Any]] = None):
+    def create_app(
+        name: str = "__main__", config: _t.Optional[_t.Dict[str, _t.Any]] = None
+    ):
         if Quart is None:
             raise RuntimeError(
                 "Quart is not installed. Install with 'pip install quart' to use the quart backend."
@@ -225,7 +226,6 @@ class QuartDashServer(BaseDashServer):
             return err.args[0], 404
 
     def _html_response_wrapper(self, view_func: _t.Callable[..., _t.Any] | str):
-
         async def wrapped(*_args, **_kwargs):
             html_val = view_func() if callable(view_func) else view_func
             if inspect.iscoroutine(html_val):  # handle async function returning html
@@ -247,7 +247,6 @@ class QuartDashServer(BaseDashServer):
         )
 
     def setup_index(self, dash_app: Dash):  # type: ignore[name-defined]
-
         async def index(*args, **kwargs):
             return Response(dash_app.index(*args, **kwargs), content_type="text/html")  # type: ignore[arg-type]
 
@@ -255,7 +254,6 @@ class QuartDashServer(BaseDashServer):
         dash_app._add_url("", index, methods=["GET"])
 
     def setup_catchall(self, dash_app: Dash):
-
         async def catchall(
             path: str, *args, **kwargs
         ):  # noqa: ARG001 - path is unused but kept for route signature, pylint: disable=unused-argument
@@ -331,7 +329,6 @@ class QuartDashServer(BaseDashServer):
 
     # pylint: disable=unused-argument
     def dispatch(self, dash_app: Dash):  # type: ignore[name-defined] Quart always async
-
         async def _dispatch():
             adapter = QuartRequestAdapter()
             body = await adapter.get_json()
@@ -351,7 +348,9 @@ class QuartDashServer(BaseDashServer):
 
         return _dispatch
 
-    def register_callback_api_routes(self, callback_api_paths: _t.Dict[str, _t.Callable[..., _t.Any]]):
+    def register_callback_api_routes(
+        self, callback_api_paths: _t.Dict[str, _t.Callable[..., _t.Any]]
+    ):
         """
         Register callback API endpoints on the Quart app.
         Each key in callback_api_paths is a route, each value is a handler (sync or async).

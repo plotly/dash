@@ -29,7 +29,6 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 
 
 class FlaskDashServer(BaseDashServer):
-
     def __init__(self, server: Flask) -> None:
         self.server: Flask = server
         self.server_type = "flask"
@@ -209,7 +208,9 @@ class FlaskDashServer(BaseDashServer):
             func = dash_app._prepare_callback(cb_ctx, body)
             args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)
             ctx = copy_context()
-            partial_func = dash_app._execute_callback(func, args, cb_ctx.outputs_list, cb_ctx)
+            partial_func = dash_app._execute_callback(
+                func, args, cb_ctx.outputs_list, cb_ctx
+            )
             response_data = ctx.run(partial_func)
             if asyncio.iscoroutine(response_data):
                 raise Exception(
@@ -227,7 +228,9 @@ class FlaskDashServer(BaseDashServer):
             func = dash_app._prepare_callback(cb_ctx, body)
             args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)
             ctx = copy_context()
-            partial_func = dash_app._execute_callback(func, args, cb_ctx.outputs_list, cb_ctx)
+            partial_func = dash_app._execute_callback(
+                func, args, cb_ctx.outputs_list, cb_ctx
+            )
             response_data = ctx.run(partial_func)
             if asyncio.iscoroutine(response_data):
                 response_data = await response_data
@@ -269,7 +272,9 @@ class FlaskDashServer(BaseDashServer):
         self.before_request(_before_request)
         self.after_request(_after_request)
 
-    def register_callback_api_routes(self, callback_api_paths: Dict[str, Callable[..., Any]]):
+    def register_callback_api_routes(
+        self, callback_api_paths: Dict[str, Callable[..., Any]]
+    ):
         """
         Register callback API endpoints on the Flask app.
         Each key in callback_api_paths is a route, each value is a handler (sync or async).

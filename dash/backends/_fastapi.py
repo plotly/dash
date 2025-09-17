@@ -52,7 +52,7 @@ def get_current_request() -> Request:
 class CurrentRequestMiddleware:
     def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
         self.app = app
-        print('loaded CurrentRequestMiddleware')
+        print("loaded CurrentRequestMiddleware")
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # type: ignore[name-defined]
         # non-http/ws scopes pass through (lifespan etc.)
@@ -84,7 +84,6 @@ def load_config():
 
 
 class FastAPIDashServer(BaseDashServer):
-
     def __init__(self, server: FastAPI):
         self.config = {}
         self.server_type = "fastapi"
@@ -415,7 +414,6 @@ class FastAPIDashServer(BaseDashServer):
 
     # pylint: disable=unused-argument
     def dispatch(self, dash_app: Dash):
-
         async def _dispatch(request: Request):
             # pylint: disable=protected-access
             body = await request.json()
@@ -470,7 +468,9 @@ class FastAPIDashServer(BaseDashServer):
                     headers.append("Server-Timing", value)
             return response
 
-    def register_callback_api_routes(self, callback_api_paths: Dict[str, Callable[..., Any]]):
+    def register_callback_api_routes(
+        self, callback_api_paths: Dict[str, Callable[..., Any]]
+    ):
         """
         Register callback API endpoints on the FastAPI app.
         Each key in callback_api_paths is a route, each value is a handler (sync or async).
@@ -504,7 +504,6 @@ class FastAPIDashServer(BaseDashServer):
 
 
 class FastAPIRequestAdapter(RequestAdapter):
-
     def __init__(self):
         self._request: Request = get_current_request()
         super().__init__()
