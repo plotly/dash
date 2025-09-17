@@ -1,9 +1,12 @@
 import pytest
 from dash import Dash, Input, Output, html, dcc
-from fastapi import FastAPI
 import traceback
 import re
-from dash.backends._fastapi import FastAPIDashServer
+
+try:
+    from dash.backends._fastapi import FastAPIDashServer
+except ImportError:
+    FastAPIDashServer = None
 
 
 class CustomDashServer(FastAPIDashServer):

@@ -1,21 +1,19 @@
-from .base_server import BaseDashServer, RequestAdapter
-
 import importlib
+from .base_server import BaseDashServer
 
 
-request_adapter: RequestAdapter
 backend: BaseDashServer
 
 
 _backend_imports = {
-    "flask": ("dash.backends._flask", "FlaskDashServer", "FlaskRequestAdapter"),
-    "fastapi": ("dash.backends._fastapi", "FastAPIDashServer", "FastAPIRequestAdapter"),
-    "quart": ("dash.backends._quart", "QuartDashServer", "QuartRequestAdapter"),
+    "flask": ("dash.backends._flask", "FlaskDashServer"),
+    "fastapi": ("dash.backends._fastapi", "FastAPIDashServer"),
+    "quart": ("dash.backends._quart", "QuartDashServer"),
 }
 
 
-def get_backend(name: str) -> tuple[BaseDashServer, RequestAdapter]:
-    module_name, server_class, request_class = _backend_imports[name.lower()]
+def get_backend(name: str) -> BaseDashServer:
+    module_name, server_class = _backend_imports[name.lower()]
     try:
         module = importlib.import_module(module_name)
         server = getattr(module, server_class)
@@ -74,7 +72,6 @@ def get_server_type(server):
 
 __all__ = [
     "get_backend",
-    "request_adapter",
     "backend",
     "get_server_type",
 ]

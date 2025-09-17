@@ -173,9 +173,9 @@ class ThreadedRunner(BaseDashRunner):
             try:
                 module = app.server.__class__.__module__
                 # FastAPI support
-                if not module.startswith("flask"):
+                if module.startswith("fastapi"):
                     app.run(**options)
-                # Dash/Flask fallback
+                # Dash/Flask/Quart fallback
                 else:
                     app.run(threaded=True, **options)
             except SystemExit:
@@ -237,9 +237,9 @@ class MultiProcessRunner(BaseDashRunner):
             try:
                 module = app.server.__class__.__module__
                 # FastAPI support
-                if not module.startswith("flask"):
+                if module.startswith("fastapi"):
                     app.run(**options)
-                # Dash/Flask fallback
+                # Dash/Flask/Quart fallback
                 else:
                     app.run(threaded=True, **options)
             except SystemExit:

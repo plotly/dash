@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from contextvars import copy_context, ContextVar
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
@@ -8,27 +9,41 @@ import hashlib
 import inspect
 import pkgutil
 import time
-import traceback
 from importlib.util import spec_from_file_location
 import json
 import os
-import re
+
+try:
+    from fastapi import FastAPI, Request, Response, Body
+    from fastapi.responses import JSONResponse
+    from fastapi.staticfiles import StaticFiles
+    from starlette.responses import Response as StarletteResponse
+    from starlette.datastructures import MutableHeaders
+    from starlette.types import ASGIApp, Scope, Receive, Send
+    import uvicorn
+except ImportError:
+    FastAPI = None
+    Request = None
+    Response = None
+    Body = None
+    JSONResponse = None
+    StaticFiles = None
+    StarletteResponse = None
+    MutableHeaders = None
+    ASGIApp = None
+    Scope = None
+    Receive = None
+    Send = None
+    uvicorn = None
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate
 from .base_server import BaseDashServer, RequestAdapter
-
-from fastapi import FastAPI, Request, Response, Body
-from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
-from starlette.responses import Response as StarletteResponse
-from starlette.datastructures import MutableHeaders
-from starlette.types import ASGIApp, Scope, Receive, Send
-import uvicorn
+from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from dash.dash import Dash
+    from dash import Dash
 
 
 _current_request_var = ContextVar("dash_current_request", default=None)
@@ -49,7 +64,7 @@ def get_current_request() -> Request:
     return req
 
 
-class CurrentRequestMiddleware:
+class CurrentRequestMiddleware:  # pylint: disable=too-few-public-methods
     def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
         self.app = app
 
@@ -66,22 +81,26 @@ class CurrentRequestMiddleware:
         finally:
             reset_current_request(token)
 
+
 # Internal config helpers (local to this file)
 _CONFIG_PATH = os.path.join(os.path.dirname(__file__), "dash_config.json")
 
+
 def _save_config(config):
-    with open(_CONFIG_PATH, "w") as f:
+    with open(_CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f)
+
 
 def _load_config():
     resp = {"debug": False}
     try:
         if os.path.exists(_CONFIG_PATH):
-            with open(_CONFIG_PATH, "r") as f:
+            with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
                 resp = json.load(f)
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         pass  # ignore errors
     return resp
+
 
 def _remove_config():
     try:
@@ -130,113 +149,9 @@ class FastAPIDashServer(BaseDashServer):
         self.error_handling_mode = "ignore"
 
     def _get_traceback(self, _secret, error: Exception):
-        tb = error.__traceback__
-        errors = traceback.format_exception(type(error), error, tb)
-        pass_errs = []
-        callback_handled = False
-        for err in errors:
-            if self.error_handling_mode == "prune":
-                if not callback_handled:
-                    if "callback invoked" in str(err) and "_callback.py" in str(err):
-                        callback_handled = True
-                    continue
-            pass_errs.append(err)
-        formatted_tb = "".join(pass_errs)
-        error_type = type(error).__name__
-        error_msg = str(error)
-
-        # Parse traceback lines to group by file
-        file_cards = []
-        pattern = re.compile(r'  File "(.+)", line (\d+), in (\w+)')
-        lines = formatted_tb.split("\n")
-        current_file = None
-        card_lines = []
-
-        for line in lines[:-1]:  # Skip the last line (error message)
-            match = pattern.match(line)
-            if match:
-                if current_file and card_lines:
-                    file_cards.append((current_file, card_lines))
-                current_file = (
-                    f"{match.group(1)} (line {match.group(2)}, in {match.group(3)})"
-                )
-                card_lines = [line]
-            elif current_file:
-                card_lines.append(line)
-        if current_file and card_lines:
-            file_cards.append((current_file, card_lines))
-
-        cards_html = ""
-        for filename, card in file_cards:
-            cards_html += (
-                f"""
-            <div class="error-card">
-                <div class="error-card-header">{filename}</div>
-                <pre class="error-card-traceback">"""
-                + "\n".join(card)
-                + """</pre>
-            </div>
-            """
-            )
-
-        html = f"""
-        <!doctype html>
-        <html lang="en">
-          <head>
-            <title>{error_type}: {error_msg} // FastAPI Debugger</title>
-            <style>
-              body {{ font-family: monospace; background: #fff; color: #333; }}
-              .debugger {{ margin: 2em; max-width: 700px; }}
-              .error-card {{
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                margin-bottom: 1em;
-                padding: 1em;
-                background: #f9f9f9;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-                overflow: auto;
-              }}
-              .error-card-header {{
-                font-weight: bold;
-                margin-bottom: 0.5em;
-                color: #0074d9;
-              }}
-              .error-card-traceback {{
-                max-height: 150px;
-                overflow: auto;
-                margin: 0;
-                white-space: pre-wrap;
-              }}
-              .plain textarea {{ width: 100%; height: 10em; resize: vertical; overflow: auto; }}
-              h1 {{ color: #c00; }}
-            </style>
-          </head>
-          <body style="padding-bottom:10px">
-            <div class="debugger">
-              <h1>{error_type}</h1>
-              <div class="detail">
-                <p class="errormsg">{error_type}: {error_msg}</p>
-              </div>
-              <h2 class="traceback">Traceback <em>(most recent call last)</em></h2>
-              {cards_html}
-              <blockquote>{error_type}: {error_msg}</blockquote>
-              <div class="plain">
-                <p>This is the Copy/Paste friendly version of the traceback.</p>
-                <textarea readonly>{formatted_tb}</textarea>
-              </div>
-              <div class="explanation">
-                The debugger caught an exception in your ASGI application. You can now
-                look at the traceback which led to the error.
-              </div>
-              <div class="footer">
-                Brought to you by <strong class="arthur">DON'T PANIC</strong>, your
-                friendly FastAPI powered traceback interpreter.
-              </div>
-            </div>
-          </body>
-        </html>
-        """
-        return html
+        return format_traceback_html(
+            error, self.error_handling_mode, "FastAPI Debugger", "FastAPI"
+        )
 
     def register_prune_error_handler(self, _secret, prune_errors):
         if prune_errors:
@@ -253,7 +168,7 @@ class FastAPIDashServer(BaseDashServer):
         return wrapped
 
     def setup_index(self, dash_app: Dash):
-        async def index(request: Request):
+        async def index(_request: Request):
             return Response(content=dash_app.index(), media_type="text/html")
 
         # pylint: disable=protected-access
@@ -270,7 +185,7 @@ class FastAPIDashServer(BaseDashServer):
                 **_load_config(), first_run=False
             )  # do this to make sure dev tools are enabled
 
-            async def catchall(request: Request):
+            async def catchall(_request: Request):
                 return Response(content=dash_app.index(), media_type="text/html")
 
             # pylint: disable=protected-access
@@ -308,11 +223,10 @@ class FastAPIDashServer(BaseDashServer):
 
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
+        dev_tools = dash_app._dev_tools  # pylint: disable=protected-access
         config = dict(
             {"debug": debug} if debug else {"debug": False},
-            **{
-                f"dev_tools_{k}": v for k, v in dash_app._dev_tools.items()
-            },  # pylint: disable=protected-access
+            **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
         )
         _save_config(config)
         if debug:
@@ -348,7 +262,7 @@ class FastAPIDashServer(BaseDashServer):
     def jsonify(self, obj: Any):
         return JSONResponse(content=obj)
 
-    def _make_before_middleware(self, func: Callable[[], Any] | None):
+    def _make_before_middleware(self, _func: Callable[[], Any] | None):
         async def middleware(request, call_next):
             try:
                 response = await call_next(request)
@@ -356,14 +270,18 @@ class FastAPIDashServer(BaseDashServer):
             except PreventUpdate:
                 # No content, nothing to update
                 return Response(status_code=204)
-            except Exception as e:
+            except (Exception) as e:  # pylint: disable=broad-except
+                # Handle exceptions based on error_handling_mode
                 if self.error_handling_mode in ["raise", "prune"]:
                     # Prune the traceback to remove internal Dash calls
                     tb = self._get_traceback(None, e)
                     return Response(content=tb, media_type="text/html", status_code=500)
                 return JSONResponse(
                     status_code=500,
-                    content={"error": "InternalServerError", "message": "An internal server error occurred."},
+                    content={
+                        "error": "InternalServerError",
+                        "message": "An internal server error occurred.",
+                    },
                 )
 
         return middleware
@@ -417,27 +335,25 @@ class FastAPIDashServer(BaseDashServer):
                 dash_app, package_name, fingerprinted_path, request
             )
 
-        # pylint: disable=protected-access
-        dash_app._add_url(
-            "_dash-component-suites/{package_name}/{fingerprinted_path:path}",
-            serve,
-        )
+        name = "_dash-component-suites/{package_name}/{fingerprinted_path:path}"
+        dash_app._add_url(name, serve)  # pylint: disable=protected-access
 
-    # pylint: disable=unused-argument
     def dispatch(self, dash_app: Dash):
         async def _dispatch(request: Request):
             # pylint: disable=protected-access
             body = await request.json()
-            g = dash_app._initialize_context(body)  # pylint: disable=protected-access
+            cb_ctx = dash_app._initialize_context(
+                body
+            )  # pylint: disable=protected-access
             func = dash_app._prepare_callback(
-                g, body
+                cb_ctx, body
             )  # pylint: disable=protected-access
             args = dash_app._inputs_to_vals(
-                g.inputs_list + g.states_list
+                cb_ctx.inputs_list + cb_ctx.states_list
             )  # pylint: disable=protected-access
             ctx = copy_context()
             partial_func = dash_app._execute_callback(
-                func, args, g.outputs_list, g
+                func, args, cb_ctx.outputs_list, cb_ctx
             )  # pylint: disable=protected-access
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):
@@ -494,20 +410,24 @@ class FastAPIDashServer(BaseDashServer):
             sig = inspect.signature(handler)
             param_names = list(sig.parameters.keys())
 
-            async def view_func(request: Request, body: dict = Body(...)):
-                # Only pass expected params; ignore extras
-                kwargs = {
-                    k: v for k, v in body.items() if k in param_names and v is not None
-                }
-                if inspect.iscoroutinefunction(handler):
-                    result = await handler(**kwargs)
-                else:
-                    result = handler(**kwargs)
-                return JSONResponse(content=result)
+            def make_view_func(handler, param_names):
+                async def view_func(_request: Request, body: dict = Body(...)):
+                    kwargs = {
+                        k: v
+                        for k, v in body.items()
+                        if k in param_names and v is not None
+                    }
+                    if inspect.iscoroutinefunction(handler):
+                        result = await handler(**kwargs)
+                    else:
+                        result = handler(**kwargs)
+                    return JSONResponse(content=result)
+
+                return view_func
 
             self.server.add_api_route(
                 route,
-                view_func,
+                make_view_func(handler, param_names),
                 methods=methods,
                 name=endpoint,
                 include_in_schema=True,
@@ -566,5 +486,5 @@ class FastAPIRequestAdapter(RequestAdapter):
     def path(self):
         return self._request.url.path
 
-    async def get_json(self):  # async method retained
-        return await self._request.json()
+    def get_json(self):
+        return asyncio.run(self._request.json())

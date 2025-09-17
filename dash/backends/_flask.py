@@ -17,6 +17,7 @@ from flask import (
     jsonify,
     g as flask_g,
 )
+from werkzeug.debug import tbtools
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
@@ -67,13 +68,6 @@ class FlaskDashServer(BaseDashServer):
             return err.args[0], 404
 
     def _get_traceback(self, secret, error: Exception):
-        try:
-            from werkzeug.debug import (
-                tbtools,
-            )  # pylint: disable=import-outside-toplevel
-        except ImportError:
-            tbtools = None
-
         def _get_skip(error):
             tb = error.__traceback__
             skip = 1
@@ -238,7 +232,7 @@ class FlaskDashServer(BaseDashServer):
             cb_ctx.dash_response.set_data(response_data)
             return cb_ctx.dash_response
 
-        if dash_app._use_async:
+        if dash_app._use_async:  # pylint: disable=protected-access
             return _dispatch_async
         return _dispatch
 
