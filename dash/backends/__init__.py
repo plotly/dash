@@ -19,7 +19,7 @@ def get_backend(name: str) -> tuple[BaseDashServer, RequestAdapter]:
     try:
         module = importlib.import_module(module_name)
         server = getattr(module, server_class)
-        request_adapter = getattr(module, request_class)
+        request_adapter = server.request_adapter  # type: ignore
         return server, request_adapter
     except KeyError as e:
         raise ValueError(f"Unknown backend: {name}") from e

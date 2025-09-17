@@ -35,6 +35,7 @@ class QuartDashServer(BaseDashServer):
         self.server: Quart = server
         self.config = {}
         self.error_handling_mode = "prune"
+        self.request_adapter = QuartRequestAdapter
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):  # type: ignore[name-defined]

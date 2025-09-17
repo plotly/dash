@@ -32,6 +32,7 @@ class FlaskDashServer(BaseDashServer):
     def __init__(self, server: Flask) -> None:
         self.server: Flask = server
         self.server_type = "flask"
+        self.request_adapter = FlaskRequestAdapter
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):

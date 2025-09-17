@@ -6,6 +6,7 @@ class BaseDashServer(ABC):
     server_type: str
     server: Any
     config: dict[str, Any]
+    request_adapter: Any
 
     def __call__(self, *args, **kwargs) -> Any:
         # Default: WSGI

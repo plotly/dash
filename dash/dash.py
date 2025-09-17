@@ -423,12 +423,11 @@ class Dash(ObsoleteChecker):
 
         # Determine backend
         if backend is None:
-            backend_cls, request_cls = get_backend("flask")
+            backend_cls = get_backend("flask")
         elif isinstance(backend, str):
-            backend_cls, request_cls = get_backend(backend)
+            backend_cls = get_backend(backend)
         elif isinstance(backend, type):
             backend_cls = backend
-            _, request_cls = get_backend(backend.server_type)
         else:
             raise ValueError("Invalid backend argument")
 
@@ -437,20 +436,20 @@ class Dash(ObsoleteChecker):
             # User provided a server instance (e.g., Flask, Quart, FastAPI)
             inferred_backend = backends.get_server_type(server)
             _validate.check_backend(backend, inferred_backend)
-            backend_cls, request_cls = get_backend(inferred_backend)
+            backend_cls = get_backend(inferred_backend)
             if name is None:
                 caller_name = getattr(server, "name", caller_name)
 
             self.backend = backend_cls(server)
             self.server = server
             backends.backend = self.backend  # type: ignore
-            backends.request_adapter = request_cls
+            backends.request_adapter = self.backend.request_adapter  # type: ignore
         else:
             # No server instance provided, create backend and let backend create server
             self.server = backend_cls.create_app(caller_name)  # type: ignore
             self.backend = backend_cls(self.server)
             backends.backend = self.backend
-            backends.request_adapter = request_cls
+            backends.request_adapter = self.backend.request_adapter  # type: ignore
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix

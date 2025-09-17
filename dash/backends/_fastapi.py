@@ -88,6 +88,7 @@ class FastAPIDashServer(BaseDashServer):
         self.server_type = "fastapi"
         self.server: FastAPI = server
         self.error_handling_mode = "prune"
+        self.request_adapter = FastAPIRequestAdapter
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
