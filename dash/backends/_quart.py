@@ -26,6 +26,7 @@ from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from .base_server import BaseDashServer
+from typing import Any
 
 
 class QuartDashServer(BaseDashServer):

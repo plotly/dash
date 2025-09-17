@@ -39,8 +39,8 @@ jobs:
               - 'tests/async_tests/**'
               - 'requirements/**'
             backend_paths:
-              - 'dash/backend/**'
-              - 'tests/backend/**'
+              - 'dash/backends/**'
+              - 'tests/backend_tests/**'
 
   build:
     name: Build Dash Package

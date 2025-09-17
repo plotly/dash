@@ -416,7 +416,7 @@ class Dash(ObsoleteChecker):
         **obsolete,
     ):
 
-        _validate.check_async(use_async)
+        use_async = _validate.check_async(use_async)
         _validate.check_obsolete(obsolete)
 
         caller_name: str = name if name is not None else get_caller_name()
@@ -1945,9 +1945,7 @@ class Dash(ObsoleteChecker):
                     self, dev_tools.prune_errors
                 )
             secret = gen_salt(20)
-            self.backend.register_prune_error_handler(
-                secret, dev_tools.prune_errors
-            )
+            self.backend.register_prune_error_handler(secret, dev_tools.prune_errors)
 
         if debug and dev_tools.ui:
             self.backend.register_timing_hooks(first_run)

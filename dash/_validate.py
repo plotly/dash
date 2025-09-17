@@ -603,6 +603,7 @@ def check_async(use_async):
             raise Exception(
                 "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"
             ) from exc
+    return use_async or False
 
 
 def check_backend(backend, inferred_backend):
