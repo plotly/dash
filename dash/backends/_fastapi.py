@@ -52,7 +52,6 @@ def get_current_request() -> Request:
 class CurrentRequestMiddleware:
     def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
         self.app = app
-        print("loaded CurrentRequestMiddleware")
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # type: ignore[name-defined]
         # non-http/ws scopes pass through (lifespan etc.)

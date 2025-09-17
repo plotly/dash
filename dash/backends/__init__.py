@@ -15,12 +15,8 @@ _backend_imports = {
 }
 
 
-request_adapter: RequestAdapter
-backend: BaseDashServer
-
-
 def get_backend(
-    name: Literal["flask", "fastapi", "quart"] | str
+    name: str
 ) -> tuple[BaseDashServer, RequestAdapter]:
     module_name, server_class, request_class = _backend_imports[name.lower()]
     try:
