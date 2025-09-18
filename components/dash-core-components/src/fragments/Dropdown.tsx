@@ -468,6 +468,8 @@ const Dropdown = (props: DropdownProps) => {
                                     e.preventDefault();
                                     handleClear();
                                 }}
+                                title="Clear selection"
+                                aria-label="Clear selection"
                             >
                                 <Cross1Icon />
                             </a>

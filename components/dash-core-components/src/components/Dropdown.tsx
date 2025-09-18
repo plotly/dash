@@ -23,7 +23,7 @@ export default function Dropdown({
     optionHeight = 36,
     // eslint-disable-next-line no-magic-numbers
     maxHeight = 200,
-    closeOnSelect = true,
+    closeOnSelect = !multi,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     persisted_props = [PersistedProps.value],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
