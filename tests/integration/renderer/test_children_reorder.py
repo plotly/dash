@@ -70,14 +70,12 @@ def test_roc001_reorder_children(dash_duo):
             f".dropdown_{i} .dash-dropdown-option:nth-child(1)"
         ).click()
         dash_duo.wait_for_text_to_equal(f".dropdown_{i} .dash-dropdown-trigger", "A")
-        dash_duo.find_element(f".dropdown_{i}").click()
         dash_duo.find_element(
             f".dropdown_{i} .dash-dropdown-option:nth-child(2)"
         ).click()
         dash_duo.wait_for_text_to_equal(
             f".dropdown_{i} .dash-dropdown-trigger", "A, B\n2 selected"
         )
-        dash_duo.find_element(f".dropdown_{i}").click()
         dash_duo.find_element(
             f".dropdown_{i} .dash-dropdown-option:nth-child(3)"
         ).click()

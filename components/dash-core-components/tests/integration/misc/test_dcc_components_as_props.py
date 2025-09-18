@@ -1,3 +1,4 @@
+from time import sleep
 from selenium.webdriver.common.keys import Keys
 from dash import Dash, dcc, html
 from dash.testing import wait
@@ -55,7 +56,7 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
     search_input.send_keys("4")
     options = dash_dcc.find_elements("#dropdown .dash-dropdown-option")
 
-    assert len(options) == 1
+    wait.until(lambda: len(options) == 1, 1)
     wait.until(lambda: options[0].text == "h4", 1)
 
     search_input.send_keys(Keys.ESCAPE)
@@ -65,6 +66,7 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
         search = dash_dcc.find_element("#indexed-search .dash-dropdown-search")
         dash_dcc.clear_input(search)
         search.send_keys(value)
+        sleep(0.25)
         opts = dash_dcc.find_elements("#indexed-search .dash-dropdown-option")
 
         assert len(opts) == length
