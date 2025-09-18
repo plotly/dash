@@ -579,7 +579,7 @@ class Dash(ObsoleteChecker):
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
 
-        if self.server is not None:
+        if server:
             self.init_app()
 
         self.logger.setLevel(logging.INFO)
