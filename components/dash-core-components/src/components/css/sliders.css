@@ -165,7 +165,7 @@
 .dash-slider-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     width: 100%;
 }
 
@@ -183,11 +183,13 @@
 
 .dash-range-slider-min-input {
     min-width: 64px;
+    text-align: center;
 }
 
 .dash-range-slider-input {
     width: 64px;
     margin-top: 8px;
+    text-align: center;
     -moz-appearance: textfield;
 }
 
