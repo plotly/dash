@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict
 
 
 class BaseDashServer(ABC):
     server_type: str
     server: Any
-    config: dict[str, Any]
+    config: Dict[str, Any]
     request_adapter: Any
 
     def __call__(self, *args, **kwargs) -> Any:
