@@ -186,6 +186,10 @@
     min-width: 64px;
 }
 
+.dash-range-slider-max-input {
+    order: 1;
+}
+
 .dash-range-slider-input {
     width: 64px;
     margin-top: 8px;
