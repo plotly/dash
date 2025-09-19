@@ -193,7 +193,9 @@
 .dash-range-slider-input {
     width: 64px;
     margin-top: 8px;
+    -webkit-appearance: textfield;
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 /* Hide the number input spinners */
