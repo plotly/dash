@@ -172,6 +172,7 @@
 .dash-slider-wrapper {
     flex: 1;
     min-width: 0;
+    z-index: 1;
 }
 
 .dash-range-slider-inputs {
