@@ -150,22 +150,13 @@ def _parse_path_variables(pathname, path_template):
     return dict(zip(var_names, variables))
 
 
-def _create_redirect_function(redirect_to):
-    def redirect():
-        return flask.redirect(redirect_to, code=301)
-
-    return redirect
-
-
 def _set_redirect(redirect_from, path):
     app = get_app()
     if redirect_from and len(redirect_from):
         for redirect in redirect_from:
             fullname = app.get_relative_path(redirect)
-            app.server.add_url_rule(
-                fullname,
-                fullname,
-                _create_redirect_function(app.get_relative_path(path)),
+            app.backend.add_redirect_rule(
+                app, fullname, app.get_relative_path(path)
             )
 
 

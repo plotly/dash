@@ -17,6 +17,7 @@ try:
         request,
         Blueprint,
         g,
+        redirect,
     )
 except ImportError:
     Quart = None
@@ -231,6 +232,19 @@ class QuartDashServer(BaseDashServer):
         dash_app._add_url(
             "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
             serve,
+        )
+
+    def _create_redirect_function(self, redirect_to):
+        def _redirect():
+            return redirect(redirect_to, code=301)
+
+        return _redirect
+
+    def add_redirect_rule(self, app, fullname, path):
+        self.server.add_url_rule(
+            fullname,
+            fullname,
+            self._create_redirect_function(app.get_relative_path(path)),
         )
 
     # pylint: disable=unused-argument

@@ -15,7 +15,7 @@ import os
 
 try:
     from fastapi import FastAPI, Request, Response, Body
-    from fastapi.responses import JSONResponse
+    from fastapi.responses import JSONResponse, RedirectResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
@@ -27,6 +27,7 @@ except ImportError:
     Response = None
     Body = None
     JSONResponse = None
+    RedirectResponse = None
     StaticFiles = None
     StarletteResponse = None
     MutableHeaders = None
@@ -115,6 +116,7 @@ class FastAPIDashServer(BaseDashServer):
         self.server: FastAPI = server
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
+        self._before_request_funcs = []
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
@@ -213,9 +215,13 @@ class FastAPIDashServer(BaseDashServer):
         )
 
     def before_request(self, func: Callable[[], Any] | None):
-        # FastAPI does not have before_request, but we can use middleware
-        self.server.add_middleware(CurrentRequestMiddleware)
-        self.server.middleware("http")(self._make_before_middleware(func))
+        if func is not None:
+            self._before_request_funcs.append(func)
+        # Only add the middleware once
+        if not hasattr(self, "_before_middleware_added"):
+            self.server.add_middleware(CurrentRequestMiddleware)
+            self.server.middleware("http")(self._make_before_middleware())
+            self._before_middleware_added = True
 
     def after_request(self, func: Callable[[], Any] | None):
         # FastAPI does not have after_request, but we can use middleware
@@ -262,18 +268,20 @@ class FastAPIDashServer(BaseDashServer):
     def jsonify(self, obj: Any):
         return JSONResponse(content=obj)
 
-    def _make_before_middleware(self, _func: Callable[[], Any] | None):
+    def _make_before_middleware(self):
         async def middleware(request, call_next):
+            for func in self._before_request_funcs:
+                if inspect.iscoroutinefunction(func):
+                    await func()
+                else:
+                    func()
             try:
                 response = await call_next(request)
                 return response
             except PreventUpdate:
-                # No content, nothing to update
                 return Response(status_code=204)
-            except (Exception) as e:  # pylint: disable=broad-except
-                # Handle exceptions based on error_handling_mode
+            except Exception as e:
                 if self.error_handling_mode in ["raise", "prune"]:
-                    # Prune the traceback to remove internal Dash calls
                     tb = self._get_traceback(None, e)
                     return Response(content=tb, media_type="text/html", status_code=500)
                 return JSONResponse(
@@ -337,6 +345,21 @@ class FastAPIDashServer(BaseDashServer):
 
         name = "_dash-component-suites/{package_name}/{fingerprinted_path:path}"
         dash_app._add_url(name, serve)  # pylint: disable=protected-access
+
+    def _create_redirect_function(self, redirect_to):
+        def _redirect():
+            return RedirectResponse(url=redirect_to, status_code=301)
+
+        return _redirect
+
+    def add_redirect_rule(self, app, fullname, path):
+        self.server.add_api_route(
+            fullname,
+            self._create_redirect_function(app.get_relative_path(path)),
+            methods=["GET"],
+            name=fullname,
+            include_in_schema=False,
+        )
 
     def dispatch(self, dash_app: Dash):
         async def _dispatch(request: Request):
