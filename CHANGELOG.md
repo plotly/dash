@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [4.0.0rc1] - 2025-09-22
 
 ## Added
 - [#3440](https://github.com/plotly/dash/pull/3440) Modernize dcc.Dropdown
