@@ -262,6 +262,77 @@ export default function RangeSlider(props: RangeSliderProps) {
                             disabled={disabled}
                         />
                     )}
+                    {showInputs && !vertical && (
+                        <input
+                            type="number"
+                            className="dash-input-container dash-range-slider-input dash-range-slider-max-input"
+                            value={value[value.length - 1] ?? ''}
+                            onChange={e => {
+                                const inputValue = e.target.value;
+                                // Allow empty string (user is clearing the field)
+                                if (inputValue === '') {
+                                    // Don't update props while user is typing, just update local state
+                                    const newValue = [...value];
+                                    newValue[newValue.length - 1] = '' as any;
+                                    setValue(newValue);
+                                } else {
+                                    const newMax = parseFloat(inputValue);
+                                    const constrainedMax = Math.max(
+                                        minMaxValues.min_mark,
+                                        Math.min(minMaxValues.max_mark, newMax)
+                                    );
+
+                                    if (newMax === constrainedMax) {
+                                        const newValue = [...value];
+                                        newValue[newValue.length - 1] = newMax;
+                                        setProps({
+                                            value: newValue,
+                                            drag_value: newValue,
+                                        });
+                                    }
+                                }
+                            }}
+                            onBlur={e => {
+                                const inputValue = e.target.value;
+                                let newMax: number;
+
+                                // If empty, default to current value or max_mark
+                                if (inputValue === '') {
+                                    newMax =
+                                        value[value.length - 1] ??
+                                        minMaxValues.max_mark;
+                                } else {
+                                    newMax = parseFloat(inputValue);
+                                    newMax = isNaN(newMax)
+                                        ? minMaxValues.max_mark
+                                        : newMax;
+                                }
+
+                                const constrainedMax = Math.min(
+                                    minMaxValues.max_mark,
+                                    Math.max(
+                                        value[0] ?? minMaxValues.min_mark,
+                                        newMax
+                                    )
+                                );
+                                const newValue = [...value];
+                                newValue[newValue.length - 1] = constrainedMax;
+                                setValue(newValue);
+                                if (updatemode === 'mouseup') {
+                                    setProps({value: newValue});
+                                }
+                            }}
+                            pattern="^\\d*\\.?\\d*$"
+                            min={
+                                value.length === 1
+                                    ? minMaxValues.min_mark
+                                    : value[0]
+                            }
+                            max={minMaxValues.max_mark}
+                            step={step || undefined}
+                            disabled={disabled}
+                        />
+                    )}
                     <div
                         className="dash-slider-wrapper"
                         onClickCapture={e => e.preventDefault()} // prevent interactions from "clicking" the parent, particularly when slider is inside a label tag
@@ -334,77 +405,6 @@ export default function RangeSlider(props: RangeSliderProps) {
                             })}
                         </RadixSlider.Root>
                     </div>
-                    {showInputs && !vertical && (
-                        <input
-                            type="number"
-                            className="dash-input-container dash-range-slider-input"
-                            value={value[value.length - 1] ?? ''}
-                            onChange={e => {
-                                const inputValue = e.target.value;
-                                // Allow empty string (user is clearing the field)
-                                if (inputValue === '') {
-                                    // Don't update props while user is typing, just update local state
-                                    const newValue = [...value];
-                                    newValue[newValue.length - 1] = '' as any;
-                                    setValue(newValue);
-                                } else {
-                                    const newMax = parseFloat(inputValue);
-                                    const constrainedMax = Math.max(
-                                        minMaxValues.min_mark,
-                                        Math.min(minMaxValues.max_mark, newMax)
-                                    );
-
-                                    if (newMax === constrainedMax) {
-                                        const newValue = [...value];
-                                        newValue[newValue.length - 1] = newMax;
-                                        setProps({
-                                            value: newValue,
-                                            drag_value: newValue,
-                                        });
-                                    }
-                                }
-                            }}
-                            onBlur={e => {
-                                const inputValue = e.target.value;
-                                let newMax: number;
-
-                                // If empty, default to current value or max_mark
-                                if (inputValue === '') {
-                                    newMax =
-                                        value[value.length - 1] ??
-                                        minMaxValues.max_mark;
-                                } else {
-                                    newMax = parseFloat(inputValue);
-                                    newMax = isNaN(newMax)
-                                        ? minMaxValues.max_mark
-                                        : newMax;
-                                }
-
-                                const constrainedMax = Math.min(
-                                    minMaxValues.max_mark,
-                                    Math.max(
-                                        value[0] ?? minMaxValues.min_mark,
-                                        newMax
-                                    )
-                                );
-                                const newValue = [...value];
-                                newValue[newValue.length - 1] = constrainedMax;
-                                setValue(newValue);
-                                if (updatemode === 'mouseup') {
-                                    setProps({value: newValue});
-                                }
-                            }}
-                            pattern="^\\d*\\.?\\d*$"
-                            min={
-                                value.length === 1
-                                    ? minMaxValues.min_mark
-                                    : value[0]
-                            }
-                            max={minMaxValues.max_mark}
-                            step={step || undefined}
-                            disabled={disabled}
-                        />
-                    )}
                 </div>
             )}
         </LoadingElement>

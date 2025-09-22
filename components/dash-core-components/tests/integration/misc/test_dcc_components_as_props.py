@@ -54,6 +54,7 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
 
     search_input = dash_dcc.find_element("#dropdown .dash-dropdown-search")
     search_input.send_keys("4")
+    sleep(0.25)
     options = dash_dcc.find_elements("#dropdown .dash-dropdown-option")
 
     wait.until(lambda: len(options) == 1, 1)
