@@ -517,3 +517,81 @@ export interface TextAreaProps {
      */
     persistence_type?: PersistenceTypes;
 }
+
+export interface TooltipProps {
+    /**
+     * The contents of the tooltip
+     */
+    children?: React.ReactNode;
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * The class of the tooltip
+     */
+    className?: string;
+
+    /**
+     * The style of the tooltip
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * The bounding box coordinates of the item to label, in px relative to
+     * the positioning parent of the Tooltip component.
+     */
+    bbox?: {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+    };
+
+    /**
+     * Whether to show the tooltip
+     */
+    show?: boolean;
+
+    /**
+     * The side of the `bbox` on which the tooltip should open.
+     */
+    direction?: 'top' | 'right' | 'bottom' | 'left';
+
+    /**
+     * Color of the tooltip border, as a CSS color string.
+     */
+    border_color?: string;
+
+    /**
+     * Color of the tooltip background, as a CSS color string.
+     */
+    background_color?: string;
+
+    /**
+     * The text displayed in the tooltip while loading
+     */
+    loading_text?: string;
+
+    /**
+     * The `z-index` CSS property to assign to the tooltip. Components with
+     * higher values will be displayed on top of components with lower values.
+     */
+    zindex?: number;
+
+    /**
+     * Whether the tooltip itself can be targeted by pointer events.
+     * For tooltips triggered by hover events, typically this should be left
+     * `false` to avoid the tooltip interfering with those same events.
+     */
+    targetable?: boolean;
+
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
+    setProps: (props: Partial<TooltipProps>) => void;
+}
