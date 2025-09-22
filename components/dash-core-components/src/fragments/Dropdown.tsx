@@ -256,6 +256,7 @@ const Dropdown = (props: DropdownProps) => {
         const finalValue: DropdownProps['value'] = multi ? [] : null;
         setProps({value: finalValue});
     }, [multi]);
+
     const handleSelectAll = useCallback(() => {
         if (multi) {
             const allValues = sanitizedValues.concat(
@@ -487,9 +488,7 @@ const Dropdown = (props: DropdownProps) => {
                         onOpenAutoFocus={e => e.preventDefault()}
                         onKeyDown={handleKeyDown}
                         style={{
-                            width: 'var(--radix-popover-trigger-width)',
                             maxHeight: maxHeight ? `${maxHeight}px` : 'auto',
-                            overflowY: 'auto',
                         }}
                     >
                         {searchable && (
