@@ -1,0 +1,14 @@
+/* Input container styles */
+.dash-textarea {
+    background: var(--Dash-Fill-Inverse-Strong);
+    border-radius: var(--Dash-Spacing);
+    border: 1px solid var(--Dash-Stroke-Strong);
+    box-sizing: border-box;
+    color: var(--Dash-Text-Primary);
+    padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
+    width: 100%;
+}
+
+.dash-textarea:invalid {
+    outline: solid red;
+}
