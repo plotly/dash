@@ -62,9 +62,6 @@ def test_roc001_reorder_children(dash_duo):
 
     for i in range(2):
         dash_duo.wait_for_text_to_equal("h1", f"I am section {i}")
-        # dash_duo.wait_for_text_to_equal(
-        #     f".dropdown_{i} .Select-multi-value-wrapper", "Select..."
-        # )
         dash_duo.find_element(f".dropdown_{i}").click()
         dash_duo.find_element(
             f".dropdown_{i} .dash-dropdown-option:nth-child(1)"
