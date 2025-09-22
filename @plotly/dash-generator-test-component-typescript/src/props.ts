@@ -29,6 +29,11 @@ export type TypescriptComponentProps = {
     union?: number | string;
     union_shape?: {a: string} | string;
     array_union_shape?: ({a: string} | string)[];
+    array_primitive_mix?:
+        | string
+        | number
+        | (string | number | boolean)[]
+        | boolean;
     element?: JSX.Element;
     array_elements?: JSX.Element[];
 

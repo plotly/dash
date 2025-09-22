@@ -1,17 +1,7 @@
 import React from 'react';
 
-declare global {
-  interface Window {
-    dash_component_api: {
-      useDashContext: () => {
-        useLoading: () => boolean;
-      };
-    };
-  }
-}
-
 interface LoadingElementProps {
-  children: (props: Record<string, unknown>) => React.ReactElement;
+    children: (props: Record<string, unknown>) => React.ReactElement;
 }
 
 /**
@@ -22,15 +12,15 @@ interface LoadingElementProps {
  * See: https://dash.plotly.com/loading-states#check-loading-states-from-components
  */
 function LoadingElement({children}: LoadingElementProps) {
-  const ctx = window.dash_component_api.useDashContext();
-  const loading = ctx.useLoading();
+    const ctx = window.dash_component_api.useDashContext();
+    const loading = ctx.useLoading();
 
-  const additionalProps: Record<string, unknown> = {};
-  if (loading) {
-    additionalProps['data-dash-is-loading'] = true;
-  }
+    const additionalProps: Record<string, unknown> = {};
+    if (loading) {
+        additionalProps['data-dash-is-loading'] = true;
+    }
 
-  return children(additionalProps);
+    return children(additionalProps);
 }
 
 export default LoadingElement;
