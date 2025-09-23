@@ -24,7 +24,11 @@ export default function RangeSlider({
     // Some considerations for the default value of `step`:
     // If the range consists of integers, default to a value of `1`
     // Otherwise, leave it undefined
-    if (Number.isInteger(props.min) && Number.isInteger(props.max)) {
+    if (
+        typeof step === 'undefined' &&
+        Number.isInteger(props.min) &&
+        Number.isInteger(props.max)
+    ) {
         step = 1;
     }
 
