@@ -30,8 +30,7 @@ export default function Dropdown({
     multi = false,
     searchable = true,
     localizations = defaultLocalizations,
-    // eslint-disable-next-line no-magic-numbers
-    optionHeight = 36,
+    optionHeight = 'auto',
     // eslint-disable-next-line no-magic-numbers
     maxHeight = 200,
     closeOnSelect = !multi,

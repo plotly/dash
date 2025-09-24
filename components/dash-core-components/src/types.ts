@@ -443,7 +443,7 @@ export interface DropdownProps {
     /**
      * height of each option. Can be increased when label lengths would wrap around
      */
-    optionHeight?: number;
+    optionHeight?: 'auto' | number;
 
     /**
      * height of the options dropdown.
