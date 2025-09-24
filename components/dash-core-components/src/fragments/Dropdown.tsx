@@ -105,7 +105,7 @@ const Dropdown = (props: DropdownProps) => {
         DetailedDropdownOption[]
     >([]);
     const persistentOptions = useRef<DropdownProps['options']>([]);
-    const dropdownContainerRef = useRef<HTMLDivElement>(null);
+    const dropdownContainerRef = useRef<HTMLButtonElement>(null);
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
@@ -428,26 +428,26 @@ const Dropdown = (props: DropdownProps) => {
     );
 
     return (
-        <div
-            id={id}
-            ref={dropdownContainerRef}
-            className={`dash-dropdown ${className ?? ''}`}
-            style={style}
-            data-dash-is-loading={loading || undefined}
-        >
-            <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
-                <Popover.Trigger asChild>
-                    <button
-                        className="dash-dropdown-grid-container dash-dropdown-trigger"
-                        aria-label={props.placeholder}
-                        disabled={disabled}
-                        type="button"
-                        onKeyDown={e => {
-                            if (e.key === 'ArrowDown') {
-                                setIsOpen(true);
-                            }
-                        }}
-                    >
+        <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
+            <Popover.Trigger asChild>
+                <button
+                    id={id}
+                    ref={dropdownContainerRef}
+                    disabled={disabled}
+                    type="button"
+                    onKeyDown={e => {
+                        if (e.key === 'ArrowDown') {
+                            setIsOpen(true);
+                        }
+                    }}
+                    className={`dash-dropdown ${className ?? ''}`}
+                    style={style}
+                    aria-label={props.placeholder}
+                    aria-haspopup="listbox"
+                    aria-expanded={isOpen}
+                    data-dash-is-loading={loading || undefined}
+                >
+                    <span className="dash-dropdown-grid-container dash-dropdown-trigger">
                         {displayValue.length > 0 && (
                             <span className="dash-dropdown-value">
                                 {displayValue}
@@ -481,100 +481,101 @@ const Dropdown = (props: DropdownProps) => {
                         )}
 
                         <CaretDownIcon className="dash-dropdown-trigger-icon" />
-                    </button>
-                </Popover.Trigger>
+                    </span>
+                </button>
+            </Popover.Trigger>
 
-                <Popover.Portal container={dropdownContainerRef.current}>
-                    <Popover.Content
-                        className="dash-dropdown-content"
-                        align="start"
-                        sideOffset={5}
-                        onOpenAutoFocus={e => e.preventDefault()}
-                        onKeyDown={handleKeyDown}
-                        style={{
-                            maxHeight: maxHeight ? `${maxHeight}px` : 'auto',
-                        }}
-                    >
-                        {searchable && (
-                            <div className="dash-dropdown-grid-container dash-dropdown-search-container">
-                                <MagnifyingGlassIcon className="dash-dropdown-search-icon" />
-                                <input
-                                    type="search"
-                                    className="dash-dropdown-search"
-                                    placeholder={localizations?.search}
-                                    value={search_value || ''}
-                                    autoComplete="off"
-                                    onChange={e =>
-                                        onInputChange(e.target.value)
-                                    }
-                                    autoFocus
-                                />
-                                {search_value && (
-                                    <button
-                                        type="button"
-                                        className="dash-dropdown-clear"
-                                        onClick={handleClearSearch}
-                                        aria-label={localizations?.clear_search}
-                                    >
-                                        <Cross1Icon />
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                        {multi && (
-                            <div className="dash-dropdown-actions">
+            <Popover.Portal container={dropdownContainerRef.current}>
+                <Popover.Content
+                    className="dash-dropdown-content"
+                    align="start"
+                    sideOffset={5}
+                    onOpenAutoFocus={e => e.preventDefault()}
+                    onKeyDown={handleKeyDown}
+                    style={{
+                        maxHeight: maxHeight ? `${maxHeight}px` : 'auto',
+                    }}
+                >
+                    {searchable && (
+                        <div className="dash-dropdown-grid-container dash-dropdown-search-container">
+                            <MagnifyingGlassIcon className="dash-dropdown-search-icon" />
+                            <input
+                                type="search"
+                                className="dash-dropdown-search"
+                                placeholder={localizations?.search}
+                                value={search_value || ''}
+                                autoComplete="off"
+                                onChange={e => onInputChange(e.target.value)}
+                                autoFocus
+                            />
+                            {search_value && (
+                                <button
+                                    type="button"
+                                    className="dash-dropdown-clear"
+                                    onClick={handleClearSearch}
+                                    aria-label={localizations?.clear_search}
+                                >
+                                    <Cross1Icon />
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    {multi && (
+                        <div className="dash-dropdown-actions">
+                            <button
+                                type="button"
+                                className="dash-dropdown-action-button"
+                                onClick={handleSelectAll}
+                            >
+                                {localizations?.select_all}
+                            </button>
+                            {canDeselectAll && (
                                 <button
                                     type="button"
                                     className="dash-dropdown-action-button"
-                                    onClick={handleSelectAll}
+                                    onClick={handleDeselectAll}
                                 >
-                                    {localizations?.select_all}
+                                    {localizations?.deselect_all}
                                 </button>
-                                {canDeselectAll && (
-                                    <button
-                                        type="button"
-                                        className="dash-dropdown-action-button"
-                                        onClick={handleDeselectAll}
-                                    >
-                                        {localizations?.deselect_all}
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                        {isOpen && (
-                            <div className="dash-dropdown-options">
-                                {displayOptions.map((option, i) => {
-                                    const isSelected = multi
-                                        ? sanitizedValues.includes(option.value)
-                                        : value === option.value;
+                            )}
+                        </div>
+                    )}
+                    {isOpen && (
+                        <div
+                            className="dash-dropdown-options"
+                            role="listbox"
+                            aria-multiselectable={multi}
+                        >
+                            {displayOptions.map((option, i) => {
+                                const isSelected = multi
+                                    ? sanitizedValues.includes(option.value)
+                                    : value === option.value;
 
-                                    return (
-                                        <DropdownOption
-                                            key={`${option.value}-${i}`}
-                                            index={i}
-                                            option={option}
-                                            isSelected={isSelected}
-                                            onClick={handleOptionClick}
-                                            style={{
-                                                height: optionHeight
-                                                    ? `${optionHeight}px`
-                                                    : undefined,
-                                            }}
-                                        />
-                                    );
-                                })}
-                                {search_value &&
-                                    displayOptions.length === 0 && (
-                                        <span className="dash-dropdown-option">
-                                            {localizations?.no_options_found}
-                                        </span>
-                                    )}
-                            </div>
-                        )}
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
-        </div>
+                                return (
+                                    <DropdownOption
+                                        key={`${option.value}-${i}`}
+                                        index={i}
+                                        option={option}
+                                        isSelected={isSelected}
+                                        onClick={handleOptionClick}
+                                        style={{
+                                            height: optionHeight
+                                                ? `${optionHeight}px`
+                                                : undefined,
+                                        }}
+                                    />
+                                );
+                            })}
+                            {search_value && displayOptions.length === 0 && (
+                                <span className="dash-dropdown-option">
+                                    {localizations?.no_options_found}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </Popover.Content>
+            </Popover.Portal>
+        </Popover.Root>
     );
 };
 

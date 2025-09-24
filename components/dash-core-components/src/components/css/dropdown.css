@@ -1,6 +1,14 @@
 .dash-dropdown {
+    display: block;
     box-sizing: border-box;
     margin: calc(var(--Dash-Spacing) * 2) 0;
+    padding: 0;
+    background: inherit;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-size: inherit;
+    overflow: hidden;
 }
 
 .dash-dropdown-grid-container {
@@ -19,7 +27,7 @@
     grid-template-columns: auto 1fr auto auto;
 }
 
-.dash-dropdown-trigger,
+.dash-dropdown,
 .dash-dropdown-content {
     border-radius: var(--Dash-Spacing);
     border: 1px solid var(--Dash-Stroke-Strong);
@@ -28,17 +36,12 @@
 }
 
 .dash-dropdown-trigger {
-    background: inherit;
-    padding: 6px 12px;
-    width: 100%;
+    padding: 0 12px;
     min-height: 32px;
     height: 100%;
-    cursor: pointer;
-    font-size: inherit;
-    overflow: hidden;
 }
 
-.dash-dropdown-trigger:disabled {
+.dash-dropdown:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
