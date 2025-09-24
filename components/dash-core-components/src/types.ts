@@ -468,6 +468,19 @@ export interface DropdownProps {
     id?: string;
 
     /**
+     * Translations for customizing text contained within this component.
+     */
+    localizations?: {
+        select_all?: string;
+        deselect_all?: string;
+        selected_count?: string;
+        search?: string;
+        clear_search?: string;
+        clear_selection?: string;
+        no_options_found?: string;
+    };
+
+    /**
      * Dash-assigned callback that gets fired when the input changes
      */
     setProps: (props: Partial<DropdownProps>) => void;
