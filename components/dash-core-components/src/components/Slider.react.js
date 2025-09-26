@@ -7,7 +7,15 @@ import './css/sliders.css';
 const RealSlider = lazy(slider);
 
 /**
- * A slider component with a single handle.
+ * A single-handle slider component for selecting numerical values.
+ *
+ * Slider provides an intuitive way for users to select a single value from
+ * a continuous range by dragging a handle along a track. It's perfect for
+ * settings like volume controls, brightness adjustments, filtering by single
+ * criteria, or any input where users need to pick one value from a range.
+ *
+ * The component supports custom step values, visual marks, tooltips showing
+ * current values, and can be displayed both horizontally and vertically.
  */
 export default class Slider extends Component {
     render() {

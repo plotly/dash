@@ -5,7 +5,16 @@ import upload from '../utils/LazyLoader/upload';
 const RealUpload = lazy(upload);
 
 /**
- * Upload components allow your app to accept user-uploaded files via drag'n'drop
+ * Enable file uploads through drag-and-drop or click-to-browse functionality.
+ *
+ * Upload provides a user-friendly interface for accepting file uploads in Dash applications.
+ * Users can either drag files directly onto the component or click to open a file browser dialog.
+ * The component supports multiple file selection, file type restrictions, size limits,
+ * and provides visual feedback during the upload process.
+ *
+ * Uploaded files are automatically encoded and passed to your callbacks, making it easy
+ * to process file content, validate uploads, or save files to your server. The component
+ * also supports custom styling for different states (active, rejected, disabled).
  */
 export default class Upload extends Component {
     render() {

@@ -5,8 +5,16 @@ import rangeSlider from '../utils/LazyLoader/rangeSlider';
 const RealRangeSlider = lazy(rangeSlider);
 
 /**
- * A double slider with two handles.
- * Used for specifying a range of numerical values.
+ * A dual-handle slider component for selecting a range of numerical values.
+ *
+ * RangeSlider allows users to select both a minimum and maximum value from a
+ * continuous range by dragging two separate handles along a track. This is ideal
+ * for filtering data within a specific range, setting price boundaries,
+ * defining time periods, or any scenario where users need to specify both
+ * lower and upper bounds.
+ *
+ * The component supports customizable styling, step values, marks, tooltips,
+ * and can be oriented both horizontally and vertically.
  */
 export default class RangeSlider extends Component {
     render() {

@@ -12,7 +12,16 @@ function wait(ms) {
 }
 
 /**
- * The Clipboard component copies text to the clipboard
+ * Copy text or data to the user's clipboard with a single click.
+ *
+ * Clipboard provides an easy way to copy content to the user's system clipboard,
+ * enabling them to paste it elsewhere. This component is typically used with buttons
+ * or other clickable elements to copy text, URLs, code snippets, or data from your
+ * Dash application.
+ *
+ * The component can copy content from a target element or use directly provided text.
+ * It supports various clipboard operations and provides feedback to indicate
+ * successful copying operations.
  */
 
 export default class Clipboard extends React.Component {

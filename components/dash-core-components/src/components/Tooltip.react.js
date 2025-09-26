@@ -4,7 +4,15 @@ import PropTypes from 'prop-types';
 import _JSXStyle from 'styled-jsx/style'; // eslint-disable-line no-unused-vars
 
 /**
- * A tooltip with an absolute position.
+ * Display contextual information in a small popup overlay.
+ *
+ * Tooltip provides a way to show additional information when users hover over
+ * or focus on an element. It appears as a small popup with customizable content,
+ * positioning, and styling. Tooltips are useful for providing help text,
+ * explanations, or additional context without cluttering the main interface.
+ *
+ * The tooltip can be positioned in different directions (top, bottom, left, right)
+ * relative to its target element and supports custom styling for various use cases.
  */
 const Tooltip = ({
     show = true,

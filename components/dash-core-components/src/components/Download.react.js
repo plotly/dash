@@ -7,7 +7,16 @@ const getValue = (src, fallback, key) =>
     key in src ? src[key] : fallback[key];
 
 /**
- * The Download component opens a download dialog when the data property changes.
+ * Trigger file downloads programmatically from your Dash application.
+ *
+ * Download provides a way to generate and download files on the client-side
+ * when triggered by user interactions or callback logic. When the component's
+ * data property is updated, it automatically initiates a download dialog
+ * prompting the user to save the file.
+ *
+ * This is useful for exporting data as CSV, JSON, or other formats, generating
+ * reports, creating downloadable content from user inputs, or providing
+ * data export functionality in your applications.
  */
 export default class Download extends Component {
     componentDidUpdate(prevProps) {

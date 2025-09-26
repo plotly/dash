@@ -32,8 +32,15 @@ const textAreaProps = [
 ];
 
 /**
- * A basic HTML textarea for entering multiline text.
+ * A multi-line text input control for entering longer text content.
  *
+ * Textarea allows users to enter text that spans multiple lines, making it ideal
+ * for comments, descriptions, messages, or any other lengthy text input.
+ * Unlike the standard Input component, Textarea automatically wraps text to new lines
+ * and provides scroll bars when content exceeds the visible area.
+ *
+ * This component supports all standard textarea functionality including
+ * resizing, scrolling, and advanced text selection features.
  */
 const Textarea = ({
     setProps,
