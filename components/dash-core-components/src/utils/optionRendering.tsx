@@ -1,6 +1,6 @@
 import React from 'react';
 import {append, includes, without} from 'ramda';
-import {DetailedDropdownOption, DropdownValue} from 'src/types';
+import {DetailedOption, OptionValue} from 'src/types';
 import '../components/css/optionslist.css';
 
 interface StylingProps {
@@ -18,13 +18,13 @@ interface StylingProps {
 
 interface OptionProps extends StylingProps {
     index: number;
-    option: DetailedDropdownOption;
+    option: DetailedOption;
     isSelected: boolean;
-    onChange: (option: DetailedDropdownOption) => void;
+    onChange: (option: DetailedOption) => void;
 }
 
-function OptionLabel(
-    props: DetailedDropdownOption & {index: string | number}
+export function OptionLabel(
+    props: DetailedOption & {index: string | number}
 ): JSX.Element {
     const ctx = window.dash_component_api.useDashContext();
     const ExternalWrapper = window.dash_component_api.ExternalWrapper;
@@ -108,9 +108,9 @@ export const Option: React.FC<OptionProps> = ({
 };
 
 interface OptionsListProps extends StylingProps {
-    options: DetailedDropdownOption[];
-    selected: DropdownValue[];
-    onSelectionChange: (selected: DropdownValue[]) => void;
+    options: DetailedOption[];
+    selected: OptionValue[];
+    onSelectionChange: (selected: OptionValue[]) => void;
 }
 
 export const OptionsList: React.FC<OptionsListProps> = ({
@@ -134,7 +134,7 @@ export const OptionsList: React.FC<OptionsListProps> = ({
                         option={option}
                         isSelected={isSelected}
                         onChange={option => {
-                            let newValue: DropdownValue[];
+                            let newValue: OptionValue[];
                             if (includes(option.value, selected)) {
                                 newValue = without([option.value], selected);
                             } else {

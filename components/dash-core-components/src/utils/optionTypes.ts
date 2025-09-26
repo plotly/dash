@@ -1,13 +1,13 @@
 import React from 'react';
-import {DetailedDropdownOption, DropdownProps, DropdownValue} from '../types';
+import {DetailedOption, DropdownProps, OptionValue} from '../types';
 
-const isDropdownValue = (option: unknown): option is DropdownValue => {
+const isDropdownValue = (option: unknown): option is OptionValue => {
     return ['string', 'number', 'boolean'].includes(typeof option);
 };
 
 export const sanitizeOptions = (
     options: DropdownProps['options']
-): DetailedDropdownOption[] => {
+): DetailedOption[] => {
     if (typeof options === 'object' && !(options instanceof Array)) {
         return Object.entries(options).map(([value, label]) => ({
             label: React.isValidElement(label) ? label : String(label),

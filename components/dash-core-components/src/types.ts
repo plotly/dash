@@ -344,16 +344,16 @@ export interface RangeSliderProps {
     persistence_type?: PersistenceTypes;
 }
 
-export type DropdownValue = string | number | boolean;
+export type OptionValue = string | number | boolean;
 
-export type DetailedDropdownOption = {
+export type DetailedOption = {
     label: string | DashComponent | DashComponent[];
     /**
      * The value of the option. This value
      * corresponds to the items specified in the
      * `value` property.
      */
-    value: DropdownValue;
+    value: OptionValue;
     /**
      * If true, this option is disabled and cannot be selected.
      */
@@ -376,7 +376,7 @@ export type DetailedDropdownOption = {
 /**
  * Array of options where the label and the value are the same thing, or an option dict
  */
-export type DropdownOptionsArray = (DropdownValue | DetailedDropdownOption)[];
+export type OptionsArray = (OptionValue | DetailedOption)[];
 
 /**
  * Simpler `options` representation in dictionary format. The order is not guaranteed.
@@ -384,14 +384,14 @@ export type DropdownOptionsArray = (DropdownValue | DetailedDropdownOption)[];
  * which is equal to
  * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
  */
-export type DropdownOptionsDict = Record<string, string>;
+export type OptionsDict = Record<string, string>;
 
 export interface DropdownProps {
     /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
      */
-    options?: DropdownOptionsArray | DropdownOptionsDict;
+    options?: OptionsArray | OptionsDict;
 
     /**
      * The value of the input. If `multi` is false (the default)
@@ -401,7 +401,7 @@ export interface DropdownProps {
      * array of items with values corresponding to those in the
      * `options` prop.
      */
-    value?: DropdownValue | DropdownValue[] | null;
+    value?: OptionValue | OptionValue[] | null;
 
     /**
      * If true, the user can select multiple values
@@ -502,12 +502,12 @@ export interface ChecklistProps {
     /**
      * An array of options
      */
-    options?: DropdownOptionsArray | DropdownOptionsDict;
+    options?: OptionsArray | OptionsDict;
 
     /**
      * The currently selected value
      */
-    value?: DropdownValue[] | null;
+    value?: OptionValue[] | null;
 
     /**
      * Indicates whether the options labels should be displayed inline (true=horizontal)
