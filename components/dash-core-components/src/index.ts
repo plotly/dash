@@ -15,7 +15,7 @@ import Link from './components/Link.react';
 import Loading from './components/Loading.react';
 import Location from './components/Location.react';
 import Markdown from './components/Markdown.react';
-import RadioItems from './components/RadioItems.react';
+import RadioItems from './components/RadioItems';
 import RangeSlider from './components/RangeSlider';
 import Slider from './components/Slider';
 import Store from './components/Store.react';

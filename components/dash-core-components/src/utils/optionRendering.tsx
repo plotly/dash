@@ -61,6 +61,7 @@ export const Option: React.FC<OptionProps> = ({
     labelClassName,
     labelStyle,
     index,
+    id,
 }) => {
     const classNames = [
         'dash-options-list-option',
@@ -88,6 +89,7 @@ export const Option: React.FC<OptionProps> = ({
             <input
                 type={inputType}
                 checked={isSelected}
+                name={id}
                 value={
                     typeof option.value === 'boolean'
                         ? `${option.value}`
@@ -132,6 +134,7 @@ export const OptionsList: React.FC<OptionsListProps> = ({
                 const isSelected = includes(option.value, selected);
                 return (
                     <Option
+                        id={id}
                         key={i}
                         index={i}
                         option={option}

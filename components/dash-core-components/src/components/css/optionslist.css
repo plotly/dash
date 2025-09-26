@@ -6,7 +6,6 @@
     display: flex;
     align-items: center;
     user-select: none;
-    overflow: hidden;
 }
 
 .dash-options-list-option:not(:has(input[disabled])):hover,
@@ -22,10 +21,8 @@
 
 .dash-options-list-option-text {
     white-space: pre;
-}
-
-.dash-options-list-option-text > * {
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
 }
 
 .dash-options-list-option-checkbox {
