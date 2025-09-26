@@ -61,3 +61,8 @@ export default function Checklist({
         </LoadingElement>
     );
 }
+
+Checklist.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};
