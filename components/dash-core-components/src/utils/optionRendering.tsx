@@ -84,7 +84,6 @@ export const Option: React.FC<OptionProps> = ({
             role="option"
             aria-selected={isSelected}
             style={optionStyle}
-            title={option.title}
         >
             <input
                 type={inputType}
@@ -100,7 +99,11 @@ export const Option: React.FC<OptionProps> = ({
                 className={inputClassNames.join(' ')}
                 style={inputStyle}
             />
-            <span className={labelClassNames.join(' ')} style={labelStyle}>
+            <span
+                className={labelClassNames.join(' ')}
+                style={labelStyle}
+                title={option.title}
+            >
                 <OptionLabel {...option} index={index} />
             </span>
         </label>

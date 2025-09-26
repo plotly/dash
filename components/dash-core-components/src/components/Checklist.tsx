@@ -1,11 +1,10 @@
 import React, {useMemo} from 'react';
-import {append, includes, without} from 'ramda';
 import {ChecklistProps, PersistedProps, PersistenceTypes} from '../types';
 import './css/checklist.css';
 
 import {sanitizeOptions} from '../utils/optionTypes';
 import LoadingElement from '../utils/_LoadingElement';
-import {Option, OptionsList} from '../utils/optionRendering';
+import {OptionsList} from '../utils/optionRendering';
 
 /**
  * Checklist is a component that encapsulates several checkboxes.
