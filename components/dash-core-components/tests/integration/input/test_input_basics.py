@@ -13,6 +13,8 @@ ALLOWED_TYPES = (
     "tel",
     "url",
     "hidden",
+    "time",
+    "datetime-local",
 )
 
 
@@ -46,10 +48,16 @@ def test_inbs001_all_types(dash_dcc):
         dash_dcc.find_element("#input_hidden").get_attribute("type") == "hidden"
     ), "hidden input element should present with hidden type"
 
-    for atype in ALLOWED_TYPES[:-1]:
-        dash_dcc.find_element(f"#input_{atype}").send_keys(
-            f"test intp001 - input[{atype}]"
-        )
+    # Test all types except hidden (which should not accept user input)
+    testable_types = [t for t in ALLOWED_TYPES if t != 'hidden']
+    for atype in testable_types:
+        element = dash_dcc.find_element(f"#input_{atype}")
+        if atype == 'time':
+            element.send_keys("12:30:45")
+        elif atype == 'datetime-local':
+            element.send_keys("2023-12-31T23:59:59")
+        else:
+            element.send_keys(f"test intp001 - input[{atype}]")
 
     with pytest.raises(WebDriverException):
         dash_dcc.find_element("#input_hidden").send_keys("no interaction")
