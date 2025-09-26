@@ -18,6 +18,7 @@ import '../components/css/dropdown.css';
 
 import isEqual from 'react-fast-compare';
 import {DetailedDropdownOption, DropdownProps, DropdownValue} from '../types';
+import {OptionsList} from '../utils/optionRendering';
 
 interface DropdownOptionProps {
     index: number;
@@ -181,6 +182,43 @@ const Dropdown = (props: DropdownProps) => {
             }
         },
         [multi, clearable, closeOnSelect, sanitizedValues]
+    );
+
+    const updateSelection = useCallback(
+        (selection: DropdownValue[]) => {
+            if (closeOnSelect !== false) {
+                setIsOpen(false);
+            }
+
+            if (multi) {
+                // For multi-select, validate the selection respects clearable rules
+                if (selection.length === 0) {
+                    // Empty selection: only allow if clearable is true
+                    if (clearable) {
+                        setProps({value: []});
+                    }
+                    // If clearable is false and trying to set empty, do nothing
+                    // return;
+                } else {
+                    // Non-empty selection: always allowed in multi-select
+                    setProps({value: selection});
+                }
+            } else {
+                // For single-select, take the first value or null
+                if (selection.length === 0) {
+                    // Empty selection: only allow if clearable is true
+                    if (clearable) {
+                        setProps({value: null});
+                    }
+                    // If clearable is false and trying to set empty, do nothing
+                    // return;
+                } else {
+                    // Take the first value for single-select
+                    setProps({value: selection[selection.length - 1]});
+                }
+            }
+        },
+        [multi, clearable, closeOnSelect]
     );
 
     const onInputChange = useCallback(
@@ -537,34 +575,22 @@ const Dropdown = (props: DropdownProps) => {
                                 )}
                             </div>
                         )}
-                        {isOpen && (
+                        {isOpen && !!displayOptions.length && (
+                            <>
+                                <OptionsList
+                                    options={displayOptions}
+                                    selected={sanitizedValues}
+                                    onSelectionChange={updateSelection}
+                                    className="dash-dropdown-options"
+                                    optionClassName="dash-dropdown-option"
+                                />
+                            </>
+                        )}
+                        {isOpen && search_value && !displayOptions.length && (
                             <div className="dash-dropdown-options">
-                                {displayOptions.map((option, i) => {
-                                    const isSelected = multi
-                                        ? sanitizedValues.includes(option.value)
-                                        : value === option.value;
-
-                                    return (
-                                        <DropdownOption
-                                            key={`${option.value}-${i}`}
-                                            index={i}
-                                            option={option}
-                                            isSelected={isSelected}
-                                            onClick={handleOptionClick}
-                                            style={{
-                                                height: optionHeight
-                                                    ? `${optionHeight}px`
-                                                    : undefined,
-                                            }}
-                                        />
-                                    );
-                                })}
-                                {search_value &&
-                                    displayOptions.length === 0 && (
-                                        <span className="dash-dropdown-option">
-                                            No options found
-                                        </span>
-                                    )}
+                                <span className="dash-dropdown-option">
+                                    No options found
+                                </span>
                             </div>
                         )}
                     </Popover.Content>

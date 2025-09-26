@@ -347,7 +347,7 @@ export interface RangeSliderProps {
 export type DropdownValue = string | number | boolean;
 
 export type DetailedDropdownOption = {
-    label: string | DashComponent;
+    label: string | DashComponent | DashComponent[];
     /**
      * The value of the option. This value
      * corresponds to the items specified in the
@@ -471,6 +471,93 @@ export interface DropdownProps {
      * Dash-assigned callback that gets fired when the input changes
      */
     setProps: (props: Partial<DropdownProps>) => void;
+
+    /**
+     * Used to allow user interactions in this component to be persisted when
+     * the component - or the page - is refreshed. If `persisted` is truthy and
+     * hasn't changed from its previous value, a `value` that the user has
+     * changed while using the app will keep that change, as long as
+     * the new `value` also matches what was given originally.
+     * Used in conjunction with `persistence_type`.
+     */
+    persistence?: boolean | string | number;
+
+    /**
+     * Properties whose user interactions will persist after refreshing the
+     * component or the page. Since only `value` is allowed this prop can
+     * normally be ignored.
+     */
+    persisted_props?: PersistedProps[];
+
+    /**
+     * Where persisted user changes will be stored:
+     * memory: only kept in memory, reset on page refresh.
+     * local: window.localStorage, data is kept after the browser quit.
+     * session: window.sessionStorage, data is cleared once the browser quit.
+     */
+    persistence_type?: PersistenceTypes;
+}
+
+export interface ChecklistProps {
+    /**
+     * An array of options
+     */
+    options?: DropdownOptionsArray | DropdownOptionsDict;
+
+    /**
+     * The currently selected value
+     */
+    value?: DropdownValue[] | null;
+
+    /**
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
+     */
+    inline?: boolean;
+
+    /**
+     * The class of the container (div)
+     */
+    className?: string;
+
+    /**
+     * The style of the container (div)
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * The style of the <input> checkbox element
+     */
+    inputStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <input> checkbox element
+     */
+    inputClassName?: string;
+
+    /**
+     * The style of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelClassName?: string;
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
+    setProps: (props: Partial<ChecklistProps>) => void;
 
     /**
      * Used to allow user interactions in this component to be persisted when

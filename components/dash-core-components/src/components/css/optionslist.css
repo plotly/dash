@@ -1,0 +1,42 @@
+.dash-options-list-option {
+    padding: var(--Dash-Spacing) 0;
+    background: var(--Dash-Fill-Inverse-strong);
+    color: var(--Dash-Text-Strong);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    overflow: hidden;
+}
+
+.dash-options-list-option:not(:has(input[disabled])):hover,
+.dash-options-list-option:not(:has(input[disabled])):focus-within {
+    color: var(--Dash-Fill-Interactive-Strong);
+    background: var(--Dash-Fill-Interactive-Weak);
+}
+
+.dash-options-list-option:has(input[disabled]) {
+    color: var(--Dash-Text-Disabled);
+    cursor: not-allowed;
+}
+
+.dash-options-list-option-text {
+    white-space: pre;
+}
+
+.dash-options-list-option-text > * {
+    vertical-align: middle;
+}
+
+.dash-options-list-option-checkbox {
+    display: inline-block;
+    margin: 0 calc(var(--Dash-Spacing) * 2) 0 0;
+    box-sizing: border-box;
+    border: 1px solid var(--Dash-Stroke-Strong);
+}
+
+.dash-options-list-option-checkbox:hover,
+.dash-options-list-option-checkbox:focus,
+.dash-options-list-option-checkbox:checked {
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+}

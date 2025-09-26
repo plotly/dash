@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import Checklist from './components/Checklist.react';
+import Checklist from './components/Checklist';
 import Clipboard from './components/Clipboard.react';
 import ConfirmDialog from './components/ConfirmDialog.react';
 import ConfirmDialogProvider from './components/ConfirmDialogProvider.react';
