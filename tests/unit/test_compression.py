@@ -356,7 +356,7 @@ class TestKwargsHelperFunction:
     def test_get_manager_from_kwargs_present(self):
         """Test extracting compression manager when present in kwargs."""
         manager = GzipCompressionManager()
-        kwargs = {"compression_manager": manager, "other_param": "value"}
+        kwargs = {"CompressionManager": manager, "other_param": "value"}
 
         result = get_compression_manager_from_kwargs(kwargs)
         assert result is manager

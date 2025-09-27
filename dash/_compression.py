@@ -322,12 +322,12 @@ def get_compression_manager_from_kwargs(
     """Extract compression manager from kwargs dict.
 
     Args:
-        kwargs: Dictionary that may contain 'compression_manager' key
+        kwargs: Dictionary that may contain 'CompressionManager' key
 
     Returns:
         BaseStoreCompressionManager instance or None if not found
     """
-    return kwargs.get("compression_manager", None)
+    return kwargs.get("CompressionManager", None)
 
 
 # Convenience alias

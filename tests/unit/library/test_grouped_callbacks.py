@@ -213,7 +213,7 @@ def test_callback_compression_manager_parameter():
     @app.callback(
         Output("output", "children"),
         Input("input", "value"),
-        compression_manager=compression_manager,
+        CompressionManager=compression_manager,
     )
     def update_output(value):
         return value
@@ -259,7 +259,7 @@ def test_multiple_callbacks_different_compression_managers():
     @app.callback(
         Output("output1", "children"),
         Input("input1", "value"),
-        compression_manager=compression_manager1,
+        CompressionManager=compression_manager1,
     )
     def update_output1(value):
         return value
@@ -267,7 +267,7 @@ def test_multiple_callbacks_different_compression_managers():
     @app.callback(
         Output("output2", "children"),
         Input("input2", "value"),
-        compression_manager=compression_manager2,
+        CompressionManager=compression_manager2,
     )
     def update_output2(value):
         return value
