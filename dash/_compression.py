@@ -10,7 +10,7 @@ import json
 import gzip
 import zlib
 import logging
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Union, Tuple, Optional
 
 try:
     import brotli
@@ -310,6 +310,20 @@ class BrotliCompressionManager(BaseStoreCompressionManager):
     def _decompress_bytes(self, data: bytes) -> bytes:
         """Decompress using brotli algorithm."""
         return brotli.decompress(data)
+
+
+def get_compression_manager_from_kwargs(
+    kwargs: dict,
+) -> Optional[BaseStoreCompressionManager]:
+    """Extract compression manager from kwargs dict.
+
+    Args:
+        kwargs: Dictionary that may contain 'compression_manager' key
+
+    Returns:
+        BaseStoreCompressionManager instance or None if not found
+    """
+    return kwargs.get("compression_manager", None)
 
 
 # Convenience alias

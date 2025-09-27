@@ -43,6 +43,7 @@ from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
 from ._no_update import NoUpdate
+from ._compression import get_compression_manager_from_kwargs
 
 
 async def _async_invoke_callback(
@@ -279,6 +280,7 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=False,
+    compression_manager=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -319,6 +321,7 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "compression_manager": compression_manager,
     }
     callback_list.append(callback_spec)
 
@@ -653,6 +656,7 @@ def register_callback(
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", False),
+        compression_manager=get_compression_manager_from_kwargs(_kwargs),
     )
 
     # pylint: disable=too-many-locals
