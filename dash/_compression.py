@@ -1,7 +1,6 @@
 """Store compression managers for Dash callbacks.
 
-This module provides compression managers that follow the same pattern as
-BaseBackgroundCallbackManager, enabling callback-level compression for
+This module provides compression managers enabling callback-level compression for
 Store components to reduce network payload sizes.
 """
 
@@ -32,22 +31,15 @@ class BaseStoreCompressionManager(ABC):
         self,
         level: int = 6,
         threshold: int = 1024,
-        cache_enabled: bool = False,
-        cache_size: int = 100,
     ):
         """Initialize compression manager.
 
         Args:
             level: Compression level (1-9, algorithm dependent)
             threshold: Minimum data size to compress (bytes)
-            cache_enabled: Whether to cache compressed data
-            cache_size: Maximum cache entries
         """
         self.level = self._validate_level(level)
         self.threshold = threshold
-        self.cache_enabled = cache_enabled
-        self.cache_size = cache_size
-        self._cache: Dict[str, bytes] = {} if cache_enabled else None
 
     def _validate_level(self, level: int) -> int:
         """Validate compression level for this algorithm."""
@@ -107,17 +99,8 @@ class BaseStoreCompressionManager(ABC):
             json_bytes = json_str.encode("utf-8")
             original_size = len(json_bytes)
 
-            # Check cache if enabled
-            cache_key = None
-            if self.cache_enabled:
-                cache_key = self._make_cache_key(json_str)
-                if cache_key in self._cache:
-                    compressed_bytes = self._cache[cache_key]
-                else:
-                    compressed_bytes = self._compress_bytes(json_bytes)
-                    self._update_cache(cache_key, compressed_bytes)
-            else:
-                compressed_bytes = self._compress_bytes(json_bytes)
+            # Compress the data
+            compressed_bytes = self._compress_bytes(json_bytes)
 
             compressed_size = len(compressed_bytes)
 
@@ -186,25 +169,6 @@ class BaseStoreCompressionManager(ABC):
             and "algorithm" in payload
             and "data" in payload
         )
-
-    def _make_cache_key(self, json_str: str) -> str:
-        """Generate cache key for JSON string."""
-        import hashlib  # pylint: disable=import-outside-toplevel
-
-        return hashlib.md5(json_str.encode("utf-8")).hexdigest()
-
-    def _update_cache(self, key: str, compressed_bytes: bytes) -> None:
-        """Update cache with LRU eviction."""
-        if not self.cache_enabled:
-            return
-
-        # Simple LRU: remove oldest if at capacity
-        if len(self._cache) >= self.cache_size:
-            # Remove first (oldest) item
-            oldest_key = next(iter(self._cache))
-            del self._cache[oldest_key]
-
-        self._cache[key] = compressed_bytes
 
     def compress_callback_outputs(
         self, output_value: Any, output_spec: List[Dict[str, Any]]
@@ -348,5 +312,5 @@ class BrotliCompressionManager(BaseStoreCompressionManager):
         return brotli.decompress(data)
 
 
-# Convenience alias - most common manager
+# Convenience alias
 StoreCompressionManager = GzipCompressionManager
