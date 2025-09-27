@@ -1,11 +1,9 @@
 """Unit tests for Store compression managers."""
 
 import pytest
-import json
 import base64
 
 from dash._compression import (
-    BaseStoreCompressionManager,
     GzipCompressionManager,
     DeflateCompressionManager,
     BrotliCompressionManager,
@@ -69,7 +67,9 @@ class TestCompressionManagerCreation:
             BrotliCompressionManager(level=11)
 
             # Invalid brotli levels
-            with pytest.raises(ValueError, match="Brotli compression level must be 0-11"):
+            with pytest.raises(
+                ValueError, match="Brotli compression level must be 0-11"
+            ):
                 BrotliCompressionManager(level=12)
         except ImportError:
             # Brotli not available, skip test
@@ -104,10 +104,13 @@ class TestCompressionThreshold:
 
     def test_should_compress_unserializable(self):
         """Test that unserializable data is not compressed."""
-        manager = GzipCompressionManager()
+        manager = GzipCompressionManager(
+            threshold=100
+        )  # Set threshold > 0 to test serialization check
 
         class UnserializableClass:
-            pass
+            def __str__(self):
+                raise TypeError("Cannot convert to string")
 
         unserializable = UnserializableClass()
         assert not manager.should_compress(unserializable)
@@ -116,7 +119,9 @@ class TestCompressionThreshold:
 class TestCompressionRoundTrip:
     """Test compression and decompression round-trip behavior."""
 
-    @pytest.mark.parametrize("manager_class", [GzipCompressionManager, DeflateCompressionManager])
+    @pytest.mark.parametrize(
+        "manager_class", [GzipCompressionManager, DeflateCompressionManager]
+    )
     def test_basic_round_trip(self, manager_class):
         """Test basic compression/decompression round trip."""
         manager = manager_class(threshold=10)  # Low threshold to ensure compression
@@ -125,7 +130,7 @@ class TestCompressionRoundTrip:
         original_data = {
             "numbers": list(range(100)),  # Much larger dataset
             "text": "Hello, world! " * 50,  # Repeat text to make it larger
-            "nested": {"key": "value" * 20, "count": 42}
+            "nested": {"key": "value" * 20, "count": 42},
         }
 
         # Compress
@@ -202,8 +207,10 @@ class TestCompressionErrorHandling:
 
         # Mock a compression failure by overriding _compress_bytes
         original_compress = manager._compress_bytes
+
         def failing_compress(data):
             raise OSError("Compression failed")
+
         manager._compress_bytes = failing_compress
 
         data = {"test": "data" * 50}
@@ -225,7 +232,7 @@ class TestCompressionErrorHandling:
             "algorithm": "gzip",
             "data": "invalid_base64_data!!!",
             "original_size": 100,
-            "compressed_size": 50
+            "compressed_size": 50,
         }
 
         result = manager.decompress_store_data(invalid_payload)
@@ -243,7 +250,7 @@ class TestCompressionErrorHandling:
             "algorithm": "deflate",  # Wrong algorithm
             "data": base64.b64encode(b"test").decode("ascii"),
             "original_size": 100,
-            "compressed_size": 50
+            "compressed_size": 50,
         }
 
         result = gzip_manager.decompress_store_data(mismatched_payload)
@@ -283,11 +290,11 @@ class TestCallbackIntegration:
 
         output_value = [
             {"store": "data" * 100},  # Should be compressed
-            {"graph": "figure_data"}  # Should not be compressed (not Store)
+            {"graph": "figure_data"},  # Should not be compressed (not Store)
         ]
         output_spec = [
             {"type": "Store", "property": "data"},
-            {"type": "Graph", "property": "figure"}
+            {"type": "Graph", "property": "figure"},
         ]
 
         result = manager.compress_callback_outputs(output_value, output_spec)
@@ -313,7 +320,7 @@ class TestCallbackIntegration:
         func_args = (compressed_data, "other_arg")
         input_spec = [
             {"type": "Store", "property": "data"},
-            {"type": "Input", "property": "value"}
+            {"type": "Input", "property": "value"},
         ]
 
         result = manager.decompress_callback_inputs(func_args, input_spec)
@@ -331,13 +338,10 @@ class TestCallbackIntegration:
         """Test that non-Store components are ignored during compression."""
         manager = GzipCompressionManager(threshold=10)
 
-        output_value = [
-            {"data": "value1"},
-            {"data": "value2"}
-        ]
+        output_value = [{"data": "value1"}, {"data": "value2"}]
         output_spec = [
             {"type": "Input", "property": "value"},
-            {"type": "Div", "property": "children"}
+            {"type": "Div", "property": "children"},
         ]
 
         result = manager.compress_callback_outputs(output_value, output_spec)
@@ -389,7 +393,7 @@ class TestStoreComponentDetection:
         non_store_specs = [
             {"type": "Input", "property": "value"},
             {"type": "Store", "property": "clear_data"},  # Wrong property
-            {"type": "Div", "property": "children"}
+            {"type": "Div", "property": "children"},
         ]
 
         for spec in non_store_specs:
@@ -409,7 +413,7 @@ class TestStoreComponentDetection:
         non_store_specs = [
             {"type": "Input", "property": "value"},
             {"type": "Store", "property": "modified_timestamp"},  # Wrong property
-            {"type": "State", "property": "data"}
+            {"type": "State", "property": "data"},
         ]
 
         for spec in non_store_specs:
@@ -427,7 +431,14 @@ class TestCompressionPayloadStructure:
         compressed = manager.compress_store_data(data)
 
         # Check required fields
-        required_fields = ["compressed", "algorithm", "level", "data", "original_size", "compressed_size"]
+        required_fields = [
+            "compressed",
+            "algorithm",
+            "level",
+            "data",
+            "original_size",
+            "compressed_size",
+        ]
         for field in required_fields:
             assert field in compressed
 
@@ -455,7 +466,7 @@ class TestCompressionPayloadStructure:
             "algorithm": "gzip",
             "data": "eJzLSM3JyVcozy/KSVEEABxJBD4=",
             "original_size": 20,
-            "compressed_size": 15
+            "compressed_size": 15,
         }
         assert manager._is_compressed_payload(compressed_payload)
 
@@ -463,11 +474,11 @@ class TestCompressionPayloadStructure:
         invalid_payloads = [
             {"compressed": False, "algorithm": "gzip", "data": "test"},
             {"algorithm": "gzip", "data": "test"},  # Missing compressed field
-            {"compressed": True, "data": "test"},   # Missing algorithm
+            {"compressed": True, "data": "test"},  # Missing algorithm
             {"compressed": True, "algorithm": "gzip"},  # Missing data
             "not_a_dict",
             None,
-            {"regular": "data"}
+            {"regular": "data"},
         ]
 
         for payload in invalid_payloads:

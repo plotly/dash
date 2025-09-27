@@ -30,7 +30,7 @@ class BaseStoreCompressionManager(ABC):
     def __init__(
         self,
         level: int = 6,
-        threshold: int = 1024,
+        threshold: int = 0,  # by default always compress data
     ):
         """Initialize compression manager.
 
@@ -39,6 +39,8 @@ class BaseStoreCompressionManager(ABC):
             threshold: Minimum data size to compress (bytes)
         """
         self.level = self._validate_level(level)
+        if threshold < 0:
+            raise ValueError("threshold argument should not be negative")
         self.threshold = threshold
 
     def _validate_level(self, level: int) -> int:
@@ -71,6 +73,8 @@ class BaseStoreCompressionManager(ABC):
         """
         if data is None:
             return False
+        if self.threshold == 0:  # default threshold will always compress data
+            return True
 
         # Convert to JSON to estimate size
         try:
