@@ -674,6 +674,9 @@ def register_callback(
                 callback_id,
             )
 
+        # Get compression manager for this callback
+        compression_manager = get_compression_manager_from_kwargs(_kwargs)
+
         @wraps(func)
         def add_context(*args, **kwargs):
             """Handles synchronous callbacks with context management."""
@@ -690,6 +693,12 @@ def register_callback(
             ) = _initialize_context(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
+
+            # Decompress inputs if compression manager is available
+            if compression_manager:
+                func_args = compression_manager.decompress_callback_inputs(
+                    func_args, inputs_state_indices
+                )
 
             response: dict = {"multi": True}
 
@@ -723,6 +732,12 @@ def register_callback(
                         output_value = NoUpdate()
                 else:
                     raise err
+
+            # Compress outputs if compression manager is available
+            if compression_manager:
+                output_value = compression_manager.compress_callback_outputs(
+                    output_value, output_spec
+                )
 
             _prepare_response(
                 output_value,
@@ -763,6 +778,12 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
+            # Decompress inputs if compression manager is available
+            if compression_manager:
+                func_args = compression_manager.decompress_callback_inputs(
+                    func_args, inputs_state_indices
+                )
+
             response: dict = {"multi": True}
 
             try:
@@ -795,6 +816,12 @@ def register_callback(
                         output_value = NoUpdate()
                 else:
                     raise err
+
+            # Compress outputs if compression manager is available
+            if compression_manager:
+                output_value = compression_manager.compress_callback_outputs(
+                    output_value, output_spec
+                )
 
             _prepare_response(
                 output_value,
