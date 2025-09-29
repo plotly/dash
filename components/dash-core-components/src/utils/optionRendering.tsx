@@ -16,37 +16,43 @@ interface StylingProps {
     labelStyle?: React.CSSProperties;
 }
 
-interface OptionProps extends StylingProps {
-    index: number;
-    option: DetailedOption;
-    isSelected: boolean;
-    onChange: (option: DetailedOption) => void;
+interface OptionLabelProps extends DetailedOption {
+    index: string | number;
 }
 
-export function OptionLabel(
-    props: DetailedOption & {index: string | number}
-): JSX.Element {
+export const OptionLabel: React.FC<OptionLabelProps> = ({
+    index,
+    label,
+    title,
+    value,
+}) => {
     const ctx = window.dash_component_api.useDashContext();
     const ExternalWrapper = window.dash_component_api.ExternalWrapper;
 
-    if (typeof props.label === 'object') {
-        const labels =
-            props.label instanceof Array ? props.label : [props.label];
+    if (typeof label === 'object') {
+        const labels = label instanceof Array ? label : [label];
         return (
             <>
                 {labels.map((label, i) => (
                     <ExternalWrapper
                         key={i}
                         component={label}
-                        componentPath={[...ctx.componentPath, props.index, i]}
+                        componentPath={[...ctx.componentPath, index, i]}
                     />
                 ))}
             </>
         );
     }
 
-    const displayLabel = `${props.label ?? props.value}`;
-    return <span title={props.title}>{displayLabel}</span>;
+    const displayLabel = `${label ?? value}`;
+    return <span title={title}>{displayLabel}</span>;
+};
+
+interface OptionProps extends StylingProps {
+    index: number;
+    option: DetailedOption;
+    isSelected: boolean;
+    onChange: (option: DetailedOption) => void;
 }
 
 export const Option: React.FC<OptionProps> = ({
