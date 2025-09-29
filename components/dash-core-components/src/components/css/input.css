@@ -5,9 +5,9 @@
     align-items: center;
     width: 170px; /* default input width */
     height: 32px;
-    background: var(--Dash-Fill-Inverse-Strong, #fff);
-    border-radius: var(--Dash-Spacing, 4px);
-    border: 1px solid var(--Dash-Stroke-Strong, rgba(0, 18, 77, 0.45));
+    background: var(--Dash-Fill-Inverse-Strong);
+    border-radius: var(--Dash-Spacing);
+    border: 1px solid var(--Dash-Stroke-Strong);
     box-sizing: border-box;
     container-type: inline-size;
     vertical-align: middle;
@@ -21,11 +21,11 @@
 
 /* Input field styles */
 .dash-input-element {
-    padding: var(--Dash-Spacing, 4px) calc(2 * var(--Dash-Spacing, 4px));
+    padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
     color: inherit;
     background: inherit;
     border: none;
-    border-radius: var(--Dash-Spacing, 4px);
+    border-radius: var(--Dash-Spacing);
     flex: 1 1 0;
     min-width: 0;
     height: 100%;
@@ -66,23 +66,23 @@
     width: 32px;
     height: 100%;
     border: none;
-    background: var(--Dash-Fill-Inverse-Strong, #fff);
+    background: var(--Dash-Fill-Inverse-Strong);
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    color: var(--Dash-Text-Primary, rgba(0, 18, 77, 0.87));
+    color: var(--Dash-Text-Primary);
 }
 
 .dash-input-stepper:hover {
-    background: var(--Dash-Fill-Primary-Hover, rgba(0, 18, 77, 0.04));
+    background: var(--Dash-Fill-Primary-Hover);
 }
 
 .dash-input-stepper:active {
-    background: var(--Dash-Fill-Primary-Active, rgba(0, 18, 77, 0.08));
+    background: var(--Dash-Fill-Primary-Active);
 }
 
 .dash-input-stepper:disabled {
-    background: var(--Dash-Fill-Inverse-Strong, #fff);
+    background: var(--Dash-Fill-Inverse-Strong);
     opacity: 0.5;
     cursor: default;
 }
