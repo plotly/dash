@@ -22,6 +22,50 @@ export enum PersistedProps {
     'value' = 'value',
 }
 
+export interface BaseComponentProps<T> {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * Additional CSS class for the root DOM node
+     */
+    className?: string;
+
+    /**
+     * Dash-assigned callback that gets fired when component properties change
+     */
+    setProps: (props: Partial<T>) => void;
+
+    /**
+     * Used to allow user interactions in this component to be persisted when
+     * the component - or the page - is refreshed. If `persisted` is truthy and
+     * hasn't changed from its previous value, a `value` that the user has
+     * changed while using the app will keep that change, as long as
+     * the new `value` also matches what was given originally.
+     * Used in conjunction with `persistence_type`.
+     */
+    persistence?: boolean | string | number;
+
+    /**
+     * Properties whose user interactions will persist after refreshing the
+     * component or the page. Since only `value` is allowed this prop can
+     * normally be ignored.
+     */
+    persisted_props?: PersistedProps[];
+
+    /**
+     * Where persisted user changes will be stored:
+     * memory: only kept in memory, reset on page refresh.
+     * local: window.localStorage, data is kept after the browser quit.
+     * session: window.sessionStorage, data is cleared once the browser quit.
+     */
+    persistence_type?: PersistenceTypes;
+}
+
 export type SliderMarks = {
     [key: number]: string | {label: string; style?: React.CSSProperties};
 };
@@ -78,7 +122,7 @@ export type SliderTooltip = {
     transform?: string;
 };
 
-export interface SliderProps {
+export interface SliderProps extends BaseComponentProps<SliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -158,51 +202,9 @@ export interface SliderProps {
      * The height, in px, of the slider if it is vertical.
      */
     verticalHeight?: number;
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className?: string;
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
-    /**
-     * Dash-assigned callback that gets fired when the value or drag_value changes.
-     */
-    setProps: (props: Partial<SliderProps>) => void;
-
-    /**
-     * Used to allow user interactions in this component to be persisted when
-     * the component - or the page - is refreshed. If `persisted` is truthy and
-     * hasn't changed from its previous value, a `value` that the user has
-     * changed while using the app will keep that change, as long as
-     * the new `value` also matches what was given originally.
-     * Used in conjunction with `persistence_type`.
-     */
-    persistence?: boolean | string | number;
-
-    /**
-     * Properties whose user interactions will persist after refreshing the
-     * component or the page. Since only `value` is allowed this prop can
-     * normally be ignored.
-     */
-    persisted_props?: PersistedProps[];
-
-    /**
-     * Where persisted user changes will be stored:
-     * memory: only kept in memory, reset on page refresh.
-     * local: window.localStorage, data is kept after the browser quit.
-     * session: window.sessionStorage, data is cleared once the browser quit.
-     */
-    persistence_type?: PersistenceTypes;
 }
 
-export interface RangeSliderProps {
+export interface RangeSliderProps extends BaseComponentProps<RangeSliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -300,60 +302,18 @@ export interface RangeSliderProps {
      * The height, in px, of the slider if it is vertical.
      */
     verticalHeight?: number;
-
-    /**
-     * Additional CSS class for the root DOM node
-     */
-    className?: string;
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
-    /**
-     * Dash-assigned callback that gets fired when the value or drag_value changes.
-     */
-    setProps: (props: Partial<RangeSliderProps>) => void;
-
-    /**
-     * Used to allow user interactions in this component to be persisted when
-     * the component - or the page - is refreshed. If `persisted` is truthy and
-     * hasn't changed from its previous value, a `value` that the user has
-     * changed while using the app will keep that change, as long as
-     * the new `value` also matches what was given originally.
-     * Used in conjunction with `persistence_type`.
-     */
-    persistence?: boolean | string | number;
-
-    /**
-     * Properties whose user interactions will persist after refreshing the
-     * component or the page. Since only `value` is allowed this prop can
-     * normally be ignored.
-     */
-    persisted_props?: PersistedProps[];
-
-    /**
-     * Where persisted user changes will be stored:
-     * memory: only kept in memory, reset on page refresh.
-     * local: window.localStorage, data is kept after the browser quit.
-     * session: window.sessionStorage, data is cleared once the browser quit.
-     */
-    persistence_type?: PersistenceTypes;
 }
 
-export type DropdownValue = string | number | boolean;
+export type OptionValue = string | number | boolean;
 
-export type DetailedDropdownOption = {
-    label: string | DashComponent;
+export type DetailedOption = {
+    label: string | DashComponent | DashComponent[];
     /**
      * The value of the option. This value
      * corresponds to the items specified in the
      * `value` property.
      */
-    value: DropdownValue;
+    value: OptionValue;
     /**
      * If true, this option is disabled and cannot be selected.
      */
@@ -376,7 +336,7 @@ export type DetailedDropdownOption = {
 /**
  * Array of options where the label and the value are the same thing, or an option dict
  */
-export type DropdownOptionsArray = (DropdownValue | DetailedDropdownOption)[];
+export type OptionsArray = (OptionValue | DetailedOption)[];
 
 /**
  * Simpler `options` representation in dictionary format. The order is not guaranteed.
@@ -384,14 +344,14 @@ export type DropdownOptionsArray = (DropdownValue | DetailedDropdownOption)[];
  * which is equal to
  * [{label: `label1`, value: `value1`}, {label: `label2`, value: `value2`}, ...]
  */
-export type DropdownOptionsDict = Record<string, string>;
+export type OptionsDict = Record<string, string>;
 
-export interface DropdownProps {
+export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
      */
-    options?: DropdownOptionsArray | DropdownOptionsDict;
+    options?: OptionsArray | OptionsDict;
 
     /**
      * The value of the input. If `multi` is false (the default)
@@ -401,7 +361,7 @@ export interface DropdownProps {
      * array of items with values corresponding to those in the
      * `options` prop.
      */
-    value?: DropdownValue | DropdownValue[] | null;
+    value?: OptionValue | OptionValue[] | null;
 
     /**
      * If true, the user can select multiple values
@@ -456,18 +416,6 @@ export interface DropdownProps {
     style?: React.CSSProperties;
 
     /**
-     * className of the dropdown element
-     */
-    className?: string;
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
-    /**
      * Translations for customizing text contained within this component.
      */
     localizations?: {
@@ -479,34 +427,94 @@ export interface DropdownProps {
         clear_selection?: string;
         no_options_found?: string;
     };
+}
+
+export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {
+    /**
+     * An array of options
+     */
+    options?: OptionsArray | OptionsDict;
 
     /**
-     * Dash-assigned callback that gets fired when the input changes
+     * The currently selected value
      */
-    setProps: (props: Partial<DropdownProps>) => void;
+    value?: OptionValue[] | null;
 
     /**
-     * Used to allow user interactions in this component to be persisted when
-     * the component - or the page - is refreshed. If `persisted` is truthy and
-     * hasn't changed from its previous value, a `value` that the user has
-     * changed while using the app will keep that change, as long as
-     * the new `value` also matches what was given originally.
-     * Used in conjunction with `persistence_type`.
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
      */
-    persistence?: boolean | string | number;
+    inline?: boolean;
 
     /**
-     * Properties whose user interactions will persist after refreshing the
-     * component or the page. Since only `value` is allowed this prop can
-     * normally be ignored.
+     * The style of the container (div)
      */
-    persisted_props?: PersistedProps[];
+    style?: React.CSSProperties;
 
     /**
-     * Where persisted user changes will be stored:
-     * memory: only kept in memory, reset on page refresh.
-     * local: window.localStorage, data is kept after the browser quit.
-     * session: window.sessionStorage, data is cleared once the browser quit.
+     * The style of the <input> checkbox element
      */
-    persistence_type?: PersistenceTypes;
+    inputStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <input> checkbox element
+     */
+    inputClassName?: string;
+
+    /**
+     * The style of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelClassName?: string;
+}
+
+export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
+    /**
+     * An array of options
+     */
+    options?: OptionsArray | OptionsDict;
+
+    /**
+     * The currently selected value
+     */
+    value?: OptionValue | null;
+
+    /**
+     * Indicates whether the options labels should be displayed inline (true=horizontal)
+     * or in a block (false=vertical).
+     */
+    inline?: boolean;
+
+    /**
+     * The style of the container (div)
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * The style of the <input> checkbox element
+     */
+    inputStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <input> checkbox element
+     */
+    inputClassName?: string;
+
+    /**
+     * The style of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelStyle?: React.CSSProperties;
+
+    /**
+     * The class of the <label> that wraps the checkbox input
+     *  and the option's label
+     */
+    labelClassName?: string;
 }

@@ -195,36 +195,5 @@
 
 .dash-dropdown-option {
     padding: calc(var(--Dash-Spacing) * 2) calc(var(--Dash-Spacing) * 3);
-    background: var(--Dash-Fill-Inverse-strong);
     box-shadow: 0 -1px 0 0 var(--Dash-Fill-Disabled) inset;
-    color: var(--Dash-Text-Strong);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    user-select: none;
-    overflow: hidden;
-}
-
-.dash-dropdown-option:not(:has(input[disabled])):hover,
-.dash-dropdown-option:not(:has(input[disabled])):focus-within {
-    color: var(--Dash-Fill-Interactive-Strong);
-    background: var(--Dash-Fill-Interactive-Weak);
-}
-
-.dash-dropdown-option:has(input[disabled]) {
-    color: var(--Dash-Text-Disabled);
-    cursor: not-allowed;
-}
-
-.dash-dropdown-option-checkbox {
-    display: inline-block;
-    margin: 0 calc(var(--Dash-Spacing) * 2) 0 0;
-    box-sizing: border-box;
-    border: 1px solid var(--Dash-Stroke-Strong);
-}
-
-.dash-dropdown-option-checkbox:hover,
-.dash-dropdown-option-checkbox:focus,
-.dash-dropdown-option-checkbox:checked {
-    accent-color: var(--Dash-Fill-Interactive-Strong);
 }

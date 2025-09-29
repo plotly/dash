@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import Checklist from './components/Checklist.react';
+import Checklist from './components/Checklist';
 import Clipboard from './components/Clipboard.react';
 import ConfirmDialog from './components/ConfirmDialog.react';
 import ConfirmDialogProvider from './components/ConfirmDialogProvider.react';
@@ -15,7 +15,7 @@ import Link from './components/Link.react';
 import Loading from './components/Loading.react';
 import Location from './components/Location.react';
 import Markdown from './components/Markdown.react';
-import RadioItems from './components/RadioItems.react';
+import RadioItems from './components/RadioItems';
 import RangeSlider from './components/RangeSlider';
 import Slider from './components/Slider';
 import Store from './components/Store.react';

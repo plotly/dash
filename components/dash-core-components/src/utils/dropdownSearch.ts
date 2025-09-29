@@ -5,7 +5,7 @@ import {
     UnorderedSearchIndex,
 } from 'js-search';
 import {sanitizeOptions} from './optionTypes';
-import {DetailedDropdownOption, DropdownProps} from '../types';
+import {DetailedOption, DropdownProps} from '../types';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -20,8 +20,8 @@ const TOKENIZER = {
 };
 
 interface FilteredOptionsResult {
-    sanitizedOptions: DetailedDropdownOption[];
-    filteredOptions: DetailedDropdownOption[];
+    sanitizedOptions: DetailedOption[];
+    filteredOptions: DetailedOption[];
 }
 
 /**
@@ -83,7 +83,7 @@ export function createFilteredOptions(
         search.addDocuments(sanitized);
     }
 
-    const filtered = search.search(searchValue) as DetailedDropdownOption[];
+    const filtered = search.search(searchValue) as DetailedOption[];
 
     return {
         sanitizedOptions: sanitized || [],
