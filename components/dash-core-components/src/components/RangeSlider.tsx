@@ -18,9 +18,16 @@ export default function RangeSlider({
     persistence_type = PersistenceTypes.local,
     // eslint-disable-next-line no-magic-numbers
     verticalHeight = 400,
-    step = 1,
+    step = undefined,
     ...props
 }: RangeSliderProps) {
+    // Some considerations for the default value of `step`:
+    // If the range consists of integers, default to a value of `1`
+    // Otherwise, leave it undefined
+    if (Number.isInteger(props.min) && Number.isInteger(props.max)) {
+        step = 1;
+    }
+
     return (
         <Suspense fallback={null}>
             <RealRangeSlider

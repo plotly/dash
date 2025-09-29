@@ -54,6 +54,8 @@
 }
 
 .dash-slider-thumb {
+    position: relative;
+    z-index: 1;
     display: block;
     width: 16px;
     height: 16px;
@@ -189,10 +191,16 @@
     text-align: center;
 }
 
+.dash-range-slider-max-input {
+    order: 1;
+}
+
 .dash-range-slider-input {
     width: 64px;
     text-align: center;
+    -webkit-appearance: textfield;
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 /* Hide the number input spinners */
