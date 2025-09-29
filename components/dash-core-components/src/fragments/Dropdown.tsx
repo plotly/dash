@@ -17,68 +17,8 @@ import * as Popover from '@radix-ui/react-popover';
 import '../components/css/dropdown.css';
 
 import isEqual from 'react-fast-compare';
-import {DetailedDropdownOption, DropdownProps, DropdownValue} from '../types';
-
-interface DropdownOptionProps {
-    index: number;
-    option: DetailedDropdownOption;
-    isSelected: boolean;
-    onClick: (option: DetailedDropdownOption) => void;
-    style?: React.CSSProperties;
-}
-
-function DropdownLabel(
-    props: DetailedDropdownOption & {index: string | number}
-): JSX.Element {
-    const ctx = window.dash_component_api.useDashContext();
-    const ExternalWrapper = window.dash_component_api.ExternalWrapper;
-
-    if (typeof props.label === 'object') {
-        return (
-            <ExternalWrapper
-                component={props.label}
-                componentPath={[...ctx.componentPath, props.index]}
-            />
-        );
-    }
-    const displayLabel = `${props.label ?? props.value}`;
-    return <span title={props.title}>{displayLabel}</span>;
-}
-
-const DropdownOption: React.FC<DropdownOptionProps> = ({
-    option,
-    isSelected,
-    onClick,
-    style,
-    index,
-}) => {
-    return (
-        <label
-            className={`dash-dropdown-option ${isSelected ? 'selected' : ''}`}
-            role="option"
-            aria-selected={isSelected}
-            style={style}
-            title={option.title}
-        >
-            <input
-                type="checkbox"
-                checked={isSelected}
-                value={
-                    typeof option.value === 'boolean'
-                        ? `${option.value}`
-                        : option.value
-                }
-                disabled={!!option.disabled}
-                onChange={() => onClick(option)}
-                readOnly
-                className="dash-dropdown-option-checkbox"
-            />
-            <span className="dash-dropdown-option-text">
-                <DropdownLabel {...option} index={index} />
-            </span>
-        </label>
-    );
-};
+import {DetailedOption, DropdownProps, OptionValue} from '../types';
+import {OptionsList, OptionLabel} from '../utils/optionRendering';
 
 const Dropdown = (props: DropdownProps) => {
     const {
@@ -97,12 +37,9 @@ const Dropdown = (props: DropdownProps) => {
         style,
         value,
     } = props;
-    const [optionsCheck, setOptionsCheck] =
-        useState<DetailedDropdownOption[]>();
+    const [optionsCheck, setOptionsCheck] = useState<DetailedOption[]>();
     const [isOpen, setIsOpen] = useState(false);
-    const [displayOptions, setDisplayOptions] = useState<
-        DetailedDropdownOption[]
-    >([]);
+    const [displayOptions, setDisplayOptions] = useState<DetailedOption[]>([]);
     const persistentOptions = useRef<DropdownProps['options']>([]);
     const dropdownContainerRef = useRef<HTMLDivElement>(null);
 
@@ -123,7 +60,7 @@ const Dropdown = (props: DropdownProps) => {
         [persistentOptions.current, searchable, search_value]
     );
 
-    const sanitizedValues: DropdownValue[] = useMemo(() => {
+    const sanitizedValues: OptionValue[] = useMemo(() => {
         if (value instanceof Array) {
             return value;
         }
@@ -133,54 +70,41 @@ const Dropdown = (props: DropdownProps) => {
         return [value];
     }, [value]);
 
-    const toggleOption = useCallback(
-        (option: DetailedDropdownOption) => {
-            const isCurrentlySelected = sanitizedValues.includes(option.value);
-
-            // Close dropdown if closeOnSelect is true (default behavior)
+    const updateSelection = useCallback(
+        (selection: OptionValue[]) => {
             if (closeOnSelect !== false) {
                 setIsOpen(false);
             }
 
             if (multi) {
-                let newValues: DropdownValue[];
-
-                if (isCurrentlySelected) {
-                    // Deselecting: only allow if clearable is true or more than one option selected
-                    if (clearable || sanitizedValues.length > 1) {
-                        newValues = sanitizedValues.filter(
-                            v => v !== option.value
-                        );
-                    } else {
-                        // Cannot deselect the last option when clearable is false
-                        return;
-                    }
-                } else {
-                    // Selecting: add to current selection
-                    newValues = [...sanitizedValues, option.value];
-                }
-
-                setProps({value: newValues});
-            } else {
-                let newValue: DropdownValue | null;
-
-                if (isCurrentlySelected) {
-                    // Deselecting: only allow if clearable is true
+                // For multi-select, validate the selection respects clearable rules
+                if (selection.length === 0) {
+                    // Empty selection: only allow if clearable is true
                     if (clearable) {
-                        newValue = null;
-                    } else {
-                        // Cannot deselect when clearable is false
-                        return;
+                        setProps({value: []});
                     }
+                    // If clearable is false and trying to set empty, do nothing
+                    // return;
                 } else {
-                    // Selecting: set as the single value
-                    newValue = option.value;
+                    // Non-empty selection: always allowed in multi-select
+                    setProps({value: selection});
                 }
-
-                setProps({value: newValue});
+            } else {
+                // For single-select, take the first value or null
+                if (selection.length === 0) {
+                    // Empty selection: only allow if clearable is true
+                    if (clearable) {
+                        setProps({value: null});
+                    }
+                    // If clearable is false and trying to set empty, do nothing
+                    // return;
+                } else {
+                    // Take the first value for single-select
+                    setProps({value: selection[selection.length - 1]});
+                }
             }
         },
-        [multi, clearable, closeOnSelect, sanitizedValues]
+        [multi, clearable, closeOnSelect]
     );
 
     const onInputChange = useCallback(
@@ -228,7 +152,7 @@ const Dropdown = (props: DropdownProps) => {
             );
             return (
                 <React.Fragment key={`${option?.value}-${i}`}>
-                    {option && <DropdownLabel {...option} index={i} />}
+                    {option && <OptionLabel {...option} index={i} />}
                     {i === sanitizedValues.length - 1 ? '' : ', '}
                 </React.Fragment>
             );
@@ -244,13 +168,6 @@ const Dropdown = (props: DropdownProps) => {
             displayOptions.some(option => option.value === value)
         );
     }, [clearable, sanitizedValues, displayOptions, search_value]);
-
-    const handleOptionClick = useCallback(
-        (option: DetailedDropdownOption) => {
-            toggleOption(option);
-        },
-        [toggleOption]
-    );
 
     const handleClear = useCallback(() => {
         const finalValue: DropdownProps['value'] = multi ? [] : null;
@@ -395,8 +312,8 @@ const Dropdown = (props: DropdownProps) => {
 
             if (open) {
                 // Sort options: selected first, then unselected
-                const selectedOptions: DetailedDropdownOption[] = [];
-                const unselectedOptions: DetailedDropdownOption[] = [];
+                const selectedOptions: DetailedOption[] = [];
+                const unselectedOptions: DetailedOption[] = [];
 
                 // First, collect selected options in the order they appear in the `value` array
                 sanitizedValues.forEach(value => {
@@ -537,34 +454,27 @@ const Dropdown = (props: DropdownProps) => {
                                 )}
                             </div>
                         )}
-                        {isOpen && (
+                        {isOpen && !!displayOptions.length && (
+                            <>
+                                <OptionsList
+                                    options={displayOptions}
+                                    selected={sanitizedValues}
+                                    onSelectionChange={updateSelection}
+                                    className="dash-dropdown-options"
+                                    optionClassName="dash-dropdown-option"
+                                    optionStyle={{
+                                        height: optionHeight
+                                            ? `${optionHeight}px`
+                                            : undefined,
+                                    }}
+                                />
+                            </>
+                        )}
+                        {isOpen && search_value && !displayOptions.length && (
                             <div className="dash-dropdown-options">
-                                {displayOptions.map((option, i) => {
-                                    const isSelected = multi
-                                        ? sanitizedValues.includes(option.value)
-                                        : value === option.value;
-
-                                    return (
-                                        <DropdownOption
-                                            key={`${option.value}-${i}`}
-                                            index={i}
-                                            option={option}
-                                            isSelected={isSelected}
-                                            onClick={handleOptionClick}
-                                            style={{
-                                                height: optionHeight
-                                                    ? `${optionHeight}px`
-                                                    : undefined,
-                                            }}
-                                        />
-                                    );
-                                })}
-                                {search_value &&
-                                    displayOptions.length === 0 && (
-                                        <span className="dash-dropdown-option">
-                                            No options found
-                                        </span>
-                                    )}
+                                <span className="dash-dropdown-option">
+                                    No options found
+                                </span>
                             </div>
                         )}
                     </Popover.Content>
