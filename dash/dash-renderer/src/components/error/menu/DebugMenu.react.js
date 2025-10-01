@@ -167,6 +167,12 @@ const Debug = ({error, hotReload, config, children}) => {
 
     const errors = concat(error.frontEnd, error.backEnd);
 
+    useEffect(() => {
+        if (error !== null && popup !== 'errors') {
+            setPopup('errors');
+        }
+    }, [error]);
+
     const popupContent = (
         <div className='dash-debug-menu__popup'>
             {popup == 'callbackGraph' ? <CallbackGraphContainer /> : undefined}
