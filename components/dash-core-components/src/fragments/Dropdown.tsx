@@ -43,6 +43,9 @@ const Dropdown = (props: DropdownProps) => {
     const [displayOptions, setDisplayOptions] = useState<DetailedOption[]>([]);
     const persistentOptions = useRef<DropdownProps['options']>([]);
     const dropdownContainerRef = useRef<HTMLButtonElement>(null);
+    const dropdownContentRef = useRef<HTMLDivElement>(
+        document.createElement('div')
+    );
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
@@ -207,23 +210,46 @@ const Dropdown = (props: DropdownProps) => {
     // Update display options when filtered options or selection changes
     useEffect(() => {
         if (isOpen) {
-            // Sort filtered options: selected first, then unselected
-            const sortedOptions = [...filteredOptions].sort((a, b) => {
-                const aSelected = sanitizedValues.includes(a.value);
-                const bSelected = sanitizedValues.includes(b.value);
+            let sortedOptions = filteredOptions;
+            if (multi) {
+                // Sort filtered options: selected first, then unselected
+                sortedOptions = [...filteredOptions].sort((a, b) => {
+                    const aSelected = sanitizedValues.includes(a.value);
+                    const bSelected = sanitizedValues.includes(b.value);
 
-                if (aSelected && !bSelected) {
-                    return -1;
-                }
-                if (!aSelected && bSelected) {
-                    return 1;
-                }
-                return 0; // Maintain original order within each group
-            });
+                    if (aSelected && !bSelected) {
+                        return -1;
+                    }
+                    if (!aSelected && bSelected) {
+                        return 1;
+                    }
+                    return 0; // Maintain original order within each group
+                });
+            }
 
             setDisplayOptions(sortedOptions);
         }
-    }, [filteredOptions, isOpen]); // Removed sanitizedValues to prevent re-sorting on selection changes
+    }, [filteredOptions, isOpen]);
+
+    // Focus (and scroll) the first selected item when dropdown opens
+    useEffect(() => {
+        if (!isOpen || multi || search_value) {
+            return;
+        }
+
+        // waiting for the DOM to be ready after the dropdown renders
+        requestAnimationFrame(() => {
+            const selectedValue = sanitizedValues[0];
+
+            const selectedElement = dropdownContentRef.current.querySelector(
+                `.dash-options-list-option-checkbox[value="${selectedValue}"]`
+            );
+
+            if (selectedElement instanceof HTMLElement) {
+                selectedElement?.focus();
+            }
+        });
+    }, [isOpen, multi, displayOptions, sanitizedValues]);
 
     // Handle keyboard navigation in popover
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -299,10 +325,16 @@ const Dropdown = (props: DropdownProps) => {
 
         if (nextIndex > -1) {
             focusableElements[nextIndex].focus();
-            focusableElements[nextIndex].scrollIntoView({
-                behavior: 'auto',
-                block: 'center',
-            });
+            if (nextIndex === 0) {
+                // first element is a sticky search bar, so if we are focusing
+                // on that, also move the scroll to the top
+                dropdownContentRef.current?.scrollTo({top: 0});
+            } else {
+                focusableElements[nextIndex].scrollIntoView({
+                    behavior: 'auto',
+                    block: 'center',
+                });
+            }
         }
     }, []);
 
@@ -311,33 +343,7 @@ const Dropdown = (props: DropdownProps) => {
         (open: boolean) => {
             setIsOpen(open);
 
-            if (open) {
-                // Sort options: selected first, then unselected
-                const selectedOptions: DetailedOption[] = [];
-                const unselectedOptions: DetailedOption[] = [];
-
-                // First, collect selected options in the order they appear in the `value` array
-                sanitizedValues.forEach(value => {
-                    const option = filteredOptions.find(
-                        opt => opt.value === value
-                    );
-                    if (option) {
-                        selectedOptions.push(option);
-                    }
-                });
-
-                // Then, collect unselected options in the order they appear in `options` array
-                filteredOptions.forEach(option => {
-                    if (!sanitizedValues.includes(option.value)) {
-                        unselectedOptions.push(option);
-                    }
-                });
-                const sortedOptions = [
-                    ...selectedOptions,
-                    ...unselectedOptions,
-                ];
-                setDisplayOptions(sortedOptions);
-            } else {
+            if (!open) {
                 setProps({search_value: undefined});
             }
         },
@@ -404,6 +410,7 @@ const Dropdown = (props: DropdownProps) => {
 
             <Popover.Portal container={dropdownContainerRef.current}>
                 <Popover.Content
+                    ref={dropdownContentRef}
                     className="dash-dropdown-content"
                     align="start"
                     sideOffset={5}

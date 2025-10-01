@@ -5,6 +5,7 @@
     padding: 0;
     background: inherit;
     border: none;
+    outline: none;
     width: 100%;
     cursor: pointer;
     font-size: inherit;
@@ -96,6 +97,8 @@
 }
 
 .dash-dropdown-search-container {
+    position: sticky;
+    top: calc(var(--Dash-Spacing) * 2);
     margin: calc(var(--Dash-Spacing) * 2);
     padding: var(--Dash-Spacing);
     border-radius: 4px;
