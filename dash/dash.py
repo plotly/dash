@@ -417,8 +417,8 @@ class Dash(ObsoleteChecker):
         they will be responsible for installing the `flask[async]` dependency.
     :type use_async: boolean
 
-    :param health_endpoint: Path for the health check endpoint. Set to None to 
-        disable the health endpoint. Default is "health".
+    :param health_endpoint: Path for the health check endpoint. Set to None to
+        disable the health endpoint. Default is None.
     :type health_endpoint: string or None
     """
 
@@ -470,7 +470,7 @@ class Dash(ObsoleteChecker):
         description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
-        health_endpoint: Optional[str] = "health",
+        health_endpoint: Optional[str] = None,
         **obsolete,
     ):
 
@@ -986,66 +986,9 @@ class Dash(ObsoleteChecker):
     def serve_health(self):
         """
         Health check endpoint for monitoring Dash server status.
-        
-        Returns a JSON response indicating the server is running and healthy.
-        This endpoint can be used by load balancers, monitoring systems, 
-        and other platforms to check if the Dash server is operational.
-        
-        :return: JSON response with status information
+        Returns a simple "OK" response with HTTP 200 status.
         """
-        import datetime
-        import platform
-        import psutil
-        import sys
-        
-        # Basic health information
-        health_data = {
-            "status": "healthy",
-            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-            "dash_version": __version__,
-            "python_version": sys.version,
-            "platform": platform.platform(),
-        }
-        
-        # Add server information if available
-        try:
-            health_data.update({
-                "server_name": self.server.name,
-                "debug_mode": self.server.debug,
-                "host": getattr(self.server, 'host', 'unknown'),
-                "port": getattr(self.server, 'port', 'unknown'),
-            })
-        except Exception:
-            pass
-        
-        # Add system resource information if psutil is available
-        try:
-            health_data.update({
-                "system": {
-                    "cpu_percent": psutil.cpu_percent(interval=0.1),
-                    "memory_percent": psutil.virtual_memory().percent,
-                    "disk_percent": psutil.disk_usage('/').percent if os.name != 'nt' else psutil.disk_usage('C:').percent,
-                }
-            })
-        except ImportError:
-            # psutil not available, skip system metrics
-            pass
-        except Exception:
-            # Error getting system metrics, skip them
-            pass
-        
-        # Add callback information
-        try:
-            health_data.update({
-                "callbacks": {
-                    "total_callbacks": len(self.callback_map),
-                    "background_callbacks": len(getattr(self, '_background_callback_map', {})),
-                }
-            })
-        except Exception:
-            pass
-        
-        return flask.jsonify(health_data)
+        return flask.Response("OK", status=200, mimetype="text/plain")
 
     def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []
