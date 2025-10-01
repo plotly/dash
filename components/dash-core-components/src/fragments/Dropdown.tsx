@@ -19,6 +19,7 @@ import '../components/css/dropdown.css';
 import isEqual from 'react-fast-compare';
 import {DetailedOption, DropdownProps, OptionValue} from '../types';
 import {OptionsList, OptionLabel} from '../utils/optionRendering';
+import uuid from 'uniqid';
 
 const Dropdown = (props: DropdownProps) => {
     const {
@@ -344,6 +345,8 @@ const Dropdown = (props: DropdownProps) => {
         [filteredOptions, sanitizedValues]
     );
 
+    const accessibleId = id ?? uuid();
+
     return (
         <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
             <Popover.Trigger asChild>
@@ -359,24 +362,33 @@ const Dropdown = (props: DropdownProps) => {
                     }}
                     className={`dash-dropdown ${className ?? ''}`}
                     style={style}
-                    aria-label={props.placeholder}
+                    aria-labelledby={`${accessibleId}-value-count ${accessibleId}-value`}
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                     data-dash-is-loading={loading || undefined}
                 >
                     <span className="dash-dropdown-grid-container dash-dropdown-trigger">
                         {displayValue.length > 0 && (
-                            <span className="dash-dropdown-value">
+                            <span
+                                id={accessibleId + '-value'}
+                                className="dash-dropdown-value"
+                            >
                                 {displayValue}
                             </span>
                         )}
                         {displayValue.length === 0 && (
-                            <span className="dash-dropdown-value dash-dropdown-placeholder">
+                            <span
+                                id={accessibleId + '-value'}
+                                className="dash-dropdown-value dash-dropdown-placeholder"
+                            >
                                 {props.placeholder}
                             </span>
                         )}
                         {sanitizedValues.length > 1 && (
-                            <span className="dash-dropdown-value-count">
+                            <span
+                                id={accessibleId + '-value-count'}
+                                className="dash-dropdown-value-count"
+                            >
                                 {localizations?.selected_count?.replace(
                                     '{num_selected}',
                                     `${sanitizedValues.length}`
@@ -402,7 +414,7 @@ const Dropdown = (props: DropdownProps) => {
                 </button>
             </Popover.Trigger>
 
-            <Popover.Portal container={dropdownContainerRef.current}>
+            <Popover.Portal>
                 <Popover.Content
                     className="dash-dropdown-content"
                     align="start"

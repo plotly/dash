@@ -459,7 +459,7 @@ def test_rdcap004_side_effect_same_component(dash_duo):
     dash_duo.wait_for_text_to_equal("#counter", "1")
 
     dash_duo.wait_for_element("#my-dynamic-dropdown").click()
-    search = dash_duo.wait_for_element("#my-dynamic-dropdown .dash-dropdown-search")
+    search = dash_duo.wait_for_element(".dash-dropdown-search")
 
     search.send_keys("a")
 

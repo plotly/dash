@@ -16,7 +16,12 @@
 }
 
 .dash-input-container:focus-within {
-    outline: 2px solid var(--Dash-Fill-Interactive-Strong);
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-container:has(.dash-input-element:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .dash-input-container input:focus {
@@ -40,6 +45,11 @@
     box-sizing: border-box;
     z-index: 1;
     order: 2;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-element:disabled {
+    cursor: not-allowed;
 }
 
 /* Hide native steppers for number inputs */

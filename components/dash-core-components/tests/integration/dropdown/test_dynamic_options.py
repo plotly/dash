@@ -31,7 +31,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     dropdown.click()
 
     # Get the inner input used for search value.
-    input_ = dash_dcc.find_element("#my-dynamic-dropdown input")
+    input_ = dash_dcc.find_element(".dash-dropdown-content input")
 
     # Focus on the input to open the options menu
     input_.send_keys("x")
@@ -43,7 +43,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     input_.send_keys("o")
 
     time.sleep(0.25)
-    options = dash_dcc.find_elements("#my-dynamic-dropdown .dash-dropdown-option")
+    options = dash_dcc.find_elements(".dash-dropdown-options .dash-dropdown-option")
 
     # Should show all options.
     assert len(options) == 3
@@ -52,7 +52,7 @@ def test_dddo001_dynamic_options(dash_dcc):
     input_.send_keys("n")
 
     time.sleep(0.25)
-    options = dash_dcc.find_elements("#my-dynamic-dropdown .dash-dropdown-option")
+    options = dash_dcc.find_elements(".dash-dropdown-options .dash-dropdown-option")
 
     assert len(options) == 1
     assert options[0].text == "Montreal"

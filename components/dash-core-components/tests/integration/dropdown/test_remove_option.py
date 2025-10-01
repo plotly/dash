@@ -183,9 +183,9 @@ def test_ddro004_empty_string_not_updated(dash_dcc):
 
     dropdown = dash_dcc.find_element("#drop")
     dropdown.click()
-    select_input = dash_dcc.find_element("#drop .dash-dropdown-search")
+    select_input = dash_dcc.find_element(".dash-dropdown-search")
     select_input.send_keys("a")
-    dash_dcc.find_element("#drop .dash-dropdown-option").send_keys(Keys.SPACE)
+    dash_dcc.find_element(".dash-dropdown-option").send_keys(Keys.SPACE)
 
     dash_dcc.wait_for_text_to_equal("#output", "Value=a")
     dash_dcc.wait_for_text_to_equal("#count-output", "2")
