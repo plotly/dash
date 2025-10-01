@@ -639,6 +639,8 @@ class Dash(ObsoleteChecker):
             )
         self.setup_startup_routes()
 
+        self._plotly_cloud = None
+
     def _setup_hooks(self):
         # pylint: disable=import-outside-toplevel,protected-access
         from ._hooks import HooksManager
@@ -926,6 +928,16 @@ class Dash(ObsoleteChecker):
             "ddk_version": ddk_version,
             "plotly_version": plotly_version,
         }
+        if self._plotly_cloud is None:
+            try:
+                # pylint: disable=C0415,W0611
+                import plotly_cloud  # noqa: F401
+
+                self._plotly_cloud = True
+            except ImportError:
+                self._plotly_cloud = False
+
+        config["plotly_cloud_installed"] = self._plotly_cloud
         if not self.config.serve_locally:
             config["plotlyjs_url"] = self._plotlyjs_url
         if self._dev_tools.hot_reload:

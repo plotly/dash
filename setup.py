@@ -43,7 +43,7 @@ setup(
             "dash-generate-components = "
             "dash.development.component_generator:cli",
             "renderer = dash.development.build_process:renderer",
-            "dash-update-components = dash.development.update_components:cli"
+            "dash-update-components = dash.development.update_components:cli",
             "plotly = dash._plotly_cli:cli"
         ],
         "pytest11": ["dash = dash.testing.plugin"],
