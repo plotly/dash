@@ -8,12 +8,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
 - [#3403](https://github.com/plotly/dash/pull/3403) Add app_context to get_app, allowing to get the current app in routes.
 - [#3407](https://github.com/plotly/dash/pull/3407) Add `hidden` to callback arguments, hiding the callback from appearing in the devtool callback graph.
+- [#3397](https://github.com/plotly/dash/pull/3397) Add optional callbacks, suppressing callback warning for missing component ids for a single callback.
 - [#3424](https://github.com/plotly/dash/pull/3424) Adds support for `Patch` on clientside callbacks class `dash_clientside.Patch`, as well as supporting side updates, eg: (Running, SetProps).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
+- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
 
 ## Fixed
 - [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)
-- [#3397](https://github.com/plotly/dash/pull/3397) Add optional callbacks, suppressing callback warning for missing component ids for a single callback.
 - [#3415](https://github.com/plotly/dash/pull/3415) Fix the error triggered when only a single no_update is returned for client-side callback functions with multiple Outputs. Fix [#3366](https://github.com/plotly/dash/issues/3366)
 - [#3416](https://github.com/plotly/dash/issues/3416) Fix DeprecationWarning in dash/_jupyter.py by migrating from deprecated ipykernel.comm.Comm to comm module
 
