@@ -11,7 +11,7 @@ def test_ddlo001_translations(dash_duo):
                 id="dropdown",
                 options=[1, 2, 3],
                 multi=True,
-                localizations={
+                labels={
                     "select_all": "Sélectionner tout",
                     "deselect_all": "Désélectionner tout",
                     "selected_count": "{num_selected} sélections",
@@ -63,7 +63,7 @@ def test_ddlo002_partial_translations(dash_duo):
                 id="dropdown",
                 options=[1, 2, 3],
                 multi=True,
-                localizations={
+                labels={
                     "search": "Lookup",
                 },
             ),
