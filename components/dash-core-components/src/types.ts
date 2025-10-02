@@ -418,7 +418,7 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     /**
      * Translations for customizing text contained within this component.
      */
-    localizations?: {
+    labels?: {
         select_all?: string;
         deselect_all?: string;
         selected_count?: string;

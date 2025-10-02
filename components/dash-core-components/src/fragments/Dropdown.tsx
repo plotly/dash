@@ -28,7 +28,7 @@ const Dropdown = (props: DropdownProps) => {
         closeOnSelect,
         clearable,
         disabled,
-        localizations,
+        labels,
         maxHeight,
         multi,
         options,
@@ -389,7 +389,7 @@ const Dropdown = (props: DropdownProps) => {
                                 id={accessibleId + '-value-count'}
                                 className="dash-dropdown-value-count"
                             >
-                                {localizations?.selected_count?.replace(
+                                {labels?.selected_count?.replace(
                                     '{num_selected}',
                                     `${sanitizedValues.length}`
                                 )}
@@ -402,8 +402,8 @@ const Dropdown = (props: DropdownProps) => {
                                     e.preventDefault();
                                     handleClear();
                                 }}
-                                title={localizations?.clear_selection}
-                                aria-label={localizations?.clear_selection}
+                                title={labels?.clear_selection}
+                                aria-label={labels?.clear_selection}
                             >
                                 <Cross1Icon />
                             </a>
@@ -431,7 +431,7 @@ const Dropdown = (props: DropdownProps) => {
                             <input
                                 type="search"
                                 className="dash-dropdown-search"
-                                placeholder={localizations?.search}
+                                placeholder={labels?.search}
                                 value={search_value || ''}
                                 autoComplete="off"
                                 onChange={e => onInputChange(e.target.value)}
@@ -442,7 +442,7 @@ const Dropdown = (props: DropdownProps) => {
                                     type="button"
                                     className="dash-dropdown-clear"
                                     onClick={handleClearSearch}
-                                    aria-label={localizations?.clear_search}
+                                    aria-label={labels?.clear_search}
                                 >
                                     <Cross1Icon />
                                 </button>
@@ -456,7 +456,7 @@ const Dropdown = (props: DropdownProps) => {
                                 className="dash-dropdown-action-button"
                                 onClick={handleSelectAll}
                             >
-                                {localizations?.select_all}
+                                {labels?.select_all}
                             </button>
                             {canDeselectAll && (
                                 <button
@@ -464,7 +464,7 @@ const Dropdown = (props: DropdownProps) => {
                                     className="dash-dropdown-action-button"
                                     onClick={handleDeselectAll}
                                 >
-                                    {localizations?.deselect_all}
+                                    {labels?.deselect_all}
                                 </button>
                             )}
                         </div>
@@ -488,7 +488,7 @@ const Dropdown = (props: DropdownProps) => {
                     {isOpen && search_value && !displayOptions.length && (
                         <div className="dash-dropdown-options">
                             <span className="dash-dropdown-option">
-                                {localizations?.no_options_found}
+                                {labels?.no_options_found}
                             </span>
                         </div>
                     )}
