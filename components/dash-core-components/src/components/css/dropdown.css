@@ -71,8 +71,8 @@
     max-width: 98vw;
     overflow-y: auto;
     z-index: 500;
-    box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-        0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+    box-shadow: 0px 10px 38px -10px var(--Dash-Shading-Strong),
+        0px 10px 20px -15px var(--Dash-Shading-Weak);
 }
 
 .dash-dropdown-value-count,
