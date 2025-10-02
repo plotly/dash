@@ -69,7 +69,12 @@ const BANNED_TYPES = [
 ];
 const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum');
 
-const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
+/* Regex to capture typescript unions in different formats:
+ * string[]
+ * (string | number)[]
+ * SomeCustomType[]
+ */
+const reArray = new RegExp(`(${unionSupport.join('|')}|\\(.+\\)|[A-Z][a-zA-Z]*Value)\\[\\]`);
 
 const isArray = rawType => reArray.test(rawType);
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from time import sleep
 from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, Input, Output, dcc, html
@@ -129,13 +130,19 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element("#datepickersingle input").click()
     dash_dcc.select_date_single("datepickersingle", day="20")
 
-    dash_dcc.find_element("#dropdownsingle .Select-input input").send_keys(
+    dash_dcc.find_element("#dropdownsingle").click()
+    dash_dcc.find_element("#dropdownsingle .dash-dropdown-search").send_keys(
         "one" + Keys.ENTER
     )
+    sleep(0.2)
+    dash_dcc.find_element("#dropdownsingle .dash-dropdown-option").click()
 
-    dash_dcc.find_element("#dropdownmulti .Select-input input").send_keys(
+    dash_dcc.find_element("#dropdownmulti").click()
+    dash_dcc.find_element("#dropdownmulti .dash-dropdown-search").send_keys(
         "six" + Keys.ENTER
     )
+    sleep(0.2)
+    dash_dcc.find_element("#dropdownmulti .dash-dropdown-option").click()
 
     dash_dcc.find_element("#input").send_keys(" maybe")
 
