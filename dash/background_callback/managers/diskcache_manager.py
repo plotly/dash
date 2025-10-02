@@ -293,7 +293,7 @@ def _make_job_fn(fn, cache, progress):
             if not errored:
                 try:
                     cache.set(result_key, user_callback_output)
-                except Exception as err:
+                except Exception as err:  # pylint: disable=broad-except
                     print(f"Diskcache manager couldn't save output: {err}")
 
         if asyncio.iscoroutinefunction(fn):
