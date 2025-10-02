@@ -135,7 +135,12 @@ export const OptionsList: React.FC<OptionsListProps> = ({
 }) => {
     const classNames = ['dash-options-list', className].filter(Boolean);
     return (
-        <div id={id} className={classNames.join(' ')} style={style}>
+        <div
+            id={id}
+            className={classNames.join(' ')}
+            style={style}
+            role="listbox"
+        >
             {options.map((option, i) => {
                 const isSelected = includes(option.value, selected);
                 return (

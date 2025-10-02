@@ -403,7 +403,7 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     /**
      * height of each option. Can be increased when label lengths would wrap around
      */
-    optionHeight?: number;
+    optionHeight?: 'auto' | number;
 
     /**
      * height of the options dropdown.
@@ -414,6 +414,19 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
      * Defines CSS styles which will override styles previously set.
      */
     style?: React.CSSProperties;
+
+    /**
+     * Translations for customizing text contained within this component.
+     */
+    labels?: {
+        select_all?: string;
+        deselect_all?: string;
+        selected_count?: string;
+        search?: string;
+        clear_search?: string;
+        clear_selection?: string;
+        no_options_found?: string;
+    };
 }
 
 export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {

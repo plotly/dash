@@ -1,8 +1,18 @@
-import React, {Component, lazy, Suspense} from 'react';
+import React, {lazy, Suspense} from 'react';
 import {DropdownProps, PersistedProps, PersistenceTypes} from '../types';
 import dropdown from '../utils/LazyLoader/dropdown';
 
 const RealDropdown = lazy(dropdown);
+
+const defaultLabels: DropdownProps['labels'] = {
+    select_all: 'Select All',
+    deselect_all: 'Deselect All',
+    selected_count: '{num_selected} selected',
+    search: 'Search',
+    clear_search: 'Clear search',
+    clear_selection: 'Clear selection',
+    no_options_found: 'No options found',
+};
 
 /**
  * Dropdown is an interactive dropdown element for selecting one or more
@@ -19,8 +29,8 @@ export default function Dropdown({
     disabled = false,
     multi = false,
     searchable = true,
-    // eslint-disable-next-line no-magic-numbers
-    optionHeight = 36,
+    labels = defaultLabels,
+    optionHeight = 'auto',
     // eslint-disable-next-line no-magic-numbers
     maxHeight = 200,
     closeOnSelect = !multi,
@@ -30,11 +40,17 @@ export default function Dropdown({
     persistence_type = PersistenceTypes.local,
     ...props
 }: DropdownProps) {
+    labels = {
+        ...defaultLabels,
+        ...labels,
+    };
+
     return (
         <Suspense fallback={null}>
             <RealDropdown
                 clearable={clearable}
                 disabled={disabled}
+                labels={labels}
                 multi={multi}
                 searchable={searchable}
                 optionHeight={optionHeight}

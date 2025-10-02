@@ -49,13 +49,13 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#radio-items p", "off")
 
     dash_dcc.find_element("#dropdown").click()
-    dash_dcc.wait_for_text_to_equal("#dropdown h4", "h4")
-    dash_dcc.wait_for_text_to_equal("#dropdown h6", "h6")
+    dash_dcc.wait_for_text_to_equal(".dash-dropdown-content h4", "h4")
+    dash_dcc.wait_for_text_to_equal(".dash-dropdown-content h6", "h6")
 
-    search_input = dash_dcc.find_element("#dropdown .dash-dropdown-search")
+    search_input = dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search")
     search_input.send_keys("4")
     sleep(0.25)
-    options = dash_dcc.find_elements("#dropdown .dash-dropdown-option")
+    options = dash_dcc.find_elements(".dash-dropdown-content .dash-dropdown-option")
 
     wait.until(lambda: len(options) == 1, 1)
     wait.until(lambda: options[0].text == "h4", 1)
@@ -64,11 +64,11 @@ def test_mdcap001_dcc_components_as_props(dash_dcc):
     dash_dcc.find_element("#indexed-search").click()
 
     def search_indexed(value, length, texts):
-        search = dash_dcc.find_element("#indexed-search .dash-dropdown-search")
+        search = dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search")
         dash_dcc.clear_input(search)
         search.send_keys(value)
         sleep(0.25)
-        opts = dash_dcc.find_elements("#indexed-search .dash-dropdown-option")
+        opts = dash_dcc.find_elements(".dash-dropdown-content .dash-dropdown-option")
 
         assert len(opts) == length
         assert [o.text for o in opts] == texts
