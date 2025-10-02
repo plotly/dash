@@ -193,14 +193,12 @@ export default function RangeSlider(props: RangeSliderProps) {
         }
     };
 
+    const classNames = ['dash-slider-container', className].filter(Boolean);
+
     return (
         <LoadingElement>
             {loadingProps => (
-                <div
-                    id={id}
-                    className="dash-slider-container"
-                    {...loadingProps}
-                >
+                <div id={id} className={classNames.join(' ')} {...loadingProps}>
                     {showInputs && value.length === 2 && !vertical && (
                         <input
                             type="number"
@@ -341,7 +339,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                             ref={sliderRef}
                             className={`dash-slider-root ${
                                 renderedMarks ? 'has-marks' : ''
-                            } ${className || ''}`.trim()}
+                            }`.trim()}
                             style={{
                                 ...(vertical && {
                                     height: `${verticalHeight}px`,
