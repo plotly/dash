@@ -416,7 +416,7 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     style?: React.CSSProperties;
 
     /**
-     * Translations for customizing text contained within this component.
+     * Text for customizing the labels rendered by this component.
      */
     labels?: {
         select_all?: string;
