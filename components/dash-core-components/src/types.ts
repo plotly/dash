@@ -519,14 +519,7 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
     labelClassName?: string;
 }
 
-export interface TextAreaProps {
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
+export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * The value of the textarea
      */
@@ -604,11 +597,6 @@ export interface TextAreaProps {
     accessKey?: string;
 
     /**
-     * Often used with CSS to style elements with common properties.
-     */
-    className?: string;
-
-    /**
      * Indicates whether the element's content is editable.
      */
     contentEditable?: string | boolean;
@@ -675,36 +663,6 @@ export interface TextAreaProps {
      * Last time the textarea was clicked.
      */
     n_clicks_timestamp?: number;
-
-    /**
-     * Dash-assigned callback that gets fired when the value changes.
-     */
-    setProps: (props: Partial<TextAreaProps>) => void;
-
-    /**
-     * Used to allow user interactions in this component to be persisted when
-     * the component - or the page - is refreshed. If `persisted` is truthy and
-     * hasn't changed from its previous value, a `value` that the user has
-     * changed while using the app will keep that change, as long as
-     * the new `value` also matches what was given originally.
-     * Used in conjunction with `persistence_type`.
-     */
-    persistence?: boolean | string | number;
-
-    /**
-     * Properties whose user interactions will persist after refreshing the
-     * component or the page. Since only `value` is allowed this prop can
-     * normally be ignored.
-     */
-    persisted_props?: PersistedProps[];
-
-    /**
-     * Where persisted user changes will be stored:
-     * memory: only kept in memory, reset on page refresh.
-     * local: window.localStorage, data is kept after the browser quit.
-     * session: window.sessionStorage, data is cleared once the browser quit.
-     */
-    persistence_type?: PersistenceTypes;
 }
 
 export interface TooltipProps {

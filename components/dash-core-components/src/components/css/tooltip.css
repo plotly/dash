@@ -1,0 +1,127 @@
+.dash-tooltip {
+    position: absolute;
+}
+
+.hover {
+    position: absolute;
+}
+.hover-right {
+    /* Offset so that the triangle caret lands directly on what's hovered */
+    transform: translate(5px, 0);
+    top: 50%;
+    left: 100%;
+}
+.hover-left {
+    transform: translate(-5px, 0);
+    top: 50%;
+}
+.hover-bottom {
+    transform: translate(0, 6px);
+    top: 100%;
+    left: 50%;
+}
+.hover-top {
+    transform: translate(0, -5px);
+    left: 50%;
+}
+.hover-content {
+    position: absolute;
+    border: 1px solid var(--Dash-Tooltip-Border-Color);
+    border-radius: 2px;
+    padding: 5px 10px;
+    background: var(--Dash-Tooltip-Background-Color);
+    white-space: nowrap;
+    z-index: var(--Dash-Tooltip-ZIndex);
+    pointer-events: none;
+    box-shadow: 0px 10px 38px -10px var(--Dash-Shading-Strong),
+        0px 10px 20px -15px var(--Dash-Shading-Weak);
+}
+.hover .hover-content,
+.hover-right .hover-content {
+    transform: translate(0, -50%);
+}
+.hover-left .hover-content {
+    transform: translate(-100%, -50%);
+}
+.hover-top .hover-content {
+    transform: translate(-50%, -100%);
+}
+.hover-bottom .hover-content {
+    transform: translate(-50%, 0);
+}
+/* Add a small triangle on the left side of the box */
+.hover:before,
+.hover:after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-style: solid;
+    top: -6px;
+    z-index: var(--Dash-Tooltip-ZIndex);
+}
+.hover:before,
+.hover:after,
+.hover-right:before,
+.hover-right:after {
+    border-width: 6px 6px 6px 0;
+}
+.hover-top:before,
+.hover-top:after {
+    border-width: 6px 6px 0 6px;
+}
+.hover-bottom:before,
+.hover-bottom:after {
+    border-width: 0 6px 6px 6px;
+}
+.hover-left:before,
+.hover-left:after {
+    border-width: 6px 0 6px 6px;
+}
+.hover:before,
+.hover-right:before {
+    border-color: transparent var(--Dash-Tooltip-Border-Color) transparent
+        transparent;
+    left: -5px;
+}
+.hover:after,
+.hover-right:after {
+    border-color: transparent var(--Dash-Tooltip-Background-Color) transparent
+        transparent;
+    left: -4px;
+}
+.hover-left:before {
+    border-color: transparent transparent transparent
+        var(--Dash-Tooltip-Border-Color);
+    left: -1px;
+}
+.hover-left:after {
+    border-color: transparent transparent transparent
+        var(--Dash-Tooltip-Background-Color);
+    left: -2px;
+}
+.hover-top:before,
+.hover-top:after,
+.hover-bottom:before,
+.hover-bottom:after {
+    left: -6px;
+}
+.hover-bottom:before {
+    border-color: transparent transparent var(--Dash-Tooltip-Border-Color)
+        transparent;
+}
+.hover-bottom:after {
+    border-color: transparent transparent var(--Dash-Tooltip-Background-Color)
+        transparent;
+    top: -5px;
+}
+.hover-top:before {
+    border-color: var(--Dash-Tooltip-Border-Color) transparent transparent
+        transparent;
+    top: -1px;
+}
+.hover-top:after {
+    border-color: var(--Dash-Tooltip-Border-Color) transparent transparent
+        transparent;
+    top: -2px;
+}
