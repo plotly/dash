@@ -19,6 +19,7 @@ import '../components/css/dropdown.css';
 import isEqual from 'react-fast-compare';
 import {DetailedOption, DropdownProps, OptionValue} from '../types';
 import {OptionsList, OptionLabel} from '../utils/optionRendering';
+import uuid from 'uniqid';
 
 const Dropdown = (props: DropdownProps) => {
     const {
@@ -27,7 +28,7 @@ const Dropdown = (props: DropdownProps) => {
         closeOnSelect,
         clearable,
         disabled,
-        localizations,
+        labels,
         maxHeight,
         multi,
         options,
@@ -350,6 +351,8 @@ const Dropdown = (props: DropdownProps) => {
         [filteredOptions, sanitizedValues]
     );
 
+    const accessibleId = id ?? uuid();
+
     return (
         <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
             <Popover.Trigger asChild>
@@ -365,25 +368,34 @@ const Dropdown = (props: DropdownProps) => {
                     }}
                     className={`dash-dropdown ${className ?? ''}`}
                     style={style}
-                    aria-label={props.placeholder}
+                    aria-labelledby={`${accessibleId}-value-count ${accessibleId}-value`}
                     aria-haspopup="listbox"
                     aria-expanded={isOpen}
                     data-dash-is-loading={loading || undefined}
                 >
                     <span className="dash-dropdown-grid-container dash-dropdown-trigger">
                         {displayValue.length > 0 && (
-                            <span className="dash-dropdown-value">
+                            <span
+                                id={accessibleId + '-value'}
+                                className="dash-dropdown-value"
+                            >
                                 {displayValue}
                             </span>
                         )}
                         {displayValue.length === 0 && (
-                            <span className="dash-dropdown-value dash-dropdown-placeholder">
+                            <span
+                                id={accessibleId + '-value'}
+                                className="dash-dropdown-value dash-dropdown-placeholder"
+                            >
                                 {props.placeholder}
                             </span>
                         )}
                         {sanitizedValues.length > 1 && (
-                            <span className="dash-dropdown-value-count">
-                                {localizations?.selected_count?.replace(
+                            <span
+                                id={accessibleId + '-value-count'}
+                                className="dash-dropdown-value-count"
+                            >
+                                {labels?.selected_count?.replace(
                                     '{num_selected}',
                                     `${sanitizedValues.length}`
                                 )}
@@ -396,8 +408,8 @@ const Dropdown = (props: DropdownProps) => {
                                     e.preventDefault();
                                     handleClear();
                                 }}
-                                title={localizations?.clear_selection}
-                                aria-label={localizations?.clear_selection}
+                                title={labels?.clear_selection}
+                                aria-label={labels?.clear_selection}
                             >
                                 <Cross1Icon />
                             </a>
@@ -408,7 +420,7 @@ const Dropdown = (props: DropdownProps) => {
                 </button>
             </Popover.Trigger>
 
-            <Popover.Portal container={dropdownContainerRef.current}>
+            <Popover.Portal>
                 <Popover.Content
                     ref={dropdownContentRef}
                     className="dash-dropdown-content"
@@ -426,7 +438,7 @@ const Dropdown = (props: DropdownProps) => {
                             <input
                                 type="search"
                                 className="dash-dropdown-search"
-                                placeholder={localizations?.search}
+                                placeholder={labels?.search}
                                 value={search_value || ''}
                                 autoComplete="off"
                                 onChange={e => onInputChange(e.target.value)}
@@ -437,7 +449,7 @@ const Dropdown = (props: DropdownProps) => {
                                     type="button"
                                     className="dash-dropdown-clear"
                                     onClick={handleClearSearch}
-                                    aria-label={localizations?.clear_search}
+                                    aria-label={labels?.clear_search}
                                 >
                                     <Cross1Icon />
                                 </button>
@@ -451,7 +463,7 @@ const Dropdown = (props: DropdownProps) => {
                                 className="dash-dropdown-action-button"
                                 onClick={handleSelectAll}
                             >
-                                {localizations?.select_all}
+                                {labels?.select_all}
                             </button>
                             {canDeselectAll && (
                                 <button
@@ -459,7 +471,7 @@ const Dropdown = (props: DropdownProps) => {
                                     className="dash-dropdown-action-button"
                                     onClick={handleDeselectAll}
                                 >
-                                    {localizations?.deselect_all}
+                                    {labels?.deselect_all}
                                 </button>
                             )}
                         </div>
@@ -483,7 +495,7 @@ const Dropdown = (props: DropdownProps) => {
                     {isOpen && search_value && !displayOptions.length && (
                         <div className="dash-dropdown-options">
                             <span className="dash-dropdown-option">
-                                {localizations?.no_options_found}
+                                {labels?.no_options_found}
                             </span>
                         </div>
                     )}

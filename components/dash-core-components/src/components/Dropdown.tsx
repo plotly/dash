@@ -4,7 +4,7 @@ import dropdown from '../utils/LazyLoader/dropdown';
 
 const RealDropdown = lazy(dropdown);
 
-const defaultLocalizations: DropdownProps['localizations'] = {
+const defaultLabels: DropdownProps['labels'] = {
     select_all: 'Select All',
     deselect_all: 'Deselect All',
     selected_count: '{num_selected} selected',
@@ -29,7 +29,7 @@ export default function Dropdown({
     disabled = false,
     multi = false,
     searchable = true,
-    localizations = defaultLocalizations,
+    labels = defaultLabels,
     optionHeight = 'auto',
     // eslint-disable-next-line no-magic-numbers
     maxHeight = 200,
@@ -40,9 +40,9 @@ export default function Dropdown({
     persistence_type = PersistenceTypes.local,
     ...props
 }: DropdownProps) {
-    localizations = {
-        ...defaultLocalizations,
-        ...localizations,
+    labels = {
+        ...defaultLabels,
+        ...labels,
     };
 
     return (
@@ -50,7 +50,7 @@ export default function Dropdown({
             <RealDropdown
                 clearable={clearable}
                 disabled={disabled}
-                localizations={localizations}
+                labels={labels}
                 multi={multi}
                 searchable={searchable}
                 optionHeight={optionHeight}

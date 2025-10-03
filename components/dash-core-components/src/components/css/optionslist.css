@@ -29,10 +29,6 @@
     margin: 0 calc(var(--Dash-Spacing) * 2) 0 0;
     box-sizing: border-box;
     border: 1px solid var(--Dash-Stroke-Strong);
-}
-
-.dash-options-list-option-checkbox:hover,
-.dash-options-list-option-checkbox:focus,
-.dash-options-list-option-checkbox:checked {
     accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
 }

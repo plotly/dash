@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 - Dropdown API changes
     * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired
-    * new `localizations` prop to customize strings used within the component
+    * new `labels` prop to customize strings used within the component
     * default value for closeOnSelect is now `True` for single-select dropdowns and `False` for multi-select
 
 - Slider API changes

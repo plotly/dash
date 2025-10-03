@@ -44,7 +44,7 @@ def test_ddcf001_clearable_false_single(dash_duo):
 
     # Clicking the selected item should not de-select it.
     selected_item = dash_duo.find_element(
-        f'#my-unclearable-dropdown input[value="{output_text}"]'
+        f'.dash-dropdown-options input[value="{output_text}"]'
     )
     selected_item.click()
     assert dash_duo.find_element("#dropdown-value").text == output_text
@@ -93,7 +93,7 @@ def test_ddcf002_clearable_false_multi(dash_duo):
 
     # Attempt to deselect all items. Everything should deselect until we get to
     # the last item which cannot be cleared.
-    selected = dash_duo.find_elements("#my-unclearable-dropdown input[checked]")
+    selected = dash_duo.find_elements(".dash-dropdown-options input[checked]")
     [el.click() for el in selected]
 
     assert dash_duo.find_element("#dropdown-value").text == "SF"

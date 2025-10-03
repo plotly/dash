@@ -11,4 +11,6 @@
     --Dash-Fill-Primary-Hover: rgba(0, 18, 77, 0.04);
     --Dash-Fill-Primary-Active: rgba(0, 18, 77, 0.08);
     --Dash-Fill-Disabled: rgba(0, 24, 102, 0.1);
+    --Dash-Shading-Strong: rgba(22, 23, 24, 0.35);
+    --Dash-Shading-Weak: rgba(22, 23, 24, 0.2);
 }

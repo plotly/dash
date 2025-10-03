@@ -27,10 +27,10 @@ def test_a11y001_label_focuses_dropdown(dash_duo):
     dash_duo.wait_for_element("#dropdown")
 
     with pytest.raises(TimeoutException):
-        dash_duo.wait_for_element("#dropdown .dash-dropdown-options", timeout=0.25)
+        dash_duo.wait_for_element(".dash-dropdown-options", timeout=0.25)
 
     dash_duo.find_element("#label").click()
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-options")
+    dash_duo.wait_for_element(".dash-dropdown-options")
 
     assert dash_duo.get_logs() == []
 
@@ -54,10 +54,10 @@ def test_a11y002_label_with_htmlFor_can_focus_dropdown(dash_duo):
     dash_duo.wait_for_element("#dropdown")
 
     with pytest.raises(TimeoutException):
-        dash_duo.wait_for_element("#dropdown .dash-dropdown-options", timeout=0.25)
+        dash_duo.wait_for_element(".dash-dropdown-options", timeout=0.25)
 
     dash_duo.find_element("#label").click()
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-options")
+    dash_duo.wait_for_element(".dash-dropdown-options")
 
     assert dash_duo.get_logs() == []
 
@@ -84,16 +84,16 @@ def test_a11y003_keyboard_navigation(dash_duo):
 
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-options")
+    dash_duo.wait_for_element(".dash-dropdown-options")
 
     send_keys(
         Keys.ESCAPE
     )  # Expecting focus to remain on the dropdown after escaping out
     with pytest.raises(TimeoutException):
-        dash_duo.wait_for_element("#dropdown .dash-dropdown-options", timeout=0.25)
+        dash_duo.wait_for_element(".dash-dropdown-options", timeout=0.25)
 
     send_keys(Keys.ARROW_DOWN)  # Expecting the dropdown to open up
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-search")
+    dash_duo.wait_for_element(".dash-dropdown-search")
 
     num_elements = len(dash_duo.find_elements(".dash-dropdown-option"))
     assert num_elements == 100

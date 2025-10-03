@@ -10,6 +10,8 @@
     cursor: pointer;
     font-size: inherit;
     overflow: hidden;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
 }
 
 .dash-dropdown-grid-container {
@@ -67,11 +69,11 @@
     background: var(--Dash-Fill-Inverse-Strong);
     width: fit-content;
     min-width: var(--radix-popover-trigger-width);
-    max-width: 100vw;
+    max-width: 98vw;
     overflow-y: auto;
-    z-index: 50;
-    box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-        0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+    z-index: 500;
+    box-shadow: 0px 10px 38px -10px var(--Dash-Shading-Strong),
+        0px 10px 20px -15px var(--Dash-Shading-Weak);
 }
 
 .dash-dropdown-value-count,
@@ -182,6 +184,8 @@
     text-decoration: none;
     color: var(--Dash-Text-Disabled);
     white-space: nowrap;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
 }
 
 .dash-dropdown-action-button:hover {
