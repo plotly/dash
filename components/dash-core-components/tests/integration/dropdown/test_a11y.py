@@ -145,7 +145,7 @@ def test_a11y004_selection_visibility_single(dash_duo):
     dash_duo.wait_for_element("#dropdown")
 
     dash_duo.find_element("#dropdown").click()
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-options")
+    dash_duo.wait_for_element(".dash-dropdown-options")
 
     # Assert that the selected option is visible in the dropdown
     selected_option = dash_duo.find_element(".dash-dropdown-option.selected")
@@ -180,7 +180,7 @@ def test_a11y005_selection_visibility_multi(dash_duo):
     dash_duo.wait_for_element("#dropdown")
 
     dash_duo.find_element("#dropdown").click()
-    dash_duo.wait_for_element("#dropdown .dash-dropdown-options")
+    dash_duo.wait_for_element(".dash-dropdown-options")
 
     # Assert that the selected option is visible in the dropdown
     selected_options = dash_duo.find_elements(".dash-dropdown-option.selected")
