@@ -518,3 +518,87 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
      */
     labelClassName?: string;
 }
+
+export interface LoadingProps extends BaseComponentProps<LoadingProps> {
+    /**
+     * Array that holds components to render
+     */
+    children: React.ReactNode;
+
+    /**
+     * Property that determines which built-in spinner to show
+     * one of 'graph', 'cube', 'circle', 'dot', or 'default'.
+     */
+    type?: 'graph' | 'cube' | 'circle' | 'dot' | 'default';
+
+    /**
+     * Boolean that makes the built-in spinner display full-screen
+     */
+    fullscreen?: boolean;
+
+    /**
+     * If true, the built-in spinner will display the component_name and prop_name
+     * while loading
+     */
+    debug?: boolean;
+
+    /**
+     * Additional CSS styling for the built-in spinner root DOM node
+     */
+    style?: React.CSSProperties;
+
+    /**
+     *  Additional CSS class for the outermost dcc.Loading parent div DOM node
+     */
+    parent_className?: string;
+
+    /**
+     * Additional CSS styling for the outermost dcc.Loading parent div DOM node
+     */
+    parent_style?: React.CSSProperties;
+    /**
+     * Additional CSS styling for the spinner overlay. This is applied to the
+     * dcc.Loading children while the spinner is active.  The default is `{'visibility': 'hidden'}`
+     */
+    overlay_style?: React.CSSProperties;
+
+    /**
+     * Primary color used for the built-in loading spinners
+     */
+    color?: string;
+
+    /**
+     * Setting display to  "show" or "hide"  will override the loading state coming from dash-renderer
+     */
+    display?: 'auto' | 'show' | 'hide';
+
+    /**
+     * Add a time delay (in ms) to the spinner being removed to prevent flickering.
+     */
+    delay_hide?: number;
+
+    /**
+     * Add a time delay (in ms) to the spinner being shown after the loading_state
+     * is set to True.
+     */
+    delay_show?: number;
+
+    /**
+     * Whether the Spinner should show on app start-up before the loading state
+     * has been determined. Default True.  Use when also setting `delay_show`.
+     */
+    show_initially?: boolean;
+
+    /**
+     * Specify component and prop to trigger showing the loading spinner
+     * example: `{"output-container": "children", "grid": ["rowData", "columnDefs]}`
+     *
+     */
+    target_components?: Record<string, string | string[]>;
+
+    /**
+     *  Component to use rather than the built-in spinner specified in the `type` prop.
+     *
+     */
+    custom_spinner?: React.ReactNode;
+}

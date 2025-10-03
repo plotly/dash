@@ -12,7 +12,7 @@ import Graph from './components/Graph.react';
 import Input from './components/Input';
 import Interval from './components/Interval.react';
 import Link from './components/Link.react';
-import Loading from './components/Loading.react';
+import Loading from './components/Loading';
 import Location from './components/Location.react';
 import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems';
