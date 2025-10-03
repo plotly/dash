@@ -166,6 +166,35 @@ export default function RangeSlider(props: RangeSliderProps) {
         });
     }, [min, max, processedMarks, step, sliderWidth]);
 
+    // Calculate dynamic input width based on digits needed and container size
+    const inputWidth = useMemo(() => {
+        if (!sliderWidth) {
+            return '64px'; // fallback to current width
+        }
+
+        // Count digits needed for min and max values
+        const maxDigits = Math.max(
+            String(Math.floor(Math.abs(minMaxValues.max_mark))).length,
+            String(Math.floor(Math.abs(minMaxValues.min_mark))).length
+        );
+
+        // Add 1 for minus sign if min is negative
+        const totalChars = maxDigits + (minMaxValues.min_mark < 0 ? 1 : 0);
+
+        // Calculate width as percentage of container (5% min, 15% max)
+        /* eslint-disable no-magic-numbers */
+        const minWidth = sliderWidth * 0.05;
+        const maxWidth = sliderWidth * 0.15;
+        const charBasedWidth = totalChars * 12; // approx 12px per character
+        /* eslint-enable no-magic-numbers */
+
+        const calculatedWidth = Math.max(
+            minWidth,
+            Math.min(maxWidth, charBasedWidth)
+        );
+        return `${calculatedWidth}px`;
+    }, [sliderWidth, minMaxValues.min_mark, minMaxValues.max_mark]);
+
     const handleValueChange = (newValue: number[]) => {
         let adjustedValue = newValue;
 
@@ -205,6 +234,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                         <input
                             type="number"
                             className="dash-input-container dash-range-slider-input dash-range-slider-min-input"
+                            style={{width: inputWidth}}
                             value={value[0] ?? ''}
                             onChange={e => {
                                 const inputValue = e.target.value;
@@ -265,7 +295,8 @@ export default function RangeSlider(props: RangeSliderProps) {
                     {showInputs && !vertical && (
                         <input
                             type="number"
-                            className="dash-input-container dash-range-slider-input dash-range-slider-max-input"
+                            className="dash-input-container dash-range-slider-input  dash-range-slider-max-input"
+                            style={{width: inputWidth}}
                             value={value[value.length - 1] ?? ''}
                             onChange={e => {
                                 const inputValue = e.target.value;
