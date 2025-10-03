@@ -34,15 +34,16 @@ def test_ddlo001_translations(dash_duo):
         ".dash-dropdown-action-button:last-child", "Désélectionner tout"
     )
 
-    search_input = dash_duo.find_element(".dash-dropdown-search")
-    assert search_input.accessible_name == "Rechercher"
+    assert (
+        dash_duo.find_element(".dash-dropdown-search").accessible_name == "Rechercher"
+    )
 
-    search_input.send_keys(1)
+    dash_duo.find_element(".dash-dropdown-search").send_keys(1)
     assert dash_duo.find_element(".dash-dropdown-clear").accessible_name == "Annuler"
 
     dash_duo.find_element(".dash-dropdown-action-button:first-child").click()
 
-    search_input.send_keys(9)
+    dash_duo.find_element(".dash-dropdown-search").send_keys(9)
     assert dash_duo.find_element(".dash-dropdown-option").text == "Aucun d'options"
 
     assert (
@@ -80,17 +81,16 @@ def test_ddlo002_partial_translations(dash_duo):
         ".dash-dropdown-action-button:last-child", "Deselect All"
     )
 
-    search_input = dash_duo.find_element(".dash-dropdown-search")
-    assert search_input.accessible_name == "Lookup"
+    assert dash_duo.find_element(".dash-dropdown-search").accessible_name == "Lookup"
 
-    search_input.send_keys(1)
+    dash_duo.find_element(".dash-dropdown-search").send_keys(1)
     assert (
         dash_duo.find_element(".dash-dropdown-clear").accessible_name == "Clear search"
     )
 
     dash_duo.find_element(".dash-dropdown-action-button:first-child").click()
 
-    search_input.send_keys(9)
+    dash_duo.find_element(".dash-dropdown-search").send_keys(9)
     assert dash_duo.find_element(".dash-dropdown-option").text == "No options found"
 
     assert (
