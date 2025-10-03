@@ -62,7 +62,7 @@
     background-color: var(--Dash-Fill-Interactive-Strong);
     border: 2px solid var(--Dash-Fill-Inverse-Strong);
     border-radius: 50%;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px 0 var(--Dash-Shading-Weak);
     cursor: pointer;
     outline: none;
     transition: all 0.15s ease-in-out;
@@ -71,7 +71,7 @@
 .dash-slider-thumb:focus,
 .dash-slider-thumb:hover {
     transform: scale(1.125); /* Scale to make 16px thumb appear as 18px */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px var(--Dash-Shading-Weak);
 }
 
 .dash-slider-thumb:focus .dash-slider-tooltip,
@@ -129,7 +129,7 @@
     padding: calc(var(--Dash-Spacing) * 3);
     font-size: 12px;
     line-height: 1;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 8px var(--Dash-Shading-Strong);
     background-color: var(--Dash-Fill-Inverse-Strong);
     user-select: none;
     z-index: 1000;

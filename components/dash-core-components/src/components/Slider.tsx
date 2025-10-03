@@ -22,7 +22,7 @@ export default function Slider({
     persistence_type = PersistenceTypes.local,
     // eslint-disable-next-line no-magic-numbers
     verticalHeight = 400,
-    step = 1,
+    step = undefined,
     setProps,
     value,
     drag_value,
@@ -30,6 +30,17 @@ export default function Slider({
 }: SliderProps) {
     // This is actually a wrapper around a RangeSlider.
     // We'll modify key `Slider` props to be compatible with a Range Slider.
+
+    // Some considerations for the default value of `step`:
+    // If the range consists of integers, default to a value of `1`
+    // Otherwise, leave it undefined
+    if (
+        typeof step === 'undefined' &&
+        Number.isInteger(props.min) &&
+        Number.isInteger(props.max)
+    ) {
+        step = 1;
+    }
 
     const mappedValue: RangeSliderProps['value'] = useMemo(() => {
         return typeof value === 'number' ? [value] : value;

@@ -2,6 +2,18 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## UNRELEASED
+
+## Changed
+
+- Dropdown API changes
+    * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired
+    * new `labels` prop to customize strings used within the component
+    * default value for closeOnSelect is now `True` for single-select dropdowns and `False` for multi-select
+
+- Slider API changes
+    * default value of `step` is now only set to `1` if the `min` and `max` props are both integers. Otherwise, it will be dynamically computed according to the available space for the slider
+
 ## [4.0.0rc1] - 2025-09-22
 
 ## Added

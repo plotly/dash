@@ -15,6 +15,19 @@
     overflow: hidden;
 }
 
+.dash-input-container:focus-within {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-container:has(.dash-input-element:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dash-input-container input:focus {
+    outline: none;
+}
+
 .dash-input-container:has(input[type='range']) {
     background: inherit;
 }
@@ -32,11 +45,17 @@
     box-sizing: border-box;
     z-index: 1;
     order: 2;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-element:disabled {
+    cursor: not-allowed;
 }
 
 /* Hide native steppers for number inputs */
 .dash-input-element[type='number'] {
     -moz-appearance: textfield;
+    border-radius: 0;
 }
 
 .dash-input-element[type='number']::-webkit-outer-spin-button,
@@ -70,10 +89,11 @@
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    color: var(--Dash-Text-Primary);
+    color: var(--Dash -Text-Primary);
 }
 
-.dash-input-stepper:hover {
+.dash-input-stepper:hover,
+.dash-input-stepper:focus {
     background: var(--Dash-Fill-Primary-Hover);
 }
 
@@ -114,8 +134,4 @@
 
 input.dash-input-element:invalid {
     outline: solid red;
-}
-
-input.dash-input-element:valid {
-    outline: none black;
 }

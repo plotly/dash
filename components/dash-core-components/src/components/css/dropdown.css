@@ -1,6 +1,16 @@
 .dash-dropdown {
+    display: block;
     box-sizing: border-box;
     margin: calc(var(--Dash-Spacing) * 2) 0;
+    padding: 0;
+    background: inherit;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-size: inherit;
+    overflow: hidden;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
 }
 
 .dash-dropdown-grid-container {
@@ -19,7 +29,7 @@
     grid-template-columns: auto 1fr auto auto;
 }
 
-.dash-dropdown-trigger,
+.dash-dropdown,
 .dash-dropdown-content {
     border-radius: var(--Dash-Spacing);
     border: 1px solid var(--Dash-Stroke-Strong);
@@ -28,17 +38,12 @@
 }
 
 .dash-dropdown-trigger {
-    background: inherit;
-    padding: 6px 12px;
-    width: 100%;
+    padding: 0 12px;
     min-height: 32px;
     height: 100%;
-    cursor: pointer;
-    font-size: inherit;
-    overflow: hidden;
 }
 
-.dash-dropdown-trigger:disabled {
+.dash-dropdown:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -61,12 +66,13 @@
 
 .dash-dropdown-content {
     background: var(--Dash-Fill-Inverse-Strong);
-    min-width: fit-content;
-    width: var(--radix-popover-trigger-width);
+    width: fit-content;
+    min-width: var(--radix-popover-trigger-width);
+    max-width: 98vw;
     overflow-y: auto;
-    z-index: 50;
-    box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
-        0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+    z-index: 500;
+    box-shadow: 0px 10px 38px -10px var(--Dash-Shading-Strong),
+        0px 10px 20px -15px var(--Dash-Shading-Weak);
 }
 
 .dash-dropdown-value-count,
@@ -175,6 +181,8 @@
     text-decoration: none;
     color: var(--Dash-Text-Disabled);
     white-space: nowrap;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
 }
 
 .dash-dropdown-action-button:hover {
@@ -190,6 +198,6 @@
 }
 
 .dash-dropdown-option {
-    padding: var(--Dash-Spacing) calc(var(--Dash-Spacing) * 3);
+    padding: calc(var(--Dash-Spacing) * 2) calc(var(--Dash-Spacing) * 3);
     box-shadow: 0 -1px 0 0 var(--Dash-Fill-Disabled) inset;
 }
