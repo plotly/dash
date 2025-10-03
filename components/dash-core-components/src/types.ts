@@ -523,7 +523,7 @@ export interface LoadingProps extends BaseComponentProps<LoadingProps> {
     /**
      * Array that holds components to render
      */
-    children: React.ReactNode;
+    children?: React.ReactNode;
 
     /**
      * Property that determines which built-in spinner to show
