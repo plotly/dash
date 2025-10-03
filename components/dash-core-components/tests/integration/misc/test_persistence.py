@@ -168,7 +168,7 @@ def test_msps001_basic_persistence(dash_dcc):
         ["4️⃣", "6️⃣"],
         "yes maybe",
         "r",
-        [5, 9],
+        [5, 8],
         22,
         "C",
         "knock knock\nwho's there?",

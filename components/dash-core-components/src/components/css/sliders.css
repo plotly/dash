@@ -7,10 +7,14 @@
     touch-action: none;
     width: 100%;
     height: 14px;
-    padding: 8px 0 28px 0;
+    padding: 18px 0 18px 0;
     box-sizing: border-box;
     /* Override Radix's default margin/padding behavior */
     --radix-slider-thumb-width: 16px;
+}
+
+.dash-slider-root.has-marks {
+    padding: 8px 0 28px 0;
 }
 
 .dash-slider-root[data-orientation='vertical'].has-marks {
@@ -167,7 +171,7 @@
 .dash-slider-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     width: 100%;
 }
 
@@ -184,7 +188,7 @@
 }
 
 .dash-range-slider-min-input {
-    min-width: 64px;
+    text-align: center;
 }
 
 .dash-range-slider-max-input {
@@ -193,7 +197,7 @@
 
 .dash-range-slider-input {
     width: 64px;
-    margin-top: 8px;
+    text-align: center;
     -webkit-appearance: textfield;
     -moz-appearance: textfield;
     appearance: textfield;

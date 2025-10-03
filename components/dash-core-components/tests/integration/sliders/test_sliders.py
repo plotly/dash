@@ -30,7 +30,7 @@ def test_slsl001_always_visible_slider(dash_dcc):
     dash_dcc.click_at_coord_fractions(slider, 0.5, 0.25)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 11")
     dash_dcc.click_at_coord_fractions(slider, 0.75, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out", "You have selected 17")
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 16")
 
     assert dash_dcc.get_logs() == []
 
@@ -265,7 +265,7 @@ def test_slsl007_drag_value_slider(dash_dcc):
 
     dash_dcc.click_and_hold_at_coord_fractions(slider, 0.25, 0.25)
     dash_dcc.move_to_coord_fractions(slider, 0.75, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 17")
+    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 16")
     dash_dcc.move_to_coord_fractions(slider, 0.5, 0.25)
     dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 11")
     dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 5")
