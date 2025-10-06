@@ -49,6 +49,7 @@ export default function RangeSlider(props: RangeSliderProps) {
     const [showInputs, setShowInputs] = useState<boolean>(value.length === 2);
 
     const sliderRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Handle initial mount - equivalent to componentWillMount
     useEffect(() => {
@@ -192,8 +193,94 @@ export default function RangeSlider(props: RangeSliderProps) {
             minWidth,
             Math.min(maxWidth, charBasedWidth)
         );
-        return `${calculatedWidth}px`;
+
+        // Add padding if box-sizing is border-box
+        let inputPadding = 0;
+        if (inputRef.current) {
+            const computedStyle = window.getComputedStyle(inputRef.current);
+            if (computedStyle.boxSizing === 'border-box') {
+                const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+                const paddingRight =
+                    parseFloat(computedStyle.paddingRight) || 0;
+                inputPadding = paddingLeft + paddingRight;
+            }
+        }
+
+        const totalWidth = calculatedWidth + inputPadding;
+
+        return `${totalWidth}px`;
     }, [sliderWidth, minMaxValues.min_mark, minMaxValues.max_mark]);
+
+    const valueIsValid = (val: number): boolean => {
+        // Check if value is within min/max bounds
+        if (val < minMaxValues.min_mark || val > minMaxValues.max_mark) {
+            return false;
+        }
+
+        // If step is defined, check if value aligns with step
+        if (stepValue !== undefined) {
+            const min = minMaxValues.min_mark;
+            const offset = val - min;
+            const remainder = Math.abs(offset % stepValue);
+            const epsilon = 0.0001; // tolerance for floating point comparison
+            if (remainder > epsilon && remainder < stepValue - epsilon) {
+                return false;
+            }
+        }
+
+        // If step is null and marks exist, value must match a mark
+        if (
+            step === null &&
+            processedMarks &&
+            typeof processedMarks === 'object'
+        ) {
+            const markValues = Object.keys(processedMarks).map(Number);
+            const epsilon = 0.0001;
+            return markValues.some(mark => Math.abs(val - mark) < epsilon);
+        }
+
+        return true;
+    };
+
+    const constrainToValidValue = (val: number): number => {
+        // First constrain to min/max bounds
+        let constrained = Math.max(
+            minMaxValues.min_mark,
+            Math.min(minMaxValues.max_mark, val)
+        );
+
+        // If step is null and marks exist, snap to nearest mark
+        if (
+            step === null &&
+            processedMarks &&
+            typeof processedMarks === 'object'
+        ) {
+            return snapToNearestMark(constrained, processedMarks);
+        }
+
+        // If step is defined, round to nearest step
+        if (stepValue !== undefined) {
+            const min = minMaxValues.min_mark;
+            const steps = Math.round((constrained - min) / stepValue);
+            constrained = min + steps * stepValue;
+
+            // Round to avoid floating point precision issues
+            // Determine decimal places from step value
+            const stepStr = stepValue.toString();
+            const decimalPlaces = stepStr.includes('.')
+                ? stepStr.split('.')[1].length
+                : 0;
+            constrained = Number(constrained.toFixed(decimalPlaces));
+
+            // Ensure we stay within bounds after rounding
+            constrained = Math.max(
+                minMaxValues.min_mark,
+                Math.min(minMaxValues.max_mark, constrained)
+            );
+        }
+
+        return constrained;
+    };
 
     const handleValueChange = (newValue: number[]) => {
         let adjustedValue = newValue;
@@ -233,26 +320,25 @@ export default function RangeSlider(props: RangeSliderProps) {
                             type="number"
                             className="dash-input-container dash-range-slider-input dash-range-slider-min-input"
                             style={{width: inputWidth}}
-                            value={value[0] ?? ''}
+                            value={isNaN(value[0]) ? '' : value[0]}
                             onChange={e => {
                                 const inputValue = e.target.value;
-                                // Allow empty string (user is clearing the field)
-                                if (inputValue === '') {
-                                    // Don't update props while user is typing, just update local state
-                                    setValue([null as any, value[1]]);
-                                } else {
-                                    const newMin = parseFloat(inputValue);
-                                    if (!isNaN(newMin)) {
-                                        const newValue = [newMin, value[1]];
-                                        setValue(newValue);
-                                        if (updatemode === 'drag') {
-                                            setProps({
-                                                value: newValue,
-                                                drag_value: newValue,
-                                            });
-                                        } else {
-                                            setProps({drag_value: newValue});
-                                        }
+
+                                // Parse the input value
+                                const newMin = parseFloat(inputValue);
+                                const newValue = [newMin, value[1]];
+                                setValue(newValue);
+                                // Only update props if value is valid
+                                if (valueIsValid(newMin)) {
+                                    if (updatemode === 'drag') {
+                                        setProps({
+                                            value: newValue,
+                                            drag_value: newValue,
+                                        });
+                                    } else {
+                                        setProps({
+                                            drag_value: newValue,
+                                        });
                                     }
                                 }
                             }}
@@ -262,7 +348,9 @@ export default function RangeSlider(props: RangeSliderProps) {
 
                                 // If empty, default to current value or min_mark
                                 if (inputValue === '') {
-                                    newMin = value[0] ?? minMaxValues.min_mark;
+                                    newMin = isNaN(value[0])
+                                        ? minMaxValues.min_mark
+                                        : value[0];
                                 } else {
                                     newMin = parseFloat(inputValue);
                                     newMin = isNaN(newMin)
@@ -270,13 +358,15 @@ export default function RangeSlider(props: RangeSliderProps) {
                                         : newMin;
                                 }
 
-                                const constrainedMin = Math.max(
-                                    minMaxValues.min_mark,
-                                    Math.min(
-                                        value[1] ?? minMaxValues.max_mark,
-                                        newMin
-                                    )
+                                // Constrain to not exceed the max value
+                                newMin = Math.min(
+                                    value[1] ?? minMaxValues.max_mark,
+                                    newMin
                                 );
+
+                                // Snap to valid value (respecting step and marks)
+                                const constrainedMin =
+                                    constrainToValidValue(newMin);
                                 const newValue = [constrainedMin, value[1]];
                                 setValue(newValue);
                                 if (updatemode === 'mouseup') {
@@ -285,37 +375,39 @@ export default function RangeSlider(props: RangeSliderProps) {
                             }}
                             pattern="^\\d*\\.?\\d*$"
                             min={minMaxValues.min_mark}
-                            max={value[1]}
+                            max={isNaN(value[1]) ? max : value[1]}
                             step={step || undefined}
                             disabled={disabled}
                         />
                     )}
                     {showInputs && !vertical && (
                         <input
+                            ref={inputRef}
                             type="number"
                             className="dash-input-container dash-range-slider-input  dash-range-slider-max-input"
                             style={{width: inputWidth}}
-                            value={value[value.length - 1] ?? ''}
+                            value={
+                                isNaN(value[value.length - 1])
+                                    ? ''
+                                    : value[value.length - 1]
+                            }
                             onChange={e => {
                                 const inputValue = e.target.value;
-                                // Allow empty string (user is clearing the field)
-                                if (inputValue === '') {
-                                    // Don't update props while user is typing, just update local state
-                                    const newValue = [...value];
-                                    newValue[newValue.length - 1] = '' as any;
-                                    setValue(newValue);
-                                } else {
-                                    const newMax = parseFloat(inputValue);
-                                    const constrainedMax = Math.max(
-                                        minMaxValues.min_mark,
-                                        Math.min(minMaxValues.max_mark, newMax)
-                                    );
 
-                                    if (newMax === constrainedMax) {
-                                        const newValue = [...value];
-                                        newValue[newValue.length - 1] = newMax;
+                                // Parse the input value
+                                const newMax = parseFloat(inputValue);
+                                const newValue = [...value];
+                                newValue[newValue.length - 1] = newMax;
+                                setValue(newValue);
+                                // Only update props if value is valid
+                                if (valueIsValid(newMax)) {
+                                    if (updatemode === 'drag') {
                                         setProps({
                                             value: newValue,
+                                            drag_value: newValue,
+                                        });
+                                    } else {
+                                        setProps({
                                             drag_value: newValue,
                                         });
                                     }
@@ -327,23 +419,24 @@ export default function RangeSlider(props: RangeSliderProps) {
 
                                 // If empty, default to current value or max_mark
                                 if (inputValue === '') {
-                                    newMax =
-                                        value[value.length - 1] ??
-                                        minMaxValues.max_mark;
+                                    newMax = isNaN(value[value.length - 1])
+                                        ? minMaxValues.max_mark
+                                        : value[value.length - 1];
                                 } else {
                                     newMax = parseFloat(inputValue);
                                     newMax = isNaN(newMax)
                                         ? minMaxValues.max_mark
                                         : newMax;
                                 }
-
-                                const constrainedMax = Math.min(
-                                    minMaxValues.max_mark,
-                                    Math.max(
-                                        value[0] ?? minMaxValues.min_mark,
-                                        newMax
-                                    )
+                                // Constrain to not be less than the min value
+                                newMax = Math.max(
+                                    value[0] ?? minMaxValues.min_mark,
+                                    newMax
                                 );
+
+                                // Snap to valid value (respecting step and marks)
+                                const constrainedMax =
+                                    constrainToValidValue(newMax);
                                 const newValue = [...value];
                                 newValue[newValue.length - 1] = constrainedMax;
                                 setValue(newValue);
@@ -357,7 +450,11 @@ export default function RangeSlider(props: RangeSliderProps) {
                                     ? minMaxValues.min_mark
                                     : value[0]
                             }
-                            max={minMaxValues.max_mark}
+                            max={
+                                isNaN(minMaxValues.max_mark)
+                                    ? max
+                                    : minMaxValues.max_mark
+                            }
                             step={step || undefined}
                             disabled={disabled}
                         />
