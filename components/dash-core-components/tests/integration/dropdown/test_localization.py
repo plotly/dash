@@ -1,3 +1,4 @@
+from time import sleep
 from dash import Dash
 from dash.dcc import Dropdown
 from dash.html import Div
@@ -39,11 +40,13 @@ def test_ddlo001_translations(dash_duo):
     )
 
     dash_duo.find_element(".dash-dropdown-search").send_keys(1)
+    sleep(0.1)
     assert dash_duo.find_element(".dash-dropdown-clear").accessible_name == "Annuler"
 
     dash_duo.find_element(".dash-dropdown-action-button:first-child").click()
 
     dash_duo.find_element(".dash-dropdown-search").send_keys(9)
+    sleep(0.1)
     assert dash_duo.find_element(".dash-dropdown-option").text == "Aucun d'options"
 
     assert (
@@ -84,6 +87,7 @@ def test_ddlo002_partial_translations(dash_duo):
     assert dash_duo.find_element(".dash-dropdown-search").accessible_name == "Lookup"
 
     dash_duo.find_element(".dash-dropdown-search").send_keys(1)
+    sleep(0.1)
     assert (
         dash_duo.find_element(".dash-dropdown-clear").accessible_name == "Clear search"
     )
@@ -91,6 +95,7 @@ def test_ddlo002_partial_translations(dash_duo):
     dash_duo.find_element(".dash-dropdown-action-button:first-child").click()
 
     dash_duo.find_element(".dash-dropdown-search").send_keys(9)
+    sleep(0.1)
     assert dash_duo.find_element(".dash-dropdown-option").text == "No options found"
 
     assert (

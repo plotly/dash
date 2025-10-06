@@ -126,3 +126,88 @@ def test_a11y003_keyboard_navigation(dash_duo):
     assert dash_duo.find_element(".dash-dropdown-value").text == "1, 91"
 
     assert dash_duo.get_logs() == []
+
+
+def test_a11y004_selection_visibility_single(dash_duo):
+    app = Dash(__name__)
+    app.layout = (
+        Dropdown(
+            id="dropdown",
+            options=[f"Option {i}" for i in range(0, 100)],
+            value="Option 71",
+            multi=False,
+            placeholder="Testing selected item is visible on open",
+        ),
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#dropdown")
+
+    dash_duo.find_element("#dropdown").click()
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    # Assert that the selected option is visible in the dropdown
+    selected_option = dash_duo.find_element(".dash-dropdown-option.selected")
+    assert selected_option.text == "Option 71"
+    assert selected_option.is_displayed()
+
+    assert elements_are_visible(
+        dash_duo, selected_option
+    ), "Selected option should be visible when the dropdown opens"
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y005_selection_visibility_multi(dash_duo):
+    app = Dash(__name__)
+    app.layout = (
+        Dropdown(
+            id="dropdown",
+            options=[f"Option {i}" for i in range(0, 100)],
+            value=[
+                "Option 71",
+                "Option 23",
+                "Option 42",
+            ],
+            multi=True,
+            placeholder="Testing selected item is visible on open",
+        ),
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_element("#dropdown")
+
+    dash_duo.find_element("#dropdown").click()
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    # Assert that the selected option is visible in the dropdown
+    selected_options = dash_duo.find_elements(".dash-dropdown-option.selected")
+    assert elements_are_visible(
+        dash_duo, selected_options
+    ), "Selected options should be visible when the dropdown opens"
+
+    assert dash_duo.get_logs() == []
+
+
+def elements_are_visible(dash_duo, elements):
+    # Check if the given elements are within the visible viewport of the dropdown
+    elements = elements if isinstance(elements, list) else [elements]
+    dropdown_content = dash_duo.find_element(".dash-dropdown-content")
+
+    def is_visible(el):
+        return dash_duo.driver.execute_script(
+            """
+            const option = arguments[0];
+            const container = arguments[1];
+            const optionRect = option.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            return optionRect.top >= containerRect.top &&
+                optionRect.bottom <= containerRect.bottom;
+            """,
+            el,
+            dropdown_content,
+        )
+
+    return all([is_visible(el) for el in elements])
