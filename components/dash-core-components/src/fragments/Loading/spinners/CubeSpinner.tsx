@@ -1,14 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import changeColor from 'color';
+import DebugTitle from './DebugTitle';
+import {SpinnerProps} from '../types';
 
-import DebugTitle from './DebugTitle.jsx';
-
-
-const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
+const CubeSpinner = ({
+    status,
+    color,
+    fullscreen,
+    debug,
+    className,
+    style,
+}: SpinnerProps) => {
     let debugTitle;
     if (debug && status) {
-        debugTitle = status.map((s) => <DebugTitle {...s} />);
+        debugTitle = status.map((s, i) => <DebugTitle key={i} {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';
     if (className) {
@@ -73,31 +77,31 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
                         transform: rotateY(0deg) translateZ(40px);
                       }
                       .dash-cube-side--back {
-                        background-color: ${changeColor(color).darken(0.2)};
+                        background-color: color-mix(in srgb, ${color} 80%, black 20%);
                         transform: rotateX(180deg) translateZ(40px);
                         animation: blowout-back 4s infinite;
                       }
 
                       .dash-cube-side--left {
-                        background-color: ${changeColor(color).darken(0.2)};
+                        background-color: color-mix(in srgb, ${color} 80%, black 20%);
                         transform: rotateY(-90deg) translateZ(40px);
                         animation: blowout-left 4s infinite;
                       }
 
                       .dash-cube-side--right {
-                        background-color: ${changeColor(color).darken(0.4)};
+                        background-color: color-mix(in srgb, ${color} 60%, black 40%);
                         transform: rotateY(90deg) translateZ(40px);
                         animation: blowout-right 4s infinite;
                       }
 
                       .dash-cube-side--top {
-                        background-color: ${changeColor(color).darken(0.2)};
+                        background-color: color-mix(in srgb, ${color} 80%, black 20%);
                         transform: rotateX(90deg) translateZ(40px);
                         animation: blowout-top 4s infinite;
                       }
 
                       .dash-cube-side--bottom {
-                        background-color: ${changeColor(color).darken(0.4)};
+                        background-color: color-mix(in srgb, ${color} 60%, black 40%);
                         transform: rotateX(-90deg) translateZ(40px);
                         animation: blowout-bottom 4s infinite;
                       }
@@ -184,15 +188,6 @@ const CubeSpinner = ({status, color, fullscreen, debug, className, style}) => {
             </style>
         </div>
     );
-};
-
-CubeSpinner.propTypes = {
-    status: PropTypes.array,
-    color: PropTypes.string,
-    className: PropTypes.string,
-    fullscreen: PropTypes.bool,
-    style: PropTypes.object,
-    debug: PropTypes.bool,
 };
 
 export default CubeSpinner;
