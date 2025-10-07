@@ -1,14 +1,10 @@
 import React from 'react';
+import {DashComponentApi} from '@dash-renderer/dashApi';
 import {DashComponent} from '@dash-renderer/types/component';
-import ExternalWrapper from '@dash-renderer/wrapper/ExternalWrapper';
-import {useDashContext} from '@dash-renderer/wrapper/DashContext';
 
 declare global {
     interface Window {
-        dash_component_api: {
-            useDashContext: typeof useDashContext;
-            ExternalWrapper: typeof ExternalWrapper;
-        };
+        dash_component_api: DashComponentApi;
     }
 }
 
@@ -517,4 +513,65 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
      *  and the option's label
      */
     labelClassName?: string;
+}
+
+export interface TabsProps extends BaseComponentProps<TabsProps> {
+    /**
+     * The value of the currently selected Tab
+     */
+    value?: string;
+
+    /**
+     * Appends a class to the Tab content container holding the children of the Tab that is selected.
+     */
+    content_className?: string;
+
+    /**
+     * Appends a class to the top-level parent container holding both the Tabs container and the content container.
+     */
+    parent_className?: string;
+
+    /**
+     * Appends (inline) styles to the Tabs container holding the individual Tab components.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Appends (inline) styles to the top-level parent container holding both the Tabs container and the content container.
+     */
+    parent_style?: React.CSSProperties;
+
+    /**
+     * Appends (inline) styles to the tab content container holding the children of the Tab that is selected.
+     */
+    content_style?: React.CSSProperties;
+
+    /**
+     * Renders the tabs vertically (on the side)
+     */
+    vertical?: boolean;
+
+    /**
+     * Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)
+     */
+    mobile_breakpoint?: number;
+
+    /**
+     * Array that holds Tab components
+     */
+    children?: DashComponent[];
+
+    /**
+     * Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
+     * colors: {
+     *    border: '#d6d6d6',
+     *    primary: '#1975FA',
+     *    background: '#f9f9f9'
+     *  }
+     */
+    colors?: {
+        border: string;
+        primary: string;
+        background: string;
+    };
 }

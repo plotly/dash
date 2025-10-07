@@ -36,3 +36,11 @@ function getLayout(componentPathOrId: string[] | string): any {
     getLayout,
     stringifyId
 };
+
+export interface DashComponentApi {
+    ExternalWrapper: typeof ExternalWrapper;
+    DashContext: typeof DashContext;
+    useDashContext: typeof useDashContext;
+    getLayout: typeof getLayout;
+    stringifyId: typeof stringifyId;
+}
