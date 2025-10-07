@@ -6,6 +6,12 @@ import './css/textarea.css';
 
 const textAreaProps = [
     'id',
+    'cols',
+    'rows',
+    'minLength',
+    'maxLength',
+    'contentEditable',
+    'tabIndex',
     'form',
     'name',
     'placeholder',
@@ -19,26 +25,6 @@ const textAreaProps = [
     'style',
     'title',
 ] as const;
-
-const asNumber = (value?: string | number): number | undefined => {
-    return typeof value === 'string'
-        ? isNaN(parseInt(value, 10))
-            ? undefined
-            : parseInt(value, 10)
-        : value;
-};
-const asBool = (value?: string | boolean): boolean | undefined => {
-    if (typeof value === 'string') {
-        if (['true', 'TRUE', 'True'].includes(value)) {
-            return true;
-        }
-        if (['false', 'FALSE', 'False'].includes(value)) {
-            return false;
-        }
-        return undefined;
-    }
-    return value;
-};
 
 /**
  * A basic HTML textarea for entering multiline text.
@@ -60,17 +46,11 @@ const Textarea = ({
             data-dash-is-loading={isLoading || undefined}
             className={'dash-textarea ' + props.className}
             value={props.value}
-            cols={asNumber(props.cols)}
-            rows={asNumber(props.rows)}
-            disabled={asBool(props.disabled)}
-            minLength={asNumber(props.minLength)}
-            maxLength={asNumber(props.maxLength)}
-            readOnly={asBool(props.readOnly)}
-            required={asBool(props.required)}
-            autoFocus={asBool(props.autoFocus)}
-            contentEditable={asBool(props.contentEditable)}
-            hidden={asBool(props.hidden)}
-            tabIndex={asNumber(props.tabIndex)}
+            disabled={!!props.disabled}
+            readOnly={!!props.readOnly}
+            required={!!props.required}
+            autoFocus={!!props.autoFocus}
+            hidden={!!props.hidden}
             onChange={e => {
                 setProps({value: e.target.value});
             }}

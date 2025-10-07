@@ -533,12 +533,12 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Defines the number of columns in a textarea.
      */
-    cols?: string | number;
+    cols?: number;
 
     /**
      * Indicates whether the user can interact with the element.
      */
-    disabled?: string | boolean;
+    disabled?: boolean | 'disabled' | 'DISABLED';
 
     /**
      * Indicates the form that is the owner of the element.
@@ -548,12 +548,12 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Defines the maximum number of characters allowed in the element.
      */
-    maxLength?: string | number;
+    maxLength?: number;
 
     /**
      * Defines the minimum number of characters allowed in the element.
      */
-    minLength?: string | number;
+    minLength?: number;
 
     /**
      * Name of the element. For example used by the server to identify the fields in form submits.
@@ -584,7 +584,7 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Defines the number of rows in a text area.
      */
-    rows?: string | number;
+    rows?: number;
 
     /**
      * Indicates whether the text should be wrapped.
@@ -599,7 +599,7 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Indicates whether the element's content is editable.
      */
-    contentEditable?: string | boolean;
+    contentEditable?: boolean;
 
     /**
      * Defines the ID of a <menu> element which will serve as the element's context menu.
@@ -614,7 +614,7 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Defines whether the element can be dragged.
      */
-    draggable?: boolean | 'true' | 'false';
+    draggable?: boolean;
 
     /**
      * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
@@ -629,7 +629,7 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Indicates whether spell checking is allowed for the element.
      */
-    spellCheck?: boolean | 'true' | 'false';
+    spellCheck?: boolean;
 
     /**
      * Defines CSS styles which will override styles previously set.
@@ -639,7 +639,7 @@ export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
     /**
      * Overrides the browser's default tab order and follows the one specified instead.
      */
-    tabIndex?: string | number;
+    tabIndex?: number;
 
     /**
      * Text to be displayed in a tooltip when hovering over the element.
