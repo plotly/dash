@@ -1,12 +1,17 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import DebugTitle from './DebugTitle';
+import {SpinnerProps} from '../types';
 
-import DebugTitle from './DebugTitle.jsx';
-
-const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
+const GraphSpinner = ({
+    status,
+    fullscreen,
+    debug,
+    className,
+    style,
+}: SpinnerProps) => {
     let debugTitle;
     if (debug && status) {
-        debugTitle = status.map((s) => <DebugTitle {...s} />);
+        debugTitle = status.map((s, i) => <DebugTitle key={i} {...s} />);
     }
     let spinnerClass = fullscreen ? 'dash-spinner-container' : '';
     if (className) {
@@ -322,15 +327,6 @@ const GraphSpinner = ({status, fullscreen, debug, className, style}) => {
             </style>
         </div>
     );
-};
-
-GraphSpinner.propTypes = {
-    status: PropTypes.array,
-    color: PropTypes.string,
-    className: PropTypes.string,
-    fullscreen: PropTypes.bool,
-    style: PropTypes.object,
-    debug: PropTypes.bool,
 };
 
 export default GraphSpinner;
