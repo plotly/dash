@@ -39,6 +39,7 @@ export default function RangeSlider(props: RangeSliderProps) {
         allowCross,
         pushable,
         count,
+        reverse,
     } = props;
 
     // For range slider, we expect an array of values
@@ -481,6 +482,7 @@ export default function RangeSlider(props: RangeSliderProps) {
                             step={stepValue}
                             disabled={disabled}
                             orientation={vertical ? 'vertical' : 'horizontal'}
+                            inverted={reverse}
                             data-included={included !== false}
                             minStepsBetweenThumbs={
                                 typeof pushable === 'number'
@@ -498,14 +500,16 @@ export default function RangeSlider(props: RangeSliderProps) {
                                     renderedMarks,
                                     !!vertical,
                                     minMaxValues,
-                                    !!dots
+                                    !!dots,
+                                    !!reverse
                                 )}
                             {dots &&
                                 stepValue &&
                                 renderSliderDots(
                                     stepValue,
                                     minMaxValues,
-                                    !!vertical
+                                    !!vertical,
+                                    !!reverse
                                 )}
                             {/* Render thumbs with tooltips for each value */}
                             {value.map((val, index) => {
