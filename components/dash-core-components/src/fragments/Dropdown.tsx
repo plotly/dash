@@ -420,7 +420,12 @@ const Dropdown = (props: DropdownProps) => {
                 </button>
             </Popover.Trigger>
 
-            <Popover.Portal>
+            <Popover.Portal
+                // container is required otherwise popover will be rendered
+                // at document root, which may be outside of the Dash app (i.e.
+                // an embedded app)
+                container={dropdownContainerRef.current?.parentElement}
+            >
                 <Popover.Content
                     ref={dropdownContentRef}
                     className="dash-dropdown-content"

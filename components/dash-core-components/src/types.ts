@@ -177,6 +177,11 @@ export interface SliderProps extends BaseComponentProps<SliderProps> {
     included?: boolean;
 
     /**
+     * If the value is true, the slider is rendered in reverse.
+     */
+    reverse?: boolean;
+
+    /**
      * Configuration for tooltips describing the current slider value
      */
     tooltip?: SliderTooltip;
@@ -276,6 +281,11 @@ export interface RangeSliderProps extends BaseComponentProps<RangeSliderProps> {
      * value is included. Otherwise, it is an independent value.
      */
     included?: boolean;
+
+    /**
+     * If the value is true, the slider is rendered in reverse.
+     */
+    reverse?: boolean;
 
     /**
      * Configuration for tooltips describing the current slider values
