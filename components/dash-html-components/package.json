@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "4.0.0-rc1",
+  "version": "4.0.0-rc2",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
