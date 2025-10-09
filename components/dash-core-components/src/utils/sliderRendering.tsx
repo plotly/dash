@@ -58,11 +58,19 @@ export const renderSliderMarks = (
     renderedMarks: SliderMarks,
     vertical: boolean,
     minMaxValues: {min_mark: number; max_mark: number},
-    dots: boolean
+    dots: boolean,
+    reverse = false
 ) => {
     return Object.entries(renderedMarks).map(([position, mark]) => {
         const pos = parseFloat(position);
-        const thumbPosition = getRadixThumbPosition(pos, minMaxValues);
+
+        // When reversed, use the inverted value for positioning
+        const displayPos = reverse
+            ? minMaxValues.max_mark - pos + minMaxValues.min_mark
+            : pos;
+
+        const thumbPosition = getRadixThumbPosition(displayPos, minMaxValues);
+
         const style = vertical
             ? {
                   bottom: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px - 13px)`,
@@ -95,7 +103,8 @@ export const renderSliderMarks = (
 export const renderSliderDots = (
     stepValue: number,
     minMaxValues: {min_mark: number; max_mark: number},
-    vertical: boolean
+    vertical: boolean,
+    reverse = false
 ) => {
     if (stepValue <= 1) {
         return null;
@@ -117,7 +126,17 @@ export const renderSliderDots = (
         },
         (_, i) => {
             const dotValue = minMaxValues.min_mark + i * stepValue;
-            const thumbPosition = getRadixThumbPosition(dotValue, minMaxValues);
+
+            // When reversed, use the inverted value for positioning
+            const displayValue = reverse
+                ? minMaxValues.max_mark - dotValue + minMaxValues.min_mark
+                : dotValue;
+
+            const thumbPosition = getRadixThumbPosition(
+                displayValue,
+                minMaxValues
+            );
+
             const dotStyle = vertical
                 ? {
                       bottom: `calc(${thumbPosition.percentage}% + ${thumbPosition.offset}px)`,
