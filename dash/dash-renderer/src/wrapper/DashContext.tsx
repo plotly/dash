@@ -40,7 +40,7 @@ type DashContextType = {
 
 export const DashContext = React.createContext<DashContextType>({} as any);
 
-type DashContextProviderProps = {
+export type DashContextProviderProps = {
     children: JSX.Element;
     componentPath: DashLayoutPath;
 };

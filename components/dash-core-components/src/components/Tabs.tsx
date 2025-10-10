@@ -4,7 +4,7 @@ import {has, isNil} from 'ramda';
 import LoadingElement from '../utils/_LoadingElement';
 import {PersistedProps, PersistenceTypes, TabProps, TabsProps} from '../types';
 import './css/tabs.css';
-import {DashComponent} from '@dash-renderer/types/component';
+import {DashComponent} from '@dash-renderer/types';
 
 interface EnhancedTabProps extends TabProps {
     selected: boolean;

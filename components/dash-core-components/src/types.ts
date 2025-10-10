@@ -1,16 +1,5 @@
 import React from 'react';
-import {DashComponent} from '@dash-renderer/types/component';
-import ExternalWrapper from '@dash-renderer/wrapper/ExternalWrapper';
-import {useDashContext} from '@dash-renderer/wrapper/DashContext';
-
-declare global {
-    interface Window {
-        dash_component_api: {
-            useDashContext: typeof useDashContext;
-            ExternalWrapper: typeof ExternalWrapper;
-        };
-    }
-}
+import {BaseDashProps, DashComponent} from '@dash-renderer/types';
 
 export enum PersistenceTypes {
     'local' = 'local',
@@ -22,14 +11,7 @@ export enum PersistedProps {
     'value' = 'value',
 }
 
-export interface BaseComponentProps<T> {
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
+export interface BaseDccProps<T> extends BaseDashProps {
     /**
      * Additional CSS class for the root DOM node
      */
@@ -122,7 +104,7 @@ export type SliderTooltip = {
     transform?: string;
 };
 
-export interface SliderProps extends BaseComponentProps<SliderProps> {
+export interface SliderProps extends BaseDccProps<SliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -209,7 +191,7 @@ export interface SliderProps extends BaseComponentProps<SliderProps> {
     verticalHeight?: number;
 }
 
-export interface RangeSliderProps extends BaseComponentProps<RangeSliderProps> {
+export interface RangeSliderProps extends BaseDccProps<RangeSliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -356,7 +338,7 @@ export type OptionsArray = (OptionValue | DetailedOption)[];
  */
 export type OptionsDict = Record<string, string>;
 
-export interface DropdownProps extends BaseComponentProps<DropdownProps> {
+export interface DropdownProps extends BaseDccProps<DropdownProps> {
     /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
@@ -439,7 +421,7 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     };
 }
 
-export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {
+export interface ChecklistProps extends BaseDccProps<ChecklistProps> {
     /**
      * An array of options
      */
@@ -484,7 +466,7 @@ export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {
     labelClassName?: string;
 }
 
-export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
+export interface RadioItemsProps extends BaseDccProps<RadioItemsProps> {
     /**
      * An array of options
      */
@@ -529,7 +511,7 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
     labelClassName?: string;
 }
 
-export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
+export interface TextAreaProps extends BaseDccProps<TextAreaProps> {
     /**
      * The value of the textarea
      */
@@ -753,7 +735,7 @@ export interface TooltipProps {
     setProps: (props: Partial<TooltipProps>) => void;
 }
 
-export interface LoadingProps extends BaseComponentProps<LoadingProps> {
+export interface LoadingProps extends BaseDccProps<LoadingProps> {
     /**
      * Array that holds components to render
      */
@@ -837,7 +819,7 @@ export interface LoadingProps extends BaseComponentProps<LoadingProps> {
     custom_spinner?: React.ReactNode;
 }
 
-export interface TabsProps extends BaseComponentProps<TabsProps> {
+export interface TabsProps extends BaseDccProps<TabsProps> {
     /**
      * The value of the currently selected Tab
      */
@@ -901,7 +883,7 @@ export interface TabsProps extends BaseComponentProps<TabsProps> {
 // Note a quirk in how this extends the BaseComponentProps: `setProps` is shared
 // with `TabsProps` (plural!) due to how tabs are implemented. This is
 // intentional.
-export interface TabProps extends BaseComponentProps<TabsProps> {
+export interface TabProps extends BaseDccProps<TabsProps> {
     /**
      * The tab's label
      */

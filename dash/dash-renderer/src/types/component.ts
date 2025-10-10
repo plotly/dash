@@ -1,13 +1,29 @@
+import {
+    DashContext,
+    DashContextProviderProps,
+    useDashContext
+} from '../wrapper/DashContext';
+import ExternalWrapper from '../wrapper/ExternalWrapper';
+import {stringifyId} from '../actions/dependencies';
+
 export type BaseDashProps = {
     id?: string;
     componentPath?: DashLayoutPath;
     [key: string]: any;
 };
 
+export interface DashComponentApi {
+    ExternalWrapper: typeof ExternalWrapper;
+    DashContext: typeof DashContext;
+    useDashContext: typeof useDashContext;
+    getLayout: (componentPathOrId: DashLayoutPath | string) => DashComponent;
+    stringifyId: typeof stringifyId;
+}
+
 export type DashComponent = {
     type: string;
     namespace: string;
-    props: BaseDashProps;
+    props: DashContextProviderProps & BaseDashProps;
 };
 
 export type UpdatePropsPayload = {

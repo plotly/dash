@@ -30,18 +30,10 @@ function getLayout(componentPathOrId: DashLayoutPath | string): any {
     }
 }
 
-(window as any).dash_component_api = {
+window.dash_component_api = {
     ExternalWrapper,
     DashContext,
     useDashContext,
     getLayout,
     stringifyId
 };
-
-export interface DashComponentApi {
-    ExternalWrapper: typeof ExternalWrapper;
-    DashContext: typeof DashContext;
-    useDashContext: typeof useDashContext;
-    getLayout: typeof getLayout;
-    stringifyId: typeof stringifyId;
-}
