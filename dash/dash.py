@@ -2079,7 +2079,7 @@ class Dash(ObsoleteChecker):
 
                 for index, package in enumerate(packages):
                     if isinstance(package, AssertionRewritingHook):
-                        dash_spec = importlib.util.find_spec("dash")  # type: ignore[reportAttributeAccess]
+                        dash_spec = find_spec("dash")  # type: ignore[reportAttributeAccess]
                         dash_test_path = dash_spec.submodule_search_locations[0]
                         setattr(dash_spec, "path", dash_test_path)
                         packages[index] = dash_spec
