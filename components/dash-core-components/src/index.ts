@@ -21,8 +21,8 @@ import Slider from './components/Slider';
 import Store from './components/Store.react';
 import Tab from './components/Tab.react';
 import Tabs from './components/Tabs.react';
-import Textarea from './components/Textarea.react';
-import Tooltip from './components/Tooltip.react';
+import Textarea from './components/Textarea';
+import Tooltip from './components/Tooltip';
 import Upload from './components/Upload.react';
 
 import './components/css/dcc.css';

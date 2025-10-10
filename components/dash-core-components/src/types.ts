@@ -529,6 +529,230 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
     labelClassName?: string;
 }
 
+export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
+    /**
+     * The value of the textarea
+     */
+    value?: string;
+
+    /**
+     * The element should be automatically focused after the page loaded.
+     */
+    autoFocus?: string;
+
+    /**
+     * Defines the number of columns in a textarea.
+     */
+    cols?: number;
+
+    /**
+     * Indicates whether the user can interact with the element.
+     */
+    disabled?: boolean | 'disabled' | 'DISABLED';
+
+    /**
+     * Indicates the form that is the owner of the element.
+     */
+    form?: string;
+
+    /**
+     * Defines the maximum number of characters allowed in the element.
+     */
+    maxLength?: number;
+
+    /**
+     * Defines the minimum number of characters allowed in the element.
+     */
+    minLength?: number;
+
+    /**
+     * Name of the element. For example used by the server to identify the fields in form submits.
+     */
+    name?: string;
+
+    /**
+     * Provides a hint to the user of what can be entered in the field.
+     */
+    placeholder?: string;
+
+    /**
+     * Indicates whether the element can be edited.
+     * readOnly is an HTML boolean attribute - it is enabled by a boolean or
+     * 'readOnly'. Alternative capitalizations `readonly` & `READONLY`
+     * are also acccepted.
+     */
+    readOnly?: boolean | 'readOnly' | 'readonly' | 'READONLY';
+
+    /**
+     * Indicates whether this element is required to fill out or not.
+     * required is an HTML boolean attribute - it is enabled by a boolean or
+     * 'required'. Alternative capitalizations `REQUIRED`
+     * are also acccepted.
+     */
+    required?: boolean | 'required' | 'REQUIRED';
+
+    /**
+     * Defines the number of rows in a text area.
+     */
+    rows?: number;
+
+    /**
+     * Indicates whether the text should be wrapped.
+     */
+    wrap?: string;
+
+    /**
+     * Defines a keyboard shortcut to activate or add focus to the element.
+     */
+    accessKey?: string;
+
+    /**
+     * Indicates whether the element's content is editable.
+     */
+    contentEditable?: boolean;
+
+    /**
+     * Defines the ID of a <menu> element which will serve as the element's context menu.
+     */
+    contextMenu?: string;
+
+    /**
+     * Defines the text direction. Allowed values are ltr (Left-To-Right) or rtl (Right-To-Left)
+     */
+    dir?: string;
+
+    /**
+     * Defines whether the element can be dragged.
+     */
+    draggable?: boolean;
+
+    /**
+     * Prevents rendering of given element, while keeping child elements, e.g. script elements, active.
+     */
+    hidden?: string;
+
+    /**
+     * Defines the language used in the element.
+     */
+    lang?: string;
+
+    /**
+     * Indicates whether spell checking is allowed for the element.
+     */
+    spellCheck?: boolean;
+
+    /**
+     * Defines CSS styles which will override styles previously set.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Overrides the browser's default tab order and follows the one specified instead.
+     */
+    tabIndex?: number;
+
+    /**
+     * Text to be displayed in a tooltip when hovering over the element.
+     */
+    title?: string;
+
+    /**
+     * Number of times the textarea lost focus.
+     */
+    n_blur?: number;
+    /**
+     * Last time the textarea lost focus.
+     */
+    n_blur_timestamp?: number;
+
+    /**
+     * Number of times the textarea has been clicked.
+     */
+    n_clicks?: number;
+    /**
+     * Last time the textarea was clicked.
+     */
+    n_clicks_timestamp?: number;
+}
+
+export interface TooltipProps {
+    /**
+     * The contents of the tooltip
+     */
+    children?: React.ReactNode;
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * The class of the tooltip
+     */
+    className?: string;
+
+    /**
+     * The style of the tooltip
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * The bounding box coordinates of the item to label, in px relative to
+     * the positioning parent of the Tooltip component.
+     */
+    bbox?: {
+        x0: number;
+        y0: number;
+        x1: number;
+        y1: number;
+    };
+
+    /**
+     * Whether to show the tooltip
+     */
+    show?: boolean;
+
+    /**
+     * The side of the `bbox` on which the tooltip should open.
+     */
+    direction?: 'top' | 'right' | 'bottom' | 'left';
+
+    /**
+     * Color of the tooltip border, as a CSS color string.
+     */
+    border_color?: string;
+
+    /**
+     * Color of the tooltip background, as a CSS color string.
+     */
+    background_color?: string;
+
+    /**
+     * The text displayed in the tooltip while loading
+     */
+    loading_text?: string;
+
+    /**
+     * The `z-index` CSS property to assign to the tooltip. Components with
+     * higher values will be displayed on top of components with lower values.
+     */
+    zindex?: number;
+
+    /**
+     * Whether the tooltip itself can be targeted by pointer events.
+     * For tooltips triggered by hover events, typically this should be left
+     * `false` to avoid the tooltip interfering with those same events.
+     */
+    targetable?: boolean;
+
+    /**
+     * Dash-assigned callback that gets fired when the value changes.
+     */
+    setProps: (props: Partial<TooltipProps>) => void;
+}
+
 export interface LoadingProps extends BaseComponentProps<LoadingProps> {
     /**
      * Array that holds components to render
