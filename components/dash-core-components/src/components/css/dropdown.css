@@ -1,5 +1,6 @@
 .dash-dropdown {
     display: block;
+    flex: 1;
     box-sizing: border-box;
     margin: calc(var(--Dash-Spacing) * 2) 0;
     padding: 0;
