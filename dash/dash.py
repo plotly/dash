@@ -2061,10 +2061,10 @@ class Dash(ObsoleteChecker):
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
-            # find_loader should return None on __main__ but doesn't
+            # find_spec should return None on __main__ but doesn't
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
-                pkgutil.find_loader(x)
+                find_spec(x)
                 for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
