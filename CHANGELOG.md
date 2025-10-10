@@ -2,9 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## UNRELEASED
+## [4.0.0rc2] - 2025-10-10
+
+## Added
+- [3468](https://github.com/plotly/dash/pull/3468) Modernize dcc.TextArea & dcc.Tooltip
+- [3467](https://github.com/plotly/dash/pull/3467) Modernize dcc.Loading
+- [3453](https://github.com/plotly/dash/pull/3453) Modernize dcc.Checklist & dcc.RadioItems
 
 ## Changed
+
+- Various tweaks and bugfixes to issues reported in `4.0.0rc1`
 
 - Dropdown API changes
     * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired

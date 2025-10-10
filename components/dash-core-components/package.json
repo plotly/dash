@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "4.0.0-rc1",
+  "version": "4.0.0-rc2",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
