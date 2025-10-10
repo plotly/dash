@@ -16,7 +16,7 @@
 
 /* Individual tab */
 .tab {
-    display: inline-block;
+    flex: 1;
     background-color: var(--tabs-background);
     border: 1px solid var(--tabs-border);
     border-bottom: none;
@@ -62,11 +62,6 @@
 .tab-parent--above-breakpoint .tab {
     border: 1px solid var(--tabs-border);
     border-right: none;
-}
-
-/* Horizontal tabs: equal width distribution (only when not vertical) */
-.tab-parent--above-breakpoint .tab-container:not(.tab-container--vert) .tab {
-    width: var(--tabs-width);
 }
 
 .tab-parent--above-breakpoint .tab--selected,

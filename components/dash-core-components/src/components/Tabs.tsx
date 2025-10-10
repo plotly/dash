@@ -1,28 +1,17 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {has, is, isNil} from 'ramda';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {has, isNil} from 'ramda';
 
 import LoadingElement from '../utils/_LoadingElement';
-import {DashComponent} from '@dash-renderer/types/component';
+import {PersistedProps, PersistenceTypes, TabProps, TabsProps} from '../types';
 import './css/tabs.css';
+import {DashComponent} from '@dash-renderer/types/component';
 
-interface EnhancedTabProps {
-    id?: string;
-    label?: string | DashComponent[];
+interface EnhancedTabProps extends TabProps {
     selected: boolean;
-    className?: string;
-    style?: React.CSSProperties;
-    selectedClassName?: string;
-    selected_style?: React.CSSProperties;
-    selectHandler: (value: string) => void;
-    value: string;
-    disabled?: boolean;
-    disabled_style?: React.CSSProperties;
-    disabled_className?: string;
-    componentPath: string[];
+    componentPath?: (string | number)[];
 }
-import {PersistedProps, PersistenceTypes, TabsProps} from '../types';
 
-// EnhancedTab is defined here instead of in Tab.react.js because if exported there,
+// EnhancedTab is defined here instead of in Tab.tsx because if exported there,
 // it will mess up the Python imports and metadata.json
 const EnhancedTab = ({
     id,
@@ -30,55 +19,61 @@ const EnhancedTab = ({
     selected,
     className,
     style,
-    selectedClassName,
+    selected_className,
     selected_style,
-    selectHandler,
+    setProps: selectHandler,
     value,
     disabled = false,
-    disabled_style = {color: '#d6d6d6'},
+    disabled_style = {color: 'var(--Dash-Text-Disabled)'},
     disabled_className,
     componentPath,
 }: EnhancedTabProps) => {
+    const ExternalWrapper = window.dash_component_api.ExternalWrapper;
     const ctx = window.dash_component_api.useDashContext();
+    componentPath = componentPath ?? ctx.componentPath;
     // We use the raw path here since it's up one level from
     // the tabs child.
-    const isLoading = ctx.useLoading({rawPath: !!componentPath});
+    const isLoading = ctx.useLoading({rawPath: componentPath});
+    const tabStyle = {
+        ...style,
+        ...(disabled ? disabled_style : {}),
+        ...(selected ? selected_style : {}),
+    };
 
-    let tabStyle = style;
-    if (disabled) {
-        tabStyle = {...tabStyle, ...disabled_style};
-    }
-    if (selected) {
-        tabStyle = {...tabStyle, ...selected_style};
-    }
-    let tabClassName = `tab ${className || ''}`;
-    if (disabled) {
-        tabClassName += ` tab--disabled ${disabled_className || ''}`;
-    }
-    if (selected) {
-        tabClassName += ` tab--selected ${selectedClassName || ''}`;
-    }
+    const tabClassNames = [
+        'tab',
+        className,
+        disabled ? 'tab--disabled' : null,
+        disabled ? disabled_className : null,
+        selected ? 'tab--selected' : null,
+        selected ? selected_className : null,
+    ].filter(Boolean);
+
     let labelDisplay;
-    if (is(Array, label)) {
-        // label is an array, so it has children that we want to render
-        labelDisplay = label[0].props.children;
+    if (typeof label === 'object') {
+        labelDisplay = (
+            <ExternalWrapper
+                component={label}
+                componentPath={[...componentPath, 0]}
+            />
+        );
     } else {
-        // else it is a string, so we just want to render that
-        labelDisplay = label;
+        labelDisplay = <span>{label}</span>;
     }
+
     return (
         <div
             data-dash-is-loading={isLoading}
-            className={tabClassName}
+            className={tabClassNames.join(' ')}
             id={id}
             style={tabStyle}
             onClick={() => {
                 if (!disabled) {
-                    selectHandler(value);
+                    selectHandler({value});
                 }
             }}
         >
-            <span>{labelDisplay}</span>
+            {labelDisplay}
         </div>
     );
 };
@@ -101,26 +96,28 @@ function Tabs({
     persisted_props = [PersistedProps.value],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     persistence_type = PersistenceTypes.local,
+    children,
     ...props
 }: TabsProps) {
     const initializedRef = useRef(false);
     const [isAboveBreakpoint, setIsAboveBreakpoint] = useState(false);
 
-    const parseChildrenToArray = () => {
-        if (props.children && !is(Array, props.children)) {
-            // if dcc.Tabs.children contains just one single element, it gets passed as an object
-            // instead of an array - so we put it in an array ourselves!
-            return [props.children];
+    const parseChildrenToArray = useCallback((): DashComponent[] => {
+        if (!children) {
+            return [];
         }
-        return props.children ?? [];
-    };
+        if (children instanceof Array) {
+            return children;
+        }
+        return [children];
+    }, [children]);
 
     const valueOrDefault = () => {
         if (has('value', props)) {
             return props.value;
         }
         const children = parseChildrenToArray();
-        if (children && children.length) {
+        if (children && children.length && children[0].props.componentPath) {
             const firstChildren = window.dash_component_api.getLayout([
                 ...children[0].props.componentPath,
                 'props',
@@ -129,10 +126,6 @@ function Tabs({
             return firstChildren || 'tab-1';
         }
         return 'tab-1';
-    };
-
-    const selectHandler = (value: string) => {
-        props.setProps({value: value});
     };
 
     // Initialize value on mount if not set
@@ -167,15 +160,15 @@ function Tabs({
 
     const value = valueOrDefault();
 
-    if (props.children) {
+    if (children) {
         const children = parseChildrenToArray();
 
         EnhancedTabs = children.map((child, index) => {
             // TODO: handle components that are not dcc.Tab components (throw error)
             // enhance Tab components coming from Dash (as dcc.Tab) with methods needed for handling logic
-            let childProps;
+            let childProps: Omit<TabProps, 'setProps'>;
 
-            if (React.isValidElement(child)) {
+            if (React.isValidElement(child) && child.props.componentPath) {
                 childProps = window.dash_component_api.getLayout([
                     ...child.props.componentPath,
                     'props',
@@ -194,22 +187,31 @@ function Tabs({
                 selectedTab = child;
             }
 
+            const style = childProps.style ?? {};
+            if (typeof childProps.width === 'number') {
+                style.width = `${childProps.width}px`;
+                style.flex = 'none';
+            } else if (typeof childProps.width === 'string') {
+                style.width = childProps.width;
+                style.flex = 'none';
+            }
+
             return (
                 <EnhancedTab
                     key={index}
                     id={childProps.id}
                     label={childProps.label}
                     selected={value === childProps.value}
-                    selectHandler={selectHandler}
+                    setProps={props.setProps}
                     className={childProps.className}
-                    style={childProps.style}
-                    selectedClassName={childProps.selected_className}
+                    style={style}
+                    selected_className={childProps.selected_className}
                     selected_style={childProps.selected_style}
                     value={childProps.value}
                     disabled={childProps.disabled}
                     disabled_style={childProps.disabled_style}
                     disabled_className={childProps.disabled_className}
-                    componentPath={child.componentPath}
+                    componentPath={child.props.componentPath}
                 />
             );
         });
@@ -241,7 +243,6 @@ function Tabs({
         '--tabs-border': colors.border,
         '--tabs-primary': colors.primary,
         '--tabs-background': colors.background,
-        '--tabs-width': `calc(100% / ${parseChildrenToArray().length})`,
     } as const;
 
     return (

@@ -1,5 +1,6 @@
 export type BaseDashProps = {
     id?: string;
+    componentPath?: DashLayoutPath;
     [key: string]: any;
 };
 

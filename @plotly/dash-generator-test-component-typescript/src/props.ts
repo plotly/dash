@@ -1,5 +1,6 @@
 // Needs to export types if not in a d.ts file or if any import is present in the d.ts
 import React from 'react';
+import {DashComponent} from '@dash-renderer/types/component';
 
 
 type Nested = {
@@ -36,6 +37,7 @@ export type TypescriptComponentProps = {
         | boolean;
     element?: JSX.Element;
     array_elements?: JSX.Element[];
+    dash_component?: DashComponent;
 
     string_default?: string;
     number_default?: number;

@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import Checklist from './components/Checklist';
 import Clipboard from './components/Clipboard.react';
 import ConfirmDialog from './components/ConfirmDialog.react';
@@ -19,7 +18,7 @@ import RadioItems from './components/RadioItems';
 import RangeSlider from './components/RangeSlider';
 import Slider from './components/Slider';
 import Store from './components/Store.react';
-import Tab from './components/Tab.react';
+import Tab from './components/Tab';
 import Tabs from './components/Tabs';
 import Textarea from './components/Textarea.react';
 import Tooltip from './components/Tooltip.react';

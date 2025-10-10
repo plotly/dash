@@ -96,6 +96,10 @@ describe('Test Typescript component metadata generation', () => {
             testTypeFactory('element', 'node')
         );
         test(
+            `${componentName} dash_component DashComponent`,
+            testTypeFactory("dash_component", "node"),
+        );
+        test(
             `${componentName} boolean type`,
             testTypeFactory('a_bool', 'bool')
         );

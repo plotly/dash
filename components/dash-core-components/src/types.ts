@@ -559,7 +559,7 @@ export interface TabsProps extends BaseComponentProps<TabsProps> {
     /**
      * Array that holds Tab components
      */
-    children?: DashComponent[];
+    children?: DashComponent;
 
     /**
      * Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
@@ -574,4 +574,70 @@ export interface TabsProps extends BaseComponentProps<TabsProps> {
         primary: string;
         background: string;
     };
+}
+
+// Note a quirk in how this extends the BaseComponentProps: `setProps` is shared
+// with `TabsProps` (plural!) due to how tabs are implemented. This is
+// intentional.
+export interface TabProps extends BaseComponentProps<TabsProps> {
+    /**
+     * The tab's label
+     */
+    label?: string | DashComponent;
+
+    /**
+     * The content of the tab - will only be displayed if this tab is selected
+     */
+    children?: DashComponent;
+
+    /**
+     * Value for determining which Tab is currently selected
+     */
+    value?: string;
+
+    /**
+     * Determines if tab is disabled or not - defaults to false
+     */
+    disabled?: boolean;
+
+    /**
+     * Overrides the default (inline) styles when disabled
+     */
+    disabled_style?: React.CSSProperties;
+
+    /**
+     * Appends a class to the Tab component when it is disabled.
+     */
+    disabled_className?: string;
+
+    /**
+     * Appends a class to the Tab component.
+     */
+    className?: string;
+
+    /**
+     * Appends a class to the Tab component when it is selected.
+     */
+    selected_className?: string;
+
+    /**
+     * Overrides the default (inline) styles for the Tab component.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Overrides the default (inline) styles for the Tab component when it is selected.
+     */
+    selected_style?: React.CSSProperties;
+
+    /**
+     * A custom width for this tab, in the format of `50px` or `50%`; numbers
+     * are treated as pixel values. By default, there is no width and this Tab
+     * is evenly spaced along with all the other tabs to occupy the available
+     * space. Setting this value will "fix" this tab width to the given size.
+     * while the other "non-fixed" tabs will continue to automatically
+     * occupying the remaining available space.
+     * This property has no effect when tabs are displayed vertically.
+     */
+    width?: string | number;
 }
