@@ -155,6 +155,14 @@ Upload.propTypes = {
     style_disabled: PropTypes.object,
 
     /**
+     * Set to true to use the File System Access API for folder selection.
+     * When enabled, users can select folders in addition to files.
+     * This allows for recursive folder uploads. Note: browser support varies.
+     * See: https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API
+     */
+    useFsAccessApi: PropTypes.bool,
+
+    /**
      * Dash-supplied function for updating props
      */
     setProps: PropTypes.func,
@@ -166,6 +174,7 @@ Upload.defaultProps = {
     max_size: -1,
     min_size: 0,
     multiple: false,
+    useFsAccessApi: false,
     style: {},
     style_active: {
         borderStyle: 'solid',

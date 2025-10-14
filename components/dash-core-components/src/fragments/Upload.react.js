@@ -8,6 +8,98 @@ export default class Upload extends Component {
     constructor() {
         super();
         this.onDrop = this.onDrop.bind(this);
+        this.getDataTransferItems = this.getDataTransferItems.bind(this);
+    }
+
+    // Recursively traverse folder structure and extract all files
+    async traverseFileTree(item, path = '') {
+        const files = [];
+        if (item.isFile) {
+            return new Promise((resolve) => {
+                item.file((file) => {
+                    // Preserve folder structure in file name
+                    const relativePath = path + file.name;
+                    Object.defineProperty(file, 'name', {
+                        writable: true,
+                        value: relativePath
+                    });
+                    resolve([file]);
+                });
+            });
+        } else if (item.isDirectory) {
+            const dirReader = item.createReader();
+            return new Promise((resolve) => {
+                const readEntries = () => {
+                    dirReader.readEntries(async (entries) => {
+                        if (entries.length === 0) {
+                            resolve(files);
+                        } else {
+                            for (const entry of entries) {
+                                const entryFiles = await this.traverseFileTree(
+                                    entry,
+                                    path + item.name + '/'
+                                );
+                                files.push(...entryFiles);
+                            }
+                            // Continue reading (directories may have more than 100 entries)
+                            readEntries();
+                        }
+                    });
+                };
+                readEntries();
+            });
+        }
+        return files;
+    }
+
+    // Custom data transfer handler that supports folders
+    async getDataTransferItems(event) {
+        const {useFsAccessApi} = this.props;
+        
+        // If folder support is not enabled, use default behavior
+        if (!useFsAccessApi) {
+            if (event.dataTransfer) {
+                return Array.from(event.dataTransfer.files);
+            } else if (event.target && event.target.files) {
+                return Array.from(event.target.files);
+            }
+            return [];
+        }
+
+        // Handle drag-and-drop with folder support
+        if (event.dataTransfer && event.dataTransfer.items) {
+            const items = Array.from(event.dataTransfer.items);
+            const files = [];
+            
+            for (const item of items) {
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                    if (entry) {
+                        const entryFiles = await this.traverseFileTree(entry);
+                        files.push(...entryFiles);
+                    } else {
+                        // Fallback for browsers without webkitGetAsEntry
+                        const file = item.getAsFile();
+                        if (file) {
+                            files.push(file);
+                        }
+                    }
+                }
+            }
+            return files;
+        }
+        
+        // Handle file picker (already works with webkitdirectory attribute)
+        if (event.target && event.target.files) {
+            return Array.from(event.target.files);
+        }
+        
+        // Fallback
+        if (event.dataTransfer && event.dataTransfer.files) {
+            return Array.from(event.dataTransfer.files);
+        }
+        
+        return [];
     }
 
     onDrop(files) {
@@ -55,6 +147,7 @@ export default class Upload extends Component {
             max_size,
             min_size,
             multiple,
+            useFsAccessApi,
             className,
             className_active,
             className_reject,
@@ -69,6 +162,14 @@ export default class Upload extends Component {
         const disabledStyle = className_disabled ? undefined : style_disabled;
         const rejectStyle = className_reject ? undefined : style_reject;
 
+        // For react-dropzone v4.1.2, we need to add webkitdirectory attribute manually
+        // when useFsAccessApi is enabled to support folder selection
+        const inputProps = useFsAccessApi ? {
+            webkitdirectory: 'true',
+            directory: 'true',
+            mozdirectory: 'true'
+        } : {};
+
         return (
             <LoadingElement id={id}>
                 <Dropzone
@@ -79,6 +180,8 @@ export default class Upload extends Component {
                     maxSize={max_size === -1 ? Infinity : max_size}
                     minSize={min_size}
                     multiple={multiple}
+                    inputProps={inputProps}
+                    getDataTransferItems={this.getDataTransferItems}
                     className={className}
                     activeClassName={className_active}
                     rejectClassName={className_reject}

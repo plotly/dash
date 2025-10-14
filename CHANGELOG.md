@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3464](https://github.com/plotly/dash/issues/3464) Add `useFsAccessApi` prop to `dcc.Upload` component to enable folder upload functionality. When set to `True`, users can select and upload entire folders in addition to individual files, utilizing the File System Access API. This allows for recursive folder uploads when supported by the browser. The uploaded files use the same output API as multiple file uploads.
 - [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
 - [#3403](https://github.com/plotly/dash/pull/3403) Add app_context to get_app, allowing to get the current app in routes.
 - [#3407](https://github.com/plotly/dash/pull/3407) Add `hidden` to callback arguments, hiding the callback from appearing in the devtool callback graph.
