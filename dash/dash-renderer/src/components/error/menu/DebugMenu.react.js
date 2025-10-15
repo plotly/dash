@@ -168,7 +168,7 @@ const Debug = ({error, hotReload, config, children}) => {
     const errors = concat(error.frontEnd, error.backEnd);
 
     useEffect(() => {
-        if (error !== null && popup !== 'errors') {
+        if (errors.length && popup !== 'errors') {
             setPopup('errors');
         }
     }, [error]);

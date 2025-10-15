@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3397](https://github.com/plotly/dash/pull/3397) Add optional callbacks, suppressing callback warning for missing component ids for a single callback.
 - [#3424](https://github.com/plotly/dash/pull/3424) Adds support for `Patch` on clientside callbacks class `dash_clientside.Patch`, as well as supporting side updates, eg: (Running, SetProps).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
+- [#3445](https://github.com/plotly/dash/pull/3445) Added API to reverse direction of slider component.
 - [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
 
 ## Fixed
