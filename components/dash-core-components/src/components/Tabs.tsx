@@ -54,7 +54,7 @@ const EnhancedTab = ({
         labelDisplay = (
             <ExternalWrapper
                 component={label}
-                componentPath={[...componentPath, 0]}
+                componentPath={[...componentPath, 'props', 'label']}
             />
         );
     } else {
@@ -190,10 +190,10 @@ function Tabs({
             const style = childProps.style ?? {};
             if (typeof childProps.width === 'number') {
                 style.width = `${childProps.width}px`;
-                style.flex = 'none';
+                style.flex = '0 0 auto';
             } else if (typeof childProps.width === 'string') {
                 style.width = childProps.width;
-                style.flex = 'none';
+                style.flex = '0 0 auto';
             }
 
             return (

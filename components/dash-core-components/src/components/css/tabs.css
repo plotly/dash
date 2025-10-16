@@ -2,6 +2,7 @@
 .tab-parent {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Tab container (holds all tabs) */
@@ -16,13 +17,13 @@
 
 /* Individual tab */
 .tab {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
     background-color: var(--tabs-background);
     border: 1px solid var(--tabs-border);
     border-bottom: none;
     padding: 20px 25px;
     transition: background-color, color 200ms;
-    width: 100%;
     text-align: center;
     box-sizing: border-box;
 }

@@ -2,6 +2,14 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## UNRELEASED
+
+## Added
+- Modernized `dcc.Tabs`
+
+## Changed
+- `dcc.Tab` now accepts a `width` prop which can be a pixel or percentage width for an individual tab.
+
 ## [4.0.0rc2] - 2025-10-10
 
 ## Added
