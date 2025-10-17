@@ -265,7 +265,7 @@ function gatherComponents(sources, components = {}) {
                     if (t.members) {
                         typeName = 'object';
                     } else {
-                        const typeString = checker.typeToString(t).replace(/^React\./, '');
+                        const typeString = checker.typeToString(t);
                         if (typeString === 'DashComponent') {
                             typeName = 'node';
                         }
