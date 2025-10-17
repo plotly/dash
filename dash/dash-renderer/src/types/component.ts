@@ -16,7 +16,7 @@ export interface DashComponentApi {
     ExternalWrapper: typeof ExternalWrapper;
     DashContext: typeof DashContext;
     useDashContext: typeof useDashContext;
-    getLayout: (componentPathOrId: DashLayoutPath | string) => DashComponent;
+    getLayout: (componentPathOrId: DashLayoutPath | string) => any;
     stringifyId: typeof stringifyId;
 }
 

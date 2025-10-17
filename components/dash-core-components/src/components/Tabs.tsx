@@ -112,27 +112,25 @@ function Tabs({
         return [children];
     }, [children]);
 
-    const valueOrDefault = () => {
+    const valueOrDefault = (): string | undefined => {
         if (has('value', props)) {
             return props.value;
         }
         const children = parseChildrenToArray();
         if (children && children.length && children[0].props.componentPath) {
-            const firstChildren = window.dash_component_api.getLayout([
-                ...children[0].props.componentPath,
-                'props',
-                'value',
-            ]);
-            return firstChildren || 'tab-1';
+            const firstChildren: TabProps = window.dash_component_api.getLayout(
+                [...children[0].props.componentPath, 'props']
+            );
+            return firstChildren.value;
         }
-        return 'tab-1';
+        return undefined;
     };
 
     // Initialize value on mount if not set
     useEffect(() => {
         if (!initializedRef.current && !has('value', props)) {
             props.setProps({
-                value: valueOrDefault(),
+                value: `${valueOrDefault()}`,
             });
             initializedRef.current = true;
         }
