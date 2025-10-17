@@ -37,6 +37,7 @@ setup(
         "diskcache": read_req_file("diskcache"),
         "compress": read_req_file("compress"),
         "cloud": read_req_file("cloud"),
+        "ag-grid": read_req_file("ag-grid")
     },
     entry_points={
         "console_scripts": [
