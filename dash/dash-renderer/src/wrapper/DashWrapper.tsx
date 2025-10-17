@@ -391,7 +391,7 @@ function DashWrapper({
 
                     if (node !== undefined) {
                         if (isArray) {
-                            for (let j = 0; j < node.length; j++) {
+                            for (let j = 0; j < (node as []).length; j++) {
                                 const aPath = concat([opath], [j]);
                                 props = assocPath(
                                     aPath,

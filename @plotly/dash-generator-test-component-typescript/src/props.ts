@@ -1,6 +1,6 @@
 // Needs to export types if not in a d.ts file or if any import is present in the d.ts
 import React from 'react';
-import {DashComponent} from '@dash-renderer/types/component';
+import {DashComponent} from '@dash-renderer/types';
 
 
 type Nested = {
