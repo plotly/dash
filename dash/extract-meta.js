@@ -5,27 +5,27 @@ if (process.env.MODULES_PATH) {
 let ts,
     tsEnabled = true;
 try {
-    ts = require("typescript");
+    ts = require('typescript');
 } catch (e) {
     ts = {};
     tsEnabled = false;
 }
-const fs = require("fs");
-const path = require("path");
-const reactDocs = require("react-docgen");
+const fs = require('fs');
+const path = require('path');
+const reactDocs = require('react-docgen');
 
 const args = process.argv.slice(2);
 const src = args.slice(2);
 const ignorePattern = args[0] ? new RegExp(args[0]) : null;
 const reservedPatterns = args[1]
-    ? args[1].split("|").map((part) => new RegExp(part))
+    ? args[1].split('|').map(part => new RegExp(part))
     : [];
 
 function help() {
-    console.error("usage: ");
+    console.error('usage: ');
     console.error(
-        "extract-meta ^fileIgnorePattern ^forbidden$|^props$|^patterns$" +
-            " path/to/component(s) [path/to/more/component(s) ...] > metadata.json",
+        'extract-meta ^fileIgnorePattern ^forbidden$|^props$|^patterns$' +
+            ' path/to/component(s) [path/to/more/component(s) ...] > metadata.json'
     );
 }
 
@@ -38,11 +38,7 @@ function getTsConfigCompilerOptions() {
     // Since extract-meta can be run on JavaScript sources, if trying to get the
     // config doesn't work, we can fall back gracefully.
     try {
-        const tsconfig = ts.getParsedCommandLineOfConfigFile(
-            "tsconfig.json",
-            { esModuleInterop: true },
-            ts.sys,
-        );
+        const tsconfig = ts.getParsedCommandLineOfConfigFile('tsconfig.json', { esModuleInterop: true }, ts.sys);
         return tsconfig?.options ?? {};
     } catch {
         return {};
@@ -50,67 +46,64 @@ function getTsConfigCompilerOptions() {
 }
 
 let failedBuild = false;
-const excludedDocProps = ["setProps", "id", "className", "style"];
+const excludedDocProps = ['setProps', 'id', 'className', 'style'];
 
-const isOptional = (prop) => (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
+const isOptional = prop => (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
 
 const PRIMITIVES = [
-    "string",
-    "number",
-    "bool",
-    "any",
-    "array",
-    "object",
-    "node",
+    'string',
+    'number',
+    'bool',
+    'any',
+    'array',
+    'object',
+    'node'
 ];
 
 // These types take too long to parse because of heavy nesting.
-const BANNED_TYPES = ["Document", "ShadowRoot", "ChildNode", "ParentNode"];
-const unionSupport = PRIMITIVES.concat(
-    "true",
-    "false",
-    "Element",
-    "enum",
-    "DashComponent",
-);
+const BANNED_TYPES = [
+    'Document',
+    'ShadowRoot',
+    'ChildNode',
+    'ParentNode',
+];
+const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum', 'DashComponent');
 
 /* Regex to capture typescript unions in different formats:
  * string[]
  * (string | number)[]
  * SomeCustomType[]
  */
-const reArray = new RegExp(
-    `(${unionSupport.join("|")}|\\(.+\\)|[A-Z][a-zA-Z]*Value)\\[\\]`,
-);
+const reArray = new RegExp(`(${unionSupport.join('|')}|\\(.+\\)|[A-Z][a-zA-Z]*Value)\\[\\]`);
 
-const isArray = (rawType) => reArray.test(rawType);
+const isArray = rawType => reArray.test(rawType);
 
-const isUnionLiteral = (typeObj) =>
+const isUnionLiteral = typeObj =>
     typeObj.types.every(
-        (t) =>
+        t =>
             t.getFlags() &
             (ts.TypeFlags.StringLiteral |
                 ts.TypeFlags.NumberLiteral |
                 ts.TypeFlags.EnumLiteral |
-                ts.TypeFlags.Undefined),
+                ts.TypeFlags.Undefined)
     );
 
 function logError(error, filePath) {
     if (filePath) {
         process.stderr.write(`Error with path ${filePath}\n`);
     }
-    process.stderr.write(error + "\n");
+    process.stderr.write(error + '\n');
     if (error instanceof Error) {
-        process.stderr.write(error.stack + "\n");
+        process.stderr.write(error.stack + '\n');
     }
 }
 
 function isReservedPropName(propName) {
-    reservedPatterns.forEach((reservedPattern) => {
+    reservedPatterns.forEach(reservedPattern => {
         if (reservedPattern.test(propName)) {
             process.stderr.write(
                 `\nERROR: "${propName}" matches reserved word ` +
-                    `pattern: ${reservedPattern.toString()}\n`,
+                    `pattern: ${reservedPattern.toString()}\n`
             );
             failedBuild = true;
         }
@@ -121,7 +114,7 @@ function isReservedPropName(propName) {
 function checkDocstring(name, value) {
     if (
         !value ||
-        (value.length < 1 && !excludedDocProps.includes(name.split(".").pop()))
+        (value.length < 1 && !excludedDocProps.includes(name.split('.').pop()))
     ) {
         logError(`\nDescription for ${name} is missing!`);
     }
@@ -131,28 +124,28 @@ function docstringWarning(doc) {
     checkDocstring(doc.displayName, doc.description);
 
     Object.entries(doc.props || {}).forEach(([name, p]) =>
-        checkDocstring(`${doc.displayName}.${name}`, p.description),
+        checkDocstring(`${doc.displayName}.${name}`, p.description)
     );
 }
 
 function zipArrays(...arrays) {
     const arr = [];
     for (let i = 0; i <= arrays[0].length - 1; i++) {
-        arr.push(arrays.map((a) => a[i]));
+        arr.push(arrays.map(a => a[i]));
     }
     return arr;
 }
 
 function cleanPath(filepath) {
-    return filepath.split(path.sep).join("/");
+    return filepath.split(path.sep).join('/');
 }
 
 function parseJSX(filepath) {
     try {
         const src = fs.readFileSync(filepath);
         const doc = reactDocs.parse(src);
-        Object.keys(doc.props).forEach((propName) =>
-            isReservedPropName(propName),
+        Object.keys(doc.props).forEach(propName =>
+            isReservedPropName(propName)
         );
         docstringWarning(doc);
         return doc;
@@ -165,29 +158,29 @@ function gatherComponents(sources, components = {}) {
     const names = [];
     const filepaths = [];
 
-    const gather = (filepath) => {
+    const gather = filepath => {
         if (ignorePattern && ignorePattern.test(filepath)) {
             return;
         }
         const extension = path.extname(filepath);
-        if ([".jsx", ".js"].includes(extension)) {
+        if (['.jsx', '.js'].includes(extension)) {
             components[cleanPath(filepath)] = parseJSX(filepath);
-        } else if (filepath.endsWith(".tsx")) {
+        } else if (filepath.endsWith('.tsx')) {
             try {
                 const name = /(.*)\.tsx/.exec(path.basename(filepath))[1];
                 filepaths.push(filepath);
                 names.push(name);
             } catch (err) {
                 process.stderr.write(
-                    `ERROR: Invalid component file ${filepath}: ${err}`,
+                    `ERROR: Invalid component file ${filepath}: ${err}`
                 );
             }
         }
     };
 
-    sources.forEach((sourcePath) => {
+    sources.forEach(sourcePath => {
         if (fs.lstatSync(sourcePath).isDirectory()) {
-            fs.readdirSync(sourcePath).forEach((f) => {
+            fs.readdirSync(sourcePath).forEach(f => {
                 const filepath = path.join(sourcePath, f);
                 if (fs.lstatSync(filepath).isDirectory()) {
                     gatherComponents([filepath], components);
@@ -207,13 +200,13 @@ function gatherComponents(sources, components = {}) {
     const program = ts.createProgram(filepaths, getTsConfigCompilerOptions());
     const checker = program.getTypeChecker();
 
-    const coerceValue = (t) => {
+    const coerceValue = t => {
         // May need to improve for shaped/list literals.
         if (t.isStringLiteral()) return `'${t.value}'`;
         return t.value;
     };
 
-    const getComponentFromExport = (exp) => {
+    const getComponentFromExport = exp => {
         const decl = exp.valueDeclaration || exp.declarations[0];
         const type = checker.getTypeOfSymbolAtLocation(exp, decl);
         const typeSymbol = type.symbol || type.aliasSymbol;
@@ -225,14 +218,14 @@ function gatherComponents(sources, components = {}) {
         const symbolName = typeSymbol.getName();
 
         if (
-            (symbolName === "MemoExoticComponent" ||
-                symbolName === "ForwardRefExoticComponent") &&
+            (symbolName === 'MemoExoticComponent' ||
+                symbolName === 'ForwardRefExoticComponent') &&
             exp.valueDeclaration &&
             ts.isExportAssignment(exp.valueDeclaration) &&
             ts.isCallExpression(exp.valueDeclaration.expression)
         ) {
             const component = checker.getSymbolAtLocation(
-                exp.valueDeclaration.expression.arguments[0],
+                exp.valueDeclaration.expression.arguments[0]
             );
 
             if (component) return component;
@@ -240,7 +233,7 @@ function gatherComponents(sources, components = {}) {
         return exp;
     };
 
-    const getParent = (node) => {
+    const getParent = node => {
         let parent = node;
         while (parent.parent) {
             if (parent.parent.kind === ts.SyntaxKind.SourceFile) {
@@ -252,159 +245,155 @@ function gatherComponents(sources, components = {}) {
         return parent;
     };
 
-    const getEnum = (typeObj) => ({
-        name: "enum",
-        value: typeObj.types.map((t) => ({
+    const getEnum = typeObj => ({
+        name: 'enum',
+        value: typeObj.types.map(t => ({
             value: coerceValue(t),
-            computed: false,
-        })),
+            computed: false
+        }))
     });
 
     const getUnion = (typeObj, propObj, parentType) => {
-        let name = "union",
+        let name = 'union',
             value;
 
         // Union only do base types & DashComponent types
-        value = typeObj.types.filter((t) => {
-            let typeName = t.intrinsicName;
-            if (!typeName) {
-                if (t.members) {
-                    typeName = "object";
-                } else {
-                    const typeString = checker.typeToString(t);
-                    if (typeString === "DashComponent") {
-                        typeName = "node";
+        value = typeObj.types
+            .filter(t => {
+                let typeName = t.intrinsicName;
+                if (!typeName) {
+                    if (t.members) {
+                        typeName = 'object';
+                    } else {
+                        const typeString = checker.typeToString(t).replace(/^React\./, '');
+                        if (typeString === 'DashComponent') {
+                            typeName = 'node';
+                        }
                     }
                 }
-            }
-            if (t.value) {
-                // A literal value
-                return true;
-            }
-            return (
-                unionSupport.includes(typeName) ||
-                isArray(checker.typeToString(t))
-            );
-        });
-        value = value.map((t) =>
-            t.value
-                ? { name: "literal", value: t.value }
-                : getPropType(t, propObj, parentType),
-        );
+                if (t.value) {
+                    // A literal value
+                    return true;
+                }
+                return (
+                    unionSupport.includes(typeName) ||
+                    isArray(checker.typeToString(t))
+                );
+            });
+        value = value.map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
 
         // de-dupe any types in this union
-        value = value.reduce(
-            (acc, t) => {
-                const key = `${t.name}:${t.value}`;
-                if (!acc.seen.has(key)) {
-                    acc.seen.add(key);
-                    acc.result.push(t);
-                }
-                return acc;
-            },
-            { seen: new Set(), result: [] },
-        ).result;
+        value = value.reduce((acc, t) => {
+            const key = `${t.name}:${t.value}`;
+            if (!acc.seen.has(key)) {
+                acc.seen.add(key);
+                acc.result.push(t);
+            }
+            return acc;
+        }, { seen: new Set(), result: [] }).result;
 
         if (!value.length) {
-            name = "any";
+            name = 'any';
             value = undefined;
         }
         return {
             name,
-            value,
+            value
         };
     };
 
-    const getPropTypeName = (propName) => {
-        if (propName.includes("=>") || propName === "Function") {
-            return "func";
-        } else if (["boolean", "false", "true"].includes(propName)) {
-            return "bool";
-        } else if (propName === "[]") {
-            return "array";
+    const getPropTypeName = propName => {
+        if (propName.includes('=>') || propName === 'Function') {
+            return 'func';
+        } else if (['boolean', 'false', 'true'].includes(propName)) {
+            return 'bool';
+        } else if (propName === '[]') {
+            return 'array';
         } else if (
-            propName === "Element" ||
-            propName === "ReactNode" ||
-            propName === "ReactElement" ||
-            propName === "DashComponent"
+            propName === 'Element' ||
+            propName === 'ReactNode' ||
+            propName === 'ReactElement' ||
+            propName === 'DashComponent'
         ) {
-            return "node";
+            return 'node';
         }
         return propName;
     };
 
     const getPropType = (propType, propObj, parentType = null) => {
         // Types can get namespace prefixes or not.
-        let name = checker.typeToString(propType).replace(/^React\./, "");
+        let name = checker.typeToString(propType).replace(/^React\./, '');
         let value, elements;
         const raw = name;
 
-        const newParentType = (parentType || []).concat(raw);
+        const newParentType = (parentType || []).concat(raw)
 
         if (propType.isUnion()) {
             if (isUnionLiteral(propType)) {
-                return { ...getEnum(propType), raw };
-            } else if (raw.includes("|")) {
-                return { ...getUnion(propType, propObj, newParentType), raw };
+                return {...getEnum(propType), raw};
+            } else if (raw.includes('|')) {
+                return {...getUnion(propType, propObj, newParentType), raw};
             }
         }
 
         name = getPropTypeName(name);
 
         // Shapes & array support.
-        if (!PRIMITIVES.concat("enum", "func", "union").includes(name)) {
+        if (!PRIMITIVES.concat('enum', 'func', 'union').includes(name)) {
             if (
                 // Excluding object with arrays in the raw.
-                (name.includes("[]") && name.endsWith("]")) ||
-                name.includes("Array")
+                (name.includes('[]') && name.endsWith("]")) ||
+                name.includes('Array')
             ) {
-                name = "arrayOf";
-                const replaced = raw.replace("[]", "");
+                name = 'arrayOf';
+                const replaced = raw.replace('[]', '');
                 if (unionSupport.includes(replaced)) {
                     // Simple types are easier.
                     value = {
                         name: getPropTypeName(replaced),
-                        raw: replaced,
+                        raw: replaced
                     };
                 } else {
                     // Complex types get the type parameter (Array<type>)
                     const [nodeType] = checker.getTypeArguments(propType);
 
                     if (nodeType) {
-                        value = getPropType(nodeType, propObj, newParentType);
+                        value = getPropType(
+                            nodeType, propObj, newParentType,
+                        );
                     } else {
                         // Not sure, might be unsupported here.
-                        name = "array";
+                        name = 'array';
                     }
                 }
             } else if (
-                name === "tuple" ||
-                (name.startsWith("[") && name.endsWith("]"))
+                name === 'tuple' ||
+                (name.startsWith('[') && name.endsWith(']'))
             ) {
-                name = "tuple";
-                elements = propType.resolvedTypeArguments.map((t) =>
-                    getPropType(t, propObj, newParentType),
+                name = 'tuple';
+                elements = propType.resolvedTypeArguments.map(
+                    t => getPropType(t, propObj, newParentType)
                 );
             } else if (
                 BANNED_TYPES.includes(name) ||
                 (parentType && parentType.includes(name))
             ) {
                 console.error(`Warning nested type: ${name}`);
-                name = "any";
+                name = 'any';
             } else {
-                name = "shape";
+                name = 'shape';
                 // If the type is declared as union it will have a types attribute.
                 if (propType.types && propType.types.length) {
                     if (isUnionLiteral(propType)) {
-                        return { ...getEnum(propType), raw };
+                        return {...getEnum(propType), raw};
                     }
                     return {
                         ...getUnion(propType, propObj, newParentType),
-                        raw,
+                        raw
                     };
                 } else if (propType.indexInfos && propType.indexInfos.length) {
-                    const { type } = propType.indexInfos[0];
-                    name = "objectOf";
+                    const {type} = propType.indexInfos[0];
+                    name = 'objectOf';
                     value = getPropType(type, propObj, newParentType);
                 } else {
                     value = getProps(
@@ -423,23 +412,23 @@ function gatherComponents(sources, components = {}) {
             name,
             value,
             elements,
-            raw,
+            raw
         };
     };
 
     const getDefaultProps = (symbol, source) => {
         const statements = source.statements.filter(
-            (stmt) =>
+            stmt =>
                 (!!stmt.name &&
                     checker.getSymbolAtLocation(stmt.name) === symbol) ||
                 ts.isExpressionStatement(stmt) ||
-                ts.isVariableStatement(stmt),
+                ts.isVariableStatement(stmt)
         );
         return statements.reduce((acc, statement) => {
             let propMap = {};
 
-            statement.getChildren().forEach((child) => {
-                let { right } = child;
+            statement.getChildren().forEach(child => {
+                let {right} = child;
                 if (right && ts.isIdentifier(right)) {
                     const value = source.locals.get(right.escapedText);
                     if (
@@ -452,7 +441,7 @@ function gatherComponents(sources, components = {}) {
                     }
                 }
                 if (right) {
-                    const { properties } = right;
+                    const {properties} = right;
                     if (properties) {
                         propMap = getDefaultPropsValues(properties);
                     }
@@ -461,30 +450,30 @@ function gatherComponents(sources, components = {}) {
 
             return {
                 ...acc,
-                ...propMap,
+                ...propMap
             };
         }, {});
     };
 
-    const getPropComment = (symbol) => {
+    const getPropComment = symbol => {
         // Doesn't work too good with the JsDocTags losing indentation.
         // But used only in props should be fine.
         const comment = symbol.getDocumentationComment();
         const tags = symbol.getJsDocTags();
         if (comment && comment.length) {
             return comment
-                .map((c) => c.text)
+                .map(c => c.text)
                 .concat(
-                    tags.map((t) =>
-                        ["@", t.name].concat((t.text || []).map((e) => e.text)),
-                    ),
+                    tags.map(t =>
+                        ['@', t.name].concat((t.text || []).map(e => e.text))
+                    )
                 )
-                .join("\n");
+                .join('\n');
         }
-        return "";
+        return '';
     };
 
-    const getPropsForFunctionalComponent = (type) => {
+    const getPropsForFunctionalComponent = type => {
         const callSignatures = type.getCallSignatures();
 
         for (const sig of callSignatures) {
@@ -495,7 +484,7 @@ function gatherComponents(sources, components = {}) {
 
             // There is only one parameter for functional components: props
             const p = params[0];
-            if (p.name === "props" || params.length === 1) {
+            if (p.name === 'props' || params.length === 1) {
                 return p;
             }
         }
@@ -523,13 +512,13 @@ function gatherComponents(sources, components = {}) {
                     type.getProperties(),
                     typeSymbol,
                     [],
-                    defaultProps,
+                    defaultProps
                 );
             }
         }
     };
 
-    const getDefaultPropsValues = (properties) =>
+    const getDefaultPropsValues = properties =>
         properties.reduce((acc, p) => {
             if (!p.name || !p.initializer) {
                 return acc;
@@ -547,7 +536,7 @@ function gatherComponents(sources, components = {}) {
                     break;
             }
 
-            const { initializer } = p;
+            const {initializer} = p;
 
             switch (initializer.kind) {
                 case ts.SyntaxKind.StringLiteral:
@@ -557,13 +546,13 @@ function gatherComponents(sources, components = {}) {
                     value = initializer.text;
                     break;
                 case ts.SyntaxKind.NullKeyword:
-                    value = "null";
+                    value = 'null';
                     break;
                 case ts.SyntaxKind.FalseKeyword:
-                    value = "false";
+                    value = 'false';
                     break;
                 case ts.SyntaxKind.TrueKeyword:
-                    value = "true";
+                    value = 'true';
                     break;
                 default:
                     try {
@@ -573,7 +562,7 @@ function gatherComponents(sources, components = {}) {
                     }
             }
 
-            acc[propName] = { value, computed: false };
+            acc[propName] = {value, computed: false};
 
             return acc;
         }, {});
@@ -583,14 +572,14 @@ function gatherComponents(sources, components = {}) {
         // first declaration and one of them will be either
         // an ObjectLiteralExpression or an Identifier which get in the
         // newChild with the proper props.
-        const defaultProps = type.getProperty("defaultProps");
+        const defaultProps = type.getProperty('defaultProps');
         if (!defaultProps) {
             return {};
         }
         const decl = defaultProps.getDeclarations()[0];
         let propValues = {};
 
-        decl.getChildren().forEach((child) => {
+        decl.getChildren().forEach(child => {
             let newChild = child;
 
             if (ts.isIdentifier(child)) {
@@ -606,7 +595,7 @@ function gatherComponents(sources, components = {}) {
                 }
             }
 
-            const { properties } = newChild;
+            const {properties} = newChild;
             if (properties) {
                 propValues = getDefaultPropsValues(properties);
             }
@@ -624,16 +613,16 @@ function gatherComponents(sources, components = {}) {
     ) => {
         const results = {};
 
-        properties.forEach((prop) => {
+        properties.forEach(prop => {
             const name = prop.getName();
             if (isReservedPropName(name)) {
                 return;
             }
             const propType = checker.getTypeOfSymbolAtLocation(
                 prop,
-                propsObj.valueDeclaration,
+                propsObj.valueDeclaration
             );
-            const baseProp = baseProps.find((p) => p.getName() === name);
+            const baseProp = baseProps.find(p => p.getName() === name);
             const defaultValue = defaultProps[name];
 
             const required =
@@ -646,7 +635,7 @@ function gatherComponents(sources, components = {}) {
             let result = {
                 description,
                 required,
-                defaultValue,
+                defaultValue
             };
             const type = getPropType(propType, propsObj, parentType);
             // root object is inserted as type,
@@ -654,7 +643,7 @@ function gatherComponents(sources, components = {}) {
             if (!flat) {
                 result.type = type;
             } else {
-                result = { ...result, ...type };
+                result = {...result, ...type};
             }
 
             results[name] = result;
@@ -666,7 +655,7 @@ function gatherComponents(sources, components = {}) {
     const getPropInfo = (propsObj, defaultProps) => {
         const propsType = checker.getTypeOfSymbolAtLocation(
             propsObj,
-            propsObj.valueDeclaration,
+            propsObj.valueDeclaration
         );
         const baseProps = propsType.getApparentProperties();
         let propertiesOfProps = baseProps;
@@ -674,15 +663,15 @@ function gatherComponents(sources, components = {}) {
         if (propsType.isUnionOrIntersection()) {
             propertiesOfProps = [
                 ...checker.getAllPossiblePropertiesOfTypes(propsType.types),
-                ...baseProps,
+                ...baseProps
             ];
 
             if (!propertiesOfProps.length) {
                 const subTypes = checker.getAllPossiblePropertiesOfTypes(
                     propsType.types.reduce(
                         (all, t) => [...all, ...(t.types || [])],
-                        [],
-                    ),
+                        []
+                    )
                 );
                 propertiesOfProps = [...subTypes, ...baseProps];
             }
@@ -696,13 +685,13 @@ function gatherComponents(sources, components = {}) {
         const moduleSymbol = checker.getSymbolAtLocation(source);
         const exports = checker.getExportsOfModule(moduleSymbol);
 
-        exports.forEach((exp) => {
+        exports.forEach(exp => {
             let rootExp = getComponentFromExport(exp);
             const declaration =
                 rootExp.valueDeclaration || rootExp.declarations[0];
             const type = checker.getTypeOfSymbolAtLocation(
                 rootExp,
-                declaration,
+                declaration
             );
 
             let commentSource = rootExp;
@@ -711,14 +700,14 @@ function gatherComponents(sources, components = {}) {
 
             if (!rootExp.valueDeclaration) {
                 if (
-                    originalName === "default" &&
+                    originalName === 'default' &&
                     !typeSymbol &&
                     (rootExp.flags & ts.SymbolFlags.Alias) !== 0
                 ) {
                     // Some type of Exotic?
                     commentSource =
                         checker.getAliasedSymbol(
-                            commentSource,
+                            commentSource
                         ).valueDeclaration;
                 } else if (!typeSymbol) {
                     // Invalid component
@@ -726,11 +715,15 @@ function gatherComponents(sources, components = {}) {
                 } else {
                     // Function components.
                     rootExp = typeSymbol;
-                    commentSource =
-                        rootExp.valueDeclaration || rootExp.declarations[0];
-                    if (commentSource && commentSource.parent) {
+                    commentSource = rootExp.valueDeclaration || rootExp.declarations[0];
+                    if (
+                        commentSource &&
+                        commentSource.parent
+                    ) {
                         // Function with export later like `const MyComponent = (props) => <></>;`
-                        commentSource = getParent(commentSource.parent);
+                        commentSource = getParent(
+                            commentSource.parent
+                        );
                     }
                 }
             } else if (
@@ -754,7 +747,7 @@ function gatherComponents(sources, components = {}) {
 
             let defaultProps = getDefaultProps(typeSymbol, source);
             const propsType = getPropsForFunctionalComponent(type);
-            const isContext = !!type.getProperty("isContext");
+            const isContext = !!type.getProperty('isContext');
 
             let props;
 
@@ -765,9 +758,7 @@ function gatherComponents(sources, components = {}) {
                     propsType.valueDeclaration.name.elements &&
                     propsType.valueDeclaration.name.elements.length
                 ) {
-                    defaultProps = getDefaultPropsValues(
-                        propsType.valueDeclaration.name.elements,
-                    );
+                    defaultProps = getDefaultPropsValues(propsType.valueDeclaration.name.elements);
                 }
                 props = getPropInfo(propsType, defaultProps);
             } else {
@@ -775,7 +766,7 @@ function gatherComponents(sources, components = {}) {
                 props = getPropsForClassComponent(
                     typeSymbol,
                     source,
-                    defaultProps,
+                    defaultProps
                 );
             }
 
@@ -785,28 +776,28 @@ function gatherComponents(sources, components = {}) {
             }
 
             const fullText = source.getFullText();
-            let description = "";
+            let description = '';
             const commentRanges = ts.getLeadingCommentRanges(
                 fullText,
-                commentSource.getFullStart(),
+                commentSource.getFullStart()
             );
             if (commentRanges && commentRanges.length) {
                 description = commentRanges
-                    .map((r) =>
+                    .map(r =>
                         fullText
                             .slice(r.pos + 4, r.end - 3)
-                            .split("\n")
-                            .map((s) => s.replace(/^(\s*\*?\s)/, ""))
-                            .filter((e) => e)
-                            .join("\n"),
+                            .split('\n')
+                            .map(s => s.replace(/^(\s*\*?\s)/, ''))
+                            .filter(e => e)
+                            .join('\n')
                     )
-                    .join("");
+                    .join('');
             }
             const doc = {
                 displayName: name,
                 description,
                 props,
-                isContext,
+                isContext
             };
             docstringWarning(doc);
             components[cleanPath(filepath)] = doc;
@@ -820,6 +811,6 @@ const metadata = gatherComponents(Array.isArray(src) ? src : [src]);
 if (!failedBuild) {
     process.stdout.write(JSON.stringify(metadata, null, 2));
 } else {
-    logError("extract-meta failed");
+    logError('extract-meta failed');
     process.exit(1);
 }
