@@ -121,9 +121,9 @@ function Tabs({
             const firstChildren: TabProps = window.dash_component_api.getLayout(
                 [...children[0].props.componentPath, 'props']
             );
-            return firstChildren.value;
+            return firstChildren.value ?? 'tab-1';
         }
-        return undefined;
+        return 'tab-1';
     };
 
     // Initialize value on mount if not set
@@ -271,7 +271,11 @@ function Tabs({
     );
 }
 
-Tabs.dashPersistence = true;
+Tabs.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};
+
 Tabs.dashChildrenUpdate = true;
 
 export default Tabs;
