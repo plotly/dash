@@ -26,9 +26,6 @@
     transition: background-color, color 200ms;
     text-align: center;
     box-sizing: border-box;
-}
-
-.tab:hover {
     cursor: pointer;
 }
 
@@ -45,7 +42,8 @@
 
 /* Tab disabled state */
 .tab--disabled {
-    color: #d6d6d6;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* Tab content area */
