@@ -16,14 +16,15 @@ class DashCoreComponentsMixin(object):
         outside_month: used in conjunction with day. indicates if the day out
             the scope of current month. default False.
         """
-        date = self.find_element(f"#{compid} input")
+        date = self.find_element(f"#{compid}")
         date.click()
 
         def is_month_valid(elem):
+            classes = elem.get_attribute("class") or ""
             return (
-                "__outside" in elem.get_attribute("class")
+                "dash-datepicker-calendar-date-outside" in classes
                 if outside_month
-                else "__outside" not in elem.get_attribute("class")
+                else "dash-datepicker-calendar-date-outside" not in classes
             )
 
         self._wait_until_day_is_clickable()
@@ -92,7 +93,7 @@ class DashCoreComponentsMixin(object):
 
     @property
     def date_picker_day_locator(self):
-        return 'div[data-visible="true"] td.CalendarDay'
+        return '.dash-datepicker-calendar-date-inside, .dash-datepicker-calendar-date-outside'
 
     def click_and_hold_at_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
