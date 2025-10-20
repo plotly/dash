@@ -5,6 +5,11 @@ import {getStores} from './utils/stores';
 import ExternalWrapper from './wrapper/ExternalWrapper';
 import {stringifyId} from './actions/dependencies';
 import {DashLayoutPath} from './types/component';
+import {
+    DevtoolContext,
+    useDevtool,
+    useDevtoolMenuButtonClassName
+} from './components/error/menu/DevtoolContext';
 
 /**
  * Get the dash props from a component path or id.
@@ -35,5 +40,10 @@ window.dash_component_api = {
     DashContext,
     useDashContext,
     getLayout,
-    stringifyId
+    stringifyId,
+    devtool: {
+        DevtoolContext,
+        useDevtool,
+        useDevtoolMenuButtonClassName
+    }
 };
