@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {has, isNil} from 'ramda';
 
 import LoadingElement from '../utils/_LoadingElement';
@@ -34,20 +34,24 @@ const EnhancedTab = ({
     // We use the raw path here since it's up one level from
     // the tabs child.
     const isLoading = ctx.useLoading({rawPath: componentPath});
-    const tabStyle = {
-        ...style,
-        ...(disabled ? disabled_style : {}),
-        ...(selected ? selected_style : {}),
-    };
+    const tabStyle = useMemo(() => {
+        return {
+            ...style,
+            ...(disabled ? disabled_style : {}),
+            ...(selected ? selected_style : {}),
+        };
+    }, [style, disabled, disabled_style, selected, selected_style]);
 
-    const tabClassNames = [
-        'tab',
-        className,
-        disabled ? 'tab--disabled' : null,
-        disabled ? disabled_className : null,
-        selected ? 'tab--selected' : null,
-        selected ? selected_className : null,
-    ].filter(Boolean);
+    const tabClassNames = useMemo(() => {
+        return [
+            'tab',
+            className,
+            disabled ? 'tab--disabled' : null,
+            disabled ? disabled_className : null,
+            selected ? 'tab--selected' : null,
+            selected ? selected_className : null,
+        ].filter((el): el is string => Boolean(el));
+    }, [className, disabled, disabled_className, selected, selected_className]);
 
     let labelDisplay;
     if (typeof label === 'object') {
@@ -217,24 +221,30 @@ function Tabs({
 
     const selectedTabContent = !isNil(selectedTab) ? selectedTab : '';
 
-    const tabContainerClassNames = [
-        'tab-container',
-        vertical ? 'tab-container--vert' : null,
-        props.className,
-    ].filter(Boolean);
+    const tabContainerClassNames = useMemo(() => {
+        return [
+            'tab-container',
+            vertical ? 'tab-container--vert' : null,
+            props.className,
+        ].filter((el): el is string => Boolean(el));
+    }, [vertical, props.className]);
 
-    const tabContentClassNames = [
-        'tab-content',
-        vertical ? 'tab-content--vert' : null,
-        props.content_className,
-    ].filter(Boolean);
+    const tabContentClassNames = useMemo(() => {
+        return [
+            'tab-content',
+            vertical ? 'tab-content--vert' : null,
+            props.content_className,
+        ].filter((el): el is string => Boolean(el));
+    }, [vertical, props.content_className]);
 
-    const tabParentClassNames = [
-        'tab-parent',
-        vertical ? ' tab-parent--vert' : null,
-        isAboveBreakpoint ? ' tab-parent--above-breakpoint' : null,
-        props.parent_className,
-    ].filter(Boolean);
+    const tabParentClassNames = useMemo(() => {
+        return [
+            'tab-parent',
+            vertical ? ' tab-parent--vert' : null,
+            isAboveBreakpoint ? ' tab-parent--above-breakpoint' : null,
+            props.parent_className,
+        ].filter((el): el is string => Boolean(el));
+    }, [vertical, isAboveBreakpoint, props.parent_className]);
 
     // Set CSS variables for dynamic styling
     const cssVars = {
