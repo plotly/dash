@@ -112,7 +112,7 @@
 }
 
 .dash-debug-menu:hover {
-    background-color: #108de4;
+    background-color: #7f4bc4;
 }
 
 .dash-debug-menu__outer {
@@ -208,13 +208,12 @@
     align-items: center;
     transition: background-color 0.2s;
     font-family: Verdana, sans-serif !important;
-    font-weight: bold;
-    color: black;
+    color: #7f4bc4;
 }
 
 .dash-debug-menu__button.dash-debug-menu__button--selected {
     color: #7f4bc4;
-    box-shadow: 0 2px #0071c2;
+    box-shadow: 0 2px #7f4bc4;
 }
 .dash-debug-menu__button.dash-debug-menu__button--selected:hover {
     color: #5806c4;
@@ -252,4 +251,10 @@
 .dash-debug-disconnected {
     font-size: 14px;
     margin-left: 3px;
+}
+.dash-debug-menu__icon {
+    color: #9ca3af;
+}
+.dash-debug-menu__button:hover .dash-debug-menu__icon {
+    color: #5806c4;
 }
