@@ -937,13 +937,17 @@ class Dash(ObsoleteChecker):
             "plotly_version": plotly_version,
         }
         if self._plotly_cloud is None:
-            try:
-                # pylint: disable=C0415,W0611
-                import plotly_cloud  # noqa: F401
-
+            if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
+                # Disable the placeholder button on workspace.
                 self._plotly_cloud = True
-            except ImportError:
-                self._plotly_cloud = False
+            else:
+                try:
+                    # pylint: disable=C0415,W0611
+                    import plotly_cloud  # noqa: F401
+
+                    self._plotly_cloud = True
+                except ImportError:
+                    self._plotly_cloud = False
 
         config["plotly_cloud_installed"] = self._plotly_cloud
         if not self.config.serve_locally:
