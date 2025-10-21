@@ -39,6 +39,13 @@ def with_app_context_factory(func, app):
 
 
 def get_app():
+    """
+    Return the current Dash app instance.
+
+    Useful in multi-page apps when Python files within the `pages/` folder
+    need to reference the `app` object but importing it directly would cause
+    a circular import error.
+    """
     try:
         ctx_app = app_context.get()
         if ctx_app is not None:
