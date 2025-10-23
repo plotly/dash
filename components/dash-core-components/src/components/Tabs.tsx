@@ -43,14 +43,23 @@ const EnhancedTab = ({
     }, [style, disabled, disabled_style, selected, selected_style]);
 
     const tabClassNames = useMemo(() => {
-        return [
-            'tab',
-            className,
-            disabled ? 'tab--disabled' : null,
-            disabled ? disabled_className : null,
-            selected ? 'tab--selected' : null,
-            selected ? selected_className : null,
-        ].filter((el): el is string => Boolean(el));
+        let names = 'tab';
+        if (disabled) {
+            names += ' tab--disabled';
+            if (disabled_className) {
+                names += ` ${disabled_className}`;
+            }
+        }
+        if (selected) {
+            names += ' tab--selected';
+            if (selected_className) {
+                names += ` ${selected_className}`;
+            }
+        }
+        if (className) {
+            names += ` ${className}`;
+        }
+        return names;
     }, [className, disabled, disabled_className, selected, selected_className]);
 
     let labelDisplay;
@@ -68,7 +77,7 @@ const EnhancedTab = ({
     return (
         <div
             data-dash-is-loading={isLoading}
-            className={tabClassNames.join(' ')}
+            className={tabClassNames}
             id={id}
             style={tabStyle}
             onClick={() => {
@@ -222,28 +231,39 @@ function Tabs({
     const selectedTabContent = !isNil(selectedTab) ? selectedTab : '';
 
     const tabContainerClassNames = useMemo(() => {
-        return [
-            'tab-container',
-            vertical ? 'tab-container--vert' : null,
-            props.className,
-        ].filter((el): el is string => Boolean(el));
+        let names = 'tab-container';
+        if (vertical) {
+            names += ` tab-container--vert`;
+        }
+        if (props.className) {
+            names += ` ${props.className}`;
+        }
+        return names;
     }, [vertical, props.className]);
 
     const tabContentClassNames = useMemo(() => {
-        return [
-            'tab-content',
-            vertical ? 'tab-content--vert' : null,
-            props.content_className,
-        ].filter((el): el is string => Boolean(el));
+        let names = 'tab-content';
+        if (vertical) {
+            names += ` tab-content--vert`;
+        }
+        if (props.content_className) {
+            names += ` ${props.content_className}`;
+        }
+        return names;
     }, [vertical, props.content_className]);
 
     const tabParentClassNames = useMemo(() => {
-        return [
-            'tab-parent',
-            vertical ? ' tab-parent--vert' : null,
-            isAboveBreakpoint ? ' tab-parent--above-breakpoint' : null,
-            props.parent_className,
-        ].filter((el): el is string => Boolean(el));
+        let names = 'tab-parent';
+        if (vertical) {
+            names += ` tab-parent--vert`;
+        }
+        if (isAboveBreakpoint) {
+            names += ' tab-parent--above-breakpoint';
+        }
+        if (props.parent_className) {
+            names += ` ${props.parent_className}`;
+        }
+        return names;
     }, [vertical, isAboveBreakpoint, props.parent_className]);
 
     // Set CSS variables for dynamic styling
@@ -257,20 +277,20 @@ function Tabs({
         <LoadingElement>
             {loadingProps => (
                 <div
-                    className={tabParentClassNames.join(' ')}
+                    className={tabParentClassNames}
                     style={{...cssVars, ...props.parent_style}}
                     id={props.id ? `${props.id}-parent` : undefined}
                     {...loadingProps}
                 >
                     <div
-                        className={tabContainerClassNames.join(' ')}
+                        className={tabContainerClassNames}
                         style={props.style}
                         id={props.id}
                     >
                         {EnhancedTabs}
                     </div>
                     <div
-                        className={tabContentClassNames.join(' ')}
+                        className={tabContentClassNames}
                         style={props.content_style}
                     >
                         {selectedTabContent || ''}
