@@ -67,7 +67,7 @@ const BANNED_TYPES = [
     'ChildNode',
     'ParentNode',
 ];
-const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum');
+const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum', 'DashComponent');
 
 /* Regex to capture typescript unions in different formats:
  * string[]
@@ -257,13 +257,18 @@ function gatherComponents(sources, components = {}) {
         let name = 'union',
             value;
 
-        // Union only do base types
+        // Union only do base types & DashComponent types
         value = typeObj.types
             .filter(t => {
                 let typeName = t.intrinsicName;
                 if (!typeName) {
                     if (t.members) {
                         typeName = 'object';
+                    } else {
+                        const typeString = checker.typeToString(t);
+                        if (typeString === 'DashComponent') {
+                            typeName = 'node';
+                        }
                     }
                 }
                 if (t.value) {
@@ -307,7 +312,8 @@ function gatherComponents(sources, components = {}) {
         } else if (
             propName === 'Element' ||
             propName === 'ReactNode' ||
-            propName === 'ReactElement'
+            propName === 'ReactElement' ||
+            propName === 'DashComponent'
         ) {
             return 'node';
         }

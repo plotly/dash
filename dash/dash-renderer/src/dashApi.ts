@@ -4,6 +4,7 @@ import {getPath} from './actions/paths';
 import {getStores} from './utils/stores';
 import ExternalWrapper from './wrapper/ExternalWrapper';
 import {stringifyId} from './actions/dependencies';
+import {DashLayoutPath} from './types/component';
 import {
     DevtoolContext,
     useDevtool,
@@ -17,7 +18,7 @@ import {
  * @param propPath Additional key to get the property instead of plain props.
  * @returns
  */
-function getLayout(componentPathOrId: string[] | string): any {
+function getLayout(componentPathOrId: DashLayoutPath | string): any {
     const ds = getStores();
     for (let y = 0; y < ds.length; y++) {
         const {paths, layout} = ds[y].getState();
@@ -34,7 +35,7 @@ function getLayout(componentPathOrId: string[] | string): any {
     }
 }
 
-(window as any).dash_component_api = {
+window.dash_component_api = {
     ExternalWrapper,
     DashContext,
     useDashContext,

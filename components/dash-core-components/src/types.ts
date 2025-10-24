@@ -1,16 +1,5 @@
 import React from 'react';
-import {DashComponent} from '@dash-renderer/types/component';
-import ExternalWrapper from '@dash-renderer/wrapper/ExternalWrapper';
-import {useDashContext} from '@dash-renderer/wrapper/DashContext';
-
-declare global {
-    interface Window {
-        dash_component_api: {
-            useDashContext: typeof useDashContext;
-            ExternalWrapper: typeof ExternalWrapper;
-        };
-    }
-}
+import {BaseDashProps, DashComponent} from '@dash-renderer/types';
 
 export enum PersistenceTypes {
     'local' = 'local',
@@ -22,14 +11,7 @@ export enum PersistedProps {
     'value' = 'value',
 }
 
-export interface BaseComponentProps<T> {
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id?: string;
-
+export interface BaseDccProps<T> extends BaseDashProps {
     /**
      * Additional CSS class for the root DOM node
      */
@@ -122,7 +104,7 @@ export type SliderTooltip = {
     transform?: string;
 };
 
-export interface SliderProps extends BaseComponentProps<SliderProps> {
+export interface SliderProps extends BaseDccProps<SliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -209,7 +191,7 @@ export interface SliderProps extends BaseComponentProps<SliderProps> {
     verticalHeight?: number;
 }
 
-export interface RangeSliderProps extends BaseComponentProps<RangeSliderProps> {
+export interface RangeSliderProps extends BaseDccProps<RangeSliderProps> {
     /**
      * Minimum allowed value of the slider
      */
@@ -356,7 +338,7 @@ export type OptionsArray = (OptionValue | DetailedOption)[];
  */
 export type OptionsDict = Record<string, string>;
 
-export interface DropdownProps extends BaseComponentProps<DropdownProps> {
+export interface DropdownProps extends BaseDccProps<DropdownProps> {
     /**
      * An array of options {label: [string|number], value: [string|number]},
      * an optional disabled field can be used for each option
@@ -439,7 +421,7 @@ export interface DropdownProps extends BaseComponentProps<DropdownProps> {
     };
 }
 
-export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {
+export interface ChecklistProps extends BaseDccProps<ChecklistProps> {
     /**
      * An array of options
      */
@@ -484,7 +466,7 @@ export interface ChecklistProps extends BaseComponentProps<ChecklistProps> {
     labelClassName?: string;
 }
 
-export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
+export interface RadioItemsProps extends BaseDccProps<RadioItemsProps> {
     /**
      * An array of options
      */
@@ -529,7 +511,7 @@ export interface RadioItemsProps extends BaseComponentProps<RadioItemsProps> {
     labelClassName?: string;
 }
 
-export interface TextAreaProps extends BaseComponentProps<TextAreaProps> {
+export interface TextAreaProps extends BaseDccProps<TextAreaProps> {
     /**
      * The value of the textarea
      */
@@ -753,7 +735,7 @@ export interface TooltipProps {
     setProps: (props: Partial<TooltipProps>) => void;
 }
 
-export interface LoadingProps extends BaseComponentProps<LoadingProps> {
+export interface LoadingProps extends BaseDccProps<LoadingProps> {
     /**
      * Array that holds components to render
      */
@@ -835,4 +817,131 @@ export interface LoadingProps extends BaseComponentProps<LoadingProps> {
      *
      */
     custom_spinner?: React.ReactNode;
+}
+
+export interface TabsProps extends BaseDccProps<TabsProps> {
+    /**
+     * The value of the currently selected Tab
+     */
+    value?: string;
+
+    /**
+     * Appends a class to the Tab content container holding the children of the Tab that is selected.
+     */
+    content_className?: string;
+
+    /**
+     * Appends a class to the top-level parent container holding both the Tabs container and the content container.
+     */
+    parent_className?: string;
+
+    /**
+     * Appends (inline) styles to the Tabs container holding the individual Tab components.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Appends (inline) styles to the top-level parent container holding both the Tabs container and the content container.
+     */
+    parent_style?: React.CSSProperties;
+
+    /**
+     * Appends (inline) styles to the tab content container holding the children of the Tab that is selected.
+     */
+    content_style?: React.CSSProperties;
+
+    /**
+     * Renders the tabs vertically (on the side)
+     */
+    vertical?: boolean;
+
+    /**
+     * Breakpoint at which tabs are rendered full width (can be 0 if you don't want full width tabs on mobile)
+     */
+    mobile_breakpoint?: number;
+
+    /**
+     * Array that holds Tab components
+     */
+    children?: DashComponent;
+
+    /**
+     * Holds the colors used by the Tabs and Tab components. If you set these, you should specify colors for all properties, so:
+     * colors: {
+     *    border: '#d6d6d6',
+     *    primary: '#1975FA',
+     *    background: '#f9f9f9'
+     *  }
+     */
+    colors?: {
+        border: string;
+        primary: string;
+        background: string;
+    };
+}
+
+// Note a quirk in how this extends the BaseComponentProps: `setProps` is shared
+// with `TabsProps` (plural!) due to how tabs are implemented. This is
+// intentional.
+export interface TabProps extends BaseDccProps<TabsProps> {
+    /**
+     * The tab's label
+     */
+    label?: string | DashComponent;
+
+    /**
+     * The content of the tab - will only be displayed if this tab is selected
+     */
+    children?: DashComponent;
+
+    /**
+     * Value for determining which Tab is currently selected
+     */
+    value?: string;
+
+    /**
+     * Determines if tab is disabled or not - defaults to false
+     */
+    disabled?: boolean;
+
+    /**
+     * Overrides the default (inline) styles when disabled
+     */
+    disabled_style?: React.CSSProperties;
+
+    /**
+     * Appends a class to the Tab component when it is disabled.
+     */
+    disabled_className?: string;
+
+    /**
+     * Appends a class to the Tab component.
+     */
+    className?: string;
+
+    /**
+     * Appends a class to the Tab component when it is selected.
+     */
+    selected_className?: string;
+
+    /**
+     * Overrides the default (inline) styles for the Tab component.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * Overrides the default (inline) styles for the Tab component when it is selected.
+     */
+    selected_style?: React.CSSProperties;
+
+    /**
+     * A custom width for this tab, in the format of `50px` or `50%`; numbers
+     * are treated as pixel values. By default, there is no width and this Tab
+     * is evenly spaced along with all the other tabs to occupy the available
+     * space. Setting this value will "fix" this tab width to the given size.
+     * while the other "non-fixed" tabs will continue to automatically
+     * occupying the remaining available space.
+     * This property has no effect when tabs are displayed vertically.
+     */
+    width?: string | number;
 }
