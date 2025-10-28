@@ -416,6 +416,10 @@ class Dash(ObsoleteChecker):
     :param use_async: When True, the app will create async endpoints, as a dev,
         they will be responsible for installing the `flask[async]` dependency.
     :type use_async: boolean
+
+    :param health_endpoint: Path for the health check endpoint. Set to None to
+        disable the health endpoint. Default is None.
+    :type health_endpoint: string or None
     """
 
     _plotlyjs_url: str
@@ -466,6 +470,7 @@ class Dash(ObsoleteChecker):
         description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
+        health_endpoint: Optional[str] = None,
         **obsolete,
     ):
 
@@ -537,6 +542,7 @@ class Dash(ObsoleteChecker):
             update_title=update_title,
             include_pages_meta=include_pages_meta,
             description=description,
+            health_endpoint=health_endpoint,
         )
         self.config.set_read_only(
             [
@@ -769,6 +775,8 @@ class Dash(ObsoleteChecker):
             self._add_url("_dash-update-component", self.dispatch, ["POST"])
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url("_favicon.ico", self._serve_default_favicon)
+        if self.config.health_endpoint is not None:
+            self._add_url(self.config.health_endpoint, self.serve_health)
         self._add_url("", self.index)
 
         if jupyter_dash.active:
@@ -929,13 +937,17 @@ class Dash(ObsoleteChecker):
             "plotly_version": plotly_version,
         }
         if self._plotly_cloud is None:
-            try:
-                # pylint: disable=C0415,W0611
-                import plotly_cloud  # noqa: F401
-
+            if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
+                # Disable the placeholder button on workspace.
                 self._plotly_cloud = True
-            except ImportError:
-                self._plotly_cloud = False
+            else:
+                try:
+                    # pylint: disable=C0415,W0611
+                    import plotly_cloud  # noqa: F401
+
+                    self._plotly_cloud = True
+                except ImportError:
+                    self._plotly_cloud = False
 
         config["plotly_cloud_installed"] = self._plotly_cloud
         if not self.config.serve_locally:
@@ -986,6 +998,13 @@ class Dash(ObsoleteChecker):
                 "files": list(changed),
             }
         )
+
+    def serve_health(self):
+        """
+        Health check endpoint for monitoring Dash server status.
+        Returns a simple "OK" response with HTTP 200 status.
+        """
+        return flask.Response("OK", status=200, mimetype="text/plain")
 
     def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []
