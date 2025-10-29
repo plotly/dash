@@ -38,13 +38,15 @@ setup(
         "compress": read_req_file("compress"),
         "fastapi": read_req_file("fastapi"),
         "quart": read_req_file("quart"),
+        "cloud": read_req_file("cloud"),
     },
     entry_points={
         "console_scripts": [
             "dash-generate-components = "
             "dash.development.component_generator:cli",
             "renderer = dash.development.build_process:renderer",
-            "dash-update-components = dash.development.update_components:cli"
+            "dash-update-components = dash.development.update_components:cli",
+            "plotly = dash._plotly_cli:cli"
         ],
         "pytest11": ["dash = dash.testing.plugin"],
     },
