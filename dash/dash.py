@@ -1965,7 +1965,7 @@ class Dash(ObsoleteChecker):
 
         return dev_tools
 
-    def enable_dev_tools(
+    def enable_dev_tools(  # pylint: disable=too-many-branches
         self,
         debug: Optional[bool] = None,
         dev_tools_ui: Optional[bool] = None,
@@ -2080,10 +2080,10 @@ class Dash(ObsoleteChecker):
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
-            # find_loader should return None on __main__ but doesn't
+            # find_spec should return None on __main__ but doesn't
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
-                pkgutil.find_loader(x)
+                find_spec(x)
                 for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
@@ -2097,27 +2097,49 @@ class Dash(ObsoleteChecker):
                 )
 
                 for index, package in enumerate(packages):
-                    if isinstance(package, AssertionRewritingHook):
+                    if package and isinstance(package.loader, AssertionRewritingHook):
                         dash_spec = importlib.util.find_spec("dash")  # type: ignore[reportAttributeAccess]
-                        dash_test_path = dash_spec.submodule_search_locations[0]
-                        setattr(dash_spec, "path", dash_test_path)
                         packages[index] = dash_spec
 
-            component_packages_dist = [
-                dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
-                if isinstance(package, ModuleSpec)
-                else os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
-                if hasattr(package, "path")
-                else os.path.dirname(
-                    package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
-                )
-                if hasattr(package, "_path")
-                else package.filename  # type: ignore[reportAttributeAccessIssue]
-                for package in packages
-            ]
+            component_packages_dist = []
+            for package in packages:
+                if package and isinstance(package, ModuleSpec):
+                    # For ModuleSpec objects, use submodule_search_locations or origin
+                    if package.submodule_search_locations:
+                        component_packages_dist.append(
+                            package.submodule_search_locations[0]
+                        )
+                    elif package.origin:
+                        component_packages_dist.append(os.path.dirname(package.origin))
+                    else:
+                        component_packages_dist.append("")
+                else:
+                    # Fallback for non-ModuleSpec objects (shouldn't happen with find_spec)
+                    if hasattr(package, "path"):
+                        component_packages_dist.append(os.path.dirname(package.path))  # type: ignore[reportAttributeAccessIssue]
+                    elif hasattr(package, "_path"):
+                        component_packages_dist.append(os.path.dirname(package._path[0]))  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
+                    elif hasattr(package, "filename"):
+                        component_packages_dist.append(package.filename)  # type: ignore[reportAttributeAccessIssue]
+                    else:
+                        component_packages_dist.append("")
 
             for i, package in enumerate(packages):
-                if hasattr(package, "path") and "dash/dash" in os.path.dirname(
+                if package and isinstance(package, ModuleSpec):
+                    # Check origin for ModuleSpec objects
+                    pkg_dir = (
+                        package.submodule_search_locations[0]
+                        if package.submodule_search_locations
+                        else os.path.dirname(package.origin)
+                        if package.origin
+                        else None
+                    )
+                    if pkg_dir and "dash/dash" in pkg_dir:
+                        component_packages_dist[i : i + 1] = [
+                            os.path.join(pkg_dir, x)
+                            for x in ["dcc", "html", "dash_table"]
+                        ]
+                elif hasattr(package, "path") and "dash/dash" in os.path.dirname(
                     package.path  # type: ignore[reportAttributeAccessIssue]
                 ):
                     component_packages_dist[i : i + 1] = [
