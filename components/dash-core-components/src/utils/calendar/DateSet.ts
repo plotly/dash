@@ -7,7 +7,7 @@ import {dateAsNum, numAsDate, strAsDate} from './helpers';
 export class DateSet {
     private keys: Set<number>;
 
-    constructor(dates?: (string | Date)[] | DateSet) {
+    constructor(dates?: (string | Date | undefined)[] | DateSet) {
         if (dates instanceof DateSet) {
             // Copy constructor
             this.keys = new Set(dates.keys);

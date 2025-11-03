@@ -54,7 +54,6 @@ const CalendarDay = ({
         }
     }, [isFocused]);
 
-    // If disabled, filter out all event handlers from passThruProps
     const filteredProps = isDisabled
         ? Object.fromEntries(
               Object.entries(passThruProps).filter(

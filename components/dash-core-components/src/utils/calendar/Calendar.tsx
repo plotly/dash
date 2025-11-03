@@ -57,7 +57,6 @@ const Calendar = ({
         initialVisibleDate.getMonth()
     );
 
-    // Initialize focused date: use selectionStart if it's in the visible month, otherwise first of month
     const [focusedDate, setFocusedDate] = useState(() => {
         if (
             selectionStart &&
@@ -77,17 +76,10 @@ const Calendar = ({
     const scrollAccumulatorRef = useRef(0);
     const prevFocusedDateRef = useRef(focusedDate);
 
-    // Compute display year as a number based on month_format
     const displayYear = useMemo(() => {
         const formatted = formatYear(activeYear, monthFormat);
         return parseInt(formatted, 10);
     }, [activeYear, monthFormat]);
-
-    // First day of the active month (used for navigation and range calculations)
-    const activeMonthStart = useMemo(
-        () => moment([activeYear, activeMonth, 1]),
-        [activeYear, activeMonth]
-    );
 
     useEffect(() => {
         // Syncs activeMonth/activeYear to focusedDate when focusedDate changes
@@ -96,7 +88,6 @@ const Calendar = ({
         }
         prevFocusedDateRef.current = focusedDate;
 
-        // Calculate visible month range (centered on activeMonth/activeYear)
         const halfRange = Math.floor((numberOfMonthsShown - 1) / 2);
         const activeMonthStart = moment([activeYear, activeMonth, 1]);
         const visibleStart = activeMonthStart
@@ -108,7 +99,6 @@ const Calendar = ({
             .add(halfRange, 'months')
             .toDate();
 
-        // Sync activeMonth/activeYear to focusedDate if focused month is outside visible range
         const focusedMonthStart = new Date(
             focusedDate.getFullYear(),
             focusedDate.getMonth(),
@@ -124,8 +114,87 @@ const Calendar = ({
         setHighlightedDates(DateSet.fromRange(highlightStart, highlightEnd));
     }, [highlightStart, highlightEnd]);
 
-    const selectedDates = useMemo(
-        () => DateSet.fromRange(selectionStart, selectionEnd),
+    useEffect(() => {
+        if (selectionStart && selectionEnd) {
+            setHighlightedDates(
+                DateSet.fromRange(selectionStart, selectionEnd)
+            );
+        }
+    }, [selectionStart, selectionEnd]);
+
+    const selectedDates = useMemo(() => {
+        return new DateSet([selectionStart, selectionEnd]);
+    }, [selectionStart, selectionEnd]);
+
+    const handleSelectionStart = useCallback(
+        (date: Date) => {
+            // Only start a new selection if there isn't already an incomplete selection
+            // This allows click-based range selection: first click sets start, second click sets end
+            if (!selectionStart || selectionEnd) {
+                // No selection yet, or previous selection is complete → start new selection
+                onSelectionChange(date, undefined);
+            }
+            // If selectionStart exists and selectionEnd is undefined, we're in the middle of a selection
+            // Don't reset the start date - let mouseUp handle completing it
+        },
+        [selectionStart, selectionEnd, onSelectionChange]
+    );
+
+    const handleSelectionEnd = useCallback(
+        (date: Date) => {
+            // Complete the selection with an end date
+            if (selectionStart && !selectionEnd) {
+                // Incomplete selection exists (range picker mid-selection)
+                // Only complete if date is different from start (prevent same-date on single click)
+                if (!moment(selectionStart).isSame(date, 'day')) {
+                    onSelectionChange(selectionStart, date);
+                }
+            } else {
+                // No selection, or complete selection exists (single date picker)
+                // Replace/set with new date (keyboard selection or standalone)
+                onSelectionChange(date, date);
+            }
+        },
+        [selectionStart, selectionEnd, onSelectionChange]
+    );
+
+    const handleDaysHighlighted = useCallback(
+        (days: DateSet) => {
+            // When both selectionStart and selectionEnd are defined (selection complete),
+            // highlight all dates between them
+            if (selectionStart && selectionEnd) {
+                setHighlightedDates(
+                    DateSet.fromRange(selectionStart, selectionEnd)
+                );
+                return;
+            }
+            // When selectionStart is defined but selectionEnd is not,
+            // extend the highlight to include the range from selectionStart to the hovered date
+            if (selectionStart && !selectionEnd && days.size > 0) {
+                // Get the last date from the DateSet (the hovered date)
+                const hoveredDate = days.max();
+                if (hoveredDate) {
+                    setHighlightedDates(
+                        DateSet.fromRange(selectionStart, hoveredDate)
+                    );
+                    return;
+                }
+            }
+            // Otherwise, just use the days as-is (for single date hover)
+            setHighlightedDates(days);
+        },
+        [selectionStart, selectionEnd]
+    );
+
+    const handleDayFocused = useCallback(
+        (date: Date) => {
+            setFocusedDate(date);
+            // When navigating with keyboard during range selection,
+            // highlight the range from start to focused date
+            if (selectionStart && !selectionEnd) {
+                setHighlightedDates(DateSet.fromRange(selectionStart, date));
+            }
+        },
         [selectionStart, selectionEnd]
     );
 
@@ -157,7 +226,6 @@ const Calendar = ({
                         ? currentDate.clone().add(1, 'month')
                         : currentDate.clone().subtract(1, 'month');
 
-                // Check if the new month is within allowed range
                 const newMonth = newDate.toDate();
                 const isWithinRange =
                     (!minDateAllowed ||
@@ -334,11 +402,12 @@ const Calendar = ({
                             maxDateAllowed={maxDateAllowed}
                             disabledDates={disabledDates}
                             dateFocused={focusedDate}
-                            onDayFocused={setFocusedDate}
+                            onDayFocused={handleDayFocused}
                             datesSelected={selectedDates}
-                            onDaySelected={onSelectionChange}
+                            onSelectionStart={handleSelectionStart}
+                            onSelectionEnd={handleSelectionEnd}
                             datesHighlighted={highlightedDates}
-                            onDaysHighlighted={setHighlightedDates}
+                            onDaysHighlighted={handleDaysHighlighted}
                             firstDayOfWeek={firstDayOfWeek}
                             showOutsideDays={showOutsideDays}
                             daySize={daySize}

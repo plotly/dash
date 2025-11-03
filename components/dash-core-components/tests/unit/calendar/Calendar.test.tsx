@@ -77,13 +77,13 @@ describe('Calendar', () => {
             />
         );
 
-        // Should have 6 selected days (Jan 10-15 inclusive)
+        // Should have 2 selected days (only the start and end dates, not the dates in between)
         expect(
             countCellsWithClass(
                 container,
                 'dash-datepicker-calendar-date-selected'
             )
-        ).toBe(6);
+        ).toBe(2);
     });
 
     it('marks highlighted dates from highlightStart and highlightEnd', () => {

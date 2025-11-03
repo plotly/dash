@@ -32,6 +32,14 @@
     grid-template-columns: auto 1fr auto auto;
 }
 
+.dash-datepicker-input-wrapper:has(:nth-child(5)) {
+    grid-template-columns: auto auto auto 1fr auto;
+}
+
+.dash-datepicker-input-wrapper:has(:nth-child(6)) {
+    grid-template-columns: auto auto auto 1fr auto auto;
+}
+
 .dash-datepicker-input-wrapper,
 .dash-datepicker-content {
     border-radius: var(--Dash-Spacing);
@@ -42,7 +50,7 @@
 
 .dash-datepicker-input {
     height: 34px;
-    width: 100%;
+    width: fit-content;
     border: none;
     outline: none;
     border-radius: 4px;

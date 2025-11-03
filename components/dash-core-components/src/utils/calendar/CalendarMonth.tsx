@@ -31,7 +31,8 @@ type CalendarMonthProps = {
     minDateAllowed?: Date;
     maxDateAllowed?: Date;
     disabledDates?: DateSet;
-    onDaySelected?: (date: Date) => void;
+    onSelectionStart?: (date: Date) => void;
+    onSelectionEnd?: (date: Date) => void;
     onDayFocused?: (date: Date) => void;
     onDaysHighlighted?: (days: DateSet) => void;
     firstDayOfWeek?: number; // 0-7
@@ -45,7 +46,8 @@ type CalendarMonthProps = {
 export const CalendarMonth = ({
     year,
     month,
-    onDaySelected,
+    onSelectionStart,
+    onSelectionEnd,
     onDayFocused,
     onDaysHighlighted,
     datesSelected,
@@ -62,13 +64,11 @@ export const CalendarMonth = ({
     direction = CalendarDirection.LeftToRight,
     ...props
 }: CalendarMonthProps): JSX.Element => {
-    // Generate grid of dates
     const gridDates = useMemo(
         () => createMonthGrid(year, month, firstDayOfWeek),
         [year, month, firstDayOfWeek]
     );
 
-    // Helper to compute if a date is disabled
     const computeIsDisabled = useCallback(
         (date: Date): boolean => {
             return isDateDisabled(
@@ -107,20 +107,6 @@ export const CalendarMonth = ({
         );
     }, [firstDayOfWeek]);
 
-    const [selectionStart, setSelectionStart] = useState<Date>();
-
-    const confirmSelection = useCallback(
-        (date: Date) => {
-            setSelectionStart(undefined);
-            const isOutside = computeIsOutside(date);
-            if (isOutside && !showOutsideDays) {
-                return;
-            }
-            onDaySelected?.(date);
-        },
-        [onDaySelected, showOutsideDays, computeIsOutside]
-    );
-
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent, date: Date) => {
             const m = moment(date);
@@ -128,10 +114,17 @@ export const CalendarMonth = ({
 
             switch (e.key) {
                 case ' ':
-                case 'Enter':
+                case 'Enter': {
                     e.preventDefault();
-                    confirmSelection(date);
+                    const isOutside = computeIsOutside(date);
+                    const isDisabled = computeIsDisabled(date);
+                    if (!isDisabled && (!isOutside || showOutsideDays)) {
+                        // Keyboard selection: only call onSelectionEnd
+                        // Calendar will handle completing immediately by setting both start and end
+                        onSelectionEnd?.(date);
+                    }
                     return;
+                }
                 case 'ArrowRight':
                     newDate =
                         direction === CalendarDirection.RightToLeft
@@ -179,7 +172,6 @@ export const CalendarMonth = ({
             if (newDate) {
                 e.preventDefault();
                 const newDateObj = newDate.toDate();
-                // Only focus the new date if it's within the allowed range
                 if (isDateInRange(newDateObj, minDateAllowed, maxDateAllowed)) {
                     onDayFocused?.(newDateObj);
                 }
@@ -187,7 +179,11 @@ export const CalendarMonth = ({
         },
         [
             onDayFocused,
-            confirmSelection,
+            onSelectionStart,
+            onSelectionEnd,
+            computeIsOutside,
+            computeIsDisabled,
+            showOutsideDays,
             minDateAllowed,
             maxDateAllowed,
             direction,
@@ -195,10 +191,8 @@ export const CalendarMonth = ({
         ]
     );
 
-    // Calculate calendar width: 7 days * daySize + some padding
     const calendarWidth = daySize * 7 + 16; // 16px for table padding
 
-    // Format the month/year header
     const monthYearLabel = useMemo(() => {
         return formatDate(new Date(year, month, 1), monthFormat);
     }, [year, month, monthFormat]);
@@ -236,21 +230,15 @@ export const CalendarMonth = ({
                                 label={computeLabel(date)}
                                 isOutside={computeIsOutside(date)}
                                 onMouseDown={() => {
-                                    setSelectionStart(date);
+                                    onDaysHighlighted?.(new DateSet([date]));
+                                    onSelectionStart?.(date);
+                                }}
+                                onMouseUp={() => {
+                                    onSelectionEnd?.(date);
+                                }}
+                                onMouseEnter={() => {
                                     onDaysHighlighted?.(new DateSet([date]));
                                 }}
-                                onMouseUp={() => confirmSelection(date)}
-                                onMouseEnter={() => {
-                                    if (!selectionStart) {
-                                        return;
-                                    }
-                                    const selectionRange = DateSet.fromRange(
-                                        selectionStart,
-                                        date
-                                    );
-                                    onDaysHighlighted?.(selectionRange);
-                                }}
-                                onFocus={() => onDayFocused?.(date)}
                                 onKeyDown={e => handleKeyDown(e, date)}
                                 isFocused={
                                     props.dateFocused !== undefined &&

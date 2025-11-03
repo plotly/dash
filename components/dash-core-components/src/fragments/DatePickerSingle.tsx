@@ -8,6 +8,7 @@ import {
     strAsDate,
     formatDate,
     isDateDisabled,
+    isSameDay,
 } from '../utils/calendar/helpers';
 import {DateSet} from '../utils/calendar/DateSet';
 import '../components/css/datepickers.css';
@@ -17,9 +18,9 @@ const DatePickerSingle = ({
     id,
     className,
     date,
-    initial_visible_month = date,
     min_date_allowed,
     max_date_allowed,
+    initial_visible_month = date ?? min_date_allowed,
     disabled_days,
     first_day_of_week,
     show_outside_days,
@@ -38,7 +39,7 @@ const DatePickerSingle = ({
     number_of_months_shown = 1,
     calendar_orientation,
 }: DatePickerSingleProps) => {
-    const dateObj = strAsDate(date);
+    const [internalDate, setInternalDate] = useState(strAsDate(date));
     const direction = is_RTL
         ? CalendarDirection.RightToLeft
         : CalendarDirection.LeftToRight;
@@ -52,39 +53,46 @@ const DatePickerSingle = ({
 
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [inputValue, setInputValue] = useState<string>(
-        (dateObj && formatDate(dateObj, display_format)) ?? ''
+        (internalDate && formatDate(internalDate, display_format)) ?? ''
     );
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const calendarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (date) {
-            const parsed = strAsDate(date);
-            if (parsed) {
-                setInputValue(formatDate(parsed, display_format));
-            } else {
-                setInputValue(date);
-            }
+        setInternalDate(strAsDate(date));
+    }, [date]);
+
+    useEffect(() => {
+        if (internalDate) {
+            setInputValue(formatDate(internalDate, display_format));
         } else {
             setInputValue('');
         }
-    }, [date, display_format]);
+    }, [internalDate, display_format]);
 
     useEffect(() => {
+        const dateChanged = !(date && isSameDay(date, internalDate));
+
+        if (dateChanged) {
+            setProps({date: dateAsStr(internalDate)});
+        }
+    }, [date, internalDate, setProps]);
+
+    useEffect(() => {
+        // Keep focus on the component when the calendar closes
         if (!isCalendarOpen) {
             inputRef.current?.focus();
         }
     }, [isCalendarOpen]);
 
-    const sendInputAsDate = useCallback(() => {
+    const parseUserInput = useCallback(() => {
         const parsed = strAsDate(inputValue, display_format);
         const isValid =
             parsed && !isDateDisabled(parsed, minDate, maxDate, disabledDates);
 
         if (isValid) {
-            setProps({date: dateAsStr(parsed)});
+            setInternalDate(parsed);
         } else {
             // Invalid or disabled input: revert to previous valid date with proper formatting
             const previousDate = strAsDate(date);
@@ -92,38 +100,29 @@ const DatePickerSingle = ({
                 previousDate ? formatDate(previousDate, display_format) : ''
             );
         }
-    }, [
-        inputValue,
-        display_format,
-        date,
-        setProps,
-        minDate,
-        maxDate,
-        disabledDates,
-    ]);
+    }, [inputValue, display_format, date, minDate, maxDate, disabledDates]);
 
     const clearSelection = useCallback(() => {
-        setProps({date: undefined});
-        setInputValue('');
+        setInternalDate(undefined);
         if (reopen_calendar_on_clear) {
             setIsCalendarOpen(true);
         } else {
             inputRef.current?.focus();
         }
-    }, [reopen_calendar_on_clear, setProps]);
+    }, [reopen_calendar_on_clear]);
 
     const handleInputKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 if (!isCalendarOpen) {
-                    sendInputAsDate();
+                    parseUserInput();
                     // open the calendar after resolving prop changes, so that
                     // it opens with the correct date showing
                     setTimeout(() => setIsCalendarOpen(true), 0);
                 }
             } else if (e.key === 'Enter') {
-                sendInputAsDate();
+                parseUserInput();
             }
         },
         [isCalendarOpen, inputValue]
@@ -163,7 +162,7 @@ const DatePickerSingle = ({
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             onKeyDown={handleInputKeyDown}
-                            onBlur={sendInputAsDate}
+                            onBlur={parseUserInput}
                             placeholder={placeholder}
                             disabled={disabled}
                             dir={direction}
@@ -192,10 +191,13 @@ const DatePickerSingle = ({
                         sideOffset={5}
                         onOpenAutoFocus={e => e.preventDefault()}
                     >
-                        <div ref={calendarRef}>
+                        <div>
                             <Calendar
-                                initialVisibleDate={initialMonth || dateObj}
-                                selectionStart={dateObj}
+                                initialVisibleDate={
+                                    initialMonth || internalDate
+                                }
+                                selectionStart={internalDate}
+                                selectionEnd={internalDate}
                                 minDateAllowed={minDate}
                                 maxDateAllowed={maxDate}
                                 disabledDates={disabledDates}
@@ -206,9 +208,11 @@ const DatePickerSingle = ({
                                 calendarOrientation={calendar_orientation}
                                 daySize={day_size}
                                 direction={direction}
-                                onSelectionChange={selection => {
-                                    const dateStr = dateAsStr(selection);
-                                    setProps({date: dateStr});
+                                onSelectionChange={(_, selection) => {
+                                    if (!selection) {
+                                        return;
+                                    }
+                                    setInternalDate(selection);
                                     if (!stay_open_on_select) {
                                         setIsCalendarOpen(false);
                                     }

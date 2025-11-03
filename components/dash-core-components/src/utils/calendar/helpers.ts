@@ -1,4 +1,5 @@
 import moment from 'moment';
+import {DatePickerSingleProps} from '../../types';
 
 /**
  * Converts a date to a numeric key (days since Unix epoch) for use in Sets/Objects.
@@ -26,6 +27,11 @@ export function numAsDate(key: number): Date {
         utcDate.getUTCMonth(),
         utcDate.getUTCDate()
     );
+}
+
+type AnyDayFormat = string | Date | DatePickerSingleProps['date'];
+export function isSameDay(day1: AnyDayFormat, day2: AnyDayFormat) {
+    return moment(day1).isSame(day2, 'day');
 }
 
 export function strAsDate(date?: string, format?: string): Date | undefined {
@@ -67,7 +73,10 @@ export function isDateInRange(
     return true;
 }
 
-export function formatDate(date: Date, format = 'YYYY-MM-DD'): string {
+export function formatDate(date?: Date, format = 'YYYY-MM-DD'): string {
+    if (!date) {
+        return '';
+    }
     return moment(date).format(format);
 }
 

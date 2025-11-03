@@ -68,14 +68,14 @@ class DashCoreComponentsMixin(object):
             return
 
         prefix = "Start" if start_first else "End"
-        date = self.find_element(f'#{compid} input[aria-label="{prefix} Date"]')
+        date = self.find_element(f'#{compid}[aria-label="{prefix} Date"]')
         date.click()
         for day in day_range:
             self._wait_until_day_is_clickable()
             matched = [
                 _
                 for _ in self.find_elements(self.date_picker_day_locator)
-                if _.text == str(day)
+                if _.find_element(By.CSS_SELECTOR, "span").text == str(day)
             ]
             matched[0].click()
 
@@ -83,7 +83,8 @@ class DashCoreComponentsMixin(object):
 
     def get_date_range(self, compid):
         return tuple(
-            _.get_attribute("value") for _ in self.find_elements(f"#{compid} input")
+            _.get_attribute("value")
+            for _ in self.find_elements(f"#{compid}-wrapper .dash-datepicker-input")
         )
 
     def _wait_until_day_is_clickable(self, timeout=1):
@@ -93,7 +94,7 @@ class DashCoreComponentsMixin(object):
 
     @property
     def date_picker_day_locator(self):
-        return '.dash-datepicker-calendar-date-inside, .dash-datepicker-calendar-date-outside'
+        return ".dash-datepicker-calendar-date-inside, .dash-datepicker-calendar-date-outside"
 
     def click_and_hold_at_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
