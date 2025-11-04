@@ -31,8 +31,10 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = OrderedSet()
-    children_props = collections.defaultdict(dict)
-    namespace_to_package = {}
+    children_props: typing.DefaultDict[
+        str, typing.Dict[str, typing.Any]
+    ] = collections.defaultdict(dict)
+    namespace_to_package: typing.Dict[str, str] = {}
 
     @classmethod
     def get_resources(cls, resource_name, includes=None):
@@ -98,7 +100,7 @@ def _check_if_has_indexable_children(item):
 
 
 class Component(metaclass=ComponentMeta):
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace: str
     _type: str
