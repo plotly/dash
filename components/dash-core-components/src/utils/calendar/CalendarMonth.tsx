@@ -1,40 +1,31 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import moment from 'moment';
 import CalendarDay from './CalendarDay';
+import CalendarDayPadding from './CalendarDayPadding';
 import {createMonthGrid} from './createMonthGrid';
-import {formatDate, isDateInRange, isDateDisabled} from './helpers';
-import {DateSet} from './DateSet';
+import {isDateInRange, isDateDisabled, isSameDay} from './helpers';
 import {CalendarDirection} from '../../types';
 import '../../components/css/calendar.css';
+import CalendarMonthHeader from './CalendarMonthHeader';
 
 export enum NavigationDirection {
     Backward = -1,
     Forward = 1,
 }
 
-const EmptyRow = () => (
-    <tr className="dash-datepicker-calendar-week dash-datepicker-calendar-ghost-row">
-        {Array.from({length: 7}, (_, i) => (
-            <td key={i} className="dash-datepicker-calendar-ghost-cell">
-                <span></span>
-            </td>
-        ))}
-    </tr>
-);
-
 type CalendarMonthProps = {
     year: number;
     month: number; // 0-11 representing January-December;
     dateFocused?: Date;
-    datesSelected?: DateSet;
-    datesHighlighted?: DateSet;
+    selectedDates?: Date[];
+    highlightedDatesRange?: [Date, Date];
     minDateAllowed?: Date;
     maxDateAllowed?: Date;
-    disabledDates?: DateSet;
+    disabledDates?: Date[];
     onSelectionStart?: (date: Date) => void;
     onSelectionEnd?: (date: Date) => void;
     onDayFocused?: (date: Date) => void;
-    onDaysHighlighted?: (days: DateSet) => void;
+    onDaysHighlighted?: (date: Date) => void;
     firstDayOfWeek?: number; // 0-7
     showOutsideDays?: boolean;
     daySize?: number;
@@ -50,26 +41,26 @@ export const CalendarMonth = ({
     onSelectionEnd,
     onDayFocused,
     onDaysHighlighted,
-    datesSelected,
-    datesHighlighted,
+    selectedDates = [],
+    highlightedDatesRange,
     minDateAllowed,
     maxDateAllowed,
     disabledDates,
+    monthFormat,
     firstDayOfWeek = 0,
-    showOutsideDays = false,
+    showOutsideDays = true,
     // eslint-disable-next-line no-magic-numbers
     daySize = 36,
-    monthFormat,
     showMonthHeader = false,
     direction = CalendarDirection.LeftToRight,
     ...props
 }: CalendarMonthProps): JSX.Element => {
     const gridDates = useMemo(
-        () => createMonthGrid(year, month, firstDayOfWeek),
-        [year, month, firstDayOfWeek]
+        () => createMonthGrid(year, month, firstDayOfWeek, showOutsideDays),
+        [year, month, firstDayOfWeek, showOutsideDays]
     );
 
-    const computeIsDisabled = useCallback(
+    const isDisabled = useCallback(
         (date: Date): boolean => {
             return isDateDisabled(
                 date,
@@ -86,17 +77,6 @@ export const CalendarMonth = ({
             return date.getMonth() !== month;
         },
         [month]
-    );
-
-    const computeLabel = useCallback(
-        (date: Date): string => {
-            const isOutside = computeIsOutside(date);
-            if (!showOutsideDays && isOutside) {
-                return '';
-            }
-            return String(date.getDate());
-        },
-        [showOutsideDays, computeIsOutside]
     );
 
     const daysOfTheWeek = useMemo(() => {
@@ -117,8 +97,7 @@ export const CalendarMonth = ({
                 case 'Enter': {
                     e.preventDefault();
                     const isOutside = computeIsOutside(date);
-                    const isDisabled = computeIsDisabled(date);
-                    if (!isDisabled && (!isOutside || showOutsideDays)) {
+                    if (!isDisabled(date) && (!isOutside || showOutsideDays)) {
                         // Keyboard selection: only call onSelectionEnd
                         // Calendar will handle completing immediately by setting both start and end
                         onSelectionEnd?.(date);
@@ -182,7 +161,7 @@ export const CalendarMonth = ({
             onSelectionStart,
             onSelectionEnd,
             computeIsOutside,
-            computeIsDisabled,
+            isDisabled,
             showOutsideDays,
             minDateAllowed,
             maxDateAllowed,
@@ -193,10 +172,6 @@ export const CalendarMonth = ({
 
     const calendarWidth = daySize * 7 + 16; // 16px for table padding
 
-    const monthYearLabel = useMemo(() => {
-        return formatDate(new Date(year, month, 1), monthFormat);
-    }, [year, month, monthFormat]);
-
     return (
         <table
             className="dash-datepicker-calendar"
@@ -205,12 +180,11 @@ export const CalendarMonth = ({
             <thead>
                 {showMonthHeader && (
                     <tr>
-                        <th
-                            colSpan={7}
-                            className="dash-datepicker-calendar-month-header"
-                        >
-                            {monthYearLabel}
-                        </th>
+                        <CalendarMonthHeader
+                            year={year}
+                            month={month}
+                            monthFormat={monthFormat}
+                        />
                     </tr>
                 )}
                 <tr>
@@ -224,40 +198,44 @@ export const CalendarMonth = ({
             <tbody>
                 {gridDates.map((week, i) => (
                     <tr key={i} className="dash-datepicker-calendar-week">
-                        {week.map((date, j) => (
-                            <CalendarDay
-                                key={j}
-                                label={computeLabel(date)}
-                                isOutside={computeIsOutside(date)}
-                                onMouseDown={() => {
-                                    onDaysHighlighted?.(new DateSet([date]));
-                                    onSelectionStart?.(date);
-                                }}
-                                onMouseUp={() => {
-                                    onSelectionEnd?.(date);
-                                }}
-                                onMouseEnter={() => {
-                                    onDaysHighlighted?.(new DateSet([date]));
-                                }}
-                                onKeyDown={e => handleKeyDown(e, date)}
-                                isFocused={
-                                    props.dateFocused !== undefined &&
-                                    moment(date).isSame(
-                                        props.dateFocused,
-                                        'day'
-                                    )
-                                }
-                                isSelected={datesSelected?.has(date) ?? false}
-                                isHighlighted={
-                                    datesHighlighted?.has(date) ?? false
-                                }
-                                isDisabled={computeIsDisabled(date)}
-                            />
-                        ))}
+                        {week.map((date, j) =>
+                            date ? (
+                                <CalendarDay
+                                    key={j}
+                                    date={date}
+                                    isOutside={computeIsOutside(date)}
+                                    showOutsideDays={showOutsideDays}
+                                    onMouseDown={() => {
+                                        onDaysHighlighted?.(date);
+                                        onSelectionStart?.(date);
+                                    }}
+                                    onMouseUp={() => onSelectionEnd?.(date)}
+                                    onMouseEnter={() =>
+                                        onDaysHighlighted?.(date)
+                                    }
+                                    onKeyDown={e => handleKeyDown(e, date)}
+                                    isFocused={isSameDay(
+                                        date,
+                                        props.dateFocused
+                                    )}
+                                    isSelected={selectedDates.some(d =>
+                                        isSameDay(date, d)
+                                    )}
+                                    isHighlighted={
+                                        highlightedDatesRange !== undefined &&
+                                        isDateInRange(
+                                            date,
+                                            highlightedDatesRange[0],
+                                            highlightedDatesRange[1]
+                                        )
+                                    }
+                                    isDisabled={isDisabled(date)}
+                                />
+                            ) : (
+                                <CalendarDayPadding key={j} />
+                            )
+                        )}
                     </tr>
-                ))}
-                {Array.from({length: 6 - gridDates.length}, (_, i) => (
-                    <EmptyRow key={`empty-${i}`} />
                 ))}
             </tbody>
         </table>

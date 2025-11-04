@@ -4,8 +4,10 @@ import {
     CalendarIcon,
     CaretDownIcon,
     Cross1Icon,
+    ArrowLeftIcon,
     ArrowRightIcon,
 } from '@radix-ui/react-icons';
+import AutosizeInput from 'react-input-autosize';
 import Calendar from '../utils/calendar/Calendar';
 import {DatePickerRangeProps, CalendarDirection} from '../types';
 import {
@@ -15,9 +17,9 @@ import {
     isDateDisabled,
     isSameDay,
 } from '../utils/calendar/helpers';
-import {DateSet} from '../utils/calendar/DateSet';
 import '../components/css/datepickers.css';
 import uuid from 'uniqid';
+import moment from 'moment';
 
 const DatePickerRange = ({
     id,
@@ -28,6 +30,7 @@ const DatePickerRange = ({
     max_date_allowed,
     initial_visible_month = start_date ?? min_date_allowed ?? max_date_allowed,
     disabled_days,
+    minimum_nights,
     first_day_of_week,
     show_outside_days,
     clearable,
@@ -59,24 +62,45 @@ const DatePickerRange = ({
     const initialMonth = strAsDate(initial_visible_month);
     const minDate = strAsDate(min_date_allowed);
     const maxDate = strAsDate(max_date_allowed);
-    const disabledDates = useMemo(
-        () => new DateSet(disabled_days),
-        [disabled_days]
-    );
+    const disabledDates = useMemo(() => {
+        const baseDates =
+            disabled_days
+                ?.map(d => strAsDate(d))
+                .filter((d): d is Date => d !== undefined) || [];
+
+        // Add minimum_nights constraint: disable dates within the minimum nights range
+        if (
+            internalStartDate &&
+            minimum_nights &&
+            minimum_nights > 0 &&
+            !internalEndDate
+        ) {
+            const minimumNightsDates: Date[] = [];
+            for (let i = 1; i < minimum_nights; i++) {
+                minimumNightsDates.push(
+                    moment(internalStartDate).add(i, 'day').toDate()
+                );
+                minimumNightsDates.push(
+                    moment(internalStartDate).subtract(i, 'day').toDate()
+                );
+            }
+            return [...baseDates, ...minimumNightsDates];
+        }
+
+        return baseDates;
+    }, [disabled_days, internalStartDate, internalEndDate, minimum_nights]);
 
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-    const [startInputValue, setStartInputValue] = useState<string>(
-        (internalStartDate && formatDate(internalStartDate, display_format)) ??
-            ''
+    const [startInputValue, setStartInputValue] = useState(
+        formatDate(internalStartDate, display_format)
     );
-    const [endInputValue, setEndInputValue] = useState<string>(
-        (internalEndDate && formatDate(internalEndDate, display_format)) ?? ''
+    const [endInputValue, setEndInputValue] = useState(
+        formatDate(internalEndDate, display_format)
     );
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const startInputRef = useRef<HTMLInputElement>(null);
-    const endInputRef = useRef<HTMLInputElement>(null);
-    const calendarRef = useRef<HTMLDivElement>(null);
+    const startInputRef = useRef<HTMLInputElement | null>(null);
+    const endInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         setInternalStartDate(strAsDate(start_date));
@@ -119,7 +143,7 @@ const DatePickerRange = ({
                 endInputRef.current?.focus();
             }
         }
-    }, [isCalendarOpen]);
+    }, [isCalendarOpen, startInputValue]);
 
     const sendStartInputAsDate = useCallback(() => {
         const parsed = strAsDate(startInputValue, display_format);
@@ -224,6 +248,42 @@ const DatePickerRange = ({
         classNames += ' ' + className;
     }
 
+    const initialCalendarDate =
+        initialMonth || internalStartDate || internalEndDate;
+
+    const ArrowIcon =
+        direction === CalendarDirection.LeftToRight
+            ? ArrowRightIcon
+            : ArrowLeftIcon;
+
+    const handleSelectionChange = useCallback(
+        (start?: Date, end?: Date) => {
+            const isNewSelection =
+                isSameDay(start, end) &&
+                ((!internalStartDate && !internalEndDate) ||
+                    (internalStartDate && internalEndDate));
+
+            if (isNewSelection) {
+                setInternalStartDate(start);
+                setInternalEndDate(undefined);
+            } else {
+                // Normalize dates: ensure start <= end
+                if (start && end && start > end) {
+                    setInternalStartDate(end);
+                    setInternalEndDate(start);
+                } else {
+                    setInternalStartDate(start);
+                    setInternalEndDate(end);
+                }
+
+                if (end && !stay_open_on_select) {
+                    setIsCalendarOpen(false);
+                }
+            }
+        },
+        [internalStartDate, internalEndDate, stay_open_on_select]
+    );
+
     return (
         <div className="dash-datepicker" ref={containerRef}>
             <Popover.Root
@@ -241,30 +301,44 @@ const DatePickerRange = ({
                         aria-disabled={disabled}
                     >
                         <CalendarIcon className="dash-datepicker-trigger-icon" />
-                        <input
-                            ref={startInputRef}
+                        <AutosizeInput
+                            inputRef={node => {
+                                startInputRef.current = node;
+                            }}
                             type="text"
                             id={start_date_id || accessibleId}
-                            className="dash-datepicker-input dash-datepicker-start-date"
+                            inputClassName="dash-datepicker-input dash-datepicker-start-date"
                             value={startInputValue}
                             onChange={e => setStartInputValue(e.target.value)}
                             onKeyDown={handleStartInputKeyDown}
                             onBlur={sendStartInputAsDate}
+                            onClick={() => {
+                                if (!isCalendarOpen && !disabled) {
+                                    setIsCalendarOpen(true);
+                                }
+                            }}
                             placeholder={start_date_placeholder_text}
                             disabled={disabled}
                             dir={direction}
                             aria-label={start_date_placeholder_text}
                         />
-                        <ArrowRightIcon />
-                        <input
-                            ref={endInputRef}
+                        <ArrowIcon />
+                        <AutosizeInput
+                            inputRef={node => {
+                                endInputRef.current = node;
+                            }}
                             type="text"
                             id={end_date_id || accessibleId + '-end-date'}
-                            className="dash-datepicker-input dash-datepicker-end-date"
+                            inputClassName="dash-datepicker-input dash-datepicker-end-date"
                             value={endInputValue}
                             onChange={e => setEndInputValue(e.target.value)}
                             onKeyDown={handleEndInputKeyDown}
                             onBlur={sendEndInputAsDate}
+                            onClick={() => {
+                                if (!isCalendarOpen && !disabled) {
+                                    setIsCalendarOpen(true);
+                                }
+                            }}
                             placeholder={end_date_placeholder_text}
                             disabled={disabled}
                             dir={direction}
@@ -290,47 +364,22 @@ const DatePickerRange = ({
                         sideOffset={5}
                         onOpenAutoFocus={e => e.preventDefault()}
                     >
-                        <div ref={calendarRef}>
-                            <Calendar
-                                initialVisibleDate={
-                                    initialMonth ||
-                                    internalStartDate ||
-                                    internalEndDate
-                                }
-                                selectionStart={internalStartDate}
-                                selectionEnd={internalEndDate}
-                                minDateAllowed={minDate}
-                                maxDateAllowed={maxDate}
-                                disabledDates={disabledDates}
-                                firstDayOfWeek={first_day_of_week}
-                                showOutsideDays={show_outside_days}
-                                monthFormat={month_format}
-                                numberOfMonthsShown={number_of_months_shown}
-                                calendarOrientation={calendar_orientation}
-                                daySize={day_size}
-                                direction={direction}
-                                onSelectionChange={(start, end) => {
-                                    const isNewSelection =
-                                        isSameDay(start, end) &&
-                                        ((!internalStartDate &&
-                                            !internalEndDate) ||
-                                            (internalStartDate &&
-                                                internalEndDate));
-
-                                    if (isNewSelection) {
-                                        setInternalStartDate(start);
-                                        setInternalEndDate(undefined);
-                                    } else {
-                                        setInternalStartDate(start);
-                                        setInternalEndDate(end);
-
-                                        if (end && !stay_open_on_select) {
-                                            setIsCalendarOpen(false);
-                                        }
-                                    }
-                                }}
-                            />
-                        </div>
+                        <Calendar
+                            initialVisibleDate={initialCalendarDate}
+                            selectionStart={internalStartDate}
+                            selectionEnd={internalEndDate}
+                            minDateAllowed={minDate}
+                            maxDateAllowed={maxDate}
+                            disabledDates={disabledDates}
+                            firstDayOfWeek={first_day_of_week}
+                            showOutsideDays={show_outside_days}
+                            monthFormat={month_format}
+                            numberOfMonthsShown={number_of_months_shown}
+                            calendarOrientation={calendar_orientation}
+                            daySize={day_size}
+                            direction={direction}
+                            onSelectionChange={handleSelectionChange}
+                        />
                     </Popover.Content>
                 </Popover.Portal>
             </Popover.Root>

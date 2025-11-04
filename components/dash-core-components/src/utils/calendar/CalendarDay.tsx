@@ -9,8 +9,9 @@ type CalendarDayProps = DetailedHTMLProps<
     TdHTMLAttributes<HTMLTableCellElement>,
     HTMLTableCellElement
 > & {
-    label: string;
+    date: Date;
     isOutside: boolean;
+    showOutsideDays: boolean;
     isSelected?: boolean;
     isHighlighted?: boolean;
     isFocused?: boolean;
@@ -18,8 +19,9 @@ type CalendarDayProps = DetailedHTMLProps<
 };
 
 const CalendarDay = ({
-    label,
+    date,
     isOutside,
+    showOutsideDays,
     isSelected = false,
     isHighlighted = false,
     isFocused = false,
@@ -27,15 +29,18 @@ const CalendarDay = ({
     className,
     ...passThruProps
 }: CalendarDayProps): JSX.Element => {
+    // Compute label: show day number unless it's an outside day and we're not showing outside days
+    const label = !showOutsideDays && isOutside ? '' : String(date.getDate());
+
     let extraClasses = '';
+
     if (isOutside) {
         extraClasses += ' dash-datepicker-calendar-date-outside';
     } else {
         extraClasses += ' dash-datepicker-calendar-date-inside';
     }
-    if (isSelected && !(isOutside && !label)) {
-        // does not apply this class to a blank cell in another month
-        // (relevant when `number_of_months_shown > 1`)
+
+    if (isSelected) {
         extraClasses += ' dash-datepicker-calendar-date-selected';
     }
     if (isHighlighted) {
@@ -54,18 +59,10 @@ const CalendarDay = ({
         }
     }, [isFocused]);
 
-    const filteredProps = isDisabled
-        ? Object.fromEntries(
-              Object.entries(passThruProps).filter(
-                  ([key]) => !key.startsWith('on')
-              )
-          )
-        : passThruProps;
-
     return (
         <td
             className={className}
-            {...filteredProps}
+            {...passThruProps}
             ref={ref}
             aria-disabled={isDisabled}
             tabIndex={isOutside || isDisabled ? undefined : 0}

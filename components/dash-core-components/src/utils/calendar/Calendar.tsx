@@ -10,8 +10,13 @@ import Input, {HTMLInputTypes} from '../../components/Input';
 import Dropdown from '../../fragments/Dropdown';
 import {DayOfWeek, CalendarDirection} from '../../types';
 import {CalendarMonth} from './CalendarMonth';
-import {DateSet} from './DateSet';
-import {getMonthOptions, formatYear, parseYear, isDateInRange} from './helpers';
+import {
+    getMonthOptions,
+    formatYear,
+    parseYear,
+    isDateInRange,
+    isSameDay,
+} from './helpers';
 
 type CalendarProps = {
     onSelectionChange: (selectionStart: Date, selectionEnd?: Date) => void;
@@ -22,7 +27,7 @@ type CalendarProps = {
     initialVisibleDate?: Date;
     minDateAllowed?: Date;
     maxDateAllowed?: Date;
-    disabledDates?: DateSet;
+    disabledDates?: Date[];
     firstDayOfWeek?: DayOfWeek;
     showOutsideDays?: boolean;
     monthFormat?: string;
@@ -71,7 +76,7 @@ const Calendar = ({
             1
         );
     });
-    const [highlightedDates, setHighlightedDates] = useState(new DateSet());
+    const [highlightedDates, setHighlightedDates] = useState<[Date, Date]>();
     const calendarContainerRef = useRef(document.createElement('div'));
     const scrollAccumulatorRef = useRef(0);
     const prevFocusedDateRef = useRef(focusedDate);
@@ -111,31 +116,34 @@ const Calendar = ({
     }, [focusedDate, activeMonth, activeYear, numberOfMonthsShown]);
 
     useEffect(() => {
-        setHighlightedDates(DateSet.fromRange(highlightStart, highlightEnd));
+        if (highlightStart && highlightEnd) {
+            setHighlightedDates([highlightStart, highlightEnd]);
+        } else if (highlightStart) {
+            setHighlightedDates([highlightStart, highlightStart]);
+        } else {
+            setHighlightedDates(undefined);
+        }
     }, [highlightStart, highlightEnd]);
 
     useEffect(() => {
         if (selectionStart && selectionEnd) {
-            setHighlightedDates(
-                DateSet.fromRange(selectionStart, selectionEnd)
-            );
+            setHighlightedDates([selectionStart, selectionEnd]);
         }
     }, [selectionStart, selectionEnd]);
 
-    const selectedDates = useMemo(() => {
-        return new DateSet([selectionStart, selectionEnd]);
+    const selectedDates = useMemo((): Date[] => {
+        return [selectionStart, selectionEnd].filter(
+            (d): d is Date => d !== undefined
+        );
     }, [selectionStart, selectionEnd]);
 
     const handleSelectionStart = useCallback(
         (date: Date) => {
-            // Only start a new selection if there isn't already an incomplete selection
-            // This allows click-based range selection: first click sets start, second click sets end
             if (!selectionStart || selectionEnd) {
                 // No selection yet, or previous selection is complete → start new selection
+                setHighlightedDates(undefined);
                 onSelectionChange(date, undefined);
             }
-            // If selectionStart exists and selectionEnd is undefined, we're in the middle of a selection
-            // Don't reset the start date - let mouseUp handle completing it
         },
         [selectionStart, selectionEnd, onSelectionChange]
     );
@@ -145,13 +153,11 @@ const Calendar = ({
             // Complete the selection with an end date
             if (selectionStart && !selectionEnd) {
                 // Incomplete selection exists (range picker mid-selection)
-                // Only complete if date is different from start (prevent same-date on single click)
-                if (!moment(selectionStart).isSame(date, 'day')) {
+                if (!isSameDay(selectionStart, date)) {
                     onSelectionChange(selectionStart, date);
                 }
             } else {
-                // No selection, or complete selection exists (single date picker)
-                // Replace/set with new date (keyboard selection or standalone)
+                // Complete selection exists or a single date was chosen
                 onSelectionChange(date, date);
             }
         },
@@ -159,29 +165,14 @@ const Calendar = ({
     );
 
     const handleDaysHighlighted = useCallback(
-        (days: DateSet) => {
-            // When both selectionStart and selectionEnd are defined (selection complete),
-            // highlight all dates between them
+        (date: Date) => {
             if (selectionStart && selectionEnd) {
-                setHighlightedDates(
-                    DateSet.fromRange(selectionStart, selectionEnd)
-                );
-                return;
+                setHighlightedDates([selectionStart, selectionEnd]);
+            } else if (selectionStart && !selectionEnd) {
+                setHighlightedDates([selectionStart, date]);
+            } else {
+                setHighlightedDates([date, date]);
             }
-            // When selectionStart is defined but selectionEnd is not,
-            // extend the highlight to include the range from selectionStart to the hovered date
-            if (selectionStart && !selectionEnd && days.size > 0) {
-                // Get the last date from the DateSet (the hovered date)
-                const hoveredDate = days.max();
-                if (hoveredDate) {
-                    setHighlightedDates(
-                        DateSet.fromRange(selectionStart, hoveredDate)
-                    );
-                    return;
-                }
-            }
-            // Otherwise, just use the days as-is (for single date hover)
-            setHighlightedDates(days);
         },
         [selectionStart, selectionEnd]
     );
@@ -192,7 +183,7 @@ const Calendar = ({
             // When navigating with keyboard during range selection,
             // highlight the range from start to focused date
             if (selectionStart && !selectionEnd) {
-                setHighlightedDates(DateSet.fromRange(selectionStart, date));
+                setHighlightedDates([selectionStart, date]);
             }
         },
         [selectionStart, selectionEnd]
@@ -209,6 +200,25 @@ const Calendar = ({
         [activeYear, monthFormat, minDateAllowed, maxDateAllowed]
     );
 
+    const changeMonthBy = useCallback(
+        (months: number) => {
+            const currentDate = moment([activeYear, activeMonth, 1]);
+
+            // In RTL mode, directions are reversed
+            const actualMonths =
+                direction === CalendarDirection.RightToLeft ? -months : months;
+
+            const newDate = currentDate.clone().add(actualMonths, 'month');
+            const newMonthStart = newDate.toDate();
+
+            if (isDateInRange(newMonthStart, minDateAllowed, maxDateAllowed)) {
+                setActiveYear(newDate.year());
+                setActiveMonth(newDate.month());
+            }
+        },
+        [activeYear, activeMonth, minDateAllowed, maxDateAllowed, direction]
+    );
+
     const handleWheel = useCallback(
         (e: WheelEvent) => {
             e.preventDefault();
@@ -220,29 +230,12 @@ const Calendar = ({
             scrollAccumulatorRef.current += e.deltaY;
 
             if (Math.abs(scrollAccumulatorRef.current) >= threshold) {
-                const currentDate = moment([activeYear, activeMonth, 1]);
-                const newDate =
-                    scrollAccumulatorRef.current > 0
-                        ? currentDate.clone().add(1, 'month')
-                        : currentDate.clone().subtract(1, 'month');
-
-                const newMonth = newDate.toDate();
-                const isWithinRange =
-                    (!minDateAllowed ||
-                        newMonth >=
-                            moment(minDateAllowed).startOf('month').toDate()) &&
-                    (!maxDateAllowed ||
-                        newMonth <=
-                            moment(maxDateAllowed).startOf('month').toDate());
-
-                if (isWithinRange) {
-                    setActiveYear(newDate.year());
-                    setActiveMonth(newDate.month());
-                }
+                const offset = scrollAccumulatorRef.current > 0 ? 1 : -1;
+                changeMonthBy(offset);
                 scrollAccumulatorRef.current = 0; // Reset accumulator after month change
             }
         },
-        [activeYear, activeMonth, minDateAllowed, maxDateAllowed]
+        [changeMonthBy]
     );
 
     useEffect(() => {
@@ -259,61 +252,18 @@ const Calendar = ({
         };
     }, [handleWheel]);
 
-    const handlePreviousMonth = useCallback(() => {
-        const currentDate = moment([activeYear, activeMonth, 1]);
-        // In RTL mode, "previous" button actually goes to next month
-        const newDate =
-            direction === CalendarDirection.RightToLeft
-                ? currentDate.clone().add(1, 'month')
-                : currentDate.clone().subtract(1, 'month');
-        const newMonth = newDate.toDate();
+    const canChangeMonthBy = useCallback(
+        (months: number) => {
+            const currentDate = moment([activeYear, activeMonth, 1]);
+            const targetMonth = currentDate
+                .clone()
+                .add(months, 'month')
+                .toDate();
 
-        const isWithinRange =
-            !minDateAllowed ||
-            newMonth >= moment(minDateAllowed).startOf('month').toDate();
-
-        if (isWithinRange) {
-            setActiveYear(newDate.year());
-            setActiveMonth(newDate.month());
-        }
-    }, [activeYear, activeMonth, minDateAllowed, direction]);
-
-    const handleNextMonth = useCallback(() => {
-        const currentDate = moment([activeYear, activeMonth, 1]);
-        // In RTL mode, "next" button actually goes to previous month
-        const newDate =
-            direction === CalendarDirection.RightToLeft
-                ? currentDate.clone().subtract(1, 'month')
-                : currentDate.clone().add(1, 'month');
-        const newMonth = newDate.toDate();
-
-        const isWithinRange =
-            !maxDateAllowed ||
-            newMonth <= moment(maxDateAllowed).startOf('month').toDate();
-
-        if (isWithinRange) {
-            setActiveYear(newDate.year());
-            setActiveMonth(newDate.month());
-        }
-    }, [activeYear, activeMonth, maxDateAllowed, direction]);
-
-    const isPreviousMonthDisabled = useMemo(() => {
-        if (!minDateAllowed) {
-            return false;
-        }
-        const currentDate = moment([activeYear, activeMonth, 1]);
-        const prevMonth = currentDate.clone().subtract(1, 'month').toDate();
-        return prevMonth < moment(minDateAllowed).startOf('month').toDate();
-    }, [activeYear, activeMonth, minDateAllowed]);
-
-    const isNextMonthDisabled = useMemo(() => {
-        if (!maxDateAllowed) {
-            return false;
-        }
-        const currentDate = moment([activeYear, activeMonth, 1]);
-        const nextMonth = currentDate.clone().add(1, 'month').toDate();
-        return nextMonth > moment(maxDateAllowed).startOf('month').toDate();
-    }, [activeYear, activeMonth, maxDateAllowed]);
+            return isDateInRange(targetMonth, minDateAllowed, maxDateAllowed);
+        },
+        [activeYear, activeMonth, minDateAllowed, maxDateAllowed]
+    );
 
     const isVertical = calendarOrientation === 'vertical';
     const PreviousMonthIcon = isVertical ? ArrowUpIcon : ArrowLeftIcon;
@@ -327,8 +277,8 @@ const Calendar = ({
             <div className="dash-datepicker-controls">
                 <button
                     className="dash-datepicker-month-nav"
-                    onClick={handlePreviousMonth}
-                    disabled={isPreviousMonthDisabled}
+                    onClick={() => changeMonthBy(-1)}
+                    disabled={!canChangeMonthBy(-1)}
                     aria-label="Previous month"
                 >
                     <PreviousMonthIcon />
@@ -348,29 +298,19 @@ const Calendar = ({
                     type={HTMLInputTypes.number}
                     debounce={0.5}
                     value={displayYear}
-                    min={
-                        minDateAllowed
-                            ? moment(minDateAllowed).year()
-                            : undefined
-                    }
-                    max={
-                        maxDateAllowed
-                            ? moment(maxDateAllowed).year()
-                            : undefined
-                    }
+                    min={minDateAllowed?.getFullYear()}
+                    max={maxDateAllowed?.getFullYear()}
                     setProps={({value}) => {
-                        if (typeof value === 'number') {
-                            const parsed = parseYear(String(value));
-                            if (parsed !== undefined) {
-                                setActiveYear(parsed);
-                            }
+                        const parsed = parseYear(String(value));
+                        if (parsed !== undefined) {
+                            setActiveYear(parsed);
                         }
                     }}
                 />
                 <button
                     className="dash-datepicker-month-nav"
-                    onClick={handleNextMonth}
-                    disabled={isNextMonthDisabled}
+                    onClick={() => changeMonthBy(1)}
+                    disabled={!canChangeMonthBy(1)}
                     aria-label="Next month"
                 >
                     <NextMonthIcon />
@@ -403,10 +343,10 @@ const Calendar = ({
                             disabledDates={disabledDates}
                             dateFocused={focusedDate}
                             onDayFocused={handleDayFocused}
-                            datesSelected={selectedDates}
+                            selectedDates={selectedDates}
                             onSelectionStart={handleSelectionStart}
                             onSelectionEnd={handleSelectionEnd}
-                            datesHighlighted={highlightedDates}
+                            highlightedDatesRange={highlightedDates}
                             onDaysHighlighted={handleDaysHighlighted}
                             firstDayOfWeek={firstDayOfWeek}
                             showOutsideDays={showOutsideDays}

@@ -2,28 +2,37 @@ import moment from 'moment';
 
 /**
  * Creates a 2D array of Date objects representing a calendar month grid.
- * @param year - The year
- * @param month - The month (0-11)
- * @param firstDayOfWeek - The first day of week (0=Sunday, 1=Monday, etc.)
- * @returns 2D array where each inner array is a week of Date objects
+ * Always returns exactly 6 rows (weeks) to maintain consistent calendar height.
  */
 export const createMonthGrid = (
     year: number,
     month: number,
-    firstDayOfWeek: number
-): Date[][] => {
+    firstDayOfWeek: number,
+    showOutsideDays = true
+): (Date | null)[][] => {
     const firstDay = moment([year, month, 1]);
     const offset = (firstDay.day() - firstDayOfWeek + 7) % 7;
-    const totalCells = Math.ceil((offset + firstDay.daysInMonth()) / 7) * 7;
+    const daysInMonth = firstDay.daysInMonth();
+    const weeksNeeded = Math.ceil((offset + daysInMonth) / 7);
     const startDate = firstDay.clone().subtract(offset, 'days');
 
-    const grid: Date[][] = [];
-    for (let i = 0; i < totalCells; i += 7) {
+    const grid: (Date | null)[][] = [];
+
+    for (let week = 0; week < weeksNeeded; week++) {
         grid.push(
-            Array.from({length: 7}, (_, j) =>
-                startDate.clone().add(i + j, 'days').toDate()
-            )
+            Array.from({length: 7}, (_, day) => {
+                const date = startDate.clone().add(week * 7 + day, 'days');
+                if (!showOutsideDays && date.month() !== month) {
+                    return null;
+                }
+                return date.toDate();
+            })
         );
+    }
+
+    // Pad with empty rows to always have 6 rows total
+    while (grid.length < 6) {
+        grid.push(Array.from({length: 7}, () => null));
     }
 
     return grid;

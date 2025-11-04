@@ -10,9 +10,9 @@ import {
     isDateDisabled,
     isSameDay,
 } from '../utils/calendar/helpers';
-import {DateSet} from '../utils/calendar/DateSet';
 import '../components/css/datepickers.css';
 import uuid from 'uniqid';
+import AutosizeInput from 'react-input-autosize';
 
 const DatePickerSingle = ({
     id,
@@ -46,10 +46,11 @@ const DatePickerSingle = ({
     const initialMonth = strAsDate(initial_visible_month);
     const minDate = strAsDate(min_date_allowed);
     const maxDate = strAsDate(max_date_allowed);
-    const disabledDates = useMemo(
-        () => new DateSet(disabled_days),
-        [disabled_days]
-    );
+    const disabledDates = useMemo(() => {
+        return disabled_days
+            ?.map(d => strAsDate(d))
+            .filter((d): d is Date => d !== undefined);
+    }, [disabled_days]);
 
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [inputValue, setInputValue] = useState<string>(
@@ -57,18 +58,14 @@ const DatePickerSingle = ({
     );
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         setInternalDate(strAsDate(date));
     }, [date]);
 
     useEffect(() => {
-        if (internalDate) {
-            setInputValue(formatDate(internalDate, display_format));
-        } else {
-            setInputValue('');
-        }
+        setInputValue(formatDate(internalDate, display_format));
     }, [internalDate, display_format]);
 
     useEffect(() => {
@@ -154,18 +151,26 @@ const DatePickerSingle = ({
                         aria-disabled={disabled}
                     >
                         <CalendarIcon className="dash-datepicker-trigger-icon" />
-                        <input
-                            ref={inputRef}
+                        <AutosizeInput
+                            inputRef={node => {
+                                inputRef.current = node;
+                            }}
                             type="text"
                             id={accessibleId}
-                            className="dash-datepicker-input"
+                            inputClassName="dash-datepicker-input dash-datepicker-end-date"
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             onKeyDown={handleInputKeyDown}
                             onBlur={parseUserInput}
+                            onClick={() => {
+                                if (!isCalendarOpen && !disabled) {
+                                    setIsCalendarOpen(true);
+                                }
+                            }}
                             placeholder={placeholder}
                             disabled={disabled}
                             dir={direction}
+                            aria-label={placeholder}
                         />
                         {clearable && !disabled && !!date && (
                             <a
@@ -191,34 +196,30 @@ const DatePickerSingle = ({
                         sideOffset={5}
                         onOpenAutoFocus={e => e.preventDefault()}
                     >
-                        <div>
-                            <Calendar
-                                initialVisibleDate={
-                                    initialMonth || internalDate
+                        <Calendar
+                            initialVisibleDate={initialMonth || internalDate}
+                            selectionStart={internalDate}
+                            selectionEnd={internalDate}
+                            minDateAllowed={minDate}
+                            maxDateAllowed={maxDate}
+                            disabledDates={disabledDates}
+                            firstDayOfWeek={first_day_of_week}
+                            showOutsideDays={show_outside_days}
+                            monthFormat={month_format}
+                            numberOfMonthsShown={number_of_months_shown}
+                            calendarOrientation={calendar_orientation}
+                            daySize={day_size}
+                            direction={direction}
+                            onSelectionChange={(_, selection) => {
+                                if (!selection) {
+                                    return;
                                 }
-                                selectionStart={internalDate}
-                                selectionEnd={internalDate}
-                                minDateAllowed={minDate}
-                                maxDateAllowed={maxDate}
-                                disabledDates={disabledDates}
-                                firstDayOfWeek={first_day_of_week}
-                                showOutsideDays={show_outside_days}
-                                monthFormat={month_format}
-                                numberOfMonthsShown={number_of_months_shown}
-                                calendarOrientation={calendar_orientation}
-                                daySize={day_size}
-                                direction={direction}
-                                onSelectionChange={(_, selection) => {
-                                    if (!selection) {
-                                        return;
-                                    }
-                                    setInternalDate(selection);
-                                    if (!stay_open_on_select) {
-                                        setIsCalendarOpen(false);
-                                    }
-                                }}
-                            />
-                        </div>
+                                setInternalDate(selection);
+                                if (!stay_open_on_select) {
+                                    setIsCalendarOpen(false);
+                                }
+                            }}
+                        />
                     </Popover.Content>
                 </Popover.Portal>
             </Popover.Root>

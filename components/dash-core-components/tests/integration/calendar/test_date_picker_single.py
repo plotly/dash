@@ -4,6 +4,7 @@ import time
 
 import pytest
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import ElementClickInterceptedException
 
 from dash import Dash, Input, Output, html, dcc, no_update
 
@@ -23,11 +24,7 @@ def test_dtps001_simple_click(dash_dcc):
             ),
         ],
         style={
-            "width": "10%",
-            "display": "inline-block",
-            "marginLeft": 10,
-            "marginRight": 10,
-            "marginBottom": 10,
+            "width": "50%",
         },
     )
     dash_dcc.start_server(app)
@@ -63,13 +60,12 @@ def test_dtps010_local_and_session_persistence(dash_dcc):
     ), "component should contain no initial date"
 
     for idx in range(3):
-        local = dash_dcc.select_date_single("dps-local", index=idx)
-        session = dash_dcc.select_date_single("dps-session", index=idx)
+        local = dash_dcc.select_date_single("dps-local", day=idx)
+        session = dash_dcc.select_date_single("dps-session", day=idx)
         dash_dcc.wait_for_page()
-        assert (
-            dash_dcc.find_element("#dps-local").get_attribute("value") == local
-            and dash_dcc.find_element("#dps-session").get_attribute("value") == session
-        ), "the date value should be consistent after refresh"
+        time.sleep(0.5)
+        assert dash_dcc.find_element("#dps-local").get_attribute("value") == local
+        assert dash_dcc.find_element("#dps-session").get_attribute("value") == session
 
     assert dash_dcc.get_logs() == []
 
@@ -181,7 +177,10 @@ def test_dtps013_min_max_date_allowed(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#output", "Selected: None")
 
     # Try to select date before min_date_allowed - should not update
-    dash_dcc.select_date_single("dps", day=3)
+    try:
+        dash_dcc.select_date_single("dps", day=3)
+    except ElementClickInterceptedException:
+        pass  # Expected - date is disabled with pointer-events: none
     dash_dcc.wait_for_text_to_equal("#output", "Selected: None")
     # Close calendar
     date_input = dash_dcc.find_element("#dps")
@@ -189,7 +188,10 @@ def test_dtps013_min_max_date_allowed(dash_dcc):
     dash_dcc.wait_for_no_elements(".dash-datepicker-calendar-container", timeout=2)
 
     # Try to select date after max_date_allowed - should not update
-    dash_dcc.select_date_single("dps", day=28)
+    try:
+        dash_dcc.select_date_single("dps", day=28)
+    except ElementClickInterceptedException:
+        pass  # Expected - date is disabled with pointer-events: none
     dash_dcc.wait_for_text_to_equal("#output", "Selected: None")
     # Close calendar
     date_input.send_keys(Keys.ESCAPE)
@@ -215,20 +217,23 @@ def test_dtps014_disabled_days_arent_clickable(dash_dcc):
                 disabled_days=[datetime(2021, 1, 10)],
             ),
         ],
-        style={
-            "width": "10%",
-            "display": "inline-block",
-            "marginLeft": 10,
-            "marginRight": 10,
-            "marginBottom": 10,
-        },
+        style={"width": "50%"},
     )
     dash_dcc.start_server(app)
     date = dash_dcc.find_element("#dps")
     assert not date.get_attribute("value")
-    assert not dash_dcc.select_date_single(
-        "dps", day=10
-    ), "Disabled days should not be clickable"
+
+    # Try to click disabled day - should fail or be intercepted
+    # (Selenium may throw ElementClickInterceptedException due to pointer-events: none)
+    try:
+        result = dash_dcc.select_date_single("dps", day=10)
+        assert not result, "Disabled days should not be clickable"
+    except ElementClickInterceptedException:
+        pass  # Expected - date is disabled with pointer-events: none
+
+    # Verify date wasn't selected
+    assert not date.get_attribute("value")
+
     # Close calendar
     date.send_keys(Keys.ESCAPE)
     assert dash_dcc.select_date_single("dps", day=1), "Other days should be clickable"

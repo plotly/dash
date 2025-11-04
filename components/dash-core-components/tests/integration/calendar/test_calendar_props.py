@@ -1,6 +1,6 @@
 import itertools
 import pytest
-
+from time import sleep
 from dash import Dash, Input, Output, html, dcc
 import dash.testing.wait as wait
 
@@ -27,6 +27,7 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
     ), "both start date and end date should match the selected day"
 
     close_btn.click()
+    sleep(0.25)
     start_date, end_date = dash_dcc.get_date_range("dpr")
     assert not start_date and not end_date, "both start and end dates should be cleared"
 

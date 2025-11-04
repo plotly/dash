@@ -2,7 +2,6 @@ import React from 'react';
 import {render, waitFor, act} from '@testing-library/react';
 import Calendar from '../../../src/utils/calendar/Calendar';
 import {CalendarDirection} from '../../../src/types';
-import {DateSet} from '../../../src/utils/calendar/DateSet';
 
 // Mock LoadingElement to avoid Dash context issues in tests
 jest.mock('../../../src/utils/_LoadingElement', () => {
@@ -46,10 +45,7 @@ describe('Calendar', () => {
     });
 
     it('marks disabled dates correctly', () => {
-        const disabledDates = new DateSet([
-            new Date(2025, 0, 10),
-            new Date(2025, 0, 15),
-        ]);
+        const disabledDates = [new Date(2025, 0, 10), new Date(2025, 0, 15)];
 
         const {container} = render(
             <Calendar

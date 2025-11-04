@@ -25,6 +25,7 @@ export default function DatePickerRange({
     number_of_months_shown = 2,
     stay_open_on_select = false,
     reopen_calendar_on_clear = false,
+    show_outside_days = false,
     clearable = false,
     disabled = false,
     updatemode = 'singledate',
@@ -41,6 +42,7 @@ export default function DatePickerRange({
                 calendar_orientation={calendar_orientation}
                 is_RTL={is_RTL}
                 day_size={day_size}
+                show_outside_days={show_outside_days}
                 with_portal={with_portal}
                 with_full_screen_portal={with_full_screen_portal}
                 first_day_of_week={first_day_of_week}
