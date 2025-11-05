@@ -69,18 +69,26 @@ def run_module(codefile: str, module: str, extra: str = ""):
 
         # For editable installs, we need to find the actual source location
         # The test component is installed as an editable package
-        # Add the project root first so dash itself can be found (editable install)
-        # Pyright doesn't follow Python's .pth editable install mechanism, so we need
-        # to point it directly to the source
         project_root = os.path.dirname(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         )
-        extra_paths = [project_root]
 
         # Get the site-packages directory for standard packages
-        # Add it after project root so editable installs take precedence
         site_packages = sysconfig.get_path("purelib")
-        extra_paths.append(site_packages)
+
+        # Check if dash is installed as editable or regular install
+        # If editable, we need project root first; if regular, site-packages first
+        import dash
+
+        dash_file = dash.__file__
+        is_editable = project_root in dash_file
+
+        if is_editable:
+            # Editable install: prioritize project root
+            extra_paths = [project_root, site_packages]
+        else:
+            # Regular install (CI): prioritize site-packages
+            extra_paths = [site_packages, project_root]
 
         # Add the test component source directories
         # They are in the @plotly subdirectory of the project root
