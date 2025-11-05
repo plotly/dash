@@ -82,13 +82,16 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         my_id = self.component_id
         other_id = other.component_id
 
-        if isinstance(my_id, dict):
-            if isinstance(other_id, dict):
-                return False
-            if set(my_id.keys()) != set(other_id.keys()):
+        self_dict = isinstance(my_id, dict)
+        other_dict = isinstance(other_id, dict)
+
+        if self_dict != other_dict:
+            return False
+        if self_dict:
+            if set(my_id.keys()) != set(other_id.keys()):  # type: ignore
                 return False
 
-            for k, v in my_id.items():
+            for k, v in my_id.items():  # type: ignore
                 other_v = other_id[k]
                 if v == other_v:
                     continue
