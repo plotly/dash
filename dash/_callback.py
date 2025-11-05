@@ -2,7 +2,7 @@ import collections
 import hashlib
 from functools import wraps
 
-from typing import Callable, Optional, Any, List, Tuple, Union
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 
 
 import asyncio
@@ -60,9 +60,9 @@ def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the d
 
 
 GLOBAL_CALLBACK_LIST: List[Any] = []
-GLOBAL_CALLBACK_MAP: dict[str, Any] = {}
+GLOBAL_CALLBACK_MAP: Dict[str, Any] = {}
 GLOBAL_INLINE_SCRIPTS: List[Any] = []
-GLOBAL_API_PATHS: dict[str, Any] = {}
+GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
 # pylint: disable=too-many-locals,too-many-arguments
