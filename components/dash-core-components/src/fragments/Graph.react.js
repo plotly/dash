@@ -393,6 +393,7 @@ class PlotlyGraph extends Component {
 
         gd.classList.add('dash-graph--pending');
 
+        // Calling resize enables layout.autosize in plotly.js
         Plotly.Plots.resize(gd)
             .catch(() => {})
             .finally(() => gd.classList.remove('dash-graph--pending'));
