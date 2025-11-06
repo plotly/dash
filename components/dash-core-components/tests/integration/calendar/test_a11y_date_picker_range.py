@@ -49,6 +49,7 @@ def test_a11y_range_001_keyboard_range_selection_with_highlights(dash_dcc):
     date_picker_input = dash_dcc.find_element(".dash-datepicker-input")
     date_picker_input.click()
     dash_dcc.wait_for_element(".dash-datepicker-calendar-container")
+    send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
 
     # Calendar opens with Jan 1 focused (first day of month since no dates selected)
     # Navigate: Arrow Down (Jan 1 -> 8)
@@ -129,6 +130,7 @@ def test_a11y_range_002_keyboard_update_existing_range(dash_dcc):
     date_picker_input = dash_dcc.find_element(".dash-datepicker-input")
     date_picker_input.click()
     dash_dcc.wait_for_element(".dash-datepicker-calendar-container")
+    send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
 
     # Calendar opens with Jan 10 focused (the current start date)
     # Navigate: Arrow Down (Jan 10 -> 17), then 5x Arrow Left (17 -> 16 -> 15 -> 14 -> 13 -> 12)

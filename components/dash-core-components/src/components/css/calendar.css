@@ -56,7 +56,6 @@
 .dash-datepicker-calendar td.dash-datepicker-calendar-date-disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background-color: inherit;
     pointer-events: none;
 }
 

@@ -527,3 +527,95 @@ def test_dtps025_typing_disabled_day_should_not_trigger_callback(dash_dcc):
     ), f"Input should revert to previous valid date in display format (MM/DD/YYYY), but got: {input_element.get_attribute('value')}"
 
     assert dash_dcc.get_logs() == []
+
+
+def test_dtps026_input_click_opens_but_keeps_focus(dash_dcc):
+    """Test that clicking the input opens the calendar but doesn't close it and maintains focus."""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.DatePickerSingle(
+                id="dps",
+                date="2025-01-10",
+                display_format="MM/DD/YYYY",
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    input_element = dash_dcc.find_element("#dps")
+
+    # Initially, calendar should be closed
+    assert not dash_dcc.find_elements(
+        ".dash-datepicker-calendar"
+    ), "Calendar should be closed initially"
+
+    # Click on the input
+    input_element.click()
+
+    # Calendar should now be open
+    dash_dcc.wait_for_element(".dash-datepicker-calendar")
+    assert dash_dcc.find_elements(
+        ".dash-datepicker-calendar"
+    ), "Calendar should open after clicking input"
+
+    # Input should still have focus (user should be able to type)
+    active_element = dash_dcc.driver.switch_to.active_element
+    assert (
+        active_element.get_attribute("id") == "dps"
+    ), "Input should maintain focus after opening calendar"
+
+    # Click on the input again
+    input_element.click()
+
+    # Calendar should STILL be open (not toggled closed)
+    time.sleep(0.2)  # Give it a moment to potentially close
+    assert dash_dcc.find_elements(
+        ".dash-datepicker-calendar"
+    ), "Calendar should remain open after clicking input again"
+
+    # Input should still have focus
+    active_element = dash_dcc.driver.switch_to.active_element
+    assert (
+        active_element.get_attribute("id") == "dps"
+    ), "Input should maintain focus after second click"
+
+    # User should be able to type without popup closing
+    # Type a date in a different month/year (June 2026)
+    # Select all text using keyboard (cross-platform approach)
+    input_element.send_keys(Keys.HOME)
+    input_element.send_keys(Keys.SHIFT + Keys.END)
+    input_element.send_keys("06/15/2026")
+
+    # Calendar should still be open
+    assert dash_dcc.find_elements(
+        ".dash-datepicker-calendar"
+    ), "Calendar should remain open while typing"
+
+    # Press Tab to blur the input and trigger date parsing
+    input_element.send_keys(Keys.TAB)
+    time.sleep(0.3)  # Give calendar time to update
+
+    # Calendar should still be open after blur
+    assert dash_dcc.find_elements(
+        ".dash-datepicker-calendar"
+    ), "Calendar should remain open after blur"
+
+    # Verify the input value was parsed correctly
+    assert (
+        input_element.get_attribute("value") == "06/15/2026"
+    ), f"Input should show 06/15/2026, but shows: {input_element.get_attribute('value')}"
+
+    # Calendar should now show June 2026
+    month_dropdown = dash_dcc.find_element(".dash-datepicker .dash-dropdown-value")
+    assert (
+        month_dropdown.text == "June"
+    ), f"Calendar should show June, but shows: {month_dropdown.text}"
+
+    year_input = dash_dcc.find_element(".dash-datepicker .dash-input-container input")
+    assert (
+        year_input.get_attribute("value") == "2026"
+    ), f"Calendar should show 2026, but shows: {year_input.get_attribute('value')}"
+
+    assert dash_dcc.get_logs() == []

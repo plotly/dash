@@ -1,6 +1,6 @@
 from datetime import datetime
 from dash import Dash, Input, Output
-from dash.dcc import DatePickerSingle, DatePickerRange
+from dash.dcc import DatePickerSingle
 from dash.html import Div, Label, P
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -36,6 +36,9 @@ def open_calendar(dash_dcc, date_picker):
     """Open the calendar and wait for it to be visible"""
     date_picker.click()
     dash_dcc.wait_for_element(".dash-datepicker-calendar-container")
+
+    # Send focus onto the calendar
+    send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
 
 
 def close_calendar(dash_dcc, driver):

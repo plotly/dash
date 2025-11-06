@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import {CalendarIcon, CaretDownIcon, Cross1Icon} from '@radix-ui/react-icons';
-import Calendar from '../utils/calendar/Calendar';
+import Calendar, {CalendarHandle} from '../utils/calendar/Calendar';
 import {DatePickerSingleProps, CalendarDirection} from '../types';
 import {
     dateAsStr,
@@ -43,7 +43,7 @@ const DatePickerSingle = ({
     const direction = is_RTL
         ? CalendarDirection.RightToLeft
         : CalendarDirection.LeftToRight;
-    const initialMonth = strAsDate(initial_visible_month);
+    const initialMonth = strAsDate(initial_visible_month) || internalDate;
     const minDate = strAsDate(min_date_allowed);
     const maxDate = strAsDate(max_date_allowed);
     const disabledDates = useMemo(() => {
@@ -59,6 +59,7 @@ const DatePickerSingle = ({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const calendarRef = useRef<CalendarHandle>(null);
 
     useEffect(() => {
         setInternalDate(strAsDate(date));
@@ -76,53 +77,67 @@ const DatePickerSingle = ({
         }
     }, [date, internalDate, setProps]);
 
-    useEffect(() => {
-        // Keep focus on the component when the calendar closes
-        if (!isCalendarOpen) {
+    useEffect(() => inputRef.current?.focus(), [isCalendarOpen]);
+
+    const parseUserInput = useCallback(
+        (focusCalendar = false) => {
+            if (inputValue === '') {
+                setInternalDate(undefined);
+            }
+            const parsed = strAsDate(inputValue, display_format);
+            const isValid =
+                parsed &&
+                !isDateDisabled(parsed, minDate, maxDate, disabledDates);
+
+            if (isValid) {
+                setInternalDate(parsed);
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(parsed);
+                } else {
+                    calendarRef.current?.setVisibleDate(parsed);
+                }
+            } else {
+                // Invalid or disabled input: revert to previous valid date with proper formatting
+                const previousDate = strAsDate(date);
+                setInputValue(
+                    previousDate ? formatDate(previousDate, display_format) : ''
+                );
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(previousDate);
+                }
+            }
+        },
+        [inputValue, display_format, date, minDate, maxDate, disabledDates]
+    );
+
+    const clearSelection = useCallback(
+        (e: React.MouseEvent<HTMLAnchorElement>) => {
+            setInternalDate(undefined);
             inputRef.current?.focus();
-        }
-    }, [isCalendarOpen]);
-
-    const parseUserInput = useCallback(() => {
-        const parsed = strAsDate(inputValue, display_format);
-        const isValid =
-            parsed && !isDateDisabled(parsed, minDate, maxDate, disabledDates);
-
-        if (isValid) {
-            setInternalDate(parsed);
-        } else {
-            // Invalid or disabled input: revert to previous valid date with proper formatting
-            const previousDate = strAsDate(date);
-            setInputValue(
-                previousDate ? formatDate(previousDate, display_format) : ''
-            );
-        }
-    }, [inputValue, display_format, date, minDate, maxDate, disabledDates]);
-
-    const clearSelection = useCallback(() => {
-        setInternalDate(undefined);
-        if (reopen_calendar_on_clear) {
-            setIsCalendarOpen(true);
-        } else {
-            inputRef.current?.focus();
-        }
-    }, [reopen_calendar_on_clear]);
+            e.preventDefault();
+            e.stopPropagation();
+            if (reopen_calendar_on_clear) {
+                setIsCalendarOpen(true);
+            }
+        },
+        [reopen_calendar_on_clear]
+    );
 
     const handleInputKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'ArrowDown') {
+            if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                 e.preventDefault();
+                parseUserInput(true);
                 if (!isCalendarOpen) {
-                    parseUserInput();
                     // open the calendar after resolving prop changes, so that
                     // it opens with the correct date showing
                     setTimeout(() => setIsCalendarOpen(true), 0);
                 }
-            } else if (e.key === 'Enter') {
+            } else if (['Enter', 'Tab'].includes(e.key)) {
                 parseUserInput();
             }
         },
-        [isCalendarOpen, inputValue]
+        [isCalendarOpen, parseUserInput]
     );
 
     const accessibleId = id ?? uuid();
@@ -149,6 +164,12 @@ const DatePickerSingle = ({
                         aria-haspopup="dialog"
                         aria-expanded={isCalendarOpen}
                         aria-disabled={disabled}
+                        onClick={e => {
+                            e.preventDefault();
+                            if (!isCalendarOpen && !disabled) {
+                                setIsCalendarOpen(true);
+                            }
+                        }}
                     >
                         <CalendarIcon className="dash-datepicker-trigger-icon" />
                         <AutosizeInput
@@ -161,12 +182,6 @@ const DatePickerSingle = ({
                             value={inputValue}
                             onChange={e => setInputValue(e.target.value)}
                             onKeyDown={handleInputKeyDown}
-                            onBlur={parseUserInput}
-                            onClick={() => {
-                                if (!isCalendarOpen && !disabled) {
-                                    setIsCalendarOpen(true);
-                                }
-                            }}
                             placeholder={placeholder}
                             disabled={disabled}
                             dir={direction}
@@ -175,10 +190,7 @@ const DatePickerSingle = ({
                         {clearable && !disabled && !!date && (
                             <a
                                 className="dash-datepicker-clear"
-                                onClick={e => {
-                                    e.preventDefault();
-                                    clearSelection();
-                                }}
+                                onClick={clearSelection}
                                 aria-label="Clear date"
                             >
                                 <Cross1Icon />
@@ -197,7 +209,8 @@ const DatePickerSingle = ({
                         onOpenAutoFocus={e => e.preventDefault()}
                     >
                         <Calendar
-                            initialVisibleDate={initialMonth || internalDate}
+                            ref={calendarRef}
+                            initialVisibleDate={initialMonth}
                             selectionStart={internalDate}
                             selectionEnd={internalDate}
                             minDateAllowed={minDate}

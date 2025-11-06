@@ -8,7 +8,7 @@ import {
     ArrowRightIcon,
 } from '@radix-ui/react-icons';
 import AutosizeInput from 'react-input-autosize';
-import Calendar from '../utils/calendar/Calendar';
+import Calendar, {CalendarHandle} from '../utils/calendar/Calendar';
 import {DatePickerRangeProps, CalendarDirection} from '../types';
 import {
     dateAsStr,
@@ -59,7 +59,11 @@ const DatePickerRange = ({
     const direction = is_RTL
         ? CalendarDirection.RightToLeft
         : CalendarDirection.LeftToRight;
-    const initialMonth = strAsDate(initial_visible_month);
+    const initialCalendarDate =
+        strAsDate(initial_visible_month) ||
+        internalStartDate ||
+        internalEndDate;
+
     const minDate = strAsDate(min_date_allowed);
     const maxDate = strAsDate(max_date_allowed);
     const disabledDates = useMemo(() => {
@@ -101,6 +105,7 @@ const DatePickerRange = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const startInputRef = useRef<HTMLInputElement | null>(null);
     const endInputRef = useRef<HTMLInputElement | null>(null);
+    const calendarRef = useRef<CalendarHandle>(null);
 
     useEffect(() => {
         setInternalStartDate(strAsDate(start_date));
@@ -145,61 +150,91 @@ const DatePickerRange = ({
         }
     }, [isCalendarOpen, startInputValue]);
 
-    const sendStartInputAsDate = useCallback(() => {
-        const parsed = strAsDate(startInputValue, display_format);
-        const isValid =
-            parsed && !isDateDisabled(parsed, minDate, maxDate, disabledDates);
+    const sendStartInputAsDate = useCallback(
+        (focusCalendar = false) => {
+            if (startInputValue) {
+                setInternalStartDate(undefined);
+            }
+            const parsed = strAsDate(startInputValue, display_format);
+            const isValid =
+                parsed &&
+                !isDateDisabled(parsed, minDate, maxDate, disabledDates);
 
-        if (isValid) {
-            setInternalStartDate(parsed);
-        } else {
-            // Invalid or disabled input: revert to previous valid date with proper formatting
-            const previousDate = strAsDate(start_date);
-            setStartInputValue(
-                previousDate ? formatDate(previousDate, display_format) : ''
-            );
-        }
-    }, [
-        startInputValue,
-        display_format,
-        start_date,
-        minDate,
-        maxDate,
-        disabledDates,
-    ]);
+            if (isValid) {
+                setInternalStartDate(parsed);
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(parsed);
+                } else {
+                    calendarRef.current?.setVisibleDate(parsed);
+                }
+            } else {
+                // Invalid or disabled input: revert to previous valid date with proper formatting
+                const previousDate = strAsDate(start_date);
+                setStartInputValue(
+                    previousDate ? formatDate(previousDate, display_format) : ''
+                );
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(previousDate);
+                }
+            }
+        },
+        [
+            startInputValue,
+            display_format,
+            start_date,
+            minDate,
+            maxDate,
+            disabledDates,
+        ]
+    );
 
-    const sendEndInputAsDate = useCallback(() => {
-        const parsed = strAsDate(endInputValue, display_format);
-        const isValid =
-            parsed && !isDateDisabled(parsed, minDate, maxDate, disabledDates);
+    const sendEndInputAsDate = useCallback(
+        (focusCalendar = false) => {
+            if (endInputValue === '') {
+                setInternalEndDate(undefined);
+            }
+            const parsed = strAsDate(endInputValue, display_format);
+            const isValid =
+                parsed &&
+                !isDateDisabled(parsed, minDate, maxDate, disabledDates);
 
-        if (isValid) {
-            setInternalEndDate(parsed);
-        } else {
-            // Invalid or disabled input: revert to previous valid date with proper formatting
-            const previousDate = strAsDate(end_date);
-            setEndInputValue(
-                previousDate ? formatDate(previousDate, display_format) : ''
-            );
-        }
-    }, [
-        endInputValue,
-        display_format,
-        end_date,
-        minDate,
-        maxDate,
-        disabledDates,
-    ]);
+            if (isValid) {
+                setInternalEndDate(parsed);
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(parsed);
+                } else {
+                    calendarRef.current?.setVisibleDate(parsed);
+                }
+            } else {
+                // Invalid or disabled input: revert to previous valid date with proper formatting
+                const previousDate = strAsDate(end_date);
+                setEndInputValue(
+                    previousDate ? formatDate(previousDate, display_format) : ''
+                );
+                if (focusCalendar) {
+                    calendarRef.current?.focusDate(previousDate);
+                }
+            }
+        },
+        [
+            endInputValue,
+            display_format,
+            end_date,
+            minDate,
+            maxDate,
+            disabledDates,
+        ]
+    );
 
     const clearSelection = useCallback(
         e => {
-            e.preventDefault();
             setInternalStartDate(undefined);
             setInternalEndDate(undefined);
+            startInputRef.current?.focus();
+            e.preventDefault();
+            e.stopPropagation();
             if (reopen_calendar_on_clear) {
                 setIsCalendarOpen(true);
-            } else {
-                startInputRef.current?.focus();
             }
         },
         [reopen_calendar_on_clear]
@@ -207,15 +242,15 @@ const DatePickerRange = ({
 
     const handleStartInputKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'ArrowDown') {
+            if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                 e.preventDefault();
+                sendStartInputAsDate(true);
                 if (!isCalendarOpen) {
-                    sendStartInputAsDate();
                     // open the calendar after resolving prop changes, so that
                     // it opens with the correct date showing
                     setTimeout(() => setIsCalendarOpen(true), 0);
                 }
-            } else if (e.key === 'Enter') {
+            } else if (['Enter', 'Tab'].includes(e.key)) {
                 sendStartInputAsDate();
             }
         },
@@ -224,15 +259,15 @@ const DatePickerRange = ({
 
     const handleEndInputKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'ArrowDown') {
+            if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
                 e.preventDefault();
+                sendEndInputAsDate(true);
                 if (!isCalendarOpen) {
-                    sendEndInputAsDate();
                     // open the calendar after resolving prop changes, so that
                     // it opens with the correct date showing
                     setTimeout(() => setIsCalendarOpen(true), 0);
                 }
-            } else if (e.key === 'Enter') {
+            } else if (['Enter', 'Tab'].includes(e.key)) {
                 sendEndInputAsDate();
             }
         },
@@ -247,9 +282,6 @@ const DatePickerRange = ({
     if (className) {
         classNames += ' ' + className;
     }
-
-    const initialCalendarDate =
-        initialMonth || internalStartDate || internalEndDate;
 
     const ArrowIcon =
         direction === CalendarDirection.LeftToRight
@@ -299,6 +331,12 @@ const DatePickerRange = ({
                         aria-haspopup="dialog"
                         aria-expanded={isCalendarOpen}
                         aria-disabled={disabled}
+                        onClick={e => {
+                            e.preventDefault();
+                            if (!isCalendarOpen && !disabled) {
+                                setIsCalendarOpen(true);
+                            }
+                        }}
                     >
                         <CalendarIcon className="dash-datepicker-trigger-icon" />
                         <AutosizeInput
@@ -311,10 +349,11 @@ const DatePickerRange = ({
                             value={startInputValue}
                             onChange={e => setStartInputValue(e.target.value)}
                             onKeyDown={handleStartInputKeyDown}
-                            onBlur={sendStartInputAsDate}
-                            onClick={() => {
-                                if (!isCalendarOpen && !disabled) {
-                                    setIsCalendarOpen(true);
+                            onFocus={() => {
+                                if (internalStartDate) {
+                                    calendarRef.current?.setVisibleDate(
+                                        internalStartDate
+                                    );
                                 }
                             }}
                             placeholder={start_date_placeholder_text}
@@ -333,10 +372,11 @@ const DatePickerRange = ({
                             value={endInputValue}
                             onChange={e => setEndInputValue(e.target.value)}
                             onKeyDown={handleEndInputKeyDown}
-                            onBlur={sendEndInputAsDate}
-                            onClick={() => {
-                                if (!isCalendarOpen && !disabled) {
-                                    setIsCalendarOpen(true);
+                            onFocus={() => {
+                                if (internalEndDate) {
+                                    calendarRef.current?.setVisibleDate(
+                                        internalEndDate
+                                    );
                                 }
                             }}
                             placeholder={end_date_placeholder_text}
@@ -365,6 +405,7 @@ const DatePickerRange = ({
                         onOpenAutoFocus={e => e.preventDefault()}
                     >
                         <Calendar
+                            ref={calendarRef}
                             initialVisibleDate={initialCalendarDate}
                             selectionStart={internalStartDate}
                             selectionEnd={internalEndDate}

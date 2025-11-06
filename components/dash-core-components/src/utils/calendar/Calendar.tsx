@@ -1,4 +1,12 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useMemo,
+    useRef,
+    useState,
+    forwardRef,
+} from 'react';
 import moment from 'moment';
 import {
     ArrowUpIcon,
@@ -17,6 +25,11 @@ import {
     isDateInRange,
     isSameDay,
 } from './helpers';
+
+export type CalendarHandle = {
+    focusDate: (date?: Date) => void;
+    setVisibleDate: (date: Date) => void;
+};
 
 type CalendarProps = {
     onSelectionChange: (selectionStart: Date, selectionEnd?: Date) => void;
@@ -37,7 +50,11 @@ type CalendarProps = {
     direction?: CalendarDirection;
 };
 
-const Calendar = ({
+type CalendarPropsWithRef = CalendarProps & {
+    forwardedRef?: React.Ref<CalendarHandle>;
+};
+
+const CalendarComponent = ({
     initialVisibleDate = new Date(),
     onSelectionChange,
     selectionStart,
@@ -54,7 +71,8 @@ const Calendar = ({
     numberOfMonthsShown = 1,
     daySize,
     direction = CalendarDirection.LeftToRight,
-}: CalendarProps) => {
+    forwardedRef,
+}: CalendarPropsWithRef) => {
     const [activeYear, setActiveYear] = useState(() =>
         initialVisibleDate.getFullYear()
     );
@@ -62,20 +80,7 @@ const Calendar = ({
         initialVisibleDate.getMonth()
     );
 
-    const [focusedDate, setFocusedDate] = useState(() => {
-        if (
-            selectionStart &&
-            selectionStart.getMonth() === initialVisibleDate.getMonth() &&
-            selectionStart.getFullYear() === initialVisibleDate.getFullYear()
-        ) {
-            return selectionStart;
-        }
-        return new Date(
-            initialVisibleDate.getFullYear(),
-            initialVisibleDate.getMonth(),
-            1
-        );
-    });
+    const [focusedDate, setFocusedDate] = useState<Date>();
     const [highlightedDates, setHighlightedDates] = useState<[Date, Date]>();
     const calendarContainerRef = useRef(document.createElement('div'));
     const scrollAccumulatorRef = useRef(0);
@@ -86,9 +91,22 @@ const Calendar = ({
         return parseInt(formatted, 10);
     }, [activeYear, monthFormat]);
 
+    useImperativeHandle(forwardedRef, () => ({
+        focusDate: (date = moment([activeYear, activeMonth, 1]).toDate()) => {
+            setFocusedDate(date);
+        },
+        setVisibleDate: (date: Date) => {
+            setActiveMonth(date.getMonth());
+            setActiveYear(date.getFullYear());
+        },
+    }));
+
     useEffect(() => {
         // Syncs activeMonth/activeYear to focusedDate when focusedDate changes
-        if (focusedDate.getTime() === prevFocusedDateRef.current.getTime()) {
+        if (!focusedDate) {
+            return;
+        }
+        if (focusedDate.getTime() === prevFocusedDateRef.current?.getTime()) {
             return;
         }
         prevFocusedDateRef.current = focusedDate;
@@ -361,5 +379,11 @@ const Calendar = ({
         </div>
     );
 };
+
+const Calendar = forwardRef<CalendarHandle, CalendarProps>((props, ref) => {
+    return <CalendarComponent {...props} forwardedRef={ref} />;
+});
+
+Calendar.displayName = 'Calendar';
 
 export default Calendar;
