@@ -31,6 +31,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3371](https://github.com/plotly/dash/pull/3371) Fix allow_optional triggering a warning for not found input.
 - [#3379](https://github.com/plotly/dash/pull/3379) Fix dcc.Graph backward compatibility with dash 2.0 for ddk.Graph
 - [#3373](https://github.com/plotly/dash/pull/3373) Fix layout as list and persistence.
+- [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
 
 # Changed
 - [#3365](https://github.com/plotly/dash/pull/3365) Warn if dcc.Slider has more than 500 marks and use default instead.
