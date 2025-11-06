@@ -26,7 +26,7 @@ _deprecated_components = {
     "dash_table": {
         "DataTable": textwrap.dedent(
             """
-        The dash_table.DataTable will be removed from the builtin dash components in Dash 4.0
+        The dash_table.DataTable will be removed from the builtin dash components in a future major version.
         We recommend using dash-ag-grid as a replacement. Install with `pip install dash[ag-grid]`.
     """
         )
