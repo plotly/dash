@@ -2,10 +2,11 @@ import functools
 
 from contextvars import ContextVar, copy_context
 from textwrap import dedent
+from typing import Any, Optional
 
-APP = None
+APP: Optional[Any] = None
 
-app_context = ContextVar("dash_app_context")
+app_context: ContextVar[Any] = ContextVar("dash_app_context")
 
 
 def with_app_context(func):
@@ -39,6 +40,13 @@ def with_app_context_factory(func, app):
 
 
 def get_app():
+    """
+    Return the current Dash app instance.
+
+    Useful in multi-page apps when Python files within the `pages/` folder
+    need to reference the `app` object but importing it directly would cause
+    a circular import error.
+    """
     try:
         ctx_app = app_context.get()
         if ctx_app is not None:

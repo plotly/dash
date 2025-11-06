@@ -35,9 +35,9 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the ``cache`` instance.
         """
         try:
-            import diskcache  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel
-            import psutil  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
-            import multiprocess  # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
+            import diskcache  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel
+            import psutil  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
+            import multiprocess  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
         except ImportError as missing_imports:
             raise ImportError(
                 """\
@@ -287,10 +287,14 @@ def _make_job_fn(fn, cache, progress):
                         }
                     },
                 )
+
             if asyncio.iscoroutine(user_callback_output):
                 user_callback_output = await user_callback_output
             if not errored:
-                cache.set(result_key, user_callback_output)
+                try:
+                    cache.set(result_key, user_callback_output)
+                except Exception as err:  # pylint: disable=broad-except
+                    print(f"Diskcache manager couldn't save output: {err}")
 
         if asyncio.iscoroutinefunction(fn):
             func = partial(ctx.run, async_run)

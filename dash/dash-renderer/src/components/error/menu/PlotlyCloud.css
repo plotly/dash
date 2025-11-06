@@ -1,0 +1,88 @@
+/*
+    Same as in plotly-cloud but without the publish
+    in the name to avoid future conflicts if changed
+    upstream.
+*/
+.plotly-cloud-modal-overlay {
+    position: absolute;
+    bottom: 100%;
+    left: -1px;
+    z-index: 10000;
+}
+
+.plotly-cloud-modal-content {
+    border-radius: 8px;
+    width: 522px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.plotly-cloud-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f9fafb;
+}
+
+.plotly-cloud-modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.plotly-cloud-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.plotly-cloud-modal-close:hover {
+    color: #333;
+}
+
+.plotly-cloud-modal-body {
+    padding: 20px;
+    color: black !important;
+    font-weight: 100;
+}
+button.plotly-cloud-modal-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: #8b5cf6;
+    color: white;
+    border-color: #7c3aed;
+}
+
+.plotly-cloud-modal-button:disabled {
+    cursor: not-allowed;
+}
+.plotly-cloud-copy-install {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-top: 8px;
+}
