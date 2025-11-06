@@ -7,14 +7,14 @@ ipython<9.0.0
 mimesis<=11.1.0
 mock==4.0.3
 numpy<=1.26.3
-orjson==3.10.3
+orjson>=3.10.11
 openpyxl
 pandas>=1.4.0
 pyarrow
 pylint==3.0.3
 pytest-mock
 pytest-sugar==0.9.6
-pyzmq==25.1.2
+pyzmq>=26.0.0
 xlrd>=2.0.1
 pytest-rerunfailures
 jupyterlab<4.0.0

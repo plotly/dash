@@ -135,8 +135,7 @@ jobs:
 
       - name: Run typing tests
         run: |
-          cd tests
-          pytest compliance/test_typing.py
+          pytest tests/compliance/test_typing.py
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
