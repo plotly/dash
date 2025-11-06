@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)
 - [#3415](https://github.com/plotly/dash/pull/3415) Fix the error triggered when only a single no_update is returned for client-side callback functions with multiple Outputs. Fix [#3366](https://github.com/plotly/dash/issues/3366)
 - [#3416](https://github.com/plotly/dash/issues/3416) Fix DeprecationWarning in dash/_jupyter.py by migrating from deprecated ipykernel.comm.Comm to comm module
+- [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
 
 ## [3.2.0] - 2025-07-31
 
@@ -31,7 +32,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3371](https://github.com/plotly/dash/pull/3371) Fix allow_optional triggering a warning for not found input.
 - [#3379](https://github.com/plotly/dash/pull/3379) Fix dcc.Graph backward compatibility with dash 2.0 for ddk.Graph
 - [#3373](https://github.com/plotly/dash/pull/3373) Fix layout as list and persistence.
-- [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
 
 # Changed
 - [#3365](https://github.com/plotly/dash/pull/3365) Warn if dcc.Slider has more than 500 marks and use default instead.
