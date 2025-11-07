@@ -6,6 +6,7 @@ from selenium.common.exceptions import WebDriverException
 
 
 def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(platter_app)
 
     dash_dcc.wait_for_element("#waitfor")

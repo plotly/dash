@@ -5,6 +5,11 @@ import {
 } from '../wrapper/DashContext';
 import ExternalWrapper from '../wrapper/ExternalWrapper';
 import {stringifyId} from '../actions/dependencies';
+import {
+    DevtoolContext,
+    useDevtool,
+    useDevtoolMenuButtonClassName
+} from '../components/error/menu/DevtoolContext';
 
 export type BaseDashProps = {
     id?: string;
@@ -18,6 +23,11 @@ export interface DashComponentApi {
     useDashContext: typeof useDashContext;
     getLayout: (componentPathOrId: DashLayoutPath | string) => any;
     stringifyId: typeof stringifyId;
+    devtool: {
+        DevtoolContext: typeof DevtoolContext;
+        useDevtool: typeof useDevtool;
+        useDevtoolMenuButtonClassName: typeof useDevtoolMenuButtonClassName;
+    };
 }
 
 export type DashComponent = {

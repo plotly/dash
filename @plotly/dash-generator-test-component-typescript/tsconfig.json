@@ -3,7 +3,6 @@
     "jsx": "react",
     "baseUrl": "src/ts",
     "paths": {
-        "@dash-renderer/*": ["../../../../dash/dash-renderer/src/*"]
     },
     "inlineSources": true,
     "sourceMap": true,

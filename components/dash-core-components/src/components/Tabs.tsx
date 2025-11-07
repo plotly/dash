@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {has, isNil} from 'ramda';
 
 import LoadingElement from '../utils/_LoadingElement';
@@ -34,20 +34,33 @@ const EnhancedTab = ({
     // We use the raw path here since it's up one level from
     // the tabs child.
     const isLoading = ctx.useLoading({rawPath: componentPath});
-    const tabStyle = {
-        ...style,
-        ...(disabled ? disabled_style : {}),
-        ...(selected ? selected_style : {}),
-    };
+    const tabStyle = useMemo(() => {
+        return {
+            ...style,
+            ...(disabled ? disabled_style : {}),
+            ...(selected ? selected_style : {}),
+        };
+    }, [style, disabled, disabled_style, selected, selected_style]);
 
-    const tabClassNames = [
-        'tab',
-        className,
-        disabled ? 'tab--disabled' : null,
-        disabled ? disabled_className : null,
-        selected ? 'tab--selected' : null,
-        selected ? selected_className : null,
-    ].filter(Boolean);
+    const tabClassNames = useMemo(() => {
+        let names = 'tab';
+        if (disabled) {
+            names += ' tab--disabled';
+            if (disabled_className) {
+                names += ` ${disabled_className}`;
+            }
+        }
+        if (selected) {
+            names += ' tab--selected';
+            if (selected_className) {
+                names += ` ${selected_className}`;
+            }
+        }
+        if (className) {
+            names += ` ${className}`;
+        }
+        return names;
+    }, [className, disabled, disabled_className, selected, selected_className]);
 
     let labelDisplay;
     if (typeof label === 'object') {
@@ -64,7 +77,7 @@ const EnhancedTab = ({
     return (
         <div
             data-dash-is-loading={isLoading}
-            className={tabClassNames.join(' ')}
+            className={tabClassNames}
             id={id}
             style={tabStyle}
             onClick={() => {
@@ -121,9 +134,9 @@ function Tabs({
             const firstChildren: TabProps = window.dash_component_api.getLayout(
                 [...children[0].props.componentPath, 'props']
             );
-            return firstChildren.value;
+            return firstChildren.value ?? 'tab-1';
         }
-        return undefined;
+        return 'tab-1';
     };
 
     // Initialize value on mount if not set
@@ -217,24 +230,41 @@ function Tabs({
 
     const selectedTabContent = !isNil(selectedTab) ? selectedTab : '';
 
-    const tabContainerClassNames = [
-        'tab-container',
-        vertical ? 'tab-container--vert' : null,
-        props.className,
-    ].filter(Boolean);
+    const tabContainerClassNames = useMemo(() => {
+        let names = 'tab-container';
+        if (vertical) {
+            names += ` tab-container--vert`;
+        }
+        if (props.className) {
+            names += ` ${props.className}`;
+        }
+        return names;
+    }, [vertical, props.className]);
 
-    const tabContentClassNames = [
-        'tab-content',
-        vertical ? 'tab-content--vert' : null,
-        props.content_className,
-    ].filter(Boolean);
+    const tabContentClassNames = useMemo(() => {
+        let names = 'tab-content';
+        if (vertical) {
+            names += ` tab-content--vert`;
+        }
+        if (props.content_className) {
+            names += ` ${props.content_className}`;
+        }
+        return names;
+    }, [vertical, props.content_className]);
 
-    const tabParentClassNames = [
-        'tab-parent',
-        vertical ? ' tab-parent--vert' : null,
-        isAboveBreakpoint ? ' tab-parent--above-breakpoint' : null,
-        props.parent_className,
-    ].filter(Boolean);
+    const tabParentClassNames = useMemo(() => {
+        let names = 'tab-parent';
+        if (vertical) {
+            names += ` tab-parent--vert`;
+        }
+        if (isAboveBreakpoint) {
+            names += ' tab-parent--above-breakpoint';
+        }
+        if (props.parent_className) {
+            names += ` ${props.parent_className}`;
+        }
+        return names;
+    }, [vertical, isAboveBreakpoint, props.parent_className]);
 
     // Set CSS variables for dynamic styling
     const cssVars = {
@@ -247,20 +277,20 @@ function Tabs({
         <LoadingElement>
             {loadingProps => (
                 <div
-                    className={tabParentClassNames.join(' ')}
+                    className={tabParentClassNames}
                     style={{...cssVars, ...props.parent_style}}
                     id={props.id ? `${props.id}-parent` : undefined}
                     {...loadingProps}
                 >
                     <div
-                        className={tabContainerClassNames.join(' ')}
+                        className={tabContainerClassNames}
                         style={props.style}
                         id={props.id}
                     >
                         {EnhancedTabs}
                     </div>
                     <div
-                        className={tabContentClassNames.join(' ')}
+                        className={tabContentClassNames}
                         style={props.content_style}
                     >
                         {selectedTabContent || ''}
@@ -271,7 +301,11 @@ function Tabs({
     );
 }
 
-Tabs.dashPersistence = true;
+Tabs.dashPersistence = {
+    persisted_props: [PersistedProps.value],
+    persistence_type: PersistenceTypes.local,
+};
+
 Tabs.dashChildrenUpdate = true;
 
 export default Tabs;
