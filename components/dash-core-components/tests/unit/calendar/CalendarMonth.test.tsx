@@ -102,13 +102,9 @@ describe('CalendarMonth', () => {
             td => td.textContent?.trim() || ''
         );
 
-        // Behavior 1: When showOutsideDays=true, all cells should be labeled (no empty labels)
-        // Find cells that are in the actual calendar rows (not ghost rows)
         const labeledCells = cellTexts.filter(text => text !== '');
 
-        // Behavior 2: Days before January 1 should be labeled (December days)
-        // First 2 cells should be December days (30, 31)
-        // January 1, 2025 is Wednesday, which is 2 days after Monday
+        // First 2 cells should be December days (30, 31), then January 1
         expect(cellTexts[0]).toBe('30');
         expect(cellTexts[1]).toBe('31');
 

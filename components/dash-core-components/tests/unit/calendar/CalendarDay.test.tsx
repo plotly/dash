@@ -13,11 +13,7 @@ describe('CalendarDay', () => {
                 </tbody>
             </table>
         );
-        const td = container.querySelector('td');
-        if (!td) {
-            throw new Error('td element not rendered');
-        }
-        return td;
+        return container.querySelector('td')!;
     };
 
     it('renders with correct label and inside/outside classes', () => {
@@ -26,32 +22,22 @@ describe('CalendarDay', () => {
             isOutside: false,
             showOutsideDays: true,
         });
-        expect(insideDay.textContent).toBe('15');
-        expect(
-            insideDay.classList.contains('dash-datepicker-calendar-date-inside')
-        ).toBe(true);
-        expect(
-            insideDay.classList.contains(
-                'dash-datepicker-calendar-date-outside'
-            )
-        ).toBe(false);
+        expect(insideDay).toHaveTextContent('15');
+        expect(insideDay).toHaveClass('dash-datepicker-calendar-date-inside');
+        expect(insideDay).not.toHaveClass(
+            'dash-datepicker-calendar-date-outside'
+        );
 
         const outsideDay = renderDay({
             date: new Date(2024, 11, 31),
             isOutside: true,
             showOutsideDays: true,
         });
-        expect(outsideDay.textContent).toBe('31');
-        expect(
-            outsideDay.classList.contains(
-                'dash-datepicker-calendar-date-outside'
-            )
-        ).toBe(true);
-        expect(
-            outsideDay.classList.contains(
-                'dash-datepicker-calendar-date-inside'
-            )
-        ).toBe(false);
+        expect(outsideDay).toHaveTextContent('31');
+        expect(outsideDay).toHaveClass('dash-datepicker-calendar-date-outside');
+        expect(outsideDay).not.toHaveClass(
+            'dash-datepicker-calendar-date-inside'
+        );
     });
 
     it('marks disabled day with correct attributes', () => {
@@ -62,11 +48,9 @@ describe('CalendarDay', () => {
             isDisabled: true,
         });
 
-        expect(
-            td.classList.contains('dash-datepicker-calendar-date-disabled')
-        ).toBe(true);
-        expect(td.getAttribute('aria-disabled')).toBe('true');
-        expect(td.getAttribute('tabIndex')).toBeNull();
+        expect(td).toHaveClass('dash-datepicker-calendar-date-disabled');
+        expect(td).toHaveAttribute('aria-disabled', 'true');
+        expect(td).not.toHaveAttribute('tabIndex');
     });
 
     it('hides label for outside days when showOutsideDays is false', () => {
@@ -76,10 +60,8 @@ describe('CalendarDay', () => {
             showOutsideDays: false,
         });
 
-        expect(td.textContent).toBe('');
-        expect(
-            td.classList.contains('dash-datepicker-calendar-date-outside')
-        ).toBe(true);
+        expect(td).toHaveTextContent('');
+        expect(td).toHaveClass('dash-datepicker-calendar-date-outside');
     });
 
     it('focuses element when isFocused is true', () => {

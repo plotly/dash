@@ -28,47 +28,38 @@ const expectConsecutiveDatesUntilPadding = (dates: (Date | null)[]) => {
 describe('createMonthGrid', () => {
     describe('with showOutsideDays=true (default)', () => {
         it('creates grid with exactly 6 rows and 7 columns', () => {
-            const grid = createMonthGrid(2025, 0, 0, true); // January 2025, Sunday first
+            const grid = createMonthGrid(2025, 0, 0, true);
 
-            // Should always have exactly 6 rows (weeks) for consistent calendar height
             expect(grid.length).toBe(6);
-
             grid.forEach(week => {
                 expect(week.length).toBe(7);
             });
         });
 
         it('has consecutive dates until padding, then all null', () => {
-            const grid = createMonthGrid(2025, 0, 0, true); // January 2025
+            const grid = createMonthGrid(2025, 0, 0, true);
             expectConsecutiveDatesUntilPadding(grid.flat());
         });
 
         it('adjusts for different first day of week', () => {
-            const sundayFirst = createMonthGrid(2025, 0, 0, true); // Sunday = 0
-            const mondayFirst = createMonthGrid(2025, 0, 1, true); // Monday = 1
+            const sundayFirst = createMonthGrid(2025, 0, 0, true);
+            const mondayFirst = createMonthGrid(2025, 0, 1, true);
 
-            // Grids should have different starting dates
             expect(sundayFirst[0][0]).not.toBeNull();
             expect(mondayFirst[0][0]).not.toBeNull();
             expect(sundayFirst[0][0]).not.toEqual(mondayFirst[0][0]);
 
             // January 2025 starts on Wednesday
-            // Sunday-first shows: Sun, Mon, Tue (3 days from prev month)
-            // Monday-first shows: Mon, Tue (2 days from prev month)
-            // So Monday-first should start later
+            // Sunday-first shows 3 days from prev month, Monday-first shows 2
             expect(mondayFirst[0][0]!.getTime()).toBeGreaterThan(
                 sundayFirst[0][0]!.getTime()
             );
         });
 
         it('handles months starting on different weekdays', () => {
-            // January 2025 starts on Wednesday
-            const jan2025 = createMonthGrid(2025, 0, 0, true); // Sunday first
+            const jan2025 = createMonthGrid(2025, 0, 0, true); // Jan starts on Wednesday
+            const feb2025 = createMonthGrid(2025, 1, 0, true); // Feb starts on Saturday
 
-            // February 2025 starts on Saturday
-            const feb2025 = createMonthGrid(2025, 1, 0, true); // Sunday first
-
-            // Both should always have exactly 6 rows
             expect(jan2025.length).toBe(6);
             expect(feb2025.length).toBe(6);
         });

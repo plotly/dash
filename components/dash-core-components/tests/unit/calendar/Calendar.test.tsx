@@ -213,10 +213,10 @@ describe('Calendar', () => {
             expectedFocusedDay: '23',
         },
         {
-            description: 'first day when selected date is not visible',
+            description: 'selected date even when not initially visible',
             visibleMonth: new Date(2020, 0, 1),
             selectedDate: new Date(2025, 9, 17),
-            expectedFocusedDay: '1',
+            expectedFocusedDay: '17', // Calendar switches to October 2025
         },
         {
             description: 'first day when no date is selected',
@@ -227,13 +227,21 @@ describe('Calendar', () => {
     ])(
         'focuses $description',
         ({visibleMonth, selectedDate, expectedFocusedDay}) => {
+            const ref = React.createRef<any>();
             render(
                 <Calendar
+                    ref={ref}
                     onSelectionChange={mockOnSelectionChange}
                     initialVisibleDate={visibleMonth}
                     selectionStart={selectedDate}
                 />
             );
+
+            // Imperatively focus the appropriate date
+            const dateToFocus = selectedDate || visibleMonth;
+            act(() => {
+                ref.current?.focusDate(dateToFocus);
+            });
 
             const focusedElement = document.activeElement;
             expect(focusedElement?.tagName).toBe('TD');

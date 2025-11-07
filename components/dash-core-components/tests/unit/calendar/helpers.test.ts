@@ -12,9 +12,6 @@ import {
 
 describe('strAsDate and dateAsStr', () => {
     it('converts between date strings and Date objects as inverse operations', () => {
-        // strAsDate converts "YYYY-MM-DD" strings to Date objects
-        // dateAsStr converts Date objects to "YYYY-MM-DD" strings
-        // Test a variety of dates including edge cases
         const testDates = [
             new Date(2025, 0, 15), // Jan 15, 2025 (regular date)
             new Date(2025, 0, 1), // Jan 1 (start of year)

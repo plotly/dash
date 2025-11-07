@@ -14,19 +14,11 @@ describe('CalendarDayPadding', () => {
             </table>
         );
         const td = container.querySelector('td');
-        if (!td) {
-            throw new Error('td element not rendered');
-        }
 
-        expect(td.classList.contains('dash-datepicker-calendar-padding')).toBe(
-            true
-        );
-        expect(
-            td.classList.contains('dash-datepicker-calendar-date-inside')
-        ).toBe(false);
-        expect(
-            td.classList.contains('dash-datepicker-calendar-date-outside')
-        ).toBe(false);
-        expect(td.textContent).toBe('');
+        expect(td).toBeInTheDocument();
+        expect(td).toHaveClass('dash-datepicker-calendar-padding');
+        expect(td).not.toHaveClass('dash-datepicker-calendar-date-inside');
+        expect(td).not.toHaveClass('dash-datepicker-calendar-date-outside');
+        expect(td).toHaveTextContent('');
     });
 });

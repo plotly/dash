@@ -348,9 +348,9 @@ def test_dtpr008_input_click_opens_but_keeps_focus(dash_dcc):
     start_input.click()
     # Select all text using keyboard (cross-platform approach)
     start_input.send_keys(Keys.HOME)
-    start_input.send_keys(Keys.SHIFT + Keys.END)
+    start_input.send_keys(Keys.SHIFT + Keys.END + Keys.DELETE)
     start_input.send_keys("03/05/2026")
-    start_input.send_keys(Keys.TAB)
+    start_input.send_keys(Keys.ARROW_DOWN)
     time.sleep(0.3)
 
     # Calendar should still be open and now show March 2026

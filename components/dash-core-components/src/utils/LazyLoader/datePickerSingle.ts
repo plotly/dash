@@ -1,1 +1,4 @@
-export default () => import(/* webpackChunkName: "datepicker" */ '../../fragments/DatePickerSingle');
+export default () =>
+    import(
+        /* webpackChunkName: "datepicker" */ '../../fragments/DatePickerSingle'
+    );
