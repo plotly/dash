@@ -1,11 +1,11 @@
-from typing import List, Union, Optional, Any
+from typing import List, Union, Optional, Any, Dict
 
 
-def _operation(name, location, **kwargs):
+def _operation(name: str, location: List["_KeyType"], **kwargs: Any) -> Dict[str, Any]:
     return {"operation": name, "location": location, "params": kwargs}
 
 
-_noop = object()
+_noop: Any = object()
 
 _KeyType = Union[str, int]
 
@@ -30,12 +30,12 @@ class Patch:
         parent: Optional["Patch"] = None,
     ):
         if location is not None:
-            self._location = location
+            self._location: List[_KeyType] = location
         else:
             # pylint: disable=consider-using-ternary
             self._location = (parent and parent._location) or []
         if parent is not None:
-            self._operations = parent._operations
+            self._operations: List[Dict[str, Any]] = parent._operations
         else:
             self._operations = []
 
@@ -61,7 +61,7 @@ class Patch:
 
     def __setattr__(self, key: _KeyType, value: Any):
         if key in ("_location", "_operations"):
-            self.__dict__[key] = value
+            self.__dict__[str(key)] = value
         else:
             self.__setitem__(key, value)
 
