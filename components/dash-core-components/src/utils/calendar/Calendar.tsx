@@ -15,7 +15,7 @@ import {
     ArrowRightIcon,
 } from '@radix-ui/react-icons';
 import Input, {HTMLInputTypes} from '../../components/Input';
-import Dropdown from '../../fragments/Dropdown';
+import Dropdown from '../../components/Dropdown';
 import {DayOfWeek, CalendarDirection} from '../../types';
 import {CalendarMonth} from './CalendarMonth';
 import {
@@ -304,6 +304,7 @@ const CalendarComponent = ({
                 <Dropdown
                     options={monthOptions}
                     value={activeMonth}
+                    clearable={false}
                     maxHeight={250}
                     searchable={false}
                     setProps={({value}) => {
