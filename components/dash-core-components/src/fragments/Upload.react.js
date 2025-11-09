@@ -11,12 +11,54 @@ export default class Upload extends Component {
         this.getDataTransferItems = this.getDataTransferItems.bind(this);
     }
 
+    // Check if file matches the accept criteria
+    fileMatchesAccept(file, accept) {
+        if (!accept) {
+            return true;
+        }
+
+        const acceptList = Array.isArray(accept) ? accept : accept.split(',');
+        const fileName = file.name.toLowerCase();
+        const fileType = file.type.toLowerCase();
+
+        return acceptList.some(acceptItem => {
+            const item = acceptItem.trim().toLowerCase();
+            
+            // Exact MIME type match
+            if (item === fileType) {
+                return true;
+            }
+            
+            // Wildcard MIME type (e.g., image/*)
+            if (item.endsWith('/*')) {
+                const wildcardSuffixLength = 2;
+                const baseType = item.slice(0, -wildcardSuffixLength);
+                return fileType.startsWith(baseType + '/');
+            }
+            
+            // File extension match (e.g., .jpg)
+            if (item.startsWith('.')) {
+                return fileName.endsWith(item);
+            }
+            
+            return false;
+        });
+    }
+
     // Recursively traverse folder structure and extract all files
     async traverseFileTree(item, path = '') {
+        const {accept} = this.props;
         const files = [];
+        
         if (item.isFile) {
             return new Promise((resolve) => {
                 item.file((file) => {
+                    // Check if file matches accept criteria
+                    if (!this.fileMatchesAccept(file, accept)) {
+                        resolve([]);
+                        return;
+                    }
+                    
                     // Preserve folder structure in file name
                     const relativePath = path + file.name;
                     Object.defineProperty(file, 'name', {
@@ -54,10 +96,10 @@ export default class Upload extends Component {
 
     // Custom data transfer handler that supports folders
     async getDataTransferItems(event) {
-        const {useFsAccessApi} = this.props;
+        const {multiple} = this.props;
         
-        // If folder support is not enabled, use default behavior
-        if (!useFsAccessApi) {
+        // If multiple is not enabled, use default behavior (files only)
+        if (!multiple) {
             if (event.dataTransfer) {
                 return Array.from(event.dataTransfer.files);
             } else if (event.target && event.target.files) {
@@ -66,7 +108,7 @@ export default class Upload extends Component {
             return [];
         }
 
-        // Handle drag-and-drop with folder support
+        // Handle drag-and-drop with folder support when multiple=true
         if (event.dataTransfer && event.dataTransfer.items) {
             const items = Array.from(event.dataTransfer.items);
             const files = [];
@@ -147,7 +189,6 @@ export default class Upload extends Component {
             max_size,
             min_size,
             multiple,
-            useFsAccessApi,
             className,
             className_active,
             className_reject,
@@ -163,8 +204,8 @@ export default class Upload extends Component {
         const rejectStyle = className_reject ? undefined : style_reject;
 
         // For react-dropzone v4.1.2, we need to add webkitdirectory attribute manually
-        // when useFsAccessApi is enabled to support folder selection
-        const inputProps = useFsAccessApi ? {
+        // when multiple is enabled to support folder selection
+        const inputProps = multiple ? {
             webkitdirectory: 'true',
             directory: 'true',
             mozdirectory: 'true'
