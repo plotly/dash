@@ -55,7 +55,7 @@ def test_upfd001_folder_upload_with_multiple(dash_dcc):
     # Verify the input has folder selection attributes when multiple=True
     upload_input = dash_dcc.wait_for_element("#upload-folder input[type=file]")
     webkitdir_attr = upload_input.get_attribute("webkitdirectory")
-    
+
     assert webkitdir_attr == "true", (
         f"webkitdirectory attribute should be 'true' when multiple=True, "
         f"but got '{webkitdir_attr}'"
@@ -100,7 +100,7 @@ def test_upfd002_folder_upload_disabled_with_single(dash_dcc):
     # Verify the input does NOT have folder selection attributes when multiple=False
     upload_input = dash_dcc.wait_for_element("#upload-single input[type=file]")
     webkitdir_attr = upload_input.get_attribute("webkitdirectory")
-    
+
     # webkitdirectory should not be set when multiple=False
     assert webkitdir_attr in [None, "", "false"], (
         f"webkitdirectory attribute should not be 'true' when multiple=False, "
