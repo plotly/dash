@@ -124,18 +124,27 @@ const DatePickerRange = ({
     }, [internalEndDate, display_format]);
 
     useEffect(() => {
-        // Controls whether or not to call `setProps`
+        // Controls when setProps is called. Basically, whenever internal state
+        // diverges from props (i.e., user interaction)
         const startChanged = !isSameDay(start_date, internalStartDate);
         const endChanged = !isSameDay(end_date, internalEndDate);
 
-        const newDates: Partial<DatePickerRangeProps> = {
-            ...(startChanged && {start_date: dateAsStr(internalStartDate)}),
-            ...(endChanged && {end_date: dateAsStr(internalEndDate)}),
-        };
+        if (!startChanged && !endChanged) {
+            return;
+        }
 
-        const numPropsRequiredForUpdate = updatemode === 'bothdates' ? 2 : 1;
-        if (Object.keys(newDates).length >= numPropsRequiredForUpdate) {
-            setProps(newDates);
+        if (internalStartDate && internalEndDate) {
+            // Both dates are set - send both
+            setProps({
+                start_date: dateAsStr(internalStartDate),
+                end_date: dateAsStr(internalEndDate),
+            });
+        } else if (updatemode === 'singledate' && internalStartDate) {
+            // Only start changed - send just that one
+            setProps({start_date: dateAsStr(internalStartDate)});
+        } else if (updatemode === 'singledate' && internalEndDate) {
+            // Only end changed - send just that one
+            setProps({end_date: dateAsStr(internalEndDate)});
         }
     }, [start_date, internalStartDate, end_date, internalEndDate, updatemode]);
 

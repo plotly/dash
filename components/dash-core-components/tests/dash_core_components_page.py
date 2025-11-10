@@ -67,8 +67,9 @@ class DashCoreComponentsMixin(object):
             )
             return
 
-        prefix = "Start" if start_first else "End"
-        date = self.find_element(f'#{compid}[aria-label="{prefix} Date"]')
+        if not start_first:
+            compid += "-end-date"
+        date = self.find_element(f"#{compid}")
         date.click()
         for day in day_range:
             self._wait_until_day_is_clickable()

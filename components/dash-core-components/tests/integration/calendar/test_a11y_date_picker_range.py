@@ -149,7 +149,7 @@ def test_a11y_range_002_keyboard_update_existing_range(dash_dcc):
     send_keys(dash_dcc.driver, Keys.SPACE)
 
     # Verify new start date was selected (only start_date, no end_date)
-    dash_dcc.wait_for_text_to_equal("#output-dates", "Start: 2021-01-12")
+    dash_dcc.wait_for_text_to_equal("#output-dates", "2021-01-12 to 2021-01-20")
 
     # Navigate to new end date: Arrow Down + Arrow Right (Jan 12 -> 19 -> 20)
     send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
