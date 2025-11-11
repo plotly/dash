@@ -722,7 +722,7 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-        def _setup_plotlyjs(self):
+    def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
         from . import dcc
         from plotly.offline import get_plotlyjs_version
@@ -985,13 +985,13 @@ class Dash:
                     _dash_renderer._js_dist, dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
-                    dcc._js_dist, dev_bundles=dev
+                    getattr(dcc, '_js_dist', []), dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
-                    html._js_dist, dev_bundles=dev
+                    getattr(html, '_js_dist', []), dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
-                    dash_table._js_dist, dev_bundles=dev
+                    getattr(dash_table, '_js_dist', []), dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
                     self._hooks.hooks._js_dist, dev_bundles=dev
