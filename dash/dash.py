@@ -722,32 +722,35 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-    def _setup_plotlyjs(self):
-        # pylint: disable=import-outside-toplevel
-        from . import dcc
+        def _setup_plotlyjs(self):
+        """Register Plotly.js so the renderer can load it, and make sure
+        `dash.dcc` always has a `_js_dist` attribute so code that mutates
+        it (including Dash itself) won’t crash.
+        """
+        # pylint: disable=import-outside-toplevel,protected-access
         from plotly.offline import get_plotlyjs_version
 
+        # Build the CDN URL Dash normally uses
         url = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
 
-        # Ensure `dash.dcc` exposes a `_js_dist` list even in environments
-        # where the namespace package itself does not define it. This keeps
-        # backward compatibility with code that mutates `dcc._js_dist`.
-        # pylint: disable=protected-access
+        # `dcc` here is the module imported at the top: `from dash import dcc`
         js_dist = getattr(dcc, "_js_dist", None)
         if js_dist is None:
             js_dist = []
             setattr(dcc, "_js_dist", js_dist)
 
-        js_dist.extend(
-            [
-                {
-                    "relative_package_path": url,
-                    "external_url": url,
-                    "namespace": "dash",
-                }
-            ]
+        # Register Plotly.js as an external script. Note we ONLY use
+        # `external_url` here; `relative_package_path` must be a path
+        # inside the package, not a full URL.
+        js_dist.append(
+            {
+                "external_url": url,
+                "namespace": "dash",
+            }
         )
+
         self._plotlyjs_url = url
+
 
     @property
     def layout(self):
