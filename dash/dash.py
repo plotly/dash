@@ -722,20 +722,28 @@ class Dash:
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
-    def _setup_plotlyjs(self):
+        def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
+        from . import dcc
         from plotly.offline import get_plotlyjs_version
 
         url = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
 
+        # Ensure `dash.dcc` exposes a `_js_dist` list even in environments
+        # where the namespace package itself does not define it. This keeps
+        # backward compatibility with code that mutates `dcc._js_dist`.
         # pylint: disable=protected-access
-        dcc._js_dist.extend(
+        js_dist = getattr(dcc, "_js_dist", None)
+        if js_dist is None:
+            js_dist = []
+            setattr(dcc, "_js_dist", js_dist)
+
+        js_dist.extend(
             [
                 {
-                    "relative_package_path": "package_data/plotly.min.js",
+                    "relative_package_path": url,
                     "external_url": url,
-                    "namespace": "plotly",
-                    "async": "eager",
+                    "namespace": "dash",
                 }
             ]
         )
