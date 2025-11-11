@@ -22,7 +22,15 @@ _deprecated_components = {
         eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
     """
         )
-    }
+    },
+    "dash_table": {
+        "DataTable": textwrap.dedent(
+            """
+        The dash_table.DataTable will be removed from the builtin dash components in a future major version.
+        We recommend using dash-ag-grid as a replacement. Install with `pip install dash[ag-grid]`.
+    """
+        )
+    },
 }
 
 
