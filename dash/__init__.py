@@ -2,9 +2,10 @@
 # __plotly_dash is for the "make sure you don't have a dash.py" check
 # must come before any other imports.
 __plotly_dash = True
+
 from .dependencies import (  # noqa: F401,E402
     Input,  # noqa: F401,E402
-    Output,  # noqa: F401,E402,
+    Output,  # noqa: F401,E402
     State,  # noqa: F401,E402
     ClientsideFunction,  # noqa: F401,E402
     MATCH,  # noqa: F401,E402
@@ -31,7 +32,6 @@ from .long_callback import (  # noqa: F401,E402
     DiskcacheManager,
 )
 
-
 from ._pages import register_page, PAGE_REGISTRY as page_registry  # noqa: F401,E402
 from .dash import (  # noqa: F401,E402
     Dash,
@@ -40,10 +40,46 @@ from .dash import (  # noqa: F401,E402
 )
 from ._patch import Patch  # noqa: F401,E402
 from ._jupyter import jupyter_dash  # noqa: F401,E402
-
 from ._hooks import hooks  # noqa: F401,E402
 
 ctx = callback_context
+
+# ---------------------------------------------------------------------------
+# Backwards-compatibility shim for `dash.dcc`
+#
+# Some code (including the tests) expects attributes like `_js_dist` on
+# `dash.dcc`, and the `dash_core_components` package expects to be able
+# to import `__version__` from `dash.dcc`.
+#
+# The `dash/dcc` package in this repo is just a namespace stub, so we
+# populate it with the bits that the ecosystem expects.
+# ---------------------------------------------------------------------------
+
+try:
+    # Alias the namespace package imported above so we can mutate it.
+    _dcc_module = dcc
+
+    # Ensure `dash.dcc.__version__` exists before `dash_core_components`
+    # tries to import it.
+    if not hasattr(_dcc_module, "__version__"):
+        _dcc_module.__version__ = __version__  # type: ignore[attr-defined]
+
+    try:
+        # Import the actual component package and mirror a few attributes.
+        import dash_core_components as _dcc_pkg  # type: ignore[import]
+
+        if hasattr(_dcc_pkg, "_js_dist"):
+            _dcc_module._js_dist = _dcc_pkg._js_dist  # type: ignore[attr-defined]
+        if hasattr(_dcc_pkg, "_css_dist"):
+            _dcc_module._css_dist = _dcc_pkg._css_dist  # type: ignore[attr-defined]
+    except Exception:
+        # If `dash_core_components` isn't available for some reason, we
+        # don't want Dash itself to fail to import.
+        pass
+except Exception:
+    # If the namespace package `dash.dcc` itself is missing, also fail
+    # quietly so basic imports continue to work.
+    pass
 
 
 def _jupyter_nbextension_paths():
@@ -74,6 +110,7 @@ __all__ = [
     "callback_context",
     "set_props",
     "callback",
+    "clientside_callback",
     "get_app",
     "get_asset_url",
     "get_relative_path",
@@ -87,5 +124,6 @@ __all__ = [
     "page_container",
     "Patch",
     "jupyter_dash",
+    "hooks",
     "ctx",
 ]
