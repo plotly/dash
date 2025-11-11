@@ -70,12 +70,16 @@ try:
 
         if hasattr(_dcc_pkg, "_js_dist"):
             _dcc_module._js_dist = _dcc_pkg._js_dist  # type: ignore[attr-defined]
+        else:
+            _dcc_module._js_dist = []  # type: ignore[attr-defined]
         if hasattr(_dcc_pkg, "_css_dist"):
             _dcc_module._css_dist = _dcc_pkg._css_dist  # type: ignore[attr-defined]
+        else:
+            _dcc_module._css_dist = []  # type: ignore[attr-defined]
     except Exception:
-        # If `dash_core_components` isn't available for some reason, we
-        # don't want Dash itself to fail to import.
-        pass
+        # If dash_core_components isn't available, use empty lists
+        _dcc_module._js_dist = []  # type: ignore[attr-defined]
+        _dcc_module._css_dist = []  # type: ignore[attr-defined]
 except Exception:
     # If the namespace package `dash.dcc` itself is missing, also fail
     # quietly so basic imports continue to work.
