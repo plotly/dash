@@ -53,7 +53,7 @@ class Download(Component):
         Default value for type, used when not set as part of the data
         property."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Download"

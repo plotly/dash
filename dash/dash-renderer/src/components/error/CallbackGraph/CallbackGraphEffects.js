@@ -27,8 +27,11 @@ function getEdgeTypes(node) {
  * @returns {function} - cleanup function, for useEffect hook
  */
 export function updateSelectedNode(cy, id) {
-    function ascend(node, collection) {
-        // FIXME: Should we include State parents but non-recursively?
+    function ascend(node, collection, visited = new Set()) {
+        if (visited.has(node.id())) {
+            return;
+        }
+        visited.add(node.id());
         const type = node.data().type === 'callback' ? 'input' : 'output';
         const edges = getEdgeTypes(node)[type];
         const parents = edges.sources();
@@ -37,10 +40,14 @@ export function updateSelectedNode(cy, id) {
         if (node.data().type === 'property') {
             collection.merge(node.ancestors());
         }
-        parents.forEach(node => ascend(node, collection));
+        parents.forEach(node => ascend(node, collection, visited));
     }
 
-    function descend(node, collection) {
+    function descend(node, collection, visited = new Set()) {
+        if (visited.has(node.id())) {
+            return;
+        }
+        visited.add(node.id());
         const type = node.data().type === 'callback' ? 'output' : 'input';
         const edges = getEdgeTypes(node)[type];
         const children = edges.targets();
@@ -49,7 +56,7 @@ export function updateSelectedNode(cy, id) {
         if (node.data().type === 'property') {
             collection.merge(node.ancestors());
         }
-        children.forEach(node => descend(node, collection));
+        children.forEach(node => descend(node, collection, visited));
     }
 
     if (id) {
@@ -62,8 +69,6 @@ export function updateSelectedNode(cy, id) {
         // Find the subtree that the node belongs to. A subtree contains
         // all all ancestors and descendants that are connected via Inputs
         // or Outputs (but not State).
-
-        // WARNING: No cycle detection!
 
         const subtree = cy.collection();
         subtree.merge(node);

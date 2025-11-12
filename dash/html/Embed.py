@@ -113,7 +113,7 @@ class Embed(Component):
         legacy attribute, in which case the CSS width property should be
         used instead."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_html_components"
     _type = "Embed"

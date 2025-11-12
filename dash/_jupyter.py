@@ -1,4 +1,3 @@
-# type: ignore
 import asyncio
 import io
 import inspect
@@ -10,29 +9,83 @@ import sys
 import threading
 import time
 
-from typing import Optional
+from typing import Optional, Any
 from typing_extensions import Literal
 
 from werkzeug.serving import make_server
 
-
 try:
-    from IPython import get_ipython
-    from IPython.display import IFrame, display, Javascript
-    from IPython.core.display import HTML
-    from IPython.core.ultratb import FormattedTB
-    from retrying import retry
-    from ipykernel.comm import Comm
-    import nest_asyncio
+    from IPython import get_ipython  # type: ignore[attr-defined]
+    from IPython.display import IFrame, display, Javascript  # type: ignore[import-not-found]
+    from IPython.core.display import HTML  # type: ignore[import-not-found]
+    from IPython.core.ultratb import FormattedTB  # type: ignore[import-not-found]
+    from retrying import retry  # type: ignore[import-untyped]
+    from comm import create_comm  # type: ignore[import-not-found]
+    import nest_asyncio  # type: ignore[import-untyped]
 
-    import requests
+    import requests  # type: ignore[import-untyped]
 
-    _dash_comm = Comm(target_name="dash")
+    _dash_comm = create_comm(target_name="dash")  # type: ignore[misc]
     _dep_installed = True
 except ImportError:
     _dep_installed = False
-    _dash_comm = None
-    get_ipython = lambda: None
+    _dash_comm = None  # type: ignore[assignment]
+
+    # Stub implementations for when dependencies are not installed
+    def get_ipython():  # type: ignore[misc]
+        return None
+
+    # pylint: disable=unused-argument
+    def retry(*args: Any, **kwargs: Any):  # type: ignore[misc]
+        def decorator(func: Any) -> Any:
+            return func
+
+        return decorator
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class IFrame:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    def display(*args: Any, **kwargs: Any) -> None:  # type: ignore[misc]
+        pass
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class Javascript:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class HTML:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class FormattedTB:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+        def __call__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class _RequestsModule:  # type: ignore[misc]
+        class ConnectionError(Exception):
+            pass
+
+        def get(self, *args: Any, **kwargs: Any) -> Any:
+            return None
+
+    requests = _RequestsModule()  # type: ignore[assignment]
+
+    # pylint: disable=unused-argument,too-few-public-methods
+    class _NestAsyncioModule:  # type: ignore[misc]
+        @staticmethod
+        def apply(*args: Any, **kwargs: Any) -> None:
+            pass
+
+    nest_asyncio = _NestAsyncioModule()  # type: ignore[assignment]
 
 JupyterDisplayMode = Literal["inline", "external", "jupyterlab", "tab", "_none"]
 
@@ -44,7 +97,7 @@ def _get_skip(error: Exception):
 
     tb = error.__traceback__
     skip = 1
-    while tb.tb_next is not None:
+    while tb is not None and tb.tb_next is not None:
         skip += 1
         tb = tb.tb_next
         if tb.tb_frame.f_code is _invoke_callback.__code__:
@@ -89,18 +142,23 @@ def _custom_formatargvalues(
     return "(\n    " + ",\n    ".join(specs) + "\n)"
 
 
-_jupyter_config = {}
+_jupyter_config: Any = {}
 
-_caller = {}
+_caller: Any = {}
 
 
 def _send_jupyter_config_comm_request():
     # If running in an ipython kernel,
     # request that the front end extension send us the notebook server base URL
-    if get_ipython() is not None:
-        if _dash_comm.kernel is not None:
-            _caller["parent"] = _dash_comm.kernel.get_parent()
-            _dash_comm.send({"type": "base_url_request"})
+    ipython = get_ipython()
+    if (
+        ipython is not None
+        and hasattr(ipython, "kernel")
+        and ipython.kernel is not None
+        and _dash_comm is not None
+    ):
+        _caller["parent"] = ipython.kernel.get_parent()
+        _dash_comm.send({"type": "base_url_request"})  # type: ignore[attr-defined]
 
 
 def _jupyter_comm_response_received():
@@ -109,15 +167,16 @@ def _jupyter_comm_response_received():
 
 def _request_jupyter_config(timeout=2):
     # Heavily inspired by implementation of CaptureExecution in the
-    if _dash_comm.kernel is None:
+    ipython = get_ipython()
+    if ipython is None or not hasattr(ipython, "kernel") or ipython.kernel is None:
         # Not in jupyter setting
         return
 
     _send_jupyter_config_comm_request()
 
     # Get shell and kernel
-    shell = get_ipython()
-    kernel = shell.kernel
+    shell = ipython
+    kernel = shell.kernel  # type: ignore[attr-defined]
 
     # Start capturing shell events to replay later
     captured_events = []
@@ -125,10 +184,10 @@ def _request_jupyter_config(timeout=2):
     def capture_event(stream, ident, parent):
         captured_events.append((stream, ident, parent))
 
-    kernel.shell_handlers["execute_request"] = capture_event
+    kernel.shell_handlers["execute_request"] = capture_event  # type: ignore[attr-defined]
 
     # increment execution count to avoid collision error
-    shell.execution_count += 1
+    shell.execution_count += 1  # type: ignore[attr-defined]
 
     # Allow kernel to execute comms until we receive the jupyter configuration comm
     # response
@@ -176,7 +235,7 @@ class JupyterDash:
     alive_token = str(uuid.uuid4())
     inline_exceptions: bool = True
 
-    _servers = {}
+    _servers: Any = {}
 
     def infer_jupyter_proxy_config(self):
         """
@@ -215,8 +274,15 @@ class JupyterDash:
             @_dash_comm.on_msg
             def _receive_message(msg):
                 prev_parent = _caller.get("parent")
-                if prev_parent and prev_parent != _dash_comm.kernel.get_parent():
-                    _dash_comm.kernel.set_parent(
+                ipython = get_ipython()
+                if (
+                    prev_parent
+                    and ipython is not None
+                    and hasattr(ipython, "kernel")
+                    and ipython.kernel is not None
+                    and prev_parent != ipython.kernel.get_parent()
+                ):
+                    ipython.kernel.set_parent(
                         [prev_parent["header"]["session"]], prev_parent
                     )
                     del _caller["parent"]
@@ -331,7 +397,7 @@ class JupyterDash:
         except ImportError:
             pass
 
-        err_q = queue.Queue()
+        err_q: Any = queue.Queue()
 
         server = make_server(host, port, app.server, threaded=True, processes=0)
         logging.getLogger("werkzeug").setLevel(logging.ERROR)
@@ -410,7 +476,7 @@ class JupyterDash:
     @staticmethod
     def _display_in_colab(dashboard_url, port, mode, width, height):
         # noinspection PyUnresolvedReferences
-        from google.colab import output  # pylint: disable=E0401,E0611,C0415
+        from google.colab import output  # type: ignore[import-not-found]  # pylint: disable=E0401,E0611,C0415
 
         if mode == "inline":
             output.serve_kernel_port_as_iframe(port, width=width, height=height)
@@ -432,13 +498,14 @@ class JupyterDash:
         elif mode == "jupyterlab":
             # Update front-end extension
             # FIXME valid only in jupyterlab but accepted in regular notebooks show nothing.
-            _dash_comm.send(
-                {
-                    "type": "show",
-                    "port": port,
-                    "url": dashboard_url,
-                }
-            )
+            if _dash_comm is not None:
+                _dash_comm.send(  # type: ignore[attr-defined]
+                    {
+                        "type": "show",
+                        "port": port,
+                        "url": dashboard_url,
+                    }
+                )
 
     @staticmethod
     def serve_alive():

@@ -66,7 +66,7 @@ class Markdown(Component):
         If True, loads mathjax v3 (tex-svg) into the page and use it in
         the markdown."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Markdown"

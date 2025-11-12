@@ -1,5 +1,7 @@
-import {updateProps, notifyObservers} from '../actions/index';
-import {getPath} from '../actions/paths';
+import {updateProps, notifyObservers, setPaths} from '../actions/index';
+import {parsePatchProps, PatchBuilder} from '../actions/patch';
+import {computePaths, getPath} from '../actions/paths';
+import {getComponentLayout} from '../wrapper/wrapping';
 import {getStores} from './stores';
 
 /**
@@ -16,12 +18,18 @@ function set_props(
     for (let y = 0; y < ds.length; y++) {
         const {dispatch, getState} = ds[y];
         let componentPath;
-        const {paths} = getState();
+        const state = getState();
         if (!Array.isArray(idOrPath)) {
-            componentPath = getPath(paths, idOrPath);
+            componentPath = getPath(state.paths, idOrPath);
         } else {
             componentPath = idOrPath;
         }
+        const oldComponent = getComponentLayout(componentPath, state);
+
+        // Handle any patch props
+        props = parsePatchProps(props, oldComponent?.props || {});
+
+        // Update the props
         dispatch(
             updateProps({
                 props,
@@ -30,6 +38,24 @@ function set_props(
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));
+
+        if (!oldComponent) {
+            return;
+        }
+
+        dispatch(
+            setPaths(
+                computePaths(
+                    {
+                        ...oldComponent,
+                        props: {...oldComponent.props, ...props}
+                    },
+                    [...componentPath],
+                    state.paths,
+                    state.paths.events
+                )
+            )
+        );
     }
 }
 
@@ -61,3 +87,4 @@ const dc = ((window as any).dash_clientside =
     (window as any).dash_clientside || {});
 dc['set_props'] = set_props;
 dc['clean_url'] = dc['clean_url'] === undefined ? clean_url : dc['clean_url'];
+dc['Patch'] = PatchBuilder;

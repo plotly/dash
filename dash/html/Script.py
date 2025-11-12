@@ -123,7 +123,7 @@ class Script(Component):
     - type (string; optional):
         Defines the type of the element."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_html_components"
     _type = "Script"

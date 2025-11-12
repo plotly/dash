@@ -105,7 +105,7 @@ class Fieldset(Component):
     - title (string; optional):
         Text to be displayed in a tooltip when hovering over the element."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_html_components"
     _type = "Fieldset"

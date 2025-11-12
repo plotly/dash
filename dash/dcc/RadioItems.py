@@ -97,7 +97,7 @@ class RadioItems(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit."""
 
-    _children_props = ["options[].label"]
+    _children_props: typing.List[str] = ["options[].label"]
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "RadioItems"

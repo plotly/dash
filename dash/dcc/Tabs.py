@@ -97,7 +97,7 @@ class Tabs(Component):
     - vertical (boolean; default False):
         Renders the tabs vertically (on the side)."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tabs"

@@ -52,7 +52,7 @@ class Resources:
     ):
         filtered_resources = []
         for s in all_resources:
-            filtered_resource = {}
+            filtered_resource: _t.Dict[str, _t.Any] = {}
             valid_resource = True
             if "dynamic" in s:
                 filtered_resource["dynamic"] = s["dynamic"]

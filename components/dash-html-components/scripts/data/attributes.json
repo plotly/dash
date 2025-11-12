@@ -226,11 +226,8 @@
                 "button",
                 "fieldset",
                 "input",
-                "label",
-                "meter",
                 "object",
                 "output",
-                "progress",
                 "select",
                 "textarea"
             ],
@@ -993,27 +990,12 @@
             "target"
         ],
         "label": [
-            "htmlFor",
-            "form"
+            "htmlFor"
         ],
         "output": [
             "htmlFor",
             "form",
             "name"
-        ],
-        "meter": [
-            "form",
-            "high",
-            "low",
-            "max",
-            "min",
-            "optimum",
-            "value"
-        ],
-        "progress": [
-            "form",
-            "max",
-            "value"
         ],
         "canvas": [
             "height",
@@ -1025,6 +1007,14 @@
             "type",
             "width"
         ],
+        "meter": [
+            "high",
+            "low",
+            "max",
+            "min",
+            "optimum",
+            "value"
+        ],
         "base": [
             "href",
             "target"
@@ -1034,6 +1024,10 @@
         ],
         "marquee": [
             "loop"
+        ],
+        "progress": [
+            "max",
+            "value"
         ],
         "source": [
             "media",

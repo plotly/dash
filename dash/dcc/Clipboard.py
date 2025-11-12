@@ -49,7 +49,7 @@ class Clipboard(Component):
     - title (string; optional):
         The text shown as a tooltip when hovering over the copy icon."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Clipboard"

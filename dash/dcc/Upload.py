@@ -88,7 +88,7 @@ class Upload(Component):
     - style_reject (dict; default {    borderStyle: 'solid',    borderColor: '#c66',    backgroundColor: '#eee',}):
         CSS styles if rejected."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Upload"

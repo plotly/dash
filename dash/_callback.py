@@ -2,7 +2,7 @@ import collections
 import hashlib
 from functools import wraps
 
-from typing import Callable, Optional, Any, List, Tuple, Union
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 
 
 import asyncio
@@ -59,12 +59,13 @@ def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the d
     return func(*args, **kwargs)  # %% callback invoked %%
 
 
-GLOBAL_CALLBACK_LIST = []
-GLOBAL_CALLBACK_MAP = {}
-GLOBAL_INLINE_SCRIPTS = []
+GLOBAL_CALLBACK_LIST: List[Any] = []
+GLOBAL_CALLBACK_MAP: Dict[str, Any] = {}
+GLOBAL_INLINE_SCRIPTS: List[Any] = []
+GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-arguments
 def callback(
     *_args,
     background: bool = False,
@@ -77,6 +78,9 @@ def callback(
     cache_args_to_ignore: Optional[list] = None,
     cache_ignore_triggered=True,
     on_error: Optional[Callable[[Exception], Any]] = None,
+    api_endpoint: Optional[str] = None,
+    optional: Optional[bool] = False,
+    hidden: Optional[bool] = False,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -159,9 +163,21 @@ def callback(
             Function to call when the callback raises an exception. Receives the
             exception object as first argument. The callback_context can be used
             to access the original callback inputs, states and output.
+        :param optional:
+            Mark all dependencies as not required on the initial layout checks.
+        :param hidden:
+            Hide the callback from the devtools callbacks tab.
+        :param api_endpoint:
+            If provided, the callback will be available at the given API endpoint.
+            This allows you to call the callback directly through HTTP requests
+            instead of through the Dash front-end. The endpoint should be a string
+            that starts with a forward slash (e.g. `/my_callback`).
+            The endpoint is relative to the Dash app's base URL.
+            Note that the endpoint will not appear in the list of registered
+            callbacks in the Dash devtools.
     """
 
-    background_spec = None
+    background_spec: Any = None
 
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
@@ -170,7 +186,7 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        background_spec: Any = {
+        background_spec = {
             "interval": interval,
         }
 
@@ -213,6 +229,9 @@ def callback(
         manager=manager,
         running=running,
         on_error=on_error,
+        api_endpoint=api_endpoint,
+        optional=optional,
+        hidden=hidden,
     )
 
 
@@ -258,6 +277,8 @@ def insert_callback(
     running=None,
     dynamic_creator: Optional[bool] = False,
     no_output=False,
+    optional=False,
+    hidden=False,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -281,6 +302,8 @@ def insert_callback(
         },
         "dynamic_creator": dynamic_creator,
         "no_output": no_output,
+        "optional": optional,
+        "hidden": hidden,
     }
     if running:
         callback_spec["running"] = running
@@ -575,7 +598,11 @@ def _prepare_response(
 
 # pylint: disable=too-many-branches,too-many-statements
 def register_callback(
-    callback_list, callback_map, config_prevent_initial_callbacks, *_args, **_kwargs
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+    *_args,
+    **_kwargs,
 ):
     (
         output,
@@ -624,10 +651,16 @@ def register_callback(
         dynamic_creator=allow_dynamic_callbacks,
         running=running,
         no_output=not has_output,
+        optional=_kwargs.get("optional", False),
+        hidden=_kwargs.get("hidden", False),
     )
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+        if _kwargs.get("api_endpoint"):
+            api_endpoint = _kwargs.get("api_endpoint")
+            GLOBAL_API_PATHS[api_endpoint] = func
+
         if background is None:
             background_key = None
         else:
@@ -654,7 +687,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}
+            response: dict = {"multi": True}  # type: ignore
 
             jsonResponse = None
             try:
@@ -726,7 +759,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}
+            response = {"multi": True}
 
             try:
                 if background is not None:
