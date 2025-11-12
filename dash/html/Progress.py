@@ -60,9 +60,6 @@ class Progress(Component):
     - draggable (string; optional):
         Defines whether the element can be dragged.
 
-    - form (string; optional):
-        Indicates the form that is the owner of the element.
-
     - hidden (a value equal to: 'hidden', 'HIDDEN' | boolean; optional):
         Prevents rendering of given element, while keeping child elements,
         e.g. script elements, active.
@@ -105,7 +102,7 @@ class Progress(Component):
         Defines a default value which will be displayed in the element on
         page load."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_html_components"
     _type = "Progress"
@@ -118,7 +115,6 @@ class Progress(Component):
         n_clicks_timestamp: typing.Optional[NumberType] = None,
         disable_n_clicks: typing.Optional[bool] = None,
         key: typing.Optional[str] = None,
-        form: typing.Optional[str] = None,
         max: typing.Optional[typing.Union[str, NumberType]] = None,
         value: typing.Optional[str] = None,
         accessKey: typing.Optional[str] = None,
@@ -146,7 +142,6 @@ class Progress(Component):
             "dir",
             "disable_n_clicks",
             "draggable",
-            "form",
             "hidden",
             "key",
             "lang",
@@ -172,7 +167,6 @@ class Progress(Component):
             "dir",
             "disable_n_clicks",
             "draggable",
-            "form",
             "hidden",
             "key",
             "lang",

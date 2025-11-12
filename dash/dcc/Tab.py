@@ -59,7 +59,7 @@ class Tab(Component):
     - value (string; optional):
         Value for determining which Tab is currently selected."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tab"

@@ -149,7 +149,7 @@ class RangeSlider(Component):
         kept after the browser quit. session: window.sessionStorage, data
         is cleared once the browser quit."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "RangeSlider"

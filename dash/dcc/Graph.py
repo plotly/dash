@@ -316,7 +316,7 @@ class Graph(Component):
     - selectedData (dict; optional):
         Data from latest select event. Read-only."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Graph"

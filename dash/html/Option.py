@@ -108,7 +108,7 @@ class Option(Component):
         Defines a default value which will be displayed in the element on
         page load."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_html_components"
     _type = "Option"

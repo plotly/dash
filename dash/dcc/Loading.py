@@ -88,7 +88,7 @@ class Loading(Component):
         Property that determines which built-in spinner to show one of
         'graph', 'cube', 'circle', 'dot', or 'default'."""
 
-    _children_props = ["custom_spinner"]
+    _children_props: typing.List[str] = ["custom_spinner"]
     _base_nodes = ["custom_spinner", "children"]
     _namespace = "dash_core_components"
     _type = "Loading"

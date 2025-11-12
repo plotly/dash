@@ -101,7 +101,7 @@ class Geolocation(Component):
         update_now back to False.  This can, for example, be used to
         update the  position with a button or an interval timer."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Geolocation"

@@ -47,7 +47,7 @@ class Interval(Component):
     - n_intervals (number; default 0):
         Number of times the interval has passed."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Interval"

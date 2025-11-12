@@ -67,7 +67,7 @@ class Link(Component):
         - component_name (string; optional):
             Holds the name of the component that is loading."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Link"

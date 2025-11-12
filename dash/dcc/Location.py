@@ -53,7 +53,7 @@ class Location(Component):
     - search (string; optional):
         search in window.location - e.g., \"?myargument=1\"."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Location"

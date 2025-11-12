@@ -74,7 +74,7 @@ class Tooltip(Component):
         with higher values will be displayed on top of components with
         lower values."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "Tooltip"

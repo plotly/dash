@@ -50,7 +50,7 @@ class ConfirmDialog(Component):
     - submit_n_clicks_timestamp (number; default -1):
         Last time the submit button was clicked."""
 
-    _children_props = []
+    _children_props: typing.List[str] = []
     _base_nodes = ["children"]
     _namespace = "dash_core_components"
     _type = "ConfirmDialog"
