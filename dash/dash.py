@@ -141,18 +141,74 @@ DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
 # Handles the case in a newly cloned environment where the components are not yet generated.
 try:
-    page_container = html.Div(
+    page_container = html.Div(  # type: ignore[operator]
         [
-            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),
-            html.Div(id=_ID_CONTENT, disable_n_clicks=True),
-            dcc.Store(id=_ID_STORE),
-            html.Div(id=_ID_DUMMY, disable_n_clicks=True),
+            dcc.Location(id=_ID_LOCATION, refresh="callback-nav"),  # type: ignore[operator]
+            html.Div(id=_ID_CONTENT, disable_n_clicks=True),  # type: ignore[operator]
+            dcc.Store(id=_ID_STORE),  # type: ignore[operator]
+            html.Div(id=_ID_DUMMY, disable_n_clicks=True),  # type: ignore[operator]
         ]
     )
 # pylint: disable-next=bare-except
 except:  # noqa: E722
     page_container = None
 
+
+def _get_traceback(secret, error: Exception):
+    try:
+        # pylint: disable=import-outside-toplevel
+        from werkzeug.debug import tbtools
+    except ImportError:
+        tbtools = None  # type: ignore[assignment]
+
+    def _get_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+            _async_invoke_callback,
+        )
+
+        tb = error.__traceback__
+        skip = 1
+        while tb.tb_next is not None:
+            skip += 1
+            tb = tb.tb_next
+            if tb.tb_frame.f_code in [
+                _invoke_callback.__code__,
+                _async_invoke_callback.__code__,
+            ]:
+                return skip
+
+        return skip
+
+    def _do_skip(error):
+        from dash._callback import (  # pylint: disable=import-outside-toplevel
+            _invoke_callback,
+            _async_invoke_callback,
+        )
+
+        tb = error.__traceback__
+        while tb.tb_next is not None:
+            if tb.tb_frame.f_code in [
+                _invoke_callback.__code__,
+                _async_invoke_callback.__code__,
+            ]:
+                return tb.tb_next
+            tb = tb.tb_next
+        return error.__traceback__
+
+    # werkzeug<2.1.0
+    if hasattr(tbtools, "get_current_traceback"):
+        return tbtools.get_current_traceback(  # type: ignore
+            skip=_get_skip(error)
+        ).render_full()
+
+    if hasattr(tbtools, "DebugTraceback"):
+        # pylint: disable=no-member
+        return tbtools.DebugTraceback(  # type: ignore
+            error, skip=_get_skip(error)
+        ).render_debugger_html(True, secret, True)
+
+    return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
 
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
@@ -387,7 +443,7 @@ class Dash(ObsoleteChecker):
         use_pages: Optional[bool] = None,
         assets_url_path: str = "assets",
         assets_ignore: str = "",
-        assets_path_ignore: List[str] = None,
+        assets_path_ignore: Optional[List[str]] = None,
         assets_external_path: Optional[str] = None,
         eager_loading: bool = False,
         include_assets_files: bool = True,
@@ -524,16 +580,16 @@ class Dash(ObsoleteChecker):
         self.title = title
 
         # list of dependencies - this one is used by the back end for dispatching
-        self.callback_map = {}
+        self.callback_map: dict = {}
         # same deps as a list to catch duplicate outputs, and to send to the front end
-        self._callback_list = []
-        self.callback_api_paths = {}
+        self._callback_list: list = []
+        self.callback_api_paths: dict = {}
 
         # list of inline scripts
-        self._inline_scripts = []
+        self._inline_scripts: list = []
 
         # index_string has special setter so can't go in config
-        self._index_string = ""
+        self._index_string: str = ""
         self.index_string = index_string
         self._favicon = None
 
@@ -544,10 +600,10 @@ class Dash(ObsoleteChecker):
         self.css = Css(serve_locally)
         self.scripts = Scripts(serve_locally, eager_loading)
 
-        self.registered_paths = collections.defaultdict(set)
+        self.registered_paths: Any = collections.defaultdict(set)
 
         # urls
-        self.routes = []
+        self.routes: Any = []
 
         self._layout = None
         self._layout_is_function = False
@@ -565,7 +621,7 @@ class Dash(ObsoleteChecker):
             changed_assets=[],
         )
 
-        self._assets_files = []
+        self._assets_files: list = []
 
         self._background_manager = background_callback_manager
 
@@ -610,7 +666,7 @@ class Dash(ObsoleteChecker):
             setup(self)
 
         for hook in self._hooks.get_hooks("callback"):
-            callback_args, callback_kwargs = hook.data
+            callback_args, callback_kwargs = hook.data  # type: ignore
             self.callback(*callback_args, **callback_kwargs)(hook.func)
 
         for (
@@ -660,6 +716,17 @@ class Dash(ObsoleteChecker):
         )
         if config.compress:
             self.backend.enable_compression()  # type: ignore
+        
+        def _handle_error(_):
+            """Handle a halted callback and return an empty 204 response."""
+            return "", 204
+
+        
+        # To-Do add error handlers for these two scenarios
+        # add handler for halted callbacks
+        # self.backend.before_request(_handle_error)
+        # add a handler for components suites errors to return 404
+        # self.server.errorhandler(InvalidResourceError)(self._invalid_resources_handler)
 
         self.backend.register_error_handlers()
         self.backend.before_request(self._setup_server)
@@ -737,7 +804,7 @@ class Dash(ObsoleteChecker):
 
     def _setup_plotlyjs(self):
         # pylint: disable=import-outside-toplevel
-        from plotly.offline import get_plotlyjs_version
+        from plotly.offline import get_plotlyjs_version  # type: ignore[import-untyped]
 
         url = f"https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js"
 
@@ -836,7 +903,7 @@ class Dash(ObsoleteChecker):
             else:
                 try:
                     # pylint: disable=C0415,W0611
-                    import plotly_cloud  # noqa: F401
+                    import plotly_cloud  # type: ignore  # noqa: F401
 
                     self._plotly_cloud = True
                 except ImportError:
@@ -1039,7 +1106,7 @@ class Dash(ObsoleteChecker):
                     html._js_dist, dev_bundles=dev
                 )
                 + self.scripts._resources._filter_resources(
-                    dash_table._js_dist, dev_bundles=dev
+                    dash_table._js_dist, dev_bundles=dev  # type: ignore
                 )
                 + self.scripts._resources._filter_resources(
                     self._hooks.hooks._js_dist, dev_bundles=dev
@@ -1777,7 +1844,7 @@ class Dash(ObsoleteChecker):
 
         return dev_tools
 
-    def enable_dev_tools(
+    def enable_dev_tools(  # pylint: disable=too-many-branches
         self,
         debug: Optional[bool] = None,
         dev_tools_ui: Optional[bool] = None,
@@ -1893,10 +1960,10 @@ class Dash(ObsoleteChecker):
             _reload = self._hot_reload
             _reload.hash = generate_hash()
 
-            # find_loader should return None on __main__ but doesn't
+            # find_spec should return None on __main__ but doesn't
             # on some Python versions https://bugs.python.org/issue14710
             packages = [
-                pkgutil.find_loader(x)
+                find_spec(x)
                 for x in list(ComponentRegistry.registry)
                 if x != "__main__"
             ]
@@ -1910,37 +1977,53 @@ class Dash(ObsoleteChecker):
                 )
 
                 for index, package in enumerate(packages):
-                    if isinstance(package, AssertionRewritingHook):
+                    if package and isinstance(package.loader, AssertionRewritingHook):
                         dash_spec = importlib.util.find_spec("dash")  # type: ignore[reportAttributeAccess]
-                        dash_test_path = dash_spec.submodule_search_locations[0]
-                        setattr(dash_spec, "path", dash_test_path)
                         packages[index] = dash_spec
 
-            component_packages_dist = [
-                (
-                    dash_test_path  # type: ignore[reportPossiblyUnboundVariable]
-                    if isinstance(package, ModuleSpec)
-                    else (
-                        os.path.dirname(package.path)  # type: ignore[reportAttributeAccessIssue]
-                        if hasattr(package, "path")
-                        else (
-                            os.path.dirname(
-                                package._path[0]  # type: ignore[reportAttributeAccessIssue]; pylint: disable=protected-access
-                            )
-                            if hasattr(package, "_path")
-                            else package.filename
+            component_packages_dist = []
+            for package in packages:
+                if package and isinstance(package, ModuleSpec):
+                    # For ModuleSpec objects, use submodule_search_locations or origin
+                    if package.submodule_search_locations:
+                        component_packages_dist.append(
+                            package.submodule_search_locations[0]
                         )
-                    )
-                )  # type: ignore[reportAttributeAccessIssue]
-                for package in packages
-            ]
+                    elif package.origin:
+                        component_packages_dist.append(os.path.dirname(package.origin))
+                    else:
+                        component_packages_dist.append("")
+                else:
+                    # Fallback for non-ModuleSpec objects (shouldn't happen with find_spec)
+                    if hasattr(package, "path"):
+                        component_packages_dist.append(os.path.dirname(package.path))  # type: ignore
+                    elif hasattr(package, "_path"):
+                        component_packages_dist.append(os.path.dirname(package._path[0]))  # type: ignore # pylint: disable=protected-access
+                    elif hasattr(package, "filename"):
+                        component_packages_dist.append(package.filename)  # type: ignore
+                    else:
+                        component_packages_dist.append("")
 
             for i, package in enumerate(packages):
-                if hasattr(package, "path") and "dash/dash" in os.path.dirname(
-                    package.path  # type: ignore[reportAttributeAccessIssue]
+                if package and isinstance(package, ModuleSpec):
+                    # Check origin for ModuleSpec objects
+                    pkg_dir = (
+                        package.submodule_search_locations[0]
+                        if package.submodule_search_locations
+                        else os.path.dirname(package.origin)
+                        if package.origin
+                        else None
+                    )
+                    if pkg_dir and "dash/dash" in pkg_dir:
+                        component_packages_dist[i : i + 1] = [
+                            os.path.join(pkg_dir, x)
+                            for x in ["dcc", "html", "dash_table"]
+                        ]
+                elif hasattr(package, "path") and "dash/dash" in os.path.dirname(
+                    package.path  # type: ignore[union-attr]
                 ):
                     component_packages_dist[i : i + 1] = [
-                        os.path.join(os.path.dirname(package.path), x)  # type: ignore[reportAttributeAccessIssue]
+                        os.path.join(os.path.dirname(package.path), x)  # type: ignore[union-attr]
                         for x in ["dcc", "html", "dash_table"]
                     ]
 
@@ -2183,7 +2266,7 @@ class Dash(ObsoleteChecker):
 
         # Verify port value
         try:
-            port = int(port)
+            port = int(port)  # type: ignore
             assert port in range(1, 65536)
         except Exception as e:
             e.args = (f"Expecting an integer from 1 to 65535, found port={repr(port)}",)

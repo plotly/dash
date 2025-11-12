@@ -2,10 +2,11 @@ import functools
 
 from contextvars import ContextVar, copy_context
 from textwrap import dedent
+from typing import Any, Optional
 
-APP = None
+APP: Optional[Any] = None
 
-app_context = ContextVar("dash_app_context")
+app_context: ContextVar[Any] = ContextVar("dash_app_context")
 
 
 def with_app_context(func):

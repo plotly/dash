@@ -39,6 +39,7 @@ setup(
         "fastapi": read_req_file("fastapi"),
         "quart": read_req_file("quart"),
         "cloud": read_req_file("cloud"),
+        "ag-grid": read_req_file("ag-grid")
     },
     entry_points={
         "console_scripts": [
