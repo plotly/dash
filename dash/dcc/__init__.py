@@ -1,4 +1,4 @@
-﻿# Dash Core Components stub
+# Dash Core Components stub
 __version__ = "2.0.0"
 
 # Required attributes for Dash initialization
