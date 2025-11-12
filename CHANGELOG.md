@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [3.3.0] - 2025-11-12
 
 ## Added
 - [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
