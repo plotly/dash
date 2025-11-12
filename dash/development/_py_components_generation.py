@@ -83,7 +83,7 @@ def generate_class_string(
     # not all component authors will supply those.
     c = '''class {typename}(Component):
     """{docstring}"""
-    _children_props = {children_props}
+    _children_props: typing.List[str] = {children_props}
     _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'

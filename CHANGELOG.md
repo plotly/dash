@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [3.3.0] - 2025-11-12
 
 ## Added
 - [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
@@ -17,9 +17,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
 
 ## Fixed
+- [#3490](https://github.com/plotly/dash/pull/3490) Fix stack overflow when circular callbacks are displayed on the devtool callback 
 - [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)
 - [#3415](https://github.com/plotly/dash/pull/3415) Fix the error triggered when only a single no_update is returned for client-side callback functions with multiple Outputs. Fix [#3366](https://github.com/plotly/dash/issues/3366)
 - [#3416](https://github.com/plotly/dash/issues/3416) Fix DeprecationWarning in dash/_jupyter.py by migrating from deprecated ipykernel.comm.Comm to comm module
+- [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
+
+## Deprecated
+- [#3482](https://github.com/plotly/dash/pull/3482) Deprecate dash_table.DataTable with replacement from `dash[ag-grid]` extra requirement.
 
 ## [3.2.0] - 2025-07-31
 

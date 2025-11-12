@@ -1,5 +1,5 @@
 import sys
-from collections.abc import MutableSequence
+from collections.abc import MutableSequence  # pylint: disable=import-error
 import re
 from textwrap import dedent
 from keyword import iskeyword

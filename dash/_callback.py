@@ -2,7 +2,7 @@ import collections
 import hashlib
 from functools import wraps
 
-from typing import Callable, Optional, Any, List, Tuple, Union
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 
 
 import asyncio
@@ -60,10 +60,10 @@ def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the d
     return func(*args, **kwargs)  # %% callback invoked %%
 
 
-GLOBAL_CALLBACK_LIST = []
-GLOBAL_CALLBACK_MAP = {}
-GLOBAL_INLINE_SCRIPTS = []
-GLOBAL_API_PATHS = {}
+GLOBAL_CALLBACK_LIST: List[Any] = []
+GLOBAL_CALLBACK_MAP: Dict[str, Any] = {}
+GLOBAL_INLINE_SCRIPTS: List[Any] = []
+GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
 # pylint: disable=too-many-locals,too-many-arguments
@@ -178,7 +178,7 @@ def callback(
             callbacks in the Dash devtools.
     """
 
-    background_spec = None
+    background_spec: Any = None
 
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
@@ -187,7 +187,7 @@ def callback(
     callback_list = _kwargs.pop("callback_list", GLOBAL_CALLBACK_LIST)
 
     if background:
-        background_spec: Any = {
+        background_spec = {
             "interval": interval,
         }
 
@@ -700,7 +700,7 @@ def register_callback(
                     func_args, inputs_state_indices
                 )
 
-            response: dict = {"multi": True}
+            response: dict = {"multi": True}  # type: ignore
 
             jsonResponse = None
             try:
