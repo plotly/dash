@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {concat} from 'ramda';
+import {useSelector} from 'react-redux';
 
 import './DebugMenu.css';
 
@@ -14,7 +15,8 @@ import {VersionInfo} from './VersionInfo.react';
 import {CallbackGraphContainer} from '../CallbackGraph/CallbackGraphContainer.react';
 import {FrontEndErrorContainer} from '../FrontEnd/FrontEndErrorContainer.react';
 import ExternalWrapper from '../../../wrapper/ExternalWrapper';
-import {useSelector} from 'react-redux';
+import PlotlyCloud from './PlotlyCloud';
+import {DevtoolProvider, useDevtool} from './DevtoolContext';
 
 const classes = (base, variant, variant2) =>
     `${base} ${base}--${variant}` + (variant2 ? ` ${base}--${variant2}` : '');
@@ -52,25 +54,30 @@ const MenuContent = ({
 
     let custom = null;
     if (config.dev_tools?.length && ready) {
-        custom = (
-            <>
-                {config.dev_tools.map((devtool, i) => (
+        custom = config.dev_tools.reduce(
+            (acc, devtool, i) => {
+                const comp = (
                     <ExternalWrapper
                         component={devtool}
                         componentPath={['__dash_devtools', i]}
                         key={devtool?.props?.id ? devtool.props.id : i}
                     />
-                ))}
-                <div
-                    className='dash-debug-menu__divider'
-                    style={{marginRight: 0}}
-                />
-            </>
+                );
+                if (devtool.position === 'left') {
+                    acc.left.push(comp);
+                } else {
+                    acc.right.push(comp);
+                }
+                return acc;
+            },
+            {left: [], right: []}
         );
     }
 
     return (
         <div className='dash-debug-menu__content'>
+            {custom && <>{custom.left}</>}
+            {!config.plotly_cloud_installed ? <PlotlyCloud /> : null}
             <button
                 onClick={toggleErrors}
                 className={
@@ -80,7 +87,12 @@ const MenuContent = ({
                 }
                 id='dash-debug-menu__errors-button'
             >
-                <ErrorIcon className='dash-debug-menu__icon' />
+                <ErrorIcon
+                    className='dash-debug-menu__icon'
+                    width={16}
+                    height={16}
+                    fill='currentColor'
+                />
                 Errors
                 {errCount > 0 ? (
                     <span className='test-devtools-error-count dash-debug-menu__error-count'>
@@ -97,7 +109,12 @@ const MenuContent = ({
                 }
                 id='dash-debug-menu__callback-graph-button'
             >
-                <GraphIcon className='dash-debug-menu__icon' />
+                <GraphIcon
+                    className='dash-debug-menu__icon'
+                    width={16}
+                    height={16}
+                    fill='currentColor'
+                />
                 Callbacks
             </button>
             <div className='dash-debug-menu__divider' />
@@ -109,17 +126,17 @@ const MenuContent = ({
                 Server
                 <_StatusIcon className='dash-debug-menu__icon' />
             </div>
+            {custom && <>{custom.right}</>}
             <div
                 className='dash-debug-menu__divider'
                 style={{marginRight: 0}}
             />
-            {custom}
         </div>
     );
 };
 
-const DebugMenu = ({error, hotReload, config, children}) => {
-    const [popup, setPopup] = useState('errors');
+const Debug = ({error, hotReload, config, children}) => {
+    const {popup, setPopup} = useDevtool();
     const [collapsed, setCollapsed] = useState(isCollapsed);
 
     const errCount = error.frontEnd.length + error.backEnd.length;
@@ -149,6 +166,12 @@ const DebugMenu = ({error, hotReload, config, children}) => {
     };
 
     const errors = concat(error.frontEnd, error.backEnd);
+
+    useEffect(() => {
+        if (errors.length && popup !== 'errors') {
+            setPopup('errors');
+        }
+    }, [error]);
 
     const popupContent = (
         <div className='dash-debug-menu__popup'>
@@ -200,6 +223,14 @@ const DebugMenu = ({error, hotReload, config, children}) => {
             </div>
             {children}
         </div>
+    );
+};
+
+const DebugMenu = ({children, ...props}) => {
+    return (
+        <DevtoolProvider>
+            <Debug {...props}>{children}</Debug>
+        </DevtoolProvider>
     );
 };
 

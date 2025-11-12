@@ -1,4 +1,4 @@
-from typing import Union, Sequence
+from typing import Union, Sequence, Any
 
 from .development.base_component import Component
 from ._validate import validate_callback
@@ -58,7 +58,10 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         return stringify_id(self.component_id)
 
     def to_dict(self) -> dict:
-        specs = {"id": self.component_id_str(), "property": self.component_property}
+        specs: Any = {
+            "id": self.component_id_str(),
+            "property": self.component_property,
+        }
         if self.allow_optional:
             specs["allow_optional"] = True
         return specs
@@ -78,16 +81,17 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def _id_matches(self, other) -> bool:
         my_id = self.component_id
         other_id = other.component_id
+
         self_dict = isinstance(my_id, dict)
         other_dict = isinstance(other_id, dict)
 
         if self_dict != other_dict:
             return False
         if self_dict:
-            if set(my_id.keys()) != set(other_id.keys()):
+            if set(my_id.keys()) != set(other_id.keys()):  # type: ignore
                 return False
 
-            for k, v in my_id.items():
+            for k, v in my_id.items():  # type: ignore
                 other_v = other_id[k]
                 if v == other_v:
                     continue

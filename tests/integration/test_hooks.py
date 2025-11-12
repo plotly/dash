@@ -2,7 +2,7 @@ from flask import jsonify
 import requests
 import pytest
 
-from dash import Dash, Input, Output, html, hooks, set_props, ctx
+from dash import Dash, Input, Output, html, hooks, set_props, ctx, get_app
 
 
 @pytest.fixture
@@ -240,3 +240,103 @@ def test_hook011_devtool_hook(hook_cleanup, dash_duo):
     )
     dash_duo.wait_for_element("#devtool").click()
     dash_duo.wait_for_text_to_equal("#output", "hooked from devtools")
+
+
+def test_hook012_get_app_available_in_hooks_on_routes(hook_cleanup, dash_duo):
+    """Test that get_app() is available during hooks when @with_app_context decorated routes are called."""
+
+    # Track which hooks were able to access get_app()
+    hook_access_results = {
+        "layout_hook": False,
+        "error_hook": False,
+        "callback_hook": False,
+    }
+
+    @hooks.layout()
+    def layout_hook(layout):
+        try:
+            retrieved_app = get_app()
+            hook_access_results["layout_hook"] = retrieved_app is not None
+        except Exception:
+            hook_access_results["layout_hook"] = False
+        return layout
+
+    @hooks.error()
+    def error_hook(error):
+        try:
+            retrieved_app = get_app()
+            hook_access_results["error_hook"] = retrieved_app is not None
+        except Exception:
+            hook_access_results["error_hook"] = False
+
+    @hooks.callback(
+        Output("hook-output", "children"),
+        Input("hook-button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def callback_hook(n_clicks):
+        try:
+            retrieved_app = get_app()
+            hook_access_results["callback_hook"] = retrieved_app is not None
+            return f"Hook callback: {n_clicks}"
+        except Exception as err:
+            hook_access_results["callback_hook"] = False
+            return f"Error in hook callback: {err}"
+
+    app = Dash(__name__)
+    app.layout = [
+        html.Div("Test get_app in hooks", id="main"),
+        html.Button("Click for callback", id="button"),
+        html.Div(id="output"),
+        html.Button("Hook callback", id="hook-button"),
+        html.Div(id="hook-output"),
+        html.Button("Error", id="error-btn"),
+        html.Div(id="error-output"),
+    ]
+
+    @app.callback(
+        Output("output", "children"),
+        Input("button", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def test_callback(n_clicks):
+        return f"Clicked {n_clicks} times"
+
+    @app.callback(
+        Output("error-output", "children"),
+        Input("error-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def error_callback(n_clicks):
+        if n_clicks:
+            raise ValueError("Test error for hook")
+        return ""
+
+    dash_duo.start_server(app)
+
+    # Test the @with_app_context decorated routes
+
+    # 2. Test layout hook via index route (GET /)
+    dash_duo.wait_for_text_to_equal("#main", "Test get_app in hooks")
+
+    # 3. Test callback hook via dispatch route (POST /_dash-update-component)
+    dash_duo.wait_for_element("#hook-button").click()
+    dash_duo.wait_for_text_to_equal("#hook-output", "Hook callback: 1")
+
+    # 4. Test error hook via dispatch route when error occurs
+    dash_duo.wait_for_element("#error-btn").click()
+    # Give error hook time to execute
+    import time
+
+    time.sleep(0.5)
+
+    # Verify that get_app() worked in hooks during route calls with @with_app_context
+    assert hook_access_results[
+        "layout_hook"
+    ], "get_app() should be accessible in layout hook when serve_layout/index routes have @with_app_context"
+    assert hook_access_results[
+        "callback_hook"
+    ], "get_app() should be accessible in callback hook when dispatch route has @with_app_context"
+    assert hook_access_results[
+        "error_hook"
+    ], "get_app() should be accessible in error hook when dispatch route has @with_app_context"
