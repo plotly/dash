@@ -3,7 +3,6 @@ import typing as _t
 from importlib import metadata as _importlib_metadata
 
 import typing_extensions as _tx
-import flask as _f
 
 from .exceptions import HookError
 from .resources import ResourceType
@@ -125,7 +124,7 @@ class _Hooks:
         Add a route to the Dash server.
         """
 
-        def wrap(func: _t.Callable[[], _f.Response]):
+        def wrap(func: _t.Callable[[], _t.Any]):
             _name = name or func.__name__
             self.add_hook(
                 "routes",

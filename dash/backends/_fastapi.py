@@ -227,6 +227,13 @@ class FastAPIDashServer(BaseDashServer):
         # FastAPI does not have after_request, but we can use middleware
         self.server.middleware("http")(self._make_after_middleware(func))
 
+    def has_request_context(self) -> bool:
+        try:
+            get_current_request()
+            return True
+        except RuntimeError:
+            return False
+
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
         dev_tools = dash_app._dev_tools  # pylint: disable=protected-access
@@ -456,6 +463,16 @@ class FastAPIDashServer(BaseDashServer):
                 include_in_schema=True,
             )
 
+    def enable_compression(self) -> None:
+        from fastapi.middleware.gzip import GZipMiddleware
+
+        self.server.add_middleware(GZipMiddleware, minimum_size=500)
+        config = _load_config()
+        if "COMPRESS_ALGORITHM" not in config:
+            config["COMPRESS_ALGORITHM"] = ["gzip"]
+
+        _save_config(config)
+
 
 class FastAPIRequestAdapter(RequestAdapter):
     def __init__(self):
@@ -465,6 +482,13 @@ class FastAPIRequestAdapter(RequestAdapter):
     def __call__(self):
         self._request = get_current_request()
         return self
+
+    @property
+    def context(self):
+        if self._request is None:
+            raise RuntimeError("No active request in context")
+
+        return self._request.state
 
     @property
     def root(self):

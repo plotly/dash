@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
 import asyncio
-import flask
 
 from importlib_metadata import version as _get_distribution_version
 
@@ -55,6 +54,7 @@ from ._utils import (
     hooks_to_js_object,
     parse_version,
     get_caller_name,
+    get_root_path,
 )
 from . import _callback
 from . import _get_paths
@@ -463,7 +463,7 @@ class Dash(ObsoleteChecker):
         self.config = AttributeDict(
             name=caller_name,
             assets_folder=os.path.join(
-                flask.helpers.get_root_path(caller_name), assets_folder
+                get_root_path(caller_name), assets_folder
             ),  # type: ignore
             assets_url_path=assets_url_path,
             assets_ignore=assets_ignore,
@@ -659,22 +659,7 @@ class Dash(ObsoleteChecker):
             self.config.assets_folder,
         )
         if config.compress:
-            try:
-                import flask_compress  # pylint: disable=import-outside-toplevel
-
-                Compress = flask_compress.Compress
-                Compress(self.server)
-                _flask_compress_version = parse_version(
-                    _get_distribution_version("flask_compress")
-                )
-                if not hasattr(
-                    self.server.config, "COMPRESS_ALGORITHM"
-                ) and _flask_compress_version >= parse_version("1.6.0"):
-                    self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
-            except ImportError as error:
-                raise ImportError(
-                    "To use the compress option, you need to install dash[compress]"
-                ) from error
+            self.backend.enable_compression()  # type: ignore
 
         self.backend.register_error_handlers()
         self.backend.before_request(self._setup_server)

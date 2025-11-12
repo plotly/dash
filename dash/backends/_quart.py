@@ -1,4 +1,5 @@
 from __future__ import annotations
+from importlib_metadata import version as _get_distribution_version
 from contextvars import copy_context
 import typing as _t
 import mimetypes
@@ -16,7 +17,8 @@ try:
         jsonify,
         request,
         Blueprint,
-        g,
+        g as quart_g,
+        has_request_context,
         redirect,
     )
 except ImportError:
@@ -25,10 +27,11 @@ except ImportError:
     jsonify = None
     request = None
     Blueprint = None
-    g = None
+    quart_g = None
 
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
+from dash._utils import parse_version
 from dash import _validate, Dash
 from .base_server import BaseDashServer
 from ._utils import format_traceback_html
@@ -95,15 +98,17 @@ class QuartDashServer(BaseDashServer):
     def register_timing_hooks(self, _first_run: bool):  # type: ignore[name-defined] parity with Flask factory
         @self.server.before_request
         async def _before_request():  # pragma: no cover - timing infra
-            if g is not None:
-                g.timing_information = {  # type: ignore[attr-defined]
+            if quart_g is not None:
+                quart_g.timing_information = {  # type: ignore[attr-defined]
                     "__dash_server": {"dur": time.time(), "desc": None}
                 }
 
         @self.server.after_request
         async def _after_request(response):  # pragma: no cover - timing infra
             timing_information = (
-                getattr(g, "timing_information", None) if g is not None else None
+                getattr(quart_g, "timing_information", None)
+                if quart_g is not None
+                else None
             )
             if timing_information is None:
                 return response
@@ -180,6 +185,11 @@ class QuartDashServer(BaseDashServer):
                 if inspect.iscoroutine(result):  # Allow async hooks
                     await result
             return response
+
+    def has_request_context(self) -> bool:
+        if has_request_context is None:
+            raise RuntimeError("Quart not installed; cannot check request context")
+        return has_request_context()
 
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         self.config = {"debug": debug, **kwargs} if debug else kwargs
@@ -318,12 +328,36 @@ class QuartDashServer(BaseDashServer):
             pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
         )
 
+    def enable_compression(self) -> None:
+        try:
+            import quart_compress  # pylint: disable=import-outside-toplevel
+
+            Compress = quart_compress.Compress
+            Compress(self.server)
+            _flask_compress_version = parse_version(
+                _get_distribution_version("quart_compress")
+            )
+            if not hasattr(
+                self.server.config, "COMPRESS_ALGORITHM"
+            ) and _flask_compress_version >= parse_version("1.6.0"):
+                self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+        except ImportError as error:
+            raise ImportError(
+                "To use the compress option, you need to install quart_compress."
+            ) from error
+
 
 class QuartRequestAdapter:
     def __init__(self) -> None:
         self._request = request  # type: ignore[assignment]
         if self._request is None:
             raise RuntimeError("Quart not installed; cannot access request context")
+
+    @property
+    def context(self):
+        if not has_request_context():
+            raise RuntimeError("No active request in context")
+        return quart_g
 
     @property
     def request(self) -> _t.Any:

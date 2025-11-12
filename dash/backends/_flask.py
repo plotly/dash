@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextvars import copy_context
+from importlib_metadata import version as _get_distribution_version
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import asyncio
 import pkgutil
@@ -16,6 +17,7 @@ from flask import (
     request,
     jsonify,
     g as flask_g,
+    has_request_context,
     redirect,
 )
 from werkzeug.debug import tbtools
@@ -24,7 +26,9 @@ from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter
+
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
@@ -127,6 +131,9 @@ class FlaskDashServer(BaseDashServer):
     def after_request(self, func: Callable[[Any], Any]):
         # Flask after_request expects a function(response) -> response
         self.server.after_request(func)
+
+    def has_request_context(self) -> bool:
+        return has_request_context()
 
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: Any):
         self.server.run(host=host, port=port, debug=debug, **kwargs)
@@ -318,6 +325,24 @@ class FlaskDashServer(BaseDashServer):
                 route, endpoint=endpoint, view_func=view_func, methods=methods
             )
 
+    def enable_compression(self) -> None:
+        try:
+            import flask_compress  # pylint: disable=import-outside-toplevel
+
+            Compress = flask_compress.Compress
+            Compress(self.server)
+            _flask_compress_version = parse_version(
+                _get_distribution_version("flask_compress")
+            )
+            if not hasattr(
+                self.server.config, "COMPRESS_ALGORITHM"
+            ) and _flask_compress_version >= parse_version("1.6.0"):
+                self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+        except ImportError as error:
+            raise ImportError(
+                "To use the compress option, you need to install dash[compress]"
+            ) from error
+
 
 class FlaskRequestAdapter(RequestAdapter):
     """Flask implementation using property-based accessors."""
@@ -329,6 +354,12 @@ class FlaskRequestAdapter(RequestAdapter):
 
     def __call__(self, *args: Any, **kwds: Any):
         return self
+
+    @property
+    def context(self):
+        if not has_request_context():
+            raise RuntimeError("No active request in context")
+        return flask_g
 
     @property
     def args(self):

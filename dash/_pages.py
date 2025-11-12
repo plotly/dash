@@ -9,13 +9,11 @@ from os.path import isfile, join
 from pathlib import Path
 from urllib.parse import parse_qs
 
-import flask
-
 from . import _validate
 from ._callback_context import context_value
 from ._get_app import get_app
 from ._get_paths import get_relative_path
-from ._utils import AttributeDict
+from ._utils import AttributeDict, get_root_path
 
 CONFIG = AttributeDict()
 PAGE_REGISTRY = collections.OrderedDict()
@@ -98,7 +96,7 @@ def _path_to_module_name(path):
 def _infer_module_name(page_path):
     relative_path = page_path.split(CONFIG.pages_folder)[-1]
     module = _path_to_module_name(relative_path)
-    proj_root = flask.helpers.get_root_path(CONFIG.name)
+    proj_root = get_root_path(CONFIG.name)
     if CONFIG.pages_folder.startswith(proj_root):
         parent_path = CONFIG.pages_folder[len(proj_root) :]
     else:
@@ -155,9 +153,7 @@ def _set_redirect(redirect_from, path):
     if redirect_from and len(redirect_from):
         for redirect in redirect_from:
             fullname = app.get_relative_path(redirect)
-            app.backend.add_redirect_rule(
-                app, fullname, app.get_relative_path(path)
-            )
+            app.backend.add_redirect_rule(app, fullname, app.get_relative_path(path))
 
 
 def register_page(
