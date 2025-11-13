@@ -1,0 +1,17 @@
+name: PR Issue Check
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, labeled, unlabeled]
+
+permissions:
+  pull-requests: write
+  issues: read
+
+jobs:
+  check-linked-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: plotly/pr-issue-checker
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
