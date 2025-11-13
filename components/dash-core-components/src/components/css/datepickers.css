@@ -2,9 +2,8 @@
     display: block;
     flex: 1;
     box-sizing: border-box;
-    margin: calc(var(--Dash-Spacing) * 2) 0;
+    background: var(--Dash-Fill-Inverse-Strong);
     padding: 0;
-    background: inherit;
     border: none;
     outline: none;
     width: 100%;
@@ -49,11 +48,18 @@
 }
 
 .dash-datepicker-input {
-    height: 34px;
+    height: 32px;
     width: fit-content;
     border: none;
     outline: none;
     border-radius: 4px;
+    padding: 0;
+    background-color: inherit;
+}
+
+.dash-datepicker-input::selection,
+.dash-datepicker-input::-webkit-selection {
+    background: var(--Dash-Fill-Weak);
 }
 
 .dash-datepicker-input-wrapper:focus-within {

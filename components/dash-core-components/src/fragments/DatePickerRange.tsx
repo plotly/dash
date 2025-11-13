@@ -148,17 +148,6 @@ const DatePickerRange = ({
         }
     }, [start_date, internalStartDate, end_date, internalEndDate, updatemode]);
 
-    useEffect(() => {
-        // Keeps focus on the component when the calendar closes
-        if (!isCalendarOpen) {
-            if (!startInputValue) {
-                startInputRef.current?.focus();
-            } else {
-                endInputRef.current?.focus();
-            }
-        }
-    }, [isCalendarOpen, startInputValue]);
-
     const sendStartInputAsDate = useCallback(
         (focusCalendar = false) => {
             if (startInputValue) {
@@ -412,6 +401,24 @@ const DatePickerRange = ({
                         align="start"
                         sideOffset={5}
                         onOpenAutoFocus={e => e.preventDefault()}
+                        onCloseAutoFocus={e => {
+                            e.preventDefault();
+                            // Only focus if focus is not already on one of the inputs
+                            const inputs: (Element | null)[] = [
+                                startInputRef.current,
+                                endInputRef.current,
+                            ];
+                            if (inputs.includes(document.activeElement)) {
+                                return;
+                            }
+
+                            // Keeps focus on the component when the calendar closes
+                            if (!startInputValue) {
+                                startInputRef.current?.focus();
+                            } else {
+                                endInputRef.current?.focus();
+                            }
+                        }}
                     >
                         <Calendar
                             ref={calendarRef}

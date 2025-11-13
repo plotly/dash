@@ -19,6 +19,8 @@
     border-radius: 4px;
     cursor: default;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     width: var(--day-size, 36px);
     height: var(--day-size, 36px);
 }

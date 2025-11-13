@@ -294,6 +294,7 @@ const CalendarComponent = ({
         >
             <div className="dash-datepicker-controls">
                 <button
+                    type="button"
                     className="dash-datepicker-month-nav"
                     onClick={() => changeMonthBy(-1)}
                     disabled={!canChangeMonthBy(-1)}
@@ -327,6 +328,7 @@ const CalendarComponent = ({
                     }}
                 />
                 <button
+                    type="button"
                     className="dash-datepicker-month-nav"
                     onClick={() => changeMonthBy(1)}
                     disabled={!canChangeMonthBy(1)}

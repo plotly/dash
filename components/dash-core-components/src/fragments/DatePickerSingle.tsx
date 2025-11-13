@@ -77,8 +77,6 @@ const DatePickerSingle = ({
         }
     }, [date, internalDate, setProps]);
 
-    useEffect(() => inputRef.current?.focus(), [isCalendarOpen]);
-
     const parseUserInput = useCallback(
         (focusCalendar = false) => {
             if (inputValue === '') {
@@ -207,6 +205,13 @@ const DatePickerSingle = ({
                         align="start"
                         sideOffset={5}
                         onOpenAutoFocus={e => e.preventDefault()}
+                        onCloseAutoFocus={e => {
+                            e.preventDefault();
+                            // Only focus if focus is not already on the input
+                            if (document.activeElement !== inputRef.current) {
+                                inputRef.current?.focus();
+                            }
+                        }}
                     >
                         <Calendar
                             ref={calendarRef}
