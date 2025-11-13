@@ -3,8 +3,8 @@ import Checklist from './components/Checklist';
 import Clipboard from './components/Clipboard.react';
 import ConfirmDialog from './components/ConfirmDialog.react';
 import ConfirmDialogProvider from './components/ConfirmDialogProvider.react';
-import DatePickerRange from './components/DatePickerRange.react';
-import DatePickerSingle from './components/DatePickerSingle.react';
+import DatePickerRange from './components/DatePickerRange';
+import DatePickerSingle from './components/DatePickerSingle';
 import Download from './components/Download.react';
 import Dropdown from './components/Dropdown';
 import Geolocation from './components/Geolocation.react';
@@ -26,8 +26,6 @@ import Tooltip from './components/Tooltip';
 import Upload from './components/Upload.react';
 
 import './components/css/dcc.css';
-import 'react-dates/lib/css/_datepicker.css';
-import './components/css/react-dates@20.1.0-fix.css';
 
 export {
     Checklist,

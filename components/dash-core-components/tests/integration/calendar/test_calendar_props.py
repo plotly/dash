@@ -1,6 +1,6 @@
 import itertools
 import pytest
-
+from time import sleep
 from dash import Dash, Input, Output, html, dcc
 import dash.testing.wait as wait
 
@@ -20,13 +20,14 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
 
     # DPR
     start_date, end_date = dash_dcc.select_date_range("dpr", (1, 28))
-    close_btn = dash_dcc.wait_for_element('button[aria-label="Clear Dates"]')
+    close_btn = dash_dcc.wait_for_element("#dpr-wrapper .dash-datepicker-clear")
 
     assert (
         "1" in start_date and "28" in end_date
     ), "both start date and end date should match the selected day"
 
     close_btn.click()
+    sleep(0.25)
     start_date, end_date = dash_dcc.get_date_range("dpr")
     assert not start_date and not end_date, "both start and end dates should be cleared"
 
@@ -34,7 +35,7 @@ def test_cdpr001_date_clearable_true_works(dash_dcc):
     selected = dash_dcc.select_date_single("dps", day="1")
 
     assert selected, "single date should get a value"
-    close_btn = dash_dcc.wait_for_element("#dps button")
+    close_btn = dash_dcc.wait_for_element("#dps-wrapper .dash-datepicker-clear")
     close_btn.click()
     (single_date,) = dash_dcc.get_date_range("dps")
     assert not single_date, "date should be cleared"
@@ -49,6 +50,7 @@ def test_cdpr002_updatemodes(dash_dcc):
         [
             dcc.DatePickerRange(
                 id="date-picker-range",
+                display_format="MM/DD/YYYY",
                 start_date_id="startDate",
                 end_date_id="endDate",
                 start_date_placeholder_text="Select a start date!",

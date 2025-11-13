@@ -20,7 +20,7 @@ const convert = (val: unknown) => (isNumeric(val) ? +val : NaN);
 const isEquivalent = (v1: number, v2: number) =>
     v1 === v2 || (isNaN(v1) && isNaN(v2));
 
-enum HTMLInputTypes {
+export enum HTMLInputTypes {
     // Only allowing the input types with wide browser compatibility
     'text' = 'text',
     'number' = 'number',

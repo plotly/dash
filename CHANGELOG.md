@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - Modernized `dcc.Tabs`
+- Modernized `dcc.DatePickerSingle` and `dcc.DatePickerRange`
 
 ## Changed
 - `dcc.Tab` now accepts a `width` prop which can be a pixel or percentage width for an individual tab.
@@ -50,7 +51,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
 - [#3445](https://github.com/plotly/dash/pull/3445) Added API to reverse direction of slider component.
 - [#3460](https://github.com/plotly/dash/pull/3460) Add `/health` endpoint for server monitoring and health checks.
-- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
+- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies.
 
 ## Fixed
 - [#3395](https://github.com/plotly/dash/pull/3395) Fix Components added through set_props() cannot trigger related callback functions. Fix [#3316](https://github.com/plotly/dash/issues/3316)

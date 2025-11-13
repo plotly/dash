@@ -9,9 +9,13 @@ export enum PersistenceTypes {
 
 export enum PersistedProps {
     'value' = 'value',
+    'date' = 'date',
+    'start_date' = 'start_date',
+    'end_date' = 'end_date',
 }
 
-export interface BaseDccProps<T> extends BaseDashProps {
+export interface BaseDccProps<T>
+    extends Pick<BaseDashProps, 'id' | 'componentPath'> {
     /**
      * Additional CSS class for the root DOM node
      */
@@ -880,7 +884,7 @@ export interface TabsProps extends BaseDccProps<TabsProps> {
     };
 }
 
-// Note a quirk in how this extends the BaseComponentProps: `setProps` is shared
+// Note a quirk in how this extends the BaseDccProps: `setProps` is shared
 // with `TabsProps` (plural!) due to how tabs are implemented. This is
 // intentional.
 export interface TabProps extends BaseDccProps<TabsProps> {
@@ -944,4 +948,217 @@ export interface TabProps extends BaseDccProps<TabsProps> {
      * This property has no effect when tabs are displayed vertically.
      */
     width?: string | number;
+}
+
+export enum DayOfWeek {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+}
+
+export enum CalendarDirection {
+    LeftToRight = 'ltr',
+    RightToLeft = 'rtl',
+}
+
+export interface DatePickerSingleProps
+    extends BaseDccProps<DatePickerSingleProps> {
+    /**
+     * Specifies the starting date for the component, best practice is to pass
+     * value via datetime object
+     */
+    date?: `${string}-${string}-${string}`;
+
+    /**
+     * Specifies the lowest selectable date for the component.
+     * Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    min_date_allowed?: string;
+
+    /**
+     * Specifies the highest selectable date for the component.
+     * Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    max_date_allowed?: string;
+
+    /**
+     * Specifies additional days between min_date_allowed and max_date_allowed
+     * that should be disabled. Accepted datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    disabled_days?: string[];
+
+    /**
+     * Text that will be displayed in the input
+     * box of the date picker when no date is selected.
+     */
+    placeholder?: string;
+
+    /**
+     * Specifies the month that is initially presented when the user
+     * opens the calendar. Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     *
+     */
+    initial_visible_month?: string;
+
+    /**
+     * Whether or not the dropdown is "clearable", that is, whether or
+     * not a small "x" appears on the right of the dropdown that removes
+     * the selected value.
+     */
+    clearable?: boolean;
+
+    /**
+     * If True, the calendar will automatically open when cleared
+     */
+    reopen_calendar_on_clear?: boolean;
+
+    /**
+     * Specifies the format that the selected dates will be displayed
+     * valid formats are variations of "MM YY DD". For example:
+     * "MM YY DD" renders as '05 10 97' for May 10th 1997
+     * "MMMM, YY" renders as 'May, 1997' for May 10th 1997
+     * "M, D, YYYY" renders as '07, 10, 1997' for September 10th 1997
+     * "MMMM" renders as 'May' for May 10 1997
+     */
+    display_format?: string;
+
+    /**
+     * Specifies the format that the month will be displayed in the calendar,
+     * valid formats are variations of "MM YY". For example:
+     * "MM YY" renders as '05 97' for May 1997
+     * "MMMM, YYYY" renders as 'May, 1997' for May 1997
+     * "MMM, YY" renders as 'Sep, 97' for September 1997
+     */
+    month_format?: string;
+
+    /**
+     * Specifies what day is the first day of the week, values must be
+     * from [0, ..., 6] with 0 denoting Sunday and 6 denoting Saturday
+     */
+    first_day_of_week?: DayOfWeek;
+
+    /**
+     * If True the calendar will display days that rollover into
+     * the next month
+     */
+    show_outside_days?: boolean;
+
+    /**
+     * If True the calendar will not close when the user has selected a value
+     * and will wait until the user clicks off the calendar
+     */
+    stay_open_on_select?: boolean;
+
+    /**
+     * Orientation of calendar, either vertical or horizontal.
+     * Valid options are 'vertical' or 'horizontal'.
+     */
+    calendar_orientation?: 'vertical' | 'horizontal';
+
+    /**
+     * Number of calendar months that are shown when calendar is opened
+     */
+    number_of_months_shown?: number;
+
+    /**
+     * If True, calendar will open in a screen overlay portal,
+     * not supported on vertical calendar
+     */
+    with_portal?: boolean;
+
+    /**
+     * If True, calendar will open in a full screen overlay portal, will
+     * take precedent over 'withPortal' if both are set to True,
+     * not supported on vertical calendar
+     */
+    with_full_screen_portal?: boolean;
+
+    /**
+     * Size of rendered calendar days, higher number
+     * means bigger day size and larger calendar overall
+     */
+    day_size?: number;
+
+    /**
+     * Determines whether the calendar and days operate
+     * from left to right or from right to left
+     */
+    is_RTL?: boolean;
+
+    /**
+     * If True, no dates can be selected.
+     */
+    disabled?: boolean;
+
+    /**
+     * CSS styles appended to wrapper div
+     */
+    style?: React.CSSProperties;
+}
+
+export interface DatePickerRangeProps
+    extends Omit<DatePickerSingleProps, 'date'> {
+    /**
+     * Specifies the starting date for the component.
+     * Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    start_date?: `${string}-${string}-${string}`;
+
+    /**
+     * Specifies the ending date for the component.
+     * Accepts datetime.datetime objects or strings
+     * in the format 'YYYY-MM-DD'
+     */
+    end_date?: `${string}-${string}-${string}`;
+
+    /**
+     * Specifies a minimum number of nights that must be selected between
+     * the startDate and the endDate
+     */
+    minimum_nights?: number;
+
+    /**
+     * Determines when the component should update
+     * its value. If `bothdates`, then the DatePicker
+     * will only trigger its value when the user has
+     * finished picking both dates. If `singledate`, then
+     * the DatePicker will update its value
+     * as one date is picked.
+     */
+    updatemode?: 'singledate' | 'bothdates';
+
+    /**
+     * Text that will be displayed in the first input
+     * box of the date picker when no date is selected. Default value is 'Start Date'
+     */
+    start_date_placeholder_text?: string;
+
+    /**
+     * Text that will be displayed in the second input
+     * box of the date picker when no date is selected. Default value is 'End Date'
+     */
+    end_date_placeholder_text?: string;
+
+    /**
+     * The HTML element ID of the start date input field.
+     * Not used by Dash, only by CSS.
+     */
+    start_date_id?: string;
+
+    /**
+     * The HTML element ID of the end date input field.
+     * Not used by Dash, only by CSS.
+     */
+    end_date_id?: string;
+
+    setProps: (props: Partial<DatePickerRangeProps>) => void;
 }

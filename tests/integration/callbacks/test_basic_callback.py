@@ -55,6 +55,7 @@ def test_cbsc001_simple_callback(dash_duo):
     for key in "hello world":
         with lock:
             input_.send_keys(key)
+        time.sleep(0.05)  # Small delay to prevent callback debouncing
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
 
@@ -416,6 +417,7 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     for key in "hello world":
         with lock:
             input1.send_keys(key)
+        time.sleep(0.05)  # Small delay to prevent callback debouncing
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
