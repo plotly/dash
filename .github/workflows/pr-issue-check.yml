@@ -15,3 +15,7 @@ jobs:
       - uses: plotly/pr-issue-checker@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          exempt-labels: "no-issue-needed"
+          request-issue-message: "Could you please link an issue to this PR? This helps us track the context and purpose of changes."
+          thank-you-message: "Thank you for your contribution! 🎉"
+          issue-added-message: "Thanks for adding an issue! ✅"
