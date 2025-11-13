@@ -12,6 +12,6 @@ jobs:
   check-linked-issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: plotly/pr-issue-checker
+      - uses: plotly/pr-issue-checker@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
