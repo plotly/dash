@@ -1,0 +1,407 @@
+from __future__ import annotations
+from importlib_metadata import version as _get_distribution_version
+from contextvars import copy_context
+import typing as _t
+import mimetypes
+import inspect
+import pkgutil
+import time
+import sys
+from typing import Any
+
+# Attempt top-level Quart imports; allow absence if user not using quart backend
+try:
+    from quart import (
+        Quart,
+        Response,
+        jsonify,
+        request,
+        Blueprint,
+        g as quart_g,
+        has_request_context,
+        redirect,
+    )
+except ImportError:
+    Quart = None
+    Response = None
+    jsonify = None
+    request = None
+    Blueprint = None
+    quart_g = None
+
+from dash.exceptions import PreventUpdate, InvalidResourceError
+from dash.fingerprint import check_fingerprint
+from dash._utils import parse_version
+from dash import _validate, Dash
+from .base_server import BaseDashServer
+from ._utils import format_traceback_html
+
+
+class QuartDashServer(BaseDashServer):
+    def __init__(self, server: Quart) -> None:
+        self.server_type = "quart"
+        self.server: Quart = server
+        self.config = {}
+        self.error_handling_mode = "ignore"
+        self.request_adapter = QuartRequestAdapter
+        super().__init__()
+
+    def __call__(self, *args: Any, **kwargs: Any):  # type: ignore[name-defined]
+        return self.server(*args, **kwargs)
+
+    @staticmethod
+    def create_app(
+        name: str = "__main__", config: _t.Optional[_t.Dict[str, _t.Any]] = None
+    ):
+        if Quart is None:
+            raise RuntimeError(
+                "Quart is not installed. Install with 'pip install quart' to use the quart backend."
+            )
+        app = Quart(name)  # type: ignore
+        if config:
+            for key, value in config.items():
+                app.config[key] = value
+        return app
+
+    def register_assets_blueprint(
+        self, blueprint_name: str, assets_url_path: str, assets_folder: str  # type: ignore[name-defined]
+    ):
+
+        bp = Blueprint(
+            blueprint_name,
+            __name__,
+            static_folder=assets_folder,
+            static_url_path=assets_url_path,
+        )
+        self.server.register_blueprint(bp)
+
+    def _get_traceback(self, _secret, error: Exception):
+        return format_traceback_html(
+            error, self.error_handling_mode, "Quart Debugger", "Quart"
+        )
+
+    def register_prune_error_handler(self, secret, prune_errors):
+        if prune_errors:
+            self.error_handling_mode = "prune"
+        else:
+            self.error_handling_mode = "raise"
+
+        @self.server.errorhandler(Exception)
+        async def _wrap_errors(error):
+            if self.error_handling_mode == "ignore":
+                return Response(
+                    "Internal server error.", status=500, content_type="text/plain"
+                )
+            tb = self._get_traceback(secret, error)
+            return Response(tb, status=500, content_type="text/html")
+
+    def register_timing_hooks(self, _first_run: bool):  # type: ignore[name-defined] parity with Flask factory
+        @self.server.before_request
+        async def _before_request():  # pragma: no cover - timing infra
+            if quart_g is not None:
+                quart_g.timing_information = {  # type: ignore[attr-defined]
+                    "__dash_server": {"dur": time.time(), "desc": None}
+                }
+
+        @self.server.after_request
+        async def _after_request(response):  # pragma: no cover - timing infra
+            timing_information = (
+                getattr(quart_g, "timing_information", None)
+                if quart_g is not None
+                else None
+            )
+            if timing_information is None:
+                return response
+            dash_total = timing_information.get("__dash_server", None)
+            if dash_total is not None:
+                dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+            for name, info in timing_information.items():
+                value = name
+                if info.get("desc") is not None:
+                    value += f';desc="{info["desc"]}"'
+                if info.get("dur") is not None:
+                    value += f";dur={info['dur']}"
+                # Quart/Werkzeug headers expose 'add' (not 'append')
+                if hasattr(response.headers, "add"):
+                    response.headers.add("Server-Timing", value)
+                else:  # fallback just in case
+                    response.headers["Server-Timing"] = value
+            return response
+
+    def register_error_handlers(self):  # type: ignore[name-defined]
+        @self.server.errorhandler(PreventUpdate)
+        async def _prevent_update(_):
+            return "", 204
+
+        @self.server.errorhandler(InvalidResourceError)
+        async def _invalid_resource(err):
+            return err.args[0], 404
+
+    def _html_response_wrapper(self, view_func: _t.Callable[..., _t.Any] | str):
+        async def wrapped(*_args, **_kwargs):
+            html_val = view_func() if callable(view_func) else view_func
+            if inspect.iscoroutine(html_val):  # handle async function returning html
+                html_val = await html_val
+            html = str(html_val)
+            return Response(html, content_type="text/html")
+
+        return wrapped
+
+    def add_url_rule(
+        self,
+        rule: str,
+        view_func: _t.Callable[..., _t.Any],
+        endpoint: str | None = None,
+        methods: list[str] | None = None,
+    ):
+        self.server.add_url_rule(
+            rule, view_func=view_func, endpoint=endpoint, methods=methods or ["GET"]
+        )
+
+    def setup_index(self, dash_app: Dash):  # type: ignore[name-defined]
+        async def index(*args, **kwargs):
+            return Response(dash_app.index(*args, **kwargs), content_type="text/html")  # type: ignore[arg-type]
+
+        # pylint: disable=protected-access
+        dash_app._add_url("", index, methods=["GET"])
+
+    def setup_catchall(self, dash_app: Dash):
+        async def catchall(
+            path: str, *args, **kwargs
+        ):  # noqa: ARG001 - path is unused but kept for route signature, pylint: disable=unused-argument
+            return Response(dash_app.index(*args, **kwargs), content_type="text/html")  # type: ignore[arg-type]
+
+        # pylint: disable=protected-access
+        dash_app._add_url("<path:path>", catchall, methods=["GET"])
+
+    def before_request(self, func: _t.Callable[[], _t.Any]):
+        self.server.before_request(func)
+
+    def after_request(self, func: _t.Callable[[], _t.Any]):
+        @self.server.after_request
+        async def _after(response):
+            if func is not None:
+                result = func()
+                if inspect.iscoroutine(result):  # Allow async hooks
+                    await result
+            return response
+
+    def has_request_context(self) -> bool:
+        if has_request_context is None:
+            raise RuntimeError("Quart not installed; cannot check request context")
+        return has_request_context()
+
+    def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
+        self.config = {"debug": debug, **kwargs} if debug else kwargs
+        self.server.run(host=host, port=port, debug=debug, **kwargs)
+
+    def make_response(
+        self,
+        data: str | bytes | bytearray,
+        mimetype: str | None = None,
+        content_type: str | None = None,
+    ):
+        if Response is None:
+            raise RuntimeError("Quart not installed; cannot generate Response")
+        return Response(data, mimetype=mimetype, content_type=content_type)
+
+    def jsonify(self, obj):
+        return jsonify(obj)
+
+    def serve_component_suites(
+        self, dash_app: Dash, package_name: str, fingerprinted_path: str
+    ):  # noqa: ARG002 unused req preserved for interface parity
+        path_in_pkg, has_fingerprint = check_fingerprint(fingerprinted_path)
+        _validate.validate_js_path(dash_app.registered_paths, package_name, path_in_pkg)
+        extension = "." + path_in_pkg.split(".")[-1]
+        mimetype = mimetypes.types_map.get(extension, "application/octet-stream")
+        package = sys.modules[package_name]
+        dash_app.logger.debug(
+            "serving -- package: %s[%s] resource: %s => location: %s",
+            package_name,
+            getattr(package, "__version__", "unknown"),
+            path_in_pkg,
+            package.__path__,
+        )
+        data = pkgutil.get_data(package_name, path_in_pkg)
+        headers = {}
+        if has_fingerprint:
+            headers["Cache-Control"] = "public, max-age=31536000"
+
+        if Response is None:
+            raise RuntimeError("Quart not installed; cannot generate Response")
+        return Response(data, content_type=mimetype, headers=headers)
+
+    def setup_component_suites(self, dash_app: Dash):
+        async def serve(package_name, fingerprinted_path):
+            return self.serve_component_suites(
+                dash_app, package_name, fingerprinted_path
+            )
+
+        # pylint: disable=protected-access
+        dash_app._add_url(
+            "_dash-component-suites/<string:package_name>/<path:fingerprinted_path>",
+            serve,
+        )
+
+    def _create_redirect_function(self, redirect_to):
+        def _redirect():
+            return redirect(redirect_to, code=301)
+
+        return _redirect
+
+    def add_redirect_rule(self, app, fullname, path):
+        self.server.add_url_rule(
+            fullname,
+            fullname,
+            self._create_redirect_function(app.get_relative_path(path)),
+        )
+
+    # pylint: disable=unused-argument
+    def dispatch(self, dash_app: Dash):  # type: ignore[name-defined] Quart always async
+        async def _dispatch():
+            adapter = QuartRequestAdapter()
+            body = await adapter.get_json()
+            # pylint: disable=protected-access
+            cb_ctx = dash_app._initialize_context(body)
+            # pylint: disable=protected-access
+            func = dash_app._prepare_callback(cb_ctx, body)
+            # pylint: disable=protected-access
+            args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)
+            ctx = copy_context()
+            # pylint: disable=protected-access
+            partial_func = dash_app._execute_callback(
+                func, args, cb_ctx.outputs_list, cb_ctx
+            )
+            response_data = ctx.run(partial_func)
+            if inspect.iscoroutine(response_data):  # if user callback is async
+                response_data = await response_data
+            return Response(response_data, content_type="application/json")  # type: ignore[arg-type]
+
+        return _dispatch
+
+    def register_callback_api_routes(
+        self, callback_api_paths: _t.Dict[str, _t.Callable[..., _t.Any]]
+    ):
+        """
+        Register callback API endpoints on the Quart app.
+        Each key in callback_api_paths is a route, each value is a handler (sync or async).
+        The view function parses the JSON body and passes it to the handler.
+        """
+        for path, handler in callback_api_paths.items():
+            endpoint = f"dash_callback_api_{path}"
+            route = path if path.startswith("/") else f"/{path}"
+            methods = ["POST"]
+
+            def _make_view_func(handler):
+                if inspect.iscoroutinefunction(handler):
+
+                    async def async_view_func(*args, **kwargs):
+                        if request is None:
+                            raise RuntimeError(
+                                "Quart not installed; request unavailable"
+                            )
+                        data = await request.get_json()
+                        result = await handler(**data) if data else await handler()
+                        return jsonify(result)  # type: ignore[arg-type]
+
+                    return async_view_func
+
+                async def sync_view_func(*args, **kwargs):
+                    if request is None:
+                        raise RuntimeError("Quart not installed; request unavailable")
+                    data = await request.get_json()
+                    result = handler(**data) if data else handler()
+                    return jsonify(result)  # type: ignore[arg-type]
+
+                return sync_view_func
+
+            view_func = _make_view_func(handler)
+            self.server.add_url_rule(
+                route, endpoint=endpoint, view_func=view_func, methods=methods
+            )
+
+    def _serve_default_favicon(self):
+        if Response is None:
+            raise RuntimeError("Quart not installed; cannot generate Response")
+        return Response(
+            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+        )
+
+    def enable_compression(self) -> None:
+        try:
+            import quart_compress  # pylint: disable=import-outside-toplevel
+
+            Compress = quart_compress.Compress
+            Compress(self.server)
+            _flask_compress_version = parse_version(
+                _get_distribution_version("quart_compress")
+            )
+            if not hasattr(
+                self.server.config, "COMPRESS_ALGORITHM"
+            ) and _flask_compress_version >= parse_version("1.6.0"):
+                self.server.config["COMPRESS_ALGORITHM"] = ["gzip"]
+        except ImportError as error:
+            raise ImportError(
+                "To use the compress option, you need to install quart_compress."
+            ) from error
+
+
+class QuartRequestAdapter:
+    def __init__(self) -> None:
+        self._request = request  # type: ignore[assignment]
+        if self._request is None:
+            raise RuntimeError("Quart not installed; cannot access request context")
+
+    @property
+    def context(self):
+        if not has_request_context():
+            raise RuntimeError("No active request in context")
+        return quart_g
+
+    @property
+    def request(self) -> _t.Any:
+        return self._request
+
+    @property
+    def root(self):
+        return self.request.root_url
+
+    @property
+    def args(self):
+        return self.request.args
+
+    @property
+    def is_json(self):
+        return self.request.is_json
+
+    @property
+    def cookies(self):
+        return self.request.cookies
+
+    @property
+    def headers(self):
+        return self.request.headers
+
+    @property
+    def full_path(self):
+        return self.request.full_path
+
+    @property
+    def url(self):
+        return str(self.request.url)
+
+    @property
+    def remote_addr(self):
+        return self.request.remote_addr
+
+    @property
+    def origin(self):
+        return self.request.headers.get("origin")
+
+    @property
+    def path(self):
+        return self.request.path
+
+    async def get_json(self):
+        return await self.request.get_json()

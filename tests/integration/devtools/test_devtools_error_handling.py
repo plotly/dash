@@ -109,14 +109,14 @@ def test_dveh006_long_python_errors(dash_duo):
     assert "in bad_sub" not in error0
     # dash and flask part of the traceback ARE included
     # since we set dev_tools_prune_errors=False
-    assert "dash.py" in error0
+    assert "backend" in error0 and "flask.py" in error0
     assert "self.wsgi_app" in error0
 
     error1 = get_error_html(dash_duo, 1)
     assert "in update_output" in error1
     assert "in bad_sub" in error1
     assert "ZeroDivisionError" in error1
-    assert "dash.py" in error1
+    assert "backend" in error1 and "flask.py" in error1
     assert "self.wsgi_app" in error1
 
 

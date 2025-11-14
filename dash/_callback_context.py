@@ -4,9 +4,8 @@ import json
 import contextvars
 import typing
 
-import flask
-
 from . import exceptions
+from . import backends
 from ._utils import AttributeDict, stringify_id
 
 
@@ -222,14 +221,15 @@ class CallbackContext:
         :param description: A description of the resource.
         :type description: string or None
         """
-        timing_information = getattr(flask.g, "timing_information", {})
+        request = backends.backend.request_adapter()
+        timing_information = getattr(request.context, "timing_information", {})
 
         if name in timing_information:
             raise KeyError(f'Duplicate resource name "{name}" found.')
 
         timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
-        setattr(flask.g, "timing_information", timing_information)
+        setattr(request.context, "timing_information", timing_information)
 
     @property
     @has_context
@@ -252,7 +252,8 @@ class CallbackContext:
     @property
     @has_context
     def timing_information(self):
-        return getattr(flask.g, "timing_information", {})
+        request = backends.backend.request_adapter()
+        return getattr(request.context, "timing_information", {})
 
     @has_context
     def set_props(self, component_id: typing.Union[str, dict], props: dict):
@@ -289,6 +290,14 @@ class CallbackContext:
         Path of the callback request with the query parameters.
         """
         return _get_from_context("path", "")
+
+    @property
+    @has_context
+    def args(self):
+        """
+        Query parameters of the callback request as a dictionary-like object.
+        """
+        return _get_from_context("args", "")
 
     @property
     @has_context
