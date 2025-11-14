@@ -2,6 +2,7 @@ import dash
 from dash._grouping import make_grouping_by_index, grouping_len, flatten_grouping
 from dash._utils import create_callback_id
 from dash.dependencies import Input, State, Output, ClientsideFunction
+from dash._compression import GzipCompressionManager
 import mock
 import json
 import string
@@ -202,3 +203,87 @@ def test_clientside_callback_grouping_validation(grouping):
             make_dependency_grouping(grouping, [Output]),
             make_dependency_grouping(grouping, [Input]),
         )
+
+
+def test_callback_compression_manager_parameter():
+    """Test that compression_manager can be passed to callback decorator."""
+    app = dash.Dash()
+    compression_manager = GzipCompressionManager()
+
+    @app.callback(
+        Output("output", "children"),
+        Input("input", "value"),
+        CompressionManager=compression_manager,
+    )
+    def update_output(value):
+        return value
+
+    # Verify the callback was registered
+    assert len(app.callback_map) == 1
+
+    # Get the registered callback entry
+    callback_id = "output.children"
+    assert callback_id in app.callback_map
+    callback_entry = app.callback_map[callback_id]
+
+    # Verify compression manager is stored in the callback entry
+    assert "compression_manager" in callback_entry
+    assert callback_entry["compression_manager"] is compression_manager
+
+
+def test_callback_without_compression_manager():
+    """Test that callbacks work normally without compression_manager."""
+    app = dash.Dash()
+
+    @app.callback(Output("output", "children"), Input("input", "value"))
+    def update_output(value):
+        return value
+
+    # Verify the callback was registered
+    assert len(app.callback_map) == 1
+
+    # Get the registered callback entry
+    callback_id = "output.children"
+    callback_entry = app.callback_map[callback_id]
+
+    # Verify no compression manager is stored
+    assert callback_entry["compression_manager"] is None
+
+
+def test_multiple_callbacks_different_compression_managers():
+    """Test that different callbacks can have different compression managers."""
+    app = dash.Dash()
+    compression_manager1 = GzipCompressionManager(level=1)
+    compression_manager2 = GzipCompressionManager(level=9)
+
+    @app.callback(
+        Output("output1", "children"),
+        Input("input1", "value"),
+        CompressionManager=compression_manager1,
+    )
+    def update_output1(value):
+        return value
+
+    @app.callback(
+        Output("output2", "children"),
+        Input("input2", "value"),
+        CompressionManager=compression_manager2,
+    )
+    def update_output2(value):
+        return value
+
+    # Verify both callbacks were registered
+    assert len(app.callback_map) == 2
+
+    # Get the registered callback entries
+    callback_entry1 = app.callback_map["output1.children"]
+    callback_entry2 = app.callback_map["output2.children"]
+
+    # Extract compression managers
+    manager1 = callback_entry1["compression_manager"]
+    manager2 = callback_entry2["compression_manager"]
+
+    # Verify different managers are assigned
+    assert manager1 is compression_manager1
+    assert manager2 is compression_manager2
+    assert manager1.level != manager2.level

@@ -43,6 +43,7 @@ from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
 from ._no_update import NoUpdate
+from ._compression import get_compression_manager_from_kwargs
 
 
 async def _async_invoke_callback(
@@ -279,6 +280,7 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=False,
+    compression_manager=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -319,6 +321,7 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "compression_manager": compression_manager,
     }
     callback_list.append(callback_spec)
 
@@ -653,6 +656,7 @@ def register_callback(
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", False),
+        compression_manager=get_compression_manager_from_kwargs(_kwargs),
     )
 
     # pylint: disable=too-many-locals
@@ -670,6 +674,9 @@ def register_callback(
                 callback_id,
             )
 
+        # Get compression manager for this callback
+        compression_manager = get_compression_manager_from_kwargs(_kwargs)
+
         @wraps(func)
         def add_context(*args, **kwargs):
             """Handles synchronous callbacks with context management."""
@@ -686,6 +693,12 @@ def register_callback(
             ) = _initialize_context(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
+
+            # Decompress inputs if compression manager is available
+            if compression_manager:
+                func_args = compression_manager.decompress_callback_inputs(
+                    func_args, inputs_state_indices
+                )
 
             response: dict = {"multi": True}  # type: ignore
 
@@ -719,6 +732,12 @@ def register_callback(
                         output_value = NoUpdate()
                 else:
                     raise err
+
+            # Compress outputs if compression manager is available
+            if compression_manager:
+                output_value = compression_manager.compress_callback_outputs(
+                    output_value, output_spec
+                )
 
             _prepare_response(
                 output_value,
@@ -759,7 +778,13 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            # Decompress inputs if compression manager is available
+            if compression_manager:
+                func_args = compression_manager.decompress_callback_inputs(
+                    func_args, inputs_state_indices
+                )
+
+            response: dict = {"multi": True}
 
             try:
                 if background is not None:
@@ -791,6 +816,12 @@ def register_callback(
                         output_value = NoUpdate()
                 else:
                     raise err
+
+            # Compress outputs if compression manager is available
+            if compression_manager:
+                output_value = compression_manager.compress_callback_outputs(
+                    output_value, output_spec
+                )
 
             _prepare_response(
                 output_value,
