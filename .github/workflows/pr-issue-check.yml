@@ -2,7 +2,7 @@ name: PR Issue Check
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, labeled, unlabeled]
+    types: [opened, edited, labeled, unlabeled]
 
 permissions:
   pull-requests: write
