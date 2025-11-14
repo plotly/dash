@@ -1,4 +1,13 @@
-import {forEach, includes, isEmpty, keys, path, assoc, pathOr} from 'ramda';
+import {
+    forEach,
+    includes,
+    isEmpty,
+    keys,
+    path,
+    assoc,
+    pathOr,
+    pickBy
+} from 'ramda';
 import {combineReducers} from 'redux';
 
 import {getCallbacksByInput} from '../actions/dependencies_ts';
@@ -49,6 +58,14 @@ const layoutHashes = (state = {}, action) => {
             },
             state
         );
+
+        if ('children' in action.payload.props) {
+            // clear all child paths hashes
+            const childrenPath = stringifyPath(
+                actionPath.concat(['props', 'children'])
+            );
+            state = pickBy((_, key) => !key.startsWith(childrenPath), state);
+        }
     }
     return state;
 };
