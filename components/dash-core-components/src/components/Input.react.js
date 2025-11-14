@@ -234,6 +234,8 @@ Input.propTypes = {
         'tel',
         'url',
         'hidden',
+        'time',
+        'datetime-local',
     ]),
 
     /**
