@@ -110,7 +110,12 @@ Upload.propTypes = {
     min_size: PropTypes.number,
 
     /**
-     * Allow dropping multiple files
+     * Allow dropping multiple files.
+     * When true, also enables folder selection and drag-and-drop,
+     * allowing users to upload entire folders. The folder hierarchy
+     * is preserved in the filenames (e.g., 'folder/subfolder/file.txt').
+     * Note: Folder support is available in Chrome, Edge, and Opera.
+     * Other browsers will fall back to file-only mode.
      */
     multiple: PropTypes.bool,
 

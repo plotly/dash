@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [3.3.0] - 2025-11-12
 
 ## Added
+- [#3464](https://github.com/plotly/dash/issues/3464) Add folder upload functionality to `dcc.Upload` component. When `multiple=True`, users can now select and upload entire folders in addition to individual files. The folder hierarchy is preserved in filenames (e.g., `folder/subfolder/file.txt`). Files within folders are filtered according to the `accept` prop. Folder support is available in Chrome, Edge, and Opera; other browsers gracefully fall back to file-only mode. The uploaded files use the same output API as multiple file uploads.
 - [#3395](https://github.com/plotly/dash/pull/3396) Add position argument to hooks.devtool
 - [#3403](https://github.com/plotly/dash/pull/3403) Add app_context to get_app, allowing to get the current app in routes.
 - [#3407](https://github.com/plotly/dash/pull/3407) Add `hidden` to callback arguments, hiding the callback from appearing in the devtool callback graph.
