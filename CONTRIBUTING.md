@@ -80,13 +80,13 @@ Open a Bash terminal in the `dash` repository, Git Bash terminal for example on 
 
   On some Linux/Mac environments, use `.` instead of `source`
   ```bash
-  $ python3 -m venv .venv/dev
-  $ source .venv/dev/bin/activate
+  $ python3 -m venv venv
+  $ source venv/bin/activate
   ```
 - Windows:
   ```bash
-  $ python -m venv .venv/dev
-  $ source .venv/dev/scripts/activate
+  $ python -m venv venv
+  $ source venv/scripts/activate
   ```
 
 Install dash and dependencies:
