@@ -457,27 +457,6 @@ class PlotlyGraph extends Component {
         });
     }
 
-    getStyle() {
-        const {responsive} = this.props;
-        let {style} = this.props;
-
-        // When there is no forced responsive style, return the original style property
-        if (!responsive) {
-            return style;
-        }
-
-        // Otherwise, if the height is not set, we make the graph size equal to the parent one
-        if (!style) {
-            style = {};
-        }
-
-        if (!style.height) {
-            return Object.assign({height: '100%'}, style);
-        }
-
-        return style;
-    }
-
     componentDidMount() {
         const p = this.plot(this.props);
         this._queue = this.amendTraces(p, {}, this.props);
@@ -536,8 +515,7 @@ class PlotlyGraph extends Component {
     }
 
     render() {
-        const {className, id, loading_state} = this.props;
-        const style = this.getStyle();
+        const {className, id, loading_state, style} = this.props;
 
         if (window.dash_component_api) {
             return (
