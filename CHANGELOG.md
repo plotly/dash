@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3415](https://github.com/plotly/dash/pull/3415) Fix the error triggered when only a single no_update is returned for client-side callback functions with multiple Outputs. Fix [#3366](https://github.com/plotly/dash/issues/3366)
 - [#3416](https://github.com/plotly/dash/issues/3416) Fix DeprecationWarning in dash/_jupyter.py by migrating from deprecated ipykernel.comm.Comm to comm module
 - [#3488](https://github.com/plotly/dash/pull/3488) Fix pkgutil.find_loader removal in Python 3.14
+- [#3496](https://github.com/plotly/dash/pull/3496) Fix dcc.Graph infinite resize loop
 
 ## Deprecated
 - [#3482](https://github.com/plotly/dash/pull/3482) Deprecate dash_table.DataTable with replacement from `dash[ag-grid]` extra requirement.
