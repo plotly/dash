@@ -122,3 +122,134 @@ def test_collect_and_register_resources(mocker):
                     ]
                 )
                 import_mock.assert_any_call("dash_html_components")
+
+
+def test_resources_with_attributes():
+    """Test that attributes are passed through in external_url resources"""
+    app = dash.Dash(__name__)
+
+    # Test external scripts with attributes
+    resources = app._collect_and_register_resources(
+        [
+            {
+                "external_url": "https://example.com/module.js",
+                "attributes": {"type": "module"},
+                "external_only": True,
+            },
+            {
+                "external_url": "https://example.com/script.js",
+                "attributes": {
+                    "crossorigin": "anonymous",
+                    "integrity": "sha256-abc123",
+                },
+                "external_only": True,
+            },
+        ]
+    )
+
+    assert resources == [
+        {"src": "https://example.com/module.js", "type": "module"},
+        {
+            "src": "https://example.com/script.js",
+            "crossorigin": "anonymous",
+            "integrity": "sha256-abc123",
+        },
+    ]
+
+
+def test_css_resources_with_attributes():
+    """Test that attributes are passed through in CSS resources with href"""
+    app = dash.Dash(__name__)
+
+    # Test external CSS with attributes
+    resources = app._collect_and_register_resources(
+        [
+            {
+                "external_url": "https://example.com/styles.css",
+                "attributes": {"media": "print"},
+                "external_only": True,
+            },
+            {
+                "external_url": "https://example.com/theme.css",
+                "attributes": {"crossorigin": "anonymous"},
+                "external_only": True,
+            },
+        ],
+        url_attr="href",
+    )
+
+    assert resources == [
+        {"href": "https://example.com/styles.css", "media": "print"},
+        {"href": "https://example.com/theme.css", "crossorigin": "anonymous"},
+    ]
+
+
+def test_resources_without_attributes():
+    """Test that resources without attributes still work as strings"""
+    app = dash.Dash(__name__)
+
+    resources = app._collect_and_register_resources(
+        [
+            {"external_url": "https://example.com/script.js", "external_only": True},
+        ]
+    )
+
+    assert resources == ["https://example.com/script.js"]
+
+
+def test_local_resources_with_attributes(mocker):
+    """Test that attributes work with local resources"""
+    mocker.patch("dash.dcc._js_dist")
+    mocker.patch("dash.dcc.__version__")
+    dcc._js_dist = [
+        {
+            "relative_package_path": "module.js",
+            "namespace": "dash_core_components",
+            "attributes": {"type": "module"},
+        }
+    ]
+    dcc.__version__ = "1.0.0"
+
+    app = dash.Dash(__name__)
+    app.layout = dcc.Markdown()
+
+    with mock.patch("dash.dash.os.stat", return_value=StatMock()):
+        with mock.patch("dash.dash.importlib.import_module", return_value=dcc):
+            with mock.patch("sys.modules", {"dash_core_components": dcc}):
+                resources = app._collect_and_register_resources(
+                    [
+                        {
+                            "relative_package_path": "module.js",
+                            "namespace": "dash_core_components",
+                            "attributes": {"type": "module"},
+                        }
+                    ]
+                )
+
+    assert len(resources) == 1
+    assert isinstance(resources[0], dict)
+    assert "src" in resources[0]
+    assert resources[0]["type"] == "module"
+
+
+def test_multiple_external_urls_with_attributes():
+    """Test that multiple external URLs with attributes work correctly"""
+    app = dash.Dash(__name__)
+
+    resources = app._collect_and_register_resources(
+        [
+            {
+                "external_url": [
+                    "https://example.com/script1.js",
+                    "https://example.com/script2.js",
+                ],
+                "attributes": {"type": "module"},
+                "external_only": True,
+            }
+        ]
+    )
+
+    assert resources == [
+        {"src": "https://example.com/script1.js", "type": "module"},
+        {"src": "https://example.com/script2.js", "type": "module"},
+    ]

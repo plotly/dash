@@ -489,6 +489,12 @@
             ],
             "description": "Provides a hint to the user of what can be entered in the field."
         },
+        "playsInline": {
+            "elements": [
+                "video"
+            ],
+            "description": "A Boolean attribute indicating that the video is to be played \"inline\"; that is, within the element's playback area. Note that the absence of this attribute does not imply that the video will always be played in fullscreen."
+        },
         "poster": {
             "elements": [
                 "video"
@@ -898,6 +904,7 @@
             "height",
             "loop",
             "muted",
+            "playsInline",
             "poster",
             "preload",
             "src",

@@ -1,11 +1,10 @@
 import collections
 import hashlib
+import inspect
 from functools import wraps
 
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 
-
-import asyncio
 import flask
 
 from .dependencies import (
@@ -49,7 +48,7 @@ async def _async_invoke_callback(
     func, *args, **kwargs
 ):  # used to mark the frame for the debugger
     # Check if the function is a coroutine function
-    if asyncio.iscoroutinefunction(func):
+    if inspect.iscoroutinefunction(func):
         return await func(*args, **kwargs)  # %% callback invoked %%
     # If the function is not a coroutine, call it directly
     return func(*args, **kwargs)  # %% callback invoked %%
@@ -814,7 +813,7 @@ def register_callback(
 
             return jsonResponse
 
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
             callback_map[callback_id]["callback"] = add_context

@@ -1,3 +1,4 @@
+import inspect
 import traceback
 from contextvars import copy_context
 import asyncio
@@ -296,7 +297,7 @@ def _make_job_fn(fn, cache, progress):
                 except Exception as err:  # pylint: disable=broad-except
                     print(f"Diskcache manager couldn't save output: {err}")
 
-        if asyncio.iscoroutinefunction(fn):
+        if inspect.iscoroutinefunction(fn):
             func = partial(ctx.run, async_run)
             asyncio.run(func())
         else:

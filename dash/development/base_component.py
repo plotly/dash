@@ -454,14 +454,11 @@ class Component(metaclass=ComponentMeta):
             warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)))
 
 
+ComponentSingleType = typing.Union[str, int, float, Component, None]
 # Renderable node type.
 ComponentType = typing.Union[
-    str,
-    int,
-    float,
-    Component,
-    None,
-    typing.Sequence[typing.Union[str, int, float, Component, None]],
+    ComponentSingleType,
+    typing.Sequence[ComponentSingleType],
 ]
 
 ComponentTemplate = typing.TypeVar("ComponentTemplate")
