@@ -1,10 +1,11 @@
 import os
+from typing import Any, List, Dict
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 
 _available_react_versions = {"18.3.1", "18.2.0", "16.14.0"}
 _available_reactdom_versions = {"18.3.1", "18.2.0", "16.14.0"}
-_js_dist_dependencies = []  # to be set by _set_react_version
+_js_dist_dependencies: List[Dict[str, Any]] = []  # to be set by _set_react_version
 
 
 def _set_react_version(v_react, v_reactdom=None):
@@ -64,7 +65,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@2.2.0"
+        "external_url": "https://unpkg.com/dash-renderer@2.3.0"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },

@@ -41,7 +41,7 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
-import {handlePatch, isPatch} from './patch';
+import {parsePatchProps} from './patch';
 import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
@@ -419,22 +419,31 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
             }, [] as any[])
             .forEach(([id, idProps]) => {
                 const state = getState();
-                dispatch(updateComponent(id, idProps, cb));
 
                 const componentPath = getPath(state.paths, id);
+                let oldComponent = {props: {}};
+                if (componentPath) {
+                    oldComponent = getComponentLayout(componentPath, state);
+                }
+
+                const oldProps = oldComponent?.props || {};
+
+                const patchedProps = parsePatchProps(idProps, oldProps);
+
+                dispatch(updateComponent(id, patchedProps, cb));
+
                 if (!componentPath) {
                     // Component doesn't exist, doesn't matter just allow the
                     // callback to continue.
                     return;
                 }
-                const oldComponent = getComponentLayout(componentPath, state);
 
                 dispatch(
                     setPaths(
                         computePaths(
                             {
                                 ...oldComponent,
-                                props: {...oldComponent.props, ...idProps}
+                                props: {...oldComponent.props, ...patchedProps}
                             },
                             [...componentPath],
                             state.paths,
@@ -809,12 +818,37 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        const data = await handleClientside(
+                        let data = await handleClientside(
                             dispatch,
                             clientside_function,
                             config,
                             payload
                         );
+                        // Patch methodology: always run through parsePatchProps for each output
+                        const currentLayout = getState().layout;
+                        flatten(outputs).forEach((out: any) => {
+                            const propName = cleanOutputProp(out.property);
+                            const outputPath = getPath(paths, out.id);
+                            const dataPath = [stringifyId(out.id), propName];
+                            const outputValue = path(dataPath, data);
+                            if (outputValue === undefined) {
+                                return;
+                            }
+                            const oldProps =
+                                path(
+                                    outputPath.concat(['props']),
+                                    currentLayout
+                                ) || {};
+                            const newProps = parsePatchProps(
+                                {[propName]: outputValue},
+                                oldProps
+                            );
+                            data = assocPath(
+                                dataPath,
+                                newProps[propName],
+                                data
+                            );
+                        });
                         return {data, payload};
                     } catch (error: any) {
                         return {error, payload};
@@ -873,26 +907,31 @@ export function executeCallback(
                             dispatch(addHttpHeaders(newHeaders));
                         }
                         // Layout may have changed.
+                        // DRY: Always run through parsePatchProps for each output
                         const currentLayout = getState().layout;
                         flatten(outputs).forEach((out: any) => {
                             const propName = cleanOutputProp(out.property);
                             const outputPath = getPath(paths, out.id);
-                            const previousValue = path(
-                                outputPath.concat(['props', propName]),
-                                currentLayout
-                            );
                             const dataPath = [stringifyId(out.id), propName];
                             const outputValue = path(dataPath, data);
-                            if (isPatch(outputValue)) {
-                                if (previousValue === undefined) {
-                                    throw new Error('Cannot patch undefined');
-                                }
-                                data = assocPath(
-                                    dataPath,
-                                    handlePatch(previousValue, outputValue),
-                                    data
-                                );
+                            if (outputValue === undefined) {
+                                return;
                             }
+                            const oldProps =
+                                path(
+                                    outputPath.concat(['props']),
+                                    currentLayout
+                                ) || {};
+                            const newProps = parsePatchProps(
+                                {[propName]: outputValue},
+                                oldProps
+                            );
+
+                            data = assocPath(
+                                dataPath,
+                                newProps[propName],
+                                data
+                            );
                         });
 
                         if (dynamic_creator) {

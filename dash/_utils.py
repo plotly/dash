@@ -23,7 +23,7 @@ logger = logging.getLogger()
 
 def to_json(value):
     # pylint: disable=import-outside-toplevel
-    from plotly.io.json import to_json_plotly
+    from plotly.io.json import to_json_plotly  # type: ignore[import-untyped]
 
     return to_json_plotly(value)
 

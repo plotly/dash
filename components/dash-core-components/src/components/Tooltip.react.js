@@ -83,7 +83,7 @@ const Tooltip = ({
                     background: ${background_color};
                     white-space: nowrap;
                     z-index: ${zindex};
-                    pointer-events: none;
+                    pointer-events: ${targetable ? 'auto' : 'none'};
                 }
                 .hover .hover-content,
                 .hover-right .hover-content {

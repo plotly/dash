@@ -27,7 +27,9 @@ DevtoolPosition = _tx.Literal["right", "left"]
 
 # pylint: disable=too-few-public-methods
 class _Hook(_tx.Generic[HookDataType]):
-    def __init__(self, func, priority=0, final=False, data: HookDataType = None):
+    def __init__(
+        self, func, priority=0, final=False, data: _t.Optional[HookDataType] = None
+    ):
         self.func = func
         self.final = final
         self.data = data
@@ -39,7 +41,7 @@ class _Hook(_tx.Generic[HookDataType]):
 
 class _Hooks:
     def __init__(self) -> None:
-        self._ns = {
+        self._ns: _t.Dict[str, _t.List[_t.Any]] = {
             "setup": [],
             "layout": [],
             "routes": [],
@@ -49,14 +51,14 @@ class _Hooks:
             "custom_data": [],
             "dev_tools": [],
         }
-        self._js_dist = []
-        self._css_dist = []
+        self._js_dist: _t.List[_t.Any] = []
+        self._css_dist: _t.List[_t.Any] = []
         self._clientside_callbacks: _t.List[
             _t.Tuple[ClientsideFuncType, _t.Any, _t.Any]
         ] = []
 
         # final hooks are a single hook added to the end of regular hooks.
-        self._finals = {}
+        self._finals: _t.Dict[str, _t.Any] = {}
 
     def add_hook(
         self,

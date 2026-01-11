@@ -1,10 +1,11 @@
+import inspect
 import json
 import traceback
 from contextvars import copy_context
 import asyncio
 from functools import partial
 
-from _plotly_utils.utils import PlotlyJSONEncoder
+from _plotly_utils.utils import PlotlyJSONEncoder  # type: ignore[import-untyped]
 
 from dash._callback_context import context_value
 from dash._utils import AttributeDict
@@ -35,8 +36,8 @@ class CeleryManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the celery result backend.
         """
         try:
-            import celery  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel,import-error
-            from celery.backends.base import (  # type: ignore[reportMissingImports]; pylint: disable=import-outside-toplevel,import-error
+            import celery  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
+            from celery.backends.base import (  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
                 DisabledBackend,
             )
         except ImportError as missing_imports:
@@ -250,7 +251,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
 
-        if asyncio.iscoroutinefunction(fn):
+        if inspect.iscoroutinefunction(fn):
             func = partial(ctx.run, async_run)
             asyncio.run(func())
         else:

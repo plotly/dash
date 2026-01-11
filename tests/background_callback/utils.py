@@ -150,6 +150,8 @@ def setup_background_callback_app(manager_name, app_name):
                 for job in manager.running_jobs:
                     manager.terminate_job(job)
 
+            time.sleep(1)
+
             shutil.rmtree(cache_directory, ignore_errors=True)
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("DISKCACHE_DIR")

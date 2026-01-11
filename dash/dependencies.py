@@ -1,4 +1,5 @@
-from typing import Union, Sequence
+from enum import Enum
+from typing import Union, Sequence, Any
 
 from .development.base_component import Component
 from ._validate import validate_callback
@@ -9,32 +10,33 @@ from ._utils import stringify_id
 ComponentIdType = Union[str, Component, dict]
 
 
-class _Wildcard:  # pylint: disable=too-few-public-methods
-    def __init__(self, name: str):
-        self._name = name
+class Wildcard(Enum):
+    MATCH = "MATCH"
+    ALL = "ALL"
+    ALLSMALLER = "ALLSMALLER"
 
     def __str__(self):
-        return self._name
+        return self.value
 
     def __repr__(self):
-        return f"<{self}>"
+        return f"<{self.value}>"
 
     def to_json(self) -> str:
         # used in serializing wildcards - arrays are not allowed as
         # id values, so make the wildcards look like length-1 arrays.
-        return f'["{self._name}"]'
+        return f'["{self.value}"]'
 
 
-MATCH = _Wildcard("MATCH")
-ALL = _Wildcard("ALL")
-ALLSMALLER = _Wildcard("ALLSMALLER")
+MATCH = Wildcard.MATCH
+ALL = Wildcard.ALL
+ALLSMALLER = Wildcard.ALLSMALLER
 
 
 class DashDependency:  # pylint: disable=too-few-public-methods
     component_id: ComponentIdType
     allow_duplicate: bool
     component_property: str
-    allowed_wildcards: Sequence[_Wildcard]
+    allowed_wildcards: Sequence[Wildcard]
     allow_optional: bool
 
     def __init__(self, component_id: ComponentIdType, component_property: str):
@@ -58,7 +60,10 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         return stringify_id(self.component_id)
 
     def to_dict(self) -> dict:
-        specs = {"id": self.component_id_str(), "property": self.component_property}
+        specs: Any = {
+            "id": self.component_id_str(),
+            "property": self.component_property,
+        }
         if self.allow_optional:
             specs["allow_optional"] = True
         return specs
@@ -78,21 +83,22 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     def _id_matches(self, other) -> bool:
         my_id = self.component_id
         other_id = other.component_id
+
         self_dict = isinstance(my_id, dict)
         other_dict = isinstance(other_id, dict)
 
         if self_dict != other_dict:
             return False
         if self_dict:
-            if set(my_id.keys()) != set(other_id.keys()):
+            if set(my_id.keys()) != set(other_id.keys()):  # type: ignore
                 return False
 
-            for k, v in my_id.items():
+            for k, v in my_id.items():  # type: ignore
                 other_v = other_id[k]
                 if v == other_v:
                     continue
-                v_wild = isinstance(v, _Wildcard)
-                other_wild = isinstance(other_v, _Wildcard)
+                v_wild = isinstance(v, Wildcard)
+                other_wild = isinstance(other_v, Wildcard)
                 if v_wild or other_wild:
                     if not (v_wild and other_wild):
                         continue  # one wild, one not
@@ -116,7 +122,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         """
         if isinstance(self.component_id, dict):
             for v in self.component_id.values():
-                if isinstance(v, _Wildcard):
+                if isinstance(v, Wildcard):
                     return True
         return False
 

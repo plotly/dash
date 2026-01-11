@@ -226,11 +226,8 @@
                 "button",
                 "fieldset",
                 "input",
-                "label",
-                "meter",
                 "object",
                 "output",
-                "progress",
                 "select",
                 "textarea"
             ],
@@ -491,6 +488,12 @@
                 "textarea"
             ],
             "description": "Provides a hint to the user of what can be entered in the field."
+        },
+        "playsInline": {
+            "elements": [
+                "video"
+            ],
+            "description": "A Boolean attribute indicating that the video is to be played \"inline\"; that is, within the element's playback area. Note that the absence of this attribute does not imply that the video will always be played in fullscreen."
         },
         "poster": {
             "elements": [
@@ -901,6 +904,7 @@
             "height",
             "loop",
             "muted",
+            "playsInline",
             "poster",
             "preload",
             "src",
@@ -993,27 +997,12 @@
             "target"
         ],
         "label": [
-            "htmlFor",
-            "form"
+            "htmlFor"
         ],
         "output": [
             "htmlFor",
             "form",
             "name"
-        ],
-        "meter": [
-            "form",
-            "high",
-            "low",
-            "max",
-            "min",
-            "optimum",
-            "value"
-        ],
-        "progress": [
-            "form",
-            "max",
-            "value"
         ],
         "canvas": [
             "height",
@@ -1025,6 +1014,14 @@
             "type",
             "width"
         ],
+        "meter": [
+            "high",
+            "low",
+            "max",
+            "min",
+            "optimum",
+            "value"
+        ],
         "base": [
             "href",
             "target"
@@ -1034,6 +1031,10 @@
         ],
         "marquee": [
             "loop"
+        ],
+        "progress": [
+            "max",
+            "value"
         ],
         "source": [
             "media",
