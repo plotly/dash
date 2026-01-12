@@ -65,6 +65,7 @@ function DashWrapper({
     const dispatch = useDispatch();
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
+    const freshRenders = useRef(0);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
@@ -85,6 +86,7 @@ function DashWrapper({
         if (_newRender) {
             newRender.current = true;
             renderH = 0;
+            freshRenders.current += 1;
             if (renderH in memoizedKeys.current) {
                 delete memoizedKeys.current[renderH];
             }
@@ -498,6 +500,7 @@ function DashWrapper({
             }
             error={_dashprivate_error}
             dispatch={dispatch}
+            key={freshRenders.current}
         >
             <DashContextProvider componentPath={componentPath}>
                 {React.isValidElement(hydrated) ? hydrated : <div />}
