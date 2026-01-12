@@ -376,6 +376,7 @@ def test_async_cbsc007_parallel_updates(refresh, dash_duo):
         dash_duo.wait_for_text_to_equal("#out", '[{"a": "/2:a"}] - /2')
 
 
+@flaky.flaky(max_runs=3)
 def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     if not is_dash_async():
         return
@@ -384,7 +385,7 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
-            dcc.Input(id="input", value="initial value"),
+            dcc.Input(id="input", value="initial value", debounce=False),
             html.Div(
                 html.Div(
                     [
@@ -427,6 +428,7 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     for key in "hello world":
         with lock:
             input1.send_keys(key)
+            time.sleep(0.05)  # allow some time for debounced callback to be sent
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"

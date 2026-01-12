@@ -18,7 +18,7 @@ type LoadingOptions = {
      * Useful if you want the loading of a child component
      * as the path is available in `child.props.componentPath`.
      */
-    rawPath?: boolean;
+    rawPath?: (string | number)[];
     /**
      * Function used to filter the properties of the loading component.
      * Filter argument is an Entry of `{path, property, id}`.

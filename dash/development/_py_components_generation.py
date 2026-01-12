@@ -25,13 +25,10 @@ import typing  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 {custom_imports}
+ComponentSingleType = typing.Union[str, int, float, Component, None]
 ComponentType = typing.Union[
-    str,
-    int,
-    float,
-    Component,
-    None,
-    typing.Sequence[typing.Union[str, int, float, Component, None]],
+    ComponentSingleType,
+    typing.Sequence[ComponentSingleType],
 ]
 
 NumberType = typing.Union[
@@ -83,7 +80,7 @@ def generate_class_string(
     # not all component authors will supply those.
     c = '''class {typename}(Component):
     """{docstring}"""
-    _children_props = {children_props}
+    _children_props: typing.List[str] = {children_props}
     _base_nodes = {base_nodes}
     _namespace = '{namespace}'
     _type = '{typename}'

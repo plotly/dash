@@ -1,16 +1,17 @@
 from abc import ABC
 import inspect
 import hashlib
+from typing import Any, List
 
 
 class BaseBackgroundCallbackManager(ABC):
     UNDEFINED = object()
 
     # Keep a ref to all the ref to register every callback to every manager.
-    managers = []
+    managers: List[Any] = []
 
     # Keep every function for late registering.
-    functions = []
+    functions: List[Any] = []
 
     def __init__(self, cache_by):
         if cache_by is not None and not isinstance(cache_by, list):

@@ -8,7 +8,8 @@ import os
 import argparse
 import shutil
 import functools
-import pkg_resources
+import importlib.resources as importlib_resources
+
 import yaml
 
 from ._r_components_generation import write_class_file
@@ -57,7 +58,16 @@ def generate_components(
 
     is_windows = sys.platform == "win32"
 
-    extract_path = pkg_resources.resource_filename("dash", "extract-meta.js")
+    # Get path to extract-meta.js using importlib.resources
+    try:
+        # Python 3.9+
+        extract_path = str(
+            importlib_resources.files("dash").joinpath("extract-meta.js")
+        )
+    except AttributeError:
+        # Python 3.8 fallback
+        with importlib_resources.path("dash", "extract-meta.js") as p:
+            extract_path = str(p)
 
     reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 

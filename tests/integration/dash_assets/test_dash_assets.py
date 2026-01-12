@@ -120,3 +120,120 @@ def test_dada002_external_files_init(dash_duo):
 
     # ensure ramda was loaded before the assets so they can use it.
     assert dash_duo.find_element("#ramda-test").text == "Hello World"
+
+
+def test_dada003_external_resources_with_attributes(dash_duo):
+    """Test that attributes field works for external scripts and stylesheets"""
+    app = Dash(__name__)
+
+    # Test scripts with type="module" and other attributes
+    app.scripts.append_script(
+        {
+            "external_url": "https://cdn.example.com/module-script.js",
+            "attributes": {"type": "module"},
+            "external_only": True,
+        }
+    )
+
+    app.scripts.append_script(
+        {
+            "external_url": "https://cdn.example.com/async-script.js",
+            "attributes": {"async": "true", "data-test": "custom"},
+            "external_only": True,
+        }
+    )
+
+    # Test CSS with custom attributes
+    app.css.append_css(
+        {
+            "external_url": "https://cdn.example.com/print-styles.css",
+            "attributes": {"media": "print"},
+            "external_only": True,
+        }
+    )
+
+    app.layout = html.Div("Test Layout", id="content")
+
+    dash_duo.start_server(app)
+
+    # Verify script with type="module" is rendered correctly
+    module_script = dash_duo.find_element(
+        "//script[@src='https://cdn.example.com/module-script.js' and @type='module']",
+        attribute="XPATH",
+    )
+    assert (
+        module_script is not None
+    ), "Module script should be present with type='module'"
+
+    # Verify script with async and custom data attribute
+    async_script = dash_duo.find_element(
+        "//script[@src='https://cdn.example.com/async-script.js' and @async='true' and @data-test='custom']",
+        attribute="XPATH",
+    )
+    assert (
+        async_script is not None
+    ), "Async script should be present with custom attributes"
+
+    # Verify CSS with media attribute
+    print_css = dash_duo.find_element(
+        "//link[@href='https://cdn.example.com/print-styles.css' and @media='print']",
+        attribute="XPATH",
+    )
+    assert print_css is not None, "Print CSS should be present with media='print'"
+
+
+def test_dada004_external_scripts_init_with_attributes(dash_duo):
+    """Test that attributes work when passed via external_scripts in Dash constructor"""
+    js_files = [
+        "https://cdn.example.com/regular-script.js",
+        {"src": "https://cdn.example.com/es-module.js", "type": "module"},
+        {
+            "src": "https://cdn.example.com/integrity-script.js",
+            "integrity": "sha256-test123",
+            "crossorigin": "anonymous",
+        },
+    ]
+
+    css_files = [
+        "https://cdn.example.com/regular-styles.css",
+        {
+            "href": "https://cdn.example.com/dark-theme.css",
+            "media": "(prefers-color-scheme: dark)",
+        },
+    ]
+
+    app = Dash(__name__, external_scripts=js_files, external_stylesheets=css_files)
+    app.layout = html.Div("Test", id="content")
+
+    dash_duo.start_server(app)
+
+    # Verify regular script (string format)
+    dash_duo.find_element(
+        "//script[@src='https://cdn.example.com/regular-script.js']", attribute="XPATH"
+    )
+
+    # Verify ES module script
+    module_script = dash_duo.find_element(
+        "//script[@src='https://cdn.example.com/es-module.js' and @type='module']",
+        attribute="XPATH",
+    )
+    assert module_script is not None
+
+    # Verify script with integrity and crossorigin
+    integrity_script = dash_duo.find_element(
+        "//script[@src='https://cdn.example.com/integrity-script.js' and @integrity='sha256-test123' and @crossorigin='anonymous']",
+        attribute="XPATH",
+    )
+    assert integrity_script is not None
+
+    # Verify regular CSS
+    dash_duo.find_element(
+        "//link[@href='https://cdn.example.com/regular-styles.css']", attribute="XPATH"
+    )
+
+    # Verify CSS with media query
+    dark_css = dash_duo.find_element(
+        "//link[@href='https://cdn.example.com/dark-theme.css' and @media='(prefers-color-scheme: dark)']",
+        attribute="XPATH",
+    )
+    assert dark_css is not None

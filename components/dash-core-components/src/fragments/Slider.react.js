@@ -27,6 +27,7 @@ const sliderProps = [
     'included',
     'tooltip',
     'vertical',
+    'reverse',
     'id',
 ];
 

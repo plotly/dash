@@ -1,4 +1,5 @@
 import {updateProps, notifyObservers, setPaths} from '../actions/index';
+import {parsePatchProps, PatchBuilder} from '../actions/patch';
 import {computePaths, getPath} from '../actions/paths';
 import {getComponentLayout} from '../wrapper/wrapping';
 import {getStores} from './stores';
@@ -23,6 +24,12 @@ function set_props(
         } else {
             componentPath = idOrPath;
         }
+        const oldComponent = getComponentLayout(componentPath, state);
+
+        // Handle any patch props
+        props = parsePatchProps(props, oldComponent?.props || {});
+
+        // Update the props
         dispatch(
             updateProps({
                 props,
@@ -31,7 +38,10 @@ function set_props(
             })
         );
         dispatch(notifyObservers({id: idOrPath, props}));
-        const oldComponent = getComponentLayout(componentPath, state);
+
+        if (!oldComponent) {
+            return;
+        }
 
         dispatch(
             setPaths(
@@ -77,3 +87,4 @@ const dc = ((window as any).dash_clientside =
     (window as any).dash_clientside || {});
 dc['set_props'] = set_props;
 dc['clean_url'] = dc['clean_url'] === undefined ? clean_url : dc['clean_url'];
+dc['Patch'] = PatchBuilder;

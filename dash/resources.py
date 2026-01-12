@@ -25,6 +25,7 @@ ResourceType = _tx.TypedDict(
         "external_only": bool,
         "filepath": str,
         "dev_only": bool,
+        "attributes": _t.Dict[str, str],
     },
     total=False,
 )
@@ -52,7 +53,7 @@ class Resources:
     ):
         filtered_resources = []
         for s in all_resources:
-            filtered_resource = {}
+            filtered_resource: _t.Dict[str, _t.Any] = {}
             valid_resource = True
             if "dynamic" in s:
                 filtered_resource["dynamic"] = s["dynamic"]
@@ -80,6 +81,8 @@ class Resources:
                 )
             if "namespace" in s:
                 filtered_resource["namespace"] = s["namespace"]
+            if "attributes" in s:
+                filtered_resource["attributes"] = s["attributes"]
 
             if "external_url" in s and (
                 s.get("external_only") or not self.config.serve_locally

@@ -4,6 +4,11 @@ import {getPath} from './actions/paths';
 import {getStores} from './utils/stores';
 import ExternalWrapper from './wrapper/ExternalWrapper';
 import {stringifyId} from './actions/dependencies';
+import {
+    DevtoolContext,
+    useDevtool,
+    useDevtoolMenuButtonClassName
+} from './components/error/menu/DevtoolContext';
 
 /**
  * Get the dash props from a component path or id.
@@ -34,5 +39,10 @@ function getLayout(componentPathOrId: string[] | string): any {
     DashContext,
     useDashContext,
     getLayout,
-    stringifyId
+    stringifyId,
+    devtool: {
+        DevtoolContext,
+        useDevtool,
+        useDevtoolMenuButtonClassName
+    }
 };
