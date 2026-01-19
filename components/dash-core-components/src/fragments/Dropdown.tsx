@@ -237,12 +237,23 @@ const Dropdown = (props: DropdownProps) => {
 
     // Focus first selected item or search input when dropdown opens
     useEffect(() => {
-        if (!isOpen || search_value) {
+        if (!isOpen) {
             return;
         }
 
         // waiting for the DOM to be ready after the dropdown renders
         requestAnimationFrame(() => {
+            // If opened with search value (auto-open on typing), focus search input
+            if (search_value && searchable && searchInputRef.current) {
+                searchInputRef.current.focus();
+                // Move cursor to end of input
+                searchInputRef.current.setSelectionRange(
+                    search_value.length,
+                    search_value.length
+                );
+                return;
+            }
+
             // Try to focus the first selected item (for single-select)
             if (!multi) {
                 const selectedValue = sanitizedValues[0];
@@ -264,94 +275,123 @@ const Dropdown = (props: DropdownProps) => {
                 searchInputRef.current.focus();
             }
         });
-    }, [isOpen, multi, displayOptions]);
+    }, [isOpen, multi, displayOptions, search_value, searchable]);
 
     // Handle keyboard navigation in popover
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        const relevantKeys = [
-            'ArrowDown',
-            'ArrowUp',
-            'PageDown',
-            'PageUp',
-            'Home',
-            'End',
-        ];
-        if (!relevantKeys.includes(e.key)) {
-            return;
-        }
-
-        // Don't interfere with the event if the user is using Home/End keys on the search input
-        if (
-            ['Home', 'End'].includes(e.key) &&
-            document.activeElement === searchInputRef.current
-        ) {
-            return;
-        }
-
-        const focusableElements = e.currentTarget.querySelectorAll(
-            'input[type="search"], input:not([disabled])'
-        ) as NodeListOf<HTMLElement>;
-
-        // Don't interfere with the event if there aren't any options that the user can interact with
-        if (focusableElements.length === 0) {
-            return;
-        }
-
-        e.preventDefault();
-
-        const currentIndex = Array.from(focusableElements).indexOf(
-            document.activeElement as HTMLElement
-        );
-        let nextIndex = -1;
-
-        switch (e.key) {
-            case 'ArrowDown':
-                nextIndex =
-                    currentIndex < focusableElements.length - 1
-                        ? currentIndex + 1
-                        : 0;
-                break;
-
-            case 'ArrowUp':
-                nextIndex =
-                    currentIndex > 0
-                        ? currentIndex - 1
-                        : focusableElements.length - 1;
-
-                break;
-            case 'PageDown':
-                nextIndex = Math.min(
-                    currentIndex + 10,
-                    focusableElements.length - 1
-                );
-                break;
-            case 'PageUp':
-                nextIndex = Math.max(currentIndex - 10, 0);
-                break;
-            case 'Home':
-                nextIndex = 0;
-                break;
-            case 'End':
-                nextIndex = focusableElements.length - 1;
-                break;
-            default:
-                break;
-        }
-
-        if (nextIndex > -1) {
-            focusableElements[nextIndex].focus();
-            if (nextIndex === 0) {
-                // first element is a sticky search bar, so if we are focusing
-                // on that, also move the scroll to the top
-                dropdownContentRef.current?.scrollTo({top: 0});
-            } else {
-                focusableElements[nextIndex].scrollIntoView({
-                    behavior: 'auto',
-                    block: 'nearest',
-                });
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            // Handle TAB to select first option and close dropdown
+            if (e.key === 'Tab' && !e.shiftKey) {
+                // If we have filtered options and search is active, select the first one
+                if (displayOptions.length > 0) {
+                    const firstOption = displayOptions[0];
+                    if (!firstOption.disabled) {
+                        if (multi) {
+                            // For multi-select, toggle the first option if not already selected
+                            if (!sanitizedValues.includes(firstOption.value)) {
+                                updateSelection([
+                                    ...sanitizedValues,
+                                    firstOption.value,
+                                ]);
+                            }
+                        } else {
+                            // For single-select, select the first option
+                            updateSelection([firstOption.value]);
+                        }
+                    }
+                }
+                // Close dropdown and let TAB naturally move focus
+                setIsOpen(false);
+                setProps({search_value: undefined});
+                return;
             }
-        }
-    }, []);
+
+            const relevantKeys = [
+                'ArrowDown',
+                'ArrowUp',
+                'PageDown',
+                'PageUp',
+                'Home',
+                'End',
+            ];
+            if (!relevantKeys.includes(e.key)) {
+                return;
+            }
+
+            // Don't interfere with the event if the user is using Home/End keys on the search input
+            if (
+                ['Home', 'End'].includes(e.key) &&
+                document.activeElement === searchInputRef.current
+            ) {
+                return;
+            }
+
+            const focusableElements = e.currentTarget.querySelectorAll(
+                'input[type="search"], input:not([disabled])'
+            ) as NodeListOf<HTMLElement>;
+
+            // Don't interfere with the event if there aren't any options that the user can interact with
+            if (focusableElements.length === 0) {
+                return;
+            }
+
+            e.preventDefault();
+
+            const currentIndex = Array.from(focusableElements).indexOf(
+                document.activeElement as HTMLElement
+            );
+            let nextIndex = -1;
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    nextIndex =
+                        currentIndex < focusableElements.length - 1
+                            ? currentIndex + 1
+                            : 0;
+                    break;
+
+                case 'ArrowUp':
+                    nextIndex =
+                        currentIndex > 0
+                            ? currentIndex - 1
+                            : focusableElements.length - 1;
+
+                    break;
+                case 'PageDown':
+                    nextIndex = Math.min(
+                        currentIndex + 10,
+                        focusableElements.length - 1
+                    );
+                    break;
+                case 'PageUp':
+                    nextIndex = Math.max(currentIndex - 10, 0);
+                    break;
+                case 'Home':
+                    nextIndex = 0;
+                    break;
+                case 'End':
+                    nextIndex = focusableElements.length - 1;
+                    break;
+                default:
+                    break;
+            }
+
+            if (nextIndex > -1) {
+                focusableElements[nextIndex].focus();
+                if (nextIndex === 0) {
+                    // first element is a sticky search bar, so if we are focusing
+                    // on that, also move the scroll to the top
+                    dropdownContentRef.current?.scrollTo({top: 0});
+                } else {
+                    focusableElements[nextIndex].scrollIntoView({
+                        behavior: 'auto',
+                        block: 'nearest',
+                    });
+                }
+            }
+        },
+        [displayOptions, multi, sanitizedValues, updateSelection]
+    );
 
     // Handle popover open/close
     const handleOpenChange = useCallback(
@@ -380,6 +420,18 @@ const Dropdown = (props: DropdownProps) => {
                     onKeyDown={e => {
                         if (['ArrowDown', 'Enter'].includes(e.key)) {
                             e.preventDefault();
+                        }
+                        // Auto-open on typing: detect printable characters
+                        if (
+                            searchable &&
+                            e.key.length === 1 &&
+                            !e.ctrlKey &&
+                            !e.metaKey &&
+                            !e.altKey
+                        ) {
+                            e.preventDefault();
+                            setProps({search_value: e.key});
+                            setIsOpen(true);
                         }
                     }}
                     onKeyUp={e => {
