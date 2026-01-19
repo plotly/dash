@@ -282,12 +282,10 @@ const Dropdown = (props: DropdownProps) => {
         (e: React.KeyboardEvent) => {
             // Handle TAB to select first option and close dropdown
             if (e.key === 'Tab' && !e.shiftKey) {
-                // If we have filtered options and search is active, select the first one
                 if (displayOptions.length > 0) {
                     const firstOption = displayOptions[0];
                     if (!firstOption.disabled) {
                         if (multi) {
-                            // For multi-select, toggle the first option if not already selected
                             if (!sanitizedValues.includes(firstOption.value)) {
                                 updateSelection([
                                     ...sanitizedValues,
@@ -295,12 +293,10 @@ const Dropdown = (props: DropdownProps) => {
                                 ]);
                             }
                         } else {
-                            // For single-select, select the first option
                             updateSelection([firstOption.value]);
                         }
                     }
                 }
-                // Close dropdown and let TAB naturally move focus
                 setIsOpen(false);
                 setProps({search_value: undefined});
                 return;
