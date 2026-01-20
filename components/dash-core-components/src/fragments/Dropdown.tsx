@@ -217,19 +217,20 @@ const Dropdown = (props: DropdownProps) => {
             let sortedOptions = filteredOptions;
             if (multi) {
                 // Sort filtered options: selected first, then unselected
-                // ES2019+ guarantees stable sort, preserving order within groups
                 sortedOptions = [...filteredOptions].sort((a, b) => {
                     const aSelected = sanitizedValues.includes(a.value);
                     const bSelected = sanitizedValues.includes(b.value);
+
                     if (aSelected && !bSelected) {
                         return -1;
                     }
                     if (!aSelected && bSelected) {
                         return 1;
                     }
-                    return 0;
+                    return 0; // Maintain original order within each group
                 });
             }
+
             setDisplayOptions(sortedOptions);
         }
     }, [filteredOptions, isOpen]);
