@@ -48,6 +48,8 @@ const Dropdown = (props: DropdownProps) => {
         document.createElement('div')
     );
     const searchInputRef = useRef<HTMLInputElement>(null);
+    // Track if we just closed with ENTER to prevent trigger's onKeyUp from reopening
+    const closedWithEnterRef = useRef(false);
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
@@ -280,8 +282,8 @@ const Dropdown = (props: DropdownProps) => {
     // Handle keyboard navigation in popover
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            // Handle TAB to select highlighted option and close dropdown
-            if (e.key === 'Tab' && !e.shiftKey) {
+            // Handle TAB/ENTER to select highlighted option and close dropdown
+            if ((e.key === 'Tab' && !e.shiftKey) || e.key === 'Enter') {
                 if (displayOptions.length > 0) {
                     // Check if an option is currently focused
                     const focusedElement = document.activeElement;
@@ -317,6 +319,11 @@ const Dropdown = (props: DropdownProps) => {
                             updateSelection([optionToSelect.value]);
                         }
                     }
+                }
+                // Prevent default ENTER behavior and mark that we closed with ENTER
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    closedWithEnterRef.current = true;
                 }
                 setIsOpen(false);
                 setProps({search_value: undefined});
@@ -453,6 +460,14 @@ const Dropdown = (props: DropdownProps) => {
                     }}
                     onKeyUp={e => {
                         if (['ArrowDown', 'Enter'].includes(e.key)) {
+                            // Don't reopen if we just closed with ENTER
+                            if (
+                                e.key === 'Enter' &&
+                                closedWithEnterRef.current
+                            ) {
+                                closedWithEnterRef.current = false;
+                                return;
+                            }
                             setIsOpen(true);
                         }
                         if (
