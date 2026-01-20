@@ -217,20 +217,19 @@ const Dropdown = (props: DropdownProps) => {
             let sortedOptions = filteredOptions;
             if (multi) {
                 // Sort filtered options: selected first, then unselected
+                // ES2019+ guarantees stable sort, preserving order within groups
                 sortedOptions = [...filteredOptions].sort((a, b) => {
                     const aSelected = sanitizedValues.includes(a.value);
                     const bSelected = sanitizedValues.includes(b.value);
-
                     if (aSelected && !bSelected) {
                         return -1;
                     }
                     if (!aSelected && bSelected) {
                         return 1;
                     }
-                    return 0; // Maintain original order within each group
+                    return 0;
                 });
             }
-
             setDisplayOptions(sortedOptions);
         }
     }, [filteredOptions, isOpen]);
@@ -280,20 +279,41 @@ const Dropdown = (props: DropdownProps) => {
     // Handle keyboard navigation in popover
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            // Handle TAB to select first option and close dropdown
+            // Handle TAB to select highlighted option and close dropdown
             if (e.key === 'Tab' && !e.shiftKey) {
                 if (displayOptions.length > 0) {
-                    const firstOption = displayOptions[0];
-                    if (!firstOption.disabled) {
+                    // Check if an option is currently focused
+                    const focusedElement = document.activeElement;
+                    let optionToSelect = displayOptions[0];
+
+                    if (
+                        focusedElement instanceof HTMLInputElement &&
+                        focusedElement.classList.contains(
+                            'dash-options-list-option-checkbox'
+                        )
+                    ) {
+                        // Find the option matching the focused element's value
+                        const focusedValue = focusedElement.value;
+                        const focusedOption = displayOptions.find(
+                            opt => String(opt.value) === focusedValue
+                        );
+                        if (focusedOption) {
+                            optionToSelect = focusedOption;
+                        }
+                    }
+
+                    if (!optionToSelect.disabled) {
                         if (multi) {
-                            if (!sanitizedValues.includes(firstOption.value)) {
+                            if (
+                                !sanitizedValues.includes(optionToSelect.value)
+                            ) {
                                 updateSelection([
                                     ...sanitizedValues,
-                                    firstOption.value,
+                                    optionToSelect.value,
                                 ]);
                             }
                         } else {
-                            updateSelection([firstOption.value]);
+                            updateSelection([optionToSelect.value]);
                         }
                     }
                 }
