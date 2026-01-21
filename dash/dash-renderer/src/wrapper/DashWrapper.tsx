@@ -21,7 +21,12 @@ import {useSelector, useDispatch, batch} from 'react-redux';
 import ComponentErrorBoundary from '../components/error/ComponentErrorBoundary.react';
 import {DashLayoutPath, UpdatePropsPayload} from '../types/component';
 import {DashConfig} from '../config';
-import {notifyObservers, onError, updateProps, resetComponentState} from '../actions';
+import {
+    notifyObservers,
+    onError,
+    updateProps,
+    resetComponentState
+} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {
     createElement,
@@ -91,9 +96,11 @@ function DashWrapper({
                 delete memoizedKeys.current[renderH];
             }
             // Reset hashes and layout for this component and all descendants
-            dispatch(resetComponentState({
-                        itempath: componentPath,
-                    }));
+            dispatch(
+                resetComponentState({
+                    itempath: componentPath
+                })
+            );
         } else {
             newRender.current = false;
         }
