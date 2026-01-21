@@ -1,4 +1,10 @@
-import React, {useCallback, MutableRefObject, useRef, useMemo} from 'react';
+import React, {
+    useCallback,
+    MutableRefObject,
+    useRef,
+    useMemo,
+    useEffect
+} from 'react';
 import {
     path,
     concat,
@@ -95,12 +101,6 @@ function DashWrapper({
             if (renderH in memoizedKeys.current) {
                 delete memoizedKeys.current[renderH];
             }
-            // Reset hashes and layout for this component and all descendants
-            dispatch(
-                resetComponentState({
-                    itempath: componentPath
-                })
-            );
         } else {
             newRender.current = false;
         }
@@ -444,6 +444,16 @@ function DashWrapper({
         }
         return props;
     };
+
+    useEffect(() => {
+        if (_newRender) {
+            dispatch(
+                resetComponentState({
+                    itempath: componentPath
+                })
+            );
+        }
+    }, [_newRender]);
 
     const hydrateFunc = () => {
         if (newRender.current) {
