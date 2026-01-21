@@ -59,7 +59,7 @@ const layoutHashes = (state = {}, action) => {
                     ([key]) => !key.startsWith(prefixStr)
                 )
             );
-        };
+        }
     }
     return state;
 };
