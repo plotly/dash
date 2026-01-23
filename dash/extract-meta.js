@@ -285,7 +285,7 @@ function gatherComponents(sources, components = {}) {
     const getPropTypeName = propName => {
         if (propName.includes('=>') || propName === 'Function') {
             return 'func';
-        } else if (propName === 'boolean') {
+        } else if (propName === 'boolean' || propName === 'true' || propName === 'false') {
             return 'bool';
         } else if (propName === '[]') {
             return 'array';
