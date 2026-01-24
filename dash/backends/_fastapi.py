@@ -249,10 +249,10 @@ class FastAPIDashServer(BaseDashServer):
         if kwargs.get("reload"):
             # Dynamically determine the module name from the file path
             file_path = frame.filename
-            spec = spec_from_file_location("app", file_path)
-            module_name = spec.name if spec and getattr(spec, "name", None) else "app"
+            rel_path = os.path.relpath(file_path, os.getcwd())
+            module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
             uvicorn.run(
-                f"{module_name}:app.server",
+                f"{module_name}:server",
                 host=host,
                 port=port,
                 **kwargs,
