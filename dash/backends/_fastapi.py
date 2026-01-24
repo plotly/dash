@@ -71,31 +71,25 @@ class CurrentRequestMiddleware:  # pylint: disable=too-few-public-methods
         finally:
             reset_current_request(token)
 
-
-# Internal config helpers (local to this file)
-# This is used to persist dev tools config between reloads, since uvicorn runs a new process
-_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "dash_config.json")
-
-
-def _save_config(config):
-    with open(_CONFIG_PATH, "w", encoding="utf-8") as f:
+def _save_config(config_path, config):
+    with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f)
 
 
-def _load_config():
+def _load_config(config_path):
     resp = {"debug": False}
     try:
-        if os.path.exists(_CONFIG_PATH):
-            with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
+        if os.path.exists(config_path):
+            with open(config_path, "r", encoding="utf-8") as f:
                 resp = json.load(f)
     except (json.JSONDecodeError, OSError):
         pass  # ignore errors
     return resp
 
 
-def _remove_config():
+def _remove_config(config_path):
     try:
-        os.remove(_CONFIG_PATH)
+        os.remove(config_path)
     except FileNotFoundError:
         pass
 
@@ -107,6 +101,14 @@ class FastAPIDashServer(BaseDashServer):
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
         self._before_request_funcs = []
+
+        fname = inspect.stack()[2]
+        file_path = fname.filename
+        rel_path = os.path.relpath(file_path, os.getcwd())
+        module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
+        # Internal config helpers (local to this file)
+        # This is used to persist dev tools config between reloads, since uvicorn runs a new process
+        self._CONFIG_PATH = os.path.join(os.path.dirname(file_path), f"_{module_name}_dash_config.json")
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
@@ -169,12 +171,12 @@ class FastAPIDashServer(BaseDashServer):
     def setup_catchall(self, dash_app: Dash):
         @self.server.on_event("shutdown")
         def cleanup_config():
-            _remove_config()
+            _remove_config(self._CONFIG_PATH)
 
         @self.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
-                **_load_config(), first_run=False
+                **_load_config(self._CONFIG_PATH), first_run=False
             )  # do this to make sure dev tools are enabled
 
             async def catchall(_request: Request):
@@ -231,7 +233,7 @@ class FastAPIDashServer(BaseDashServer):
             {"debug": debug} if debug else {"debug": False},
             **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
         )
-        _save_config(config)
+        _save_config(self._CONFIG_PATH, config)
         if debug:
             if kwargs.get("reload") is None:
                 kwargs["reload"] = True
