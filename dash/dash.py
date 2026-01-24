@@ -211,6 +211,7 @@ def _get_traceback(secret, error: Exception):
 
     return "".join(traceback.format_exception(type(error), error, _do_skip(error)))
 
+
 # Singleton signal to not update an output, alternative to PreventUpdate
 no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
@@ -722,7 +723,6 @@ class Dash(ObsoleteChecker):
         def _handle_error(_):
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
-
 
         # To-Do add error handlers for these two scenarios
         # add handler for halted callbacks
@@ -2395,10 +2395,13 @@ class Dash(ObsoleteChecker):
                 Output(_ID_STORE, "data"),
                 inputs=inputs,
                 prevent_initial_call=True,
-            hidden=True,)
+                hidden=True,
+            )
             async def update(pathname_, search_, **states):
                 query_parameters = _parse_query_string(search_)
-                page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
+                page, path_variables = _path_to_page(
+                    self.strip_relative_path(pathname_)
+                )
                 if page == {}:
                     for module, page in _pages.PAGE_REGISTRY.items():
                         if module.split(".")[-1] == "not_found_404":
@@ -2427,16 +2430,17 @@ class Dash(ObsoleteChecker):
             _validate.validate_registry(_pages.PAGE_REGISTRY)
 
             if not self.config.suppress_callback_exceptions:
+
                 async def get_layouts():
                     return [
                         await execute_async_function(page["layout"])
-                        if callable(page["layout"]) else page["layout"]
+                        if callable(page["layout"])
+                        else page["layout"]
                         for page in _pages.PAGE_REGISTRY.values()
                     ]
+
                 layouts = await get_layouts()
-                layouts += [
-                    self.layout() if callable(self.layout) else self.layout
-                ]
+                layouts += [self.layout() if callable(self.layout) else self.layout]
                 self.validation_layout = html.Div(layouts)
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")
@@ -2468,10 +2472,13 @@ class Dash(ObsoleteChecker):
                 Output(_ID_STORE, "data"),
                 inputs=inputs,
                 prevent_initial_call=True,
-            hidden=True,)
+                hidden=True,
+            )
             def update(pathname_, search_, **states):
                 query_parameters = _parse_query_string(search_)
-                page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
+                page, path_variables = _path_to_page(
+                    self.strip_relative_path(pathname_)
+                )
                 if page == {}:
                     for module, page in _pages.PAGE_REGISTRY.items():
                         if module.split(".")[-1] == "not_found_404":
@@ -2499,14 +2506,13 @@ class Dash(ObsoleteChecker):
             if not self.config.suppress_callback_exceptions:
                 layout = self.layout
                 if not isinstance(layout, list):
-                    layout = [
-                        self.layout() if callable(self.layout) else self.layout
-                    ]
+                    layout = [self.layout() if callable(self.layout) else self.layout]
                 self.validation_layout = html.Div(
                     [
                         page["layout"]() if callable(page["layout"]) else page["layout"]
                         for page in _pages.PAGE_REGISTRY.values()
-                    ] + layout
+                    ]
+                    + layout
                 )
                 if _ID_CONTENT not in self.validation_layout:
                     raise Exception("`dash.page_container` not found in the layout")

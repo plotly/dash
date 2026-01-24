@@ -182,7 +182,6 @@ def callback(
 
     background_spec: Any = None
 
-
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
     )
@@ -694,7 +693,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True} # type: ignore
+            response: dict = {"multi": True}  # type: ignore
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:

@@ -1,5 +1,6 @@
 from ._utils import get_root_path
 import os
+
 # noinspection PyCompatibility
 from . import exceptions
 from ._utils import AttributeDict
