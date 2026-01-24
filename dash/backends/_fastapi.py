@@ -84,6 +84,7 @@ class CurrentRequestMiddleware:  # pylint: disable=too-few-public-methods
 
 
 # Internal config helpers (local to this file)
+# This is used to persist dev tools config between reloads, since uvicorn runs a new process
 _CONFIG_PATH = os.path.join(os.path.dirname(__file__), "dash_config.json")
 
 
