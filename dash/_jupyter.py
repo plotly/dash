@@ -202,7 +202,7 @@ def _request_jupyter_config(timeout=2):
         if _jupyter_comm_response_received():
             break
 
-        if asyncio.iscoroutinefunction(kernel.do_one_iteration):
+        if inspect.iscoroutinefunction(kernel.do_one_iteration):
             loop = asyncio.get_event_loop()
             nest_asyncio.apply(loop)
             loop.run_until_complete(kernel.do_one_iteration())

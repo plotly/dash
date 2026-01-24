@@ -1,0 +1,21 @@
+name: PR Issue Check
+
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled]
+
+permissions:
+  pull-requests: write
+  issues: read
+
+jobs:
+  check-linked-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: plotly/pr-issue-checker@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          exempt-labels: "no-issue-needed"
+          request-issue-message: "Could you please link an issue to this PR? This helps us track the context and purpose of changes. If an issue doesn't exist yet, create one before linking it."
+          thank-you-message: "Thank you for your contribution to Dash! 🎉"
+          issue-added-message: ""

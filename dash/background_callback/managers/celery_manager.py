@@ -1,3 +1,4 @@
+import inspect
 import json
 import traceback
 from contextvars import copy_context
@@ -250,7 +251,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
 
-        if asyncio.iscoroutinefunction(fn):
+        if inspect.iscoroutinefunction(fn):
             func = partial(ctx.run, async_run)
             asyncio.run(func())
         else:

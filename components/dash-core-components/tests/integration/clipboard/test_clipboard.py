@@ -90,3 +90,46 @@ def test_clp003_clipboard_text(dash_dcc_headed):
         == copy_text,
         timeout=3,
     )
+
+
+def test_clp004_clipboard_children_and_copied_children(dash_dcc_headed):
+    content = "https://dash.plotly.com/"
+    children_text = "Copy URL"
+    copied_children_text = "Copied!"
+
+    app = Dash(__name__, prevent_initial_callbacks=True)
+    app.layout = html.Div(
+        [
+            dcc.Clipboard(
+                id="clipboard",
+                children=children_text,
+                copied_children=copied_children_text,
+                content=content,
+            ),
+            dcc.Textarea(id="textarea"),
+        ]
+    )
+
+    dash_dcc_headed.start_server(app)
+
+    clipboard = dash_dcc_headed.find_element("#clipboard")
+
+    assert clipboard.text == children_text
+
+    clipboard.click()
+    wait.until(
+        lambda: dash_dcc_headed.find_element("#clipboard").text == copied_children_text,
+        timeout=3,
+    )
+    textarea = dash_dcc_headed.find_element("#textarea")
+    textarea.click()
+
+    ActionChains(dash_dcc_headed.driver).key_down(Keys.CONTROL).send_keys("v").key_up(
+        Keys.CONTROL
+    ).perform()
+
+    wait.until(
+        lambda: dash_dcc_headed.find_element("#textarea").get_attribute("value")
+        == content,
+        timeout=3,
+    )

@@ -2,6 +2,7 @@ import functools
 import os
 import sys
 import collections
+import inspect
 import importlib
 import warnings
 from importlib.machinery import ModuleSpec
@@ -17,7 +18,7 @@ import base64
 from urllib.parse import urlparse
 from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
-import asyncio
+import traceback
 
 from importlib_metadata import version as _get_distribution_version
 
@@ -216,7 +217,7 @@ no_update = _callback.NoUpdate()  # pylint: disable=protected-access
 
 async def execute_async_function(func, *args, **kwargs):
     # Check if the function is a coroutine function
-    if asyncio.iscoroutinefunction(func):
+    if inspect.iscoroutinefunction(func):
         return await func(*args, **kwargs)
     # If the function is not a coroutine, call it directly
     return func(*args, **kwargs)
@@ -551,6 +552,7 @@ class Dash(ObsoleteChecker):
             include_pages_meta=include_pages_meta,
             description=description,
             health_endpoint=health_endpoint,
+            hide_all_callbacks=False,
         )
         self.config.set_read_only(
             [
@@ -716,12 +718,12 @@ class Dash(ObsoleteChecker):
         )
         if config.compress:
             self.backend.enable_compression()  # type: ignore
-        
+
         def _handle_error(_):
             """Handle a halted callback and return an empty 204 response."""
             return "", 204
 
-        
+
         # To-Do add error handlers for these two scenarios
         # add handler for halted callbacks
         # self.backend.before_request(_handle_error)
@@ -964,7 +966,7 @@ class Dash(ObsoleteChecker):
         Health check endpoint for monitoring Dash server status.
         Returns a simple "OK" response with HTTP 200 status.
         """
-        return flask.Response("OK", status=200, mimetype="text/plain")
+        return self.backend.make_response("OK", status=200, mimetype="text/plain")
 
     def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []
@@ -975,7 +977,10 @@ class Dash(ObsoleteChecker):
                 dists.append(dict(type=dist_type, url=src))
         return dists
 
-    def _collect_and_register_resources(self, resources, include_async=True):
+    # pylint: disable=too-many-branches
+    def _collect_and_register_resources(
+        self, resources, include_async=True, url_attr="src"
+    ):
         # now needs the app context.
         # template in the necessary component suite JS bundles
         # add the version number of the package as a query parameter
@@ -1019,35 +1024,44 @@ class Dash(ObsoleteChecker):
                     self.registered_paths[resource["namespace"]].add(rel_path)
 
                     if not is_dynamic_resource and not excluded:
-                        srcs.append(
-                            _relative_url_path(
-                                relative_package_path=rel_path,
-                                namespace=resource["namespace"],
-                            )
+                        url = _relative_url_path(
+                            relative_package_path=rel_path,
+                            namespace=resource["namespace"],
                         )
+                        if "attributes" in resource:
+                            srcs.append({url_attr: url, **resource["attributes"]})
+                        else:
+                            srcs.append(url)
             elif "external_url" in resource:
                 if not is_dynamic_resource and not excluded:
-                    if isinstance(resource["external_url"], str):
-                        srcs.append(resource["external_url"])
-                    else:
-                        srcs += resource["external_url"]
+                    urls = (
+                        [resource["external_url"]]
+                        if isinstance(resource["external_url"], str)
+                        else resource["external_url"]
+                    )
+                    for url in urls:
+                        if "attributes" in resource:
+                            srcs.append({url_attr: url, **resource["attributes"]})
+                        else:
+                            srcs.append(url)
             elif "absolute_path" in resource:
                 raise Exception("Serving files from absolute_path isn't supported yet")
             elif "asset_path" in resource:
                 static_url = self.get_asset_url(resource["asset_path"])
+                url_with_cache = static_url + f"?m={resource['ts']}"
                 # Import .mjs files with type=module script tag
                 if static_url.endswith(".mjs"):
-                    srcs.append(
-                        {
-                            "src": static_url
-                            + f"?m={resource['ts']}",  # Add a cache-busting query param
-                            "type": "module",
-                        }
-                    )
+                    attrs = {url_attr: url_with_cache, "type": "module"}
+                    if "attributes" in resource:
+                        attrs.update(resource["attributes"])
+                    srcs.append(attrs)
                 else:
-                    srcs.append(
-                        static_url + f"?m={resource['ts']}"
-                    )  # Add a cache-busting query param
+                    if "attributes" in resource:
+                        srcs.append(
+                            {url_attr: url_with_cache, **resource["attributes"]}
+                        )
+                    else:
+                        srcs.append(url_with_cache)
 
         return srcs
 
@@ -1056,7 +1070,8 @@ class Dash(ObsoleteChecker):
         external_links = self.config.external_stylesheets
         links = self._collect_and_register_resources(
             self.css.get_all_css()
-            + self.css._resources._filter_resources(self._hooks.hooks._css_dist)
+            + self.css._resources._filter_resources(self._hooks.hooks._css_dist),
+            url_attr="href",
         )
 
         return "\n".join(
@@ -1517,6 +1532,16 @@ class Dash(ObsoleteChecker):
             self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
 
         self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+
+        # For each callback function, if the hidden parameter uses the default value None,
+        # replace it with the actual value of the self.config.hide_all_callbacks.
+        self._callback_list = [
+            {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
+            if _callback.get("hidden") is None
+            else _callback
+            for _callback in self._callback_list
+        ]
+
         _callback.GLOBAL_CALLBACK_LIST.clear()
 
         _validate.validate_background_callbacks(self.callback_map)
@@ -2121,6 +2146,7 @@ class Dash(ObsoleteChecker):
         port: Optional[Union[str, int]] = None,
         proxy: Optional[str] = None,
         debug: Optional[bool] = None,
+        hide_all_callbacks: bool = False,
         jupyter_mode: Optional[JupyterDisplayMode] = None,
         jupyter_width: str = "100%",
         jupyter_height: int = 650,
@@ -2168,6 +2194,14 @@ class Dash(ObsoleteChecker):
             ``enable_dev_tools`` is called directly, and ``False`` when called
             via ``run``. env: ``DASH_DEBUG``
         :type debug: bool
+
+        :param hide_all_callbacks: Default ``False``: Sets the default value of
+            ``hidden`` for all callbacks added to the app. Normally all callbacks
+            are visible in the devtools callbacks tab. You can set this for
+            individual callbacks by setting ``hidden`` in their definitions, or set
+            it ``True`` here in which case you must explicitly set it ``False`` for
+            those callbacks you wish to remain visible in the devtools callbacks tab.
+        :type hide_all_callbacks: bool
 
         :param dev_tools_ui: Show the dev tools UI. env: ``DASH_UI``
         :type dev_tools_ui: bool
@@ -2235,6 +2269,10 @@ class Dash(ObsoleteChecker):
 
         :return:
         """
+
+        # Update self.config.hide_all_callbacks
+        self.config.update({"hide_all_callbacks": hide_all_callbacks})
+
         if debug is None:
             debug = get_combined_config("debug", None, False)
 
@@ -2357,7 +2395,7 @@ class Dash(ObsoleteChecker):
                 Output(_ID_STORE, "data"),
                 inputs=inputs,
                 prevent_initial_call=True,
-            )
+            hidden=True,)
             async def update(pathname_, search_, **states):
                 query_parameters = _parse_query_string(search_)
                 page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
@@ -2430,7 +2468,7 @@ class Dash(ObsoleteChecker):
                 Output(_ID_STORE, "data"),
                 inputs=inputs,
                 prevent_initial_call=True,
-            )
+            hidden=True,)
             def update(pathname_, search_, **states):
                 query_parameters = _parse_query_string(search_)
                 page, path_variables = _path_to_page(self.strip_relative_path(pathname_))
