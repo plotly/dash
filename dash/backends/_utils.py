@@ -94,7 +94,7 @@ def format_traceback_html(error, error_handling_mode, title, backend):
             <textarea readonly>{formatted_tb}</textarea>
           </div>
           <div class=\"explanation\">
-            The debugger caught an exception in your ASGI application. You can now
+            The debugger caught an exception in your Dash application. You can now
             look at the traceback which led to the error.
           </div>
           <div class=\"footer\">
