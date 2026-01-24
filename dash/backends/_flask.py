@@ -257,11 +257,6 @@ class FlaskDashServer(BaseDashServer):
             return _dispatch_async
         return _dispatch
 
-    def _serve_default_favicon(self):
-        return Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
-        )
-
     def register_timing_hooks(self, _first_run: bool):
         # Define timing hooks inside method scope and register them
         def _before_request() -> None:

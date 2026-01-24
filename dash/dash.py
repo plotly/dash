@@ -747,6 +747,11 @@ class Dash(ObsoleteChecker):
         )
         self.routes.append(full_name)
 
+    def _serve_default_favicon(self):
+        return self.backend.make_response(
+            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
+        )
+
     def _setup_routes(self):
         self.backend.setup_component_suites(self)
         self._add_url("_dash-layout", self.serve_layout)
@@ -759,7 +764,7 @@ class Dash(ObsoleteChecker):
         self._add_url("_reload-hash", self.serve_reload_hash)
         self._add_url(
             "_favicon.ico",
-            self.backend._serve_default_favicon,  # pylint: disable=protected-access
+            self._serve_default_favicon,  # pylint: disable=protected-access
         )
         if self.config.health_endpoint is not None:
             self._add_url(self.config.health_endpoint, self.serve_health)

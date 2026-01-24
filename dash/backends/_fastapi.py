@@ -393,11 +393,6 @@ class FastAPIDashServer(BaseDashServer):
 
         return _dispatch
 
-    def _serve_default_favicon(self):
-        return Response(
-            content=pkgutil.get_data("dash", "favicon.ico"), media_type="image/x-icon"
-        )
-
     def register_timing_hooks(self, first_run: bool):
         if not first_run:
             return

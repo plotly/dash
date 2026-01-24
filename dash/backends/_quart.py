@@ -321,13 +321,6 @@ class QuartDashServer(BaseDashServer):
                 route, endpoint=endpoint, view_func=view_func, methods=methods
             )
 
-    def _serve_default_favicon(self):
-        if Response is None:
-            raise RuntimeError("Quart not installed; cannot generate Response")
-        return Response(
-            pkgutil.get_data("dash", "favicon.ico"), content_type="image/x-icon"
-        )
-
     def enable_compression(self) -> None:
         try:
             import quart_compress  # pylint: disable=import-outside-toplevel
