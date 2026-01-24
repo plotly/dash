@@ -216,7 +216,7 @@ class FlaskDashServer(BaseDashServer):
         )
 
     # pylint: disable=unused-argument
-    def dispatch(self, dash_app: Dash):
+    def serve_callback(self, dash_app: Dash):
         def _dispatch():
             body = request.get_json()
             # pylint: disable=protected-access

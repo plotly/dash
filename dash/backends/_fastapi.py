@@ -368,7 +368,7 @@ class FastAPIDashServer(BaseDashServer):
             include_in_schema=False,
         )
 
-    def dispatch(self, dash_app: Dash):
+    def serve_callback(self, dash_app: Dash):
         async def _dispatch(request: Request):
             # pylint: disable=protected-access
             body = await request.json()
