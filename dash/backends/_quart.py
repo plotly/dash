@@ -22,12 +22,9 @@ try:
         redirect,
     )
 except ImportError:
-    Quart = None
-    Response = None
-    jsonify = None
-    request = None
-    Blueprint = None
-    quart_g = None
+    raise ImportError(
+        "All dependencies not installed. Please install it with `dash[quart]` to use the Quart backend."
+    ) from None
 
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint

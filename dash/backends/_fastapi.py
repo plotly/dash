@@ -22,20 +22,9 @@ try:
     from starlette.types import ASGIApp, Scope, Receive, Send
     import uvicorn
 except ImportError:
-    FastAPI = None
-    Request = None
-    Response = None
-    Body = None
-    JSONResponse = None
-    RedirectResponse = None
-    StaticFiles = None
-    StarletteResponse = None
-    MutableHeaders = None
-    ASGIApp = None
-    Scope = None
-    Receive = None
-    Send = None
-    uvicorn = None
+    raise ImportError(
+        "All dependencies not installed. Please install it with `dash[fastapi]` to use the FastAPI backend."
+    ) from None
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
