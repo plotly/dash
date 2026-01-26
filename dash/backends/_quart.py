@@ -21,10 +21,10 @@ try:
         has_request_context,
         redirect,
     )
-except ImportError:
+except ImportError as _err:
     raise ImportError(
         "All dependencies not installed. Please install it with `dash[quart]` to use the Quart backend."
-    ) from None
+    ) from _err
 
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
