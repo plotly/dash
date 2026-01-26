@@ -12,6 +12,7 @@ import time
 from importlib.util import spec_from_file_location
 import json
 import os
+import subprocess
 
 try:
     from fastapi import FastAPI, Request, Response, Body
@@ -71,6 +72,7 @@ class CurrentRequestMiddleware:  # pylint: disable=too-few-public-methods
         finally:
             reset_current_request(token)
 
+
 def _save_config(config_path, config):
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f)
@@ -104,11 +106,16 @@ class FastAPIDashServer(BaseDashServer):
 
         fname = inspect.stack()[2]
         file_path = fname.filename
-        rel_path = os.path.relpath(file_path, os.getcwd())
-        module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
-        # Internal config helpers (local to this file)
-        # This is used to persist dev tools config between reloads, since uvicorn runs a new process
-        self._CONFIG_PATH = os.path.join(os.path.dirname(file_path), f"_{module_name}_dash_config.json")
+
+        # Manually build the config directory path
+        home_dir = os.path.expanduser("~")
+        config_dir = os.path.join(home_dir, ".local", "share", "plotly-dash-configs")
+        os.makedirs(config_dir, exist_ok=True)
+
+        # Hash the file path for a unique config filename
+        hash_digest = hashlib.sha256(file_path.encode("utf-8")).hexdigest()
+        config_filename = f"{hash_digest}.json"
+        self._CONFIG_PATH = os.path.join(config_dir, config_filename)
         super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
@@ -116,6 +123,9 @@ class FastAPIDashServer(BaseDashServer):
         if len(args) == 3 and isinstance(args[0], dict) and "type" in args[0]:
             return self.server(*args, **kwargs)
         raise TypeError("FastAPI app must be called with (scope, receive, send)")
+
+    def _cleanup_config(self):
+        _remove_config(self._CONFIG_PATH)
 
     @staticmethod
     def create_app(name: str = "__main__", config: Dict[str, Any] | None = None):
@@ -169,10 +179,6 @@ class FastAPIDashServer(BaseDashServer):
         dash_app._add_url("", index, methods=["GET"])
 
     def setup_catchall(self, dash_app: Dash):
-        @self.server.on_event("shutdown")
-        def cleanup_config():
-            _remove_config(self._CONFIG_PATH)
-
         @self.server.on_event("startup")
         def _setup_catchall():
             dash_app.enable_dev_tools(
@@ -228,28 +234,38 @@ class FastAPIDashServer(BaseDashServer):
 
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
-        dev_tools = dash_app._dev_tools  # pylint: disable=protected-access
+        dev_tools = dash_app._dev_tools
         config = dict(
             {"debug": debug} if debug else {"debug": False},
             **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
         )
         _save_config(self._CONFIG_PATH, config)
-        if debug:
-            if kwargs.get("reload") is None:
-                kwargs["reload"] = True
+        if debug and kwargs.get("reload") is None:
+            kwargs["reload"] = True
+
+        file_path = frame.filename
+        rel_path = os.path.relpath(file_path, os.getcwd())
+        module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
+        uvicorn_args = [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            f"{module_name}:server",
+            "--host",
+            str(host),
+            "--port",
+            str(port),
+        ]
         if kwargs.get("reload"):
-            # Dynamically determine the module name from the file path
-            file_path = frame.filename
-            rel_path = os.path.relpath(file_path, os.getcwd())
-            module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
-            uvicorn.run(
-                f"{module_name}:server",
-                host=host,
-                port=port,
-                **kwargs,
-            )
-        else:
-            uvicorn.run(self.server, host=host, port=port, **kwargs)
+            uvicorn_args.append("--reload")
+
+        # Add any other kwargs as CLI args if needed
+
+        try:
+            proc = subprocess.Popen(uvicorn_args, env=os.environ.copy())
+            proc.wait()
+        finally:
+            self._cleanup_config()
 
     def make_response(
         self,
