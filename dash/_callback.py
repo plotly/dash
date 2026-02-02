@@ -79,7 +79,7 @@ def callback(
     on_error: Optional[Callable[[Exception], Any]] = None,
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
-    hidden: Optional[bool] = False,
+    hidden: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -277,7 +277,7 @@ def insert_callback(
     dynamic_creator: Optional[bool] = False,
     no_output=False,
     optional=False,
-    hidden=False,
+    hidden=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -651,7 +651,7 @@ def register_callback(
         running=running,
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
-        hidden=_kwargs.get("hidden", False),
+        hidden=_kwargs.get("hidden", None),
     )
 
     # pylint: disable=too-many-locals
