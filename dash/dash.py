@@ -1450,7 +1450,7 @@ class Dash(ObsoleteChecker):
 
         The last, optional argument `prevent_initial_call` causes the callback
         not to fire when its outputs are first added to the page. Defaults to
-        `False` unless `prevent_initial_callbacks=True` at the app level.
+        `False` unless `prevent_initial_call=True` at the app level.
 
 
         """
