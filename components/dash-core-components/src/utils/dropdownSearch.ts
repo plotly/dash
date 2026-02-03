@@ -85,8 +85,42 @@ export function createFilteredOptions(
 
     const filtered = search.search(searchValue) as DetailedOption[];
 
+    // Convert to lowercase for case insensitive comparison
+    const searchLower = searchValue.toLowerCase();
+    const labelMap = new Map(
+        filtered.map(opt => [
+            opt.value,
+            String(opt.label ?? opt.value).toLowerCase(),
+        ])
+    );
+    // Sort results by match relevance
+    const sorted = filtered.sort((a, b) => {
+        const aLabel = labelMap.get(a.value)!;
+        const bLabel = labelMap.get(b.value)!;
+        // Label starts with search value
+        const aStartsWith = aLabel.startsWith(searchLower);
+        const bStartsWith = bLabel.startsWith(searchLower);
+        if (aStartsWith && !bStartsWith) {
+            return -1;
+        }
+        if (!aStartsWith && bStartsWith) {
+            return 1;
+        }
+        // Check for word boundary match (space followed by search term)
+        const aWordStart = aLabel.includes(' ' + searchLower);
+        const bWordStart = bLabel.includes(' ' + searchLower);
+        if (aWordStart && !bWordStart) {
+            return -1;
+        }
+        if (!aWordStart && bWordStart) {
+            return 1;
+        }
+        // Everything else (substring match)
+        return 0;
+    });
+
     return {
         sanitizedOptions: sanitized || [],
-        filteredOptions: filtered || [],
+        filteredOptions: sorted || [],
     };
 }
