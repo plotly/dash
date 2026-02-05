@@ -43,7 +43,7 @@ def _is_flask_instance(obj):
 def _is_fastapi_instance(obj):
     try:
         # pylint: disable=import-outside-toplevel
-        from fastapi import FastAPI
+        from fastapi import FastAPI  # type: ignore[import-not-found]
 
         return isinstance(obj, FastAPI)
     except ImportError:
@@ -53,7 +53,7 @@ def _is_fastapi_instance(obj):
 def _is_quart_instance(obj):
     try:
         # pylint: disable=import-outside-toplevel
-        from quart import Quart
+        from quart import Quart  # type: ignore[import-not-found]
 
         return isinstance(obj, Quart)
     except ImportError:

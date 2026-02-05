@@ -20,8 +20,6 @@ from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
 
 import traceback
 
-from importlib_metadata import version as _get_distribution_version
-
 from dash import dcc
 from dash import html
 from dash import dash_table
@@ -53,7 +51,6 @@ from ._utils import (
     convert_to_AttributeDict,
     gen_salt,
     hooks_to_js_object,
-    parse_version,
     get_caller_name,
     get_root_path,
 )
@@ -1182,7 +1179,7 @@ class Dash(ObsoleteChecker):
         renderer = self._generate_renderer()
         title = self.title
         # Refactored: direct access to global request adapter
-        request = backends.request_adapter()
+        request = backends.backend.request_adapter()
 
         if self.use_pages and self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
@@ -1398,7 +1395,7 @@ class Dash(ObsoleteChecker):
     # pylint: disable=R0915
     def _initialize_context(self, body):
         """Initialize the global context for the request."""
-        adapter = backends.request_adapter()
+        adapter = backends.backend.request_adapter()
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
         g.states_list = body.get("state", [])
@@ -2445,6 +2442,7 @@ class Dash(ObsoleteChecker):
                     ]
 
                 layouts = await get_layouts()
+                # pylint: disable=not-callable
                 layouts += [self.layout() if callable(self.layout) else self.layout]
                 self.validation_layout = html.Div(layouts)
                 if _ID_CONTENT not in self.validation_layout:
@@ -2512,6 +2510,7 @@ class Dash(ObsoleteChecker):
             if not self.config.suppress_callback_exceptions:
                 layout = self.layout
                 if not isinstance(layout, list):
+                    # pylint: disable=not-callable
                     layout = [self.layout() if callable(self.layout) else self.layout]
                 self.validation_layout = html.Div(
                     [

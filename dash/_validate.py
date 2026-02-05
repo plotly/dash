@@ -590,14 +590,14 @@ def validate_duplicate_output(
 def check_async(use_async):
     if use_async is None:
         try:
-            import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
+            import asgiref  # type: ignore[import-not-found]  # pylint: disable=unused-import, import-outside-toplevel # noqa
 
             use_async = True
         except ImportError:
             pass
     elif use_async:
         try:
-            import asgiref  # pylint: disable=unused-import, import-outside-toplevel # noqa
+            import asgiref  # type: ignore[import-not-found]  # pylint: disable=unused-import, import-outside-toplevel # noqa
         except ImportError as exc:
             raise Exception(
                 "You are trying to use dash[async] without having installed the requirements please install via: `pip install dash[async]`"

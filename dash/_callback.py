@@ -1,14 +1,8 @@
-from typing import Callable, Optional, Any, List, Tuple, Union
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict
 from functools import wraps
 import collections
 import hashlib
 import inspect
-
-from functools import wraps
-
-from typing import Callable, Optional, Any, List, Tuple, Union, Dict
-
-import asyncio
 
 from .dependencies import (
     handle_callback_args,
@@ -363,7 +357,7 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
 
 def _get_callback_manager(
     kwargs: dict, background: dict
-) -> Union[BaseBackgroundCallbackManager, None]:
+) -> BaseBackgroundCallbackManager:
     """Set up the background callback and manage jobs."""
     callback_manager = background.get(
         "manager", kwargs.get("background_callback_manager", None)
@@ -379,7 +373,7 @@ def _get_callback_manager(
                 " and store results on redis.\n"
             )
 
-    adapter = backends.request_adapter()
+    adapter = backends.backend.request_adapter()
     old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
@@ -439,7 +433,7 @@ def _setup_background_callback(
 
 def _progress_background_callback(response, callback_manager, background):
     progress_outputs = background.get("progress")
-    adapter = backends.request_adapter()
+    adapter = backends.backend.request_adapter()
     cache_key = adapter.args.get("cacheKey")
 
     if progress_outputs:
@@ -457,7 +451,7 @@ def _update_background_callback(
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    adapter = backends.request_adapter()
+    adapter = backends.backend.request_adapter()
     cache_key = adapter.args.get("cacheKey") if adapter else None
     job_id = adapter.args.get("job") if adapter else None
 
@@ -479,7 +473,7 @@ def _handle_rest_background_callback(
     multi,
     has_update=False,
 ):
-    adapter = backends.request_adapter()
+    adapter = backends.backend.request_adapter()
     cache_key = adapter.args.get("cacheKey") if adapter else None
     job_id = adapter.args.get("job") if adapter else None
     # Must get job_running after get_result since get_results terminates it.
@@ -697,7 +691,7 @@ def register_callback(
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
-                    adapter = backends.request_adapter()
+                    adapter = backends.backend.request_adapter()
                     if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,
@@ -769,7 +763,7 @@ def register_callback(
 
             try:
                 if background is not None:
-                    adapter = backends.request_adapter()
+                    adapter = backends.backend.request_adapter()
                     if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,
