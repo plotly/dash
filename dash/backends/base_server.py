@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 
 class RequestAdapter(ABC):
@@ -71,7 +71,7 @@ class BaseDashServer(ABC):
     server_type: str
     server: Any
     config: Dict[str, Any]
-    request_adapter: RequestAdapter
+    request_adapter: Type[RequestAdapter]
 
     def __call__(self, *args, **kwargs) -> Any:
         # Default: WSGI

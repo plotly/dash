@@ -9,7 +9,6 @@ import hashlib
 import inspect
 import pkgutil
 import time
-from importlib.util import spec_from_file_location
 import json
 import os
 import subprocess
@@ -21,11 +20,10 @@ try:
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
     from starlette.types import ASGIApp, Scope, Receive, Send
-    import uvicorn
-except ImportError:
+except ImportError as _err:
     raise ImportError(
         "All dependencies not installed. Please install it with `dash[fastapi]` to use the FastAPI backend."
-    ) from None
+    ) from _err
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
@@ -234,7 +232,7 @@ class FastAPIDashServer(BaseDashServer):
 
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
-        dev_tools = dash_app._dev_tools
+        dev_tools = dash_app._dev_tools  # pylint-disable=W0212
         config = dict(
             {"debug": debug} if debug else {"debug": False},
             **{f"dev_tools_{k}": v for k, v in dev_tools.items()},

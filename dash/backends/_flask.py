@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from contextvars import copy_context
-from importlib_metadata import version as _get_distribution_version
-from typing import TYPE_CHECKING, Any, Callable, Dict
 import asyncio
 import pkgutil
 import sys
@@ -10,6 +7,12 @@ import mimetypes
 import time
 import inspect
 import traceback
+
+from contextvars import copy_context
+from typing import TYPE_CHECKING, Any, Callable, Dict
+
+from importlib_metadata import version as _get_distribution_version
+
 from flask import (
     Flask,
     Blueprint,

@@ -1,13 +1,16 @@
 from __future__ import annotations
-from importlib_metadata import version as _get_distribution_version
-from contextvars import copy_context
+
 import typing as _t
 import mimetypes
 import inspect
 import pkgutil
 import time
 import sys
+
+from contextvars import copy_context
 from typing import Any
+
+from importlib_metadata import version as _get_distribution_version
 
 # Attempt top-level Quart imports; allow absence if user not using quart backend
 try:

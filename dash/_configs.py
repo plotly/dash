@@ -1,5 +1,6 @@
-from ._utils import get_root_path
 import os
+
+from ._utils import get_root_path
 
 # noinspection PyCompatibility
 from . import exceptions
