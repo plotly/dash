@@ -190,6 +190,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             raise RuntimeError("Quart not installed; cannot check request context")
         return has_request_context()
 
+    # pylint: disable=W0613
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         self.config = {"debug": debug, **kwargs} if debug else kwargs
         self.server.run(host=host, port=port, debug=debug, **kwargs)

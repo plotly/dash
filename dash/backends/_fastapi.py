@@ -126,6 +126,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         _remove_config(self._CONFIG_PATH)
 
     @staticmethod
+    # pylint: disable=W0613
     def create_app(name: str = "__main__", config: Dict[str, Any] | None = None):
         app = FastAPI()
 
@@ -466,7 +467,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             )
 
     def enable_compression(self) -> None:
-        # pylint: disable=import-outside-toplevel
+        # pylint: disable=import-outside-toplevel,import-error
         from fastapi.middleware.gzip import (
             GZipMiddleware,
         )
