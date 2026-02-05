@@ -143,3 +143,11 @@ class BaseDashServer(ABC, Generic[ServerType]):
     @abstractmethod
     def enable_compression(self) -> None:  # pragma: no cover - interface
         pass
+
+    @abstractmethod
+    def register_prune_error_handler(self, secret: str, prune_errors: bool) -> None:
+        pass
+
+    @abstractmethod
+    def register_timing_hooks(self, first_run: bool) -> None:
+        pass

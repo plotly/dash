@@ -466,9 +466,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             )
 
     def enable_compression(self) -> None:
+        # pylint: disable=import-outside-toplevel
         from fastapi.middleware.gzip import (
             GZipMiddleware,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         self.server.add_middleware(GZipMiddleware, minimum_size=500)
         config = _load_config(self._CONFIG_PATH)
