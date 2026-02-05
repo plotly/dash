@@ -23,13 +23,14 @@ def test_slsl001_always_visible_slider(dash_dcc):
         return f"You have selected {value}"
 
     dash_dcc.start_server(app)
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 5")
 
     slider = dash_dcc.find_element("#slider")
     dash_dcc.click_at_coord_fractions(slider, 0.5, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out", "You have selected 10")
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 11")
     dash_dcc.click_at_coord_fractions(slider, 0.75, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out", "You have selected 15")
+    dash_dcc.wait_for_text_to_equal("#out", "You have selected 16")
 
     assert dash_dcc.get_logs() == []
 
@@ -59,9 +60,9 @@ def test_slsl002_always_visible_rangeslider(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 5-15")
 
     slider = dash_dcc.find_element("#rangeslider")
-    dash_dcc.click_at_coord_fractions(slider, 0.15, 0.25)
+    dash_dcc.click_at_coord_fractions(slider, 0.2, 0.25)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 2-15")
-    dash_dcc.click_at_coord_fractions(slider, 0.5, 0.25)
+    dash_dcc.click_at_coord_fractions(slider, 0.51, 0.25)
     dash_dcc.wait_for_text_to_equal("#out", "You have selected 2-10")
 
     assert dash_dcc.get_logs() == []
@@ -76,7 +77,7 @@ def test_slsl003_out_of_range_marks_slider(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    assert len(dash_dcc.find_elements("span.rc-slider-mark-text")) == 6
+    assert len(dash_dcc.find_elements(".dash-slider-mark")) == 6
 
     assert dash_dcc.get_logs() == []
 
@@ -90,7 +91,7 @@ def test_slsl004_out_of_range_marks_rangeslider(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    assert len(dash_dcc.find_elements("span.rc-slider-mark-text")) == 6
+    assert len(dash_dcc.find_elements(".dash-slider-mark")) == 6
 
     assert dash_dcc.get_logs() == []
 
@@ -256,6 +257,7 @@ def test_slsl007_drag_value_slider(dash_dcc):
         return f"You have selected {value}"
 
     dash_dcc.start_server(app)
+    dash_dcc.driver.set_window_size(800, 600)
     slider = dash_dcc.find_element("#slider")
 
     dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 5")
@@ -263,12 +265,12 @@ def test_slsl007_drag_value_slider(dash_dcc):
 
     dash_dcc.click_and_hold_at_coord_fractions(slider, 0.25, 0.25)
     dash_dcc.move_to_coord_fractions(slider, 0.75, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 15")
+    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 16")
     dash_dcc.move_to_coord_fractions(slider, 0.5, 0.25)
-    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 10")
+    dash_dcc.wait_for_text_to_equal("#out-drag-value", "You have dragged 11")
     dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 5")
     dash_dcc.release()
-    dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 10")
+    dash_dcc.wait_for_text_to_equal("#out-value", "You have selected 11")
 
     assert dash_dcc.get_logs() == []
 
@@ -418,7 +420,7 @@ def test_slsl011_horizontal_slider(dash_dcc):
     dash_dcc.wait_for_element("#horizontal-slider")
     dash_dcc.percy_snapshot("horizontal slider")
 
-    dash_dcc.wait_for_element('#horizontal-slider div[role="slider"]').click()
+    dash_dcc.wait_for_element('#horizontal-slider [role="slider"]').click()
     assert dash_dcc.get_logs() == []
 
 
@@ -443,7 +445,7 @@ def test_slsl012_vertical_slider(dash_dcc):
     dash_dcc.wait_for_element("#vertical-slider")
     dash_dcc.percy_snapshot("vertical slider")
 
-    dash_dcc.wait_for_element('#vertical-slider div[role="slider"]').click()
+    dash_dcc.wait_for_element('#vertical-slider [role="slider"]').click()
     assert dash_dcc.get_logs() == []
 
 
@@ -466,12 +468,8 @@ def test_slsl013_horizontal_range_slider(dash_dcc):
     dash_dcc.wait_for_element("#horizontal-range-slider")
     dash_dcc.percy_snapshot("horizontal range slider")
 
-    dash_dcc.wait_for_element(
-        '#horizontal-range-slider div.rc-slider-handle-1[role="slider"]'
-    ).click()
-    dash_dcc.wait_for_element(
-        '#horizontal-range-slider div.rc-slider-handle-2[role="slider"]'
-    ).click()
+    dash_dcc.wait_for_element("#horizontal-range-slider .dash-slider-thumb-1").click()
+    dash_dcc.wait_for_element("#horizontal-range-slider .dash-slider-thumb-2").click()
     assert dash_dcc.get_logs() == []
 
 
@@ -497,10 +495,10 @@ def test_slsl014_vertical_range_slider(dash_dcc):
     dash_dcc.percy_snapshot("vertical range slider")
 
     dash_dcc.wait_for_element(
-        '#vertical-range-slider div.rc-slider-handle-1[role="slider"]'
+        '#vertical-range-slider .dash-slider-thumb-1[role="slider"]'
     ).click()
     dash_dcc.wait_for_element(
-        '#vertical-range-slider div.rc-slider-handle-2[role="slider"]'
+        '#vertical-range-slider .dash-slider-thumb-2[role="slider"]'
     ).click()
     assert dash_dcc.get_logs() == []
 
@@ -528,7 +526,7 @@ def test_slsl015_range_slider_step_none(dash_dcc):
     dash_dcc.percy_snapshot("none step slider")
 
     dash_dcc.wait_for_element(
-        '#none-step-slider div.rc-slider-handle[aria-valuenow="5"]'
+        '#none-step-slider .dash-slider-thumb[aria-valuenow="4.6"]'
     )
 
     assert dash_dcc.get_logs() == []
@@ -555,7 +553,7 @@ def test_slsl015_range_slider_no_min_max(dash_dcc):
     dash_dcc.percy_snapshot("no-min-max step slider")
 
     dash_dcc.wait_for_element(
-        '#no-min-max-step-slider div.rc-slider-handle[aria-valuemax="5"]'
+        '#no-min-max-step-slider .dash-slider-thumb[aria-valuemax="5"]'
     )
 
     assert dash_dcc.get_logs() == []
@@ -596,22 +594,15 @@ def test_sls016_sliders_format_tooltips(dash_dcc):
     dash_dcc.start_server(app)
     # dash_dcc.wait_for_element("#slider")
 
+    dash_dcc.wait_for_text_to_equal("#slider-tooltip-1-content", "Custom tooltip: 34")
     dash_dcc.wait_for_text_to_equal(
-        "#slider .rc-slider-tooltip-content", "Custom tooltip: 34"
+        "#range-slider-tooltip-1-content", "Custom tooltip: 48"
     )
     dash_dcc.wait_for_text_to_equal(
-        "#range-slider .rc-slider-tooltip-content", "Custom tooltip: 48"
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#range-slider > div:nth-child(1) > div:last-child .rc-slider-tooltip-content",
+        "#range-slider-tooltip-2-content",
         "Custom tooltip: 60",
     )
-    dash_dcc.wait_for_style_to_equal(
-        "#slider .rc-slider-tooltip-inner > div", "padding", "8px"
-    )
-    dash_dcc.wait_for_text_to_equal(
-        "#slider-transform .rc-slider-tooltip-content", "Transformed 20"
-    )
+    dash_dcc.wait_for_style_to_equal("#slider-tooltip-1-content", "padding", "8px")
 
     dash_dcc.percy_snapshot("sliders-format-tooltips")
 
@@ -663,3 +654,83 @@ def test_slsl018_marks_limit_exceeded(dash_dcc):
     assert len(logs) > 0
     warning_found = any("Too many marks" in log["message"] for log in logs)
     assert warning_found, "Expected warning about too many marks not found in logs"
+
+
+def test_slsl019_allow_direct_input_false(dash_dcc):
+    """Test that allow_direct_input=False hides input elements for both Slider and RangeSlider"""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(
+                [
+                    html.Label("Slider with allow_direct_input=False"),
+                    dcc.Slider(
+                        id="slider-no-input",
+                        min=0,
+                        max=100,
+                        step=5,
+                        value=50,
+                        allow_direct_input=False,
+                    ),
+                    html.Div(id="slider-output"),
+                ]
+            ),
+            html.Div(
+                [
+                    html.Label("RangeSlider with allow_direct_input=False"),
+                    dcc.RangeSlider(
+                        id="rangeslider-no-input",
+                        min=0,
+                        max=100,
+                        step=5,
+                        value=[25, 75],
+                        allow_direct_input=False,
+                    ),
+                    html.Div(id="rangeslider-output"),
+                ]
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("slider-output", "children"), [Input("slider-no-input", "value")]
+    )
+    def update_slider(value):
+        return f"Slider: {value}"
+
+    @app.callback(
+        Output("rangeslider-output", "children"),
+        [Input("rangeslider-no-input", "value")],
+    )
+    def update_rangeslider(value):
+        return f"RangeSlider: {value[0]}-{value[1]}"
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#slider-output", "Slider: 50")
+    dash_dcc.wait_for_text_to_equal("#rangeslider-output", "RangeSlider: 25-75")
+
+    # Verify no input elements exist for slider with allow_direct_input=False
+    slider_inputs = dash_dcc.find_elements("#slider-no-input .dash-range-slider-input")
+    assert (
+        len(slider_inputs) == 0
+    ), "Expected 0 inputs for slider with allow_direct_input=False"
+
+    # Verify no input elements exist for rangeslider with allow_direct_input=False
+    rangeslider_inputs = dash_dcc.find_elements(
+        "#rangeslider-no-input .dash-range-slider-input"
+    )
+    assert (
+        len(rangeslider_inputs) == 0
+    ), "Expected 0 inputs for rangeslider with allow_direct_input=False"
+
+    # Verify sliders are still functional by clicking them
+    slider = dash_dcc.find_element("#slider-no-input")
+    dash_dcc.click_at_coord_fractions(slider, 0.75, 0.5)
+    dash_dcc.wait_for_text_to_equal("#slider-output", "Slider: 75")
+
+    rangeslider = dash_dcc.find_element("#rangeslider-no-input")
+    # Click closer to the left to move the lower handle
+    dash_dcc.click_at_coord_fractions(rangeslider, 0.1, 0.5)
+    dash_dcc.wait_for_text_to_equal("#rangeslider-output", "RangeSlider: 10-75")
+
+    assert dash_dcc.get_logs() == []

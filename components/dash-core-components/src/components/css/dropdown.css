@@ -1,0 +1,238 @@
+.dash-dropdown {
+    display: block;
+    flex: 1;
+    box-sizing: border-box;
+    padding: 0;
+    background: var(--Dash-Fill-Inverse-Strong);
+    border: none;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    overflow: hidden;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-grid-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    justify-items: start;
+    align-items: center;
+    gap: calc(var(--Dash-Spacing) * 2);
+}
+
+.dash-dropdown-grid-container:has(> :nth-child(3)) {
+    grid-template-columns: auto 1fr auto;
+}
+
+.dash-dropdown-grid-container:has(> :nth-child(4)) {
+    grid-template-columns: auto 1fr auto auto;
+}
+
+.dash-dropdown,
+.dash-dropdown-content {
+    border-radius: var(--Dash-Spacing);
+    border: 1px solid var(--Dash-Stroke-Strong);
+    color: inherit;
+    text-align: left;
+}
+
+.dash-dropdown-trigger {
+    padding: 0 12px;
+    min-height: 32px;
+    height: 100%;
+}
+
+.dash-dropdown:focus {
+    border: 1px solid var(--Dash-Fill-Interactive-Strong);
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dash-dropdown-value {
+    max-width: 100%;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dash-dropdown-placeholder {
+    color: var(--Dash-Text-Disabled);
+}
+
+.dash-dropdown-value > * {
+    display: inline;
+}
+
+.dash-dropdown-value-item:not(:first-child)::before {
+    content: ', ';
+}
+
+.dash-dropdown-content {
+    background: var(--Dash-Fill-Inverse-Strong);
+    width: fit-content;
+    min-width: var(--radix-popover-trigger-width);
+    max-width: 98vw;
+    overflow-y: auto;
+    z-index: 500;
+    box-shadow: 0px 10px 38px -10px var(--Dash-Shading-Strong),
+        0px 10px 20px -15px var(--Dash-Shading-Weak);
+    overscroll-behavior: contain;
+}
+
+.dash-dropdown-value-count,
+.dash-dropdown-trigger-icon {
+    color: var(--Dash-Text-Strong);
+    fill: var(--Dash-Text-Strong);
+    white-space: nowrap;
+    justify-self: end;
+}
+
+.dash-dropdown-trigger-icon {
+    transition: transform 0.15s;
+}
+
+[data-state='open'] .dash-dropdown-trigger-icon {
+    transform: rotate(180deg);
+}
+
+.dash-dropdown-value-count {
+    line-height: 18px;
+    padding: 4px;
+    border-radius: 4px;
+    color: var(--Dash-Text-Weak);
+    background: var(--Dash-Fill-Interactive-Weak);
+    font-size: 0.875em;
+}
+
+.dash-dropdown-search-container {
+    position: sticky;
+    top: calc(var(--Dash-Spacing) * 2);
+    margin: calc(var(--Dash-Spacing) * 2);
+    padding: var(--Dash-Spacing);
+    border-radius: 4px;
+    border: 1px solid var(--Dash-Stroke-Strong);
+    background: var(--Dash-Fill-Inverse-Strong);
+}
+
+.dash-dropdown-search-container:focus-within {
+    border-color: var(--Dash-Fill-Interactive-Strong);
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-search-icon,
+.dash-dropdown-clear {
+    width: 1em;
+    height: 1em;
+}
+
+.dash-dropdown-search-container:focus-within .dash-dropdown-search-icon {
+    color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: end;
+    color: var(--Dash-Text-Strong);
+}
+
+.dash-dropdown-clear:hover {
+    color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-clear:focus {
+    outline: 2px solid var(--Dash-Fill-Interactive-Strong);
+    outline-offset: 1px;
+    border-radius: 2px;
+}
+
+.dash-dropdown-search {
+    line-height: calc(var(--Dash-Spacing) * 6);
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--Dash-Text-Strong);
+    outline: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+
+    /* Hide the "x" clear button in search inputs */
+    &::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+    }
+
+    &::-ms-clear {
+        display: none;
+    }
+}
+
+.dash-dropdown-actions {
+    display: flex;
+    gap: calc(var(--Dash-Spacing) * 6);
+    line-height: 18px;
+    padding: var(--Dash-Spacing) calc(var(--Dash-Spacing) * 3);
+    border-top: 1px solid var(--Dash-Fill-Disabled);
+    border-bottom: 1px solid var(--Dash-Fill-Disabled);
+}
+
+.dash-dropdown-action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.875em;
+    font-weight: 600;
+    padding: 0;
+    text-decoration: none;
+    color: var(--Dash-Text-Weak);
+    white-space: nowrap;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-action-button:hover {
+    color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-dropdown-action-button:focus {
+    text-decoration: underline;
+}
+
+.dash-dropdown-options {
+    overflow-y: auto;
+}
+
+.dash-dropdown-option {
+    padding: calc(var(--Dash-Spacing) * 2) calc(var(--Dash-Spacing) * 3);
+    box-shadow: 0 -1px 0 0 var(--Dash-Fill-Disabled) inset;
+}
+
+.dash-dropdown-option
+    .dash-options-list-option-wrapper:has(input[type='radio']) {
+    /* radio buttons are used in single-select dropdowns to aid keyboard
+     * selection and screen readers, but visually, they are hidden
+     */
+    width: 0;
+    overflow: hidden;
+}
+
+/* Positioning container for the dropdown */
+.dash-dropdown-wrapper {
+    position: relative;
+}

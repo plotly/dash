@@ -501,17 +501,17 @@ def test_rdps012_pattern_matching(dash_duo):
 
     for _ in range(3):
         dash_duo.wait_for_text_to_equal(".out", "a")
-        dash_duo.find_element(".persisted").send_keys("lpaca")
+        dash_duo.find_element(".persisted input").send_keys("lpaca")
         dash_duo.wait_for_text_to_equal(".out", "alpaca")
 
-        dash_duo.find_element(".persistence-val").send_keys("s")
+        dash_duo.find_element(".persistence-val input").send_keys("s")
         dash_duo.wait_for_text_to_equal(".out", "a")
-        dash_duo.find_element(".persisted").send_keys("nchovies")
+        dash_duo.find_element(".persisted input").send_keys("nchovies")
         dash_duo.wait_for_text_to_equal(".out", "anchovies")
 
-        dash_duo.find_element(".persistence-val").send_keys("2")
+        dash_duo.find_element(".persistence-val input").send_keys("2")
         dash_duo.wait_for_text_to_equal(".out", "a")
-        dash_duo.find_element(".persisted").send_keys(
+        dash_duo.find_element(".persisted input").send_keys(
             Keys.BACK_SPACE
         )  # persist falsy value
         dash_duo.wait_for_text_to_equal(".out", "")
@@ -521,9 +521,9 @@ def test_rdps012_pattern_matching(dash_duo):
         dash_duo.wait_for_text_to_equal(".out", "a")
 
         # anchovies and aardvark saved
-        dash_duo.find_element(".persistence-val").send_keys("s")
+        dash_duo.find_element(".persistence-val input").send_keys("s")
         dash_duo.wait_for_text_to_equal(".out", "anchovies")
-        dash_duo.find_element(".persistence-val").send_keys("2")
+        dash_duo.find_element(".persistence-val input").send_keys("2")
         dash_duo.wait_for_text_to_equal(".out", "")
 
         dash_duo.find_element("#btn").click()

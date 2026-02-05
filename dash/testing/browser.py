@@ -432,10 +432,10 @@ class Browser(DashPageMixin):
         dropdown = self._get_element(elem_or_selector)
         dropdown.click()
 
-        menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
+        menu = self._get_element(".dash-dropdown-options")
         logger.debug("the available options are %s", "|".join(menu.text.split("\n")))
 
-        options = menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
+        options = menu.find_elements(By.CSS_SELECTOR, ".dash-dropdown-option")
         if options:
             if isinstance(index, int):
                 options[index].click()

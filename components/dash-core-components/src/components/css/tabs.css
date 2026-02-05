@@ -1,0 +1,113 @@
+/* Tab parent container */
+.tab-parent {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Tab container (holds all tabs) */
+.tab-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-container--vert {
+    display: inline-flex;
+}
+
+/* Individual tab */
+.tab {
+    flex: 1 1 0;
+    min-width: 0;
+    background-color: var(--tabs-background);
+    border: 1px solid var(--tabs-border);
+    border-bottom: none;
+    padding: 20px 25px;
+    transition: background-color, color 200ms;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Tab selected state */
+.tab--selected {
+    border-top: 2px solid var(--tabs-primary);
+    color: var(--Dash-Text-Primary);
+    background-color: var(--Dash-Fill-Inverse-Strong);
+}
+
+.tab--selected:hover {
+    background-color: var(--Dash-Fill-Inverse-Strong);
+}
+
+/* Tab disabled state */
+.tab--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Tab content area */
+.tab-content--vert {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+/* Desktop/tablet styles (when above breakpoint) */
+.tab-parent--above-breakpoint .tab {
+    border: 1px solid var(--tabs-border);
+    border-right: none;
+}
+
+.tab-parent--above-breakpoint .tab:last-child {
+    border-right: 1px solid var(--tabs-border);
+    border-bottom: 1px solid var(--tabs-border);
+}
+
+.tab-parent--above-breakpoint .tab--selected,
+.tab-parent--above-breakpoint .tab:last-child.tab--selected {
+    border-bottom: none;
+}
+
+/* Vertical tabs: left border for selected */
+.tab-parent--above-breakpoint .tab-container--vert .tab--selected {
+    border-left: 2px solid var(--tabs-primary);
+}
+
+/* Horizontal tabs: top border for selected */
+.tab-parent--above-breakpoint
+    .tab-container:not(.tab-container--vert)
+    .tab--selected,
+.tab-parent--above-breakpoint
+    .tab-container:not(.tab-container--vert)
+    .tab:last-child.tab--selected {
+    border-top: 2px solid var(--tabs-primary);
+}
+
+.tab-parent--above-breakpoint .tab-container--vert .tab {
+    width: auto;
+    border-right: none !important;
+    border-bottom: none !important;
+}
+
+.tab-parent--above-breakpoint .tab-container--vert .tab:last-child {
+    border-bottom: 1px solid var(--tabs-border) !important;
+}
+
+.tab-parent--above-breakpoint .tab-container--vert .tab--selected {
+    border-top: 1px solid var(--tabs-border);
+    border-left: 2px solid var(--tabs-primary);
+    border-right: none;
+}
+
+.tab-parent--above-breakpoint .tab-container {
+    flex-direction: row;
+}
+
+.tab-parent--above-breakpoint .tab-container--vert {
+    flex-direction: column;
+}
+
+.tab-parent--above-breakpoint.tab-parent--vert {
+    display: inline-flex;
+    flex-direction: row;
+}
