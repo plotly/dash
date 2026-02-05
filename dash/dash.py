@@ -2301,6 +2301,7 @@ class Dash(ObsoleteChecker):
             host = host or "127.0.0.1"
         else:
             host = host or os.getenv("HOST", "127.0.0.1")
+        assert host
         port = port or os.getenv("PORT", "8050")
         proxy = proxy or os.getenv("DASH_PROXY")
 

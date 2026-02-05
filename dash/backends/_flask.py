@@ -37,12 +37,11 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
 
-class FlaskDashServer(BaseDashServer):
+class FlaskDashServer(BaseDashServer[Flask]):
     def __init__(self, server: Flask) -> None:
-        self.server: Flask = server
+        super().__init__(server)
         self.server_type = "flask"
         self.request_adapter = FlaskRequestAdapter
-        super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
         # Always WSGI

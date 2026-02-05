@@ -33,18 +33,17 @@ from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash._utils import parse_version
 from dash import _validate, Dash
-from .base_server import BaseDashServer
+from .base_server import BaseDashServer, RequestAdapter
 from ._utils import format_traceback_html
 
 
-class QuartDashServer(BaseDashServer):
+class QuartDashServer(BaseDashServer[Quart]):
     def __init__(self, server: Quart) -> None:
+        super().__init__(server)
         self.server_type = "quart"
-        self.server: Quart = server
         self.config = {}
         self.error_handling_mode = "ignore"
         self.request_adapter = QuartRequestAdapter
-        super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):  # type: ignore[name-defined]
         return self.server(*args, **kwargs)
@@ -340,7 +339,7 @@ class QuartDashServer(BaseDashServer):
             ) from error
 
 
-class QuartRequestAdapter:
+class QuartRequestAdapter(RequestAdapter):
     def __init__(self) -> None:
         self._request = request  # type: ignore[assignment]
         if self._request is None:
@@ -396,5 +395,6 @@ class QuartRequestAdapter:
     def path(self):
         return self.request.path
 
-    async def get_json(self):
+    async def get_json(self):  # pylint: disable=W0236
+        # TODO consider using a sync wraper
         return await self.request.get_json()

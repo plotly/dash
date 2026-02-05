@@ -1,4 +1,6 @@
 import importlib
+from typing import Type
+
 from .base_server import BaseDashServer
 
 
@@ -12,7 +14,7 @@ _backend_imports = {
 }
 
 
-def get_backend(name: str) -> BaseDashServer:
+def get_backend(name: str) -> Type[BaseDashServer]:
     module_name, server_class = _backend_imports[name.lower()]
     try:
         module = importlib.import_module(module_name)

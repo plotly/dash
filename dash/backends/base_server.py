@@ -1,5 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, TypeVar, Generic, Protocol
+
+
+class _ServerCallable(Protocol):  # pylint: disable=too-few-public-methods
+    def __call__(self, *args: Any, **kwds: Any) -> Any:
+        raise NotImplementedError
+
+
+ServerType = TypeVar("ServerType", bound=_ServerCallable)
 
 
 class RequestAdapter(ABC):
@@ -67,11 +75,15 @@ class RequestAdapter(ABC):
         raise NotImplementedError()
 
 
-class BaseDashServer(ABC):
+class BaseDashServer(ABC, Generic[ServerType]):
     server_type: str
-    server: Any
+    server: ServerType
     config: Dict[str, Any]
     request_adapter: Type[RequestAdapter]
+
+    def __init__(self, server: ServerType) -> None:
+        super().__init__()
+        self.server = server
 
     def __call__(self, *args, **kwargs) -> Any:
         # Default: WSGI

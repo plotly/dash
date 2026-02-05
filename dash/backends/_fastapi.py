@@ -94,13 +94,14 @@ def _remove_config(config_path):
         pass
 
 
-class FastAPIDashServer(BaseDashServer):
+class FastAPIDashServer(BaseDashServer[FastAPI]):
     def __init__(self, server: FastAPI):
+        super().__init__(server)
         self.server_type = "fastapi"
-        self.server: FastAPI = server
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
         self._before_request_funcs = []
+        self._before_middleware_added = False
 
         fname = inspect.stack()[2]
         file_path = fname.filename
@@ -114,7 +115,6 @@ class FastAPIDashServer(BaseDashServer):
         hash_digest = hashlib.sha256(file_path.encode("utf-8")).hexdigest()
         config_filename = f"{hash_digest}.json"
         self._CONFIG_PATH = os.path.join(config_dir, config_filename)
-        super().__init__()
 
     def __call__(self, *args: Any, **kwargs: Any):
         # ASGI: (scope, receive, send)
@@ -232,7 +232,7 @@ class FastAPIDashServer(BaseDashServer):
 
     def run(self, dash_app: Dash, host, port, debug, **kwargs):
         frame = inspect.stack()[2]
-        dev_tools = dash_app._dev_tools  # pylint-disable=W0212
+        dev_tools = dash_app._dev_tools  # pylint: disable=W0212
         config = dict(
             {"debug": debug} if debug else {"debug": False},
             **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
@@ -260,6 +260,7 @@ class FastAPIDashServer(BaseDashServer):
         # Add any other kwargs as CLI args if needed
 
         try:
+            # pylint: disable=R1732
             proc = subprocess.Popen(uvicorn_args, env=os.environ.copy())
             proc.wait()
         finally:
@@ -293,7 +294,7 @@ class FastAPIDashServer(BaseDashServer):
                 return response
             except PreventUpdate:
                 return Response(status_code=204)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=W0718
                 if self.error_handling_mode in ["raise", "prune"]:
                     tb = self._get_traceback(None, e)
                     return Response(content=tb, media_type="text/html", status_code=500)
@@ -465,14 +466,18 @@ class FastAPIDashServer(BaseDashServer):
             )
 
     def enable_compression(self) -> None:
-        from fastapi.middleware.gzip import GZipMiddleware
+        from fastapi.middleware.gzip import (
+            GZipMiddleware,
+        )  # pylint: disable=import-outside-toplevel
 
         self.server.add_middleware(GZipMiddleware, minimum_size=500)
-        config = _load_config()
+        config = _load_config(self._CONFIG_PATH)
         if "COMPRESS_ALGORITHM" not in config:
-            config["COMPRESS_ALGORITHM"] = ["gzip"]
+            config["COMPRESS_ALGORITHM"] = [
+                "gzip"
+            ]  # pylint: disable=no-value-for-parameter
 
-        _save_config(config)
+        _save_config(self._CONFIG_PATH, config)
 
 
 class FastAPIRequestAdapter(RequestAdapter):

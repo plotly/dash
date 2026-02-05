@@ -276,7 +276,7 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=None,
-):
+) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
 
