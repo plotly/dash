@@ -1,5 +1,260 @@
-/* Fix the default tooltip style height conflicting with the actual size of the tooltip. */
-.rc-slider-tooltip-content > .rc-slider-tooltip-inner {
-    height: unset;
-    min-height: 20px;
+.dash-slider-root {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    touch-action: none;
+    width: 100%;
+    height: 14px;
+    padding: 17px 0 17px 0;
+    box-sizing: border-box;
+    /* Override Radix's default margin/padding behavior */
+    --radix-slider-thumb-width: 16px;
+}
+
+.dash-slider-root.has-marks {
+    padding: 6px 0 28px 0;
+}
+
+.dash-slider-root[data-orientation='vertical'].has-marks {
+    padding-bottom: 0px;
+}
+
+.dash-slider-root[data-orientation='vertical'] {
+    flex-direction: column;
+    width: 20px;
+    height: 100%;
+}
+
+.dash-slider-track {
+    position: relative;
+    flex-grow: 1;
+    border-radius: 9999px;
+    height: 4px;
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-root[data-orientation='vertical'] .dash-slider-track {
+    width: 4px;
+    height: auto;
+    overflow-y: hidden;
+}
+
+.dash-slider-range {
+    position: absolute;
+    border-radius: 9999px;
+    height: 100%;
+    background-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-slider-root[data-orientation='vertical'] .dash-slider-range {
+    width: 100%;
+    height: auto;
+}
+
+.dash-slider-thumb {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 16px;
+    height: 16px;
+    background-color: var(--Dash-Fill-Interactive-Strong);
+    border: 2px solid var(--Dash-Fill-Inverse-Strong);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px 0 var(--Dash-Shading-Weak);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s ease-in-out;
+}
+
+.dash-slider-thumb:focus,
+.dash-slider-thumb:hover {
+    transform: scale(1.125); /* Scale to make 16px thumb appear as 18px */
+    box-shadow: 0 4px 6px -1px var(--Dash-Shading-Weak);
+}
+
+.dash-slider-thumb:focus {
+    outline: 2px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-slider-thumb:focus .dash-slider-tooltip,
+.dash-slider-thumb:hover .dash-slider-tooltip {
+    display: block;
+}
+
+.dash-slider-thumb[data-disabled],
+.dash-range-slider-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.dash-slider-mark {
+    position: absolute;
+    font-size: 12px;
+    line-height: 12px;
+    color: var(--Dash-Text-Strong);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.dash-slider-mark-outside-selection {
+    color: var(--Dash-Text-Disabled);
+}
+
+.dash-slider-mark:before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--Dash-Fill-Disabled);
+    width: 4px;
+    height: 6px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+}
+.dash-slider-mark.with-dots:before {
+    content: initial;
+}
+
+.dash-slider-root[data-orientation='vertical'] .dash-slider-mark:before {
+    content: initial;
+}
+
+.dash-slider-dot {
+    pointer-events: none;
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--Dash-Fill-Primary-Active);
+}
+
+.dash-slider-dot-outside-selection {
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-tooltip {
+    display: none;
+    position: absolute;
+    border-radius: var(--Dash-Spacing);
+    padding: calc(var(--Dash-Spacing) * 3);
+    font-size: 12px;
+    line-height: 1;
+    box-shadow: 0 0 8px var(--Dash-Shading-Strong);
+    background-color: var(--Dash-Fill-Inverse-Strong);
+    user-select: none;
+    z-index: 1000;
+    fill: var(--Dash-Fill-Inverse-Strong);
+}
+
+.dash-slider-tooltip.always-visible {
+    display: block;
+}
+
+/* Include property to mimic rc-slider behavior */
+.dash-slider-root:not([data-included='false']) .dash-slider-range {
+    background-color: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-slider-root[data-included='false'] .dash-slider-range {
+    background-color: transparent;
+}
+
+/* Disabled state */
+.dash-slider-root[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dash-slider-root[data-disabled] .dash-slider-track {
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-root[data-disabled] .dash-slider-range {
+    background-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-root[data-disabled] .dash-slider-thumb {
+    cursor: not-allowed;
+    border-color: var(--Dash-Fill-Disabled);
+}
+
+.dash-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    container-type: inline-size;
+}
+
+.dash-slider-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.dash-range-slider-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 64px;
+}
+
+.dash-range-slider-min-input {
+    text-align: center;
+}
+
+.dash-range-slider-max-input {
+    order: 1;
+}
+
+.dash-range-slider-input {
+    min-width: 5cqw; /* 5% of container width */
+    max-width: 25cqw; /* 25% of container width */
+    text-align: center;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    font-family: inherit;
+    font-size: inherit;
+    box-sizing: content-box;
+    height: 30px;
+}
+
+.dash-range-slider-input:only-of-type {
+    max-width: 33cqw;
+}
+
+.dash-range-slider-input::selection,
+.dash-range-slider-input::-webkit-selection {
+    color: var(--Dash-Fill-Inverse-Strong);
+    background: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-range-slider-input:focus {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+/* Hide the number input spinners */
+.dash-range-slider-input::-webkit-inner-spin-button,
+.dash-range-slider-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide inputs on small containers using container queries */
+/* single slider input */
+@container (max-width: 200px) {
+    .dash-slider-container .dash-range-slider-input:only-of-type {
+        display: none;
+    }
+}
+
+/* range slider inputs */
+@container (max-width: 300px) {
+    .dash-slider-container .dash-range-slider-min-input,
+    .dash-slider-container .dash-range-slider-max-input {
+        display: none;
+    }
 }

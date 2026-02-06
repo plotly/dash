@@ -1,0 +1,50 @@
+.dash-button {
+    line-height: 32px;
+    background: var(--Dash-Fill-Interactive-Weak);
+    color: var(--Dash-Fill-Interactive-Strong);
+    padding: 0 calc(var(--Dash-Spacing) * 2);
+    border-radius: 4px;
+    border: 1px solid var(--Dash-Fill-Interactive-Strong);
+    box-sizing: border-box;
+    vertical-align: middle;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* Hover state - stronger background */
+.dash-button:hover {
+    cursor: pointer;
+    background: var(--Dash-Fill-Inverse-Strong);
+    color: var(--Dash-Fill-Interactive-Strong);
+}
+
+/* Active state (clicking) - inverted colors */
+.dash-button:active {
+    background: var(--Dash-Fill-Interactive-Strong);
+    color: var(--Dash-Fill-Inverse-Strong);
+}
+
+/* Keyboard focus - inverted colors */
+.dash-button:focus-visible {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+/* Hover after keyboard focus - keep inverted but acknowledge hover */
+.dash-button:focus-visible:hover {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+/* Active state after keyboard focus - inverted colors */
+.dash-button:focus-visible:active {
+    background: var(--Dash-Fill-Interactive-Strong);
+    color: var(--Dash-Fill-Inverse-Strong);
+}
+
+/* Disabled state */
+.dash-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--Dash-Fill-Disabled);
+    color: var(--Dash-Text-Strong);
+    border-color: var(--Dash-Stroke-Weak);
+}

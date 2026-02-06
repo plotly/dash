@@ -538,18 +538,18 @@ def test_cbwc007_pmc_update_subtree_ordering(dash_duo):
         return str(values)
 
     dash_duo.start_server(app)
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(3)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(3) button", index=2)
 
     dash_duo.wait_for_text_to_equal("#selected-values", "[None, None, 'option2-2']")
 
     dash_duo.wait_for_element("#refresh-options").click()
 
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(2)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(2) button", index=2)
     dash_duo.wait_for_text_to_equal(
         "#selected-values", "[None, 'option1-2', 'option2-2']"
     )
 
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(1)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(1) button", index=2)
     dash_duo.wait_for_text_to_equal(
         "#selected-values", "['option0-2', 'option1-2', 'option2-2']"
     )

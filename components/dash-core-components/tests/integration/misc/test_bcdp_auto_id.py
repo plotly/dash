@@ -48,7 +48,7 @@ def test_msai001_auto_id_assert(dash_dcc):
             _id = "\\3" + _id[0] + " " + _id[1:]
         return "#" + _id
 
-    dash_dcc.wait_for_element(".rc-slider")
+    dash_dcc.wait_for_element(".dash-slider-container")
     dash_dcc.find_element(escape_id(input1))
     dash_dcc.find_element(escape_id(input2))
     dash_dcc.wait_for_text_to_equal(escape_id(output1), "Output1: Input1=Hello Input 1")

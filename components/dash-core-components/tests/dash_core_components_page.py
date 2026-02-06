@@ -1,4 +1,5 @@
 import logging
+import time
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -16,14 +17,15 @@ class DashCoreComponentsMixin(object):
         outside_month: used in conjunction with day. indicates if the day out
             the scope of current month. default False.
         """
-        date = self.find_element(f"#{compid} input")
+        date = self.find_element(f"#{compid}")
         date.click()
 
         def is_month_valid(elem):
+            classes = elem.get_attribute("class") or ""
             return (
-                "__outside" in elem.get_attribute("class")
+                "dash-datepicker-calendar-date-outside" in classes
                 if outside_month
-                else "__outside" not in elem.get_attribute("class")
+                else "dash-datepicker-calendar-date-outside" not in classes
             )
 
         self._wait_until_day_is_clickable()
@@ -41,6 +43,7 @@ class DashCoreComponentsMixin(object):
             matched = days[index]
 
         matched.click()
+        time.sleep(0.1)
         return date.get_attribute("value")
 
     def select_date_range(self, compid, day_range, start_first=True):
@@ -66,15 +69,16 @@ class DashCoreComponentsMixin(object):
             )
             return
 
-        prefix = "Start" if start_first else "End"
-        date = self.find_element(f'#{compid} input[aria-label="{prefix} Date"]')
+        if not start_first:
+            compid += "-end-date"
+        date = self.find_element(f"#{compid}")
         date.click()
         for day in day_range:
             self._wait_until_day_is_clickable()
             matched = [
                 _
                 for _ in self.find_elements(self.date_picker_day_locator)
-                if _.text == str(day)
+                if _.find_element(By.CSS_SELECTOR, "span").text == str(day)
             ]
             matched[0].click()
 
@@ -82,7 +86,8 @@ class DashCoreComponentsMixin(object):
 
     def get_date_range(self, compid):
         return tuple(
-            _.get_attribute("value") for _ in self.find_elements(f"#{compid} input")
+            _.get_attribute("value")
+            for _ in self.find_elements(f"#{compid}-wrapper .dash-datepicker-input")
         )
 
     def _wait_until_day_is_clickable(self, timeout=1):
@@ -92,7 +97,7 @@ class DashCoreComponentsMixin(object):
 
     @property
     def date_picker_day_locator(self):
-        return 'div[data-visible="true"] td.CalendarDay'
+        return ".dash-datepicker-calendar-date-inside, .dash-datepicker-calendar-date-outside"
 
     def click_and_hold_at_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
@@ -104,7 +109,7 @@ class DashCoreComponentsMixin(object):
     def move_to_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
 
-        ActionChains(self.driver).move_to_element_with_offset(
+        ActionChains(self.driver).click_and_hold().move_to_element_with_offset(
             elem, elem.size["width"] * fx, elem.size["height"] * fy
         ).perform()
 

@@ -34,6 +34,7 @@ def test_tabs001_in_vertical_mode(dash_dcc):
         ]
     )
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tab-3", "Tab three")
     dash_dcc.percy_snapshot("Core Tabs - vertical mode")
@@ -67,6 +68,7 @@ def test_tabs002_without_children(dash_dcc):
         elif tab == "tab-2":
             return html.Div([html.H3("Test content 2")], id="test-tab-2")
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Test content 2")
     dash_dcc.percy_snapshot("Core initial tab - tab 2")
@@ -87,6 +89,7 @@ def test_tabs003_without_children_undefined(dash_dcc):
         id="app",
     )
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
     dash_dcc.wait_for_element("#tabs-content")
     assert dash_dcc.find_element("#app").text == "Dash Tabs component demo"
@@ -122,6 +125,7 @@ def test_tabs004_without_value(dash_dcc):
         elif tab == "tab-2":
             return html.H3("Tab content 2")
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
     dash_dcc.wait_for_text_to_equal("#tabs-content", "Default selected Tab content 1")
     assert dash_dcc.get_logs() == []
@@ -155,6 +159,7 @@ def test_tabs005_disabled(dash_dcc):
         ]
     )
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_element("#tab-2")

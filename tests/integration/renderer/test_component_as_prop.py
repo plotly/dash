@@ -358,9 +358,13 @@ def test_rdcap002_component_as_props_dynamic_id(dash_duo):
 
     dash_duo.wait_for_element("#add-option").click()
     for i in range(1, n + 2):
-        dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "")
+        dash_duo.wait_for_text_to_equal(
+            f"#options label:nth-child({i}) span.label-result", ""
+        )
         dash_duo.wait_for_element(f"#options label:nth-child({i}) button").click()
-        dash_duo.wait_for_text_to_equal(f"#options label:nth-child({i}) span", "1")
+        dash_duo.wait_for_text_to_equal(
+            f"#options label:nth-child({i}) span.label-result", "1"
+        )
 
 
 @flaky(max_runs=3)
@@ -389,13 +393,13 @@ def test_rdcap003_side_effect_regression(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#counter", "0")
     dash_duo.find_element("#a").click()
-    assert len(dash_duo.find_elements("#b label > input")) == 2
+    assert len(dash_duo.find_elements("#b label input")) == 2
     dash_duo.wait_for_text_to_equal("#counter", "0")
     dash_duo.find_element("#a").click()
-    assert len(dash_duo.find_elements("#b label > input")) == 3
+    assert len(dash_duo.find_elements("#b label input")) == 3
     dash_duo.wait_for_text_to_equal("#counter", "0")
 
-    dash_duo.find_elements("#b label > input")[0].click()
+    dash_duo.find_elements("#b label input")[0].click()
     dash_duo.wait_for_text_to_equal("#counter", "1")
 
 
@@ -454,7 +458,8 @@ def test_rdcap004_side_effect_same_component(dash_duo):
     # Initial callback
     dash_duo.wait_for_text_to_equal("#counter", "1")
 
-    search = dash_duo.wait_for_element("#my-dynamic-dropdown input")
+    dash_duo.wait_for_element("#my-dynamic-dropdown").click()
+    search = dash_duo.wait_for_element(".dash-dropdown-search")
 
     search.send_keys("a")
 

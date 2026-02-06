@@ -2,7 +2,73 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [4.0.0] - 2026-02-03
+
+## Added
+- Finalize all redesigned dash core components
+- Add a prop to sliders, `allow_direct_input`, that can be used to disable the inputs rendered with sliders.
+- Improve CSS styles in calendar when looking at selected dates outside the current calendar month (`show_outside_days=True`)
+
+## [4.0.0rc6] - 2026-01-07
+
+## Added
+- Restored missing implementation for `with_portal` and `with_full_screen_portal` in datepickers
+
+## Changed
+- Bugfixes for feedback received in `rc5`: notably, popovers are `position: fixed` once again.
+
+## [4.0.0rc5] - 2025-12-16
+
+## Added
+- [#3464](https://github.com/plotly/dash/issues/3464) Add folder upload functionality to `dcc.Upload` component. When `multiple=True`, users can now select and upload entire folders in addition to individual files. The folder hierarchy is preserved in filenames (e.g., `folder/subfolder/file.txt`). Files within folders are filtered according to the `accept` prop. Folder support is available in Chrome, Edge, and Opera; other browsers gracefully fall back to file-only mode. The uploaded files use the same output API as multiple file uploads.
+
+## Changed
+- Bugfixes for feedback received in `rc4`
+
+## [4.0.0rc4] - 2025-12-04
+
+## Added
+- New `dcc.Button` component that mirrors `html.Button` but with default styles applied
+
+## [4.0.0rc3] - 2025-11-27
+- Modernized `dcc.Tabs`
+- Modernized `dcc.DatePickerSingle` and `dcc.DatePickerRange`
+- DatePicker calendars can now accept translations as an external script, either with Dash's `external_scripts` or from the assets folder. See [documentation](https://date-fns.org/v4.1.0/docs/CDN) for the underlying library that supports this.
+
+## Changed
+- `dcc.Tab` now accepts a `width` prop which can be a pixel or percentage width for an individual tab.
+- `dcc.Tab` can accept other Dash Components for its label, in addition to a simple string.
+
+## [4.0.0rc2] - 2025-10-10
+
+## Added
+- [3468](https://github.com/plotly/dash/pull/3468) Modernize dcc.TextArea & dcc.Tooltip
+- [3467](https://github.com/plotly/dash/pull/3467) Modernize dcc.Loading
+- [3453](https://github.com/plotly/dash/pull/3453) Modernize dcc.Checklist & dcc.RadioItems
+
+## Changed
+
+- Various tweaks and bugfixes to issues reported in `4.0.0rc1`
+
+- Dropdown API changes
+    * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired
+    * new `labels` prop to customize strings used within the component
+    * default value for closeOnSelect is now `True` for single-select dropdowns and `False` for multi-select
+
+- Slider API changes
+    * default value of `step` is now only set to `1` if the `min` and `max` props are both integers. Otherwise, it will be dynamically computed according to the available space for the slider
+
+## [4.0.0rc1] - 2025-09-22
+
+## Added
+- [#3440](https://github.com/plotly/dash/pull/3440) Modernize dcc.Dropdown
+
+## [4.0.0rc0] - 2025-09-11
+- [#3398](https://github.com/plotly/dash/pull/3398) Modernize dcc.Input
+- [#3414](https://github.com/plotly/dash/pull/3414) Modernize dcc.Slider
+
+
+## [3.4.0] - 2026-01-19
 
 ## Added
 
@@ -33,7 +99,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
 - [#3445](https://github.com/plotly/dash/pull/3445) Added API to reverse direction of slider component.
 - [#3460](https://github.com/plotly/dash/pull/3460) Add `/health` endpoint for server monitoring and health checks.
-- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
+- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies.
 
 ## Fixed
 - [#3490](https://github.com/plotly/dash/pull/3490) Fix stack overflow when circular callbacks are displayed on the devtool callback 
