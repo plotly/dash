@@ -2690,6 +2690,7 @@ class Dash(ObsoleteChecker):
                 """,
                 Output(_ID_DUMMY, "children"),
                 Input(_ID_STORE, "data"),
+                hidden=True,
             )
 
     def __call__(self, environ, start_response):
