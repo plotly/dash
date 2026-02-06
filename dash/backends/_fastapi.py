@@ -215,7 +215,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         if func is not None:
             self._before_request_funcs.append(func)
         # Only add the middleware once
-        if not hasattr(self, "_before_middleware_added"):
+        if not self._before_middleware_added:
             self.server.add_middleware(CurrentRequestMiddleware)
             self.server.middleware("http")(self._make_before_middleware())
             self._before_middleware_added = True
