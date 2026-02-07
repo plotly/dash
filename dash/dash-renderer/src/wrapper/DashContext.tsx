@@ -18,7 +18,7 @@ type LoadingOptions = {
      * Useful if you want the loading of a child component
      * as the path is available in `child.props.componentPath`.
      */
-    rawPath?: boolean;
+    rawPath?: DashLayoutPath;
     /**
      * Function used to filter the properties of the loading component.
      * Filter argument is an Entry of `{path, property, id}`.
@@ -40,7 +40,7 @@ type DashContextType = {
 
 export const DashContext = React.createContext<DashContextType>({} as any);
 
-type DashContextProviderProps = {
+export type DashContextProviderProps = {
     children: JSX.Element;
     componentPath: DashLayoutPath;
 };

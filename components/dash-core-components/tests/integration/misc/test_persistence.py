@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from time import sleep
 from selenium.webdriver.common.keys import Keys
 
 from dash import Dash, Input, Output, dcc, html
@@ -24,8 +25,6 @@ def test_msps001_basic_persistence(dash_dcc):
                 id="datepickerrange",
                 start_date="2017-08-21",
                 end_date="2024-04-08",
-                start_date_id="start_date",
-                end_date_id="end_date",
                 initial_visible_month="2019-05-01",
                 persistence=True,
             ),
@@ -119,6 +118,7 @@ def test_msps001_basic_persistence(dash_dcc):
     ]
 
     dash_dcc.start_server(app)
+    dash_dcc.driver.set_window_size(1024, 768)
     dash_dcc.wait_for_text_to_equal("#settings", json.dumps(initial_settings))
 
     dash_dcc.find_element("#checklist label:last-child input").click()  # 🚀
@@ -126,16 +126,22 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.select_date_range("datepickerrange", day_range=(4,))
     dash_dcc.select_date_range("datepickerrange", day_range=(14,), start_first=False)
 
-    dash_dcc.find_element("#datepickersingle input").click()
+    dash_dcc.find_element("#datepickersingle").click()
     dash_dcc.select_date_single("datepickersingle", day="20")
 
-    dash_dcc.find_element("#dropdownsingle .Select-input input").send_keys(
+    dash_dcc.find_element("#dropdownsingle").click()
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
         "one" + Keys.ENTER
     )
+    sleep(0.2)
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
 
-    dash_dcc.find_element("#dropdownmulti .Select-input input").send_keys(
+    dash_dcc.find_element("#dropdownmulti").click()
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
         "six" + Keys.ENTER
     )
+    sleep(0.2)
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
 
     dash_dcc.find_element("#input").send_keys(" maybe")
 

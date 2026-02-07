@@ -102,9 +102,8 @@ def test_async_cbsc002_callbacks_generating_children(dash_duo):
 
     assert call_count.value == 1, "called once at initial stage"
 
-    pad_input, pad_div = dash_duo.dash_innerhtml_dom.select_one(
-        "#output > div"
-    ).contents
+    pad_input = dash_duo.dash_innerhtml_dom.select_one("#output input")
+    pad_div = dash_duo.dash_innerhtml_dom.select_one("#output #sub-output-1")
 
     assert (
         pad_input.attrs["value"] == "sub input initial value"

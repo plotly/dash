@@ -33,7 +33,7 @@ module.exports = (env, argv) => {
         filename = `${dashLibraryName}.js`;
     }
 
-    const entry = overrides.entry || { main: './src/index.js' };
+    const entry = overrides.entry || { main: './src/index.ts' };
 
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
@@ -55,9 +55,31 @@ module.exports = (env, argv) => {
             }
         },
         externals,
+        resolve: {
+            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+            alias: {
+                'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+                'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
+            }
+        },
         module: {
             noParse: /node_modules[\\\/]plotly.js-dist-min/,
             rules: [
+                // TypeScript loader
+                {
+                    test: /\.tsx?$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                '@babel/preset-env',
+                                '@babel/preset-react',
+                                '@babel/preset-typescript'
+                            ]
+                        }
+                    }
+                },
                 {
                     test: /\.jsx?$/,
                     exclude: /node_modules/,
@@ -66,20 +88,24 @@ module.exports = (env, argv) => {
                     }
                 },
                 {
-                    test: /\.jsx?$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|moment|react-dates|react(-virtualized)?-select)[\\\/]/,
+                    test: /\.(jsx?|mjs)$/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|date-fns|@radix-ui|@floating-ui)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
                             babelrc: false,
                             configFile: false,
                             presets: [
-                                '@babel/preset-env'
+                                ['@babel/preset-env', {
+                                    targets: {
+                                        browsers: ['last 9 years and not dead']
+                                    },
+                                    modules: false
+                                }]
                             ]
                         }
                     }
                 },
-
                 {
                     test: /\.css$/,
                     use: [

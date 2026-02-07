@@ -64,6 +64,7 @@ def test_tagr001_graph_does_not_resize_in_tabs(dash_dcc, is_eager):
                 ]
             )
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
 
     tab_one = dash_dcc.wait_for_element("#tab-1")
@@ -156,6 +157,7 @@ def test_tagr002_tabs_render_without_selected(dash_dcc, is_eager):
                 "layout": {"width": 700, "height": 450},
             }
 
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(app)
 
     button_one = dash_dcc.wait_for_element("#one")

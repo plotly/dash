@@ -67,9 +67,14 @@ const BANNED_TYPES = [
     'ChildNode',
     'ParentNode',
 ];
-const unionSupport = PRIMITIVES.concat('boolean', 'Element', 'enum');
+const unionSupport = PRIMITIVES.concat('true', 'false', 'Element', 'enum', 'DashComponent');
 
-const reArray = new RegExp(`(${unionSupport.join('|')})\\[\\]`);
+/* Regex to capture typescript unions in different formats:
+ * string[]
+ * (string | number)[]
+ * SomeCustomType[]
+ */
+const reArray = new RegExp(`(${unionSupport.join('|')}|\\(.+\\)|[A-Z][a-zA-Z]*Value)\\[\\]`);
 
 const isArray = rawType => reArray.test(rawType);
 
@@ -252,13 +257,18 @@ function gatherComponents(sources, components = {}) {
         let name = 'union',
             value;
 
-        // Union only do base types
+        // Union only do base types & DashComponent types
         value = typeObj.types
             .filter(t => {
                 let typeName = t.intrinsicName;
                 if (!typeName) {
                     if (t.members) {
                         typeName = 'object';
+                    } else {
+                        const typeString = checker.typeToString(t);
+                        if (typeString === 'DashComponent') {
+                            typeName = 'node';
+                        }
                     }
                 }
                 if (t.value) {
@@ -269,8 +279,18 @@ function gatherComponents(sources, components = {}) {
                     unionSupport.includes(typeName) ||
                     isArray(checker.typeToString(t))
                 );
-            })
-            .map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
+            });
+        value = value.map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
+
+        // de-dupe any types in this union
+        value = value.reduce((acc, t) => {
+            const key = `${t.name}:${t.value}`;
+            if (!acc.seen.has(key)) {
+                acc.seen.add(key);
+                acc.result.push(t);
+            }
+            return acc;
+        }, { seen: new Set(), result: [] }).result;
 
         if (!value.length) {
             name = 'any';
@@ -285,14 +305,15 @@ function gatherComponents(sources, components = {}) {
     const getPropTypeName = propName => {
         if (propName.includes('=>') || propName === 'Function') {
             return 'func';
-        } else if (propName === 'boolean') {
+        } else if (['boolean', 'false', 'true'].includes(propName)) {
             return 'bool';
         } else if (propName === '[]') {
             return 'array';
         } else if (
             propName === 'Element' ||
             propName === 'ReactNode' ||
-            propName === 'ReactElement'
+            propName === 'ReactElement' ||
+            propName === 'DashComponent'
         ) {
             return 'node';
         }

@@ -96,6 +96,10 @@ describe('Test Typescript component metadata generation', () => {
             testTypeFactory('element', 'node')
         );
         test(
+            `${componentName} dash_component DashComponent`,
+            testTypeFactory("dash_component", "node"),
+        );
+        test(
             `${componentName} boolean type`,
             testTypeFactory('a_bool', 'bool')
         );
@@ -197,6 +201,28 @@ describe('Test Typescript component metadata generation', () => {
             expect(propType.value.value[0].name).toBe('string');
             expect(propType.value.value[1].name).toBe('shape');
         });
+        test('Union of primitives and arrays of primitives', () => {
+            const propType = R.path(
+                propPath('TypeScriptComponent', 'array_primitive_mix').concat(
+                    'type'
+                ),
+                metadata
+            );
+            expect(propType.name).toBe('union');
+            expect(propType.value.length).toBe(4);
+            expect(propType.value[0].name).toBe('string');
+            expect(propType.value[1].name).toBe('number');
+            expect(propType.value[2].name).toBe('bool');
+            expect(propType.value[3].name).toBe('arrayOf');
+
+            // Verify that the array element type is a union of string, number, and boolean
+            const arrayElementType = propType.value[3].value;
+            expect(arrayElementType.name).toBe('union');
+            expect(arrayElementType.value.length).toBe(3);
+            expect(arrayElementType.value[0].name).toBe('string');
+            expect(arrayElementType.value[1].name).toBe('number');
+            expect(arrayElementType.value[2].name).toBe('bool');
+        });
         test('Obj properties', () => {
             const propType = R.path(
                 propPath('TypeScriptComponent', 'obj').concat('type', 'value'),
@@ -287,6 +313,40 @@ describe('Test Typescript component metadata generation', () => {
                 expect(propType.value[1].name).toBe('literal');
                 expect(propType.value[2].name).toBe('literal');
                 expect(propType.value[1].value).toBe('small');
+            }
+        )
+
+        test(
+            'union of boolean and literal values', () => {
+                const propType = R.path(
+                    propPath('TypeScriptComponent', 'boolean_enum').concat(
+                        'type'
+                    ),
+                    metadata
+                );
+                expect(propType.name).toBe('union');
+                expect(propType.value.length).toBe(3);
+                expect(propType.value[0].name).toBe('bool');
+                expect(propType.value[1].name).toBe('literal');
+                expect(propType.value[2].name).toBe('literal');
+                expect(propType.value[0].value).toBe(undefined);
+                expect(propType.value[1].value).toBe('small');
+                expect(propType.value[2].value).toBe('large');
+            }
+        )
+
+        test(
+            'union of duplicated types', () => {
+                const propType = R.path(
+                    propPath('TypeScriptComponent', 'duplicated_enum').concat(
+                        'type'
+                    ),
+                    metadata
+                );
+                expect(propType.name).toBe('union');
+                expect(propType.value.length).toBe(2);
+                expect(propType.value[0].name).toBe('number');
+                expect(propType.value[1].name).toBe('bool');
             }
         )
     });
