@@ -19,11 +19,11 @@
     "lint": "eslint src scripts",
     "build:js": "webpack --mode production",
     "build:backends": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json --r-prefix 'html' --r-suggests 'dash,dashCoreComponents' --jl-prefix 'html' && black dash_html_components",
-    "build:py": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json  && black dash_html_components",
+    "build:py": "dash-generate-components ./src/components dash_html_components -p package-info.json && cp dash_html_components_base/** dash_html_components && dash-generate-components ./src/components dash_html_components -p package-info.json && black dash_html_components",
     "build": "npm run build:js && npm run build:backends",
     "postbuild": "es-check es5 dash_html_components/*.js",
     "build:watch": "watch 'npm run build' src",
-    "build:windows": "run-p build:js build:py",
+    "build:windows": "npm run build:js && build:py",
     "test:py": "pytest --nopercyfinalize --headless tests/test_dash_html_components.py tests/test_integration.py",
     "test": "run-s -c test:py lint"
   },
