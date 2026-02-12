@@ -158,18 +158,18 @@ jobs:
             pip install --no-cache-dir --upgrade -e .[ci,dev] --progress-bar off
       - run:
           command: |
-            nvm install 18 && nvm use 18
+            nvm install 24 && nvm use 24
       - run:
           name: npm prereqs
           command: |
-            nvm use 18
+            nvm use 24
             npm ci
             cd dash/dash-renderer && npm i && cd ../../
             cd components/dash-html-components && npm i && npm run extract && cd ../../
       - run:
           name: ️️🏗️ build dash
           command: |
-            nvm use 18
+            nvm use 24
             . venv/Scripts/activate
             npm run private::build.jupyterlab && npm run private::build.renderer
             cd components/dash-html-components && npm run build
