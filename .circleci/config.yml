@@ -172,7 +172,7 @@ jobs:
             nvm use 24
             . venv/Scripts/activate
             npm run private::build.jupyterlab && npm run private::build.renderer
-            cd components/dash-html-components && npm run build:windows
+            cd components/dash-html-components && npm run build
           no_output_timeout: 30m
 
   test-312: &test
