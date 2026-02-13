@@ -22,7 +22,12 @@ def click_everything_in_datepicker(datepicker_id, dash_dcc):
     popover = dash_dcc.find_element(".dash-datepicker-content")
 
     interactive_elements = []
-    interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "td"))
+    interactive_elements.extend(
+        popover.find_elements(
+            By.CSS_SELECTOR, "td:not(.dash-datepicker-calendar-padding)"
+        )
+    )
+
     interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "input"))
 
     buttons = reversed(
@@ -36,7 +41,9 @@ def click_everything_in_datepicker(datepicker_id, dash_dcc):
             sleep(0.05)
         except Exception as e:
             print(e)
-            assert not e, f"Unable to click on {el.tag_name})"
+            assert (
+                not e
+            ), f"Unable to click on {el.tag_name} {el.get_attribute('class')})"
 
 
 def test_dppt000_datepicker_single_default(dash_dcc):
