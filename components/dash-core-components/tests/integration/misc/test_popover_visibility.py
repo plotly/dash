@@ -19,7 +19,11 @@ def click_everything_in_datepicker(datepicker_id, dash_dcc):
     popover = dash_dcc.find_element(".dash-datepicker-content")
 
     interactive_elements = []
-    interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "td"))
+    interactive_elements.extend(
+        popover.find_elements(
+            By.CSS_SELECTOR, "td:not(.dash-datepicker-calendar-padding)"
+        )
+    )
     interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "button"))
     interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "input"))
     for el in interactive_elements:
