@@ -12,6 +12,7 @@ import time
 import json
 import os
 import subprocess
+import threading
 
 try:
     from fastapi import FastAPI, Request, Response, Body
@@ -20,6 +21,7 @@ try:
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
     from starlette.types import ASGIApp, Scope, Receive, Send
+    import uvicorn
 except ImportError as _err:
     raise ImportError(
         "All dependencies not installed. Please install it with `dash[fastapi]` to use the FastAPI backend."
@@ -242,30 +244,66 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         if debug and kwargs.get("reload") is None:
             kwargs["reload"] = True
 
-        file_path = frame.filename
-        rel_path = os.path.relpath(file_path, os.getcwd())
-        module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
-        uvicorn_args = [
-            sys.executable,
-            "-m",
-            "uvicorn",
-            f"{module_name}:server",
-            "--host",
-            str(host),
-            "--port",
-            str(port),
-        ]
-        if kwargs.get("reload"):
-            uvicorn_args.append("--reload")
+        # Check if we're running in a thread (e.g., from testing framework)
+        # If so, run uvicorn directly instead of spawning a subprocess
+        is_threaded = threading.current_thread() != threading.main_thread()
 
-        # Add any other kwargs as CLI args if needed
+        if is_threaded:
+            # Running in a thread (testing context) - use uvicorn.run directly
+            # This allows the testing framework to control the server lifecycle
+            if kwargs.get("reload"):
+                kwargs["reload"] = True
+            try:
+                uvicorn.run(self.server, host=host, port=port, **kwargs)
+            finally:
+                self._cleanup_config()
+        else:
+            # Running in main thread (normal context) - use subprocess
+            file_path = frame.filename
+            rel_path = os.path.relpath(file_path, os.getcwd())
 
-        try:
-            # pylint: disable=R1732
-            proc = subprocess.Popen(uvicorn_args, env=os.environ.copy())
-            proc.wait()
-        finally:
-            self._cleanup_config()
+            # Check if the file is outside the current working directory
+            if rel_path.startswith(".."):
+                # File is outside cwd, try to find the module name from sys.modules
+                module_name = None
+                for mod_name, mod in sys.modules.items():
+                    if hasattr(mod, "__file__") and mod.__file__:
+                        if os.path.abspath(mod.__file__) == os.path.abspath(file_path):
+                            module_name = mod_name
+                            break
+
+                # If we still can't find it, raise an error
+                if not module_name:
+                    raise RuntimeError(
+                        f"Cannot determine module name for {file_path}. "
+                        "The file is outside the current working directory and not found in sys.modules. "
+                        "Please ensure the FastAPI app is being run from a file within the current working directory."
+                    )
+            else:
+                # File is within cwd, use relative path
+                module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
+
+            uvicorn_args = [
+                sys.executable,
+                "-m",
+                "uvicorn",
+                f"{module_name}:server",
+                "--host",
+                str(host),
+                "--port",
+                str(port),
+            ]
+            if kwargs.get("reload"):
+                uvicorn_args.append("--reload")
+
+            # Add any other kwargs as CLI args if needed
+
+            try:
+                # pylint: disable=R1732
+                proc = subprocess.Popen(uvicorn_args, env=os.environ.copy())
+                proc.wait()
+            finally:
+                self._cleanup_config()
 
     def make_response(
         self,
