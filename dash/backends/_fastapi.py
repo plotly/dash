@@ -119,10 +119,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self._CONFIG_PATH = os.path.join(config_dir, config_filename)
 
     def __call__(self, *args: Any, **kwargs: Any):
-        # ASGI: (scope, receive, send)
-        if len(args) == 3 and isinstance(args[0], dict) and "type" in args[0]:
-            return self.server(*args, **kwargs)
-        raise TypeError("FastAPI app must be called with (scope, receive, send)")
+        # ASGI: pass through to FastAPI
+        return self.server(*args, **kwargs)
 
     def _cleanup_config(self):
         _remove_config(self._CONFIG_PATH)
@@ -283,11 +281,33 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                 # File is within cwd, use relative path
                 module_name = os.path.splitext(rel_path)[0].replace(os.sep, ".")
 
+            # Find the Dash app variable name by inspecting the calling frame
+            dash_var_name = None
+            calling_frame = frame.frame
+            for var_name, var_value in calling_frame.f_locals.items():
+                if var_value is dash_app:
+                    dash_var_name = var_name
+                    break
+
+            # If not found in locals, check globals
+            if not dash_var_name:
+                for var_name, var_value in calling_frame.f_globals.items():
+                    if var_value is dash_app:
+                        dash_var_name = var_name
+                        break
+
+            # Construct the app path - use .server to access the FastAPI instance
+            if dash_var_name:
+                app_path = f"{module_name}:{dash_var_name}.server"
+            else:
+                # Fallback to looking for 'server' variable (old behavior)
+                app_path = f"{module_name}:server"
+
             uvicorn_args = [
                 sys.executable,
                 "-m",
                 "uvicorn",
-                f"{module_name}:server",
+                app_path,
                 "--host",
                 str(host),
                 "--port",
