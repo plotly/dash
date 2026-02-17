@@ -7,6 +7,7 @@ import pkgutil
 import time
 import sys
 
+from logging.config import dictConfig
 from contextvars import copy_context
 from typing import Any
 
@@ -193,6 +194,18 @@ class QuartDashServer(BaseDashServer[Quart]):
     # pylint: disable=W0613
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         self.config = {"debug": debug, **kwargs} if debug else kwargs
+        if dash_app._dev_tools.silence_routes_logging:
+            dictConfig(
+                {
+                    "version": 1,
+                    "loggers": {
+                        "quart.app": {
+                            "level": "ERROR",
+                        },
+                    },
+                }
+            )
+
         self.server.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(

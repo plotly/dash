@@ -1944,9 +1944,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
 
-        :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
-            will remove all routes logging. Enabled with debugging by default
-            because hot reload hash checks generate a lot of requests.
+        :param dev_tools_silence_routes_logging: Silence the route logging for the
+            web server (werkzeug for Flask, hypercorn for Quart, uvicorn for FastAPI).
+            Enabled with debugging by default because hot reload hash checks generate
+            a lot of requests.
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 
@@ -1981,7 +1982,18 @@ class Dash(ObsoleteChecker):
         )
 
         if dev_tools.silence_routes_logging:
-            logging.getLogger("werkzeug").setLevel(logging.ERROR)
+            # Silence route logging based on backend type
+            backend_type = getattr(self.backend, "server_type", "flask")
+            if backend_type == "flask":
+                logging.getLogger("werkzeug").setLevel(logging.ERROR)
+            elif backend_type == "quart":
+                # Quart uses hypercorn as its ASGI server
+                logging.getLogger("hypercorn.access").setLevel(logging.ERROR)
+                logging.getLogger("hypercorn.error").setLevel(logging.ERROR)
+            elif backend_type == "fastapi":
+                # FastAPI uses uvicorn as its ASGI server
+                logging.getLogger("uvicorn.access").setLevel(logging.ERROR)
+                logging.getLogger("uvicorn.error").setLevel(logging.ERROR)
 
         if dev_tools.hot_reload:
             _reload = self._hot_reload
@@ -2236,9 +2248,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
 
-        :param dev_tools_silence_routes_logging: Silence the `werkzeug` logger,
-            will remove all routes logging. Enabled with debugging by default
-            because hot reload hash checks generate a lot of requests.
+        :param dev_tools_silence_routes_logging: Silence the route logging for the
+            web server (werkzeug for Flask, hypercorn for Quart, uvicorn for FastAPI).
+            Enabled with debugging by default because hot reload hash checks generate
+            a lot of requests.
             env: ``DASH_SILENCE_ROUTES_LOGGING``
         :type dev_tools_silence_routes_logging: bool
 

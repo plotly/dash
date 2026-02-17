@@ -1,3 +1,4 @@
+import logging
 import pytest
 from dash import Dash, Input, Output, html, dcc
 
@@ -215,3 +216,27 @@ def test_backend_background_callback(request, backend, fixture, input_value):
         "#output", f"Background typed: {backend.title()} BG Test"
     )
     assert dash_duo.get_logs() == []
+
+
+@pytest.mark.parametrize(
+    "backend,expected_loggers",
+    [
+        ("flask", ["werkzeug"]),
+        ("quart", ["hypercorn.access", "hypercorn.error"]),
+        ("fastapi", ["uvicorn.access", "uvicorn.error"]),
+    ],
+)
+def test_silence_routes_logging(backend, expected_loggers):
+    """Test that route logging is silenced for all backends when dev_tools_silence_routes_logging is enabled."""
+    app = Dash(__name__, backend=backend)
+    app.layout = html.Div([html.Div(id="output", children="Test")])
+
+    # Enable dev tools with silence_routes_logging
+    app.enable_dev_tools(debug=True, dev_tools_silence_routes_logging=True)
+
+    # Check that the expected loggers have been set to ERROR level
+    for logger_name in expected_loggers:
+        logger = logging.getLogger(logger_name)
+        assert (
+            logger.level == logging.ERROR
+        ), f"Logger {logger_name} should be set to ERROR level for {backend} backend"
