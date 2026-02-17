@@ -200,10 +200,13 @@ class QuartDashServer(BaseDashServer[Quart]):
         data: str | bytes | bytearray,
         mimetype: str | None = None,
         content_type: str | None = None,
+        status=None,
     ):
         if Response is None:
             raise RuntimeError("Quart not installed; cannot generate Response")
-        return Response(data, mimetype=mimetype, content_type=content_type)
+        return Response(
+            data, mimetype=mimetype, content_type=content_type, status=status
+        )
 
     def jsonify(self, obj):
         return jsonify(obj)

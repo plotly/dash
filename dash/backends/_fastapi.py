@@ -310,13 +310,14 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         data: str | bytes | bytearray,
         mimetype: str | None = None,
         content_type: str | None = None,
+        status: int | None = None,
     ):
         headers = {}
         if mimetype:
             headers["content-type"] = mimetype
         if content_type:
             headers["content-type"] = content_type
-        return Response(content=data, headers=headers)
+        return Response(content=data, headers=headers, status_code=status or 200)
 
     def jsonify(self, obj: Any):
         return JSONResponse(content=obj)

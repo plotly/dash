@@ -145,8 +145,11 @@ class FlaskDashServer(BaseDashServer[Flask]):
         data: str | bytes | bytearray,
         mimetype: str | None = None,
         content_type: str | None = None,
+        status: int | None = None,
     ):
-        return Response(data, mimetype=mimetype, content_type=content_type)
+        return Response(
+            data, mimetype=mimetype, content_type=content_type, status=status
+        )
 
     def jsonify(self, obj: Any):
         return jsonify(obj)

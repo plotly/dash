@@ -132,7 +132,11 @@ class BaseDashServer(ABC, Generic[ServerType]):
 
     @abstractmethod
     def make_response(
-        self, data, mimetype=None, content_type=None
+        self,
+        data,
+        mimetype=None,
+        content_type=None,
+        status=None,
     ) -> Any:  # pragma: no cover - interface
         pass
 
