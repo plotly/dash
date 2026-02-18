@@ -35,6 +35,7 @@ function convertFormatTokens(momentFormat: string): string {
         .replace(/Do/g, 'do') // Ordinal day: 1st, 2nd, 3rd
         .replace(/YYYY/g, 'yyyy') // 4-digit year
         .replace(/YY/g, 'yy') // 2-digit year
+        .replace(/Y/g, 'y') // Year (numeric, variable length)
         .replace(/DD/g, 'dd') // Day of month with leading zero
         .replace(/D/g, 'd') // Day of month
         .replace(/X/g, 't'); // Unix timestamp (seconds)
