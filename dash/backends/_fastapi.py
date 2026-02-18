@@ -231,7 +231,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         except RuntimeError:
             return False
 
-    def run(self, dash_app: Dash, host, port, debug, **kwargs):
+    def run(self, dash_app: Dash, host, port, debug, **kwargs):  # pylint: disable=R0912
         frame = inspect.stack()[2]
         dev_tools = dash_app._dev_tools  # pylint: disable=W0212
         config = dict(

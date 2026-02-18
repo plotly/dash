@@ -194,6 +194,7 @@ class QuartDashServer(BaseDashServer[Quart]):
     # pylint: disable=W0613
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         self.config = {"debug": debug, **kwargs} if debug else kwargs
+        # pylint: disable=protected-access
         if dash_app._dev_tools.silence_routes_logging:
             dictConfig(
                 {
