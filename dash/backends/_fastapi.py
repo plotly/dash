@@ -57,6 +57,7 @@ class FastAPIResponseAdapter(ResponseAdapter):
                 resp.set_cookie(key, value, **cookie_kwargs)
         return resp
 
+
 _current_request_var = ContextVar("dash_current_request", default=None)
 
 

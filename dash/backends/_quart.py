@@ -37,28 +37,31 @@ from dash import _validate, Dash
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 from ._utils import format_traceback_html
 
+
 class QuartResponseAdapter(ResponseAdapter):
     """
     A custom Response class that wraps Quart's Response
     and provides a set_response() method for compatibility with Dash's callback system.
     """
+
     def __init__(self):
-        self._quart_response = Response(content_type='application/json')
+        self._quart_response = Response(content_type="application/json")
         super().__init__()
 
     @property
     def callback_response(self) -> Response:
         return self._quart_response
 
-    def set_cookie(self, key, value='', **kwargs):
+    def set_cookie(self, key, value="", **kwargs):
         self._quart_response.set_cookie(key, value, **kwargs)
 
     def set_header(self, key, value):
         self._quart_response.headers.add(key, value)
 
     def set_response(self, **kwargs):
-        self._quart_response.set_data(kwargs.get('data',''))
+        self._quart_response.set_data(kwargs.get("data", ""))
         return self._quart_response
+
 
 class QuartDashServer(BaseDashServer[Quart]):
     def __init__(self, server: Quart) -> None:
@@ -316,7 +319,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
-            return cb_ctx.dash_response.set_response(data=response_data) # type: ignore[arg-type]
+            return cb_ctx.dash_response.set_response(data=response_data)  # type: ignore[arg-type]
 
         return _dispatch
 

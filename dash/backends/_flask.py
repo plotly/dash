@@ -36,6 +36,7 @@ from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
+
 class FlaskResponseAdapter(ResponseAdapter):
     """
     A custom Response class that wraps Flask's Response
@@ -43,21 +44,21 @@ class FlaskResponseAdapter(ResponseAdapter):
     """
 
     def __init__(self):
-        self._flask_response = Response(content_type='application/json')
+        self._flask_response = Response(content_type="application/json")
         super().__init__()
 
     @property
     def callback_response(self) -> Response:
         return self._flask_response
 
-    def set_cookie(self, key, value='', **kwargs):
+    def set_cookie(self, key, value="", **kwargs):
         self._flask_response.set_cookie(key, value, **kwargs)
 
     def set_header(self, key, value):
         self._flask_response.headers.add(key, value)
 
     def set_response(self, **kwargs):
-        self._flask_response.set_data(kwargs.get('data',''))
+        self._flask_response.set_data(kwargs.get("data", ""))
         return self._flask_response
 
 
