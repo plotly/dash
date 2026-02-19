@@ -43,6 +43,14 @@ class FastAPIResponseAdapter(ResponseAdapter):
     and provides a set_response() method for compatibility with Dash's callback system.
     """
 
+    @property
+    def callback_response(self):
+        """Get the response object to be returned from a callback."""
+        print(
+            "Cannot access callback_response directly on FastAPIResponseAdapter. Use set_response() to create a response with data."
+        )
+        raise NotImplementedError()
+
     def set_response(self, **kwargs):
         """
         Set the response data. This method provides compatibility with Flask's Response.set_data().
