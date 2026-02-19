@@ -16,6 +16,7 @@ class _ServerCallable(Protocol):  # pylint: disable=too-few-public-methods
 
     Defines the interface for server objects that can be called as WSGI/ASGI applications.
     """
+
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         raise NotImplementedError
 
@@ -30,6 +31,7 @@ class RequestAdapter(ABC):
     the underlying web framework (Flask, Quart, FastAPI, etc.). Concrete implementations
     wrap framework-specific request objects and expose their data through these properties.
     """
+
     def __call__(self) -> "RequestAdapter":
         return self
 
@@ -122,6 +124,7 @@ class BaseDashServer(ABC, Generic[ServerType]):
         config: Configuration dictionary for the server
         request_adapter: RequestAdapter class for normalizing requests
     """
+
     server_type: str
     server: ServerType
     config: Dict[str, Any]
@@ -158,7 +161,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             The server application instance
         """
-        pass
 
     @abstractmethod
     def register_assets_blueprint(
@@ -171,12 +173,10 @@ class BaseDashServer(ABC, Generic[ServerType]):
             assets_url_path: URL path prefix for assets
             assets_folder: Filesystem path to the assets folder
         """
-        pass
 
     @abstractmethod
     def register_error_handlers(self) -> None:  # pragma: no cover - interface
         """Register error handlers for common HTTP errors."""
-        pass
 
     @abstractmethod
     def add_url_rule(
@@ -190,7 +190,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
             endpoint: Optional endpoint name
             methods: Optional list of HTTP methods (e.g., ['GET', 'POST'])
         """
-        pass
 
     @abstractmethod
     def before_request(self, func) -> None:  # pragma: no cover - interface
@@ -199,7 +198,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             func: Function to execute before request handling
         """
-        pass
 
     @abstractmethod
     def after_request(self, func) -> None:  # pragma: no cover - interface
@@ -208,7 +206,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             func: Function to execute after request handling
         """
-        pass
 
     @abstractmethod
     def has_request_context(self) -> bool:  # pragma: no cover - interface
@@ -217,7 +214,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             True if in request context, False otherwise
         """
-        pass
 
     @abstractmethod
     def run(
@@ -232,7 +228,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
             debug: Enable debug mode
             **kwargs: Additional server-specific arguments
         """
-        pass
 
     @abstractmethod
     def make_response(
@@ -253,7 +248,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             Server-specific response object
         """
-        pass
 
     @abstractmethod
     def jsonify(self, obj) -> Any:  # pragma: no cover - interface
@@ -265,12 +259,10 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             JSON response object
         """
-        pass
 
     @abstractmethod
     def enable_compression(self) -> None:  # pragma: no cover - interface
         """Enable HTTP compression for responses."""
-        pass
 
     @abstractmethod
     def register_prune_error_handler(self, secret: str, prune_errors: bool) -> None:
@@ -280,7 +272,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
             secret: Secret key for error handling
             prune_errors: Whether to prune stack traces in errors
         """
-        pass
 
     @abstractmethod
     def register_timing_hooks(self, first_run: bool) -> None:
@@ -289,7 +280,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             first_run: Whether this is the first run of the application
         """
-        pass
 
     @abstractmethod
     def register_callback_api_routes(self, callback_api_paths):
@@ -298,7 +288,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             callback_api_paths: Paths for callback API endpoints
         """
-        pass
 
     @abstractmethod
     def setup_component_suites(self, dash_app: "dash.Dash") -> str:
@@ -310,7 +299,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             Base path for component suites
         """
-        pass
 
     @abstractmethod
     def serve_callback(self, dash_app: "dash.Dash"):
@@ -319,7 +307,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             dash_app: The Dash application instance
         """
-        pass
 
     @abstractmethod
     def setup_index(self, dash_app: "dash.Dash"):
@@ -328,7 +315,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             dash_app: The Dash application instance
         """
-        pass
 
     @abstractmethod
     def setup_catchall(self, dash_app: "dash.Dash"):
@@ -337,7 +323,6 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Args:
             dash_app: The Dash application instance
         """
-        pass
 
     def setup_backend(self, dash_app: "dash.Dash"):
         """Perform any additional backend-specific setup.

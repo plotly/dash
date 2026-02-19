@@ -65,19 +65,17 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         self,
         app: ASGIApp,
         dash_app: Dash,
+        dash_server: FastAPIDashServer,
         before_request_funcs: list,
         after_request_func: Callable | None = None,
         enable_timing: bool = False,
-        error_handling_mode: str = "ignore",
-        get_traceback_func: Callable | None = None,
     ) -> None:
         self.app = app
         self.dash_app = dash_app
+        self.dash_server = dash_server
         self.before_request_funcs = before_request_funcs
         self.after_request_func = after_request_func
         self.enable_timing = enable_timing
-        self.error_handling_mode = error_handling_mode
-        self.get_traceback_func = get_traceback_func
         self._dev_tools_initialized = False
 
     async def _initialize_dev_tools(self) -> None:
@@ -129,8 +127,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         """Handle exceptions during request processing."""
         if isinstance(error, PreventUpdate):
             response = Response(status_code=204)
-        elif self.error_handling_mode in ["raise", "prune"] and self.get_traceback_func:
-            tb = self.get_traceback_func(None, error)
+        elif self.dash_server.error_handling_mode in ["raise", "prune"]:
+            tb = self.dash_server._get_traceback(None, error)  # pylint: disable=W0212
             response = Response(content=tb, media_type="text/html", status_code=500)
         else:
             response = JSONResponse(
@@ -523,11 +521,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self.server.add_middleware(
             DashMiddleware,
             dash_app=dash_app,
+            dash_server=self,
             before_request_funcs=self._before_request_funcs,
             after_request_func=self._after_request_func,
             enable_timing=self._enable_timing,
-            error_handling_mode=self.error_handling_mode,
-            get_traceback_func=self._get_traceback,
         )
 
         # Add timing middleware separately if enabled (needs to modify response headers)
