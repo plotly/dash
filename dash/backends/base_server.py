@@ -145,11 +145,6 @@ class ResponseAdapter:
         """Set the response data if supported by the response object."""
         raise NotImplementedError()
 
-    @property
-    def response(self):
-        """Get the underlying response object."""
-        return self._response
-
 
 class BaseDashServer(ABC, Generic[ServerType]):
     """Abstract base class for Dash server backend implementations.
