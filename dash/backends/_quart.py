@@ -34,9 +34,31 @@ from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash._utils import parse_version
 from dash import _validate, Dash
-from .base_server import BaseDashServer, RequestAdapter
+from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 from ._utils import format_traceback_html
 
+class QuartResponseAdapter(ResponseAdapter):
+    """
+    A custom Response class that wraps Quart's Response
+    and provides a set_response() method for compatibility with Dash's callback system.
+    """
+    def __init__(self):
+        self._quart_response = Response(content_type='application/json')
+        super().__init__()
+
+    @property
+    def callback_response(self) -> Response:
+        return self._quart_response
+
+    def set_cookie(self, key, value='', **kwargs):
+        self._quart_response.set_cookie(key, value, **kwargs)
+
+    def set_header(self, key, value):
+        self._quart_response.headers.add(key, value)
+
+    def set_response(self, **kwargs):
+        self._quart_response.set_data(kwargs.get('data',''))
+        return self._quart_response
 
 class QuartDashServer(BaseDashServer[Quart]):
     def __init__(self, server: Quart) -> None:
@@ -45,6 +67,7 @@ class QuartDashServer(BaseDashServer[Quart]):
         self.config = {}
         self.error_handling_mode = "ignore"
         self.request_adapter = QuartRequestAdapter
+        self.response_adapter = QuartResponseAdapter
 
     def __call__(self, *args: Any, **kwargs: Any):  # type: ignore[name-defined]
         return self.server(*args, **kwargs)
@@ -293,7 +316,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
-            return Response(response_data, content_type="application/json")  # type: ignore[arg-type]
+            return cb_ctx.dash_response.set_response(data=response_data) # type: ignore[arg-type]
 
         return _dispatch
 

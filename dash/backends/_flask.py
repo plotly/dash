@@ -30,11 +30,35 @@ from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._callback import _invoke_callback, _async_invoke_callback
 from dash._utils import parse_version
-from .base_server import BaseDashServer, RequestAdapter
+from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
+
+class FlaskResponseAdapter(ResponseAdapter):
+    """
+    A custom Response class that wraps Flask's Response
+    and provides a set_response() method for compatibility with Dash's callback system.
+    """
+
+    def __init__(self):
+        self._flask_response = Response(content_type='application/json')
+        super().__init__()
+
+    @property
+    def callback_response(self) -> Response:
+        return self._flask_response
+
+    def set_cookie(self, key, value='', **kwargs):
+        self._flask_response.set_cookie(key, value, **kwargs)
+
+    def set_header(self, key, value):
+        self._flask_response.headers.add(key, value)
+
+    def set_response(self, **kwargs):
+        self._flask_response.set_data(kwargs.get('data',''))
+        return self._flask_response
 
 
 class FlaskDashServer(BaseDashServer[Flask]):
@@ -42,6 +66,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
         super().__init__(server)
         self.server_type = "flask"
         self.request_adapter = FlaskRequestAdapter
+        self.response_adapter = FlaskResponseAdapter
 
     def __call__(self, *args: Any, **kwargs: Any):
         # Always WSGI
@@ -239,8 +264,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
                     "Please install the dependencies via `pip install dash[async]` and ensure "
                     "that `use_async=False` is not being passed to the app."
                 )
-            cb_ctx.dash_response.set_data(response_data)
-            return cb_ctx.dash_response
+            return cb_ctx.dash_response.set_response(data=response_data)
 
         async def _dispatch_async():
             body = request.get_json()
@@ -255,8 +279,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             response_data = ctx.run(partial_func)
             if asyncio.iscoroutine(response_data):
                 response_data = await response_data
-            cb_ctx.dash_response.set_data(response_data)
-            return cb_ctx.dash_response
+            return cb_ctx.dash_response.set_response(data=response_data)
 
         if dash_app._use_async:  # pylint: disable=protected-access
             return _dispatch_async

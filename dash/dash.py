@@ -1407,9 +1407,7 @@ class Dash(ObsoleteChecker):
             {"prop_id": x, "value": g.input_values.get(x)}
             for x in body.get("changedPropIds", [])
         ]
-        g.dash_response = self.backend.make_response(
-            mimetype="application/json", data=None
-        )
+        g.dash_response = self.backend.response_adapter()
         g.cookies = dict(adapter.cookies)
         g.headers = dict(adapter.headers)
         g.args = adapter.args

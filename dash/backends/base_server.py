@@ -110,6 +110,46 @@ class RequestAdapter(ABC):
         """Get the request path without query string."""
         raise NotImplementedError()
 
+class ResponseAdapter:
+    """Adapter for server response objects to allow setting data."""
+
+    def __init__(self):
+        # Accept a pre-made response object
+        self._headers = {}
+        self._cookies = {}
+
+    @property
+    def callback_response(self):
+        """Get the response object to be returned from a callback."""
+        # This method should be overridden in concrete implementations to return the appropriate response object
+        raise NotImplementedError()
+
+    def set_cookie(self, key, value='', **kwargs):
+        """Set a cookie in the response (like Flask's set_cookie)."""
+        # Store as a tuple: (value, kwargs)
+        self._cookies[key] = (value, kwargs)
+
+    def set_header(self, key, value):
+        """Add a header to the response (like Flask's headers.add)."""
+        # Allow multiple values per header key
+        if key in self._headers:
+            if isinstance(self._headers[key], list):
+                self._headers[key].append(value)
+            else:
+                self._headers[key] = [self._headers[key], value]
+        else:
+            self._headers[key] = value
+
+    def set_response(self, **kwargs):
+        """Set the response data if supported by the response object."""
+        raise NotImplementedError()
+
+
+    @property
+    def response(self):
+        """Get the underlying response object."""
+        return self._response
+
 
 class BaseDashServer(ABC, Generic[ServerType]):
     """Abstract base class for Dash server backend implementations.
@@ -129,6 +169,7 @@ class BaseDashServer(ABC, Generic[ServerType]):
     server: ServerType
     config: Dict[str, Any]
     request_adapter: Type[RequestAdapter]
+    response_adapter: Type[ResponseAdapter]
 
     def __init__(self, server: ServerType) -> None:
         """Initialize the server wrapper.

@@ -30,12 +30,32 @@ except ImportError as _err:
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate
-from .base_server import BaseDashServer, RequestAdapter
+from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
+
+class FastAPIResponseAdapter(ResponseAdapter):
+    """
+    A custom Response class that wraps FastAPI's JSONResponse
+    and provides a set_response() method for compatibility with Dash's callback system.
+    """
+
+    def set_response(self, **kwargs):
+        """
+        Set the response data. This method provides compatibility with Flask's Response.set_data().
+        """
+        data = kwargs.get("data")
+        if isinstance(data, (str, bytes, bytearray)):
+            resp = Response(content=data, headers=self._headers)
+        else:
+            resp = JSONResponse(content=data, headers=self._headers)
+        if self._cookies:
+            for key, (value, cookie_kwargs) in self._cookies.items():
+                resp.set_cookie(key, value, **cookie_kwargs)
+        return resp
 
 _current_request_var = ContextVar("dash_current_request", default=None)
 
@@ -177,6 +197,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self.server_type = "fastapi"
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
+        self.response_adapter = FastAPIResponseAdapter
         self._before_request_funcs = []
         self._after_request_func = None
         self._enable_timing = False
@@ -461,8 +482,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):
                 response_data = await response_data
-            # Instead of set_data, return a new Response
-            return Response(content=response_data, media_type="application/json")
+            return cb_ctx.dash_response.set_response(data=response_data)
 
         return _dispatch
 
