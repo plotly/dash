@@ -1,5 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type, TypeVar, Generic, Protocol
+from typing import Any, Dict, Type, TypeVar, Generic, Protocol, TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    import dash
 
 
 class _ServerCallable(Protocol):  # pylint: disable=too-few-public-methods
@@ -155,3 +159,26 @@ class BaseDashServer(ABC, Generic[ServerType]):
     @abstractmethod
     def register_timing_hooks(self, first_run: bool) -> None:
         pass
+
+    @abstractmethod
+    def register_callback_api_routes(self, callback_api_paths):
+        pass
+
+    @abstractmethod
+    def setup_component_suites(self, dash_app: "dash.Dash") -> str:
+        pass
+
+    @abstractmethod
+    def serve_callback(self, dash_app: "dash.Dash"):
+        pass
+
+    @abstractmethod
+    def setup_index(self, dash_app: "dash.Dash"):
+        pass
+
+    @abstractmethod
+    def setup_catchall(self, dash_app: "dash.Dash"):
+        pass
+
+    def setup_backend(self, dash_app: "dash.Dash"):
+        """Override to provide any other required setup"""

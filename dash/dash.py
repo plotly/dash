@@ -729,6 +729,7 @@ class Dash(ObsoleteChecker):
 
         self.backend.register_error_handlers()
         self.backend.before_request(self._setup_server)
+        self.backend.setup_backend(self)
         self._setup_routes()
         _get_app.APP = self
         self.enable_pages()

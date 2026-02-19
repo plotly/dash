@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from contextvars import copy_context, ContextVar
+import json
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
@@ -9,7 +10,6 @@ import hashlib
 import inspect
 import pkgutil
 import time
-import json
 import os
 import subprocess
 import threading
@@ -55,45 +55,122 @@ def get_current_request() -> Request:
     return req
 
 
-class CurrentRequestMiddleware:  # pylint: disable=too-few-public-methods
-    def __init__(self, app: ASGIApp) -> None:  # type: ignore[name-defined]
-        self.app = app
+_ENV_CONFIG = "_DASH_FASTAPI_CONFIG"
 
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:  # type: ignore[name-defined]
-        # non-http/ws scopes pass through (lifespan etc.)
+
+class DashMiddleware:  # pylint: disable=too-few-public-methods
+    """Consolidated middleware for all Dash/FastAPI integration needs."""
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        dash_app: Dash,
+        before_request_funcs: list,
+        after_request_func: Callable | None = None,
+        enable_timing: bool = False,
+        error_handling_mode: str = "ignore",
+        get_traceback_func: Callable | None = None,
+    ) -> None:
+        self.app = app
+        self.dash_app = dash_app
+        self.before_request_funcs = before_request_funcs
+        self.after_request_func = after_request_func
+        self.enable_timing = enable_timing
+        self.error_handling_mode = error_handling_mode
+        self.get_traceback_func = get_traceback_func
+        self._dev_tools_initialized = False
+
+    async def _initialize_dev_tools(self) -> None:
+        """Initialize dev tools from environment config on first run."""
+        if not self._dev_tools_initialized:
+            config = json.loads(os.getenv(_ENV_CONFIG, "{}"))
+            if config:
+                self.dash_app.enable_dev_tools(**config, first_run=False)
+            self._dev_tools_initialized = True
+
+    def _setup_timing(self, request: Request) -> None:
+        """Set up timing information for the request."""
+        if self.enable_timing:
+            request.state.timing_information = {
+                "__dash_server": {"dur": time.time(), "desc": None}
+            }
+
+    async def _run_before_hooks(self) -> None:
+        """Run all before-request hooks."""
+        for func in self.before_request_funcs:
+            if inspect.iscoroutinefunction(func):
+                await func()
+            else:
+                func()
+
+    async def _run_after_hooks(self) -> None:
+        """Run after-request hook if configured."""
+        if self.after_request_func is not None:
+            if inspect.iscoroutinefunction(self.after_request_func):
+                await self.after_request_func()
+            else:
+                self.after_request_func()
+
+    def _finalize_timing(self, request: Request) -> dict | None:
+        """Calculate final timing information and return headers to add."""
+        if not self.enable_timing or not hasattr(request.state, "timing_information"):
+            return None
+
+        timing_information = request.state.timing_information
+        dash_total = timing_information.get("__dash_server", None)
+        if dash_total is not None:
+            dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
+
+        return timing_information
+
+    async def _handle_error(
+        self, error: Exception, scope: Scope, receive: Receive, send: Send
+    ) -> None:
+        """Handle exceptions during request processing."""
+        if isinstance(error, PreventUpdate):
+            response = Response(status_code=204)
+        elif self.error_handling_mode in ["raise", "prune"] and self.get_traceback_func:
+            tb = self.get_traceback_func(None, error)
+            response = Response(content=tb, media_type="text/html", status_code=500)
+        else:
+            response = JSONResponse(
+                status_code=500,
+                content={
+                    "error": "InternalServerError",
+                    "message": "An internal server error occurred.",
+                },
+            )
+        await response(scope, receive, send)
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        # Handle lifespan events (startup/shutdown)
+        if scope["type"] == "lifespan":
+            await self._initialize_dev_tools()
+            await self.app(scope, receive, send)
+            return
+
+        # Non-HTTP/WebSocket scopes pass through
         if scope["type"] not in ("http", "websocket"):
             await self.app(scope, receive, send)
             return
 
+        # HTTP/WebSocket request handling
         request = Request(scope, receive=receive)
         token = set_current_request(request)
+
         try:
+            self._setup_timing(request)
+            await self._run_before_hooks()
+
             await self.app(scope, receive, send)
+
+            await self._run_after_hooks()
+            self._finalize_timing(request)
+
+        except Exception as e:  # pylint: disable=W0718
+            await self._handle_error(e, scope, receive, send)
         finally:
             reset_current_request(token)
-
-
-def _save_config(config_path, config):
-    with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(config, f)
-
-
-def _load_config(config_path):
-    resp = {"debug": False}
-    try:
-        if os.path.exists(config_path):
-            with open(config_path, "r", encoding="utf-8") as f:
-                resp = json.load(f)
-    except (json.JSONDecodeError, OSError):
-        pass  # ignore errors
-    return resp
-
-
-def _remove_config(config_path):
-    try:
-        os.remove(config_path)
-    except FileNotFoundError:
-        pass
 
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
@@ -103,27 +180,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
         self._before_request_funcs = []
-        self._before_middleware_added = False
-
-        fname = inspect.stack()[2]
-        file_path = fname.filename
-
-        # Manually build the config directory path
-        home_dir = os.path.expanduser("~")
-        config_dir = os.path.join(home_dir, ".local", "share", "plotly-dash-configs")
-        os.makedirs(config_dir, exist_ok=True)
-
-        # Hash the file path for a unique config filename
-        hash_digest = hashlib.sha256(file_path.encode("utf-8")).hexdigest()
-        config_filename = f"{hash_digest}.json"
-        self._CONFIG_PATH = os.path.join(config_dir, config_filename)
+        self._after_request_func = None
+        self._enable_timing = False
 
     def __call__(self, *args: Any, **kwargs: Any):
         # ASGI: pass through to FastAPI
         return self.server(*args, **kwargs)
-
-    def _cleanup_config(self):
-        _remove_config(self._CONFIG_PATH)
 
     @staticmethod
     # pylint: disable=W0613
@@ -178,17 +240,11 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         dash_app._add_url("", index, methods=["GET"])
 
     def setup_catchall(self, dash_app: Dash):
-        @self.server.on_event("startup")
-        def _setup_catchall():
-            dash_app.enable_dev_tools(
-                **_load_config(self._CONFIG_PATH), first_run=False
-            )  # do this to make sure dev tools are enabled
+        async def catchall(_request: Request):
+            return Response(content=dash_app.index(), media_type="text/html")
 
-            async def catchall(_request: Request):
-                return Response(content=dash_app.index(), media_type="text/html")
-
-            # pylint: disable=protected-access
-            dash_app._add_url("{path:path}", catchall, methods=["GET"])
+        # pylint: disable=protected-access
+        dash_app._add_url("{path:path}", catchall, methods=["GET"])
 
     def add_url_rule(
         self,
@@ -214,15 +270,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
     def before_request(self, func: Callable[[], Any] | None):
         if func is not None:
             self._before_request_funcs.append(func)
-        # Only add the middleware once
-        if not self._before_middleware_added:
-            self.server.add_middleware(CurrentRequestMiddleware)
-            self.server.middleware("http")(self._make_before_middleware())
-            self._before_middleware_added = True
 
     def after_request(self, func: Callable[[], Any] | None):
-        # FastAPI does not have after_request, but we can use middleware
-        self.server.middleware("http")(self._make_after_middleware(func))
+        self._after_request_func = func
 
     def has_request_context(self) -> bool:
         try:
@@ -233,12 +283,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
     def run(self, dash_app: Dash, host, port, debug, **kwargs):  # pylint: disable=R0912
         frame = inspect.stack()[2]
-        dev_tools = dash_app._dev_tools  # pylint: disable=W0212
-        config = dict(
-            {"debug": debug} if debug else {"debug": False},
-            **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
-        )
-        _save_config(self._CONFIG_PATH, config)
         if debug and kwargs.get("reload") is None:
             kwargs["reload"] = True
 
@@ -251,10 +295,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             # This allows the testing framework to control the server lifecycle
             if kwargs.get("reload"):
                 kwargs["reload"] = True
-            try:
-                uvicorn.run(self.server, host=host, port=port, **kwargs)
-            finally:
-                self._cleanup_config()
+            uvicorn.run(self.server, host=host, port=port, **kwargs)
         else:
             # Running in main thread (normal context) - use subprocess
             file_path = frame.filename
@@ -316,14 +357,19 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             if kwargs.get("reload"):
                 uvicorn_args.append("--reload")
 
+            dev_tools = dash_app._dev_tools  # pylint: disable=W0212
+            config = dict(
+                {"debug": debug} if debug else {"debug": False},
+                **{f"dev_tools_{k}": v for k, v in dev_tools.items()},
+            )
+            env = os.environ.copy()
+            env[_ENV_CONFIG] = json.dumps(config)
+
             # Add any other kwargs as CLI args if needed
 
-            try:
-                # pylint: disable=R1732
-                proc = subprocess.Popen(uvicorn_args, env=os.environ.copy())
-                proc.wait()
-            finally:
-                self._cleanup_config()
+            # pylint: disable=R1732
+            proc = subprocess.Popen(uvicorn_args, env=env)
+            proc.wait()
 
     def make_response(
         self,
@@ -341,44 +387,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
     def jsonify(self, obj: Any):
         return JSONResponse(content=obj)
-
-    def _make_before_middleware(self):
-        async def middleware(request, call_next):
-            for func in self._before_request_funcs:
-                if inspect.iscoroutinefunction(func):
-                    await func()
-                else:
-                    func()
-            try:
-                response = await call_next(request)
-                return response
-            except PreventUpdate:
-                return Response(status_code=204)
-            except Exception as e:  # pylint: disable=W0718
-                if self.error_handling_mode in ["raise", "prune"]:
-                    tb = self._get_traceback(None, e)
-                    return Response(content=tb, media_type="text/html", status_code=500)
-                return JSONResponse(
-                    status_code=500,
-                    content={
-                        "error": "InternalServerError",
-                        "message": "An internal server error occurred.",
-                    },
-                )
-
-        return middleware
-
-    def _make_after_middleware(self, func: Callable[[], Any] | None):
-        async def middleware(request, call_next):
-            response = await call_next(request)
-            if func is not None:
-                if inspect.iscoroutinefunction(func):
-                    await func()
-                else:
-                    func()
-            return response
-
-        return middleware
 
     def serve_component_suites(
         self,
@@ -461,31 +469,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         return _dispatch
 
     def register_timing_hooks(self, first_run: bool):
-        if not first_run:
-            return
-
-        @self.server.middleware("http")
-        async def timing_middleware(request: Request, call_next):
-            # Before request
-            request.state.timing_information = {
-                "__dash_server": {"dur": time.time(), "desc": None}
-            }
-            response = await call_next(request)
-            # After request
-            timing_information = getattr(request.state, "timing_information", None)
-            if timing_information is not None:
-                dash_total = timing_information.get("__dash_server", None)
-                if dash_total is not None:
-                    dash_total["dur"] = round((time.time() - dash_total["dur"]) * 1000)
-                headers = MutableHeaders(response.headers)
-                for name, info in timing_information.items():
-                    value = name
-                    if info.get("desc") is not None:
-                        value += f';desc="{info["desc"]}"'
-                    if info.get("dur") is not None:
-                        value += f";dur={info['dur']}"
-                    headers.append("Server-Timing", value)
-            return response
+        if first_run:
+            self._enable_timing = True
 
     def register_callback_api_routes(
         self, callback_api_paths: Dict[str, Callable[..., Any]]
@@ -532,13 +517,36 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         )
 
         self.server.add_middleware(GZipMiddleware, minimum_size=500)
-        config = _load_config(self._CONFIG_PATH)
-        if "COMPRESS_ALGORITHM" not in config:
-            config["COMPRESS_ALGORITHM"] = [
-                "gzip"
-            ]  # pylint: disable=no-value-for-parameter
 
-        _save_config(self._CONFIG_PATH, config)
+    def setup_backend(self, dash_app: Dash):
+        # Add consolidated middleware for all Dash functionality
+        self.server.add_middleware(
+            DashMiddleware,
+            dash_app=dash_app,
+            before_request_funcs=self._before_request_funcs,
+            after_request_func=self._after_request_func,
+            enable_timing=self._enable_timing,
+            error_handling_mode=self.error_handling_mode,
+            get_traceback_func=self._get_traceback,
+        )
+
+        # Add timing middleware separately if enabled (needs to modify response headers)
+        if self._enable_timing:
+
+            @self.server.middleware("http")
+            async def timing_headers_middleware(request: Request, call_next):
+                response = await call_next(request)
+                timing_information = getattr(request.state, "timing_information", None)
+                if timing_information is not None:
+                    headers = MutableHeaders(response.headers)
+                    for name, info in timing_information.items():
+                        value = name
+                        if info.get("desc") is not None:
+                            value += f';desc="{info["desc"]}"'
+                        if info.get("dur") is not None:
+                            value += f";dur={info['dur']}"
+                        headers.append("Server-Timing", value)
+                return response
 
 
 class FastAPIRequestAdapter(RequestAdapter):
