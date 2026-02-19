@@ -110,6 +110,7 @@ class RequestAdapter(ABC):
         """Get the request path without query string."""
         raise NotImplementedError()
 
+
 class ResponseAdapter:
     """Adapter for server response objects to allow setting data."""
 
@@ -124,7 +125,7 @@ class ResponseAdapter:
         # This method should be overridden in concrete implementations to return the appropriate response object
         raise NotImplementedError()
 
-    def set_cookie(self, key, value='', **kwargs):
+    def set_cookie(self, key, value="", **kwargs):
         """Set a cookie in the response (like Flask's set_cookie)."""
         # Store as a tuple: (value, kwargs)
         self._cookies[key] = (value, kwargs)
@@ -143,7 +144,6 @@ class ResponseAdapter:
     def set_response(self, **kwargs):
         """Set the response data if supported by the response object."""
         raise NotImplementedError()
-
 
     @property
     def response(self):
