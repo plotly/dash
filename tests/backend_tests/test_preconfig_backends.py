@@ -1,6 +1,35 @@
 import logging
 import pytest
-from dash import Dash, Input, Output, html, dcc
+from dash import Dash, Input, Output, html, dcc, ctx
+
+
+@pytest.mark.parametrize(
+    "backend,fixture",
+    [
+        ("flask", "dash_duo"),
+        ("fastapi", "dash_duo"),
+        ("quart", "dash_duo_mp"),
+    ],
+)
+def test_set_cookie_and_header(request, backend, fixture):
+    dash_duo = request.getfixturevalue(fixture)
+    app = Dash(__name__, backend=backend)
+    app.layout = html.Div([html.Button("Set", id="btn"), html.Div(id="output")])
+
+    @app.callback(Output("output", "children"), Input("btn", "n_clicks"))
+    def set_cookie_and_header(n):
+        if ctx.response:
+            ctx.response.set_cookie("mycookie", "cookieval")
+            ctx.response.set_header("X-My-Header", "HeaderVal")
+        return f"Clicked {n}" if n else "Not clicked"
+
+    dash_duo.start_server(app)
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", "Clicked 1")
+
+    # Check cookie
+    cookies = dash_duo.driver.get_cookies()
+    assert any(c["name"] == "mycookie" and c["value"] == "cookieval" for c in cookies)
 
 
 @pytest.mark.parametrize(
