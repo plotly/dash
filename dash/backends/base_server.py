@@ -130,7 +130,7 @@ class ResponseAdapter:
         # Store as a tuple: (value, kwargs)
         self._cookies[key] = (value, kwargs)
 
-    def set_header(self, key, value):
+    def append_header(self, key, value):
         """Add a header to the response (like Flask's headers.add)."""
         # Allow multiple values per header key
         if key in self._headers:
@@ -140,6 +140,10 @@ class ResponseAdapter:
                 self._headers[key] = [self._headers[key], value]
         else:
             self._headers[key] = value
+
+    def set_header(self, key, value):
+        """Set a header to the response."""
+        self._headers[key] = [value]
 
     def set_response(self, **kwargs):
         """Set the response data if supported by the response object."""

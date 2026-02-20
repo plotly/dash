@@ -57,9 +57,16 @@ class FastAPIResponseAdapter(ResponseAdapter):
         """
         data = kwargs.get("data")
         if isinstance(data, (str, bytes, bytearray)):
-            resp = Response(content=data, headers=self._headers)
+            resp = Response(content=data)
         else:
-            resp = JSONResponse(content=data, headers=self._headers)
+            resp = JSONResponse(content=data)
+        if self._headers:
+            for key, value in self._headers.items():
+                if isinstance(value, list):
+                    for v in value:
+                        resp.headers.append(key, v)
+                else:
+                    resp.headers[key] = value
         if self._cookies:
             for key, (value, cookie_kwargs) in self._cookies.items():
                 resp.set_cookie(key, value, **cookie_kwargs)

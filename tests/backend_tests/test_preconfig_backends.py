@@ -21,6 +21,9 @@ def test_set_cookie_and_header(request, backend, fixture):
         if ctx.response:
             ctx.response.set_cookie("mycookie", "cookieval")
             ctx.response.set_header("X-My-Header", "HeaderVal")
+            ctx.response.append_header("X-My-Header", "HeaderVal2")
+            ctx.response.append_header("X-My-Header2", "HeaderVal3")
+            ctx.response.set_header("X-My-Header2", "HeaderVal4")
         return f"Clicked {n}" if n else "Not clicked"
 
     dash_duo.start_server(app)
@@ -47,7 +50,8 @@ def test_set_cookie_and_header(request, backend, fixture):
     assert any(c["name"] == "mycookie" and c["value"] == "cookieval" for c in cookies)
 
     headers = dash_duo.driver.execute_script("return window._lastResponseHeaders;")
-    assert headers and headers["x-my-header"] == "HeaderVal"
+    assert headers and headers["x-my-header"] == "HeaderVal, HeaderVal2"
+    assert headers and headers["x-my-header2"] == "HeaderVal4"
 
 
 @pytest.mark.parametrize(

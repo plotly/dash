@@ -54,8 +54,11 @@ class FlaskResponseAdapter(ResponseAdapter):
     def set_cookie(self, key, value="", **kwargs):
         self._flask_response.set_cookie(key, value, **kwargs)
 
-    def set_header(self, key, value):
+    def append_header(self, key, value):
         self._flask_response.headers.add(key, value)
+
+    def set_header(self, key, value):
+        self._flask_response.headers.set(key, value)
 
     def set_response(self, **kwargs):
         self._flask_response.set_data(kwargs.get("data", ""))
