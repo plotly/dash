@@ -171,7 +171,13 @@ class ThreadedRunner(BaseDashRunner):
                 self.port = options["port"]
 
             try:
-                app.run(threaded=True, **options)
+                module = app.server.__class__.__module__
+                # FastAPI support
+                if module.startswith("fastapi"):
+                    app.run(**options)
+                # Dash/Flask/Quart fallback
+                else:
+                    app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
             except Exception as error:
@@ -229,7 +235,13 @@ class MultiProcessRunner(BaseDashRunner):
             options = kwargs.copy()
 
             try:
-                app.run(threaded=True, **options)
+                module = app.server.__class__.__module__
+                # FastAPI support
+                if module.startswith("fastapi"):
+                    app.run(**options)
+                # Dash/Flask/Quart fallback
+                else:
+                    app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
                 raise

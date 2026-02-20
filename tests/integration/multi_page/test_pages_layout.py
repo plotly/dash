@@ -3,6 +3,7 @@ import dash
 from dash import Dash, Input, State, dcc, html, Output
 from dash.dash import _ID_LOCATION
 from dash.exceptions import NoLayoutException
+from dash.testing.wait import until
 
 
 def get_app(path1="/", path2="/layout2"):
@@ -57,7 +58,7 @@ def test_pala001_layout(dash_duo, clear_pages_state):
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
         dash_duo.wait_for_text_to_equal("#text_" + page["id"], "text for " + page["id"])
-        assert dash_duo.driver.title == page["title"], "check that page title updates"
+        until(lambda: dash_duo.driver.title == page["title"], timeout=3)
 
     # test redirects
     dash_duo.wait_for_page(url=f"{dash_duo.server_url}/v2")
