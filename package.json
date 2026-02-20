@@ -51,7 +51,7 @@
     "@lerna/filter-options": "^6.4.1",
     "@types/jest": "^30.0.0",
     "husky": "8.0.3",
-    "lerna": "^7.4.2",
+    "lerna": "^9.0.4",
     "lint-staged": "^16.1.0"
   },
   "dependencies": {
