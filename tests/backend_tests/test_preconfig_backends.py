@@ -24,12 +24,30 @@ def test_set_cookie_and_header(request, backend, fixture):
         return f"Clicked {n}" if n else "Not clicked"
 
     dash_duo.start_server(app)
+    dash_duo.driver.execute_script(
+        """
+        window._lastResponseHeaders = null;
+        const origFetch = window.fetch;
+        window.fetch = async function() {
+            const response = await origFetch.apply(this, arguments);
+            response.clone().headers.forEach((v, k) => {
+                if (!window._lastResponseHeaders) window._lastResponseHeaders = {};
+                window._lastResponseHeaders[k] = v;
+            });
+            return response;
+        };
+    """
+    )
+
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#output", "Clicked 1")
 
     # Check cookie
     cookies = dash_duo.driver.get_cookies()
     assert any(c["name"] == "mycookie" and c["value"] == "cookieval" for c in cookies)
+
+    headers = dash_duo.driver.execute_script("return window._lastResponseHeaders;")
+    assert headers and headers["x-my-header"] == "HeaderVal"
 
 
 @pytest.mark.parametrize(
