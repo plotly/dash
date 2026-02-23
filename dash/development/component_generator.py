@@ -84,7 +84,7 @@ def generate_components(
         env["MODULES_PATH"] = os.path.abspath("./node_modules")
 
         cmd = shlex.split(
-            f'node {extract_path} "{ignore}" "{reserved_patterns}" {components_source}',
+            f'node "{extract_path}" "{ignore}" "{reserved_patterns}" {components_source}',
             posix=not is_windows,
         )
 
