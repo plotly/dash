@@ -2,6 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+# [4.1.0rc0] - 2026-02-23
+
+## Added
+
+- Add support for multiple backend implementation beside flask such as fastapi and quart (both included).
+  - Add `app = Dash(backend="flask" | "fastapi" | "quart" | CustomBackendImpl)` parameter to automatically setup
+  - An existing `Fastapi`, `Quart` or `Flask` instance can also be given as `app = Dash(server=Fastapi())` to automatically setup a dash app on the server.
+  - Install fastapi dependencies with `pip install dash[fastapi]` or quart with `pip install dash[quart]`, flask is still included by default.
+  - Custom backend implementation can be added as a subclass of `dash.backends.base_server.BaseDashServer` and response/request adapters.
+
 ## [4.0.0] - 2026-02-03
 
 ## Added
