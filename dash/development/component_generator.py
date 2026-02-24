@@ -3,7 +3,6 @@ from collections import OrderedDict
 import json
 import sys
 import subprocess
-import shlex
 import os
 import argparse
 import shutil
@@ -56,8 +55,6 @@ def generate_components(
 
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
-    is_windows = sys.platform == "win32"
-
     # Get path to extract-meta.js using importlib.resources
     try:
         # Python 3.9+
@@ -83,16 +80,12 @@ def generate_components(
         # Ensure local node modules is used when the script is packaged.
         env["MODULES_PATH"] = os.path.abspath("./node_modules")
 
-        cmd = shlex.split(
-            f'node "{extract_path}" "{ignore}" "{reserved_patterns}" {components_source}',
-            posix=not is_windows,
-        )
+        cmd = ["node", extract_path, ignore, reserved_patterns, components_source]
 
         proc = subprocess.Popen(  # pylint: disable=consider-using-with
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            shell=is_windows,
             env=env,
         )
         out, err = proc.communicate()
