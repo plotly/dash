@@ -4,9 +4,6 @@ from typing import Type
 from .base_server import BaseDashServer
 
 
-backend: BaseDashServer
-
-
 _backend_imports = {
     "flask": ("dash.backends._flask", "FlaskDashServer"),
     "fastapi": ("dash.backends._fastapi", "FastAPIDashServer"),
@@ -74,6 +71,5 @@ def get_server_type(server):
 
 __all__ = [
     "get_backend",
-    "backend",
     "get_server_type",
 ]

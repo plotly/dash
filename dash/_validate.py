@@ -9,6 +9,7 @@ from ._no_update import NoUpdate
 from .development.base_component import Component
 from . import backends
 from . import exceptions
+from ._get_app import get_app
 from ._utils import (
     patch_collections_abc,
     stringify_id,
@@ -510,13 +511,17 @@ def validate_use_pages(config):
             "`dash.register_page()` must be called after app instantiation"
         )
 
-    if backends.backend.has_request_context():
-        raise exceptions.PageError(
-            """
-            dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
-             For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
-            """
-        )
+    try:
+        if get_app().backend.has_request_context():
+            raise exceptions.PageError(
+                """
+                dash.register_page() can’t be called within a callback as it updates dash.page_registry, which is a global variable.
+                For more details, see https://dash.plotly.com/sharing-data-between-callbacks#why-global-variables-will-break-your-app
+                """
+            )
+    except exceptions.AppNotFoundError:
+        # If the app is not found we can add pages since before instantiation.
+        pass
 
 
 def validate_module_name(module):

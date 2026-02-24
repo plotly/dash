@@ -20,7 +20,7 @@ from .exceptions import (
     BackgroundCallbackError,
     ImportedInsideCallbackError,
 )
-
+from ._get_app import get_app
 from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
@@ -39,7 +39,6 @@ from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
 from ._no_update import NoUpdate
 from . import _validate
-from . import backends
 
 
 async def _async_invoke_callback(
@@ -373,7 +372,7 @@ def _get_callback_manager(
                 " and store results on redis.\n"
             )
 
-    adapter = backends.backend.request_adapter()
+    adapter = get_app().backend.request_adapter()
     old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
@@ -433,7 +432,7 @@ def _setup_background_callback(
 
 def _progress_background_callback(response, callback_manager, background):
     progress_outputs = background.get("progress")
-    adapter = backends.backend.request_adapter()
+    adapter = get_app().backend.request_adapter()
     cache_key = adapter.args.get("cacheKey")
 
     if progress_outputs:
@@ -451,7 +450,7 @@ def _update_background_callback(
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    adapter = backends.backend.request_adapter()
+    adapter = get_app().backend.request_adapter()
     cache_key = adapter.args.get("cacheKey") if adapter else None
     job_id = adapter.args.get("job") if adapter else None
 
@@ -473,7 +472,7 @@ def _handle_rest_background_callback(
     multi,
     has_update=False,
 ):
-    adapter = backends.backend.request_adapter()
+    adapter = get_app().backend.request_adapter()
     cache_key = adapter.args.get("cacheKey") if adapter else None
     job_id = adapter.args.get("job") if adapter else None
     # Must get job_running after get_result since get_results terminates it.
@@ -691,7 +690,7 @@ def register_callback(
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
-                    adapter = backends.backend.request_adapter()
+                    adapter = get_app().backend.request_adapter()
                     if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,
@@ -763,7 +762,7 @@ def register_callback(
 
             try:
                 if background is not None:
-                    adapter = backends.backend.request_adapter()
+                    adapter = get_app().backend.request_adapter()
                     if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,

@@ -5,7 +5,7 @@ import contextvars
 import typing
 
 from . import exceptions
-from . import backends
+from ._get_app import get_app
 from ._utils import AttributeDict, stringify_id
 
 
@@ -221,7 +221,7 @@ class CallbackContext:
         :param description: A description of the resource.
         :type description: string or None
         """
-        request = backends.backend.request_adapter()
+        request = get_app().backend.request_adapter()
         timing_information = getattr(request.context, "timing_information", {})
 
         if name in timing_information:
@@ -252,7 +252,7 @@ class CallbackContext:
     @property
     @has_context
     def timing_information(self):
-        request = backends.backend.request_adapter()
+        request = get_app().backend.request_adapter()
         return getattr(request.context, "timing_information", {})
 
     @has_context
