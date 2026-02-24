@@ -237,12 +237,11 @@ class Dash(ObsoleteChecker):
         best value to use. Default ``'__main__'``, env: ``DASH_APP_NAME``
     :type name: string
 
-    :param server: Sets the Flask server for your app. There are three options:
-        ``True`` (default): Dash will create a new server
+    :param server: Sets the server for your app. There are three options:
+        ``True`` (default): Dash will create a new server using the specified backend
         ``False``: The server will be added later via ``app.init_app(server)``
-            where ``server`` is a ``flask.Flask`` instance.
-        ``flask.Flask``: use this pre-existing Flask server.
-    :type server: boolean or flask.Flask
+        A server instance: Use a pre-existing server (Flask, Quart, or FastAPI)
+    :type server: boolean or server instance
 
     :param backend: The backend to use for the Dash app. Can be a string
         (name of the backend) or a backend class. Default is None, which
