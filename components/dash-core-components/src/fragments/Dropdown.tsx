@@ -1,4 +1,4 @@
-import {isNil, without, isEmpty} from 'ramda';
+import {isNil, without, append, isEmpty} from 'ramda';
 import React, {
     useState,
     useCallback,
@@ -48,6 +48,7 @@ const Dropdown = (props: DropdownProps) => {
         document.createElement('div')
     );
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const pendingSearchRef = useRef('');
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
@@ -80,6 +81,8 @@ const Dropdown = (props: DropdownProps) => {
         (selection: OptionValue[]) => {
             if (closeOnSelect !== false) {
                 setIsOpen(false);
+                setProps({search_value: undefined});
+                pendingSearchRef.current = '';
             }
 
             if (multi) {
@@ -237,12 +240,15 @@ const Dropdown = (props: DropdownProps) => {
 
     // Focus first selected item or search input when dropdown opens
     useEffect(() => {
-        if (!isOpen || search_value) {
+        if (!isOpen) {
             return;
         }
-
         // waiting for the DOM to be ready after the dropdown renders
         requestAnimationFrame(() => {
+            // Don't steal focus from the search input while the user is typing
+            if (pendingSearchRef.current) {
+                return;
+            }
             // Try to focus the first selected item (for single-select)
             if (!multi) {
                 const selectedValue = sanitizedValues[0];
@@ -259,9 +265,14 @@ const Dropdown = (props: DropdownProps) => {
                 }
             }
 
-            // Fallback: focus search input if available and no selected item was focused
-            if (searchable && searchInputRef.current) {
-                searchInputRef.current.focus();
+            if (searchable) {
+                searchInputRef.current?.focus();
+            } else {
+                dropdownContentRef.current
+                    .querySelector<HTMLElement>(
+                        'input.dash-options-list-option-checkbox:not([disabled])'
+                    )
+                    ?.focus();
             }
         });
     }, [isOpen, multi, displayOptions]);
@@ -360,6 +371,7 @@ const Dropdown = (props: DropdownProps) => {
 
             if (!open) {
                 setProps({search_value: undefined});
+                pendingSearchRef.current = '';
             }
         },
         [filteredOptions, sanitizedValues]
@@ -391,6 +403,14 @@ const Dropdown = (props: DropdownProps) => {
                             canClearValues
                         ) {
                             handleClear();
+                        }
+                        if (e.key.length === 1 && searchable) {
+                            pendingSearchRef.current += e.key;
+                            setProps({search_value: pendingSearchRef.current});
+                            setIsOpen(true);
+                            requestAnimationFrame(() =>
+                                searchInputRef.current?.focus()
+                            );
                         }
                     }}
                     className={`dash-dropdown ${className ?? ''}`}
@@ -475,6 +495,22 @@ const Dropdown = (props: DropdownProps) => {
                                 value={search_value || ''}
                                 autoComplete="off"
                                 onChange={e => onInputChange(e.target.value)}
+                                onKeyUp={e => {
+                                    if (
+                                        !search_value ||
+                                        e.key !== 'Enter' ||
+                                        !displayOptions.length
+                                    ) {
+                                        return;
+                                    }
+                                    const firstVal = displayOptions[0].value;
+                                    const isSelected =
+                                        sanitizedValues.includes(firstVal);
+                                    const newSelection = isSelected
+                                        ? without([firstVal], sanitizedValues)
+                                        : append(firstVal, sanitizedValues);
+                                    updateSelection(newSelection);
+                                }}
                                 ref={searchInputRef}
                             />
                             {search_value && (

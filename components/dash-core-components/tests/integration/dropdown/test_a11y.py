@@ -139,6 +139,63 @@ def test_a11y003_keyboard_navigation(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+def test_a11y003b_keyboard_navigation_not_searchable(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=[i for i in range(0, 100)],
+                multi=True,
+                searchable=False,
+                placeholder="Testing keyboard navigation without search",
+            ),
+        ],
+    )
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.send_keys(Keys.ENTER)  # Open with Enter key
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    send_keys(Keys.ESCAPE)
+    with pytest.raises(TimeoutException):
+        dash_duo.wait_for_element(".dash-dropdown-options", timeout=0.25)
+
+    send_keys(Keys.ARROW_DOWN)  # Expecting the dropdown to open up
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    send_keys(Keys.SPACE)  # Expecting to be selecting the focused first option
+    value_items = dash_duo.find_elements(".dash-dropdown-value-item")
+    assert len(value_items) == 1
+    assert value_items[0].text == "0"
+
+    send_keys(Keys.ARROW_DOWN)
+    send_keys(Keys.SPACE)
+    value_items = dash_duo.find_elements(".dash-dropdown-value-item")
+    assert len(value_items) == 2
+    assert [item.text for item in value_items] == ["0", "1"]
+
+    send_keys(Keys.SPACE)  # Expecting to be de-selecting
+    value_items = dash_duo.find_elements(".dash-dropdown-value-item")
+    assert len(value_items) == 1
+    assert value_items[0].text == "0"
+
+    send_keys(Keys.ESCAPE)
+    sleep(0.25)
+    value_items = dash_duo.find_elements(".dash-dropdown-value-item")
+    assert len(value_items) == 1
+    assert value_items[0].text == "0"
+
+    assert dash_duo.get_logs() == []
+
+
 def test_a11y004_selection_visibility_single(dash_duo):
     app = Dash(__name__)
     app.layout = (
@@ -410,6 +467,230 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
 
     send_keys(Keys.PAGE_UP)  # Jump to index 10 (Option 9)
     assert get_focused_option_text() == "Option 9"
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y009_enter_on_search_selects_first_option_multi(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Apple", "Banana", "Cherry"],
+                multi=True,
+                searchable=True,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.click()
+    dash_duo.wait_for_element(".dash-dropdown-search")
+
+    # Type to filter, then Enter selects the first visible option
+    send_keys("a")
+    sleep(0.1)
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: ['Apple']")
+    assert dash_duo.driver.execute_script(
+        "return document.activeElement.type === 'search';"
+    ), "Focus should remain on the search input after Enter"
+
+    # Enter again deselects it
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: []")
+    assert dash_duo.driver.execute_script(
+        "return document.activeElement.type === 'search';"
+    ), "Focus should remain on the search input after deselect"
+
+    # Filtering to a different option selects that one
+    send_keys(Keys.BACKSPACE)
+    send_keys("b")
+    sleep(0.1)
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: ['Banana']")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y010_enter_on_search_selects_first_option_single(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Apple", "Banana", "Cherry"],
+                multi=False,
+                searchable=True,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.click()
+    dash_duo.wait_for_element(".dash-dropdown-search")
+
+    send_keys("a")
+    sleep(0.1)
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Apple")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y011_enter_on_search_no_deselect_when_not_clearable(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Apple", "Banana", "Cherry"],
+                value="Apple",
+                multi=False,
+                searchable=True,
+                clearable=False,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Apple")
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.click()
+    dash_duo.wait_for_element(".dash-dropdown-search")
+
+    # Apple is the first option and already selected; Enter should not deselect it
+    send_keys(Keys.ENTER)
+    sleep(0.1)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Apple")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y012_typing_on_trigger_opens_dropdown_with_search(dash_duo):
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Apple", "Banana", "Cherry"],
+                searchable=True,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "search_value"))
+    def update_output(search_value):
+        return f"Search: {search_value}"
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.send_keys("b")
+
+    dash_duo.wait_for_element(".dash-dropdown-search")
+    dash_duo.wait_for_text_to_equal("#output", "Search: b")
+
+    # Only Banana should be visible
+    options = dash_duo.find_elements(".dash-dropdown-option")
+    assert len(options) == 1
+    assert options[0].text == "Banana"
+
+    # Focus should be on the search input
+    assert dash_duo.driver.execute_script(
+        "return document.activeElement.type === 'search';"
+    ), "Focus should be on the search input after typing on the trigger"
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y013_enter_on_search_after_reopen_selects_correctly(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Cambodia", "Cameroon", "Canada"],
+                multi=False,
+                searchable=True,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.send_keys("c")
+    dash_duo.wait_for_element(".dash-dropdown-search")
+    sleep(0.1)
+
+    # Enter selects Cambodia (first result)
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Cambodia")
+
+    # Type "can" — should filter to only Canada
+    send_keys("can")
+    sleep(0.1)
+    options = dash_duo.find_elements(".dash-dropdown-option")
+    assert len(options) == 1
+    assert options[0].text == "Canada"
+
+    # Focus should still be on the search input, not the selected option
+    assert dash_duo.driver.execute_script(
+        "return document.activeElement.type === 'search';"
+    ), "Focus should remain on the search input while typing"
+
+    # Enter selects Canada
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Canada")
 
     assert dash_duo.get_logs() == []
 
