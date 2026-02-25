@@ -20,6 +20,7 @@ import {
     strAsDate,
 } from '../utils/calendar/helpers';
 import {captureCSSForPortal} from '../utils/calendar/cssVariables';
+import ResizeDetector from '../utils/ResizeDetector';
 import '../components/css/datepickers.css';
 
 const DatePickerRange = ({
@@ -104,6 +105,8 @@ const DatePickerRange = ({
     const containerRef = useRef<HTMLDivElement>(null);
     const startInputRef = useRef<HTMLInputElement | null>(null);
     const endInputRef = useRef<HTMLInputElement | null>(null);
+    const startAutosizeRef = useRef<any>(null);
+    const endAutosizeRef = useRef<any>(null);
     const calendarRef = useRef<CalendarHandle>(null);
     const hasPortal = with_portal || with_full_screen_portal;
 
@@ -127,6 +130,12 @@ const DatePickerRange = ({
     useEffect(() => {
         setEndInputValue(formatDate(internalEndDate, display_format));
     }, [internalEndDate, display_format]);
+
+    const handleResize = useCallback(() => {
+        startAutosizeRef.current?.updateInputWidth?.();
+        endAutosizeRef.current?.updateInputWidth?.();
+    }, []);
+
 
     useEffect(() => {
         // Controls when setProps is called. Basically, whenever internal state
@@ -313,6 +322,10 @@ const DatePickerRange = ({
     );
 
     return (
+        <ResizeDetector
+            onResize={handleResize}
+            targets={[containerRef]}
+        >
         <div className="dash-datepicker" ref={containerRef}>
             <Popover.Root
                 open={!disabled && isCalendarOpen}
@@ -335,6 +348,7 @@ const DatePickerRange = ({
                         }}
                     >
                         <AutosizeInput
+                            ref={startAutosizeRef}
                             inputRef={node => {
                                 startInputRef.current = node;
                             }}
@@ -356,6 +370,7 @@ const DatePickerRange = ({
                         />
                         <ArrowIcon className="dash-datepicker-range-arrow" />
                         <AutosizeInput
+                            ref={endAutosizeRef}
                             inputRef={node => {
                                 endInputRef.current = node;
                             }}
@@ -458,6 +473,7 @@ const DatePickerRange = ({
                 </Popover.Portal>
             </Popover.Root>
         </div>
+        </ResizeDetector>
     );
 };
 
