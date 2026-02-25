@@ -136,6 +136,13 @@ const DatePickerRange = ({
         endAutosizeRef.current?.updateInputWidth?.();
     }, []);
 
+    useEffect(() => {
+        startAutosizeRef.current?.updateInputWidth?.();
+    }, [startInputValue]);
+
+    useEffect(() => {
+        endAutosizeRef.current?.updateInputWidth?.();
+    }, [endInputValue]);
 
     useEffect(() => {
         // Controls when setProps is called. Basically, whenever internal state
