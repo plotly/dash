@@ -95,21 +95,18 @@ def test_a11y003_keyboard_navigation(dash_duo):
     send_keys(Keys.ARROW_DOWN)  # Expecting the dropdown to open up
     dash_duo.wait_for_element(".dash-dropdown-search")
 
-    num_elements = len(dash_duo.find_elements(".dash-dropdown-option"))
-    assert num_elements == 100
-
-    send_keys(1)  # Expecting to be typing into the searh bar
-    sleep(0.1)  # Wait for search filtering to complete
-    num_elements = len(dash_duo.find_elements(".dash-dropdown-option"))
-    assert num_elements == 19
+    send_keys(1)  # Expecting to be typing into the search bar
+    sleep(0.2)  # Wait for search filtering to complete
 
     send_keys(Keys.ARROW_DOWN)  # Expecting to be navigating through the options
+    sleep(0.1)  # Wait for virtualized scroll + focus
     send_keys(Keys.SPACE)  # Expecting to be selecting
     value_items = dash_duo.find_elements(".dash-dropdown-value-item")
     assert len(value_items) == 1
     assert value_items[0].text == "1"
 
     send_keys(Keys.ARROW_DOWN)  # Expecting to be navigating through the options
+    sleep(0.1)
     send_keys(Keys.SPACE)  # Expecting to be selecting
     value_items = dash_duo.find_elements(".dash-dropdown-value-item")
     assert len(value_items) == 2
@@ -123,6 +120,7 @@ def test_a11y003_keyboard_navigation(dash_duo):
     send_keys(Keys.ARROW_UP)
     send_keys(Keys.ARROW_UP)
     send_keys(Keys.ARROW_UP)  # Expecting to wrap over to the last item
+    sleep(0.1)  # Wait for virtualized scroll + focus
     send_keys(Keys.SPACE)
     value_items = dash_duo.find_elements(".dash-dropdown-value-item")
     assert len(value_items) == 2
@@ -158,7 +156,8 @@ def test_a11y004_selection_visibility_single(dash_duo):
     dash_duo.find_element("#dropdown").click()
     dash_duo.wait_for_element(".dash-dropdown-options")
 
-    # Assert that the selected option is visible in the dropdown
+    # Wait for virtualized scroll to bring the selected option into view
+    dash_duo.wait_for_element(".dash-dropdown-option.selected")
     selected_option = dash_duo.find_element(".dash-dropdown-option.selected")
     assert selected_option.text == "Option 71"
     assert selected_option.is_displayed()
@@ -304,6 +303,7 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
         # Open with Enter
         dropdown.send_keys(Keys.ENTER)
         dash_duo.wait_for_element(".dash-dropdown-options")
+        sleep(0.1)  # Wait for virtualized scroll + focus
         assert_focus_in_dropdown()
 
         # Verify the value is still "Option 5" (not cleared)
@@ -320,6 +320,7 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
         # Open with mouse
         dropdown.click()
         dash_duo.wait_for_element(".dash-dropdown-options")
+        sleep(0.1)  # Wait for virtualized scroll + focus
         assert_focus_in_dropdown()
 
         # Verify the value is still "Option 5" (not cleared)
@@ -392,23 +393,29 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
 
     # Test End key - should go to last option
     send_keys(Keys.END)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 49"
 
     # Test PageUp - should jump up by 10
     send_keys(Keys.PAGE_UP)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 39"
 
     # Test PageDown - should jump down by 10
     send_keys(Keys.PAGE_DOWN)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 49"
 
     # Test PageUp from middle
     send_keys(Keys.HOME)  # Back to search input (index 0)
     send_keys(Keys.PAGE_DOWN)  # Jump to index 10 (Option 9)
+    sleep(0.1)
     send_keys(Keys.PAGE_DOWN)  # Jump to index 20 (Option 19)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 19"
 
     send_keys(Keys.PAGE_UP)  # Jump to index 10 (Option 9)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 9"
 
     assert dash_duo.get_logs() == []

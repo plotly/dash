@@ -7,7 +7,7 @@ import React, {
     useRef,
     MouseEvent,
 } from 'react';
-import {createFilteredOptions} from '../utils/dropdownSearch';
+import {sanitizeDropdownOptions, filterOptions} from '../utils/dropdownSearch';
 import {
     CaretDownIcon,
     MagnifyingGlassIcon,
@@ -18,7 +18,11 @@ import '../components/css/dropdown.css';
 
 import isEqual from 'react-fast-compare';
 import {DetailedOption, DropdownProps, OptionValue} from '../types';
-import {OptionsList, OptionLabel} from '../utils/optionRendering';
+import {
+    OptionsList,
+    OptionsListHandle,
+    OptionLabel,
+} from '../utils/optionRendering';
 import uuid from 'uniqid';
 
 const Dropdown = (props: DropdownProps) => {
@@ -48,6 +52,8 @@ const Dropdown = (props: DropdownProps) => {
         document.createElement('div')
     );
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const optionsListRef = useRef<OptionsListHandle>(null);
+    const focusedIndexRef = useRef(-1);
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
@@ -56,14 +62,18 @@ const Dropdown = (props: DropdownProps) => {
         persistentOptions.current = options;
     }
 
-    const {sanitizedOptions, filteredOptions} = useMemo(
+    const sanitized = useMemo(
+        () => sanitizeDropdownOptions(persistentOptions.current),
+        [persistentOptions.current]
+    );
+    const sanitizedOptions = sanitized.options;
+
+    const filteredOptions = useMemo(
         () =>
-            createFilteredOptions(
-                persistentOptions.current,
-                !!searchable,
-                search_value
-            ),
-        [persistentOptions.current, searchable, search_value]
+            searchable
+                ? filterOptions(sanitized, search_value)
+                : sanitizedOptions,
+        [sanitized, searchable, search_value]
     );
 
     const sanitizedValues: OptionValue[] = useMemo(() => {
@@ -134,16 +144,16 @@ const Dropdown = (props: DropdownProps) => {
             !isNil(value) &&
             !isEmpty(value)
         ) {
-            const values = sanitizedOptions.map(option => option.value);
+            const {valueSet} = sanitized;
             if (Array.isArray(value)) {
                 if (multi) {
-                    const invalids = value.filter(v => !values.includes(v));
+                    const invalids = value.filter(v => !valueSet.has(v));
                     if (invalids.length) {
                         setProps({value: without(invalids, value)});
                     }
                 }
             } else {
-                if (!values.includes(value)) {
+                if (!valueSet.has(value)) {
                     setProps({value: null});
                 }
             }
@@ -235,128 +245,108 @@ const Dropdown = (props: DropdownProps) => {
         }
     }, [filteredOptions, isOpen]);
 
-    // Focus first selected item or search input when dropdown opens
+    // Focus first selected item or search input when dropdown opens.
+    // Depends on displayOptions so it fires after OptionsList is mounted.
     useEffect(() => {
-        if (!isOpen || search_value) {
+        if (!isOpen || search_value || !displayOptions.length) {
             return;
         }
 
-        // waiting for the DOM to be ready after the dropdown renders
         requestAnimationFrame(() => {
-            // Try to focus the first selected item (for single-select)
             if (!multi) {
                 const selectedValue = sanitizedValues[0];
                 if (selectedValue) {
-                    const selectedElement =
-                        dropdownContentRef.current.querySelector(
-                            `.dash-options-list-option-checkbox[value="${selectedValue}"]`
-                        );
-
-                    if (selectedElement instanceof HTMLElement) {
-                        selectedElement.focus();
+                    const selectedIndex = displayOptions.findIndex(
+                        o => o.value === selectedValue
+                    );
+                    if (selectedIndex >= 0) {
+                        focusedIndexRef.current = selectedIndex;
+                        optionsListRef.current?.focusItem(selectedIndex);
                         return;
                     }
                 }
             }
 
-            // Fallback: focus search input if available and no selected item was focused
             if (searchable && searchInputRef.current) {
                 searchInputRef.current.focus();
             }
         });
     }, [isOpen, multi, displayOptions]);
 
-    // Handle keyboard navigation in popover
-    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        const relevantKeys = [
-            'ArrowDown',
-            'ArrowUp',
-            'PageDown',
-            'PageUp',
-            'Home',
-            'End',
-        ];
-        if (!relevantKeys.includes(e.key)) {
-            return;
-        }
+    // Handle keyboard navigation in popover.
+    // Index -1 = search input, 0..N-1 = option index in displayOptions.
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            const relevantKeys = [
+                'ArrowDown',
+                'ArrowUp',
+                'PageDown',
+                'PageUp',
+                'Home',
+                'End',
+            ];
+            if (!relevantKeys.includes(e.key)) {
+                return;
+            }
 
-        // Don't interfere with the event if the user is using Home/End keys on the search input
-        if (
-            ['Home', 'End'].includes(e.key) &&
-            document.activeElement === searchInputRef.current
-        ) {
-            return;
-        }
+            if (
+                ['Home', 'End'].includes(e.key) &&
+                document.activeElement === searchInputRef.current
+            ) {
+                return;
+            }
 
-        const focusableElements = e.currentTarget.querySelectorAll(
-            'input[type="search"], input:not([disabled])'
-        ) as NodeListOf<HTMLElement>;
+            if (displayOptions.length === 0) {
+                return;
+            }
 
-        // Don't interfere with the event if there aren't any options that the user can interact with
-        if (focusableElements.length === 0) {
-            return;
-        }
+            e.preventDefault();
 
-        e.preventDefault();
+            const hasSearch = !!searchable;
+            const current = focusedIndexRef.current;
+            const maxIndex = displayOptions.length - 1;
+            const minIndex = hasSearch ? -1 : 0;
+            let nextIndex: number;
 
-        const currentIndex = Array.from(focusableElements).indexOf(
-            document.activeElement as HTMLElement
-        );
-        let nextIndex = -1;
+            switch (e.key) {
+                case 'ArrowDown':
+                    nextIndex = current < maxIndex ? current + 1 : minIndex;
+                    break;
+                case 'ArrowUp':
+                    nextIndex = current > minIndex ? current - 1 : maxIndex;
+                    break;
+                case 'PageDown':
+                    nextIndex = Math.min(current + 10, maxIndex);
+                    break;
+                case 'PageUp':
+                    nextIndex = Math.max(current - 10, minIndex);
+                    break;
+                case 'Home':
+                    nextIndex = minIndex;
+                    break;
+                case 'End':
+                    nextIndex = maxIndex;
+                    break;
+                default:
+                    return;
+            }
 
-        switch (e.key) {
-            case 'ArrowDown':
-                nextIndex =
-                    currentIndex < focusableElements.length - 1
-                        ? currentIndex + 1
-                        : 0;
-                break;
+            focusedIndexRef.current = nextIndex;
 
-            case 'ArrowUp':
-                nextIndex =
-                    currentIndex > 0
-                        ? currentIndex - 1
-                        : focusableElements.length - 1;
-
-                break;
-            case 'PageDown':
-                nextIndex = Math.min(
-                    currentIndex + 10,
-                    focusableElements.length - 1
-                );
-                break;
-            case 'PageUp':
-                nextIndex = Math.max(currentIndex - 10, 0);
-                break;
-            case 'Home':
-                nextIndex = 0;
-                break;
-            case 'End':
-                nextIndex = focusableElements.length - 1;
-                break;
-            default:
-                break;
-        }
-
-        if (nextIndex > -1) {
-            focusableElements[nextIndex].focus();
-            if (nextIndex === 0) {
-                // first element is a sticky search bar, so if we are focusing
-                // on that, also move the scroll to the top
+            if (nextIndex === -1) {
+                searchInputRef.current?.focus();
                 dropdownContentRef.current?.scrollTo({top: 0});
             } else {
-                focusableElements[nextIndex].scrollIntoView({
-                    behavior: 'auto',
-                    block: 'nearest',
-                });
+                optionsListRef.current?.focusItem(nextIndex);
             }
-        }
-    }, []);
+        },
+        [displayOptions.length, searchable]
+    );
 
-    // Handle popover open/close
     const handleOpenChange = useCallback(
         (open: boolean) => {
             setIsOpen(open);
+            focusedIndexRef.current = -1;
 
             if (!open) {
                 setProps({search_value: undefined});
@@ -512,17 +502,19 @@ const Dropdown = (props: DropdownProps) => {
                     {isOpen && !!displayOptions.length && (
                         <>
                             <OptionsList
+                                ref={optionsListRef}
                                 options={displayOptions}
                                 selected={sanitizedValues}
                                 onSelectionChange={updateSelection}
                                 inputType={multi ? 'checkbox' : 'radio'}
                                 className="dash-dropdown-options"
                                 optionClassName="dash-dropdown-option"
-                                optionStyle={{
-                                    height: optionHeight
-                                        ? `${optionHeight}px`
-                                        : undefined,
-                                }}
+                                optionHeight={
+                                    typeof optionHeight === 'number'
+                                        ? optionHeight
+                                        : undefined
+                                }
+                                maxHeight={maxHeight}
                             />
                         </>
                     )}
