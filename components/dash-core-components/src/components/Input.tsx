@@ -100,12 +100,7 @@ function Input({
     );
 
     const onEvent = () => {
-        const currentInput = input.current;
-        if (!currentInput) {
-            setPendingEvent(undefined);
-            return;
-        }
-        const {value: inputValue} = currentInput;
+        const {value: inputValue} = input.current;
         const valueAsNumber = convert(inputValue);
         if (type === HTMLInputTypes.number) {
             setPropValue(props.value, valueAsNumber ?? value);
@@ -243,7 +238,7 @@ function Input({
             }
             if (type !== HTMLInputTypes.number) {
                 setTimeout(() => {
-                    input.current?.setSelectionRange(
+                    input.current.setSelectionRange(
                         cursorPosition,
                         cursorPosition
                     );
@@ -253,13 +248,6 @@ function Input({
             onEvent();
         }
     }, [value, debounce, type]);
-
-    useEffect(
-        () => () => {
-            window.clearTimeout(pendingEvent);
-        },
-        [pendingEvent]
-    );
 
     const disabledAsBool = [true, 'disabled', 'DISABLED'].includes(
         disabled ?? false
