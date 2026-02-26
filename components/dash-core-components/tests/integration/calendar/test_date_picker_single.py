@@ -676,3 +676,43 @@ def test_dtps030_external_date_update(dash_dcc):
     ), "Input should display 2021-06-23"
 
     assert dash_dcc.get_logs() == []
+
+
+def test_dtps031_resize_detector(dash_dcc):
+    """Test that DatePickerSingle displays date if initially rendered in hidden container"""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Unhide", id="update-btn"),
+            html.Div(
+                id="hidden",
+                style={"display": "none"},
+                children=dcc.DatePickerSingle(date="2026-02-24", id="dps"),
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("hidden", "style"),
+        Input("update-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def update_date(n_clicks):
+        return {}
+
+    dash_dcc.start_server(app)
+
+    input_element = dash_dcc.find_element(".dash-datepicker-input")
+    initial_style = input_element.get_attribute("style")
+    assert "width: 2px;" in initial_style
+
+    # Click button to unhide
+    btn = dash_dcc.find_element("#update-btn")
+    btn.click()
+    time.sleep(0.5)
+
+    updated_style = input_element.get_attribute("style")
+
+    assert "width: 77px;" in updated_style
+
+    assert dash_dcc.get_logs() == []
