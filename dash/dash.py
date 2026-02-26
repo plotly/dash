@@ -501,14 +501,10 @@ class Dash(ObsoleteChecker):
 
             self.backend = backend_cls(server)
             self.server = server
-            backends.backend = self.backend  # type: ignore
-            backends.request_adapter = self.backend.request_adapter  # type: ignore
         else:
             # No server instance provided, create backend and let backend create server
             self.server = backend_cls.create_app(caller_name)  # type: ignore
             self.backend = backend_cls(self.server)
-            backends.backend = self.backend
-            backends.request_adapter = self.backend.request_adapter  # type: ignore
 
         base_prefix, routes_prefix, requests_prefix = pathname_configs(
             url_base_pathname, routes_pathname_prefix, requests_pathname_prefix
@@ -641,6 +637,7 @@ class Dash(ObsoleteChecker):
         self._got_first_request = {"pages": False, "setup_server": False}
 
         if server:
+            print(f"init app from server {server}")
             self.init_app()
 
         self.logger.setLevel(logging.INFO)
@@ -1179,7 +1176,7 @@ class Dash(ObsoleteChecker):
         renderer = self._generate_renderer()
         title = self.title
         # Refactored: direct access to global request adapter
-        request = backends.backend.request_adapter()
+        request = self.backend.request_adapter()
 
         if self.use_pages and self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
@@ -1395,7 +1392,7 @@ class Dash(ObsoleteChecker):
     # pylint: disable=R0915
     def _initialize_context(self, body):
         """Initialize the global context for the request."""
-        adapter = backends.backend.request_adapter()
+        adapter = self.backend.request_adapter()
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
         g.states_list = body.get("state", [])
@@ -2382,7 +2379,7 @@ class Dash(ObsoleteChecker):
                 server_url=jupyter_server_url,
             )
         else:
-            backends.backend.run(
+            self.backend.run(
                 dash_app=self, host=host, port=port, debug=debug, **flask_run_options
             )
 
