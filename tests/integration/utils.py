@@ -9,7 +9,7 @@ def invincible(func):
     def wrap():
         try:
             return func()
-        except:
+        except Exception:
             pass
 
     return wrap
