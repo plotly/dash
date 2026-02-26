@@ -77,7 +77,7 @@ function Input({
     disabled,
     ...props
 }: InputProps) {
-    const input = useRef(document.createElement('input'));
+    const input = useRef<HTMLInputElement | null>(null);
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
     const inputId = useState(() => uniqid('input-'))[0];
@@ -89,8 +89,12 @@ function Input({
     const setPropValue = useCallback(
         (base: InputProps['value'], value: InputProps['value']) => {
             const {setProps} = props;
+            const currentInput = input.current;
+            if (!currentInput) {
+                return;
+            }
             base = convert(base);
-            value = input.current.checkValidity() ? convert(value) : NaN;
+            value = currentInput.checkValidity() ? convert(value) : NaN;
 
             if (!isEquivalent(base, value)) {
                 setProps({value});
@@ -99,8 +103,12 @@ function Input({
         [props.setProps]
     );
 
-    const onEvent = () => {
-        const {value: inputValue} = input.current;
+    const onEvent = useCallback(() => {
+        const currentInput = input.current;
+        if (!currentInput) {
+            return;
+        }
+        const {value: inputValue} = currentInput;
         const valueAsNumber = convert(inputValue);
         if (type === HTMLInputTypes.number) {
             setPropValue(props.value, valueAsNumber ?? value);
@@ -112,19 +120,29 @@ function Input({
             props.setProps({value: propValue});
         }
         setPendingEvent(undefined);
-    };
+    }, [props, setPropValue, type, value]);
 
     const onBlur = useCallback(() => {
+        const currentInput = input.current;
+        if (!currentInput) {
+            return;
+        }
         props.setProps({
             n_blur: (n_blur ?? 0) + 1,
             n_blur_timestamp: Date.now(),
         });
-        input.current.checkValidity();
-        return debounce === true && onEvent();
-    }, [n_blur, debounce]);
+        currentInput.checkValidity();
+        if (debounce === true) {
+            onEvent();
+        }
+    }, [n_blur, debounce, onEvent, props]);
 
     const onChange = useCallback(() => {
-        const {value} = input.current;
+        const currentInput = input.current;
+        if (!currentInput) {
+            return;
+        }
+        const {value} = currentInput;
         setValue(value);
     }, []);
 
@@ -143,14 +161,18 @@ function Input({
 
     const setInputValue = useCallback(
         (base: InputProps['value'], value: InputProps['value']) => {
-            base = input.current.checkValidity() ? convert(base) : NaN;
+            const currentInput = input.current;
+            if (!currentInput) {
+                return;
+            }
+            base = currentInput.checkValidity() ? convert(base) : NaN;
             value = convert(value);
 
             if (!isEquivalent(base, value)) {
                 if (typeof value === 'undefined') {
-                    input.current.value = '';
+                    currentInput.value = '';
                 } else {
-                    input.current.value = `${value}`;
+                    currentInput.value = `${value}`;
                 }
             }
         },
@@ -159,7 +181,11 @@ function Input({
 
     const debounceEvent = useCallback(
         (seconds = 0.5) => {
-            const {value} = input.current;
+            const currentInput = input.current;
+            if (!currentInput) {
+                return;
+            }
+            const {value} = currentInput;
             window.clearTimeout(pendingEvent);
             setPendingEvent(
                 window.setTimeout(() => {
@@ -174,7 +200,11 @@ function Input({
 
     const handleStepperClick = useCallback(
         (direction: 'increment' | 'decrement') => {
-            const currentValue = parseFloat(input.current.value) || 0;
+            const currentInput = input.current;
+            if (!currentInput) {
+                return;
+            }
+            const currentValue = parseFloat(currentInput.value) || 0;
             const stepAsNum = parseFloat(step as string) || 1;
 
             // Count decimal places to avoid floating point precision issues
@@ -206,7 +236,7 @@ function Input({
                 constrainedValue.toFixed(decimalPlaces)
             );
 
-            input.current.value = roundedValue.toString();
+            currentInput.value = roundedValue.toString();
             setValue(roundedValue.toString());
             onEvent();
         },
@@ -214,7 +244,11 @@ function Input({
     );
 
     useEffect(() => {
-        const {value} = input.current;
+        const currentInput = input.current;
+        if (!currentInput) {
+            return;
+        }
+        const {value} = currentInput;
         if (pendingEvent || props.value === value) {
             return;
         }
@@ -231,14 +265,18 @@ function Input({
             return;
         }
 
-        const {selectionStart: cursorPosition} = input.current;
+        const currentInput = input.current;
+        if (!currentInput) {
+            return;
+        }
+        const {selectionStart: cursorPosition} = currentInput;
         if (debounce) {
             if (typeof debounce === 'number' && Number.isFinite(debounce)) {
                 debounceEvent(debounce);
             }
             if (type !== HTMLInputTypes.number) {
                 setTimeout(() => {
-                    input.current.setSelectionRange(
+                    input.current?.setSelectionRange(
                         cursorPosition,
                         cursorPosition
                     );
@@ -247,7 +285,14 @@ function Input({
         } else {
             onEvent();
         }
-    }, [value, debounce, type]);
+    }, [value, debounce, type, props.value, debounceEvent, onEvent]);
+
+    useEffect(
+        () => () => {
+            window.clearTimeout(pendingEvent);
+        },
+        [pendingEvent]
+    );
 
     const disabledAsBool = [true, 'disabled', 'DISABLED'].includes(
         disabled ?? false
