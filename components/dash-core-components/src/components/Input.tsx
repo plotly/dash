@@ -77,7 +77,7 @@ function Input({
     disabled,
     ...props
 }: InputProps) {
-    const input = useRef<HTMLInputElement | null>(null);
+    const input = useRef(document.createElement('input'));
     const [value, setValue] = useState<InputProps['value']>(props.value);
     const [pendingEvent, setPendingEvent] = useState<number>();
     const inputId = useState(() => uniqid('input-'))[0];
@@ -89,12 +89,8 @@ function Input({
     const setPropValue = useCallback(
         (base: InputProps['value'], value: InputProps['value']) => {
             const {setProps} = props;
-            const currentInput = input.current;
-            if (!currentInput) {
-                return;
-            }
             base = convert(base);
-            value = currentInput.checkValidity() ? convert(value) : NaN;
+            value = input.current.checkValidity() ? convert(value) : NaN;
 
             if (!isEquivalent(base, value)) {
                 setProps({value});
@@ -103,9 +99,10 @@ function Input({
         [props.setProps]
     );
 
-    const onEvent = useCallback(() => {
+    const onEvent = () => {
         const currentInput = input.current;
         if (!currentInput) {
+            setPendingEvent(undefined);
             return;
         }
         const {value: inputValue} = currentInput;
@@ -120,29 +117,19 @@ function Input({
             props.setProps({value: propValue});
         }
         setPendingEvent(undefined);
-    }, [props, setPropValue, type, value]);
+    };
 
     const onBlur = useCallback(() => {
-        const currentInput = input.current;
-        if (!currentInput) {
-            return;
-        }
         props.setProps({
             n_blur: (n_blur ?? 0) + 1,
             n_blur_timestamp: Date.now(),
         });
-        currentInput.checkValidity();
-        if (debounce === true) {
-            onEvent();
-        }
-    }, [n_blur, debounce, onEvent, props]);
+        input.current.checkValidity();
+        return debounce === true && onEvent();
+    }, [n_blur, debounce]);
 
     const onChange = useCallback(() => {
-        const currentInput = input.current;
-        if (!currentInput) {
-            return;
-        }
-        const {value} = currentInput;
+        const {value} = input.current;
         setValue(value);
     }, []);
 
@@ -161,18 +148,14 @@ function Input({
 
     const setInputValue = useCallback(
         (base: InputProps['value'], value: InputProps['value']) => {
-            const currentInput = input.current;
-            if (!currentInput) {
-                return;
-            }
-            base = currentInput.checkValidity() ? convert(base) : NaN;
+            base = input.current.checkValidity() ? convert(base) : NaN;
             value = convert(value);
 
             if (!isEquivalent(base, value)) {
                 if (typeof value === 'undefined') {
-                    currentInput.value = '';
+                    input.current.value = '';
                 } else {
-                    currentInput.value = `${value}`;
+                    input.current.value = `${value}`;
                 }
             }
         },
@@ -181,11 +164,7 @@ function Input({
 
     const debounceEvent = useCallback(
         (seconds = 0.5) => {
-            const currentInput = input.current;
-            if (!currentInput) {
-                return;
-            }
-            const {value} = currentInput;
+            const {value} = input.current;
             window.clearTimeout(pendingEvent);
             setPendingEvent(
                 window.setTimeout(() => {
@@ -200,11 +179,7 @@ function Input({
 
     const handleStepperClick = useCallback(
         (direction: 'increment' | 'decrement') => {
-            const currentInput = input.current;
-            if (!currentInput) {
-                return;
-            }
-            const currentValue = parseFloat(currentInput.value) || 0;
+            const currentValue = parseFloat(input.current.value) || 0;
             const stepAsNum = parseFloat(step as string) || 1;
 
             // Count decimal places to avoid floating point precision issues
@@ -236,7 +211,7 @@ function Input({
                 constrainedValue.toFixed(decimalPlaces)
             );
 
-            currentInput.value = roundedValue.toString();
+            input.current.value = roundedValue.toString();
             setValue(roundedValue.toString());
             onEvent();
         },
@@ -244,11 +219,7 @@ function Input({
     );
 
     useEffect(() => {
-        const currentInput = input.current;
-        if (!currentInput) {
-            return;
-        }
-        const {value} = currentInput;
+        const {value} = input.current;
         if (pendingEvent || props.value === value) {
             return;
         }
@@ -265,11 +236,7 @@ function Input({
             return;
         }
 
-        const currentInput = input.current;
-        if (!currentInput) {
-            return;
-        }
-        const {selectionStart: cursorPosition} = currentInput;
+        const {selectionStart: cursorPosition} = input.current;
         if (debounce) {
             if (typeof debounce === 'number' && Number.isFinite(debounce)) {
                 debounceEvent(debounce);
@@ -285,7 +252,7 @@ function Input({
         } else {
             onEvent();
         }
-    }, [value, debounce, type, props.value, debounceEvent, onEvent]);
+    }, [value, debounce, type]);
 
     useEffect(
         () => () => {
