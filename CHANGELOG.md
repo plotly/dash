@@ -2,6 +2,12 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+- [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
+
+
 # [4.1.0rc0] - 2026-02-23
 
 ## Added
