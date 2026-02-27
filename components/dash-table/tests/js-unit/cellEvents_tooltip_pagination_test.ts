@@ -15,7 +15,7 @@ describe('cell events - tooltip row index with pagination', () => {
                     indices: [5, 6, 7, 8, 9],
                     offset: {rows: 0, columns: 0}
                 }
-            }) as any;
+            } as any);
 
         handleEnter(propsFn, 6, 0);
 
@@ -41,7 +41,7 @@ describe('cell events - tooltip row index with pagination', () => {
                     indices: [5, 6, 7, 8, 9],
                     offset: {rows: 0, columns: 0}
                 }
-            }) as any;
+            } as any);
 
         handleMove(propsFn, 6, 0);
 
