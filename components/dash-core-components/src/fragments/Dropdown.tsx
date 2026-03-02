@@ -375,25 +375,28 @@ const Dropdown = (props: DropdownProps) => {
 
     // Handle popover open/close
    const handleOpenChange = useCallback(
-        (open: boolean) => {
-            setIsOpen(open);
+    (open: boolean) => {
+        setIsOpen(open);
 
+        if (!open) {
             const updates: Partial<DropdownProps> = {};
 
-            if (!isNil(search_value)) {
+           if (!isNil(search_value)) {
                 updates.search_value = undefined;
             }
 
-            if (!open && debounce && !isEqual(value, val)) {
+            // Commit debounced value on close only
+            if (debounce && !isEqual(value, val)) {
                 updates.value = val;
             }
 
             if (Object.keys(updates).length > 0) {
                 setProps(updates);
             }
-        },
-        [debounce, value, val, search_value, setProps]
-    );
+        }
+    },
+    [debounce, value, val, search_value, setProps]
+);
 
     const accessibleId = id ?? uuid();
     const positioningContainerRef = useRef<HTMLDivElement>(null);
