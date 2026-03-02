@@ -27,6 +27,7 @@ const Dropdown = (props: DropdownProps) => {
         className,
         closeOnSelect,
         clearable,
+        debounce,
         disabled,
         labels,
         maxHeight,
@@ -42,6 +43,7 @@ const Dropdown = (props: DropdownProps) => {
     const [optionsCheck, setOptionsCheck] = useState<DetailedOption[]>();
     const [isOpen, setIsOpen] = useState(false);
     const [displayOptions, setDisplayOptions] = useState<DetailedOption[]>([]);
+    const [val, setVal] = useState<DropdownProps['value']>(value);
     const persistentOptions = useRef<DropdownProps['options']>([]);
     const dropdownContainerRef = useRef<HTMLButtonElement>(null);
     const dropdownContentRef = useRef<HTMLDivElement>(
@@ -51,6 +53,13 @@ const Dropdown = (props: DropdownProps) => {
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
+
+    // Sync val when external value prop changes
+    useEffect(() => {
+        if (!isEqual(value, val)) {
+            setVal(value);
+        }
+    }, [value]);
 
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
@@ -67,14 +76,27 @@ const Dropdown = (props: DropdownProps) => {
     );
 
     const sanitizedValues: OptionValue[] = useMemo(() => {
-        if (value instanceof Array) {
-            return value;
+        if (val instanceof Array) {
+            return val;
         }
-        if (isNil(value)) {
+        if (isNil(val)) {
             return [];
         }
-        return [value];
-    }, [value]);
+        return [val];
+    }, [val]);
+
+    const handleSetProps = useCallback(
+        (newValue: DropdownProps['value']) => {
+            if (debounce && isOpen) {
+                // local only
+                setVal(newValue);
+            } else {
+                setVal(newValue);
+                setProps({ value: newValue });
+            }
+        },
+        [debounce, isOpen, setProps]
+    );
 
     const updateSelection = useCallback(
         (selection: OptionValue[]) => {
@@ -87,30 +109,28 @@ const Dropdown = (props: DropdownProps) => {
                 if (selection.length === 0) {
                     // Empty selection: only allow if clearable is true
                     if (clearable) {
-                        setProps({value: []});
+                        handleSetProps([]);
                     }
                     // If clearable is false and trying to set empty, do nothing
                     // return;
                 } else {
-                    // Non-empty selection: always allowed in multi-select
-                    setProps({value: selection});
+                    handleSetProps(selection);
                 }
             } else {
                 // For single-select, take the first value or null
                 if (selection.length === 0) {
                     // Empty selection: only allow if clearable is true
                     if (clearable) {
-                        setProps({value: null});
+                        handleSetProps(null);
                     }
                     // If clearable is false and trying to set empty, do nothing
                     // return;
                 } else {
-                    // Take the first value for single-select
-                    setProps({value: selection[selection.length - 1]});
+                    handleSetProps(selection[selection.length - 1]);
                 }
             }
         },
-        [multi, clearable, closeOnSelect]
+        [multi, clearable, closeOnSelect, handleSetProps]
     );
 
     const onInputChange = useCallback(
@@ -179,8 +199,8 @@ const Dropdown = (props: DropdownProps) => {
 
     const handleClear = useCallback(() => {
         const finalValue: DropdownProps['value'] = multi ? [] : null;
-        setProps({value: finalValue});
-    }, [multi]);
+        handleSetProps(finalValue);
+    }, [multi, handleSetProps]);
 
     const handleSelectAll = useCallback(() => {
         if (multi) {
@@ -189,12 +209,12 @@ const Dropdown = (props: DropdownProps) => {
                     .filter(option => !sanitizedValues.includes(option.value))
                     .map(option => option.value)
             );
-            setProps({value: allValues});
+            handleSetProps(allValues);
         }
         if (closeOnSelect) {
             setIsOpen(false);
         }
-    }, [multi, displayOptions, sanitizedValues, closeOnSelect]);
+    }, [multi, displayOptions, sanitizedValues, closeOnSelect, handleSetProps]);
 
     const handleDeselectAll = useCallback(() => {
         if (multi) {
@@ -203,12 +223,12 @@ const Dropdown = (props: DropdownProps) => {
                     displayOption => displayOption.value === option
                 );
             });
-            setProps({value: withDeselected});
+            handleSetProps(withDeselected);
         }
         if (closeOnSelect) {
             setIsOpen(false);
         }
-    }, [multi, displayOptions, sanitizedValues, closeOnSelect]);
+    }, [multi, displayOptions, sanitizedValues, closeOnSelect, handleSetProps]);
 
     // Sort options when popover opens - selected options first
     // Update display options when filtered options or selection changes
@@ -233,7 +253,7 @@ const Dropdown = (props: DropdownProps) => {
 
             setDisplayOptions(sortedOptions);
         }
-    }, [filteredOptions, isOpen]);
+    }, [filteredOptions, isOpen, sanitizedValues, multi]);
 
     // Focus first selected item or search input when dropdown opens
     useEffect(() => {
@@ -264,7 +284,7 @@ const Dropdown = (props: DropdownProps) => {
                 searchInputRef.current.focus();
             }
         });
-    }, [isOpen, multi, displayOptions]);
+    }, [isOpen, multi, displayOptions, sanitizedValues]);
 
     // Handle keyboard navigation in popover
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -354,15 +374,25 @@ const Dropdown = (props: DropdownProps) => {
     }, []);
 
     // Handle popover open/close
-    const handleOpenChange = useCallback(
+   const handleOpenChange = useCallback(
         (open: boolean) => {
             setIsOpen(open);
 
-            if (!open) {
-                setProps({search_value: undefined});
+            const updates: Partial<DropdownProps> = {};
+
+            if (!isNil(search_value)) {
+                updates.search_value = undefined;
+            }
+
+            if (!open && debounce && !isEqual(value, val)) {
+                updates.value = val;
+            }
+
+            if (Object.keys(updates).length > 0) {
+                setProps(updates);
             }
         },
-        [filteredOptions, sanitizedValues]
+        [debounce, value, val, search_value, setProps]
     );
 
     const accessibleId = id ?? uuid();
