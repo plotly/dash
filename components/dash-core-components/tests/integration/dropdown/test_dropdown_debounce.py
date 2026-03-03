@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import time
 
+
 def test_ddde001_dropdown_debounce(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
@@ -21,7 +22,9 @@ def test_ddde001_dropdown_debounce(dash_duo):
                 closeOnSelect=False,
                 debounce=True,
             ),
-            html.Div(id="dropdown-value-out", style={"height": "10px", "width": "10px"}),
+            html.Div(
+                id="dropdown-value-out", style={"height": "10px", "width": "10px"}
+            ),
         ]
     )
 
