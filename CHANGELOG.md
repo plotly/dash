@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
 
 
+
 ## [4.0.0] - 2026-02-03
 
 ## Added
