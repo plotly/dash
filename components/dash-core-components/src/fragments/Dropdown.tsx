@@ -253,7 +253,7 @@ const Dropdown = (props: DropdownProps) => {
 
             setDisplayOptions(sortedOptions);
         }
-    }, [filteredOptions, isOpen, sanitizedValues, multi]);
+    }, [filteredOptions, isOpen]);
 
     // Focus first selected item or search input when dropdown opens
     useEffect(() => {
@@ -284,7 +284,7 @@ const Dropdown = (props: DropdownProps) => {
                 searchInputRef.current.focus();
             }
         });
-    }, [isOpen, multi, displayOptions, sanitizedValues]);
+    }, [isOpen, multi, displayOptions]);
 
     // Handle keyboard navigation in popover
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
