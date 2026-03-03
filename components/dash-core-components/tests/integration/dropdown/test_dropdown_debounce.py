@@ -1,6 +1,4 @@
-import pytest
 from dash import Dash, Input, Output, dcc, html
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 import time
