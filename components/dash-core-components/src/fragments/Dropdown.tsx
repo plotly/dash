@@ -233,7 +233,7 @@ const Dropdown = (props: DropdownProps) => {
 
             setDisplayOptions(sortedOptions);
         }
-    }, [filteredOptions, isOpen]);
+    }, [filteredOptions, isOpen, sanitizedValues]);
 
     // Focus first selected item or search input when dropdown opens
     useEffect(() => {
