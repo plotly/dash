@@ -2,6 +2,16 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Added
+- [#3637](https://github.com/plotly/dash/pull/3637)  Added `debounce` prop to `Dropdown`.
+
+## Fixed
+- [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
+
+
+
 ## [4.0.0] - 2026-02-03
 
 ## Added
