@@ -81,7 +81,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
-from .types import RendererHooks
+from .types import CallbackDispatchBody, RendererHooks
 
 RouteCallable = Callable[..., Any]
 
@@ -472,6 +472,8 @@ class Dash(ObsoleteChecker):
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
         health_endpoint: Optional[str] = None,
+        enable_mcp: Optional[bool] = None,
+        mcp_path: Optional[str] = None,
         **obsolete,
     ):
 
@@ -572,6 +574,13 @@ class Dash(ObsoleteChecker):
 
         # keep title as a class property for backwards compatibility
         self.title = title
+
+        # MCP (Model Context Protocol) configuration
+        self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, True)
+        _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
+        self._mcp_path = (
+            _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path
+        )
 
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map: dict = {}
@@ -793,6 +802,21 @@ class Dash(ObsoleteChecker):
                 hook.data["methods"],
             )
 
+        if self._enable_mcp:
+            from .mcp import (
+                enable_mcp_server,
+            )  # pylint: disable=import-outside-toplevel
+
+            try:
+                enable_mcp_server(self, self._mcp_path)
+            except Exception as e:
+                self._enable_mcp = False
+                self.logger.warning(
+                    "MCP server could not be started at '%s': %s",
+                    self._mcp_path,
+                    e,
+                )
+
         # catch-all for front-end routes, used by dcc.Location
         self._add_url("<path:path>", self.index)
 
@@ -907,15 +931,23 @@ class Dash(ObsoleteChecker):
         self._index_string = value
 
     @with_app_context
-    def serve_layout(self):
-        layout = self._layout_value()
+    def get_layout(self):
+        """Return the resolved layout with all hooks applied.
 
+        This is the canonical way to obtain the app's layout — it
+        calls the layout function (if callable), includes extra
+        components, and runs layout hooks.  Used by both the
+        ``/_layout`` HTTP endpoint and the MCP server.
+        """
+        layout = self._layout_value()
         for hook in self._hooks.get_hooks("layout"):
             layout = hook(layout)
+        return layout
 
+    def serve_layout(self):
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            to_json(layout),
+            to_json(self.get_layout()),
             mimetype="application/json",
         )
 
@@ -1464,7 +1496,7 @@ class Dash(ObsoleteChecker):
         )
 
     # pylint: disable=R0915
-    def _initialize_context(self, body):
+    def _initialize_context(self, body: CallbackDispatchBody):
         """Initialize the global context for the request."""
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
@@ -1485,7 +1517,7 @@ class Dash(ObsoleteChecker):
         g.updated_props = {}
         return g
 
-    def _prepare_callback(self, g, body):
+    def _prepare_callback(self, g, body: CallbackDispatchBody):
         """Prepare callback-related data."""
         output = body["output"]
         try:
@@ -2504,6 +2536,13 @@ class Dash(ObsoleteChecker):
 
             if not jupyter_dash or not jupyter_dash.in_ipython:
                 self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+                if self._enable_mcp:
+                    self.logger.info(
+                        " * MCP available at %s://%s%s%s%s\n",
+                        *display_url[:3],
+                        self.config.routes_pathname_prefix,
+                        self._mcp_path,
+                    )
 
         if self.config.extra_hot_reload_paths:
             extra_files = flask_run_options["extra_files"] = []

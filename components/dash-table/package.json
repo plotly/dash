@@ -29,7 +29,7 @@
     "private::test.unit": "karma start karma.conf.js --single-run",
     "build.watch": "webpack serve --disable-host-check --content-base dash_table --mode development --config webpack.dev.config.js",
     "build": "run-s private::build:js private::build:backends",
-    "postbuild": "es-check es2015 dash_table/bundle.js dash_table/async-*.js",
+    "postbuild": "es-check es2017 dash_table/bundle.js dash_table/async-*.js",
     "format": "run-s private::format.*",
     "lint": "run-s private::lint.*",
     "test.server": "pytest --nopercyfinalize tests/selenium",
