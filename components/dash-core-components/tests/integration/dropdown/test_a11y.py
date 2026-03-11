@@ -678,7 +678,11 @@ def test_a11y013_enter_on_search_after_reopen_selects_correctly(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "Selected: Cambodia")
 
     # Type "can" — should filter to only Canada
-    send_keys("can")
+    send_keys("c")
+    sleep(0.1)
+    send_keys("a")
+    sleep(0.1)
+    send_keys("n")
     sleep(0.1)
     options = dash_duo.find_elements(".dash-dropdown-option")
     assert len(options) == 1

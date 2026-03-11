@@ -539,9 +539,18 @@ const Dropdown = (props: DropdownProps) => {
                                     const firstVal = displayOptions[0].value;
                                     const isSelected =
                                         sanitizedValues.includes(firstVal);
-                                    const newSelection = isSelected
-                                        ? without([firstVal], sanitizedValues)
-                                        : append(firstVal, sanitizedValues);
+                                    let newSelection;
+                                    if (isSelected) {
+                                        newSelection = without(
+                                            [firstVal],
+                                            sanitizedValues
+                                        );
+                                    } else {
+                                        newSelection = append(
+                                            firstVal,
+                                            sanitizedValues
+                                        );
+                                    }
                                     updateSelection(newSelection);
                                 }}
                                 ref={searchInputRef}
