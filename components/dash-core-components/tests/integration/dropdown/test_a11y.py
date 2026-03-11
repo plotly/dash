@@ -389,6 +389,7 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
 
     # Now arrow down to first option
     send_keys(Keys.ARROW_DOWN)
+    sleep(0.1)
     assert get_focused_option_text() == "Option 0"
 
     # Test End key - should go to last option

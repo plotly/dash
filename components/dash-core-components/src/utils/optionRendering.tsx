@@ -345,11 +345,6 @@ export const OptionsList = forwardRef<OptionsListHandle, OptionsListProps>(
                 style={style}
                 role="listbox"
             >
-                {sizerDiv && (
-                    <div aria-hidden style={{height: 0, overflow: 'hidden'}}>
-                        {sizerDiv}
-                    </div>
-                )}
                 <VariableSizeList
                     ref={listRef}
                     height={listHeight}
@@ -363,6 +358,11 @@ export const OptionsList = forwardRef<OptionsListHandle, OptionsListProps>(
                 >
                     {Row}
                 </VariableSizeList>
+                {sizerDiv && (
+                    <div aria-hidden style={{height: 0, overflow: 'hidden'}}>
+                        {sizerDiv}
+                    </div>
+                )}
             </div>
         );
     }
