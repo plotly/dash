@@ -2,7 +2,7 @@
 beautifulsoup4>=4.8.2
 cryptography
 lxml>=4.6.2
-percy>=2.0.2
+percy-python-selenium>=1.0.0
 pytest>=6.0.2
 requests[security]>=2.21.0
 selenium>=3.141.0,<=4.2.0

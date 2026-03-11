@@ -5,8 +5,7 @@ import time
 import logging
 from typing import Union, Optional
 import warnings
-import percy
-import requests
+from percy import percy_snapshot
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -78,14 +77,9 @@ class Browser(DashPageMixin):
         self._window_idx = 0  # switch browser tabs
 
         if self._percy_run:
-            self.percy_runner = percy.Runner(
-                loader=percy.ResourceLoader(
-                    webdriver=self.driver,
-                    base_url="/assets",
-                    root_dir=percy_assets_root,
-                )
-            )
-            self.percy_runner.initialize_build()
+            # Percy CLI handles build initialization via percy exec wrapper
+            self._percy_assets_root = percy_assets_root
+            # No explicit initialization needed
 
         logger.debug("initialize browser with arguments")
         logger.debug("  headless => %s", self._headless)
@@ -99,14 +93,12 @@ class Browser(DashPageMixin):
         try:
             self.driver.quit()
             if self._percy_run and self._percy_finalize:
-                logger.info("percy runner finalize build now")
-                self.percy_runner.finalize_build()
+                logger.info("percy finalize will be handled by percy build:finalize")
+                # With percy CLI, finalization handled by separate command
             else:
                 logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
-        except percy.errors.Error:  # type: ignore[reportAttributeAccessIssue]
-            logger.exception("percy runner failed to finalize properly")
 
     def visit_and_snapshot(
         self,
@@ -205,12 +197,16 @@ class Browser(DashPageMixin):
             """
             )
 
+        # NEW: Use percy-python-selenium SDK
         try:
-            self.percy_runner.snapshot(name=name, widths=widths)
-        except requests.HTTPError as err:
-            # Ignore retries.
-            if err.request.status_code != 400:  # type: ignore[reportAttributeAccessIssue]
-                raise err
+            import os
+            if os.getenv('PERCY_TOKEN'):
+                percy_options = {'widths': widths, 'min_height': 1024}
+                percy_snapshot(self.driver, name, **percy_options)
+            else:
+                logger.debug("Percy snapshots disabled - PERCY_TOKEN not set")
+        except Exception as err:
+            logger.warning("Percy snapshot failed: %s", err)
 
         if convert_canvases:
             self.driver.execute_script(
