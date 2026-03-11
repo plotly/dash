@@ -581,7 +581,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
       - name: Install Node.js dependencies
         run: npm ci
