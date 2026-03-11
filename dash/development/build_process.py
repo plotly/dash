@@ -144,7 +144,9 @@ class BuildProcess:
 
                 for extra_version in extras:
                     # React 19+ removed UMD builds, use umd-react package instead
-                    if name in ("react", "react-dom") and extra_version.startswith("19."):
+                    if name in ("react", "react-dom") and extra_version.startswith(
+                        "19."
+                    ):
                         # Map filename to umd-react dist path
                         if "production.min" in filename:
                             umd_filename = f"{name}.production.min.js"
