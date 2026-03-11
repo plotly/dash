@@ -199,9 +199,8 @@ class Browser(DashPageMixin):
 
         # NEW: Use percy-python-selenium SDK
         try:
-            import os
-            if os.getenv('PERCY_TOKEN'):
-                percy_options = {'widths': widths, 'min_height': 1024}
+            if os.getenv("PERCY_TOKEN"):
+                percy_options = {"widths": widths, "min_height": 1024}
                 percy_snapshot(self.driver, name, **percy_options)
             else:
                 logger.debug("Percy snapshots disabled - PERCY_TOKEN not set")

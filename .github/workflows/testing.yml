@@ -48,6 +48,7 @@ jobs:
 
   lint-unit:
     name: Lint & Unit Tests (Python ${{ matrix.python-version }})
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -74,11 +75,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      - name: Install Python dependencies
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          python -m pip install -e .[dev,ci]
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci]"' \;
+
+      - name: Install dash-renderer dependencies
+        working-directory: dash/dash-renderer
+        run: npm ci
 
       - name: Run lint
         run: npm run lint
@@ -243,7 +254,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<78.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
 
       - name: Setup Chrome and ChromeDriver
@@ -429,7 +439,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
           pip install pytest-split
 
@@ -520,7 +529,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
@@ -569,8 +577,20 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
       - name: Install Node.js dependencies
         run: npm ci
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[dev,ci]
 
       - name: Build dash-renderer
         working-directory: dash/dash-renderer
@@ -679,7 +699,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
           pip install pytest-split
 
@@ -763,7 +782,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
