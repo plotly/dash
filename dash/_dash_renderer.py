@@ -3,8 +3,8 @@ from typing import Any, List, Dict
 
 __version__ = "3.0.0"
 
-_available_react_versions = {"18.3.1", "18.2.0", "16.14.0"}
-_available_reactdom_versions = {"18.3.1", "18.2.0", "16.14.0"}
+_available_react_versions = {"18.3.1", "18.2.0", "19.2.0"}
+_available_reactdom_versions = {"18.3.1", "18.2.0", "19.2.0"}
 _js_dist_dependencies: List[Dict[str, Any]] = []  # to be set by _set_react_version
 
 
@@ -19,19 +19,51 @@ def _set_react_version(v_react, v_reactdom=None):
     assert v_react in _available_react_versions, react_err
     assert v_reactdom in _available_reactdom_versions, reactdom_err
 
+    # React 19+ removed UMD builds, use umd-react package instead
+    is_react19 = v_react.startswith("19.")
+    is_reactdom19 = v_reactdom.startswith("19.")
+
+    if is_react19:
+        react_prod_url = (
+            f"https://unpkg.com/umd-react@{v_react}/dist/react.production.min.js"
+        )
+        react_dev_url = (
+            f"https://unpkg.com/umd-react@{v_react}/dist/react.development.js"
+        )
+    else:
+        react_prod_url = (
+            f"https://unpkg.com/react@{v_react}/umd/react.production.min.js"
+        )
+        react_dev_url = f"https://unpkg.com/react@{v_react}/umd/react.development.js"
+
+    if is_reactdom19:
+        reactdom_prod_url = (
+            f"https://unpkg.com/umd-react@{v_reactdom}/dist/react-dom.production.min.js"
+        )
+        reactdom_dev_url = (
+            f"https://unpkg.com/umd-react@{v_reactdom}/dist/react-dom.development.js"
+        )
+    else:
+        reactdom_prod_url = (
+            f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.production.min.js"
+        )
+        reactdom_dev_url = (
+            f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.development.js"
+        )
+
     _js_dist_dependencies[:] = [
         {
             "external_url": {
                 "prod": [
                     "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.production.min.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.production.min.js",
+                    react_prod_url,
+                    reactdom_prod_url,
                     "https://unpkg.com/prop-types@15.8.1/prop-types.min.js",
                 ],
                 "dev": [
                     "https://unpkg.com/@babel/polyfill@7.12.1/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.development.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.development.js",
+                    react_dev_url,
+                    reactdom_dev_url,
                     "https://unpkg.com/prop-types@15.8.1/prop-types.js",
                 ],
             },
