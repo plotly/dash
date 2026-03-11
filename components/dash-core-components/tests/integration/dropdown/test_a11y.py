@@ -333,7 +333,8 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
     )
 
     def assert_focus_in_dropdown():
-        # Verify focus is inside the dropdown
+        # Focus is set via requestAnimationFrame, so allow a frame to pass
+        sleep(0.1)
         assert dash_duo.driver.execute_script(
             """
             const activeElement = document.activeElement;
