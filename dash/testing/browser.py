@@ -204,7 +204,7 @@ class Browser(DashPageMixin):
                 percy_snapshot(self.driver, name, **percy_options)
             else:
                 logger.debug("Percy snapshots disabled - PERCY_TOKEN not set")
-        except Exception as err:
+        except Exception as err:  # pylint: disable=broad-exception-caught
             logger.warning("Percy snapshot failed: %s", err)
 
         if convert_canvases:
