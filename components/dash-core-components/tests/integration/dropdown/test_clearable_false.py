@@ -191,15 +191,11 @@ def test_ddcf002_clearable_false_multi(dash_duo):
     # Attempt to deselect all items. Everything should deselect until we get to
     # the last item which cannot be cleared.
     # Click MTL option container
-    mtl_option = dash_duo.find_element(
-        '.dash-dropdown-option:has(input[value="MTL"])'
-    )
+    mtl_option = dash_duo.find_element('.dash-dropdown-option:has(input[value="MTL"])')
     mtl_option.click()
 
     # Click SF option container
-    sf_option = dash_duo.find_element(
-        '.dash-dropdown-option:has(input[value="SF"])'
-    )
+    sf_option = dash_duo.find_element('.dash-dropdown-option:has(input[value="SF"])')
     sf_option.click()
 
     assert dash_duo.find_element("#dropdown-value").text == "SF"
