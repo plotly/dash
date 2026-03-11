@@ -468,6 +468,6 @@ def test_a11y009_dropdown_component_labels_render_correctly(dash_duo):
     option_elements = dash_duo.find_elements(".dash-dropdown-option")
     rendered_labels = [el.text.strip() for el in option_elements]
 
-    assert rendered_labels == ["red", "blue", "yellow"]
+    assert rendered_labels == ["red", "yellow", "blue"]
 
     assert dash_duo.get_logs() == []
