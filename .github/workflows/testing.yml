@@ -74,6 +74,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -192,6 +193,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -259,6 +261,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -328,6 +331,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -386,6 +390,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -444,6 +449,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -534,6 +540,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -647,6 +654,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -703,6 +711,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -786,6 +795,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -815,7 +825,7 @@ jobs:
         working-directory: components/dash-table
         run: |
           npm ci
-          npx percy exec -- pytest --headless --nopercyfinalize tests/visual
+          npm run test.visual
 
       - name: Upload dash artifacts
         if: always()
