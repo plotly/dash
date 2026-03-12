@@ -86,7 +86,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dash-components
-          path: .
+          path: ${{ github.workspace }}
 
       - name: Install Dash packages
         run: |
