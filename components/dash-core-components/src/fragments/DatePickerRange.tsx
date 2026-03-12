@@ -174,8 +174,10 @@ const DatePickerRange = ({
                 end_date: null,
             });
         } else if (updatemode === 'singledate' && internalStartDate) {
+            // Only start changed - send just that one
             setProps({start_date: dateAsStr(internalStartDate)});
         } else if (updatemode === 'singledate' && internalEndDate) {
+            // Only end changed - send just that one
             setProps({end_date: dateAsStr(internalEndDate)});
         }
     }, [internalStartDate, internalEndDate, updatemode]);
@@ -323,14 +325,13 @@ const DatePickerRange = ({
                 }
                 isNewRangeRef.current = !!(start && !end);
 
-                if (
-                    start &&
-                    end &&
-                    minimum_nights &&
-                    Math.abs(differenceInCalendarDays(end, start)) <
-                        minimum_nights
-                ) {
-                    return;
+                if (start && end && minimum_nights) {
+                    const numNights = Math.abs(
+                        differenceInCalendarDays(end, start)
+                    );
+                    if (numNights < minimum_nights) {
+                        return;
+                    }
                 }
 
                 // Normalize dates: ensure start <= end
