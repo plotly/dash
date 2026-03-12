@@ -27,6 +27,6 @@ def cleanup_background_processes():
             cmdline_str = " ".join(cmdline) if cmdline else ""
             if "celery" in cmdline_str and "worker" in cmdline_str:
                 proc.kill()
-                proc.wait(timeout=3)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
+    # Don't wait - just kill and move on

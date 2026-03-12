@@ -68,31 +68,27 @@ def get_background_callback_manager():
 
 def kill(proc_pid):
     try:
-        process = psutil.Process(proc_pid)
-        children = process.children(recursive=True)
-
-        # Kill children first
-        for proc in children:
-            try:
-                proc.kill()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-
-        # Kill the main process
-        try:
-            process.kill()
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
-
-        # Also kill by process group to catch any orphans
+        # Kill by process group first to get all children
         try:
             os.killpg(proc_pid, 9)  # SIGKILL
         except (ProcessLookupError, PermissionError, OSError):
             pass
 
-        # Wait for processes to actually terminate
-        procs_to_wait = [process] + children
-        psutil.wait_procs(procs_to_wait, timeout=5)
+        # Also kill individual processes in case they escaped the group
+        try:
+            process = psutil.Process(proc_pid)
+            children = process.children(recursive=True)
+            for proc in children:
+                try:
+                    proc.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            process.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+        # Brief wait - don't block too long
+        time.sleep(0.5)
 
     except psutil.NoSuchProcess:
         pass
@@ -153,6 +149,9 @@ def setup_background_callback_app(manager_name, app_name):
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("CELERY_BROKER")
             os.environ.pop("CELERY_BACKEND")
+            # Close stderr to prevent blocking on pipe buffer
+            if worker.stderr:
+                worker.stderr.close()
             kill(worker.pid)
             from dash import page_registry
 
