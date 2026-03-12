@@ -432,7 +432,6 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
-          pip install pytest-split
 
       - name: Setup Chrome and ChromeDriver
         uses: browser-actions/setup-chrome@v1
@@ -499,7 +498,6 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
-          pip install pytest-split
 
       - name: Setup Chrome and ChromeDriver
         uses: browser-actions/setup-chrome@v1
@@ -769,7 +767,6 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
-          pip install pytest-split
 
       - name: Setup Chrome and ChromeDriver
         uses: browser-actions/setup-chrome@v1
@@ -943,6 +940,20 @@ jobs:
           echo "| Typing Tests | ${{ needs.test-typing.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📁 Detailed test reports are available in the artifacts section above." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for failures
+        if: always()
+        run: |
+          if [[ "${{ needs.lint-unit.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-main.result }}" == "failure" ]] || \
+             [[ "${{ needs.dcc-test.result }}" == "failure" ]] || \
+             [[ "${{ needs.html-test.result }}" == "failure" ]] || \
+             [[ "${{ needs.table-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.background-callbacks.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-typing.result }}" == "failure" ]]; then
+            echo "One or more required jobs failed"
+            exit 1
+          fi
 
   artifacts:
     name: Store Build Artifacts
