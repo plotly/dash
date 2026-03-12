@@ -494,6 +494,7 @@ class Browser(DashPageMixin):
                 "download.directory_upgrade": True,
                 "safebrowsing.enabled": False,
                 "safebrowsing.disable_download_protection": True,
+                "profile.default_content_setting_values.clipboard": 1,
             },
         )
 
@@ -501,6 +502,8 @@ class Browser(DashPageMixin):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-gpu")
         options.add_argument("--remote-debugging-port=0")
+        options.add_argument("--disable-notifications")
+        options.add_argument("--disable-popup-blocking")
 
         options.set_capability("goog:loggingPrefs", {"browser": "SEVERE"})
 
