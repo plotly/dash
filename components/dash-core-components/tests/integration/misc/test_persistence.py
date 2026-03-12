@@ -133,12 +133,10 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
         "one" + Keys.ENTER
     )
-    sleep(0.2)
-    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
 
     dash_dcc.find_element("#dropdownmulti").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
-        "six" + Keys.ENTER
+        "six"
     )
     sleep(0.2)
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
