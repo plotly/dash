@@ -741,7 +741,7 @@ export interface DropdownProps extends BaseDccProps<DropdownProps> {
         clear_selection?: string;
         no_options_found?: string;
     };
-     /**
+    /**
      * If True, changes to input values will be sent back to the Dash server only when dropdown menu closes.
      * Use with `closeOnSelect=False`
      */
