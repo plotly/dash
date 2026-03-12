@@ -518,6 +518,7 @@ class Browser(DashPageMixin):
         if self._headless and self.download_path and hasattr(chrome, "execute_cdp_cmd"):
             try:
                 # Modern approach using CDP command (Chrome only)
+                # pylint: disable=no-member
                 chrome.execute_cdp_cmd(  # type: ignore[union-attr]
                     "Page.setDownloadBehavior",
                     {"behavior": "allow", "downloadPath": self.download_path},
