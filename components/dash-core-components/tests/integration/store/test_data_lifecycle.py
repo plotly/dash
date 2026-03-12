@@ -1,7 +1,10 @@
 import dash.testing.wait as wait
 
 
-def test_stdl001_data_lifecycle_with_different_condition(store_app, dash_dcc):
+def test_stdl001_data_lifecycle_with_different_condition(
+    store_app, dash_dcc_fresh_browser
+):
+    dash_dcc = dash_dcc_fresh_browser
     dash_dcc.start_server(store_app)
 
     nclicks = 10

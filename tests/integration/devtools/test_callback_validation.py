@@ -217,7 +217,8 @@ def test_dvcv004_duplicate_outputs_across_callbacks(dash_duo):
     check_errors(dash_duo, specs)
 
 
-def test_dvcv005_input_output_overlap(dash_duo):
+def test_dvcv005_input_output_overlap(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b"), html.Div(id="c")])
 
@@ -764,7 +765,8 @@ def test_dvcv014_multipage_errors(dash_duo):
 
 
 @pytest.mark.parametrize("validation", ("function", "attribute", "suppress"))
-def test_dvcv015_multipage_validation_layout(validation, dash_duo):
+def test_dvcv015_multipage_validation_layout(validation, dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = multipage_app(validation)
     dash_duo.start_server(app, **debugging)
 

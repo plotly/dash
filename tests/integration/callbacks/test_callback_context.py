@@ -11,7 +11,8 @@ import dash.testing.wait as wait
 from selenium.webdriver.common.action_chains import ActionChains
 
 
-def test_cbcx001_modified_response(dash_duo):
+def test_cbcx001_modified_response(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div([dcc.Input(id="input", value="ab"), html.Div(id="output")])
 

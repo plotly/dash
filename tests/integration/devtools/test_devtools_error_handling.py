@@ -37,7 +37,8 @@ def get_error_html(dash_duo, index):
     )
 
 
-def test_dveh001_python_errors(dash_duo):
+def test_dveh001_python_errors(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = app_with_errors()
 
     dash_duo.start_server(

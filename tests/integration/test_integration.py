@@ -12,7 +12,8 @@ from dash.exceptions import PreventUpdate
 from dash.testing.wait import until
 
 
-def test_inin003_wildcard_data_attributes(dash_duo):
+def test_inin003_wildcard_data_attributes(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
     test_date = datetime.date(test_time.year, test_time.month, test_time.day)

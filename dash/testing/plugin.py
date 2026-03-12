@@ -34,6 +34,15 @@ try:
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
+    from dash.testing.errors import DashAppLoadingError
+
+    from selenium.webdriver.support.wait import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import (
+        TimeoutException,
+        StaleElementReferenceException,
+    )
 
     # pylint: disable=unused-import
     import dash_testing_stub  # noqa: F401
@@ -232,15 +241,77 @@ class _ReusableDashComposite(DashComposite):
     def _reset_browser_state(self):
         """Clear browser state between tests."""
         try:
+            # Stop any running JavaScript
+            self.driver.execute_script("window.stop();")
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+        try:
             self.driver.delete_all_cookies()
         except Exception:  # pylint: disable=broad-exception-caught
             pass
+
         try:
-            # Navigate to blank page first to ensure we can clear storage
+            # Navigate to blank page
             self.driver.get("about:blank")
+
+            # Wait for navigation to complete
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+
+            # Clear storage
             self.clear_storage()
+
+            # Reset timestamp for log filtering
+            self._last_ts = 0
         except Exception:  # pylint: disable=broad-exception-caught
             pass
+
+    def _ensure_blank_page(self):
+        """Ensure browser is on a blank page with no stale content."""
+        try:
+            current_url = self.driver.current_url
+            if current_url != "about:blank":
+                self.driver.get("about:blank")
+            # Wait for blank page to fully load
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+    def start_server(self, app, navigate=True, **kwargs):
+        """Start the local server with app."""
+        # Ensure browser is on blank page before starting new server
+        self._ensure_blank_page()
+        self.server(app, **kwargs)
+        if navigate:
+            self.server_url = self.server.url
+
+    def wait_for_page(self, url=None, timeout=10):
+        """Wait for page to load with improved synchronization."""
+        target_url = self.server_url if url is None else url
+
+        # Navigate to the target URL
+        self.driver.get(target_url)
+
+        try:
+            # Wait for URL to match (handles redirects)
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: target_url in d.current_url
+            )
+
+            # Wait for react entry point with staleness check
+            def fresh_react_entry(driver):
+                try:
+                    elem = driver.find_element(By.CSS_SELECTOR, self.dash_entry_locator)
+                    # Verify element is interactive (not stale)
+                    _ = elem.is_displayed()
+                    return elem
+                except StaleElementReferenceException:
+                    return False
+
+            WebDriverWait(self.driver, timeout).until(fresh_react_entry)
+
+        except TimeoutException as exc:
+            raise DashAppLoadingError("Dash app failed to load") from exc
 
     def __enter__(self):
         self._reset_browser_state()

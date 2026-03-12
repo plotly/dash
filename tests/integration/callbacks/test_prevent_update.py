@@ -9,10 +9,10 @@ from dash.exceptions import PreventUpdate
 from dash.testing.wait import until
 
 
-def test_cbpu001_aborted_callback(dash_duo):
+def test_cbpu001_aborted_callback(dash_duo_fresh_browser):
     """Raising PreventUpdate OR returning no_update prevents update and
     triggering dependencies."""
-
+    dash_duo = dash_duo_fresh_browser
     initial_input = "initial input"
     initial_output = "initial output"
 

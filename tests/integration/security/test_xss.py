@@ -62,7 +62,8 @@ def test_xss001_banned_protocols(dash_duo):
         ), f"Failed prop: {element_id}.{prop} = {prop_value}"
 
 
-def test_xss002_blank_href(dash_duo):
+def test_xss002_blank_href(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
 
     app.layout = html.Div(dcc.Link("dcc-link", href="", id="dcc-link-no-href"))

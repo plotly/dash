@@ -51,8 +51,24 @@ class _ReusableDashCoreComponentsComposite(DashCoreComponentsMixin):
 
     def start_server(self, app, **kwargs):
         """start the local server with app"""
+        # Ensure browser is on blank page before starting new server
+        self._ensure_blank_page()
         self.server(app, **kwargs)
         self.server_url = self.server.url
+
+    def _ensure_blank_page(self):
+        """Ensure browser is on a blank page with no stale content."""
+        try:
+            current_url = self.driver.current_url
+            if current_url != "about:blank":
+                self.driver.get("about:blank")
+            # Wait for blank page to fully load
+            from selenium.webdriver.support.wait import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+        except Exception:
+            pass
 
     @property
     def server_url(self):
@@ -64,12 +80,37 @@ class _ReusableDashCoreComponentsComposite(DashCoreComponentsMixin):
         self.wait_for_page()
 
     def wait_for_page(self, url=None, timeout=10):
-        from selenium.common.exceptions import TimeoutException
+        from selenium.common.exceptions import (
+            TimeoutException,
+            StaleElementReferenceException,
+        )
+        from selenium.webdriver.support.wait import WebDriverWait
+        from selenium.webdriver.common.by import By
         from dash.testing.errors import DashAppLoadingError
 
-        self.driver.get(self._url if url is None else url)
+        target_url = self._url if url is None else url
+
+        # Navigate to the target URL
+        self.driver.get(target_url)
+
         try:
-            self.wait_for_element_by_css_selector("#react-entry-point", timeout=timeout)
+            # Wait for URL to match (handles redirects)
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: target_url in d.current_url
+            )
+
+            # Wait for react entry point with staleness check
+            def fresh_react_entry(driver):
+                try:
+                    elem = driver.find_element(By.CSS_SELECTOR, "#react-entry-point")
+                    # Verify element is interactive (not stale)
+                    _ = elem.is_displayed()
+                    return elem
+                except StaleElementReferenceException:
+                    return False
+
+            WebDriverWait(self.driver, timeout).until(fresh_react_entry)
+
         except TimeoutException as exc:
             raise DashAppLoadingError("Dash app failed to load") from exc
 
@@ -167,13 +208,33 @@ class _ReusableDashCoreComponentsComposite(DashCoreComponentsMixin):
         return None
 
     def _reset_browser_state(self):
+        """Clear browser state between tests."""
+        try:
+            # Stop any running JavaScript
+            self.driver.execute_script("window.stop();")
+        except Exception:
+            pass
+
         try:
             self.driver.delete_all_cookies()
         except Exception:
             pass
+
         try:
+            # Navigate to blank page
             self.driver.get("about:blank")
+
+            # Wait for navigation to complete
+            from selenium.webdriver.support.wait import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+
+            # Clear storage
             self.clear_storage()
+
+            # Reset timestamp for log filtering
+            self._last_ts = 0
         except Exception:
             pass
 
@@ -209,6 +270,24 @@ def dash_dcc(request, dash_thread_server, _dcc_browser_session):
     with _ReusableDashCoreComponentsComposite(
         dash_thread_server,
         browser_instance=_dcc_browser_session,
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dash_dcc_fresh_browser(request, dash_thread_server, tmpdir):
+    """DCC test fixture with a fresh browser instance (for tests that need isolation)."""
+    with DashCoreComponentsComposite(
+        dash_thread_server,
+        browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=tmpdir.mkdir("download").strpath,
+        percy_assets_root=request.config.getoption("percy_assets"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
     ) as dc:
         yield dc
 

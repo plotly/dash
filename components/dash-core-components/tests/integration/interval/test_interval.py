@@ -3,7 +3,8 @@ from dash import Dash, Input, Output, dcc, html
 import time
 
 
-def test_intv001_interval(dash_dcc):
+def test_intv001_interval(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [

@@ -27,7 +27,8 @@ from dash.exceptions import PreventUpdate
 from tests.integration.utils import json_engine
 
 
-def test_cbsc001_simple_callback(dash_duo):
+def test_cbsc001_simple_callback(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     lock = Lock()
 
     app = Dash(__name__)

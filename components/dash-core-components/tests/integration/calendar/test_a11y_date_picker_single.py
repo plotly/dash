@@ -147,7 +147,8 @@ def test_a11y003_keyboard_navigation_arrows(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_a11y004_keyboard_navigation_home_end(dash_dcc):
+def test_a11y004_keyboard_navigation_home_end(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = create_date_picker_app(
         {
             "date": "2021-01-15",  # Friday, Jan 15, 2021
@@ -367,7 +368,8 @@ def test_a11y008_all_keyboard_keys_respect_disabled_days(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_a11y009_keyboard_space_selects_date(dash_dcc):
+def test_a11y009_keyboard_space_selects_date(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = create_date_picker_app(
         {
             "date": "2021-01-15",

@@ -26,7 +26,8 @@ import time
         ],
     ],
 )
-def test_cnfd001_dialog(dash_dcc, confirm_callback, confirms, components):
+def test_cnfd001_dialog(dash_dcc_fresh_browser, confirm_callback, confirms, components):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(components + [html.Div(id="confirmed")])
 

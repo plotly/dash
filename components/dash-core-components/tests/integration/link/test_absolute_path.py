@@ -3,7 +3,8 @@ from dash import Dash, Input, Output, dcc, html
 
 
 @pytest.mark.DCC782
-def test_lipa001_path(dash_dcc):
+def test_lipa001_path(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [
