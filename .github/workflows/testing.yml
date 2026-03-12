@@ -294,13 +294,31 @@ jobs:
       - name: Build/Setup test components
         run: npm run setup-tests.py
 
-      - name: Run Background & Async Callback Tests
+      - name: Setup test directory
         run: |
           mkdir bgtests
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
+          mkdir -p test-reports
+
+      - name: Run Background Callback Tests
+        timeout-minutes: 15
+        run: |
+          cd bgtests
           pytest --headless --nopercyfinalize --junitxml=test-reports/junit_background.xml tests/background_callback -v -s
+
+      - name: Cleanup background processes
+        if: always()
+        run: |
+          pkill -f celery || true
+          pkill -f "dash" || true
+          sleep 2
+
+      - name: Run Async Callback Tests
+        timeout-minutes: 15
+        run: |
+          cd bgtests
           pytest --headless --nopercyfinalize --junitxml=test-reports/junit_async.xml tests/async_tests -v -s
 
       - name: Upload test results

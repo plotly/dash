@@ -67,10 +67,35 @@ def get_background_callback_manager():
 
 
 def kill(proc_pid):
-    process = psutil.Process(proc_pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
+    try:
+        process = psutil.Process(proc_pid)
+        children = process.children(recursive=True)
+
+        # Kill children first
+        for proc in children:
+            try:
+                proc.kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+
+        # Kill the main process
+        try:
+            process.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+        # Also kill by process group to catch any orphans
+        try:
+            os.killpg(proc_pid, 9)  # SIGKILL
+        except (ProcessLookupError, PermissionError, OSError):
+            pass
+
+        # Wait for processes to actually terminate
+        procs_to_wait = [process] + children
+        psutil.wait_procs(procs_to_wait, timeout=5)
+
+    except psutil.NoSuchProcess:
+        pass
 
 
 @contextmanager
