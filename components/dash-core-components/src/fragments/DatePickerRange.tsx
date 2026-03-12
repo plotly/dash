@@ -6,7 +6,7 @@ import {
     CaretDownIcon,
     Cross1Icon,
 } from '@radix-ui/react-icons';
-import {addDays, subDays} from 'date-fns';
+import {addDays, subDays, differenceInCalendarDays} from 'date-fns';
 import AutosizeInput from 'react-input-autosize';
 import uuid from 'uniqid';
 
@@ -108,6 +108,7 @@ const DatePickerRange = ({
     const startAutosizeRef = useRef<any>(null);
     const endAutosizeRef = useRef<any>(null);
     const calendarRef = useRef<CalendarHandle>(null);
+    const isNewRangeRef = useRef(false);
     const hasPortal = with_portal || with_full_screen_portal;
 
     // Capture CSS variables for portal mode
@@ -161,16 +162,20 @@ const DatePickerRange = ({
                 end_date: dateAsStr(internalEndDate),
             });
         } else if (!internalStartDate && !internalEndDate) {
-            // Both dates cleared - send undefined for both
+            // Both dates cleared - send both
             setProps({
                 start_date: dateAsStr(internalStartDate),
                 end_date: dateAsStr(internalEndDate),
             });
+        } else if (endChanged && !internalEndDate) {
+            // End date was cleared (user started a new range).
+            setProps({
+                start_date: dateAsStr(internalStartDate) ?? null,
+                end_date: null,
+            });
         } else if (updatemode === 'singledate' && internalStartDate) {
-            // Only start changed - send just that one
             setProps({start_date: dateAsStr(internalStartDate)});
         } else if (updatemode === 'singledate' && internalEndDate) {
-            // Only end changed - send just that one
             setProps({end_date: dateAsStr(internalEndDate)});
         }
     }, [internalStartDate, internalEndDate, updatemode]);
@@ -311,6 +316,23 @@ const DatePickerRange = ({
                 setInternalStartDate(start);
                 setInternalEndDate(undefined);
             } else {
+                // Skip the mouseUp from the same click that started this range
+                if (isNewRangeRef.current && isSameDay(start, end)) {
+                    isNewRangeRef.current = false;
+                    return;
+                }
+                isNewRangeRef.current = !!(start && !end);
+
+                if (
+                    start &&
+                    end &&
+                    minimum_nights &&
+                    Math.abs(differenceInCalendarDays(end, start)) <
+                        minimum_nights
+                ) {
+                    return;
+                }
+
                 // Normalize dates: ensure start <= end
                 if (start && end && start > end) {
                     setInternalStartDate(end);
@@ -325,7 +347,12 @@ const DatePickerRange = ({
                 }
             }
         },
-        [internalStartDate, internalEndDate, stay_open_on_select]
+        [
+            internalStartDate,
+            internalEndDate,
+            stay_open_on_select,
+            minimum_nights,
+        ]
     );
 
     return (
