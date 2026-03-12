@@ -515,10 +515,10 @@ class Browser(DashPageMixin):
 
         # Enable downloads in headless mode
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
-        if self._headless and self.download_path:
+        if self._headless and self.download_path and hasattr(chrome, "execute_cdp_cmd"):
             try:
-                # Modern approach using CDP command
-                chrome.execute_cdp_cmd(
+                # Modern approach using CDP command (Chrome only)
+                chrome.execute_cdp_cmd(  # type: ignore[union-attr]
                     "Page.setDownloadBehavior",
                     {"behavior": "allow", "downloadPath": self.download_path},
                 )
