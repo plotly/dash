@@ -513,19 +513,18 @@ class Browser(DashPageMixin):
             else webdriver.Chrome(options=options)
         )
 
+        # Enable downloads in headless mode
         # https://bugs.chromium.org/p/chromium/issues/detail?id=696481
-        if self._headless:
-            # pylint: disable=protected-access
-            chrome.command_executor._commands["send_command"] = (  # type: ignore[reportArgumentType]
-                "POST",
-                "/session/$sessionId/chromium/send_command",
-            )
-            params = {
-                "cmd": "Page.setDownloadBehavior",
-                "params": {"behavior": "allow", "downloadPath": self.download_path},
-            }
-            res = chrome.execute("send_command", params)
-            logger.debug("enabled headless download returns %s", res)
+        if self._headless and self.download_path:
+            try:
+                # Modern approach using CDP command
+                chrome.execute_cdp_cmd(
+                    "Page.setDownloadBehavior",
+                    {"behavior": "allow", "downloadPath": self.download_path},
+                )
+                logger.debug("enabled headless download via CDP")
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.warning("failed to set headless download behavior: %s", e)
 
         chrome.set_window_position(0, 0)
         return chrome
