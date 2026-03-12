@@ -775,7 +775,7 @@ jobs:
     env:
       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN_TABLE }}
       PERCY_ENABLE: '1'
-      PERCY_PARALLEL_TOTAL: -1
+      # Note: percy-storybook auto-finalizes, don't use PERCY_PARALLEL_TOTAL here
 
     steps:
       - name: Checkout repository
@@ -838,7 +838,7 @@ jobs:
 
   percy-finalize:
     name: Finalize Percy Snapshots
-    needs: [test-main, dcc-test, html-test, table-visual-test]
+    needs: [test-main, dcc-test, html-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -852,13 +852,6 @@ jobs:
           npx percy build:finalize
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-
-      - name: Finalize Table Percy Build
-        if: needs.table-visual-test.result != 'skipped'
-        run: |
-          npx percy build:finalize
-        env:
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN_TABLE }}
 
   artifacts:
     name: Store Build Artifacts
