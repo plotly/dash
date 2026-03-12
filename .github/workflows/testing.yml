@@ -98,6 +98,13 @@ jobs:
         working-directory: dash/dash-renderer
         run: npm ci
 
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
       - name: Run lint
         run: npm run lint
 
@@ -293,12 +300,16 @@ jobs:
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/background_callback -v -s
+          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_background.xml tests/background_callback -v -s
+          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_async.xml tests/async_tests -v -s
 
-      - name: Run Async Callback Tests
-        run: |
-          cd bgtests
-          pytest --headless --nopercyfinalize tests/async_tests -v -s
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: background-test-results-py${{ matrix.python-version }}
+          path: bgtests/test-reports/
+          retention-days: 7
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -413,7 +424,15 @@ jobs:
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+          pytest --nopercyfinalize --headless --junitxml=test-reports/junit_table.xml --splits 3 --group ${{ matrix.test-group }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: table-server-results-group${{ matrix.test-group }}
+          path: components/dash-table/test-reports/
+          retention-days: 7
 
   test-main:
     name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
@@ -571,10 +590,18 @@ jobs:
         run: |
           npm ci
           if [ "${{ matrix.python-version }}" == "3.12" ]; then
-            npx percy exec -- pytest --headless --nopercyfinalize
+            npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           else
-            pytest --headless --nopercyfinalize
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-test-results-py${{ matrix.python-version }}
+          path: components/dash-html-components/test-reports/
+          retention-days: 7
 
       - name: Upload dash artifacts
         if: always()
@@ -852,6 +879,49 @@ jobs:
           npx percy build:finalize
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
+  test-report:
+    name: Consolidated Test Report
+    needs: [lint-unit, test-main, dcc-test, html-test, table-server, background-callbacks, test-typing]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-results-*'
+          path: test-results
+          merge-multiple: false
+
+      - name: List downloaded results
+        run: find test-results -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results Summary
+          path: 'test-results/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Unit Tests | ${{ needs.lint-unit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Main Integration Tests | ${{ needs.test-main.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| DCC Tests | ${{ needs.dcc-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| HTML Tests | ${{ needs.html-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Table Server Tests | ${{ needs.table-server.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Background Callbacks | ${{ needs.background-callbacks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Typing Tests | ${{ needs.test-typing.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📁 Detailed test reports are available in the artifacts section above." >> $GITHUB_STEP_SUMMARY
 
   artifacts:
     name: Store Build Artifacts
