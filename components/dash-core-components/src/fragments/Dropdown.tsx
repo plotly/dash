@@ -1,4 +1,4 @@
-import {isNil, without, isEmpty} from 'ramda';
+import {isNil, without, append, isEmpty} from 'ramda';
 import React, {
     useState,
     useCallback,
@@ -31,6 +31,7 @@ const Dropdown = (props: DropdownProps) => {
         className,
         closeOnSelect,
         clearable,
+        debounce,
         disabled,
         labels,
         maxHeight,
@@ -46,6 +47,7 @@ const Dropdown = (props: DropdownProps) => {
     const [optionsCheck, setOptionsCheck] = useState<DetailedOption[]>();
     const [isOpen, setIsOpen] = useState(false);
     const [displayOptions, setDisplayOptions] = useState<DetailedOption[]>([]);
+    const [val, setVal] = useState<DropdownProps['value']>(value);
     const persistentOptions = useRef<DropdownProps['options']>([]);
     const dropdownContainerRef = useRef<HTMLButtonElement>(null);
     const dropdownContentRef = useRef<HTMLDivElement>(
@@ -54,9 +56,17 @@ const Dropdown = (props: DropdownProps) => {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const optionsListRef = useRef<OptionsListHandle>(null);
     const focusedIndexRef = useRef(-1);
+    const pendingSearchRef = useRef('');
 
     const ctx = window.dash_component_api.useDashContext();
     const loading = ctx.useLoading();
+
+    // Sync val when external value prop changes
+    useEffect(() => {
+        if (!isEqual(value, val)) {
+            setVal(value);
+        }
+    }, [value]);
 
     if (!persistentOptions || !isEqual(options, persistentOptions.current)) {
         persistentOptions.current = options;
@@ -77,19 +87,34 @@ const Dropdown = (props: DropdownProps) => {
     );
 
     const sanitizedValues: OptionValue[] = useMemo(() => {
-        if (value instanceof Array) {
-            return value;
+        if (val instanceof Array) {
+            return val;
         }
-        if (isNil(value)) {
+        if (isNil(val)) {
             return [];
         }
-        return [value];
-    }, [value]);
+        return [val];
+    }, [val]);
+
+    const handleSetProps = useCallback(
+        (newValue: DropdownProps['value']) => {
+            if (debounce && isOpen) {
+                // local only
+                setVal(newValue);
+            } else {
+                setVal(newValue);
+                setProps({value: newValue});
+            }
+        },
+        [debounce, isOpen, setProps]
+    );
 
     const updateSelection = useCallback(
         (selection: OptionValue[]) => {
             if (closeOnSelect !== false) {
                 setIsOpen(false);
+                setProps({search_value: undefined});
+                pendingSearchRef.current = '';
             }
 
             if (multi) {
@@ -97,30 +122,28 @@ const Dropdown = (props: DropdownProps) => {
                 if (selection.length === 0) {
                     // Empty selection: only allow if clearable is true
                     if (clearable) {
-                        setProps({value: []});
+                        handleSetProps([]);
                     }
                     // If clearable is false and trying to set empty, do nothing
                     // return;
                 } else {
-                    // Non-empty selection: always allowed in multi-select
-                    setProps({value: selection});
+                    handleSetProps(selection);
                 }
             } else {
                 // For single-select, take the first value or null
                 if (selection.length === 0) {
                     // Empty selection: only allow if clearable is true
                     if (clearable) {
-                        setProps({value: null});
+                        handleSetProps(null);
                     }
                     // If clearable is false and trying to set empty, do nothing
                     // return;
                 } else {
-                    // Take the first value for single-select
-                    setProps({value: selection[selection.length - 1]});
+                    handleSetProps(selection[selection.length - 1]);
                 }
             }
         },
-        [multi, clearable, closeOnSelect]
+        [multi, clearable, closeOnSelect, handleSetProps]
     );
 
     const onInputChange = useCallback(
@@ -189,8 +212,8 @@ const Dropdown = (props: DropdownProps) => {
 
     const handleClear = useCallback(() => {
         const finalValue: DropdownProps['value'] = multi ? [] : null;
-        setProps({value: finalValue});
-    }, [multi]);
+        handleSetProps(finalValue);
+    }, [multi, handleSetProps]);
 
     const handleSelectAll = useCallback(() => {
         if (multi) {
@@ -199,12 +222,12 @@ const Dropdown = (props: DropdownProps) => {
                     .filter(option => !sanitizedValues.includes(option.value))
                     .map(option => option.value)
             );
-            setProps({value: allValues});
+            handleSetProps(allValues);
         }
         if (closeOnSelect) {
             setIsOpen(false);
         }
-    }, [multi, displayOptions, sanitizedValues, closeOnSelect]);
+    }, [multi, displayOptions, sanitizedValues, closeOnSelect, handleSetProps]);
 
     const handleDeselectAll = useCallback(() => {
         if (multi) {
@@ -213,12 +236,12 @@ const Dropdown = (props: DropdownProps) => {
                     displayOption => displayOption.value === option
                 );
             });
-            setProps({value: withDeselected});
+            handleSetProps(withDeselected);
         }
         if (closeOnSelect) {
             setIsOpen(false);
         }
-    }, [multi, displayOptions, sanitizedValues, closeOnSelect]);
+    }, [multi, displayOptions, sanitizedValues, closeOnSelect, handleSetProps]);
 
     // Sort options when popover opens - selected options first
     // Update display options when filtered options or selection changes
@@ -248,7 +271,7 @@ const Dropdown = (props: DropdownProps) => {
     // Focus first selected item or search input when dropdown opens.
     // Depends on displayOptions so it fires after OptionsList is mounted.
     useEffect(() => {
-        if (!isOpen || search_value || !displayOptions.length) {
+        if (!isOpen || pendingSearchRef.current || !displayOptions.length) {
             return;
         }
 
@@ -267,8 +290,11 @@ const Dropdown = (props: DropdownProps) => {
                 }
             }
 
-            if (searchable && searchInputRef.current) {
-                searchInputRef.current.focus();
+            if (searchable) {
+                searchInputRef.current?.focus();
+            } else {
+                focusedIndexRef.current = 0;
+                optionsListRef.current?.focusItem(0);
             }
         });
     }, [isOpen, multi, displayOptions]);
@@ -349,10 +375,24 @@ const Dropdown = (props: DropdownProps) => {
             focusedIndexRef.current = -1;
 
             if (!open) {
-                setProps({search_value: undefined});
+                pendingSearchRef.current = '';
+                const updates: Partial<DropdownProps> = {};
+
+                if (!isNil(search_value)) {
+                    updates.search_value = undefined;
+                }
+
+                // Commit debounced value on close only
+                if (debounce && !isEqual(value, val)) {
+                    updates.value = val;
+                }
+
+                if (Object.keys(updates).length > 0) {
+                    setProps(updates);
+                }
             }
         },
-        [filteredOptions, sanitizedValues]
+        [debounce, value, val, search_value, setProps]
     );
 
     const accessibleId = id ?? uuid();
@@ -381,6 +421,14 @@ const Dropdown = (props: DropdownProps) => {
                             canClearValues
                         ) {
                             handleClear();
+                        }
+                        if (e.key.length === 1 && searchable) {
+                            pendingSearchRef.current += e.key;
+                            setProps({search_value: pendingSearchRef.current});
+                            setIsOpen(true);
+                            requestAnimationFrame(() =>
+                                searchInputRef.current?.focus()
+                            );
                         }
                     }}
                     className={`dash-dropdown ${className ?? ''}`}
@@ -465,6 +513,31 @@ const Dropdown = (props: DropdownProps) => {
                                 value={search_value || ''}
                                 autoComplete="off"
                                 onChange={e => onInputChange(e.target.value)}
+                                onKeyUp={e => {
+                                    if (
+                                        !search_value ||
+                                        e.key !== 'Enter' ||
+                                        !displayOptions.length
+                                    ) {
+                                        return;
+                                    }
+                                    const firstVal = displayOptions[0].value;
+                                    const isSelected =
+                                        sanitizedValues.includes(firstVal);
+                                    let newSelection;
+                                    if (isSelected) {
+                                        newSelection = without(
+                                            [firstVal],
+                                            sanitizedValues
+                                        );
+                                    } else {
+                                        newSelection = append(
+                                            firstVal,
+                                            sanitizedValues
+                                        );
+                                    }
+                                    updateSelection(newSelection);
+                                }}
                                 ref={searchInputRef}
                             />
                             {search_value && (

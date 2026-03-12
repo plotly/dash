@@ -14,6 +14,7 @@ import {
     strAsDate,
 } from '../utils/calendar/helpers';
 import {captureCSSForPortal} from '../utils/calendar/cssVariables';
+import ResizeDetector from '../utils/ResizeDetector';
 import '../components/css/datepickers.css';
 
 const DatePickerSingle = ({
@@ -63,6 +64,7 @@ const DatePickerSingle = ({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const autosizeRef = useRef<any>(null);
     const calendarRef = useRef<CalendarHandle>(null);
     const hasPortal = with_portal || with_full_screen_portal;
 
@@ -86,6 +88,15 @@ const DatePickerSingle = ({
             setProps({date: dateAsStr(internalDate)});
         }
     }, [internalDate]);
+
+    const handleResize = useCallback(() => {
+        autosizeRef.current?.updateInputWidth?.();
+    }, []);
+
+
+    useEffect(() => {
+        autosizeRef.current?.updateInputWidth?.();
+    }, [inputValue]);
 
     const parseUserInput = useCallback(
         (focusCalendar = false) => {
@@ -157,6 +168,7 @@ const DatePickerSingle = ({
     }
 
     return (
+        <ResizeDetector onResize={handleResize} targets={[containerRef]}>
         <div className="dash-datepicker" ref={containerRef}>
             <Popover.Root
                 open={!disabled && isCalendarOpen}
@@ -179,6 +191,7 @@ const DatePickerSingle = ({
                         }}
                     >
                         <AutosizeInput
+                            ref={autosizeRef}
                             inputRef={node => {
                                 inputRef.current = node;
                             }}
@@ -274,6 +287,7 @@ const DatePickerSingle = ({
                 </Popover.Portal>
             </Popover.Root>
         </div>
+        </ResizeDetector>
     );
 };
 
