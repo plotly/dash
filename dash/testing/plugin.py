@@ -323,7 +323,8 @@ class _ReusableDashComposite(DashComposite):
 
 
 @pytest.fixture
-def dash_duo(_request, dash_thread_server, _dash_browser_session) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
+# pylint: disable=unused-argument
+def dash_duo(request, dash_thread_server, _dash_browser_session) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
     """Dash test fixture with reusable browser (session-scoped)."""
     with _ReusableDashComposite(
         server=dash_thread_server,

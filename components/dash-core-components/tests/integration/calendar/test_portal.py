@@ -161,7 +161,8 @@ def test_dppt006_fullscreen_portal_close_button_keyboard(dash_dcc_fresh_browser)
     assert dash_dcc.get_logs() == []
 
 
-def test_dppt007_portal_close_by_clicking_outside(dash_dcc):
+def test_dppt007_portal_close_by_clicking_outside(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     """Test regular portal closes when clicking outside the calendar."""
     app = Dash(__name__)
     app.layout = html.Div(
