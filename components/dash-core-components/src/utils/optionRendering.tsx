@@ -151,14 +151,35 @@ const Row = memo(({index, style, data}: ListChildComponentProps<RowData>) => {
     const option = options[index];
     const isSelected = includes(option.value, selected);
 
+    const measureRef = useCallback(
+        (el: HTMLDivElement | null) => {
+            if (!el) {
+                return;
+            }
+            // Synchronous measurement for string labels.
+            const immediateHeight = el.getBoundingClientRect().height;
+            if (immediateHeight > 0) {
+                setOptionHeight(index, immediateHeight);
+            }
+
+            // ResizeObserver catches async Dash component labels
+            // that render after the initial commit.
+            const observer = new ResizeObserver(([entry]) => {
+                const height =
+                    entry.borderBoxSize?.[0]?.blockSize ??
+                    entry.contentRect.height;
+                if (height > 0) {
+                    setOptionHeight(index, height);
+                }
+            });
+            observer.observe(el);
+        },
+        [index, setOptionHeight]
+    );
+
     return (
         <div style={style}>
-            <div
-                ref={el =>
-                    el &&
-                    setOptionHeight(index, el.getBoundingClientRect().height)
-                }
-            >
+            <div ref={measureRef}>
                 <Option
                     id={passThruProps.id}
                     index={index}
@@ -221,7 +242,7 @@ export const OptionsList = forwardRef<OptionsListHandle, OptionsListProps>(
         const setOptionHeight = useCallback((index: number, height: number) => {
             if (heightsRef.current.get(index) !== height) {
                 heightsRef.current.set(index, height);
-                listRef.current?.resetAfterIndex(index, false);
+                listRef.current?.resetAfterIndex(index, true);
             }
         }, []);
 
@@ -336,6 +357,30 @@ export const OptionsList = forwardRef<OptionsListHandle, OptionsListProps>(
             }),
             [options, selected, handleChange, id, passThruProps]
         );
+
+        if (options.length < 100) {
+            return (
+                <div
+                    ref={containerRef}
+                    id={id}
+                    className={classNames.join(' ')}
+                    style={style}
+                    role="listbox"
+                >
+                    {options.map((option, i) => (
+                        <Option
+                            key={i}
+                            id={id}
+                            index={i}
+                            option={option}
+                            isSelected={includes(option.value, selected)}
+                            onChange={handleChange}
+                            {...passThruProps}
+                        />
+                    ))}
+                </div>
+            );
+        }
 
         return (
             <div
