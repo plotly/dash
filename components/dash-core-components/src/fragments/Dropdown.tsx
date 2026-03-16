@@ -275,6 +275,12 @@ const Dropdown = (props: DropdownProps) => {
             return;
         }
 
+        // Don't steal focus from the search input during search-driven
+        // re-renders (displayOptions changes while the user is typing).
+        if (document.activeElement === searchInputRef.current) {
+            return;
+        }
+
         requestAnimationFrame(() => {
             if (!multi) {
                 const selectedValue = sanitizedValues[0];
