@@ -89,7 +89,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.(jsx?|mjs)$/,
-                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|date-fns|@radix-ui|@floating-ui)[\\\/]/,
+                    include: /node_modules[\\\/](react-jsx-parser|highlight[.]js|react-markdown|remark-math|is-plain-obj|color|date-fns|@radix-ui|@floating-ui|react-window)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
