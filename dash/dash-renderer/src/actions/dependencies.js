@@ -1243,8 +1243,14 @@ export function getWatchedKeys(id, newProps, graphs) {
  *   See getCallbackByOutput for details.
  */
 export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath, oldPaths} =
-        opts;
+    const {
+        outputsOnly,
+        removedArrayInputsOnly,
+        newPaths,
+        chunkPath,
+        oldPaths,
+        oldLayout
+    } = opts;
     const foundCbIds = {};
     const callbacks = [];
 
@@ -1290,7 +1296,25 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             });
     }
 
-    function handleOneId(id, outIdCallbacks, inIdCallbacks) {
+    // Suppress initial call only when the component's output prop is unchanged
+    // (the component was preserved by a Patch operation). Full-replace
+    // returns new component instances whose props are reset to defaults, so their
+    // output props will differ from the old layout and the callback must still fire.
+    function isUnchangedOutputProp(id, property, child) {
+        if (!chunkPath || !oldPaths || !oldLayout) return false;
+        const oldPath = getPath(oldPaths, id);
+        if (!oldPath) return false;
+        const oldPropValue = path([...oldPath, 'props', property], oldLayout);
+        // If the prop was never set in the old layout (undefined), we cannot
+        // treat it as "unchanged" and the callback must still fire to populate it.
+        // This prevents incorrectly suppressing title callbacks and other output
+        // props that were undefined in both old and new layouts (undefined === undefined).
+        if (oldPropValue === undefined) return false;
+        const newPropValue = child ? path(['props', property], child) : undefined;
+        return oldPropValue === newPropValue;
+    }
+
+    function handleOneId(id, outIdCallbacks, inIdCallbacks, child) {
         if (outIdCallbacks) {
             for (const property in outIdCallbacks) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
@@ -1299,11 +1323,9 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                     // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    // Don't fire initial call for components that already existed before
-                    // this chunk update (e.g. existing MATCH items when Patch adds a new one).
                     if (
                         !cb.callback.prevent_initial_call &&
-                        !(chunkPath && oldPaths && getPath(oldPaths, id))
+                        !isUnchangedOutputProp(id, property, child)
                     ) {
                         cb.initialCall = true;
                         addCallback(cb);
@@ -1344,13 +1366,14 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
         const id = path(['props', 'id'], child);
         if (id) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
-                handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
+                handleOneId(id, graphs.outputMap[id], graphs.inputMap[id], child);
             } else {
                 const keyStr = Object.keys(id).sort().join(',');
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
-                    graphs.inputPatterns[keyStr]
+                    graphs.inputPatterns[keyStr],
+                    child
                 );
             }
         }
