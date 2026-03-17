@@ -709,3 +709,84 @@ def test_cbwc009_patch_no_spurious_match_callbacks(dash_duo):
     assert (
         fire_counts[2] == 1
     ), f"New item 2 callback should have fired exactly once, fired {fire_counts[2]}"
+
+
+def test_cbwc010_full_replace_fires_initial_callbacks(dash_duo):
+    """Regression test ensuring full-replacement (non-Patch) outputs still fire
+    initial callbacks for all replaced components.
+
+    When a callback returns a full list (not a Patch), every component in the
+    new layout is a fresh instance. The isUnchangedOutputProp suppression must
+    NOT apply here: prePatchPaths is absent from the execution result, so
+    oldPaths/oldLayout are never passed, and all initial calls must fire.
+    """
+    lock = threading.Lock()
+    fire_counts = {}  # {index: count}
+
+    def make_item(index):
+        return html.Div(
+            [
+                dcc.Input(
+                    id={"type": "fr-input", "index": index},
+                    value=index,
+                    type="number",
+                    className="fr-input",
+                ),
+                html.Div(
+                    "init",
+                    id={"type": "fr-output", "index": index},
+                    className="fr-output",
+                ),
+            ]
+        )
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Replace", id="replace-btn", n_clicks=0),
+            html.Div([make_item(0), make_item(1)], id="fr-container"),
+        ]
+    )
+
+    @app.callback(
+        Output("fr-container", "children"),
+        Input("replace-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def replace_items(_):
+        # Full replacement — returns a plain list, not a Patch
+        return [make_item(10), make_item(11)]
+
+    @app.callback(
+        Output({"type": "fr-output", "index": MATCH}, "children"),
+        Input({"type": "fr-input", "index": MATCH}, "value"),
+    )
+    def on_value_change(value):
+        from dash import ctx
+
+        idx = ctx.outputs_grouping["id"]["index"]
+        with lock:
+            fire_counts[idx] = fire_counts.get(idx, 0) + 1
+            count = fire_counts[idx]
+        return f"fired-{idx}-#{count}"
+
+    dash_duo.start_server(app)
+
+    # Wait for the initial callbacks for items 0 and 1.
+    wait.until(lambda: fire_counts.get(0, 0) >= 1, 5)
+    wait.until(lambda: fire_counts.get(1, 0) >= 1, 5)
+
+    # Trigger a full replacement.
+    dash_duo.find_element("#replace-btn").click()
+
+    # After full replacement, items 10 and 11 are brand-new instances and
+    # MUST have their initial callbacks fire.
+    wait.until(lambda: fire_counts.get(10, 0) >= 1, 5)
+    wait.until(lambda: fire_counts.get(11, 0) >= 1, 5)
+
+    assert (
+        fire_counts[10] >= 1
+    ), f"New item 10 callback should have fired after full replace, got {fire_counts.get(10, 0)}"
+    assert (
+        fire_counts[11] >= 1
+    ), f"New item 11 callback should have fired after full replace, got {fire_counts.get(11, 0)}"

@@ -93,7 +93,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return;
             }
 
-            const {data, error, payload} = executionResult;
+            const {data, error, payload, prePatchPaths} = executionResult;
 
             if (data !== undefined) {
                 Object.entries(data).forEach(
@@ -156,12 +156,21 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             dispatch(setPaths(paths));
 
                             // Get callbacks for new layout (w/ execution group)
+                            // Only pass oldPaths/oldLayout for Patch callbacks:
+                            // isUnchangedOutputProp must only suppress initial
+                            // calls when a Patch carried over existing components.
+                            // For full-replacement callbacks every component is a
+                            // fresh instance and all initial calls must fire.
                             requestedCallbacks = concat(
                                 requestedCallbacks,
                                 getLayoutCallbacks(graphs, paths, children, {
                                     chunkPath: oldChildrenPath,
-                                    oldPaths: oPaths,
-                                    oldLayout: oldLayout,
+                                    ...(prePatchPaths
+                                        ? {
+                                              oldPaths: oPaths,
+                                              oldLayout: oldLayout
+                                          }
+                                        : {}),
                                     filterRoot
                                 }).map(rcb => ({
                                     ...rcb,

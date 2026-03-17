@@ -1311,7 +1311,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
         // props that were undefined in both old and new layouts (undefined === undefined).
         if (oldPropValue === undefined) return false;
         const newPropValue = child ? path(['props', property], child) : undefined;
-        return oldPropValue === newPropValue;
+        return equals(oldPropValue, newPropValue);
     }
 
     function handleOneId(id, outIdCallbacks, inIdCallbacks, child) {

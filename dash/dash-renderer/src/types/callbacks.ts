@@ -83,6 +83,7 @@ export type CallbackResult = {
     data?: CallbackResponse;
     error?: Error;
     payload: ICallbackPayload | null;
+    prePatchPaths?: any;
 };
 
 export type BackgroundCallbackInfo = {
