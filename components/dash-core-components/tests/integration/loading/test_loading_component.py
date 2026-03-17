@@ -1,5 +1,5 @@
 from multiprocessing import Lock
-from dash import Dash, Input, Output, dcc, html
+from dash import Dash, Input, Output, dcc, html, MATCH, ALL
 from dash.dependencies import stringify_id
 from dash.testing import wait
 import time
@@ -837,5 +837,56 @@ def test_ldcp018_loading_component_target_components_wildcard(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#btn-1", "changed 1")
     assert spinners == []
+
+    assert dash_dcc.get_logs() == []
+
+
+# loading spinner triggers when callback Output uses ALL wildcard
+def test_ldcp019_loading_component_pattern_matching(dash_dcc):
+    lock = Lock()
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Loading(
+                [
+                    html.Div(
+                        id={"type": "div-1", "index": 1, "name": "test"},
+                        className="div-1",
+                    )
+                ],
+                className="loading",
+            )
+        ],
+        id={"type": "root", "index": 1, "name": "test"},
+        className="root",
+    )
+
+    @app.callback(
+        Output(
+            {"type": "div-1", "index": ALL, "name": MATCH}, "children"
+        ),
+        Input(
+            {"type": "root", "index": ALL, "name": MATCH}, "n_clicks"
+        ),
+    )
+    def updateDiv(n_clicks):
+        if n_clicks == [1]:
+            time.sleep(0.1)
+            return ["changed"]
+        return ["content"]
+
+    with lock:
+        dash_dcc.start_server(app)
+        dash_dcc.wait_for_text_to_equal(".div-1", "content")
+
+        dash_dcc.find_element(".root").click()
+
+        dash_dcc.find_element(".loading .dash-spinner")
+        # mounted but hidden, so looks like no text
+        dash_dcc.wait_for_text_to_equal(".div-1", "")
+
+    dash_dcc.wait_for_text_to_equal(".div-1", "changed")
 
     assert dash_dcc.get_logs() == []
