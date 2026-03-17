@@ -1243,7 +1243,8 @@ export function getWatchedKeys(id, newProps, graphs) {
  *   See getCallbackByOutput for details.
  */
 export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
+    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath, oldPaths} =
+        opts;
     const foundCbIds = {};
     const callbacks = [];
 
@@ -1298,7 +1299,12 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                     // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    if (!cb.callback.prevent_initial_call) {
+                    // Don't fire initial call for components that already existed before
+                    // this chunk update (e.g. existing MATCH items when Patch adds a new one).
+                    if (
+                        !cb.callback.prevent_initial_call &&
+                        !(chunkPath && oldPaths && getPath(oldPaths, id))
+                    ) {
                         cb.initialCall = true;
                         addCallback(cb);
                     }

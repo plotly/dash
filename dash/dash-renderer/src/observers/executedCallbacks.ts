@@ -160,6 +160,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 requestedCallbacks,
                                 getLayoutCallbacks(graphs, paths, children, {
                                     chunkPath: oldChildrenPath,
+                                    oldPaths: oPaths,
                                     filterRoot
                                 }).map(rcb => ({
                                     ...rcb,
