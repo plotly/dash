@@ -958,7 +958,11 @@ export function computeGraphs(dependencies, dispatchError, config) {
         }
     });
     const end = performance.now();
+    if (!window.dash_component_api) {
+        window.dash_component_api = {};
+    }
     window.dash_component_api.callbackGraphTime = (end - start).toFixed(2);
+
     return finalGraphs;
 }
 
