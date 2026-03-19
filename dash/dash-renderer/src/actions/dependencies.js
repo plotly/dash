@@ -626,9 +626,10 @@ export function validateCallbacksToLayout(state_, dispatchError) {
     validatePatterns(inputPatterns, 'Input');
 }
 
-export function computeGraphs(dependencies, dispatchError) {
+export function computeGraphs(dependencies, dispatchError, config) {
     // multiGraph is just for finding circular deps
     const multiGraph = new DepGraph();
+    const start = performance.now();
 
     const wildcardPlaceholders = {};
 
@@ -657,7 +658,9 @@ export function computeGraphs(dependencies, dispatchError) {
         hasError = true;
         dispatchError(message, lines);
     };
-    validateDependencies(parsedDependencies, wrappedDE);
+    if (config.validate_callbacks) {
+        validateDependencies(parsedDependencies, wrappedDE);
+    }
 
     /*
      * For regular ids, outputMap and inputMap are:
@@ -808,6 +811,7 @@ export function computeGraphs(dependencies, dispatchError) {
     const cbOut = [];
 
     function addInputToMulti(inIdProp, outIdProp, firstPass = true) {
+        if (!config.validate_callbacks) return
         multiGraph.addNode(inIdProp);
         multiGraph.addDependency(inIdProp, outIdProp);
         // only store callback inputs and outputs during the first pass
@@ -825,6 +829,7 @@ export function computeGraphs(dependencies, dispatchError) {
         cbOut.push([]);
 
         function addOutputToMulti(outIdFinal, outIdProp) {
+            if (!config.validate_callbacks) return
             multiGraph.addNode(outIdProp);
             inputs.forEach(inObj => {
                 const {id: inId, property} = inObj;
@@ -859,28 +864,35 @@ export function computeGraphs(dependencies, dispatchError) {
         outputs.forEach(outIdProp => {
             const {id: outId, property} = outIdProp;
             // check if this output is also an input to the same callback
-            const alsoInput = checkInOutOverlap(outIdProp, inputs);
+            let alsoInput;
+            if (config.validate_callbacks) {
+               alsoInput = checkInOutOverlap(outIdProp, inputs);
+            }
             if (typeof outId === 'object') {
-                const outIdList = makeAllIds(outId, {});
-                outIdList.forEach(id => {
-                    const tempOutIdProp = {id, property};
-                    let outIdName = combineIdAndProp(tempOutIdProp);
-                    // if this output is also an input, add `outputTag` to the name
-                    if (alsoInput) {
-                        duplicateOutputs.push(tempOutIdProp);
-                        outIdName += outputTag;
-                    }
-                    addOutputToMulti(id, outIdName);
-                });
+                if (config.validate_callbacks) {
+                    const outIdList = makeAllIds(outId, {});
+                    outIdList.forEach(id => {
+                        const tempOutIdProp = {id, property};
+                        let outIdName = combineIdAndProp(tempOutIdProp);
+                        // if this output is also an input, add `outputTag` to the name
+                        if (alsoInput) {
+                            duplicateOutputs.push(tempOutIdProp);
+                            outIdName += outputTag;
+                        }
+                        addOutputToMulti(id, outIdName);
+                    });
+                }
                 addPattern(outputPatterns, outId, property, finalDependency);
             } else {
-                let outIdName = combineIdAndProp(outIdProp);
-                // if this output is also an input, add `outputTag` to the name
-                if (alsoInput) {
-                    duplicateOutputs.push(outIdProp);
-                    outIdName += outputTag;
+                if (config.validate_callbacks) {
+                    let outIdName = combineIdAndProp(outIdProp);
+                    // if this output is also an input, add `outputTag` to the name
+                    if (alsoInput) {
+                        duplicateOutputs.push(outIdProp);
+                        outIdName += outputTag;
+                    }
+                    addOutputToMulti({}, outIdName);
                 }
-                addOutputToMulti({}, outIdName);
                 addMap(outputMap, outId, property, finalDependency);
             }
         });
@@ -913,7 +925,8 @@ export function computeGraphs(dependencies, dispatchError) {
             }
         }
     });
-
+    const end = performance.now();
+    window.dash_clientside.callbackGraphTime = (end - start).toFixed(2);
     return finalGraphs;
 }
 
