@@ -111,12 +111,13 @@ def test_compute_graph_timing(dash_duo, dev_tools, store):
     dash_duo.start_server(app, **dev_tools)
     times = []
     for _ in range(10):
+        dash_duo.wait_for_element("#input")
         wait.until(
             lambda: dash_duo.find_element("#output").text.strip() != "", timeout=4
         )
         graph_compute_time = float(
             dash_duo.driver.execute_script(
-                "return window.dash_clientside.callbackGraphTime"
+                "return window.dash_component_api.callbackGraphTime"
             )
         )
         times.append(graph_compute_time)

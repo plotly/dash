@@ -958,7 +958,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
         }
     });
     const end = performance.now();
-    window.dash_clientside.callbackGraphTime = (end - start).toFixed(2);
+    window.dash_component_api.callbackGraphTime = (end - start).toFixed(2);
     return finalGraphs;
 }
 
