@@ -163,24 +163,50 @@ function addMap(depMap, id, prop, dependency) {
     callbacks.push(dependency);
 }
 
-function addPattern(depMap, idSpec, prop, dependency) {
+// Patterns are stored in a nested Map structure to avoid the overhead of
+// stringifying ids for every callback.
+function addPattern(patterns, idSpec, prop, dependency) {
     const keys = Object.keys(idSpec).sort();
     const keyStr = keys.join(',');
     const values = props(keys, idSpec);
-    const keyCallbacks = (depMap[keyStr] = depMap[keyStr] || {});
-    const propCallbacks = (keyCallbacks[prop] = keyCallbacks[prop] || []);
-    let valMatch = false;
-    for (let i = 0; i < propCallbacks.length; i++) {
-        if (equals(values, propCallbacks[i].values)) {
-            valMatch = propCallbacks[i];
-            break;
-        }
+    const valuesKey = values
+        .map(v =>
+            typeof v === 'object' && v !== null
+                ? v.wild
+                    ? v.wild
+                    : JSON.stringify(v)
+                : String(v)
+        )
+        .join('|');
+
+    if (!patterns.has(keyStr)) {
+        patterns.set(keyStr, new Map());
     }
+    const propMap = patterns.get(keyStr);
+    if (!propMap.has(prop)) {
+        propMap.set(prop, new Map());
+    }
+    const valueMap = propMap.get(prop);
+
+    let valMatch = valueMap.get(valuesKey);
     if (!valMatch) {
         valMatch = {keys, values, callbacks: []};
-        propCallbacks.push(valMatch);
+        valueMap.set(valuesKey, valMatch);
     }
     valMatch.callbacks.push(dependency);
+}
+
+// Convert the nested Map structure of patterns into the plain nested object structure
+// expected by the rest of the code, with stringified id keys.
+// This is only done once per pattern, at the end of graph construction,
+// to minimize the overhead of stringifying ids.
+function offloadPatterns(patternsMap, targetMap) {
+    for (const [keyStr, propMap] of patternsMap.entries()) {
+        targetMap[keyStr] = {};
+        for (const [prop, valueMap] of propMap.entries()) {
+            targetMap[keyStr][prop] = Array.from(valueMap.values());
+        }
+    }
 }
 
 function validateDependencies(parsedDependencies, dispatchError) {
@@ -686,8 +712,10 @@ export function computeGraphs(dependencies, dispatchError, config) {
      */
     const outputMap = {};
     const inputMap = {};
-    const outputPatterns = {};
-    const inputPatterns = {};
+    const outputPatternMap = new Map();
+    const inputPatternMap = new Map();
+    let outputPatterns = {};
+    let inputPatterns = {};
 
     const finalGraphs = {
         MultiGraph: multiGraph,
@@ -704,12 +732,14 @@ export function computeGraphs(dependencies, dispatchError, config) {
         return finalGraphs;
     }
 
+    // builds up wildcardPlaceholders with all the wildcard keys and values used in the callbacks, so we can generate the full list of ids that each callback depends on.
     parsedDependencies.forEach(dependency => {
         const {outputs, inputs} = dependency;
 
-        outputs.concat(inputs).forEach(item => {
-            const {id} = item;
-            if (typeof id === 'object') {
+        outputs
+            .concat(inputs)
+            .filter(item => typeof item.id === 'object')
+            .forEach(item => {
                 forEachObjIndexed((val, key) => {
                     if (!wildcardPlaceholders[key]) {
                         wildcardPlaceholders[key] = {
@@ -725,11 +755,11 @@ export function computeGraphs(dependencies, dispatchError, config) {
                     } else if (keyPlaceholders.exact.indexOf(val) === -1) {
                         keyPlaceholders.exact.push(val);
                     }
-                }, id);
-            }
-        });
+                }, item.id);
+            });
     });
 
+    // Efficiently build wildcardPlaceholders.vals arrays
     forEachObjIndexed(keyPlaceholders => {
         const {exact, expand} = keyPlaceholders;
         const vals = exact.slice().sort(idValSort);
@@ -811,7 +841,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
     const cbOut = [];
 
     function addInputToMulti(inIdProp, outIdProp, firstPass = true) {
-        if (!config.validate_callbacks) return
+        if (!config.validate_callbacks) return;
         multiGraph.addNode(inIdProp);
         multiGraph.addDependency(inIdProp, outIdProp);
         // only store callback inputs and outputs during the first pass
@@ -829,7 +859,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
         cbOut.push([]);
 
         function addOutputToMulti(outIdFinal, outIdProp) {
-            if (!config.validate_callbacks) return
+            if (!config.validate_callbacks) return;
             multiGraph.addNode(outIdProp);
             inputs.forEach(inObj => {
                 const {id: inId, property} = inObj;
@@ -866,7 +896,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
             // check if this output is also an input to the same callback
             let alsoInput;
             if (config.validate_callbacks) {
-               alsoInput = checkInOutOverlap(outIdProp, inputs);
+                alsoInput = checkInOutOverlap(outIdProp, inputs);
             }
             if (typeof outId === 'object') {
                 if (config.validate_callbacks) {
@@ -882,7 +912,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         addOutputToMulti(id, outIdName);
                     });
                 }
-                addPattern(outputPatterns, outId, property, finalDependency);
+                addPattern(outputPatternMap, outId, property, finalDependency);
             } else {
                 if (config.validate_callbacks) {
                     let outIdName = combineIdAndProp(outIdProp);
@@ -900,12 +930,14 @@ export function computeGraphs(dependencies, dispatchError, config) {
         inputs.forEach(inputObject => {
             const {id: inId, property: inProp} = inputObject;
             if (typeof inId === 'object') {
-                addPattern(inputPatterns, inId, inProp, finalDependency);
+                addPattern(inputPatternMap, inId, inProp, finalDependency);
             } else {
                 addMap(inputMap, inId, inProp, finalDependency);
             }
         });
     });
+    outputPatterns = offloadPatterns(outputPatternMap, outputPatterns);
+    inputPatterns = offloadPatterns(inputPatternMap, inputPatterns);
 
     // second pass for adding new output nodes as dependencies where needed
     duplicateOutputs.forEach(dupeOutIdProp => {

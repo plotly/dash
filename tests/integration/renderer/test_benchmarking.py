@@ -4,7 +4,7 @@ import time
 import pytest
 
 
-def make_app(num_groups=500, items_per_group=10):
+def make_app(num_groups=500, items_per_group=20):
     app = Dash(__name__)
 
     NUM_GROUPS = num_groups
@@ -131,5 +131,5 @@ def test_compute_graph_timing(dash_duo, dev_tools, store):
     if store == "disabled":
         print(f"Average time with store disabled: {avg_time:.2f} ms")
         assert (
-            avg_time < 500
-        ), "Expected average time to be under 1/2 seconds with circular callback check disabled"
+            avg_time < 100
+        ), "Expected average time to be under 100 ms with circular callback check disabled"
