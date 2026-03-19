@@ -625,13 +625,31 @@ class Browser(DashPageMixin):
         warnings.warn("get_logs always return None with webdrivers other than Chrome")
         return None
 
+    def clear_log(self):
+        """Clear browser console logs. Chrome only."""
+        if self._browser == "chrome":
+            # Flush logs via Selenium API
+            self.driver.get_log("browser")
+            # Try to clear via CDP as well
+            if hasattr(self.driver, "execute_cdp_cmd"):
+                try:
+                    self.driver.execute_cdp_cmd("Log.enable", {})
+                    self.driver.execute_cdp_cmd("Log.clear", {})
+                except Exception:  # pylint: disable=broad-exception-caught
+                    pass
+                try:
+                    self.driver.execute_cdp_cmd("Console.enable", {})
+                    self.driver.execute_cdp_cmd("Console.clearMessages", {})
+                except Exception:  # pylint: disable=broad-exception-caught
+                    pass
+            # Flush again after CDP clear
+            self.driver.get_log("browser")
+            # Reset timestamp
+            self._last_ts = int(time.time() * 1000)
+
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdriver."""
-        if self._browser == "chrome":
-            # Flush any existing logs
-            self.driver.get_log("browser")
-            # Set timestamp to now so all previous logs are filtered out
-            self._last_ts = int(time.time() * 1000)
+        self.clear_log()
 
     @property
     def driver(self):
