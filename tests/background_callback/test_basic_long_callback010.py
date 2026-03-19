@@ -14,3 +14,6 @@ def test_lcbc010_side_updates(dash_duo, manager):
         dash_duo.find_element("#run-button").click()
         for i in range(1, 4):
             dash_duo.wait_for_text_to_equal("#side-status", f"Side Progress {i}/4")
+        # Wait for callback to fully complete before test exits to avoid
+        # SystemExit being injected into in-flight request handler threads
+        dash_duo.wait_for_text_to_equal("#status", "Finished")
