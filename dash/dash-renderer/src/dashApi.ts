@@ -35,9 +35,7 @@ function getLayout(componentPathOrId: DashLayoutPath | string): any {
     }
 }
 
-window.dash_component_api = Object.assign(
-  window.dash_component_api || {},
-  {
+window.dash_component_api = Object.assign(window.dash_component_api || {}, {
     ExternalWrapper,
     DashContext,
     useDashContext,
@@ -48,5 +46,4 @@ window.dash_component_api = Object.assign(
         useDevtool,
         useDevtoolMenuButtonClassName
     }
-  }
-);
+});
