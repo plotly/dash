@@ -207,7 +207,8 @@ def test_a11y005_keyboard_navigation_home_end_monday_start(dash_dcc_fresh_browse
     assert dash_dcc.get_logs() == []
 
 
-def test_a11y006_keyboard_navigation_rtl(dash_dcc):
+def test_a11y006_keyboard_navigation_rtl(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = create_date_picker_app(
         {
             "date": "2021-01-15",

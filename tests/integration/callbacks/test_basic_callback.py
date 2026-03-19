@@ -155,7 +155,8 @@ def test_cbsc002_callbacks_generating_children(dash_duo_fresh_browser):
     assert dash_duo.get_logs() == [], "console is clean"
 
 
-def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
+def test_cbsc003_callback_with_unloaded_async_component(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
     app.layout = html.Div(
         children=[

@@ -1,7 +1,8 @@
 from dash import Dash, html, Output, Input, State, no_update
 
 
-def test_cbop001_optional_input(dash_duo):
+def test_cbop001_optional_input(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(suppress_callback_exceptions=True)
 
     app.layout = html.Div(

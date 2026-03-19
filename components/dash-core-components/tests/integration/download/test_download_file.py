@@ -4,7 +4,8 @@ from dash import Dash, Input, Output, dcc, html
 from dash.testing.wait import until
 
 
-def test_dlfi001_download_file(dash_dcc):
+def test_dlfi001_download_file(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     filename = "chuck.jpg"
     asset_folder = os.path.join(os.path.dirname(__file__), "download-assets")
     # Create app.

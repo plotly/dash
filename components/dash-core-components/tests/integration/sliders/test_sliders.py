@@ -36,7 +36,8 @@ def test_slsl001_always_visible_slider(dash_dcc_fresh_browser):
     assert dash_dcc.get_logs() == []
 
 
-def test_slsl002_always_visible_rangeslider(dash_dcc):
+def test_slsl002_always_visible_rangeslider(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         style={"width": "400px"},
