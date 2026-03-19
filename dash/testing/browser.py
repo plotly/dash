@@ -628,9 +628,10 @@ class Browser(DashPageMixin):
     def reset_log_timestamp(self):
         """reset_log_timestamp only work with chrome webdriver."""
         if self._browser == "chrome":
-            entries = self.driver.get_log("browser")
-            if entries:
-                self._last_ts = entries[-1]["timestamp"]
+            # Flush any existing logs
+            self.driver.get_log("browser")
+            # Set timestamp to now so all previous logs are filtered out
+            self._last_ts = int(time.time() * 1000)
 
     @property
     def driver(self):
