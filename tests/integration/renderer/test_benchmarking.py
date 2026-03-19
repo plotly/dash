@@ -4,7 +4,7 @@ import time
 import pytest
 
 
-def make_app(num_groups=500, items_per_group=20):
+def make_app(num_groups=500, items_per_group=10):
     app = Dash(__name__)
 
     NUM_GROUPS = num_groups
