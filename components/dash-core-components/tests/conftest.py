@@ -53,6 +53,7 @@ class _ReusableDashCoreComponentsComposite(DashCoreComponentsMixin):
         """start the local server with app"""
         # Ensure browser is on blank page before starting new server
         self._ensure_blank_page()
+        self.clear_log()
         self.server(app, **kwargs)
         self.server_url = self.server.url
 
