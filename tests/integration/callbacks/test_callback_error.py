@@ -1,7 +1,9 @@
 from dash import Dash, html, Input, Output, set_props
 
 
-def test_cber001_error_handler(dash_duo):
+def test_cber001_error_handler(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
+
     def global_callback_error_handler(err):
         set_props("output-global", {"children": f"global: {err}"})
 

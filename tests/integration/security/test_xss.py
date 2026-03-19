@@ -76,7 +76,8 @@ def test_xss002_blank_href(dash_duo_fresh_browser):
     assert dash_duo.get_logs() == []
 
 
-def test_xss003_data_allowed(dash_duo):
+def test_xss003_data_allowed(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
 
     app.layout = html.Div(

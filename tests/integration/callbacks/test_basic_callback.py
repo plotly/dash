@@ -67,9 +67,9 @@ def test_cbsc001_simple_callback(dash_duo_fresh_browser):
     assert dash_duo.get_logs() == []
 
 
-def test_cbsc002_callbacks_generating_children(dash_duo):
+def test_cbsc002_callbacks_generating_children(dash_duo_fresh_browser):
     """Modify the DOM tree by adding new components in the callbacks."""
-
+    dash_duo = dash_duo_fresh_browser
     # some components don't exist in the initial render
     app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(

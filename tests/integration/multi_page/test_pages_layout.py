@@ -49,7 +49,8 @@ def get_app(path1="/", path2="/layout2"):
     return app
 
 
-def test_pala001_layout(dash_duo, clear_pages_state):
+def test_pala001_layout(dash_duo_fresh_browser, clear_pages_state):
+    dash_duo = dash_duo_fresh_browser
     app = get_app()
     dash_duo.start_server(app)
 
@@ -217,7 +218,8 @@ def get_routing_inputs_app():
     return app
 
 
-def test_pala005_routing_inputs(dash_duo, clear_pages_state):
+def test_pala005_routing_inputs(dash_duo_fresh_browser, clear_pages_state):
+    dash_duo = dash_duo_fresh_browser
     dash_duo.start_server(get_routing_inputs_app())
     dash_duo.wait_for_page(url=f"{dash_duo.server_url}#123")
     dash_duo.wait_for_text_to_equal("#contents", "Home")

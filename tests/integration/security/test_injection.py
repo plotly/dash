@@ -5,7 +5,8 @@ from dash import Dash, html, register_page
 injection_script = "<scRipt>console.error(0x000F45)</scRipt>"
 
 
-def test_sinj001_url_injection(dash_duo):
+def test_sinj001_url_injection(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(__name__, use_pages=True, pages_folder="")
 
     register_page(

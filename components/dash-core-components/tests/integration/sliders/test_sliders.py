@@ -2,7 +2,8 @@ from multiprocessing import Lock
 from dash import Dash, Input, Output, dcc, html
 
 
-def test_slsl001_always_visible_slider(dash_dcc):
+def test_slsl001_always_visible_slider(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [

@@ -88,7 +88,8 @@ def test_inin007_change_viewport_meta_tag(dash_duo):
     assert viewport_meta[0].get_attribute("content") == ""
 
 
-def test_inin008_index_customization(dash_duo):
+def test_inin008_index_customization(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
 
     app.index_string = """<!DOCTYPE html>

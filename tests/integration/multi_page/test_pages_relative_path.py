@@ -45,7 +45,8 @@ def get_app(app):
     return app
 
 
-def test_pare001_relative_path(dash_duo, clear_pages_state):
+def test_pare001_relative_path(dash_duo_fresh_browser, clear_pages_state):
+    dash_duo = dash_duo_fresh_browser
     dash_duo.start_server(get_app(Dash(__name__, use_pages=True)))
     for page in dash.page_registry.values():
         dash_duo.find_element("#" + page["id"]).click()
