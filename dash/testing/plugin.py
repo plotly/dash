@@ -281,6 +281,7 @@ class _ReusableDashComposite(DashComposite):
         """Start the local server with app."""
         # Ensure browser is on blank page before starting new server
         self._ensure_blank_page()
+        self.clear_logs()
         self.server(app, **kwargs)
         if navigate:
             self.server_url = self.server.url
