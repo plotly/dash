@@ -923,6 +923,9 @@ jobs:
           reporter: java-junit
           fail-on-error: false
           fail-on-empty: false
+          list-suites: 'failed'
+          list-tests: 'failed'
+          max-annotations: '50'
 
       - name: Generate Summary
         if: always()
