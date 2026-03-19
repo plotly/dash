@@ -261,8 +261,8 @@ class _ReusableDashComposite(DashComposite):
             # Clear storage
             self.clear_storage()
 
-            # Reset timestamp for log filtering
-            self._last_ts = 0
+            # Reset log timestamp to filter out logs from previous tests
+            self.reset_log_timestamp()
         except Exception:  # pylint: disable=broad-exception-caught
             pass
 
