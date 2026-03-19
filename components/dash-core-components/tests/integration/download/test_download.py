@@ -4,7 +4,8 @@ from dash import Dash, Input, Output, dcc, html
 from dash.testing.wait import until
 
 
-def test_dltx001_download_text(dash_dcc):
+def test_dltx001_download_text(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     text = "Hello, world!"
     filename = "hello.txt"
     # Create app.

@@ -28,7 +28,8 @@ def test_lipa001_path(dash_dcc_fresh_browser):
 
 
 @pytest.mark.DCC782
-def test_lipa002_path(dash_dcc):
+def test_lipa002_path(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     def extras(t):

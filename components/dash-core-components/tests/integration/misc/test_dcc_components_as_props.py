@@ -4,7 +4,8 @@ from dash import Dash, dcc, html
 from dash.testing import wait
 
 
-def test_mdcap001_dcc_components_as_props(dash_dcc):
+def test_mdcap001_dcc_components_as_props(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(

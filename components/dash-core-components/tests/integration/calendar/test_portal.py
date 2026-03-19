@@ -191,11 +191,12 @@ def test_dppt007_portal_close_by_clicking_outside(dash_dcc_fresh_browser):
     assert dash_dcc.get_logs() == []
 
 
-def test_dppt001a_datepicker_range_default(dash_dcc):
+def test_dppt001a_datepicker_range_default(dash_dcc_fresh_browser):
     """Test DatePickerRange with default (no portal) configuration.
 
     Verifies that the calendar opens without portal and all elements are clickable.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(

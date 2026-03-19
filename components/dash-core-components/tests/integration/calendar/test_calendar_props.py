@@ -6,8 +6,8 @@ import dash.testing.wait as wait
 
 
 @pytest.mark.DCC594
-def test_cdpr001_date_clearable_true_works(dash_dcc):
-
+def test_cdpr001_date_clearable_true_works(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [
