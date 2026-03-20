@@ -472,7 +472,7 @@ class Browser(DashPageMixin):
         """Wrapper that catches exceptions so until() can retry on transient failures."""
         try:
             return self.get_webdriver()
-        except Exception:
+        except WebDriverException:
             logger.exception("webdriver initialization failed, will retry")
             return None
 
