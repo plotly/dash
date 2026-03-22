@@ -79,5 +79,10 @@ export function filterOptions(
         search.addDocuments(options.options);
     }
 
-    return (search.search(searchValue) as DetailedOption[]) || [];
+    const searchResults =
+        (search.search(searchValue) as DetailedOption[]) || [];
+
+    const resultSet = new Set(searchResults);
+
+    return options.options.filter(option => resultSet.has(option));
 }
