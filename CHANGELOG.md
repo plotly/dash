@@ -2,17 +2,18 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [4.1.0] - 2026-03-23
 
 ## Added
 - [#3637](https://github.com/plotly/dash/pull/3637)  Added `debounce` prop to `Dropdown`.
 
 ## Fixed
 - [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
+- [#3660][(](https://github.com/plotly/dash/pull/3660)) Allow same date to be selected for both start and end in DatePickerRange components
+- [#3600][(](https://github.com/plotly/dash/pull/3600)) DatePicker support for the Moment.js `Y` year token
 - [#3627][(](https://github.com/plotly/dash/pull/3627)) Make dropdowns searchable wheen focused, without requiring to open them first
 - [#3656][(](https://github.com/plotly/dash/pull/3656)) Improved dropdown performance for large collections of options
-- [#3660][(](https://github.com/plotly/dash/pull/3660)) Allow same date to be selected for both start and end in DatePickerRange components
-
+- [#3643][(](https://github.com/plotly/dash/pull/3643)) Fix multiselect dropdown with components as labels
 
 
 ## [4.0.0] - 2026-02-03
