@@ -30,7 +30,7 @@ export default function Checklist({
     inline = false,
 }: ChecklistProps) {
     const sanitizedOptions = useMemo(() => {
-        return sanitizeOptions(options);
+        return sanitizeOptions(options).options;
     }, [options]);
 
     const stylingProps = {
