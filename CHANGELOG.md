@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3656][(](https://github.com/plotly/dash/pull/3656)) Improved dropdown performance for large collections of options
 - [#3643][(](https://github.com/plotly/dash/pull/3643)) Fix multiselect dropdown with components as labels
 - [#3609][(](https://github.com/plotly/dash/pull/3609)) Add backward compat alias for _Wildcard
+- [#3672][(](https://github.com/plotly/dash/pull/3672)) Improve browser performance when app contains a large number of clientside callbacks
 
 
 ## [4.0.0] - 2026-02-03
