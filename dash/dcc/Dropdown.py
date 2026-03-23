@@ -91,6 +91,11 @@ class Dropdown(Component):
 
         - no_options_found (string; optional)
 
+    - debounce (boolean; optional):
+        If True, changes to input values will be sent back to the Dash
+        server only when dropdown menu closes. Use with
+        `closeOnSelect=False`.
+
     - className (string; optional):
         Additional CSS class for the root DOM node.
 
@@ -159,6 +164,7 @@ class Dropdown(Component):
         maxHeight: typing.Optional[typing.Union[NumberType]] = None,
         style: typing.Optional[typing.Any] = None,
         labels: typing.Optional[typing.Union["Labels"]] = None,
+        debounce: typing.Optional[typing.Union[bool]] = None,
         className: typing.Optional[typing.Union[str]] = None,
         persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
         persisted_props: typing.Optional[typing.Any] = None,
@@ -183,6 +189,7 @@ class Dropdown(Component):
             "maxHeight",
             "style",
             "labels",
+            "debounce",
             "className",
             "persistence",
             "persisted_props",
@@ -205,6 +212,7 @@ class Dropdown(Component):
             "maxHeight",
             "style",
             "labels",
+            "debounce",
             "className",
             "persistence",
             "persisted_props",
