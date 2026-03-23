@@ -937,6 +937,7 @@ class Dash(ObsoleteChecker):
             "dash_version_url": DASH_VERSION_URL,
             "ddk_version": ddk_version,
             "plotly_version": plotly_version,
+            "validate_callbacks": self._dev_tools.validate_callbacks,
         }
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
@@ -1968,6 +1969,7 @@ class Dash(ObsoleteChecker):
             "hot_reload",
             "silence_routes_logging",
             "prune_errors",
+            "validate_callbacks",
         ):
             dev_tools[attr] = get_combined_config(
                 attr, kwargs.get(attr, None), default=debug
@@ -2003,6 +2005,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
+        dev_tools_validate_callbacks: Optional[bool] = None,
     ) -> bool:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
@@ -2024,6 +2027,7 @@ class Dash(ObsoleteChecker):
             - DASH_SILENCE_ROUTES_LOGGING
             - DASH_DISABLE_VERSION_CHECK
             - DASH_PRUNE_ERRORS
+            - DASH_VALIDATE_CALLBACKS
 
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
@@ -2079,6 +2083,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
+        :param dev_tools_validate_callbacks: Check for circular callback
+            dependencies and raise an error if any are found. env: ``DASH_VALIDATE_CALLBACKS``
+        :type dev_tools_validate_callbacks: bool
+
         :return: debug
         """
         if debug is None:
@@ -2096,6 +2104,7 @@ class Dash(ObsoleteChecker):
             silence_routes_logging=dev_tools_silence_routes_logging,
             disable_version_check=dev_tools_disable_version_check,
             prune_errors=dev_tools_prune_errors,
+            validate_callbacks=dev_tools_validate_callbacks,
         )
 
         if dev_tools.silence_routes_logging:
@@ -2319,6 +2328,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
+        dev_tools_validate_callbacks: Optional[bool] = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -2409,6 +2419,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
+        :param dev_tools_validate_callbacks: Check for circular callback
+            dependencies and raise an error if any are found. env: ``DASH_VALIDATE_CALLBACKS``
+        :type dev_tools_validate_callbacks: bool
+
         :param jupyter_mode: How to display the application when running
             inside a jupyter notebook.
 
@@ -2446,6 +2460,7 @@ class Dash(ObsoleteChecker):
             dev_tools_silence_routes_logging,
             dev_tools_disable_version_check,
             dev_tools_prune_errors,
+            dev_tools_validate_callbacks,
         )
 
         # Evaluate the env variables at runtime
