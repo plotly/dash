@@ -49,7 +49,7 @@ export const OptionLabel: React.FC<OptionLabelProps> = ({
                     <ExternalWrapper
                         key={i}
                         component={label}
-                        componentPath={[...ctx.componentPath, index, i]}
+                        componentPath={[...ctx.componentPath, String(value), i]}
                     />
                 ))}
             </>

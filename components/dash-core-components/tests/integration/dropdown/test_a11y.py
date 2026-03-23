@@ -1,7 +1,7 @@
 import pytest
 from dash import Dash, Input, Output
 from dash.dcc import Dropdown
-from dash.html import Div, Label, P
+from dash.html import Div, Label, P, Span
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
@@ -730,3 +730,40 @@ def elements_are_visible(dash_duo, elements):
         )
 
     return all([is_visible(el) for el in elements])
+
+
+def test_a11y009_dropdown_component_labels_render_correctly(dash_duo):
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                options=[
+                    {"label": Span("red"), "value": "red"},
+                    {"label": Span("yellow"), "value": "yellow"},
+                    {"label": Span("blue"), "value": "blue"},
+                ],
+                value=["red", "yellow", "blue"],
+                id="components-label-dropdown",
+                multi=True,
+            ),
+        ]
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#components-label-dropdown").click()
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    # Click  on the "yellow" option
+    yellow_option = dash_duo.find_element(
+        '.dash-dropdown-option:has(input[value="yellow"])'
+    )
+    yellow_option.click()
+
+    # After interaction, verify the options render correctly
+    option_elements = dash_duo.find_elements(".dash-dropdown-option")
+    rendered_labels = [el.text.strip() for el in option_elements]
+
+    assert rendered_labels == ["red", "yellow", "blue"]
+
+    assert dash_duo.get_logs() == []
