@@ -14,6 +14,7 @@ import {
     strAsDate,
 } from '../utils/calendar/helpers';
 import {captureCSSForPortal} from '../utils/calendar/cssVariables';
+import ResizeDetector from '../utils/ResizeDetector';
 import '../components/css/datepickers.css';
 
 const DatePickerSingle = ({
@@ -63,6 +64,7 @@ const DatePickerSingle = ({
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
+    const autosizeRef = useRef<any>(null);
     const calendarRef = useRef<CalendarHandle>(null);
     const hasPortal = with_portal || with_full_screen_portal;
 
@@ -86,6 +88,14 @@ const DatePickerSingle = ({
             setProps({date: dateAsStr(internalDate)});
         }
     }, [internalDate]);
+
+    const handleResize = useCallback(() => {
+        autosizeRef.current?.updateInputWidth?.();
+    }, []);
+
+    useEffect(() => {
+        autosizeRef.current?.updateInputWidth?.();
+    }, [inputValue]);
 
     const parseUserInput = useCallback(
         (focusCalendar = false) => {
@@ -157,123 +167,128 @@ const DatePickerSingle = ({
     }
 
     return (
-        <div className="dash-datepicker" ref={containerRef}>
-            <Popover.Root
-                open={!disabled && isCalendarOpen}
-                onOpenChange={disabled ? undefined : setIsCalendarOpen}
-            >
-                <Popover.Trigger asChild disabled={disabled}>
-                    <div
-                        id={accessibleId + '-wrapper'}
-                        className={classNames}
-                        style={style}
-                        aria-labelledby={`${accessibleId}`}
-                        aria-haspopup="dialog"
-                        aria-expanded={isCalendarOpen}
-                        aria-disabled={disabled}
-                        onClick={e => {
-                            e.preventDefault();
-                            if (!isCalendarOpen && !disabled) {
-                                setIsCalendarOpen(true);
-                            }
-                        }}
-                    >
-                        <AutosizeInput
-                            inputRef={node => {
-                                inputRef.current = node;
-                            }}
-                            type="text"
-                            id={accessibleId}
-                            inputClassName="dash-datepicker-input dash-datepicker-end-date"
-                            value={inputValue}
-                            onChange={e => setInputValue(e.target?.value)}
-                            onKeyDown={handleInputKeyDown}
-                            placeholder={placeholder}
-                            disabled={disabled}
-                            dir={direction}
-                            aria-label={placeholder}
-                        />
-                        {clearable && !disabled && !!date && (
-                            <a
-                                className="dash-datepicker-clear"
-                                onClick={clearSelection}
-                                aria-label="Clear date"
-                            >
-                                <Cross1Icon />
-                            </a>
-                        )}
-
-                        <CaretDownIcon className="dash-datepicker-caret-icon" />
-                    </div>
-                </Popover.Trigger>
-
-                <Popover.Portal
-                    container={hasPortal ? undefined : containerRef.current}
+        <ResizeDetector onResize={handleResize} targets={[containerRef]}>
+            <div className="dash-datepicker" ref={containerRef}>
+                <Popover.Root
+                    open={!disabled && isCalendarOpen}
+                    onOpenChange={disabled ? undefined : setIsCalendarOpen}
                 >
-                    <Popover.Content
-                        className={`dash-datepicker-content${
-                            hasPortal ? ' dash-datepicker-portal' : ''
-                        }${
-                            with_full_screen_portal
-                                ? ' dash-datepicker-fullscreen'
-                                : ''
-                        }`}
-                        style={portalStyle}
-                        align={hasPortal ? 'center' : 'start'}
-                        sideOffset={hasPortal ? 0 : 5}
-                        avoidCollisions={!hasPortal}
-                        onInteractOutside={
-                            with_full_screen_portal
-                                ? e => e.preventDefault()
-                                : undefined
-                        }
-                        onOpenAutoFocus={e => e.preventDefault()}
-                        onCloseAutoFocus={e => {
-                            e.preventDefault();
-                            // Only focus if focus is not already on the input
-                            if (document.activeElement !== inputRef.current) {
-                                inputRef.current?.focus();
-                            }
-                        }}
-                    >
-                        {with_full_screen_portal && (
-                            <button
-                                className="dash-datepicker-close-button"
-                                onClick={() => setIsCalendarOpen(false)}
-                                aria-label="Close calendar"
-                            >
-                                <Cross1Icon />
-                            </button>
-                        )}
-                        <Calendar
-                            ref={calendarRef}
-                            initialVisibleDate={initialMonth}
-                            selectionStart={internalDate}
-                            selectionEnd={internalDate}
-                            minDateAllowed={minDate}
-                            maxDateAllowed={maxDate}
-                            disabledDates={disabledDates}
-                            firstDayOfWeek={first_day_of_week}
-                            showOutsideDays={show_outside_days}
-                            monthFormat={month_format}
-                            numberOfMonthsShown={number_of_months_shown}
-                            calendarOrientation={calendar_orientation}
-                            daySize={day_size}
-                            direction={direction}
-                            onSelectionChange={(_, selection) => {
-                                if (!selection) {
-                                    return;
-                                }
-                                setInternalDate(selection);
-                                if (!stay_open_on_select) {
-                                    setIsCalendarOpen(false);
+                    <Popover.Trigger asChild disabled={disabled}>
+                        <div
+                            id={accessibleId + '-wrapper'}
+                            className={classNames}
+                            style={style}
+                            aria-labelledby={`${accessibleId}`}
+                            aria-haspopup="dialog"
+                            aria-expanded={isCalendarOpen}
+                            aria-disabled={disabled}
+                            onClick={e => {
+                                e.preventDefault();
+                                if (!isCalendarOpen && !disabled) {
+                                    setIsCalendarOpen(true);
                                 }
                             }}
-                        />
-                    </Popover.Content>
-                </Popover.Portal>
-            </Popover.Root>
-        </div>
+                        >
+                            <AutosizeInput
+                                ref={autosizeRef}
+                                inputRef={node => {
+                                    inputRef.current = node;
+                                }}
+                                type="text"
+                                id={accessibleId}
+                                inputClassName="dash-datepicker-input dash-datepicker-end-date"
+                                value={inputValue}
+                                onChange={e => setInputValue(e.target?.value)}
+                                onKeyDown={handleInputKeyDown}
+                                placeholder={placeholder}
+                                disabled={disabled}
+                                dir={direction}
+                                aria-label={placeholder}
+                            />
+                            {clearable && !disabled && !!date && (
+                                <a
+                                    className="dash-datepicker-clear"
+                                    onClick={clearSelection}
+                                    aria-label="Clear date"
+                                >
+                                    <Cross1Icon />
+                                </a>
+                            )}
+
+                            <CaretDownIcon className="dash-datepicker-caret-icon" />
+                        </div>
+                    </Popover.Trigger>
+
+                    <Popover.Portal
+                        container={hasPortal ? undefined : containerRef.current}
+                    >
+                        <Popover.Content
+                            className={`dash-datepicker-content${
+                                hasPortal ? ' dash-datepicker-portal' : ''
+                            }${
+                                with_full_screen_portal
+                                    ? ' dash-datepicker-fullscreen'
+                                    : ''
+                            }`}
+                            style={portalStyle}
+                            align={hasPortal ? 'center' : 'start'}
+                            sideOffset={hasPortal ? 0 : 5}
+                            avoidCollisions={!hasPortal}
+                            onInteractOutside={
+                                with_full_screen_portal
+                                    ? e => e.preventDefault()
+                                    : undefined
+                            }
+                            onOpenAutoFocus={e => e.preventDefault()}
+                            onCloseAutoFocus={e => {
+                                e.preventDefault();
+                                // Only focus if focus is not already on the input
+                                if (
+                                    document.activeElement !== inputRef.current
+                                ) {
+                                    inputRef.current?.focus();
+                                }
+                            }}
+                        >
+                            {with_full_screen_portal && (
+                                <button
+                                    className="dash-datepicker-close-button"
+                                    onClick={() => setIsCalendarOpen(false)}
+                                    aria-label="Close calendar"
+                                >
+                                    <Cross1Icon />
+                                </button>
+                            )}
+                            <Calendar
+                                ref={calendarRef}
+                                initialVisibleDate={initialMonth}
+                                selectionStart={internalDate}
+                                selectionEnd={internalDate}
+                                minDateAllowed={minDate}
+                                maxDateAllowed={maxDate}
+                                disabledDates={disabledDates}
+                                firstDayOfWeek={first_day_of_week}
+                                showOutsideDays={show_outside_days}
+                                monthFormat={month_format}
+                                numberOfMonthsShown={number_of_months_shown}
+                                calendarOrientation={calendar_orientation}
+                                daySize={day_size}
+                                direction={direction}
+                                onSelectionChange={(_, selection) => {
+                                    if (!selection) {
+                                        return;
+                                    }
+                                    setInternalDate(selection);
+                                    if (!stay_open_on_select) {
+                                        setIsCalendarOpen(false);
+                                    }
+                                }}
+                            />
+                        </Popover.Content>
+                    </Popover.Portal>
+                </Popover.Root>
+            </div>
+        </ResizeDetector>
     );
 };
 

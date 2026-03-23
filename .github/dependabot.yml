@@ -1,0 +1,70 @@
+version: 2
+updates:
+  # Root package dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+    ignore:
+      # Ignore @plotly packages
+      - dependency-name: "@plotly/*"
+
+  # Dash renderer
+  - package-ecosystem: "npm"
+    directory: "/dash/dash-renderer"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  # Components - dash-core-components
+  - package-ecosystem: "npm"
+    directory: "/components/dash-core-components"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  # Components - dash-html-components
+  - package-ecosystem: "npm"
+    directory: "/components/dash-html-components"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  # Components - dash-table
+  - package-ecosystem: "npm"
+    directory: "/components/dash-table"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*"

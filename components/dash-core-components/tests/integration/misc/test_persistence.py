@@ -121,7 +121,7 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.driver.set_window_size(1024, 768)
     dash_dcc.wait_for_text_to_equal("#settings", json.dumps(initial_settings))
 
-    dash_dcc.find_element("#checklist label:last-child input").click()  # 🚀
+    dash_dcc.find_element('#checklist [data-option-index="2"] input').click()  # 🚀
 
     dash_dcc.select_date_range("datepickerrange", day_range=(4,))
     dash_dcc.select_date_range("datepickerrange", day_range=(14,), start_first=False)
@@ -133,19 +133,17 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
         "one" + Keys.ENTER
     )
-    sleep(0.2)
-    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
 
     dash_dcc.find_element("#dropdownmulti").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
-        "six" + Keys.ENTER
+        "six"
     )
     sleep(0.2)
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
 
     dash_dcc.find_element("#input").send_keys(" maybe")
 
-    dash_dcc.find_element("#radioitems label:first-child input").click()  # red
+    dash_dcc.find_element('#radioitems [data-option-index="0"] input').click()  # red
 
     range_slider = dash_dcc.find_element("#rangeslider")
     dash_dcc.click_at_coord_fractions(range_slider, 0.5, 0.25)  # 5
