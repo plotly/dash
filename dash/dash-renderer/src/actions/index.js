@@ -22,6 +22,9 @@ export const insertComponent = createAction(getAction('INSERT_COMPONENT'));
 export const removeComponent = createAction(getAction('REMOVE_COMPONENT'));
 
 export const onPropChange = createAction(getAction('ON_PROP_CHANGE'));
+export const resetComponentState = createAction(
+    getAction('RESET_COMPONENT_STATE')
+);
 
 export function updateProps(payload) {
     return (dispatch, getState) => {
