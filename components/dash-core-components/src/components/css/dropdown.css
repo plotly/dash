@@ -218,6 +218,18 @@
     overflow-y: auto;
 }
 
+.dash-dropdown-content:has(.dash-options-list-virtualized) {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-dropdown-options:has(.dash-options-list-virtualized) {
+    overflow-y: visible;
+    flex: 1;
+    min-height: 0;
+}
+
 .dash-dropdown-option {
     padding: calc(var(--Dash-Spacing) * 2) calc(var(--Dash-Spacing) * 3);
     box-shadow: 0 -1px 0 0 var(--Dash-Fill-Disabled) inset;
