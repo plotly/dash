@@ -253,3 +253,29 @@ def test_inni010_valid_numbers(dash_dcc, ninput_app):
         dash_dcc.clear_input(elem)
 
     assert dash_dcc.get_logs() == []
+
+
+def test_inni011_min_max_bug(dash_dcc):
+    """Test that decrement increment button works correctly with min/max set to None."""
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Input(id="number", value=17, type="number", min=None, max=None),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), [Input("number", "value")])
+    def update_output(val):
+        return val
+
+    dash_dcc.start_server(app)
+
+    decrement_btn = dash_dcc.find_element(".dash-stepper-decrement")
+
+    # Initial value is 17, should be able to decrement to 16
+    decrement_btn.click()
+    dash_dcc.wait_for_text_to_equal("#output", "16")
+
+    assert dash_dcc.get_logs() == []
