@@ -417,7 +417,7 @@ def test_ldcp009_loading_component_overlay_style(dash_dcc):
 
 # update multiple props of same component, only targeted id/prop triggers spinner
 # test that target_components id can be a dict id
-def test_ldcp011_loading_component_target_components(dash_dcc):
+def test_ldcp010_loading_component_target_components(dash_dcc):
     lock = Lock()
 
     app = Dash(__name__)
@@ -864,12 +864,8 @@ def test_ldcp019_loading_component_pattern_matching(dash_dcc):
     )
 
     @app.callback(
-        Output(
-            {"type": "div-1", "index": ALL, "name": MATCH}, "children"
-        ),
-        Input(
-            {"type": "root", "index": ALL, "name": MATCH}, "n_clicks"
-        ),
+        Output({"type": "div-1", "index": ALL, "name": MATCH}, "children"),
+        Input({"type": "root", "index": ALL, "name": MATCH}, "n_clicks"),
     )
     def updateDiv(n_clicks):
         if n_clicks == [1]:
