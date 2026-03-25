@@ -6,6 +6,7 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException,
     TimeoutException,
 )
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 
@@ -373,6 +374,97 @@ def test_dtpr008_input_click_opens_but_keeps_focus(dash_dcc):
     assert (
         year_input.get_attribute("value") == "2026"
     ), f"Calendar should show 2026, but shows: {year_input.get_attribute('value')}"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_dtpr009_same_date_selection_minimum_nights_zero(dash_dcc):
+    """Bug #3645: With minimum_nights=0, selecting the same date for start and end should work."""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.DatePickerRange(
+                id="dpr",
+                min_date_allowed=datetime(2021, 1, 1),
+                max_date_allowed=datetime(2021, 1, 31),
+                initial_visible_month=datetime(2021, 1, 1),
+                minimum_nights=0,
+                display_format="MM/DD/YYYY",
+            ),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("dpr", "start_date"),
+        Input("dpr", "end_date"),
+    )
+    def display_dates(start_date, end_date):
+        return f"Start: {start_date}, End: {end_date}"
+
+    dash_dcc.start_server(app)
+
+    # Select day 10 for both start and end (same date)
+    result = dash_dcc.select_date_range("dpr", day_range=(10, 10))
+    assert result == (
+        "01/10/2021",
+        "01/10/2021",
+    ), f"Same date selection should work with minimum_nights=0, got {result}"
+
+    dash_dcc.wait_for_text_to_equal("#output", "Start: 2021-01-10, End: 2021-01-10")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_dtpr010_new_start_date_clears_end_date(dash_dcc):
+    """Bug #3645: When a new start date is selected after a range, end_date should be cleared."""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.DatePickerRange(
+                id="dpr",
+                min_date_allowed=datetime(2021, 1, 1),
+                max_date_allowed=datetime(2021, 1, 31),
+                initial_visible_month=datetime(2021, 1, 1),
+                minimum_nights=0,
+                display_format="MM/DD/YYYY",
+            ),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("dpr", "start_date"),
+        Input("dpr", "end_date"),
+    )
+    def display_dates(start_date, end_date):
+        return f"Start: {start_date}, End: {end_date}"
+
+    dash_dcc.start_server(app)
+
+    # First, select a range: Jan 2 to Jan 11
+    dash_dcc.select_date_range("dpr", day_range=(2, 11))
+    dash_dcc.wait_for_text_to_equal("#output", "Start: 2021-01-02, End: 2021-01-11")
+
+    # Now click just a new start date (Jan 4) without selecting an end date
+    date = dash_dcc.find_element("#dpr")
+    date.click()
+    dash_dcc._wait_until_day_is_clickable()
+    days = dash_dcc.find_elements(dash_dcc.date_picker_day_locator)
+    day_4 = [d for d in days if d.find_element(By.CSS_SELECTOR, "span").text == "4"][0]
+    day_4.click()
+
+    # The calendar should still be open (waiting for end date).
+    # The old end_date (Jan 11) should NOT be retained.
+    # Click outside to close the calendar.
+    time.sleep(0.3)
+    dash_dcc.find_element("body").click()
+    time.sleep(0.3)
+
+    # end_date must be cleared, not silently retained from previous selection
+    dash_dcc.wait_for_text_to_equal("#output", "Start: 2021-01-04, End: None")
 
     assert dash_dcc.get_logs() == []
 

@@ -298,3 +298,8 @@
     width: 20px;
     height: 20px;
 }
+
+.dash-datepicker-calendar-padding {
+    pointer-events: none;
+    background: transparent;
+}

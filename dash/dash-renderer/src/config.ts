@@ -21,6 +21,7 @@ export type DashConfig = {
     };
     serve_locally?: boolean;
     plotlyjs_url?: string;
+    validate_callbacks: boolean;
 };
 
 export default function getConfigFromDOM(): DashConfig {

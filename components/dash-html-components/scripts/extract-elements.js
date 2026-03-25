@@ -22,7 +22,11 @@ function extractElements($) {
         // experimental, don't add yet
         'portal',
         'fencedframe',
-        'selectedcontent'
+        'selectedcontent',
+        // Geolocation has a weird formatting catch
+        `geolocation 
+Experimental
+`
     ];
     // `<section>` is for some reason missing from the reference tables.
     const addElements = [
