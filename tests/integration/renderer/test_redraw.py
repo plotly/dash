@@ -29,6 +29,11 @@ def test_rdraw001_redraw(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#counter", "1")
     dash_duo.find_element("#redraw").click()
-    dash_duo.wait_for_text_to_equal("#counter", "2")
+    # dash_duo.wait_for_text_to_equal("#counter", "2")
+    # time.sleep(1)
+    # dash_duo.wait_for_text_to_equal("#counter", "2")
+
+    ## the above was changed due to a mechanism change that generates a new React component, thus resetting the counter
+    dash_duo.wait_for_text_to_equal("#counter", "1")
     time.sleep(1)
-    dash_duo.wait_for_text_to_equal("#counter", "2")
+    dash_duo.wait_for_text_to_equal("#counter", "1")
