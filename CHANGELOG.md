@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+- [#3690](https://github.com/plotly/dash/pull/3690)  Fixes Input when min or max is set to None
+
 ## [4.1.0] - 2026-03-23
 
 ## Added
