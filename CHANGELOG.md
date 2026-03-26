@@ -4,23 +4,26 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## Added
+- [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
+
 ## Fixed
-- [#3690](https://github.com/plotly/dash/pull/3690)  Fixes Input when min or max is set to None
+- [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
 
 ## [4.1.0] - 2026-03-23
 
 ## Added
-- [#3637](https://github.com/plotly/dash/pull/3637)  Added `debounce` prop to `Dropdown`.
+- [#3637](https://github.com/plotly/dash/pull/3637) Added `debounce` prop to `Dropdown`.
 
 ## Fixed
 - [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
-- [#3660][(](https://github.com/plotly/dash/pull/3660)) Allow same date to be selected for both start and end in DatePickerRange components
-- [#3600][(](https://github.com/plotly/dash/pull/3600)) DatePicker support for the Moment.js `Y` year token
-- [#3627][(](https://github.com/plotly/dash/pull/3627)) Make dropdowns searchable wheen focused, without requiring to open them first
-- [#3656][(](https://github.com/plotly/dash/pull/3656)) Improved dropdown performance for large collections of options
-- [#3643][(](https://github.com/plotly/dash/pull/3643)) Fix multiselect dropdown with components as labels
-- [#3609][(](https://github.com/plotly/dash/pull/3609)) Add backward compat alias for _Wildcard
-- [#3672][(](https://github.com/plotly/dash/pull/3672)) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
+- [#3660](https://github.com/plotly/dash/pull/3660) Allow same date to be selected for both start and end in DatePickerRange components
+- [#3600](https://github.com/plotly/dash/pull/3600) DatePicker support for the Moment.js `Y` year token
+- [#3627](https://github.com/plotly/dash/pull/3627) Make dropdowns searchable wheen focused, without requiring to open them first
+- [#3656](https://github.com/plotly/dash/pull/3656) Improved dropdown performance for large collections of options
+- [#3643](https://github.com/plotly/dash/pull/3643) Fix multiselect dropdown with components as labels
+- [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
+- [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
 
 
 ## [4.0.0] - 2026-02-03
@@ -93,8 +96,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
-- [#3568]((https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
-- [#3534]((https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338]((https://github.com/plotly/dash/pull/2338)
+- [#3568](https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
+- [#3534](https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338](https://github.com/plotly/dash/pull/2338)
 - [#3541](https://github.com/plotly/dash/pull/3541) Add `attributes` dictionary to be be formatted on script/link (_js_dist/_css_dist) tags of the index, allows for `type="module"` or `type="importmap"`. [#3538](https://github.com/plotly/dash/issues/3538)
 - [#3542](https://github.com/plotly/dash/pull/3542) Add hidden=True to dash pages callback.
 - [#3564](https://github.com/plotly/dash/pull/3564) Add new parameter `hide_all_callbacks` to `run()`. Closes [#3493](https://github.com/plotly/dash/issues/3493)
@@ -151,7 +154,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 # [3.1.1] - 2025-06-29
 
 ## Fixed
-[#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
+- [#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
 
 ## [3.1.0] - 2025-06-27
 
