@@ -143,7 +143,8 @@ function storeEffect(props, events, setErrorLoading) {
         graphs,
         hooks,
         layout,
-        layoutRequest
+        layoutRequest,
+        config
     } = props;
 
     batch(() => {
@@ -187,7 +188,8 @@ function storeEffect(props, events, setErrorLoading) {
                 setGraphs(
                     computeGraphs(
                         dependenciesRequest.content,
-                        dispatchError(dispatch)
+                        dispatchError(dispatch),
+                        config
                     )
                 )
             );
