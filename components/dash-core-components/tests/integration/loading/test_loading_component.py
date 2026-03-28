@@ -461,7 +461,7 @@ def test_ldcp010_loading_component_target_components(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    btn1id = "#" + stringify_id({"type": "button", "index": "one"})
+    btn1id = "[id='" + stringify_id({"type": "button", "index": "one"}) + "']"
 
     dash_dcc.wait_for_text_to_equal(btn1id, "content 1")
 
