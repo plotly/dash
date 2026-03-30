@@ -29,7 +29,7 @@
   "maintainer": "Alex Johnson <alex@plotly.com>",
   "dependencies": {
     "prop-types": "^15.8.1",
-    "ramda": "^0.30.1"
+    "ramda": "^0.32.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
@@ -37,22 +37,22 @@
     "@babel/eslint-parser": "^7.28.6",
     "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
-    "babel-loader": "^9.2.1",
-    "cheerio": "^0.22.0",
-    "cross-env": "^7.0.3",
-    "es-check": "^7.1.1",
-    "eslint": "^8.41.0",
+    "babel-loader": "^10.1.1",
+    "cheerio": "^1.2.0",
+    "cross-env": "^10.1.0",
+    "es-check": "^9.6.4",
+    "eslint": "^10.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-react": "^7.32.2",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^3.0.1",
     "npm-run-all": "^4.1.5",
-    "react": "^16.14.0",
-    "react-docgen": "^5.4.3",
-    "react-dom": "^16.14.0",
-    "rimraf": "^5.0.5",
+    "react": "^19.2.4",
+    "react-docgen": "^8.0.3",
+    "react-dom": "^19.2.4",
+    "rimraf": "^6.1.3",
     "string": "^3.3.3",
     "webpack": "^5.104.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^7.0.2"
   },
   "files": [
     "/dash_html_components/*{.js,.map}"
