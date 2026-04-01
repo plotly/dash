@@ -12,12 +12,14 @@ from typing import Any
 from dash.mcp.types import MCPInput
 
 from .base import InputSchemaSource
+from .schema_pattern_matching import PatternMatchingSchema
 from .schema_callback_type_annotations import AnnotationSchema
 from .schema_component_proptypes_overrides import OverrideSchema
 from .schema_component_proptypes import ComponentPropSchema
 from .input_descriptions import get_property_description
 
 _SOURCES: list[type[InputSchemaSource]] = [
+    PatternMatchingSchema,
     AnnotationSchema,
     OverrideSchema,
     ComponentPropSchema,
