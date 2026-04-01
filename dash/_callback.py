@@ -41,6 +41,7 @@ from ._utils import (
 from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from .types import CallbackDispatchResponse
 from ._no_update import NoUpdate
 
 
@@ -80,6 +81,7 @@ def callback(
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
+    mcp_enabled: bool = True,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -231,6 +233,7 @@ def callback(
         api_endpoint=api_endpoint,
         optional=optional,
         hidden=hidden,
+        mcp_enabled=mcp_enabled,
     )
 
 
@@ -278,6 +281,7 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=None,
+    mcp_enabled=True,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -318,6 +322,7 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "mcp_enabled": mcp_enabled,
     }
     callback_list.append(callback_spec)
 
@@ -523,7 +528,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response,
+    response: CallbackDispatchResponse,
     callback_ctx,
     app,
     original_packages,
@@ -652,6 +657,7 @@ def register_callback(
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", None),
+        mcp_enabled=_kwargs.get("mcp_enabled", True),
     )
 
     # pylint: disable=too-many-locals
@@ -686,7 +692,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}  # type: ignore
+            response: CallbackDispatchResponse = {"multi": True}
 
             jsonResponse = None
             try:
@@ -758,7 +764,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            response: CallbackDispatchResponse = {"multi": True}
 
             try:
                 if background is not None:
