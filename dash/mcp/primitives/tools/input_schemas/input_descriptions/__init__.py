@@ -12,11 +12,13 @@ from .base import InputDescriptionSource
 from .description_component_props import ComponentPropsDescription
 from .description_docstrings import DocstringPropDescription
 from .description_html_labels import LabelDescription
+from .description_pattern_matching import PatternMatchingDescription
 
 _SOURCES: list[type[InputDescriptionSource]] = [
     DocstringPropDescription,
     LabelDescription,
     ComponentPropsDescription,
+    PatternMatchingDescription,
 ]
 
 
