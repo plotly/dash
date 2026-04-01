@@ -553,7 +553,7 @@ def _prepare_response(
     allow_dynamic_callbacks,
 ):
     """Prepare the response object based on the callback output."""
-    component_ids = collections.defaultdict(dict)
+    component_ids: dict = collections.defaultdict(dict)
 
     if has_output:
         if not multi:
