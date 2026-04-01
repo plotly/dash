@@ -2,7 +2,9 @@ version: 2
 updates:
   # Root package dependencies
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "!/@plotly/*"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -16,9 +18,6 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
-    ignore:
-      # Ignore @plotly packages
-      - dependency-name: "@plotly/*"
 
   # Dash renderer
   - package-ecosystem: "npm"
