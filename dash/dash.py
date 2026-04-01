@@ -898,15 +898,22 @@ class Dash(ObsoleteChecker):
         self._index_string = value
 
     @with_app_context
-    def serve_layout(self):
-        layout = self._layout_value()
+    def get_layout(self):
+        """Return the resolved layout with all hooks applied.
 
+        This is the canonical way to obtain the app's layout — it
+        calls the layout function (if callable), includes extra
+        components, and runs layout hooks.
+        """
+        layout = self._layout_value()
         for hook in self._hooks.get_hooks("layout"):
             layout = hook(layout)
+        return layout
 
+    def serve_layout(self):
         # TODO - Set browser cache limit - pass hash into frontend
         return self.backend.make_response(
-            to_json(layout),
+            to_json(self.get_layout()),
             mimetype="application/json",
         )
 
