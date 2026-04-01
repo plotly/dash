@@ -39,6 +39,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from .types import CallbackDispatchResponse
 from ._no_update import NoUpdate
 from . import _validate
 
@@ -85,6 +86,7 @@ def callback(
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
+    mcp_enabled: bool = True,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -242,6 +244,7 @@ def callback(
         hidden=hidden,
         websocket=websocket,
         persistent=persistent,
+        mcp_enabled=mcp_enabled,
     )
 
     return cast(
@@ -295,6 +298,7 @@ def insert_callback(
     hidden=None,
     websocket=False,
     persistent=False,
+    mcp_enabled=True,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -338,6 +342,7 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
+        "mcp_enabled": mcp_enabled,
     }
     callback_list.append(callback_spec)
 
@@ -546,7 +551,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response,
+    response: CallbackDispatchResponse,
     callback_ctx,
     app,
     original_packages,
@@ -677,6 +682,7 @@ def register_callback(
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
+        mcp_enabled=_kwargs.get("mcp_enabled", True),
     )
 
     # pylint: disable=too-many-locals
@@ -711,7 +717,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}  # type: ignore
+            response: CallbackDispatchResponse = {"multi": True}
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
@@ -783,7 +789,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            response: CallbackDispatchResponse = {"multi": True}
 
             try:
                 if background is not None:
