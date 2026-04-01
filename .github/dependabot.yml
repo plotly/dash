@@ -8,9 +8,14 @@ updates:
       day: "monday"
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     ignore:
       # Ignore @plotly packages
       - dependency-name: "@plotly/*"
@@ -23,9 +28,14 @@ updates:
       day: "monday"
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Components - dash-core-components
   - package-ecosystem: "npm"
@@ -35,9 +45,14 @@ updates:
       day: "monday"
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Components - dash-html-components
   - package-ecosystem: "npm"
@@ -47,9 +62,14 @@ updates:
       day: "monday"
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Components - dash-table
   - package-ecosystem: "npm"
@@ -59,9 +79,14 @@ updates:
       day: "monday"
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Python dependencies
   - package-ecosystem: "pip"
@@ -71,6 +96,11 @@ updates:
       day: "monday"
     groups:
       pip-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
         minimum-release-age: 14
+      pip-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
