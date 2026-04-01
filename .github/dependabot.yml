@@ -53,6 +53,18 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+    # Only auto-update these packages for version updates
+    allow:
+      - dependency-name: "date-fns"
+      - dependency-name: "file-saver"
+      - dependency-name: "ramda"
+      - dependency-name: "react-window"
+      - dependency-name: "@radix-ui/*"
+      - dependency-name: "@types/*"
+      - dependency-name: "@babel/*"
+      - dependency-name: "eslint*"
+      - dependency-name: "webpack*"
+      - dependency-name: "typescript"
 
   # Components - dash-html-components
   - package-ecosystem: "npm"
