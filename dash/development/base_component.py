@@ -120,6 +120,7 @@ class Component(metaclass=ComponentMeta):
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type, handler):
         from pydantic_core import core_schema
+
         return core_schema.any_schema()
 
     @classmethod
@@ -129,7 +130,9 @@ class Component(metaclass=ComponentMeta):
             "type": "object",
             "properties": {
                 "type": {"type": "string"},
-                "namespace": {"type": "string", "enum": namespaces} if namespaces else {"type": "string"},
+                "namespace": {"type": "string", "enum": namespaces}
+                if namespaces
+                else {"type": "string"},
                 "props": {"type": "object"},
             },
         }
