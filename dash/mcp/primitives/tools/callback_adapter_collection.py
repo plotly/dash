@@ -35,8 +35,6 @@ class CallbackAdapterCollection:
             CallbackAdapter(callback_output_id=output_id)
             for output_id in self._tool_names_map
         ]
-        # TODO: enable_mcp_server() will replace this with a direct assignment on app
-        app.mcp_callback_map = self
 
     @staticmethod
     def _sanitize_name(name: str) -> str:
