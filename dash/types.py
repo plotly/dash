@@ -73,3 +73,4 @@ class CallbackDispatchResponse(TypedDict):
     multi: NotRequired[bool]
     response: NotRequired[Dict[str, CallbackOutput]]
     sideUpdate: NotRequired[Dict[str, CallbackSideOutput]]
+    dist: NotRequired[List[Any]]
