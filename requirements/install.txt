@@ -8,4 +8,4 @@ retrying
 nest-asyncio
 setuptools
 janus>=1.0.0
-pydantic>=2.12.5
+pydantic>=2.10
