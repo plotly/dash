@@ -8,12 +8,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       npm-dependencies-security:
         applies-to: security-updates
         patterns:
@@ -25,12 +26,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       npm-dependencies-security:
         applies-to: security-updates
         patterns:
@@ -52,12 +54,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       npm-dependencies-security:
         applies-to: security-updates
         patterns:
@@ -83,12 +86,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       npm-dependencies-security:
         applies-to: security-updates
         patterns:
@@ -107,12 +111,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       npm-dependencies-security:
         applies-to: security-updates
         patterns:
@@ -136,12 +141,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       pip-dependencies:
         applies-to: version-updates
         patterns:
           - "*"
-        minimum-release-age: 14
       pip-dependencies-security:
         applies-to: security-updates
         patterns:
