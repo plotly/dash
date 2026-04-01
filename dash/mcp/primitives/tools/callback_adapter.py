@@ -50,8 +50,17 @@ class CallbackAdapter:
 
     @cached_property
     def as_mcp_tool(self) -> Tool:
-        """Stub — will be implemented in a future PR."""
-        raise NotImplementedError("as_mcp_tool will be implemented in a future PR.")
+        """Transforms the internal Dash callback to a structured MCP tool.
+
+        This tool can be serialized for LLM consumption or used internally for
+        its computed data.
+        """
+        return Tool(
+            name=self.tool_name,
+            description=self._description,
+            inputSchema=self._input_schema,
+            outputSchema=self._output_schema,
+        )
 
     def as_callback_body(self, kwargs: dict[str, Any]) -> CallbackExecutionBody:
         """Transforms the given kwargs to a dict suitable for calling this callback.
