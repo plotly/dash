@@ -7,3 +7,4 @@ requests
 retrying
 nest-asyncio
 setuptools
+pydantic>=2.12.5

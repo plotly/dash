@@ -117,6 +117,23 @@ class Component(metaclass=ComponentMeta):
     _valid_wildcard_attributes: typing.List[str]
     available_wildcard_properties: typing.List[str]
 
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        from pydantic_core import core_schema
+        return core_schema.any_schema()
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, schema, handler):
+        namespaces = list(ComponentRegistry.namespace_to_package.keys())
+        return {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string"},
+                "namespace": {"type": "string", "enum": namespaces} if namespaces else {"type": "string"},
+                "props": {"type": "object"},
+            },
+        }
+
     class _UNDEFINED:
         def __repr__(self):
             return "undefined"
