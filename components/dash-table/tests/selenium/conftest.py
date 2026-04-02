@@ -341,6 +341,7 @@ class DataTableColumnFacade(object):
     @preconditions(_validate_row)
     def sort(self, row=0):
         self.find_inside(row, ".column-header--sort").click()
+        self.mixin._wait_for_table(self.id)
 
     def filter(self):
         return (
