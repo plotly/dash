@@ -13,7 +13,7 @@
     "private::build.renderer": "cd dash/dash-renderer && rimraf build/dash_renderer.min.js && renderer build && sh renderer-test.sh",
     "private::build.jupyterlab": "cd @plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
     "private::lint.black": "black dash tests --exclude metadata_test.py --check",
-    "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
+    "private::lint.flake8": "flake8 dash tests",
     "private::lint.pylint-dash": "pylint dash setup.py --rcfile=.pylintrc",
     "private::lint.pylint-tests": "pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=.pylintrc",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
