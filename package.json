@@ -2,7 +2,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "private::format.black": "black dash tests --exclude metadata_test.py",
+    "private::format.black": "black dash tests --exclude 'metadata_test.py|node_modules'",
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::format.dcc": "cd components/dash-core-components && npm run format",
     "private::format.table": "cd components/dash-table && npm run format",
@@ -12,7 +12,7 @@
     "private::cibuild.renderer": "cd dash/dash-renderer && rimraf build/dash_renderer.min.js && renderer build && sh renderer-test.sh",
     "private::build.renderer": "cd dash/dash-renderer && rimraf build/dash_renderer.min.js && renderer build && sh renderer-test.sh",
     "private::build.jupyterlab": "cd @plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
-    "private::lint.black": "black dash tests --exclude metadata_test.py --check",
+    "private::lint.black": "black dash tests --exclude 'metadata_test.py|node_modules' --check",
     "private::lint.flake8": "flake8 dash tests",
     "private::lint.pylint-dash": "pylint dash setup.py --rcfile=.pylintrc",
     "private::lint.pylint-tests": "pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=.pylintrc",
