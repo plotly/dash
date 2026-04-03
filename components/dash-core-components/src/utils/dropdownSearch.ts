@@ -60,7 +60,8 @@ export function sanitizeDropdownOptions(
 
 export function filterOptions(
     options: SanitizedOptions,
-    searchValue?: string
+    searchValue?: string,
+    search_order?: 'index' | 'original'
 ): DetailedOption[] {
     if (!searchValue) {
         return options.options;
@@ -82,7 +83,10 @@ export function filterOptions(
     const searchResults =
         (search.search(searchValue) as DetailedOption[]) || [];
 
-    const resultSet = new Set(searchResults);
+    if (search_order === 'original') {
+        const resultSet = new Set(searchResults);
+        return options.options.filter(option => resultSet.has(option));
+    }
 
-    return options.options.filter(option => resultSet.has(option));
+    return searchResults;
 }

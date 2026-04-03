@@ -13,6 +13,7 @@ def test_ddso001_search_preserves_custom_order(dash_duo):
                 id="dropdown",
                 options=["11 Text", "12", "23", "112", "111", "110", "22"],
                 searchable=True,
+                search_order="original",
             ),
             html.Div(id="output"),
         ]
@@ -49,6 +50,7 @@ def test_ddso002_multi_search_preserves_custom_order(dash_duo):
                 options=["11 Text", "12", "112", "111", "110"],
                 multi=True,
                 searchable=True,
+                search_order="original",
             ),
             html.Div(id="output"),
         ]
@@ -105,6 +107,7 @@ def test_ddso003_search_preserves_custom_order_full_list(dash_duo):
                 id="dropdown",
                 options=["A", "Zebra", "Apply", "Apple"],
                 searchable=True,
+                search_order="original",
             ),
             html.Div(id="output"),
         ]
@@ -138,6 +141,7 @@ def test_ddso004_search_no_match(dash_duo):
                 id="dropdown",
                 options=["11 Text", "12", "110", "111", "112"],
                 searchable=True,
+                search_order="original",
             ),
             html.Div(id="output"),
         ]
