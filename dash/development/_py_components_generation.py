@@ -22,14 +22,18 @@ from .base_component import Component, ComponentType
 import_string = """# AUTO GENERATED FILE - DO NOT EDIT
 
 import typing  # noqa: F401
+from typing import TYPE_CHECKING  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
-try:
+if TYPE_CHECKING:
     from dash.types import NumberType  # noqa: F401
-except ImportError:
-    NumberType = typing.Union[  # noqa: F401
-        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
-    ]
+else:
+    try:
+        from dash.types import NumberType  # noqa: F401
+    except ImportError:
+        NumberType = typing.Union[  # noqa: F401
+            typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+        ]
 {custom_imports}
 ComponentSingleType = typing.Union[str, int, float, Component, None]
 ComponentType = typing.Union[
