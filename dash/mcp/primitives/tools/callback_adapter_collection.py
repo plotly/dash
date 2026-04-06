@@ -14,7 +14,7 @@ from mcp.types import Tool
 
 from dash import get_app
 from dash._utils import clean_property_name, split_callback_id
-from dash.layout import extract_text, find_component, traverse
+from dash._layout_utils import extract_text, find_component, traverse
 from .callback_adapter import CallbackAdapter
 
 

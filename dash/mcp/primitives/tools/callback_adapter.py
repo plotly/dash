@@ -15,7 +15,7 @@ from typing import Any
 from mcp.types import Tool
 
 from dash import get_app
-from dash.layout import (
+from dash._layout_utils import (
     _WILDCARD_VALUES,
     find_component,
     find_matching_components,
