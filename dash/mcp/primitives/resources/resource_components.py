@@ -12,7 +12,7 @@ from mcp.types import (
 )
 
 from dash import get_app
-from dash.layout import traverse
+from dash._layout_utils import traverse
 
 URI = "dash://components"
 
