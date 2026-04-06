@@ -1,9 +1,9 @@
-"""Tests for dash.layout — layout traversal and component lookup utilities."""
+"""Tests for dash._layout_utils — layout traversal and component lookup utilities."""
 
 import pytest
 
 from dash import html, dcc
-from dash.layout import (
+from dash._layout_utils import (
     traverse,
     find_component,
     extract_text,
