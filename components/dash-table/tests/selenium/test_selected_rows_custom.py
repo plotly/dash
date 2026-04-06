@@ -22,7 +22,7 @@ def get_app():
                 id="table",
                 columns=[{"name": i, "id": i} for i in rawDf.columns],
                 data=df,
-                row_selectable=True,
+                row_selectable="multi",
                 selected_rows=[],
                 filter_action="custom",
                 filter_query="",
