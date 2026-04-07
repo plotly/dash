@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from contextvars import copy_context, ContextVar
 import json
 from typing import TYPE_CHECKING, Any, Callable, Dict
@@ -13,6 +12,7 @@ import time
 import os
 import subprocess
 import threading
+import traceback
 
 try:
     from fastapi import FastAPI, Request, Response, Body
@@ -32,7 +32,6 @@ from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 from ._utils import format_traceback_html
-import traceback
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
@@ -126,8 +125,14 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
     async def _setup_timing(self, request: Request) -> None:
         """Set up timing information for the request."""
         try:
-            request.state.json_body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else None
-        except:
+            request.state.json_body = (
+                await request.json()
+                if request.headers.get("content-type", "").startswith(
+                    "application/json"
+                )
+                else None
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
             request.state.json_body = None
         if self.enable_timing:
             request.state.timing_information = {
@@ -187,9 +192,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             try:
                 dash_app = get_app()
                 dash_app.backend._setup_catchall()
-            except:
-                print("Error during catch-all setup:")
-                print(traceback.format_exc())
+            except Exception:  # pylint: disable=broad-exception-caught
+                traceback.print_exc()
             await self._initialize_dev_tools()
             await self.app(scope, receive, send)
             return
@@ -286,24 +290,24 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         dash_app._add_url("", index, methods=["GET"])
 
     def setup_catchall(self, dash_app: Dash):
-        '''This is needed to ensure that all routes are handled by FastAPI
+        """This is needed to ensure that all routes are handled by FastAPI
         and passed through the middleware, which is necessary for features like authentication
         and timing to work correctly on all routes. FastAPI will match this catch-all route
         for any path that isn't matched by a more specific route, allowing the middleware to
-        process the request and then return the appropriate response (e.g., 404 if no Dash route matches).'''
-
+        process the request and then return the appropriate response (e.g., 404 if no Dash route matches)."""
 
     def _setup_catchall(self):
         try:
-            print("Setting up catch-all route for unmatched paths")
+            print("Setting up catch-all route for unmatched paths", file=sys.stderr)
             dash_app = get_app()
+
             async def catchall(_request: Request):
                 return Response(content=dash_app.index(), media_type="text/html")
 
             # pylint: disable=protected-access
             self.add_url_rule("{path:path}", catchall, methods=["GET"])
-        except:
-            print(traceback.format_exc())
+        except Exception:  # pylint: disable=broad-exception-caught
+            traceback.print_exc()
 
     def add_url_rule(
         self,
@@ -313,7 +317,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         methods: list[str] | None = None,
         include_in_schema: bool = False,
     ):
-        print(f"Adding URL rule: {rule} -> {view_func} (endpoint: {endpoint}, methods: {methods})")
+        print(
+            f"Adding URL rule: {rule} -> {view_func} (endpoint: {endpoint}, methods: {methods})",
+            file=sys.stderr,
+        )
         if rule == "":
             rule = "/"
         if isinstance(view_func, str):
@@ -504,7 +511,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         )
 
     def serve_callback(self, dash_app: Dash):
-        async def _dispatch(request: Request):
+        async def _dispatch(request: Request):  # pylint: disable=unused-argument
             # pylint: disable=protected-access
             body = self.request_adapter().get_json()
             cb_ctx = dash_app._initialize_context(
@@ -666,7 +673,7 @@ class FastAPIRequestAdapter(RequestAdapter):
     def path(self):
         return self._request.url.path
 
-    async def _get_json(self, request: Request=None):
+    async def _get_json(self, request: Request = None):
         req = self._request
         if not hasattr(req.state, "json_body"):
             req.state.json_body = await request.json()
