@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
+
+## Added
 - [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
 
 ## Fixed
