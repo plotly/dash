@@ -81,7 +81,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
-from .types import RendererHooks
+from .types import CallbackDispatchBody, RendererHooks
 
 RouteCallable = Callable[..., Any]
 
@@ -907,15 +907,22 @@ class Dash(ObsoleteChecker):
         self._index_string = value
 
     @with_app_context
-    def serve_layout(self):
-        layout = self._layout_value()
+    def get_layout(self):
+        """Return the resolved layout with all hooks applied.
 
+        This is the canonical way to obtain the app's layout — it
+        calls the layout function (if callable), includes extra
+        components, and runs layout hooks.
+        """
+        layout = self._layout_value()
         for hook in self._hooks.get_hooks("layout"):
             layout = hook(layout)
+        return layout
 
+    def serve_layout(self):
         # TODO - Set browser cache limit - pass hash into frontend
         return flask.Response(
-            to_json(layout),
+            to_json(self.get_layout()),
             mimetype="application/json",
         )
 
@@ -1465,7 +1472,7 @@ class Dash(ObsoleteChecker):
         )
 
     # pylint: disable=R0915
-    def _initialize_context(self, body):
+    def _initialize_context(self, body: CallbackDispatchBody):
         """Initialize the global context for the request."""
         g = AttributeDict({})
         g.inputs_list = body.get("inputs", [])
@@ -1486,7 +1493,7 @@ class Dash(ObsoleteChecker):
         g.updated_props = {}
         return g
 
-    def _prepare_callback(self, g, body):
+    def _prepare_callback(self, g, body: CallbackDispatchBody):
         """Prepare callback-related data."""
         output = body["output"]
         try:
