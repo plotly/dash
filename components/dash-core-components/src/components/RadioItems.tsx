@@ -31,7 +31,7 @@ export default function RadioItems({
     inline = false,
 }: RadioItemsProps) {
     const sanitizedOptions = useMemo(() => {
-        return sanitizeOptions(options);
+        return sanitizeOptions(options).options;
     }, [options]);
 
     const stylingProps = {

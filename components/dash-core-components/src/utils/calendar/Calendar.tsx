@@ -188,9 +188,7 @@ const CalendarComponent = ({
             // Complete the selection with an end date
             if (selectionStart && !selectionEnd) {
                 // Incomplete selection exists (range picker mid-selection)
-                if (!isSameDay(selectionStart, date)) {
-                    onSelectionChange(selectionStart, date);
-                }
+                onSelectionChange(selectionStart, date);
             } else {
                 // Complete selection exists or a single date was chosen
                 onSelectionChange(date, date);
