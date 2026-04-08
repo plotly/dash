@@ -41,7 +41,7 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
-import {parsePatchProps} from './patch';
+import {isPatch, parsePatchProps} from './patch';
 import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
@@ -826,6 +826,7 @@ export function executeCallback(
                         );
                         // Patch methodology: always run through parsePatchProps for each output
                         const currentLayout = getState().layout;
+                        let wasPatch = false;
                         flatten(outputs).forEach((out: any) => {
                             const propName = cleanOutputProp(out.property);
                             const outputPath = getPath(paths, out.id);
@@ -833,6 +834,9 @@ export function executeCallback(
                             const outputValue = path(dataPath, data);
                             if (outputValue === undefined) {
                                 return;
+                            }
+                            if (isPatch(outputValue)) {
+                                wasPatch = true;
                             }
                             const oldProps =
                                 path(
@@ -849,7 +853,7 @@ export function executeCallback(
                                 data
                             );
                         });
-                        return {data, payload};
+                        return {data, payload, ...(wasPatch ? {prePatchPaths: paths} : {})};
                     } catch (error: any) {
                         return {error, payload};
                     }
@@ -909,6 +913,7 @@ export function executeCallback(
                         // Layout may have changed.
                         // DRY: Always run through parsePatchProps for each output
                         const currentLayout = getState().layout;
+                        let wasPatch = false;
                         flatten(outputs).forEach((out: any) => {
                             const propName = cleanOutputProp(out.property);
                             const outputPath = getPath(paths, out.id);
@@ -916,6 +921,9 @@ export function executeCallback(
                             const outputValue = path(dataPath, data);
                             if (outputValue === undefined) {
                                 return;
+                            }
+                            if (isPatch(outputValue)) {
+                                wasPatch = true;
                             }
                             const oldProps =
                                 path(
@@ -941,7 +949,7 @@ export function executeCallback(
                             );
                         }
 
-                        return {data, payload};
+                        return {data, payload, ...(wasPatch ? {prePatchPaths: paths} : {})};
                     } catch (res: any) {
                         lastError = res;
                         if (

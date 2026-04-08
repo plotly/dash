@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 - [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
+- [#3682](https://github.com/plotly/dash/pull/3682) Fix initial callbacks when created via dcc.Patch
 
 ## [4.1.0] - 2026-03-23
 
