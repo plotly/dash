@@ -437,7 +437,9 @@ def _setup_background_callback(
     )
 
     callback_manager.handle.set(
-        f"{cache_key}-created_at", datetime.now(timezone.utc).isoformat()
+        f"{cache_key}-created_at",
+        datetime.now(timezone.utc).isoformat(),
+        expire=callback_manager.expire,
     )
 
     data = {
