@@ -177,6 +177,7 @@ jobs:
   test-typing:
     name: Typing Tests
     runs-on: ubuntu-latest
+    if: github.ref_name != 'master'
     needs: build
     timeout-minutes: 30
     strategy:
