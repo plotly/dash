@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from mcp.types import CallToolResult, TextContent
+from mcp.types import CallToolResult, CreateTaskResult, TextContent
 
 from dash.types import CallbackExecutionResponse
 from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
@@ -49,4 +49,29 @@ def format_callback_response(
     return CallToolResult(
         content=content,
         structuredContent=dict(response),
+    )
+
+
+def task_result_to_tool_result(create_task_result: CreateTaskResult) -> CallToolResult:
+    """Wrap a CreateTaskResult as a CallToolResult with polling instructions.
+
+    MCP Tasks are not yet supported by LLM clients, so this converts the
+    task metadata into a tool response that guides the LLM to poll via
+    the get_background_task_result tool.
+    """
+    task = create_task_result.task
+    return CallToolResult(
+        content=[TextContent(
+            type="text",
+            text=json.dumps({
+                "taskId": task.taskId,
+                "status": task.status,
+                "pollInterval": task.pollInterval,
+                "message": (
+                    "This is a long-running background callback. "
+                    "Call the get_background_task_result tool with this taskId "
+                    "to poll for the result."
+                ),
+            }),
+        )],
     )

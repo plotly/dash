@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .base import ToolDescriptionSource
+from .description_background_callbacks import BackgroundCallbackDescription
 from .description_docstring import DocstringDescription
 from .description_outputs import OutputSummaryDescription
 
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 _SOURCES: list[type[ToolDescriptionSource]] = [
     OutputSummaryDescription,
     DocstringDescription,
+    BackgroundCallbackDescription,
 ]
 
 

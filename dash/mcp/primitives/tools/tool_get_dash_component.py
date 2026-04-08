@@ -58,7 +58,12 @@ class GetDashComponentTool(MCPToolProvider):
         ]
 
     @classmethod
-    def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
+    def call_tool(
+        cls,
+        tool_name: str,
+        arguments: dict[str, Any],
+        task: dict | None = None,
+    ) -> CallToolResult:
         comp_id = arguments.get("component_id", "")
         if not comp_id:
             return CallToolResult(

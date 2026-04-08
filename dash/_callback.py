@@ -3,6 +3,7 @@ from functools import wraps
 import collections
 import hashlib
 import inspect
+from datetime import datetime, timezone
 
 from .dependencies import (
     handle_callback_args,
@@ -433,6 +434,10 @@ def _setup_background_callback(
         job_fn,
         func_args if func_args else func_kwargs,
         ctx_value,
+    )
+
+    callback_manager.handle.set(
+        f"{cache_key}-created_at", datetime.now(timezone.utc).isoformat()
     )
 
     data = {

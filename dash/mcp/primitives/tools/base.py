@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, Tool
+from mcp.types import CallToolResult, CreateTaskResult, Tool
 
 
 class MCPToolProvider:
@@ -24,5 +24,7 @@ class MCPToolProvider:
         raise NotImplementedError
 
     @classmethod
-    def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
+    def call_tool(
+        cls, tool_name: str, arguments: dict[str, Any], task: dict | None = None
+    ) -> CallToolResult | CreateTaskResult:
         raise NotImplementedError
