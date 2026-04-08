@@ -138,10 +138,13 @@ def cancel_task(task_id: str) -> Any:
     manager.terminate_job(job_id)
 
     now = datetime.now(timezone.utc)
+    created_at = manager.handle.get(f"{cache_key}-created_at")
+    manager.handle.delete(f"{cache_key}-created_at")
+
     return CancelTaskResult(
         taskId=task_id,
         status="cancelled",
-        createdAt=datetime.fromisoformat(manager.handle.get(f"{cache_key}-created_at") or now.isoformat()),
+        createdAt=datetime.fromisoformat(created_at) if created_at else now,
         lastUpdatedAt=now,
         ttl=manager.expire * 1000 if manager.expire else None,
     )
