@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
 _OUTPUT_SEMANTICS: dict[tuple[str | None, str], str] = {
     ("Graph", "figure"): "Returns chart/visualization data",
@@ -26,11 +29,9 @@ _OUTPUT_SEMANTICS: dict[tuple[str | None, str], str] = {
 }
 
 
-def output_summary(
-    outputs: list[dict[str, Any]],
-    docstring: str | None = None,
-) -> list[str]:
+def output_summary(adapter: CallbackAdapter) -> list[str]:
     """Produce a short summary of what the callback outputs represent."""
+    outputs = adapter.outputs
     if not outputs:
         return ["Dash callback"]
 
