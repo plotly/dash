@@ -150,7 +150,7 @@ class CallbackAdapter:
 
     @cached_property
     def _description(self) -> str:
-        return build_tool_description(self.outputs, self._docstring)
+        return build_tool_description(self)
 
     @cached_property
     def _input_schema(self) -> dict[str, Any]:
