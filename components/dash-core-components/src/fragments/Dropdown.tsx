@@ -41,6 +41,7 @@ const Dropdown = (props: DropdownProps) => {
         setProps,
         searchable,
         search_value,
+        search_order,
         style,
         value,
     } = props;
@@ -81,9 +82,9 @@ const Dropdown = (props: DropdownProps) => {
     const filteredOptions = useMemo(
         () =>
             searchable
-                ? filterOptions(sanitized, search_value)
+                ? filterOptions(sanitized, search_value, search_order)
                 : sanitizedOptions,
-        [sanitized, searchable, search_value]
+        [sanitized, searchable, search_value, search_order]
     );
 
     const sanitizedValues: OptionValue[] = useMemo(() => {
