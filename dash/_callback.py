@@ -1,6 +1,7 @@
 import collections
 import hashlib
 import inspect
+from datetime import datetime, timezone
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
@@ -443,6 +444,10 @@ def _setup_background_callback(
         job_fn,
         func_args if func_args else func_kwargs,
         ctx_value,
+    )
+
+    callback_manager.handle.set(
+        f"{cache_key}-created_at", datetime.now(timezone.utc).isoformat()
     )
 
     data = {

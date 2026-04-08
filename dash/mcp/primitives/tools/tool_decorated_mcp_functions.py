@@ -125,7 +125,9 @@ class DecoratedFunctionTools(MCPToolProvider):
         return [_build_tool(name, reg) for name, reg in cls._registry().items()]
 
     @classmethod
-    def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
+    def call_tool(
+        cls, tool_name: str, arguments: dict[str, Any], task: dict | None = None
+    ) -> CallToolResult:
         reg = cls._registry().get(tool_name)
         if reg is None:
             return CallToolResult(

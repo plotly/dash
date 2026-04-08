@@ -7,14 +7,15 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, TextContent, Tool
+from mcp.types import CallToolResult, CreateTaskResult, TextContent, Tool
 
 from dash import get_app
+from dash.mcp.tasks import create_task
 from dash.mcp.types import CallbackExecutionError, ToolNotFoundError
 
 from .base import MCPToolProvider
 from .callback_utils import run_callback
-from .results import format_callback_response
+from .results import format_callback_response, task_result_to_tool_result
 
 
 class CallbackTools(MCPToolProvider):
@@ -30,7 +31,12 @@ class CallbackTools(MCPToolProvider):
         return get_app().mcp_callback_map.as_mcp_tools()
 
     @classmethod
-    def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
+    def call_tool(
+        cls,
+        tool_name: str,
+        arguments: dict[str, Any],
+        task: dict | None = None,
+    ) -> CallToolResult | CreateTaskResult:
         """Execute a callback tool by name."""
         callback_map = get_app().mcp_callback_map
         cb = callback_map.find_by_tool_name(tool_name)
@@ -41,6 +47,8 @@ class CallbackTools(MCPToolProvider):
                 " Please call tools/list to refresh your tool list."
             )
 
+        is_background = bool(cb._cb_info.get("background"))
+
         try:
             callback_response = run_callback(cb, arguments)
         except CallbackExecutionError as e:
@@ -48,4 +56,11 @@ class CallbackTools(MCPToolProvider):
                 content=[TextContent(type="text", text=str(e))],
                 isError=True,
             )
+
+        if is_background:
+            task_result = create_task(callback_response, cb)
+            if task is not None:
+                return task_result
+            return task_result_to_tool_result(task_result)
+
         return format_callback_response(callback_response, cb)
