@@ -116,22 +116,25 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         request_id = data.get("id")
         session_id = request.headers.get("mcp-session-id")
 
-        stale_session = False
         if method == "initialize":
             session_id = _create_session()
         elif session_id and session_id not in sessions:
-            stale_session = True
-            sessions[session_id] = {}
+            return Response(
+                json.dumps({"error": "Session not found. Please reinitialize."}),
+                content_type="application/json",
+                status=404,
+            )
         elif not session_id:
-            session_id = _create_session()
+            return Response(
+                json.dumps({"error": "Missing session ID. Send an initialize request first."}),
+                content_type="application/json",
+                status=400,
+            )
 
         response_data = _process_mcp_message(data)
 
         if response_data is None:
             return Response("", status=202)
-
-        if stale_session:
-            _inject_warning(response_data, _STALE_SESSION_WARNING)
 
         return Response(
             json.dumps(response_data),

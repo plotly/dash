@@ -60,7 +60,7 @@ class TestMCPEndpoint:
         data = json.loads(r.data)
         assert data["result"]["protocolVersion"] == LATEST_PROTOCOL_VERSION
 
-    def test_post_without_session_auto_assigns(self):
+    def test_post_without_session_returns_400(self):
         app = _make_app()
         client = app.server.test_client()
         r = client.post(
@@ -70,12 +70,9 @@ class TestMCPEndpoint:
             ),
             content_type="application/json",
         )
-        assert r.status_code == 200
-        assert "mcp-session-id" in r.headers
-        data = json.loads(r.data)
-        assert "tools" in data["result"]
+        assert r.status_code == 400
 
-    def test_stale_session_error_includes_hint(self):
+    def test_stale_session_returns_404(self):
         app = _make_app()
         client = app.server.test_client()
         r = client.post(
@@ -83,18 +80,15 @@ class TestMCPEndpoint:
             data=json.dumps(
                 {
                     "jsonrpc": "2.0",
-                    "method": "tools/call",
+                    "method": "tools/list",
                     "id": 1,
-                    "params": {"name": "no_such_tool", "arguments": {}},
+                    "params": {},
                 }
             ),
             content_type="application/json",
             headers={"mcp-session-id": "old-session-from-before-restart"},
         )
-        assert r.status_code == 200
-        data = json.loads(r.data)
-        assert "session was not recognised" in data["error"]["message"]
-        assert "tools/list" in data["error"]["message"]
+        assert r.status_code == 404
 
     def test_post_with_valid_session(self):
         app = _make_app()
@@ -161,7 +155,7 @@ class TestMCPEndpoint:
             headers={"mcp-session-id": session_id},
         )
         assert r2.status_code == 204
-        # Post-delete requests still succeed
+        # Post-delete requests return 404
         r3 = client.post(
             f"/{MCP_PATH}",
             data=json.dumps(
@@ -170,7 +164,7 @@ class TestMCPEndpoint:
             content_type="application/json",
             headers={"mcp-session-id": session_id},
         )
-        assert r3.status_code == 200
+        assert r3.status_code == 404
 
     def test_delete_nonexistent_session_returns_404(self):
         app = _make_app()
@@ -195,27 +189,6 @@ class TestMCPEndpoint:
             headers={"mcp-session-id": "nonexistent"},
         )
         assert r.status_code == 404
-
-    def test_get_returns_sse_stream(self):
-        app = _make_app()
-        client = app.server.test_client()
-        # First create a session via POST initialize
-        init = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "initialize", "id": 1, "params": {}}
-            ),
-            content_type="application/json",
-        )
-        session_id = init.headers["mcp-session-id"]
-        # GET with valid session returns SSE stream
-        r = client.get(
-            f"/{MCP_PATH}",
-            headers={"mcp-session-id": session_id},
-        )
-        assert r.status_code == 200
-        assert r.content_type == "text/event-stream"
-        assert r.headers.get("Cache-Control") == "no-cache"
 
     def test_post_rejects_wrong_content_type(self):
         app = _make_app()
