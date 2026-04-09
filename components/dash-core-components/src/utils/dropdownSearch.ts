@@ -5,7 +5,7 @@ import {
     UnorderedSearchIndex,
 } from 'js-search';
 import {sanitizeOptions} from './optionTypes';
-import {DetailedOption, DropdownProps} from '../types';
+import {DetailedOption, DropdownProps, OptionValue} from '../types';
 
 // Custom tokenizer, see https://github.com/bvaughn/js-search/issues/43
 // Split on spaces
@@ -19,38 +19,34 @@ const TOKENIZER = {
     },
 };
 
-interface FilteredOptionsResult {
-    sanitizedOptions: DetailedOption[];
-    filteredOptions: DetailedOption[];
+export interface SanitizedOptions {
+    options: DetailedOption[];
+    indexes: string[];
+    valueSet: Set<OptionValue>;
 }
 
-/**
- * Creates filtered dropdown options using js-search with the exact same behavior
- * as react-select-fast-filter-options
- */
-export function createFilteredOptions(
-    options: DropdownProps['options'],
-    searchable: boolean,
-    searchValue?: string
-): FilteredOptionsResult {
-    // Sanitize and prepare options
-    let sanitized = sanitizeOptions(options);
+// Single-pass sanitization via sanitizeOptions, plus detection of
+// search/element labels for indexing.
+export function sanitizeDropdownOptions(
+    options: DropdownProps['options']
+): SanitizedOptions {
+    const {options: sanitized, valueSet} = sanitizeOptions(options);
 
     const indexes = ['value'];
     let hasElement = false,
         hasSearch = false;
 
-    sanitized = Array.isArray(sanitized)
-        ? sanitized.map(option => {
-              if (option.search) {
-                  hasSearch = true;
-              }
-              if (React.isValidElement(option.label)) {
-                  hasElement = true;
-              }
-              return option;
-          })
-        : sanitized;
+    for (const option of sanitized) {
+        if (option.search) {
+            hasSearch = true;
+        }
+        if (React.isValidElement(option.label)) {
+            hasElement = true;
+        }
+        if (hasSearch && hasElement) {
+            break;
+        }
+    }
 
     if (!hasElement) {
         indexes.push('label');
@@ -59,34 +55,38 @@ export function createFilteredOptions(
         indexes.push('search');
     }
 
-    // If not searchable or no search value, return all sanitized options
-    if (!searchable || !searchValue) {
-        return {
-            sanitizedOptions: sanitized || [],
-            filteredOptions: sanitized || [],
-        };
+    return {options: sanitized, indexes, valueSet};
+}
+
+export function filterOptions(
+    options: SanitizedOptions,
+    searchValue?: string,
+    search_order?: 'index' | 'original'
+): DetailedOption[] {
+    if (!searchValue) {
+        return options.options;
     }
 
-    // Create js-search instance exactly like react-select-fast-filter-options
-    const search = new Search('value'); // valueKey defaults to 'value'
+    const search = new Search('value');
     search.searchIndex = new UnorderedSearchIndex();
     search.indexStrategy = new AllSubstringsIndexStrategy();
     search.tokenizer = TOKENIZER;
 
-    // Add indexes
-    indexes.forEach(index => {
+    options.indexes.forEach(index => {
         search.addIndex(index);
     });
 
-    // Add documents
-    if (sanitized && sanitized.length > 0) {
-        search.addDocuments(sanitized);
+    if (options.options.length > 0) {
+        search.addDocuments(options.options);
     }
 
-    const filtered = search.search(searchValue) as DetailedOption[];
+    const searchResults =
+        (search.search(searchValue) as DetailedOption[]) || [];
 
-    return {
-        sanitizedOptions: sanitized || [],
-        filteredOptions: filtered || [],
-    };
+    if (search_order === 'original') {
+        const resultSet = new Set(searchResults);
+        return options.options.filter(option => resultSet.has(option));
+    }
+
+    return searchResults;
 }

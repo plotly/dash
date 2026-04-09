@@ -10,7 +10,8 @@ const actionList = {
     ON_ERROR: 1,
     SET_HOOKS: 1,
     INSERT_COMPONENT: 1,
-    REMOVE_COMPONENT: 1
+    REMOVE_COMPONENT: 1,
+    RESET_COMPONENT_STATE: 1
 };
 
 export const getAction = action => {

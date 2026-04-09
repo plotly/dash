@@ -151,11 +151,11 @@ def test_a11y_range_002_keyboard_update_existing_range(dash_dcc):
     assert get_focused_text(dash_dcc.driver) == "12"
 
     # Press Space to start a NEW range selection with Jan 12 as start_date
-    # This should clear end_date and set only start_date
+    # In singledate mode (default), end_date is cleared immediately
     send_keys(dash_dcc.driver, Keys.SPACE)
 
-    # Verify new start date was selected (only start_date, no end_date)
-    dash_dcc.wait_for_text_to_equal("#output-dates", "2021-01-12 to 2021-01-20")
+    # Output updates: new start_date sent, old end_date cleared
+    dash_dcc.wait_for_text_to_equal("#output-dates", "Start: 2021-01-12")
 
     # Navigate to new end date: Arrow Down + Arrow Right (Jan 12 -> 19 -> 20)
     send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
