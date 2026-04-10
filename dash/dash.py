@@ -489,6 +489,7 @@ class Dash(ObsoleteChecker):
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         mcp_expose_docstrings: Optional[bool] = None,
+        mcp_authorization_server: Optional[str] = None,
         **obsolete,
     ):
 
@@ -608,6 +609,9 @@ class Dash(ObsoleteChecker):
         _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
         self._mcp_path = (
             _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path
+        )
+        self._mcp_authorization_server = get_combined_config(
+            "mcp_authorization_server", mcp_authorization_server
         )
 
         # list of dependencies - this one is used by the back end for dispatching
@@ -829,7 +833,11 @@ class Dash(ObsoleteChecker):
             )
 
             try:
-                enable_mcp_server(self, self._mcp_path)
+                enable_mcp_server(
+                    self,
+                    self._mcp_path,
+                    mcp_authorization_server=self._mcp_authorization_server,
+                )
             except Exception as e:  # pylint: disable=broad-exception-caught
                 self._enable_mcp = False
                 self.logger.warning(

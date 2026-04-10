@@ -11,7 +11,9 @@ import inspect
 import json
 import logging
 import os
+from functools import reduce
 from typing import TYPE_CHECKING, Any
+from urllib.parse import urljoin
 
 from mcp.types import (
     LATEST_PROTOCOL_VERSION,
@@ -47,7 +49,61 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def enable_mcp_server(app: Dash, mcp_path: str) -> None:
+def _url_from_path(app: Dash, *parts: str) -> str:
+    """Build an absolute URL by joining path parts onto the current request origin.
+
+    Behind a reverse proxy, TLS terminates at the proxy so
+    the scheme may report HTTP even when the client connected
+    over HTTPS.  Use HTTPS unless running on localhost.
+    """
+    from urllib.parse import urlparse  # pylint: disable=import-outside-toplevel
+
+    adapter = app.backend.request_adapter()
+    parsed = urlparse(adapter.url)
+    host = parsed.netloc
+    is_localhost = host.startswith("localhost") or host.startswith("127.0.0.1")
+    scheme = "http" if is_localhost else "https"
+    path = reduce(urljoin, parts, "/")
+    return f"{scheme}://{host}{path}"
+
+
+def _setup_mcp_oauth(app: Dash, mcp_path: str, mcp_authorization_server: str) -> None:
+    """Register RFC 9728 Protected Resource Metadata endpoint for MCP.
+
+    Serves discovery metadata so MCP clients can find the authorization
+    server. Auth enforcement is the responsibility of the hosting platform
+    (e.g. Plotly Cloud gateway, Dash Embedded, or a reverse proxy).
+    """
+    well_known_path = urljoin("/.well-known/oauth-protected-resource/", mcp_path)
+
+    def _serve_resource_metadata():
+        return app.backend.make_response(
+            json.dumps(
+                {
+                    "resource": _url_from_path(
+                        app, app.config.requests_pathname_prefix, mcp_path
+                    ),
+                    "authorization_servers": [mcp_authorization_server],
+                    "bearer_methods_supported": ["header"],
+                }
+            ),
+            content_type="application/json",
+        )
+
+    # pylint: disable-next=protected-access
+    app._add_url(well_known_path.lstrip("/"), _serve_resource_metadata)
+
+    logger.info(
+        "MCP OAuth discovery enabled, authorization server: %s",
+        mcp_authorization_server,
+    )
+
+
+def enable_mcp_server(
+    app: Dash,
+    mcp_path: str,
+    mcp_authorization_server: str | None = None,
+) -> None:
     """Add MCP routes to a Dash app."""
 
     app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
@@ -206,6 +262,9 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         methods=["DELETE"],
     )
     app.routes.append(mcp_url)
+
+    if mcp_authorization_server:
+        _setup_mcp_oauth(app, mcp_path, mcp_authorization_server)
 
     logger.info(
         "MCP routes registered at %s%s",
