@@ -8,21 +8,31 @@ Dash includes a pytest/Selenium testing framework for unit and integration tests
 # Install testing dependencies
 pip install -e .[testing]
 
-# Run all tests
-pytest tests/
+## Running tests — CRITICAL RULES
 
-# Run unit tests
-pytest tests/unit/
+You must activate the virtual environment before running any tests.
 
-# Run integration tests
-pytest tests/integration/
+### Unit tests
 
-# Run specific test
-pytest tests/integration/callbacks/test_basic.py::test_name
-
-# Headless mode (CI)
-pytest --headless tests/integration/
 ```
+source .venv/bin/activate && python -m pytest "tests/unit/" 2>&1
+```
+
+### Integration tests
+
+Always work with a specific test or test file. NEVER run all integration tests at once.
+
+```
+source .venv/bin/activate && python -m pytest tests/integration/callbacks/test_basic_callback.py --headless -xvs 2>&1
+```
+
+**NEVER truncate test output so aggressively that you cannot see failures.**
+`tail -5` or `tail -10` is NEVER acceptable — you will miss the error details and waste time re-running.
+Always use `tail -50` at minimum, or omit the tail entirely for short test runs.
+
+**NEVER use `grep "FAILED"` to filter test output** — it hides the actual error messages.
+
+When a test fails, you MUST be able to see the assertion error, traceback, and context in a SINGLE run. If your command truncates this, your command is wrong.
 
 ## Fixtures
 
