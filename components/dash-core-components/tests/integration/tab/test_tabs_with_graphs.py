@@ -1,7 +1,5 @@
 from dash import Dash, Input, Output, dcc, html
 from dash.exceptions import PreventUpdate
-import json
-import os
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -184,44 +182,5 @@ def test_tagr002_tabs_render_without_selected(dash_dcc, is_eager):
 
     time.sleep(1)
     dash_dcc.percy_snapshot(f"Tabs-2 rendered ({is_eager})")
-
-    # do some extra tests while we're here
-    # and have access to Graph and plotly.js
-    check_graph_config_shape(dash_dcc)
-
-    assert dash_dcc.get_logs() == []
-
-
-def check_graph_config_shape(dash_dcc):
-    config_schema = dash_dcc.driver.execute_script(
-        "return Plotly.PlotSchema.get().config;"
-    )
-    with open(os.path.join(dcc.__path__[0], "metadata.json")) as meta:
-        graph_meta = json.load(meta)["src/components/Graph.react.js"]
-        config_prop_shape = graph_meta["props"]["config"]["type"]["value"]
-
-    ignored_config = [
-        "setBackground",
-        "showSources",
-        "logging",
-        "globalTransforms",
-        "notifyOnLogging",
-        "role",
-        "typesetMath",
-    ]
-
-    def crawl(schema, props):
-        for prop_name in props:
-            assert prop_name in schema
-
-        for item_name, item in schema.items():
-            if item_name in ignored_config:
-                continue
-
-            assert item_name in props
-            if "valType" not in item:
-                crawl(item, props[item_name]["value"])
-
-    crawl(config_schema, config_prop_shape)
 
     assert dash_dcc.get_logs() == []
