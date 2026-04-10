@@ -4,7 +4,7 @@ import pytest
 
 
 if "REDIS_URL" in os.environ:
-    managers = ["celery", "diskcache"]
+    managers = ["celery-redis", "diskcache"]
 else:
     print("Skipping celery tests because REDIS_URL is not defined")
     managers = ["diskcache"]
