@@ -188,6 +188,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         # Handle lifespan events (startup/shutdown)
+
         if scope["type"] == "lifespan":
             try:
                 dash_app = get_app()
@@ -199,7 +200,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             return
 
         # Non-HTTP/WebSocket scopes pass through
-        if scope["type"] not in ("http", "websocket"):
+        if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
