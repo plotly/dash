@@ -451,7 +451,7 @@ class Component(metaclass=ComponentMeta):
         _ns = getattr(self, "_namespace", "")
         deprecation_message = _deprecated_components.get(_ns, {}).get(_type)
         if deprecation_message:
-            warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)))
+            warnings.warn(DeprecationWarning(textwrap.dedent(deprecation_message)), stacklevel=2)
 
 
 ComponentSingleType = typing.Union[str, int, float, Component, None]

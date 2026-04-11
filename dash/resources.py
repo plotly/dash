@@ -111,7 +111,8 @@ class Resources:
                         "or `app.css.append_css`, use `external_scripts` "
                         "or `external_stylesheets` instead.\n"
                         "See https://dash.plotly.com/external-resources"
-                    )
+                    ),
+                    stacklevel=2,
                 )
                 continue
             else:

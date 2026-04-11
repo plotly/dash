@@ -216,7 +216,8 @@ def generate_class_string(name, props, project_shortname, prefix):
                 (
                     'WARNING: prop "{}" in component "{}" is an R keyword'
                     " - REMOVED FROM THE R COMPONENT"
-                ).format(item, name)
+                ).format(item, name),
+                stacklevel=2,
             )
 
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)

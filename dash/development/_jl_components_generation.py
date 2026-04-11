@@ -468,7 +468,8 @@ def generate_class_string(name, props, description, project_shortname, prefix):
                 (
                     'WARNING: prop "{}" in component "{}" is a Julia keyword'
                     " - REMOVED FROM THE JULIA COMPONENT"
-                ).format(item, name)
+                ).format(item, name),
+                stacklevel=2,
             )
 
     default_paramtext += ", ".join(":{}".format(p) for p in prop_keys)

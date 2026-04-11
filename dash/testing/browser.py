@@ -624,7 +624,7 @@ class Browser(DashPageMixin):
                 for entry in self.driver.get_log("browser")
                 if entry["timestamp"] > self._last_ts
             ]
-        warnings.warn("get_logs always return None with webdrivers other than Chrome")
+        warnings.warn("get_logs always return None with webdrivers other than Chrome", stacklevel=2)
         return None
 
     def reset_log_timestamp(self):

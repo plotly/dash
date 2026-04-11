@@ -643,7 +643,8 @@ class Dash(ObsoleteChecker):
         if self.__class__.__name__ == "JupyterDash":
             warnings.warn(
                 "JupyterDash is deprecated, use Dash instead.\n"
-                "See https://dash.plotly.com/dash-in-jupyter for more details."
+                "See https://dash.plotly.com/dash-in-jupyter for more details.",
+                stacklevel=2,
             )
         self.setup_startup_routes()
 
