@@ -43,7 +43,10 @@ class TestPagesResource:
             }
         }
         with app.server.test_request_context():
-            with patch("dash._pages.PAGE_REGISTRY", fake_registry):
+            with patch(
+                "dash.mcp.primitives.resources.resource_pages.PAGE_REGISTRY",
+                fake_registry,
+            ):
                 result = list_resources()
         uris = [str(r.uri) for r in result.resources]
         assert "dash://pages" in uris
@@ -55,7 +58,10 @@ class TestPagesResource:
             "pages.analytics": EXPECTED_PAGES[1],
         }
         with app.server.test_request_context():
-            with patch("dash._pages.PAGE_REGISTRY", fake_registry):
+            with patch(
+                "dash.mcp.primitives.resources.resource_pages.PAGE_REGISTRY",
+                fake_registry,
+            ):
                 result = read_resource("dash://pages")
         content = json.loads(result.contents[0].text)
         assert content == EXPECTED_PAGES
@@ -71,7 +77,10 @@ class TestPagesResource:
             },
         }
         with app.server.test_request_context():
-            with patch("dash._pages.PAGE_REGISTRY", fake_registry):
+            with patch(
+                "dash.mcp.primitives.resources.resource_pages.PAGE_REGISTRY",
+                fake_registry,
+            ):
                 result = read_resource("dash://pages")
         page = json.loads(result.contents[0].text)[0]
         assert page["title"] == "Item Detail"
