@@ -28,6 +28,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
 - [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
 
+# [4.2.0rc0] - 2026-04-13
+
+## Fixed
+
+- Fix websocket used in the same FastAPI server. Fix [#3636](https://github.com/plotly/dash/issues/3636)
+- Fix FastAPI url paths order. Fix [3667](https://github.com/plotly/dash/issues/3667)
 
 # [4.1.0rc0] - 2026-02-23
 
