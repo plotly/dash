@@ -17,27 +17,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Dash is a Python framework for building reactive web-based data visualization applications. Built on Plotly.js, React, and Flask.
 
-## Quick Reference
-
-```bash
-# Setup
-pip install -e .[ci,dev,testing,celery,diskcache] && npm ci
-
-# Build
-npm run build                                    # Linux/Mac
-npm run first-build                              # Windows (use Bash)
-dash-update-components "dash-core-components"    # Single component
-
-# Test
-pytest tests/unit                                # Unit tests
-pytest tests/integration                         # Integration tests
-pytest -k test_name                              # Specific test
-
-# Lint
-npm run lint                                     # All linters
-npm run private::format.black                    # Auto-format Python
-```
-
 ## Key Files
 
 - `dash/dash.py` - Main Dash app class, layout, callbacks, routing
