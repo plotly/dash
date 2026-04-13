@@ -2,7 +2,7 @@
 
 from pydantic import TypeAdapter
 
-from dash.types import NumberType, CallbackDispatchBody, CallbackDispatchResponse
+from dash.types import NumberType, CallbackExecutionBody, CallbackExecutionResponse
 from dash.development.base_component import Component
 
 
@@ -25,12 +25,12 @@ class TestComponentPydanticSchema:
         assert "props" in props
 
 
-class TestCallbackDispatchTypes:
+class TestCallbackExecutionTypes:
     def test_dispatch_body_schema(self):
-        schema = TypeAdapter(CallbackDispatchBody).json_schema()
+        schema = TypeAdapter(CallbackExecutionBody).json_schema()
         assert "output" in schema["properties"]
         assert "inputs" in schema["properties"]
 
     def test_dispatch_response_schema(self):
-        schema = TypeAdapter(CallbackDispatchResponse).json_schema()
+        schema = TypeAdapter(CallbackExecutionResponse).json_schema()
         assert "response" in schema["properties"]
