@@ -8,57 +8,56 @@ from typing import Any
 from mcp.types import (
     ReadResourceResult,
     Resource,
-    ResourceTemplate,
     TextResourceContents,
 )
 
 from dash import get_app
 from dash._utils import clean_property_name, split_callback_id
 
-URI = "dash://clientside-callbacks"
+from .base import MCPResourceProvider
 
 
-def get_resource() -> Resource | None:
-    if not _get_clientside_callbacks():
-        return None
-    return Resource(
-        uri=URI,
-        name="dash_clientside_callbacks",
-        description=(
-            "Actions the user can take manually in the browser "
-            "to affect clientside state. Inputs describe the "
-            "components that can be changed to trigger an effect. "
-            "Outputs describe the components that will change "
-            "in response."
-        ),
-        mimeType="application/json",
-    )
+class ClientsideCallbacksResource(MCPResourceProvider):
+    uri = "dash://clientside-callbacks"
 
+    @classmethod
+    def get_resource(cls) -> Resource | None:
+        if not _get_clientside_callbacks():
+            return None
+        return Resource(
+            uri=cls.uri,
+            name="dash_clientside_callbacks",
+            description=(
+                "Actions the user can take manually in the browser "
+                "to affect clientside state. Inputs describe the "
+                "components that can be changed to trigger an effect. "
+                "Outputs describe the components that will change "
+                "in response."
+            ),
+            mimeType="application/json",
+        )
 
-def get_template() -> ResourceTemplate | None:
-    return None
-
-
-def read_resource(uri: str = "") -> ReadResourceResult:
-    data = {
-        "description": (
-            "These are actions that the user can take manually in the "
-            "browser to affect the clientside state. Inputs describe "
-            "the components that can be changed to trigger an effect. "
-            "Outputs describe the components that will change in "
-            "response to the effect."
-        ),
-        "callbacks": _get_clientside_callbacks(),
-    }
-    return ReadResourceResult(
-        contents=[
-            TextResourceContents(
-                uri=URI,
-                mimeType="application/json",
-                text=json.dumps(data, default=str),
-            )
-        ]
-    )
+    @classmethod
+    def read_resource(cls, uri: str = "") -> ReadResourceResult:
+        data = {
+            "description": (
+                "These are actions that the user can take manually in the "
+                "browser to affect the clientside state. Inputs describe "
+                "the components that can be changed to trigger an effect. "
+                "Outputs describe the components that will change in "
+                "response to the effect."
+            ),
+            "callbacks": _get_clientside_callbacks(),
+        }
+        return ReadResourceResult(
+            contents=[
+                TextResourceContents(
+                    uri=cls.uri,
+                    mimeType="application/json",
+                    text=json.dumps(data, default=str),
+                )
+            ]
+        )
 
 
 def _get_clientside_callbacks() -> list[dict[str, Any]]:

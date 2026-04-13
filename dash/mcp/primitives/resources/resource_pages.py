@@ -7,70 +7,53 @@ import json
 from mcp.types import (
     ReadResourceResult,
     Resource,
-    ResourceTemplate,
     TextResourceContents,
 )
 
-URI = "dash://pages"
+from dash._pages import PAGE_REGISTRY
+
+from .base import MCPResourceProvider
 
 
-def _has_pages() -> bool:
-    try:
-        from dash._pages import PAGE_REGISTRY
+class PagesResource(MCPResourceProvider):
+    uri = "dash://pages"
 
-        return bool(PAGE_REGISTRY)
-    except ImportError:
-        return False
+    @classmethod
+    def get_resource(cls) -> Resource | None:
+        if not PAGE_REGISTRY:
+            return None
+        return Resource(
+            uri=cls.uri,
+            name="dash_app_pages",
+            description=(
+                "List of all pages in this multi-page Dash app "
+                "with paths, names, titles, and descriptions."
+            ),
+            mimeType="application/json",
+        )
 
+    @classmethod
+    def read_resource(cls, uri: str = "") -> ReadResourceResult:
+        pages = []
+        for module, page in PAGE_REGISTRY.items():
+            title = page.get("title", "")
+            description = page.get("description", "")
+            pages.append(
+                {
+                    "module": module,
+                    "path": page.get("path", ""),
+                    "name": page.get("name", ""),
+                    "title": title if not callable(title) else page.get("name", ""),
+                    "description": description if not callable(description) else "",
+                }
+            )
 
-def get_resource() -> Resource | None:
-    if not _has_pages():
-        return None
-    return Resource(
-        uri=URI,
-        name="dash_app_pages",
-        description=(
-            "List of all pages in this multi-page Dash app "
-            "with paths, names, titles, and descriptions."
-        ),
-        mimeType="application/json",
-    )
-
-
-def get_template() -> ResourceTemplate | None:
-    return None
-
-
-def read_resource(uri: str = "") -> ReadResourceResult:
-    try:
-        from dash._pages import PAGE_REGISTRY
-    except ImportError:
         return ReadResourceResult(
             contents=[
-                TextResourceContents(uri=URI, mimeType="application/json", text="[]")
+                TextResourceContents(
+                    uri=cls.uri,
+                    mimeType="application/json",
+                    text=json.dumps(pages, default=str),
+                )
             ]
         )
-
-    pages = []
-    for module, page in PAGE_REGISTRY.items():
-        title = page.get("title", "")
-        description = page.get("description", "")
-        pages.append(
-            {
-                "module": module,
-                "path": page.get("path", ""),
-                "name": page.get("name", ""),
-                "title": title if not callable(title) else page.get("name", ""),
-                "description": description if not callable(description) else "",
-            }
-        )
-
-    return ReadResourceResult(
-        contents=[
-            TextResourceContents(
-                uri=URI,
-                mimeType="application/json",
-                text=json.dumps(pages, default=str),
-            )
-        ]
-    )
