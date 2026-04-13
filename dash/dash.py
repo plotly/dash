@@ -637,7 +637,6 @@ class Dash(ObsoleteChecker):
         self._got_first_request = {"pages": False, "setup_server": False}
 
         if server:
-            print(f"init app from server {server}")
             self.init_app()
 
         self.logger.setLevel(logging.INFO)

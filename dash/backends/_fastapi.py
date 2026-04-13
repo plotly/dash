@@ -188,6 +188,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         # Handle lifespan events (startup/shutdown)
+
         if scope["type"] == "lifespan":
             try:
                 dash_app = get_app()
@@ -199,7 +200,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             return
 
         # Non-HTTP/WebSocket scopes pass through
-        if scope["type"] not in ("http", "websocket"):
+        if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
@@ -298,7 +299,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
     def _setup_catchall(self):
         try:
-            print("Setting up catch-all route for unmatched paths", file=sys.stderr)
             dash_app = get_app()
 
             async def catchall(_request: Request):
@@ -317,10 +317,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         methods: list[str] | None = None,
         include_in_schema: bool = False,
     ):
-        print(
-            f"Adding URL rule: {rule} -> {view_func} (endpoint: {endpoint}, methods: {methods})",
-            file=sys.stderr,
-        )
         if rule == "":
             rule = "/"
         if isinstance(view_func, str):
