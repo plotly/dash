@@ -35,20 +35,45 @@ class RendererHooks(TypedDict):  # pylint: disable=too-many-ancestors
     request_refresh_jwt: NotRequired[str]
 
 
+WildcardId = Dict[str, Any]
+"""A pattern-matching component ID, e.g. ``{"type": "item", "index": 0}``."""
+
+
 class CallbackDependency(TypedDict):
-    id: Union[str, Dict[str, Any]]
+    id: Union[str, WildcardId]
     property: str
 
 
+CallbackOutputTarget = Union[CallbackDependency, List[CallbackDependency]]
+"""One callback Output() declaration resolved against the layout.
+
+For regular callbacks, a single dependency::
+
+    {"id": "chart", "property": "figure"}
+
+For pattern-matching callbacks (ALL/ALLSMALLER), a list of concrete
+targets that the wildcard expanded to::
+
+    [
+        {"id": {"type": "item", "index": 0}, "property": "children"},
+        {"id": {"type": "item", "index": 1}, "property": "children"},
+    ]
+
+For MATCH, a single dependency with a dict id::
+
+    {"id": {"type": "item", "index": 0}, "property": "children"}
+"""
+
+
 class CallbackInput(TypedDict):
-    id: Union[str, Dict[str, Any]]
+    id: Union[str, WildcardId]
     property: str
     value: Any
 
 
-class CallbackDispatchBody(TypedDict):
+class CallbackExecutionBody(TypedDict):
     output: str
-    outputs: List[CallbackDependency]
+    outputs: List[CallbackOutputTarget]
     inputs: List[CallbackInput]
     state: List[CallbackInput]
     changedPropIds: List[str]
@@ -69,7 +94,7 @@ CallbackSideOutput = Annotated[
 ]
 
 
-class CallbackDispatchResponse(TypedDict):
+class CallbackExecutionResponse(TypedDict):
     multi: NotRequired[bool]
     response: NotRequired[Dict[str, CallbackOutput]]
     sideUpdate: NotRequired[Dict[str, CallbackSideOutput]]

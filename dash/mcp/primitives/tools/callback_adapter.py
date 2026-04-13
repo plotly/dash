@@ -21,10 +21,17 @@ from dash._layout_utils import (
     find_matching_components,
     parse_wildcard_id,
 )
-from dash.mcp.types import is_nullable
 from dash._grouping import flatten_grouping
 from dash._utils import clean_property_name, split_callback_id
-from dash.mcp.types import MCPInput, MCPOutput
+from dash.types import (
+    CallbackDependency,
+    CallbackExecutionBody,
+    CallbackInput,
+    CallbackOutput,
+    CallbackOutputTarget,
+    WildcardId,
+)
+from dash.mcp.types import MCPInput, MCPOutput, is_nullable
 from .callback_utils import run_callback
 from .descriptions import build_tool_description
 from .input_schemas import get_input_schema
@@ -46,7 +53,7 @@ class CallbackAdapter:
         """Stub — will be implemented in a future PR."""
         raise NotImplementedError("as_mcp_tool will be implemented in a future PR.")
 
-    def as_callback_body(self, kwargs: dict[str, Any]) -> dict[str, Any]:
+    def as_callback_body(self, kwargs: dict[str, Any]) -> CallbackExecutionBody:
         """Transforms the given kwargs to a dict suitable for calling this callback.
 
         Mirrors how the Dash renderer assembles the callback payload —
@@ -55,16 +62,14 @@ class CallbackAdapter:
         For pattern-matching callbacks, wildcard deps are expanded into
         nested arrays with concrete component IDs.
         """
-        coerced = {k: _coerce_value(v) for k, v in kwargs.items()}
-
         raw_inputs = self._cb_info.get("inputs", [])
         raw_state = self._cb_info.get("state", [])
         n_deps = len(raw_inputs) + len(raw_state)
 
         flat_values = [None] * n_deps
         for i, name in enumerate(self._param_names):
-            if i < n_deps and name in coerced:
-                flat_values[i] = coerced[name]
+            if i < n_deps and name in kwargs:
+                flat_values[i] = kwargs[name]
 
         inputs_with_values = [
             _expand_dep(dep, flat_values[i]) for i, dep in enumerate(raw_inputs)
@@ -161,10 +166,10 @@ class CallbackAdapter:
         return getattr(self._original_func, "__doc__", None)
 
     @cached_property
-    def _initial_output(self) -> dict[str, dict[str, Any]]:
+    def _initial_output(self) -> dict[str, CallbackOutput]:
         """Run this callback with initial input values.
 
-        Returns the ``response`` portion of the dispatch result:
+        Returns the ``response`` portion of the callback result:
         ``{component_id: {property: value}}``.
 
         Skipped for callbacks with ``prevent_initial_call=True``,
@@ -346,8 +351,8 @@ class CallbackAdapter:
         return [hints.get(func_name) for func_name, _ in self._dep_param_map]
 
 
-def _expand_dep(dep: dict, value: Any) -> Any:
-    """Expand a dependency into the dispatch format.
+def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInput | list[CallbackInput]:
+    """Attach a concrete value to a callback dependency to produce a valid callback input.
 
     For regular deps, returns ``{id, property, value}``.
     For ALL/ALLSMALLER: passes through the list of ``{id, property, value}`` dicts.
@@ -365,7 +370,9 @@ def _expand_dep(dep: dict, value: Any) -> Any:
     return {**dep, "value": value}
 
 
-def _expand_output_spec(output_id: str, cb_info: dict, resolved_inputs: list) -> Any:
+def _expand_output_spec(
+    output_id: str, cb_info: dict, resolved_inputs: list[CallbackInput],
+) -> list[CallbackOutputTarget]:
     """Build the outputs spec, expanding wildcards to concrete IDs.
 
     For wildcard outputs, derives concrete IDs from the resolved inputs.
@@ -379,7 +386,7 @@ def _expand_output_spec(output_id: str, cb_info: dict, resolved_inputs: list) ->
     if isinstance(parsed, dict):
         parsed = [parsed]
 
-    results = []
+    results: list[CallbackOutputTarget] = []
     for p in parsed:
         pid = p["id"]
         prop = clean_property_name(p["property"])
@@ -397,14 +404,12 @@ def _expand_output_spec(output_id: str, cb_info: dict, resolved_inputs: list) ->
         else:
             results.append({"id": pid, "property": prop})
 
-    if len(results) == 1:
-        return results[0]
     return results
 
 
 def _derive_output_ids(
-    output_pattern: dict, resolved_inputs: list
-) -> list[dict] | None:
+    output_pattern: WildcardId, resolved_inputs: list[CallbackInput],
+) -> list[WildcardId] | None:
     """Derive concrete output IDs from the resolved input entries.
 
     Extracts the wildcard key values from the LLM-provided concrete
@@ -418,7 +423,7 @@ def _derive_output_ids(
     if not wildcard_keys:
         return None
 
-    def _substitute(item_id: dict) -> dict | None:
+    def _substitute(item_id: WildcardId) -> WildcardId | None:
         if not isinstance(item_id, dict):
             return None
         output_id = dict(output_pattern)
@@ -446,16 +451,3 @@ def _derive_output_ids(
     return None
 
 
-def _coerce_value(value: Any) -> Any:
-    """Parse JSON strings back to Python objects.
-
-    MCP tool parameters arrive as strings. This recovers the
-    intended type (list, dict, number, bool, null) via json.loads.
-    Plain strings that aren't valid JSON pass through unchanged.
-    """
-    if not isinstance(value, str):
-        return value
-    try:
-        return json.loads(value)
-    except (json.JSONDecodeError, ValueError):
-        return value

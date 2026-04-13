@@ -75,7 +75,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
-from .types import CallbackDispatchBody, RendererHooks
+from .types import CallbackExecutionBody, RendererHooks
 
 RouteCallable = Callable[..., Any]
 
@@ -1469,7 +1469,7 @@ class Dash(ObsoleteChecker):
         return inputs_to_vals(inputs)
 
     # pylint: disable=R0915
-    def _initialize_context(self, body: CallbackDispatchBody):
+    def _initialize_context(self, body: CallbackExecutionBody):
         """Initialize the global context for the request."""
         adapter = self.backend.request_adapter()
         g = AttributeDict({})
@@ -1492,7 +1492,7 @@ class Dash(ObsoleteChecker):
         g.updated_props = {}
         return g
 
-    def _prepare_callback(self, g, body: CallbackDispatchBody):
+    def _prepare_callback(self, g, body: CallbackExecutionBody):
         """Prepare callback-related data."""
         output = body["output"]
         try:

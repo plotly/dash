@@ -39,7 +39,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
-from .types import CallbackDispatchResponse
+from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
 from . import _validate
 
@@ -551,7 +551,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response: CallbackDispatchResponse,
+    response: CallbackExecutionResponse,
     callback_ctx,
     app,
     original_packages,
@@ -717,7 +717,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: CallbackDispatchResponse = {"multi": True}
+            response: CallbackExecutionResponse = {"multi": True}
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
@@ -789,7 +789,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: CallbackDispatchResponse = {"multi": True}
+            response: CallbackExecutionResponse = {"multi": True}
 
             try:
                 if background is not None:
