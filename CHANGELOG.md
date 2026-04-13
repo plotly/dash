@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 - [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
+- [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings
 
 ## [4.1.0] - 2026-03-23
 
