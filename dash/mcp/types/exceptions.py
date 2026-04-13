@@ -27,4 +27,4 @@ class InvalidParamsError(MCPError):
 class CallbackExecutionError(MCPError):
     """Callback raised an exception during execution."""
 
-    code = -32603
+    pass
