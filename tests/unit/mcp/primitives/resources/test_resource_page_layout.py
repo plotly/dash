@@ -46,7 +46,10 @@ class TestPageLayoutResource:
             },
         }
         with app.server.test_request_context():
-            with patch("dash._pages.PAGE_REGISTRY", fake_registry):
+            with patch(
+                "dash.mcp.primitives.resources.resource_page_layout.PAGE_REGISTRY",
+                fake_registry,
+            ):
                 result = read_resource("dash://page-layout/test")
         layout = json.loads(result.contents[0].text)
         assert layout == EXPECTED_PAGE_LAYOUT
