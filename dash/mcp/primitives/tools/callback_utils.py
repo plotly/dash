@@ -12,7 +12,9 @@ if TYPE_CHECKING:
     from .callback_adapter import CallbackAdapter
 
 
-def run_callback(callback: CallbackAdapter, kwargs: dict[str, Any]) -> CallbackExecutionResponse:
+def run_callback(
+    callback: CallbackAdapter, kwargs: dict[str, Any]
+) -> CallbackExecutionResponse:
     """Execute a callback via the framework."""
     from dash.mcp.types import CallbackExecutionError
 
