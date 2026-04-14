@@ -15,6 +15,7 @@ import os
 import subprocess
 import threading
 import traceback
+from urllib.parse import urlparse
 
 try:
     from fastapi import FastAPI, Request, Response, Body
@@ -699,7 +700,34 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         # pylint: disable=too-many-statements
         ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
 
+        # Get allowed origins from dash app config
+        allowed_origins = getattr(
+            dash_app, "_allowed_websocket_origins", []
+        )  # pylint: disable=protected-access
+
+        def validate_origin(origin: str | None, host: str | None) -> str | None:
+            """Validate WebSocket origin. Returns error message or None if valid."""
+            if not origin:
+                return "Origin header required"
+            if origin in allowed_origins:
+                return None  # Explicitly allowed
+            if not host:
+                return "Origin not allowed"
+            # Check same-origin
+            origin_host = urlparse(origin).netloc
+            if origin_host != host:
+                return "Origin not allowed"
+            return None
+
         async def websocket_handler(websocket: WebSocket):
+            # Validate Origin header to prevent Cross-Site WebSocket Hijacking
+            origin = websocket.headers.get("origin")
+            host = websocket.headers.get("host")
+            error = validate_origin(origin, host)
+            if error:
+                await websocket.close(code=4003, reason=error)
+                return
+
             await websocket.accept()
 
             # Track pending get_props requests
