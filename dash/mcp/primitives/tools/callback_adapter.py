@@ -351,7 +351,9 @@ class CallbackAdapter:
         return [hints.get(func_name) for func_name, _ in self._dep_param_map]
 
 
-def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInput | list[CallbackInput]:
+def _expand_dep(
+    dep: CallbackDependency, value: Any
+) -> CallbackInput | list[CallbackInput]:
     """Attach a concrete value to a callback dependency to produce a valid callback input.
 
     For regular deps, returns ``{id, property, value}``.
@@ -371,7 +373,9 @@ def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInput | list[Cal
 
 
 def _expand_output_spec(
-    output_id: str, cb_info: dict, resolved_inputs: list[CallbackInput],
+    output_id: str,
+    cb_info: dict,
+    resolved_inputs: list[CallbackInput],
 ) -> list[CallbackOutputTarget]:
     """Build the outputs spec, expanding wildcards to concrete IDs.
 
@@ -408,7 +412,8 @@ def _expand_output_spec(
 
 
 def _derive_output_ids(
-    output_pattern: WildcardId, resolved_inputs: list[CallbackInput],
+    output_pattern: WildcardId,
+    resolved_inputs: list[CallbackInput],
 ) -> list[WildcardId] | None:
     """Derive concrete output IDs from the resolved input entries.
 
@@ -449,5 +454,3 @@ def _derive_output_ids(
                 return [out]
 
     return None
-
-
