@@ -1,9 +1,14 @@
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Provider} from 'react-redux';
 
 import Store from './store';
 import AppContainer from './AppContainer.react';
+import getConfigFromDOM from './config';
+import {
+    initializeWebSocket,
+    disconnectWebSocket
+} from './observers/websocketObserver';
 
 const AppProvider = ({
     hooks = {
@@ -16,6 +21,31 @@ const AppProvider = ({
     }
 }: any) => {
     const [{store}] = useState(() => new Store());
+
+    // Initialize WebSocket connection if enabled
+    useEffect(() => {
+        const config = getConfigFromDOM();
+        if (config.websocket?.enabled) {
+            // Add fetch config for consistency
+            const fullConfig = {
+                ...config,
+                fetch: {
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                }
+            };
+            initializeWebSocket(store, fullConfig);
+        }
+
+        // Cleanup on unmount
+        return () => {
+            disconnectWebSocket();
+        };
+    }, [store]);
+
     return (
         <Provider store={store}>
             <AppContainer hooks={hooks} />

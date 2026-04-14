@@ -169,6 +169,7 @@ class BaseDashServer(ABC, Generic[ServerType]):
     config: Dict[str, Any]
     request_adapter: Type[RequestAdapter]
     response_adapter: Type[ResponseAdapter]
+    websocket_capability: bool = False
 
     def __init__(self, server: ServerType) -> None:
         """Initialize the server wrapper.
@@ -371,4 +372,43 @@ class BaseDashServer(ABC, Generic[ServerType]):
 
         Args:
             dash_app: The Dash application instance
+        """
+
+    def serve_websocket_callback(self, dash_app: "dash.Dash"):
+        """Set up the WebSocket endpoint for callback handling.
+
+        Override this method in backends that support WebSocket callbacks.
+
+        Args:
+            dash_app: The Dash application instance
+        """
+
+
+class DashWebsocketCallback(ABC):
+    """Abstract interface for WebSocket-based callback communication.
+
+    Provides methods for real-time bidirectional communication between
+    the server and renderer during callback execution.
+    """
+
+    @abstractmethod
+    async def get_prop(self, component_id: str, prop_name: str) -> Any:
+        """Request current prop value from the client.
+
+        Args:
+            component_id: The component ID (string or stringified dict for pattern matching)
+            prop_name: The property name to retrieve
+
+        Returns:
+            The current value of the property from the client's state
+        """
+
+    @abstractmethod
+    async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
+        """Send immediate prop update to the client via WebSocket.
+
+        Args:
+            component_id: The component ID (string or stringified dict for pattern matching)
+            prop_name: The property name to update
+            value: The new value to set
         """

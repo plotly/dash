@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from contextvars import copy_context, ContextVar
+import asyncio
 import json
+import uuid
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
@@ -21,6 +23,7 @@ try:
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
     from starlette.types import ASGIApp, Scope, Receive, Send
+    from starlette.websockets import WebSocket, WebSocketDisconnect
     import uvicorn
 except ImportError as _err:
     raise ImportError(
@@ -30,7 +33,12 @@ except ImportError as _err:
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
-from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
+from .base_server import (
+    BaseDashServer,
+    RequestAdapter,
+    ResponseAdapter,
+    DashWebsocketCallback,
+)
 from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -71,6 +79,77 @@ class FastAPIResponseAdapter(ResponseAdapter):
             for key, (value, cookie_kwargs) in self._cookies.items():
                 resp.set_cookie(key, value, **cookie_kwargs)
         return resp
+
+
+class FastAPIWebsocketCallback(DashWebsocketCallback):
+    """WebSocket callback implementation for FastAPI backend.
+
+    Provides real-time bidirectional communication for callback execution.
+    """
+
+    def __init__(
+        self, websocket: WebSocket, pending_get_props: Dict[str, asyncio.Future]
+    ):
+        """Initialize the WebSocket callback interface.
+
+        Args:
+            websocket: The WebSocket connection
+            pending_get_props: Dict to track pending get_props requests
+        """
+        self._websocket = websocket
+        self._pending_get_props = pending_get_props
+
+    async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
+        """Send immediate prop update to the client via WebSocket.
+
+        Args:
+            component_id: The component ID (string or stringified dict)
+            prop_name: The property name to update
+            value: The new value to set
+        """
+        await self._websocket.send_json(
+            {
+                "type": "set_props",
+                "payload": {"componentId": component_id, "props": {prop_name: value}},
+            }
+        )
+
+    async def get_prop(self, component_id: str, prop_name: str) -> Any:
+        """Request current prop value from the client.
+
+        Args:
+            component_id: The component ID (string or stringified dict)
+            prop_name: The property name to retrieve
+
+        Returns:
+            The current value of the property from the client's state
+        """
+        request_id = str(uuid.uuid4())
+
+        # Create a future to wait for the response
+        future: asyncio.Future = asyncio.get_event_loop().create_future()
+        self._pending_get_props[request_id] = future
+
+        # Send the request
+        await self._websocket.send_json(
+            {
+                "type": "get_props_request",
+                "requestId": request_id,
+                "payload": {"componentId": component_id, "properties": [prop_name]},
+            }
+        )
+
+        # Wait for the response with timeout
+        try:
+            result = await asyncio.wait_for(future, timeout=30.0)
+            if result and prop_name in result:
+                return result[prop_name]
+            return None
+        except asyncio.TimeoutError as exc:
+            self._pending_get_props.pop(request_id, None)
+            raise TimeoutError(
+                f"Timeout waiting for get_prop response for {component_id}.{prop_name}"
+            ) from exc
 
 
 _current_request_var = ContextVar("dash_current_request", default=None)
@@ -224,6 +303,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
+    websocket_capability: bool = True
+
     def __init__(self, server: FastAPI):
         super().__init__(server)
         self.server_type = "fastapi"
@@ -608,6 +689,147 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             value += f";dur={info['dur']}"
                         headers.append("Server-Timing", value)
                 return response
+
+    def serve_websocket_callback(self, dash_app: "Dash"):
+        """Set up the WebSocket endpoint for callback handling.
+
+        Args:
+            dash_app: The Dash application instance
+        """
+        # pylint: disable=too-many-statements
+        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+
+        async def websocket_handler(websocket: WebSocket):
+            await websocket.accept()
+
+            # Track pending get_props requests
+            pending_get_props: Dict[str, asyncio.Future] = {}
+
+            try:
+                while True:
+                    message = await websocket.receive_json()
+                    msg_type = message.get("type")
+                    renderer_id = message.get("rendererId")
+
+                    if msg_type == "callback_request":
+                        response = await self._execute_ws_callback(
+                            dash_app, websocket, message, pending_get_props
+                        )
+                        await websocket.send_json(
+                            {
+                                "type": "callback_response",
+                                "rendererId": renderer_id,
+                                "requestId": message.get("requestId"),
+                                "payload": response,
+                            }
+                        )
+
+                    elif msg_type == "get_props_response":
+                        # Handle response for pending get_props request
+                        request_id = message.get("requestId")
+                        if request_id in pending_get_props:
+                            future = pending_get_props.pop(request_id)
+                            if not future.done():
+                                future.set_result(message.get("payload"))
+
+                    elif msg_type == "heartbeat":
+                        await websocket.send_json({"type": "heartbeat_ack"})
+
+            except WebSocketDisconnect:
+                pass  # Clean disconnect
+            finally:
+                # Cancel any pending futures
+                for future in pending_get_props.values():
+                    if not future.done():
+                        future.cancel()
+
+        self.server.add_api_websocket_route(ws_path, websocket_handler)
+
+    async def _execute_ws_callback(
+        self,
+        dash_app: "Dash",
+        websocket: WebSocket,
+        message: dict,
+        pending_get_props: Dict[str, asyncio.Future],
+    ) -> dict:
+        """Execute callback from WebSocket message.
+
+        Args:
+            dash_app: The Dash application instance
+            websocket: The WebSocket connection
+            message: The callback request message
+            pending_get_props: Dict to track pending get_props requests
+
+        Returns:
+            Response dict with status and data
+        """
+        payload = message.get("payload", {})
+
+        # Create WebSocket callback context
+        cb_ctx = self._create_ws_context(
+            dash_app, websocket, payload, pending_get_props
+        )
+
+        try:
+            # Reuse existing callback machinery
+            # pylint: disable=protected-access
+            func = dash_app._prepare_callback(cb_ctx, payload)
+            args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)
+            ctx = copy_context()
+            partial_func = dash_app._execute_callback(
+                func, args, cb_ctx.outputs_list, cb_ctx
+            )
+            # pylint: enable=protected-access
+            response_data = ctx.run(partial_func)
+            if inspect.iscoroutine(response_data):
+                response_data = await response_data
+
+            return {"status": "ok", "data": json.loads(response_data)}
+
+        except PreventUpdate:
+            return {"status": "prevent_update"}
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            traceback.print_exc()
+            return {"status": "error", "message": str(e)}
+
+    def _create_ws_context(
+        self,
+        _dash_app: "Dash",  # pylint: disable=unused-argument
+        websocket: WebSocket,
+        payload: dict,
+        pending_get_props: Dict[str, asyncio.Future],
+    ):
+        """Create callback context from WebSocket message.
+
+        Args:
+            _dash_app: The Dash application instance (unused, kept for API consistency)
+            websocket: The WebSocket connection
+            payload: The callback payload
+            pending_get_props: Dict to track pending get_props requests
+
+        Returns:
+            AttributeDict with callback context
+        """
+        # pylint: disable=import-outside-toplevel
+        from dash._utils import AttributeDict, inputs_to_dict
+
+        g = AttributeDict({})
+        g.inputs_list = payload.get("inputs", [])
+        g.states_list = payload.get("state", [])
+        g.outputs_list = payload.get("outputs", [])
+        g.input_values = inputs_to_dict(g.inputs_list)
+        g.state_values = inputs_to_dict(g.states_list)
+        g.triggered_inputs = [
+            {"prop_id": x, "value": g.input_values.get(x)}
+            for x in payload.get("changedPropIds", [])
+        ]
+        g.dash_response = FastAPIResponseAdapter()
+        g.updated_props = {}
+
+        # Add WebSocket callback interface
+        g.dash_websocket = FastAPIWebsocketCallback(websocket, pending_get_props)
+
+        return g
 
 
 class FastAPIRequestAdapter(RequestAdapter):

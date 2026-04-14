@@ -472,6 +472,7 @@ class Dash(ObsoleteChecker):
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
         health_endpoint: Optional[str] = None,
+        websocket_callbacks: Optional[bool] = False,
         **obsolete,
     ):
 
@@ -619,6 +620,7 @@ class Dash(ObsoleteChecker):
         self._assets_files: list = []
 
         self._background_manager = background_callback_manager
+        self._websocket_callbacks = websocket_callbacks
 
         self.logger = logging.getLogger(__name__)
 
@@ -761,6 +763,11 @@ class Dash(ObsoleteChecker):
         )
         if self.config.health_endpoint is not None:
             self._add_url(self.config.health_endpoint, self.serve_health)
+
+        # Set up WebSocket callback route if enabled and supported
+        if self._websocket_callbacks and self.backend.websocket_capability:
+            self.backend.serve_websocket_callback(self)
+
         self.backend.setup_index(self)
         self.backend.setup_catchall(self)
 
@@ -940,6 +947,14 @@ class Dash(ObsoleteChecker):
                 custom_dev_tools.append({**hook_dev_tools, "props": props})
             config["dev_tools"] = custom_dev_tools
 
+        # Add websocket config if enabled and backend supports it
+        if self._websocket_callbacks and self.backend.websocket_capability:
+            config["websocket"] = {
+                "enabled": True,
+                "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
+                "worker_url": self._get_worker_url(),
+            }
+
         return config
 
     def serve_reload_hash(self):
@@ -966,6 +981,33 @@ class Dash(ObsoleteChecker):
         Returns a simple "OK" response with HTTP 200 status.
         """
         return self.backend.make_response("OK", status=200, mimetype="text/plain")
+
+    def _get_worker_url(self) -> str:
+        """Get the URL for the WebSocket worker script.
+
+        Returns:
+            The fingerprinted URL for the worker script served via component suites.
+        """
+        relative_path = "dash-renderer/build/dash-ws-worker.js"
+        namespace = "dash"
+
+        # Register the path so it can be served
+        self.registered_paths[namespace].add(relative_path)
+
+        # Build fingerprinted URL (same pattern as _collect_and_register_resources)
+        module_path = os.path.join(
+            os.path.dirname(sys.modules[namespace].__file__),  # type: ignore
+            relative_path,
+        )
+
+        # Use a fallback if the file doesn't exist yet (during development)
+        try:
+            modified = int(os.stat(module_path).st_mtime)
+        except FileNotFoundError:
+            modified = 0
+
+        fingerprint = build_fingerprint(relative_path, __version__, modified)
+        return f"{self.config.requests_pathname_prefix}_dash-component-suites/{namespace}/{fingerprint}"
 
     def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []

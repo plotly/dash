@@ -52,6 +52,7 @@ import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 import {loaded, loading} from './loading';
 import {getComponentLayout} from '../wrapper/wrapping';
+import {getWorkerClient, isWebSocketEnabled} from '../utils/workerClient';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -685,6 +686,137 @@ function handleServerside(
     });
 }
 
+/**
+ * Handle serverside callback via WebSocket connection.
+ *
+ * Uses the SharedWorker to send the callback request through the persistent
+ * WebSocket connection instead of HTTP POST.
+ */
+async function handleWebsocketCallback(
+    dispatch: any,
+    hooks: any,
+    config: any,
+    payload: ICallbackPayload,
+    running: any
+): Promise<CallbackResponse> {
+    if (hooks.request_pre) {
+        hooks.request_pre(payload);
+    }
+
+    const requestTime = Date.now();
+    let runningOff: any;
+
+    if (running) {
+        dispatch(sideUpdate(running.running, payload));
+        runningOff = running.runningOff;
+    }
+
+    const workerClient = getWorkerClient();
+
+    try {
+        const response = await workerClient.sendCallback(payload);
+
+        // Handle running off state
+        if (runningOff) {
+            dispatch(sideUpdate(runningOff, payload));
+        }
+
+        if (response.status === 'prevent_update') {
+            // Record timing for profiling
+            if (config.ui) {
+                const totalTime = Date.now() - requestTime;
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        usage: {
+                            __dash_server: totalTime,
+                            __dash_client: totalTime,
+                            __dash_upload: 0,
+                            __dash_download: 0
+                        },
+                        status: STATUS.PREVENT_UPDATE,
+                        result: {},
+                        inputs: payload.inputs,
+                        state: payload.state
+                    })
+                );
+            }
+            return {};
+        }
+
+        if (response.status === 'error') {
+            throw new Error(response.message || 'Callback error');
+        }
+
+        // Extract the callback data - structure is {multi: boolean, response: {...}}
+        const callbackData = response.data as CallbackResponseData;
+
+        // Handle sideUpdate if present
+        if (callbackData?.sideUpdate) {
+            dispatch(sideUpdate(callbackData.sideUpdate, payload));
+        }
+
+        // Extract the actual outputs from the response
+        // Format is similar to HTTP path's finishLine function
+        let result: CallbackResponse;
+        const {multi, response: callbackResponse} = callbackData || {};
+
+        if (hooks.request_post) {
+            hooks.request_post(payload, callbackResponse);
+        }
+
+        if (multi) {
+            result = callbackResponse as CallbackResponse;
+        } else {
+            // Single output - convert to the expected format
+            const {output} = payload;
+            const id = output.substr(0, output.lastIndexOf('.'));
+            result = {[id]: (callbackResponse as CallbackResponse)?.props};
+        }
+
+        // Record timing for profiling
+        if (config.ui) {
+            const totalTime = Date.now() - requestTime;
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    usage: {
+                        __dash_server: totalTime,
+                        __dash_client: totalTime,
+                        __dash_upload: 0,
+                        __dash_download: 0
+                    },
+                    status: STATUS.OK,
+                    result: result || {},
+                    inputs: payload.inputs,
+                    state: payload.state
+                })
+            );
+        }
+
+        return result || {};
+    } catch (error) {
+        // Handle running off state on error
+        if (runningOff) {
+            dispatch(sideUpdate(runningOff, payload));
+        }
+
+        if (config.ui) {
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    status: STATUS.NO_RESPONSE,
+                    result: {},
+                    inputs: payload.inputs,
+                    state: payload.state
+                })
+            );
+        }
+
+        throw error;
+    }
+}
+
 function inputsToDict(inputs_list: any) {
     // Ported directly from _utils.py, inputs_to_dict
     // takes an array of inputs (some inputs may be an array)
@@ -890,18 +1022,37 @@ export function executeCallback(
                     }
                 );
 
+                // Use WebSocket for callbacks when enabled (but not for background callbacks)
+                const useWebSocket = isWebSocketEnabled(config) && !background;
+
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
-                        let data = await handleServerside(
-                            dispatch,
-                            hooks,
-                            newConfig,
-                            payload,
-                            background,
-                            additionalArgs.length ? additionalArgs : undefined,
-                            getState,
-                            cb.callback.running
-                        );
+                        let data: CallbackResponse;
+
+                        if (useWebSocket) {
+                            // Use WebSocket path for real-time callbacks
+                            data = await handleWebsocketCallback(
+                                dispatch,
+                                hooks,
+                                newConfig,
+                                payload,
+                                cb.callback.running
+                            );
+                        } else {
+                            // Use traditional HTTP path
+                            data = await handleServerside(
+                                dispatch,
+                                hooks,
+                                newConfig,
+                                payload,
+                                background,
+                                additionalArgs.length
+                                    ? additionalArgs
+                                    : undefined,
+                                getState,
+                                cb.callback.running
+                            );
+                        }
 
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));

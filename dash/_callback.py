@@ -77,6 +77,7 @@ def callback(
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
+    _websocket: Optional[bool] = False,  # Reserved for future use
     **_kwargs,
 ) -> Callable[..., Any]:
     """
