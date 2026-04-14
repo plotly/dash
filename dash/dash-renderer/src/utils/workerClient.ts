@@ -140,6 +140,42 @@ class WorkerClient {
     }
 
     /**
+     * Ensure the worker is connected, initiating connection if needed.
+     * @param config The Dash config with websocket settings
+     */
+    public async ensureConnected(config: {
+        websocket?: {url?: string; worker_url?: string};
+    }): Promise<void> {
+        // Already connected
+        if (this.isConnected) {
+            return;
+        }
+
+        // Connection in progress, wait for it
+        if (this.connectionPromise) {
+            await this.connectionPromise;
+            return;
+        }
+
+        // Need to initiate connection
+        if (!config.websocket?.url || !config.websocket?.worker_url) {
+            throw new Error('WebSocket config not available');
+        }
+
+        if (typeof SharedWorker === 'undefined') {
+            throw new Error('SharedWorker not supported');
+        }
+
+        // Build WebSocket URL
+        const wsProtocol =
+            window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host;
+        const wsUrl = `${wsProtocol}//${host}${config.websocket.url}`;
+
+        await this.connect(config.websocket.worker_url, wsUrl);
+    }
+
+    /**
      * Send a callback request to the server via the worker.
      * @param payload The callback payload
      * @returns Promise that resolves with the callback response

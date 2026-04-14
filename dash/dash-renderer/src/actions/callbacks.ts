@@ -718,6 +718,9 @@ async function handleWebsocketCallback(
     const workerClient = getWorkerClient();
 
     try {
+        // Ensure WebSocket connection is established
+        await workerClient.ensureConnected(config);
+
         const response = await workerClient.sendCallback(payload);
 
         // Handle running off state
