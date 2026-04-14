@@ -266,11 +266,25 @@ export function getWorkerClient(): WorkerClient {
 }
 
 /**
- * Check if WebSocket callbacks are enabled and supported.
+ * Check if WebSocket callbacks are globally enabled and supported.
  * @param config The Dash config
  */
 export function isWebSocketEnabled(config: {
     websocket?: {enabled: boolean};
 }): boolean {
     return !!(config.websocket?.enabled && typeof SharedWorker !== 'undefined');
+}
+
+/**
+ * Check if WebSocket infrastructure is available (for per-callback websocket).
+ * @param config The Dash config
+ */
+export function isWebSocketAvailable(config: {
+    websocket?: {enabled?: boolean; url?: string; worker_url?: string};
+}): boolean {
+    return !!(
+        config.websocket?.url &&
+        config.websocket?.worker_url &&
+        typeof SharedWorker !== 'undefined'
+    );
 }

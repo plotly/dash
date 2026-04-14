@@ -764,8 +764,9 @@ class Dash(ObsoleteChecker):
         if self.config.health_endpoint is not None:
             self._add_url(self.config.health_endpoint, self.serve_health)
 
-        # Set up WebSocket callback route if enabled and supported
-        if self._websocket_callbacks and self.backend.websocket_capability:
+        # Set up WebSocket callback route if backend supports it
+        # This enables both global websocket_callbacks and per-callback websocket=True
+        if self.backend.websocket_capability:
             self.backend.serve_websocket_callback(self)
 
         self.backend.setup_index(self)
@@ -947,10 +948,11 @@ class Dash(ObsoleteChecker):
                 custom_dev_tools.append({**hook_dev_tools, "props": props})
             config["dev_tools"] = custom_dev_tools
 
-        # Add websocket config if enabled and backend supports it
-        if self._websocket_callbacks and self.backend.websocket_capability:
+        # Add websocket config if backend supports it
+        # This enables both global websocket_callbacks and per-callback websocket=True
+        if self.backend.websocket_capability:
             config["websocket"] = {
-                "enabled": True,
+                "enabled": bool(self._websocket_callbacks),
                 "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
                 "worker_url": self._get_worker_url(),
             }

@@ -31,7 +31,13 @@ export async function initializeWebSocket(
     store: Store<IStoreState>,
     config: DashConfig
 ): Promise<void> {
-    if (!config.websocket?.enabled) {
+    // Initialize WebSocket if:
+    // 1. Global websocket is enabled, OR
+    // 2. WebSocket config is available (for per-callback websocket=True)
+    const wsAvailable = !!(
+        config.websocket?.url && config.websocket?.worker_url
+    );
+    if (!wsAvailable) {
         return;
     }
 
@@ -117,7 +123,8 @@ export async function initializeWebSocket(
     const wsUrl = buildWebSocketUrl(config);
 
     try {
-        await workerClient.connect(config.websocket.worker_url, wsUrl);
+        // config.websocket is guaranteed to exist due to wsAvailable check above
+        await workerClient.connect(config.websocket!.worker_url, wsUrl);
     } catch (error) {
         console.error('[Dash] Failed to connect to WebSocket worker:', error);
     }

@@ -52,7 +52,11 @@ import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 import {loaded, loading} from './loading';
 import {getComponentLayout} from '../wrapper/wrapping';
-import {getWorkerClient, isWebSocketEnabled} from '../utils/workerClient';
+import {
+    getWorkerClient,
+    isWebSocketEnabled,
+    isWebSocketAvailable
+} from '../utils/workerClient';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -1022,8 +1026,15 @@ export function executeCallback(
                     }
                 );
 
-                // Use WebSocket for callbacks when enabled (but not for background callbacks)
-                const useWebSocket = isWebSocketEnabled(config) && !background;
+                // Use WebSocket for callbacks when:
+                // 1. Global WebSocket is enabled, OR
+                // 2. Per-callback websocket flag is set (and WebSocket is available)
+                // (but never for background callbacks)
+                const useWebSocket =
+                    !background &&
+                    (isWebSocketEnabled(config) ||
+                        (cb.callback.websocket &&
+                            isWebSocketAvailable(config)));
 
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
