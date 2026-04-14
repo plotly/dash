@@ -152,6 +152,15 @@ class FastAPIWebsocketCallback(DashWebsocketCallback):
                 f"Timeout waiting for get_prop response for {component_id}.{prop_name}"
             ) from exc
 
+    async def close(self, code: int = 1000, reason: str = "Connection closed") -> None:
+        """Close the WebSocket connection.
+
+        Args:
+            code: WebSocket close code (default 1000 for normal closure)
+            reason: Human-readable reason for closing
+        """
+        await self._websocket.close(code=code, reason=reason)
+
 
 _current_request_var = ContextVar("dash_current_request", default=None)
 

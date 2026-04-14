@@ -412,3 +412,15 @@ class DashWebsocketCallback(ABC):
             prop_name: The property name to update
             value: The new value to set
         """
+
+    @abstractmethod
+    async def close(self, code: int = 1000, reason: str = "Connection closed") -> None:
+        """Close the WebSocket connection.
+
+        Allows developers to forcibly disconnect a client, e.g., on suspicious
+        activity, session revocation, or policy violation.
+
+        Args:
+            code: WebSocket close code (default 1000 for normal closure)
+            reason: Human-readable reason for closing
+        """
