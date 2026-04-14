@@ -700,6 +700,33 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                         headers.append("Server-Timing", value)
                 return response
 
+    async def _run_ws_hooks(
+        self, hooks, websocket: "WebSocket", *args, default_reason: str = "Rejected"
+    ) -> tuple | None:
+        """Run WebSocket hooks and return rejection tuple or None if all pass.
+
+        Args:
+            hooks: List of hooks to run
+            websocket: The WebSocket connection
+            *args: Additional arguments to pass to hooks
+            default_reason: Default reason if hook returns False
+
+        Returns:
+            None if all hooks pass, or (code, reason) tuple for rejection
+        """
+        for hook in hooks:
+            try:
+                result = hook(websocket, *args)
+                if inspect.iscoroutine(result):
+                    result = await result
+                if result is False:
+                    return (4001, default_reason)
+                if isinstance(result, tuple) and len(result) == 2:
+                    return result
+            except Exception:  # pylint: disable=broad-exception-caught
+                return (4001, "Authentication error")
+        return None
+
     def serve_websocket_callback(self, dash_app: "Dash"):
         """Set up the WebSocket endpoint for callback handling.
 
@@ -737,6 +764,17 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                 await websocket.close(code=4003, reason=error)
                 return
 
+            # Call websocket_connect hooks (before accept)
+            # pylint: disable=protected-access
+            rejection = await self._run_ws_hooks(
+                dash_app._hooks.get_hooks("websocket_connect"),
+                websocket,
+                default_reason="Connection rejected",
+            )
+            if rejection:
+                await websocket.close(code=rejection[0], reason=rejection[1])
+                return
+
             await websocket.accept()
 
             # Track pending get_props requests
@@ -745,6 +783,18 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             try:
                 while True:
                     message = await websocket.receive_json()
+
+                    # Call websocket_message hooks
+                    rejection = await self._run_ws_hooks(
+                        dash_app._hooks.get_hooks("websocket_message"),
+                        websocket,
+                        message,
+                        default_reason="Message rejected",
+                    )
+                    if rejection:
+                        await websocket.close(code=rejection[0], reason=rejection[1])
+                        return
+
                     msg_type = message.get("type")
                     renderer_id = message.get("rendererId")
 
