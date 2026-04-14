@@ -2,7 +2,9 @@
 
 ## Python Backend Framework
 
-- **`dash/dash.py`** - Main `Dash` application class (~2000 lines). Orchestrates Flask server, layout management, callback registration, routing, and asset serving. Key methods: `layout` property, `callback()`, `clientside_callback()`, `run()`.
+- **`dash/dash.py`** - Main `Dash` application class (~2000 lines). Orchestrates the server backend, layout management, callback registration, routing, and asset serving. Key methods: `layout` property, `callback()`, `clientside_callback()`, `run()`.
+
+- **`dash/backends/`** - Server backend implementations. See [Server Backends](#server-backends) section for details.
 
 - **`dash/_callback.py`** - Callback registration and execution. Contains `callback()` decorator (usable as `@dash.callback` without app instance), `clientside_callback()`, and `register_callback()` which inserts callbacks into the callback map.
 
@@ -100,6 +102,127 @@ Use dict IDs with wildcards (`MATCH`, `ALL`, `ALLSMALLER`) to target dynamically
 - `/_dash-update-component` - Executes callbacks, returns updated props
 - `/_dash-component-suites/<package>/<path>` - Serves component JS/CSS assets
 - `/assets/<path>` - Serves static assets from app's assets folder
+
+## Server Backends
+
+Dash supports multiple web server backends. The backend abstraction is in `dash/backends/`.
+
+### Available Backends
+
+| Backend | Type | Install | Use Case |
+|---------|------|---------|----------|
+| **Flask** (default) | WSGI (sync) | `pip install dash` | Standard deployments, simplicity |
+| **Quart** | ASGI (async) | `pip install dash[quart]` | Async callbacks, WebSocket support |
+| **FastAPI** | ASGI (async) | `pip install dash[fastapi]` | OpenAPI docs, async, modern Python |
+
+### Usage
+
+**Default (Flask):**
+```python
+from dash import Dash
+app = Dash(__name__)
+```
+
+**With existing server instance:**
+```python
+from flask import Flask
+from dash import Dash
+
+server = Flask(__name__)
+app = Dash(__name__, server=server)
+```
+
+**Quart backend:**
+```python
+from quart import Quart
+from dash import Dash
+
+server = Quart(__name__)
+app = Dash(__name__, server=server)
+```
+
+**FastAPI backend:**
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server)
+
+# Run with: uvicorn module:app.server --reload
+```
+
+### Architecture
+
+The backend system uses an abstract interface:
+
+- **`BaseDashServer`** (`dash/backends/base_server.py`) - Abstract base class defining the server interface. All backends implement this.
+
+- **`RequestAdapter`** - Normalizes HTTP request objects across frameworks. Provides unified access to `args`, `cookies`, `headers`, `get_json()`, etc.
+
+- **`ResponseAdapter`** - Normalizes response creation. Handles `set_cookie()`, `set_header()`, `set_response()`.
+
+- **`get_backend(name)`** - Factory function to get backend class by name (`"flask"`, `"quart"`, `"fastapi"`).
+
+- **`get_server_type(server)`** - Auto-detects backend from a server instance.
+
+### Backend Implementations
+
+**Flask** (`dash/backends/_flask.py`):
+- `FlaskDashServer` - Wraps Flask app
+- `FlaskRequestAdapter` - Uses `flask.request` proxy
+- `FlaskResponseAdapter` - Uses `flask.Response`
+- Compression via `flask-compress`
+
+**Quart** (`dash/backends/_quart.py`):
+- `QuartDashServer` - Wraps Quart app (async Flask API)
+- `QuartRequestAdapter` - Uses `quart.request` proxy
+- `QuartResponseAdapter` - Uses `quart.Response`
+- All route handlers are `async def`
+- Compression via `quart-compress`
+
+**FastAPI** (`dash/backends/_fastapi.py`):
+- `FastAPIDashServer` - Wraps FastAPI app
+- `FastAPIRequestAdapter` - Uses context variable for current request
+- `FastAPIResponseAdapter` - Uses Starlette responses
+- `DashMiddleware` - Consolidated ASGI middleware for request handling
+- Runs with uvicorn, supports hot reload
+- Built-in GZip compression
+
+### Key Interface Methods
+
+All backends implement:
+
+```python
+class BaseDashServer(ABC):
+    def create_app(name, config) -> server        # Create new server
+    def add_url_rule(rule, view_func, ...)        # Register routes
+    def before_request(func)                       # Request hooks
+    def after_request(func)                        # Response hooks
+    def run(dash_app, host, port, debug)          # Start dev server
+    def make_response(data, mimetype, status)     # Create response
+    def jsonify(obj)                              # JSON response
+    def setup_index(dash_app)                     # Register / route
+    def serve_callback(dash_app)                  # Callback endpoint
+    def setup_component_suites(dash_app)          # JS/CSS serving
+```
+
+### Accessing the Backend
+
+```python
+app = Dash(__name__)
+
+# Get the underlying server
+app.server          # Flask/Quart/FastAPI instance
+
+# Get the backend wrapper
+app.backend         # BaseDashServer subclass instance
+app.backend.server_type  # "flask", "quart", or "fastapi"
+
+# Access request in callbacks
+from dash import dash
+dash.get_app().backend.request_adapter()  # RequestAdapter instance
+```
 
 ## Frontend (dash-renderer)
 
@@ -503,14 +626,14 @@ app.run(
 ### How It Works
 
 1. `app.run()` detects Jupyter environment via `get_ipython()`
-2. Flask server starts in background daemon thread
+2. Server starts in background daemon thread
 3. Jupyter comm protocol negotiates proxy configuration
 4. App displays according to selected mode
 
 ```
 app.run() in notebook
     ↓
-Detect Jupyter → Start Flask in background thread
+Detect Jupyter → Start server in background thread
     ↓
 Comm request → Extension responds with base_url
     ↓
@@ -572,8 +695,8 @@ Special handling for Colab:
 ### Dash() Constructor Parameters
 
 **Basic Setup:**
-- `name` - Flask app name (default: infers from `__name__`)
-- `server` - Flask instance or `True` to create new (default: `True`)
+- `name` - Application name (default: infers from `__name__`)
+- `server` - Server instance (Flask, Quart, or FastAPI) or `True` to create Flask (default: `True`)
 - `title` - Browser tab title (default: `"Dash"`)
 - `update_title` - Title during callbacks (default: `"Updating..."`)
 
@@ -682,6 +805,7 @@ Dash supports `async def` callbacks for non-blocking execution.
 
 ### Setup
 
+**With Flask backend:**
 ```bash
 pip install dash[async]
 ```
@@ -690,6 +814,16 @@ Async is auto-enabled when `asgiref` is detected. Or explicitly:
 
 ```python
 app = Dash(__name__, use_async=True)
+```
+
+**With Quart or FastAPI backend:** Async is native - no extra dependencies needed.
+
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server)  # Async works automatically
 ```
 
 ### Usage
@@ -708,7 +842,8 @@ async def async_update(value):
 - Regular async callbacks are **non-blocking** - multiple can run concurrently
 - Background callbacks also support `async def`
 - Jupyter uses `nest_asyncio` for event loop compatibility
-- Without `dash[async]`, coroutines raise an error
+- With Flask backend: requires `dash[async]`, coroutines raise error without it
+- With Quart/FastAPI backends: async is native, no extra setup needed
 
 ### Async with Background Callbacks
 
