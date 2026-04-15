@@ -67,7 +67,7 @@ class Browser(DashPageMixin):
         self._percy_run = percy_run
         self._pause = pause
 
-        self._driver = until(self.get_webdriver, timeout=1)
+        self._driver = until(self._try_get_webdriver, timeout=30)
         self._driver.implicitly_wait(2)
 
         self._wd_wait = WebDriverWait(self.driver, wait_timeout)
@@ -264,6 +264,8 @@ class Browser(DashPageMixin):
             "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
         return self.driver.find_elements(getattr(By, attribute.upper()), selector)
+    
+    
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -479,6 +481,14 @@ class Browser(DashPageMixin):
             options.add_argument("--headless")
 
         return options
+    
+    def _try_get_webdriver(self):
+        """Wrapper that catches exceptions so until() can retry on transient failures."""
+        try:
+            return self.get_webdriver()
+        except WebDriverException:
+            logger.exception("webdriver initialization failed, will retry")
+            return None
 
     def _get_chrome(self):
         options = self._get_wd_options()
