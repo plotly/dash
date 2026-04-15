@@ -264,8 +264,6 @@ class Browser(DashPageMixin):
             "CLASS_NAME", "LINK_TEXT", "PARTIAL_LINK_TEXT", "XPATH"
         """
         return self.driver.find_elements(getattr(By, attribute.upper()), selector)
-    
-    
 
     def _get_element(self, elem_or_selector):
         if isinstance(elem_or_selector, str):
@@ -481,7 +479,7 @@ class Browser(DashPageMixin):
             options.add_argument("--headless")
 
         return options
-    
+
     def _try_get_webdriver(self):
         """Wrapper that catches exceptions so until() can retry on transient failures."""
         try:
