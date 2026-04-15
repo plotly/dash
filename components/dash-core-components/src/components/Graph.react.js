@@ -550,6 +550,11 @@ PlotlyGraph.propTypes = {
          * plot rather than registering them globally.
          */
         locales: PropTypes.object,
+
+        /**
+         * Determines whether or not notifier is displayed
+         */
+        displayNotifier: PropTypes.bool,
     }),
 
     /**

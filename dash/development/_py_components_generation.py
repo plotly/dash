@@ -682,7 +682,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
         # React's PropTypes.oneOf
         enum=lambda: (
             "a value equal to: "
-            + ", ".join(str(t["value"]) for t in type_object["value"])
+            + ", ".join(str(t.get("value")) for t in type_object["value"])
         ),
         # React's PropTypes.oneOfType
         union=lambda: " | ".join(

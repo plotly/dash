@@ -55,6 +55,7 @@ def test_cbsc001_simple_callback(dash_duo):
     for key in "hello world":
         with lock:
             input_.send_keys(key)
+        time.sleep(0.05)  # Small delay to prevent callback debouncing
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
 
@@ -99,6 +100,7 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     pad_input, pad_div = dash_duo.dash_innerhtml_dom.select_one(
         "#output > div"
     ).contents
+    pad_input = pad_input.next  # get the input element, not the wrapper
 
     assert (
         pad_input.attrs["value"] == "sub input initial value"
@@ -415,9 +417,13 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     for key in "hello world":
         with lock:
             input1.send_keys(key)
+        time.sleep(0.05)  # Small delay to prevent callback debouncing
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
+
+    # Wait for all callbacks to complete
+    time.sleep(0.1)
 
     # an initial call, one for clearing the input
     # and one for each hello world character

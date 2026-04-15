@@ -5,9 +5,103 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 
-- [#3568]((https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
-- [#3534]((https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338]((https://github.com/plotly/dash/pull/2338)
+## Added
+- [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
+
+## Fixed
+- [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
+- [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings
+
+## [4.1.0] - 2026-03-23
+
+## Added
+- [#3637](https://github.com/plotly/dash/pull/3637) Added `debounce` prop to `Dropdown`.
+
+## Fixed
+- [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
+- [#3660](https://github.com/plotly/dash/pull/3660) Allow same date to be selected for both start and end in DatePickerRange components
+- [#3600](https://github.com/plotly/dash/pull/3600) DatePicker support for the Moment.js `Y` year token
+- [#3627](https://github.com/plotly/dash/pull/3627) Make dropdowns searchable wheen focused, without requiring to open them first
+- [#3656](https://github.com/plotly/dash/pull/3656) Improved dropdown performance for large collections of options
+- [#3643](https://github.com/plotly/dash/pull/3643) Fix multiselect dropdown with components as labels
+- [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
+- [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
+
+
+## [4.0.0] - 2026-02-03
+
+## Added
+- Finalize all redesigned dash core components
+- Add a prop to sliders, `allow_direct_input`, that can be used to disable the inputs rendered with sliders.
+- Improve CSS styles in calendar when looking at selected dates outside the current calendar month (`show_outside_days=True`)
+
+## [4.0.0rc6] - 2026-01-07
+
+## Added
+- Restored missing implementation for `with_portal` and `with_full_screen_portal` in datepickers
+
+## Changed
+- Bugfixes for feedback received in `rc5`: notably, popovers are `position: fixed` once again.
+
+## [4.0.0rc5] - 2025-12-16
+
+## Added
+- [#3464](https://github.com/plotly/dash/issues/3464) Add folder upload functionality to `dcc.Upload` component. When `multiple=True`, users can now select and upload entire folders in addition to individual files. The folder hierarchy is preserved in filenames (e.g., `folder/subfolder/file.txt`). Files within folders are filtered according to the `accept` prop. Folder support is available in Chrome, Edge, and Opera; other browsers gracefully fall back to file-only mode. The uploaded files use the same output API as multiple file uploads.
+
+## Changed
+- Bugfixes for feedback received in `rc4`
+
+## [4.0.0rc4] - 2025-12-04
+
+## Added
+- New `dcc.Button` component that mirrors `html.Button` but with default styles applied
+
+## [4.0.0rc3] - 2025-11-27
+- Modernized `dcc.Tabs`
+- Modernized `dcc.DatePickerSingle` and `dcc.DatePickerRange`
+- DatePicker calendars can now accept translations as an external script, either with Dash's `external_scripts` or from the assets folder. See [documentation](https://date-fns.org/v4.1.0/docs/CDN) for the underlying library that supports this.
+
+## Changed
+- `dcc.Tab` now accepts a `width` prop which can be a pixel or percentage width for an individual tab.
+- `dcc.Tab` can accept other Dash Components for its label, in addition to a simple string.
+
+## [4.0.0rc2] - 2025-10-10
+
+## Added
+- [3468](https://github.com/plotly/dash/pull/3468) Modernize dcc.TextArea & dcc.Tooltip
+- [3467](https://github.com/plotly/dash/pull/3467) Modernize dcc.Loading
+- [3453](https://github.com/plotly/dash/pull/3453) Modernize dcc.Checklist & dcc.RadioItems
+
+## Changed
+
+- Various tweaks and bugfixes to issues reported in `4.0.0rc1`
+
+- Dropdown API changes
+    * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired
+    * new `labels` prop to customize strings used within the component
+    * default value for closeOnSelect is now `True` for single-select dropdowns and `False` for multi-select
+
+- Slider API changes
+    * default value of `step` is now only set to `1` if the `min` and `max` props are both integers. Otherwise, it will be dynamically computed according to the available space for the slider
+
+## [4.0.0rc1] - 2025-09-22
+
+## Added
+- [#3440](https://github.com/plotly/dash/pull/3440) Modernize dcc.Dropdown
+
+## [4.0.0rc0] - 2025-09-11
+- [#3398](https://github.com/plotly/dash/pull/3398) Modernize dcc.Input
+- [#3414](https://github.com/plotly/dash/pull/3414) Modernize dcc.Slider
+
+
+## [3.4.0] - 2026-01-19
+
+## Added
+
+- [#3568](https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
+- [#3534](https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338](https://github.com/plotly/dash/pull/2338)
 - [#3541](https://github.com/plotly/dash/pull/3541) Add `attributes` dictionary to be be formatted on script/link (_js_dist/_css_dist) tags of the index, allows for `type="module"` or `type="importmap"`. [#3538](https://github.com/plotly/dash/issues/3538)
 - [#3542](https://github.com/plotly/dash/pull/3542) Add hidden=True to dash pages callback.
 - [#3564](https://github.com/plotly/dash/pull/3564) Add new parameter `hide_all_callbacks` to `run()`. Closes [#3493](https://github.com/plotly/dash/issues/3493)
@@ -33,7 +127,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
 - [#3445](https://github.com/plotly/dash/pull/3445) Added API to reverse direction of slider component.
 - [#3460](https://github.com/plotly/dash/pull/3460) Add `/health` endpoint for server monitoring and health checks.
-- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
+- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies.
 
 ## Fixed
 - [#3490](https://github.com/plotly/dash/pull/3490) Fix stack overflow when circular callbacks are displayed on the devtool callback 
@@ -64,7 +158,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 # [3.1.1] - 2025-06-29
 
 ## Fixed
-[#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
+- [#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
 
 ## [3.1.0] - 2025-06-27
 

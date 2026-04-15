@@ -1,7 +1,5 @@
 import json
-
 import pytest
-
 from dash import Dash, html, dcc, Output, Input, State, Patch
 from dash.exceptions import PreventUpdate
 
@@ -183,9 +181,11 @@ def test_ddro004_empty_string_not_updated(dash_dcc):
 
     dash_dcc.wait_for_text_to_equal("#count-output", "1")
 
-    select_input = dash_dcc.find_element("#drop input")
+    dropdown = dash_dcc.find_element("#drop")
+    dropdown.click()
+    select_input = dash_dcc.find_element(".dash-dropdown-search")
     select_input.send_keys("a")
-    select_input.send_keys(Keys.ENTER)
+    dash_dcc.find_element(".dash-dropdown-option").send_keys(Keys.SPACE)
 
     dash_dcc.wait_for_text_to_equal("#output", "Value=a")
     dash_dcc.wait_for_text_to_equal("#count-output", "2")

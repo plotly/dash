@@ -1,6 +1,6 @@
 {
   "name": "dash-html-components",
-  "version": "3.0.6",
+  "version": "4.1.0",
   "description": "Vanilla HTML components for Dash",
   "main": "lib/index.js",
   "repository": {
@@ -58,6 +58,6 @@
     "/dash_html_components/*{.js,.map}"
   ],
   "browserslist": [
-    "last 10 years and not dead"
+    "last 11 years and not dead"
   ]
 }

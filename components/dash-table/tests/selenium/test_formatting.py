@@ -26,7 +26,7 @@ def get_app(props=dict()):
             c.update(
                 dict(
                     format=dict(
-                        locale=dict(seperate_4digits=False),
+                        locale=dict(separate_4digits=False),
                         prefix=1000,
                         specifier=".3f",
                     )
@@ -36,7 +36,7 @@ def get_app(props=dict()):
             c.update(
                 dict(
                     format=dict(
-                        locale=dict(symbol=["eq. $", ""], seperate_4digits=False),
+                        locale=dict(symbol=["eq. $", ""], separate_4digits=False),
                         nully=0,
                         specifier="$,.2f",
                     ),

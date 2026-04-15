@@ -62,14 +62,14 @@ def test_inbs001_all_types(dash_dcc):
 def test_inbs002_user_class(dash_dcc):
     app = Dash(__name__, assets_folder="../../assets")
 
-    app.layout = html.Div(className="test-input-css", children=[dcc.Input()])
+    app.layout = dcc.Input(className="test-input-css")
 
     dash_dcc.start_server(app)
 
     dash_dcc.wait_for_style_to_equal(
-        ".test-input-css input", "borderColor", "rgb(255, 105, 180)"
+        ".test-input-css", "borderColor", "rgb(255, 105, 180)"
     )
-    dash_dcc.wait_for_style_to_equal(".test-input-css input", "width", "420px")
+    dash_dcc.wait_for_style_to_equal(".test-input-css", "width", "420px")
 
     assert dash_dcc.get_logs() == []
 
@@ -97,7 +97,7 @@ def test_inbs003_styles_are_scoped(dash_dcc):
     dash_dcc.start_server(app)
 
     external_input = dash_dcc.find_element("#ExternalInput")
-    dash_input = dash_dcc.find_element(".unittest")
+    dash_input = dash_dcc.find_element("#DashInput")
 
     external_outline_css = external_input.value_of_css_property("outline")
     dash_outline_css = dash_input.value_of_css_property("outline")

@@ -27,19 +27,23 @@ def test_dddo001_dynamic_options(dash_dcc):
 
     dash_dcc.start_server(app)
 
+    dropdown = dash_dcc.find_element("#my-dynamic-dropdown")
+    dropdown.click()
+
     # Get the inner input used for search value.
-    input_ = dash_dcc.find_element("#my-dynamic-dropdown input")
+    input_ = dash_dcc.find_element(".dash-dropdown-content input")
 
     # Focus on the input to open the options menu
     input_.send_keys("x")
 
     # No options to be found with `x` in them, should show the empty message.
-    dash_dcc.wait_for_text_to_equal(".Select-noresults", "No results found")
+    dash_dcc.wait_for_text_to_equal(".dash-dropdown-options", "No options found")
 
     input_.clear()
     input_.send_keys("o")
 
-    options = dash_dcc.find_elements("#my-dynamic-dropdown .VirtualizedSelectOption")
+    time.sleep(0.25)
+    options = dash_dcc.find_elements(".dash-dropdown-options .dash-dropdown-option")
 
     # Should show all options.
     assert len(options) == 3
@@ -47,10 +51,10 @@ def test_dddo001_dynamic_options(dash_dcc):
     # Searching for `on`
     input_.send_keys("n")
 
-    options = dash_dcc.find_elements("#my-dynamic-dropdown .VirtualizedSelectOption")
+    time.sleep(0.25)
+    options = dash_dcc.find_elements(".dash-dropdown-options .dash-dropdown-option")
 
     assert len(options) == 1
-    print(options)
     assert options[0].text == "Montreal"
 
     assert dash_dcc.get_logs() == []
@@ -68,7 +72,7 @@ def test_dddo002_array_comma_value(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    dash_dcc.wait_for_text_to_equal("#react-select-2--value-0", "San Francisco, CA\n ")
+    dash_dcc.wait_for_text_to_equal(".dash-dropdown-value", "San Francisco, CA")
 
     assert dash_dcc.get_logs() == []
 
@@ -118,11 +122,15 @@ def test_dddo004_dynamic_value_search(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    input_ = dash_dcc.find_element("#dropdown input")
+    dropdown = dash_dcc.find_element("#dropdown")
+    dropdown.click()
+    input_ = dash_dcc.find_element(".dash-dropdown-search")
 
     input_.send_keys("aa1")
-    input_.send_keys(Keys.ENTER)
+    input_.send_keys(Keys.ESCAPE)
 
+    dropdown.click()
+    input_ = dash_dcc.find_element(".dash-dropdown-search")
     input_.send_keys("b")
 
     time.sleep(1)
