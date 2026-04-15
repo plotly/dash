@@ -1139,11 +1139,9 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                (
-                    format_tag("link", link, opened=True)
-                    if isinstance(link, dict)
-                    else f'<link rel="stylesheet" href="{link}">'
-                )
+                format_tag("link", link, opened=True)
+                if isinstance(link, dict)
+                else f'<link rel="stylesheet" href="{link}">'
                 for link in (external_links + links)
             ]
         )
@@ -1197,11 +1195,9 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                (
-                    format_tag("script", src)
-                    if isinstance(src, dict)
-                    else f'<script src="{src}"></script>'
-                )
+                format_tag("script", src)
+                if isinstance(src, dict)
+                else f'<script src="{src}"></script>'
                 for src in srcs
             ]
             + [f"<script>{src}</script>" for src in self._inline_scripts]
@@ -1678,11 +1674,9 @@ class Dash(ObsoleteChecker):
         # For each callback function, if the hidden parameter uses the default value None,
         # replace it with the actual value of the self.config.hide_all_callbacks.
         self._callback_list = [
-            (
-                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-                if _callback.get("hidden") is None
-                else _callback
-            )
+            {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
+            if _callback.get("hidden") is None
+            else _callback
             for _callback in self._callback_list
         ]
 
@@ -2192,7 +2186,9 @@ class Dash(ObsoleteChecker):
                     pkg_dir = (
                         package.submodule_search_locations[0]
                         if package.submodule_search_locations
-                        else os.path.dirname(package.origin) if package.origin else None
+                        else os.path.dirname(package.origin)
+                        if package.origin
+                        else None
                     )
                     if pkg_dir and "dash/dash" in pkg_dir:
                         component_packages_dist[i : i + 1] = [
@@ -2521,12 +2517,14 @@ class Dash(ObsoleteChecker):
 
                 def verify_url_part(served_part, url_part, part_name):
                     if served_part != url_part:
-                        raise ProxyError(f"""
+                        raise ProxyError(
+                            f"""
                             {part_name}: {url_part} is incompatible with the proxy:
                                 {proxy}
                             To see your app at {proxied_url.geturl()},
                             you must use {part_name}: {served_part}
-                            """)
+                            """
+                        )
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
                 verify_url_part(served_url.hostname, host, "host")
@@ -2638,16 +2636,16 @@ class Dash(ObsoleteChecker):
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            (
-                                asyncio.run(execute_async_function(page["layout"]))
-                                if callable(page["layout"])
-                                else page["layout"]
-                            )
+                            asyncio.run(execute_async_function(page["layout"]))
+                            if callable(page["layout"])
+                            else page["layout"]
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + [
                             # pylint: disable=not-callable
-                            self.layout() if callable(self.layout) else self.layout
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
                         ]
                     )
                     if _ID_CONTENT not in self.validation_layout:
@@ -2704,15 +2702,15 @@ class Dash(ObsoleteChecker):
                     if not isinstance(layout, list):
                         layout = [
                             # pylint: disable=not-callable
-                            self.layout() if callable(self.layout) else self.layout
+                            self.layout()
+                            if callable(self.layout)
+                            else self.layout
                         ]
                         self.validation_layout = html.Div(
                             [
-                                (
-                                    page["layout"]()
-                                    if callable(page["layout"])
-                                    else page["layout"]
-                                )
+                                page["layout"]()
+                                if callable(page["layout"])
+                                else page["layout"]
                                 for page in _pages.PAGE_REGISTRY.values()
                             ]
                             + layout
