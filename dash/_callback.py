@@ -70,6 +70,10 @@ GLOBAL_INLINE_SCRIPTS: List[Any] = []
 GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
+Params = ParamSpec("Params")
+ReturnVar = TypeVar("ReturnVar")
+
+
 # pylint: disable=too-many-locals,too-many-arguments
 def callback(
     *_args,
@@ -87,7 +91,7 @@ def callback(
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
     **_kwargs,
-) -> Callable[..., Any]:
+) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -224,7 +228,7 @@ def callback(
 
         background_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
-    return register_callback(
+    raw = register_callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
@@ -239,141 +243,6 @@ def callback(
         hidden=hidden,
     )
 
-
-Params = ParamSpec("Params")
-ReturnVar = TypeVar("ReturnVar")
-
-
-# pylint: disable=too-many-arguments
-def typed_callback(
-    *_args,
-    background: bool = False,
-    interval: int = 1000,
-    progress: Optional[Union[List[Output], Output]] = None,
-    progress_default: Any = None,
-    running: Optional[List[Tuple[Output, Any, Any]]] = None,
-    cancel: Optional[Union[List[Input], Input]] = None,
-    manager: Optional[BaseBackgroundCallbackManager] = None,
-    cache_args_to_ignore: Optional[list] = None,
-    cache_ignore_triggered=True,
-    on_error: Optional[Callable[[Exception], Any]] = None,
-    api_endpoint: Optional[str] = None,
-    optional: Optional[bool] = False,
-    hidden: Optional[bool] = None,
-    **_kwargs,
-) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
-    """Decorator factory for Dash callbacks with full type preservation.
-
-    Centralizes the typing gap in Dash's untyped decorator, satisfying
-    disallow_untyped_decorators while preserving callback function signatures.
-
-    This is a type-safe wrapper around `dash.callback` that preserves the
-    exact signature of the decorated function. Use this when working with
-    strict Mypy settings like `disallow_untyped_decorators`.
-
-    :Usage:
-    ```python
-        @dash.typed_callback(
-            Output('output-id', 'children'),
-            Input('input-id', 'value')
-        )
-        def my_callback(value: str) -> str:
-            return f"You entered: {value}"
-    ```
-
-    :Keyword Arguments:
-        :param background:
-            Mark the callback as a background callback to execute in a manager for
-            callbacks that take a long time without locking up the Dash app
-            or timing out.
-        :param manager:
-            A background callback manager instance. Currently, an instance of one of
-            `DiskcacheManager` or `CeleryManager`.
-            Defaults to the `background_callback_manager` instance provided to the
-            `dash.Dash` constructor.
-            - A diskcache manager (`DiskcacheManager`) that runs callback
-              logic in a separate process and stores the results to disk using the
-              diskcache library. This is the easiest backend to use for local
-              development.
-            - A Celery manager (`CeleryManager`) that runs callback logic
-              in a celery worker and returns results to the Dash app through a Celery
-              broker like RabbitMQ or Redis.
-        :param running:
-            A list of 3-element tuples. The first element of each tuple should be
-            an `Output` dependency object referencing a property of a component in
-            the app layout. The second element is the value that the property
-            should be set to while the callback is running, and the third element
-            is the value the property should be set to when the callback completes.
-        :param cancel:
-            A list of `Input` dependency objects that reference a property of a
-            component in the app's layout.  When the value of this property changes
-            while a callback is running, the callback is canceled.
-            Note that the value of the property is not significant, any change in
-            value will result in the cancellation of the running job (if any).
-            This parameter only applies to background callbacks (`background=True`).
-        :param progress:
-            An `Output` dependency grouping that references properties of
-            components in the app's layout. When provided, the decorated function
-            will be called with an extra argument as the first argument to the
-            function.  This argument, is a function handle that the decorated
-            function should call in order to provide updates to the app on its
-            current progress. This function accepts a single argument, which
-            correspond to the grouping of properties specified in the provided
-            `Output` dependency grouping. This parameter only applies to background
-            callbacks (`background=True`).
-        :param progress_default:
-            A grouping of values that should be assigned to the components
-            specified by the `progress` argument when the callback is not in
-            progress. If `progress_default` is not provided, all the dependency
-            properties specified in `progress` will be set to `None` when the
-            callback is not running. This parameter only applies to background
-            callbacks (`background=True`).
-        :param cache_args_to_ignore:
-            Arguments to ignore when caching is enabled. If callback is configured
-            with keyword arguments (Input/State provided in a dict),
-            this should be a list of argument names as strings. Otherwise,
-            this should be a list of argument indices as integers.
-            This parameter only applies to background callbacks (`background=True`).
-        :param cache_ignore_triggered:
-            Whether to ignore which inputs triggered the callback when creating
-            the cache. This parameter only applies to background callbacks
-            (`background=True`).
-        :param interval:
-            Time to wait between the background callback update requests.
-        :param on_error:
-            Function to call when the callback raises an exception. Receives the
-            exception object as first argument. The callback_context can be used
-            to access the original callback inputs, states and output.
-        :param optional:
-            Mark all dependencies as not required on the initial layout checks.
-        :param hidden:
-            Hide the callback from the devtools callbacks tab.
-        :param api_endpoint:
-            If provided, the callback will be available at the given API endpoint.
-            This allows you to call the callback directly through HTTP requests
-            instead of through the Dash front-end. The endpoint should be a string
-            that starts with a forward slash (e.g. `/my_callback`).
-            The endpoint is relative to the Dash app's base URL.
-            Note that the endpoint will not appear in the list of registered
-            callbacks in the Dash devtools.
-    """
-    raw = callback(
-        *_args,
-        background=background,
-        interval=interval,
-        progress=progress,
-        progress_default=progress_default,
-        running=running,
-        cancel=cancel,
-        manager=manager,
-        cache_args_to_ignore=cache_args_to_ignore,
-        cache_ignore_triggered=cache_ignore_triggered,
-        on_error=on_error,
-        api_endpoint=api_endpoint,
-        optional=optional,
-        hidden=hidden,
-        **_kwargs,
-    )  # type: ignore[no-untyped-call]
     return cast(
         Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
