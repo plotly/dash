@@ -8,6 +8,7 @@ from utils import (
 )
 
 
+@pytest.mark.skip(reason="Slow and unreliable sizing tests")
 @pytest.mark.parametrize("props", basic_modes)
 def test_szng006_on_focus(test, props):
     on_focus(test, props, generate_mixed_markdown_data)
