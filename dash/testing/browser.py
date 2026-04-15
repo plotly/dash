@@ -198,7 +198,6 @@ class Browser(DashPageMixin):
             """
             )
 
-        
         # NEW: Use percy-python-selenium SDK
         try:
             if os.getenv("PERCY_TOKEN"):
