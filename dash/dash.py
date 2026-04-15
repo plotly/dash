@@ -421,6 +421,15 @@ class Dash(ObsoleteChecker):
     :param health_endpoint: Path for the health check endpoint. Set to None to
         disable the health endpoint. Default is None.
     :type health_endpoint: string or None
+
+    :param csrf_token_name: Name of the cookie to read the CSRF token from.
+        Default ``'_csrf_token'``. Set this to match the CSRF cookie name
+        used by your server framework (e.g. ``'csrftoken'`` for Django).
+    :type csrf_token_name: string
+
+    :param csrf_header_name: Name of the HTTP header to send the CSRF token in.
+        Default ``'X-CSRFToken'``.
+    :type csrf_header_name: string
     """
 
     _plotlyjs_url: str
@@ -472,6 +481,8 @@ class Dash(ObsoleteChecker):
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
         health_endpoint: Optional[str] = None,
+        csrf_token_name: str = "_csrf_token",
+        csrf_header_name: str = "X-CSRFToken",
         **obsolete,
     ):
 
@@ -491,6 +502,11 @@ class Dash(ObsoleteChecker):
                 ) from exc
 
         _validate.check_obsolete(obsolete)
+
+        if not csrf_token_name or not csrf_token_name.strip():
+            raise ValueError("csrf_token_name must be a non-empty string")
+        if not csrf_header_name or not csrf_header_name.strip():
+            raise ValueError("csrf_header_name must be a non-empty string")
 
         caller_name: str = name if name is not None else get_caller_name()
 
@@ -545,6 +561,8 @@ class Dash(ObsoleteChecker):
             description=description,
             health_endpoint=health_endpoint,
             hide_all_callbacks=False,
+            csrf_token_name=csrf_token_name,
+            csrf_header_name=csrf_header_name,
         )
         self.config.set_read_only(
             [
@@ -555,6 +573,8 @@ class Dash(ObsoleteChecker):
                 "serve_locally",
                 "compress",
                 "pages_folder",
+                "csrf_token_name",
+                "csrf_header_name",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -938,6 +958,8 @@ class Dash(ObsoleteChecker):
             "ddk_version": ddk_version,
             "plotly_version": plotly_version,
             "validate_callbacks": self._dev_tools.validate_callbacks,
+            "csrf_token_name": self.config.csrf_token_name,
+            "csrf_header_name": self.config.csrf_header_name,
         }
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
@@ -1117,9 +1139,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("link", link, opened=True)
-                if isinstance(link, dict)
-                else f'<link rel="stylesheet" href="{link}">'
+                (
+                    format_tag("link", link, opened=True)
+                    if isinstance(link, dict)
+                    else f'<link rel="stylesheet" href="{link}">'
+                )
                 for link in (external_links + links)
             ]
         )
@@ -1173,9 +1197,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("script", src)
-                if isinstance(src, dict)
-                else f'<script src="{src}"></script>'
+                (
+                    format_tag("script", src)
+                    if isinstance(src, dict)
+                    else f'<script src="{src}"></script>'
+                )
                 for src in srcs
             ]
             + [f"<script>{src}</script>" for src in self._inline_scripts]
@@ -1652,9 +1678,11 @@ class Dash(ObsoleteChecker):
         # For each callback function, if the hidden parameter uses the default value None,
         # replace it with the actual value of the self.config.hide_all_callbacks.
         self._callback_list = [
-            {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-            if _callback.get("hidden") is None
-            else _callback
+            (
+                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
+                if _callback.get("hidden") is None
+                else _callback
+            )
             for _callback in self._callback_list
         ]
 
@@ -2164,9 +2192,7 @@ class Dash(ObsoleteChecker):
                     pkg_dir = (
                         package.submodule_search_locations[0]
                         if package.submodule_search_locations
-                        else os.path.dirname(package.origin)
-                        if package.origin
-                        else None
+                        else os.path.dirname(package.origin) if package.origin else None
                     )
                     if pkg_dir and "dash/dash" in pkg_dir:
                         component_packages_dist[i : i + 1] = [
@@ -2495,14 +2521,12 @@ class Dash(ObsoleteChecker):
 
                 def verify_url_part(served_part, url_part, part_name):
                     if served_part != url_part:
-                        raise ProxyError(
-                            f"""
+                        raise ProxyError(f"""
                             {part_name}: {url_part} is incompatible with the proxy:
                                 {proxy}
                             To see your app at {proxied_url.geturl()},
                             you must use {part_name}: {served_part}
-                            """
-                        )
+                            """)
 
                 verify_url_part(served_url.scheme, protocol, "protocol")
                 verify_url_part(served_url.hostname, host, "host")
@@ -2614,16 +2638,16 @@ class Dash(ObsoleteChecker):
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            asyncio.run(execute_async_function(page["layout"]))
-                            if callable(page["layout"])
-                            else page["layout"]
+                            (
+                                asyncio.run(execute_async_function(page["layout"]))
+                                if callable(page["layout"])
+                                else page["layout"]
+                            )
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + [
                             # pylint: disable=not-callable
-                            self.layout()
-                            if callable(self.layout)
-                            else self.layout
+                            self.layout() if callable(self.layout) else self.layout
                         ]
                     )
                     if _ID_CONTENT not in self.validation_layout:
@@ -2680,15 +2704,15 @@ class Dash(ObsoleteChecker):
                     if not isinstance(layout, list):
                         layout = [
                             # pylint: disable=not-callable
-                            self.layout()
-                            if callable(self.layout)
-                            else self.layout
+                            self.layout() if callable(self.layout) else self.layout
                         ]
                         self.validation_layout = html.Div(
                             [
-                                page["layout"]()
-                                if callable(page["layout"])
-                                else page["layout"]
+                                (
+                                    page["layout"]()
+                                    if callable(page["layout"])
+                                    else page["layout"]
+                                )
                                 for page in _pages.PAGE_REGISTRY.values()
                             ]
                             + layout

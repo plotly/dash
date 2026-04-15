@@ -480,3 +480,47 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
 def test_missing_flask_compress_raises():
     with pytest.raises(ImportError):
         Dash(compress=True)
+
+
+def test_csrf_config_defaults():
+    app = Dash()
+    assert app.config.csrf_token_name == "_csrf_token"
+    assert app.config.csrf_header_name == "X-CSRFToken"
+
+    config = app._config()
+    assert config["csrf_token_name"] == "_csrf_token"
+    assert config["csrf_header_name"] == "X-CSRFToken"
+
+
+def test_csrf_config_custom():
+    app = Dash(csrf_token_name="csrftoken", csrf_header_name="X-CSRF-Token")
+    assert app.config.csrf_token_name == "csrftoken"
+    assert app.config.csrf_header_name == "X-CSRF-Token"
+
+    config = app._config()
+    assert config["csrf_token_name"] == "csrftoken"
+    assert config["csrf_header_name"] == "X-CSRF-Token"
+
+
+def test_csrf_config_in_index():
+    app = Dash(csrf_token_name="csrftoken")
+    config_html = app._generate_config_html()
+    assert '"csrf_token_name":"csrftoken"' in config_html
+    assert '"csrf_header_name":"X-CSRFToken"' in config_html
+
+
+@pytest.mark.parametrize(
+    "token_name, header_name",
+    [("", "X-CSRFToken"), ("csrftoken", ""), ("  ", "X-CSRFToken")],
+)
+def test_csrf_config_validation(token_name, header_name):
+    with pytest.raises(ValueError):
+        Dash(csrf_token_name=token_name, csrf_header_name=header_name)
+
+
+def test_csrf_config_read_only():
+    app = Dash()
+    with pytest.raises(AttributeError):
+        app.config.csrf_token_name = "something_else"
+    with pytest.raises(AttributeError):
+        app.config.csrf_header_name = "something_else"
