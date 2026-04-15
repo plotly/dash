@@ -6,7 +6,6 @@ import logging
 from typing import Union, Optional
 import warnings
 from percy import percy_snapshot as _percy_snapshot
-import requests
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
