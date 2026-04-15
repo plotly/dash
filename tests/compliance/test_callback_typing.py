@@ -4,7 +4,7 @@ import sys
 
 import pytest  # type: ignore
 
-from .test_typing import format_template_and_save, run_module
+from tests.compliance.test_typing import format_template_and_save, run_module
 
 
 callback_template = """
