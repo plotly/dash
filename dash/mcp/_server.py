@@ -126,7 +126,9 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             )
         elif not session_id:
             return Response(
-                json.dumps({"error": "Missing session ID. Send an initialize request first."}),
+                json.dumps(
+                    {"error": "Missing session ID. Send an initialize request first."}
+                ),
                 content_type="application/json",
                 status=400,
             )
@@ -173,35 +175,6 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         app.config.routes_pathname_prefix,
         mcp_path,
     )
-
-
-_STALE_SESSION_WARNING = (
-    "[Warning: your session was not recognised"
-    " — the app may have restarted."
-    " Please call tools/list to refresh your tool list."
-    " Please ask the user to reconnect to the MCP server.]"
-)
-
-
-def _inject_warning(response_data: dict[str, Any], warning: str) -> None:
-    """Append a warning to a JSON-RPC response dict.
-
-    For successful ``tools/call`` responses the warning is added as an
-    extra text content block so the agent sees it alongside the result.
-    For error responses the warning is appended to the error message.
-    Other responses (tools/list, resources/*) are left unchanged — the
-    JSON-RPC spec forbids extra top-level keys.
-    """
-    # tools/call success: result has a "content" list
-    result = response_data.get("result")
-    if isinstance(result, dict) and isinstance(result.get("content"), list):
-        result["content"].append({"type": "text", "text": warning})
-        return
-
-    # Error response
-    error = response_data.get("error")
-    if isinstance(error, dict) and "message" in error:
-        error["message"] += " " + warning
 
 
 def _handle_initialize() -> InitializeResult:
