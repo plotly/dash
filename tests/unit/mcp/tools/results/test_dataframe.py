@@ -2,7 +2,7 @@
 
 from dash.mcp.primitives.tools.results.result_dataframe import (
     MAX_ROWS,
-    dataframe_result,
+    DataFrameResult,
 )
 
 EXPECTED_TABLE = (
@@ -37,26 +37,26 @@ AGGRID_OUTPUT = {
 
 class TestDataframeResult:
     def test_datatable_data_renders_markdown(self):
-        result = dataframe_result(DATATABLE_OUTPUT, SAMPLE_ROWS)
+        result = DataFrameResult.format(DATATABLE_OUTPUT, SAMPLE_ROWS)
         assert len(result) == 1
         assert result[0].text == EXPECTED_TABLE
 
     def test_aggrid_rowdata_renders_markdown(self):
-        result = dataframe_result(AGGRID_OUTPUT, SAMPLE_ROWS)
+        result = DataFrameResult.format(AGGRID_OUTPUT, SAMPLE_ROWS)
         assert len(result) == 1
         assert result[0].text == EXPECTED_TABLE
 
     def test_ignores_non_tabular_props(self):
         non_tabular = {**DATATABLE_OUTPUT, "property": "columns"}
-        assert dataframe_result(non_tabular, SAMPLE_ROWS) == []
+        assert DataFrameResult.format(non_tabular, SAMPLE_ROWS) == []
 
     def test_ignores_empty_or_non_dict_rows(self):
-        assert dataframe_result(DATATABLE_OUTPUT, []) == []
-        assert dataframe_result(DATATABLE_OUTPUT, ["a", "b"]) == []
+        assert DataFrameResult.format(DATATABLE_OUTPUT, []) == []
+        assert DataFrameResult.format(DATATABLE_OUTPUT, ["a", "b"]) == []
 
     def test_truncates_large_tables(self):
         rows = [{"i": n} for n in range(MAX_ROWS + 50)]
-        result = dataframe_result(DATATABLE_OUTPUT, rows)
+        result = DataFrameResult.format(DATATABLE_OUTPUT, rows)
         text = result[0].text
         assert f"| {MAX_ROWS - 1} |" in text
         assert f"| {MAX_ROWS} |" not in text

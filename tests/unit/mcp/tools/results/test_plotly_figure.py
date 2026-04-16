@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from dash.mcp.primitives.tools.results.result_plotly_figure import (
-    plotly_figure_result,
+    PlotlyFigureResult,
 )
 
 go = pytest.importorskip("plotly.graph_objects")
@@ -28,7 +28,7 @@ class TestPlotlyFigureResult:
     def test_returns_image_when_kaleido_available(self):
         fig_dict = go.Figure(data=[go.Bar(x=["A", "B"], y=[1, 2])]).to_plotly_json()
         with patch.object(go.Figure, "to_image", return_value=FAKE_PNG):
-            result = plotly_figure_result(GRAPH_FIGURE_OUTPUT, fig_dict)
+            result = PlotlyFigureResult.format(GRAPH_FIGURE_OUTPUT, fig_dict)
         assert len(result) == 1
         assert result[0].type == "image"
         assert result[0].data == FAKE_B64
@@ -36,7 +36,7 @@ class TestPlotlyFigureResult:
     def test_returns_empty_when_kaleido_unavailable(self):
         fig_dict = go.Figure(data=[go.Bar(x=["A", "B"], y=[1, 2])]).to_plotly_json()
         with patch.object(go.Figure, "to_image", side_effect=ImportError):
-            result = plotly_figure_result(GRAPH_FIGURE_OUTPUT, fig_dict)
+            result = PlotlyFigureResult.format(GRAPH_FIGURE_OUTPUT, fig_dict)
         assert result == []
 
     def test_ignores_non_graph_components(self):
@@ -45,11 +45,11 @@ class TestPlotlyFigureResult:
             "component_type": "Div",
             "property": "children",
         }
-        assert plotly_figure_result(output, {}) == []
+        assert PlotlyFigureResult.format(output, {}) == []
 
     def test_ignores_non_figure_props(self):
         output = {**GRAPH_FIGURE_OUTPUT, "property": "clickData"}
-        assert plotly_figure_result(output, {}) == []
+        assert PlotlyFigureResult.format(output, {}) == []
 
     def test_ignores_non_dict_values(self):
-        assert plotly_figure_result(GRAPH_FIGURE_OUTPUT, "not a dict") == []
+        assert PlotlyFigureResult.format(GRAPH_FIGURE_OUTPUT, "not a dict") == []
