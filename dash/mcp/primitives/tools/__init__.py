@@ -1,12 +1,4 @@
-"""MCP tool listing and call handling.
-
-Each tool module exports:
-- ``get_tool_names() -> set[str]``
-- ``get_tools() -> list[Tool]``
-- ``call_tool(tool_name, arguments) -> CallToolResult``
-
-The __init__ assembles the list and dispatches calls by name.
-"""
+"""MCP tool listing and call handling."""
 
 from __future__ import annotations
 
@@ -16,26 +8,29 @@ from mcp.types import CallToolResult, ListToolsResult
 
 from dash.mcp.types import ToolNotFoundError
 
-from . import tool_get_dash_component as _get_component
-from . import tools_callbacks as _callbacks
+from .base import MCPToolProvider
+from .tool_get_dash_component import GetDashComponentTool
+from .tools_callbacks import CallbackTools
 
-_TOOL_MODULES = [_callbacks, _get_component]
+_TOOL_PROVIDERS: list[type[MCPToolProvider]] = [
+    CallbackTools,
+    GetDashComponentTool,
+]
 
 
 def list_tools() -> ListToolsResult:
     """Build the MCP tools/list response."""
     tools = []
-    for mod in _TOOL_MODULES:
-        tools.extend(mod.get_tools())
+    for provider in _TOOL_PROVIDERS:
+        tools.extend(provider.list_tools())
     return ListToolsResult(tools=tools)
 
 
 def call_tool(tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
-    """Dispatch a tools/call request by tool name."""
-    for mod in _TOOL_MODULES:
-        if tool_name in mod.get_tool_names():
-            result = mod.call_tool(tool_name, arguments)
-            return result
+    """Route a tools/call request by tool name."""
+    for provider in _TOOL_PROVIDERS:
+        if tool_name in provider.get_tool_names():
+            return provider.call_tool(tool_name, arguments)
     raise ToolNotFoundError(
         f"Tool not found: {tool_name}."
         " The app's callbacks may have changed."
