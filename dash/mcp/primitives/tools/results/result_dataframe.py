@@ -9,9 +9,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import TextContent
+from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
+
+from .base import ResultFormatter
 
 MAX_ROWS = 50
 
@@ -45,11 +47,20 @@ def _to_markdown_table(rows: list[dict], max_rows: int = MAX_ROWS) -> str:
     return "\n".join(lines)
 
 
-def dataframe_result(callback_output: MCPOutput, callback_output_value: Any) -> list:
+class DataFrameResult(ResultFormatter):
     """Produce a markdown table for tabular component output values."""
-    key = (callback_output.get("component_type"), callback_output.get("property"))
-    if key not in _TABULAR_PROPS:
-        return []
-    if not isinstance(callback_output_value, list) or not callback_output_value or not isinstance(callback_output_value[0], dict):
-        return []
-    return [TextContent(type="text", text=_to_markdown_table(callback_output_value))]
+
+    @classmethod
+    def format(
+        cls, output: MCPOutput, returned_output_value: Any
+    ) -> list[TextContent | ImageContent]:
+        key = (output.get("component_type"), output.get("property"))
+        if key not in _TABULAR_PROPS:
+            return []
+        if (
+            not isinstance(returned_output_value, list)
+            or not returned_output_value
+            or not isinstance(returned_output_value[0], dict)
+        ):
+            return []
+        return [TextContent(type="text", text=_to_markdown_table(returned_output_value))]

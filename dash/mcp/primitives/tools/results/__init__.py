@@ -1,10 +1,7 @@
 """Tool result formatting for MCP tools/call responses.
 
-Each result formatter shares the same signature:
-``(output: MCPOutput, value: Any) -> list[TextContent | ImageContent]``
-
-Formatters decide for themselves whether they care about a given output.
-The structuredContent is always the full dispatch response.
+Each formatter is a ``ResultFormatter`` subclass that can enrich
+a tool result with additional content. All formatters are accumulated.
 """
 
 from __future__ import annotations
@@ -17,12 +14,13 @@ from mcp.types import CallToolResult, TextContent
 from dash.types import CallbackExecutionResponse
 from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
-from .result_dataframe import dataframe_result
-from .result_plotly_figure import plotly_figure_result
+from .base import ResultFormatter
+from .result_dataframe import DataFrameResult
+from .result_plotly_figure import PlotlyFigureResult
 
-_RESULT_FORMATTERS = [
-    plotly_figure_result,
-    dataframe_result,
+_RESULT_FORMATTERS: list[type[ResultFormatter]] = [
+    PlotlyFigureResult,
+    DataFrameResult,
 ]
 
 
@@ -30,7 +28,7 @@ def format_callback_response(
     response: CallbackExecutionResponse,
     callback: CallbackAdapter,
 ) -> CallToolResult:
-    """Format a dispatch response as a CallToolResult.
+    """Format a callback response as a CallToolResult.
 
     The response is always returned as structuredContent. Result
     formatters are called per output property and may add additional
@@ -43,8 +41,8 @@ def format_callback_response(
     resp = response.get("response") or {}
     for callback_output in callback.outputs:
         value = resp.get(callback_output["component_id"], {}).get(callback_output["property"])
-        for result_fn in _RESULT_FORMATTERS:
-            content.extend(result_fn(callback_output, value))
+        for formatter in _RESULT_FORMATTERS:
+            content.extend(formatter.format(callback_output, value))
 
     return CallToolResult(
         content=content,
