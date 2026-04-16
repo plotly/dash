@@ -14,7 +14,7 @@ from typing import Any
 
 from mcp.types import CallToolResult, TextContent
 
-from dash.types import CallbackDispatchResponse
+from dash.types import CallbackExecutionResponse
 from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
 from .result_dataframe import dataframe_result
@@ -27,7 +27,7 @@ _RESULT_FORMATTERS = [
 
 
 def format_callback_response(
-    response: CallbackDispatchResponse,
+    response: CallbackExecutionResponse,
     callback: CallbackAdapter,
 ) -> CallToolResult:
     """Format a dispatch response as a CallToolResult.
