@@ -9,7 +9,10 @@ collect_ignore_glob = []
 if sys.version_info < (3, 10):
     collect_ignore_glob.append("*")
 else:
-    from dash.mcp.primitives.tools import call_tool, list_tools  # pylint: disable=wrong-import-position
+    from dash.mcp.primitives.tools import (
+        call_tool,
+        list_tools,
+    )  # pylint: disable=wrong-import-position
     from dash.mcp.primitives.tools.callback_adapter_collection import (  # pylint: disable=wrong-import-position
         CallbackAdapterCollection,
     )
