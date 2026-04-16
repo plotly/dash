@@ -23,6 +23,8 @@ from pydantic import TypeAdapter
 from dash.development.base_component import Component
 from dash.mcp.types import MCPInput, is_nullable
 
+from .base import InputSchemaSource
+
 
 def annotation_to_json_schema(annotation: type) -> dict[str, Any] | None:
     """Convert a Python type annotation to a JSON Schema dict.
@@ -41,27 +43,23 @@ def annotation_to_json_schema(annotation: type) -> dict[str, Any] | None:
         return None
 
 
-def annotation_to_schema(param: MCPInput) -> dict[str, Any] | None:
-    """Convert a callback parameter's type annotation to a JSON Schema dict.
+class AnnotationSchema(InputSchemaSource):
+    """Derive JSON Schema from the callback parameter's type annotation."""
 
-    Returns ``None`` if the annotation is not recognised, meaning the
-    caller should fall through to the next schema source.
+    @classmethod
+    def get_schema(cls, param: MCPInput) -> dict[str, Any] | None:
+        annotation = param.get("annotation")
+        if annotation is None:
+            return None
+        schema = annotation_to_json_schema(annotation)
+        if schema is None:
+            return None
 
-    ``Optional[X]`` produces ``{"type": ["X", "null"]}`` — the user
-    explicitly chose a nullable type.
-    """
-    annotation = param.get("annotation")
-    if annotation is None:
-        return None
-    schema = annotation_to_json_schema(annotation)
-    if schema is None:
-        return None
+        if is_nullable(annotation) and schema:
+            t = schema.get("type")
+            if isinstance(t, str):
+                schema = {**schema, "type": [t, "null"]}
+            elif isinstance(t, list) and "null" not in t:
+                schema = {**schema, "type": [*t, "null"]}
 
-    if is_nullable(annotation) and schema:
-        t = schema.get("type")
-        if isinstance(t, str):
-            schema = {**schema, "type": [t, "null"]}
-        elif isinstance(t, list) and "null" not in t:
-            schema = {**schema, "type": [*t, "null"]}
-
-    return schema
+        return schema

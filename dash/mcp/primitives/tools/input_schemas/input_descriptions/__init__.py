@@ -1,23 +1,22 @@
 """Per-property description generation for MCP tool input parameters.
 
-Each source shares the same signature:
-``(param: MCPInput) -> list[str]``
-
-Sources are tried in order from most generic to most instance-specific.
-All sources that produce lines are combined.
+Each source is an ``InputDescriptionSource`` subclass that can add
+text to a parameter's description. All sources are accumulated.
 """
 
 from __future__ import annotations
 
 from dash.mcp.types import MCPInput
-from .description_component_props import component_props_description
-from .description_docstrings import docstring_prop_description
-from .description_html_labels import label_description
 
-_SOURCES = [
-    docstring_prop_description,
-    label_description,
-    component_props_description,
+from .base import InputDescriptionSource
+from .description_component_props import ComponentPropsDescription
+from .description_docstrings import DocstringPropDescription
+from .description_html_labels import LabelDescription
+
+_SOURCES: list[type[InputDescriptionSource]] = [
+    DocstringPropDescription,
+    LabelDescription,
+    ComponentPropsDescription,
 ]
 
 
@@ -27,5 +26,5 @@ def get_property_description(param: MCPInput) -> str | None:
     if not param.get("required", True):
         lines.append("Input is optional.")
     for source in _SOURCES:
-        lines.extend(source(param))
+        lines.extend(source.describe(param))
     return "\n".join(lines) if lines else None
