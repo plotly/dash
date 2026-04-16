@@ -1,4 +1,4 @@
-"""Output schema derived from CallbackDispatchResponse."""
+"""Output schema derived from CallbackExecutionResponse."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ from typing import Any
 
 from pydantic import TypeAdapter
 
-from dash.types import CallbackDispatchResponse
+from dash.types import CallbackExecutionResponse
 
-_schema = TypeAdapter(CallbackDispatchResponse).json_schema()
+_schema = TypeAdapter(CallbackExecutionResponse).json_schema()
 
 
 def callback_response_schema() -> dict[str, Any]:
