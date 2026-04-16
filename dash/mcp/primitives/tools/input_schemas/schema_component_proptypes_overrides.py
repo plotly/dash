@@ -7,7 +7,9 @@ from __future__ import annotations
 from typing import Any
 
 from dash.mcp.types import MCPInput
-from .schema_component_proptypes import get_component_prop_schema
+
+from .base import InputSchemaSource
+from .schema_component_proptypes import ComponentPropSchema
 
 _DATE_SCHEMA = {
     "type": "string",
@@ -18,7 +20,7 @@ _DATE_SCHEMA = {
 
 def _compute_dropdown_value_schema(param: MCPInput) -> dict[str, Any] | None:
     """Dropdown values are an array if `multi=True`; scalar values otherwise."""
-    schema = get_component_prop_schema(param)
+    schema = ComponentPropSchema.get_schema(param)
     if schema is None:
         return None
 
@@ -46,7 +48,6 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any] | callable] = {
     ("DatePickerSingle", "date"): _DATE_SCHEMA,
     ("DatePickerRange", "start_date"): _DATE_SCHEMA,
     ("DatePickerRange", "end_date"): _DATE_SCHEMA,
-    # Graph — annotation says "object", we add structured properties.
     ("Graph", "figure"): {
         "type": "object",
         "properties": {
@@ -59,12 +60,15 @@ _OVERRIDES: dict[tuple[str, str], dict[str, Any] | callable] = {
 }
 
 
-def get_override_schema(param: MCPInput) -> dict[str, Any] | None:
+class OverrideSchema(InputSchemaSource):
     """Return a schema override, or None to fall through to introspection."""
-    key = (param.get("component_type"), param["property"])
-    override = _OVERRIDES.get(key)
-    if override is None:
-        return None
-    if callable(override):
-        return override(param)
-    return dict(override)
+
+    @classmethod
+    def get_schema(cls, param: MCPInput) -> dict[str, Any] | None:
+        key = (param.get("component_type"), param["property"])
+        override = _OVERRIDES.get(key)
+        if override is None:
+            return None
+        if callable(override):
+            return override(param)
+        return dict(override)

@@ -4,13 +4,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .base import ToolDescriptionSource
+
 if TYPE_CHECKING:
     from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
 
-def callback_docstring(adapter: CallbackAdapter) -> list[str]:
+class DocstringDescription(ToolDescriptionSource):
     """Return the callback's docstring as description lines."""
-    docstring = adapter._docstring
-    if docstring:
-        return ["", docstring.strip()]
-    return []
+
+    @classmethod
+    def describe(cls, callback: CallbackAdapter) -> list[str]:
+        docstring = callback._docstring
+        if docstring:
+            return ["", docstring.strip()]
+        return []
