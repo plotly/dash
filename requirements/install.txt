@@ -8,3 +8,4 @@ retrying
 nest-asyncio
 setuptools
 pydantic>=2.10
+mcp>=1.0.0; python_version>="3.10"
