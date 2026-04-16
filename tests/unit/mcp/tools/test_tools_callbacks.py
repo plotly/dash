@@ -111,6 +111,7 @@ class TestOutputSemanticSummary:
     @staticmethod
     def _adapter_with_outputs(outputs, docstring=None):
         from unittest.mock import Mock
+
         adapter = Mock()
         adapter.outputs = outputs
         adapter._docstring = docstring
