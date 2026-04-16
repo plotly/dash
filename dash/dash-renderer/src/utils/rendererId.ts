@@ -1,23 +1,22 @@
+/** Cached renderer ID for this page instance */
+let cachedRendererId: string | null = null;
+
 /**
- * Generate or retrieve a unique renderer ID for this browser tab/session.
+ * Generate a unique renderer ID for this page instance.
  *
- * The ID is stored in sessionStorage to persist across page reloads
- * but remain unique per tab.
+ * Each page load gets a fresh ID to avoid conflicts with stale
+ * connections in the SharedWorker after page reloads.
  */
 export function getRendererId(): string {
-    const key = '__dash_renderer_id';
-    let id = sessionStorage.getItem(key);
-
-    if (!id) {
-        // Generate a unique ID
+    if (!cachedRendererId) {
         if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-            id = crypto.randomUUID();
+            cachedRendererId = crypto.randomUUID();
         } else {
             // Fallback for older browsers
-            id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            cachedRendererId = `${Date.now()}-${Math.random()
+                .toString(36)
+                .slice(2)}`;
         }
-        sessionStorage.setItem(key, id);
     }
-
-    return id;
+    return cachedRendererId;
 }
