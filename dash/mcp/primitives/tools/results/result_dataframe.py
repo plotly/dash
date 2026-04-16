@@ -63,4 +63,6 @@ class DataFrameResult(ResultFormatter):
             or not isinstance(returned_output_value[0], dict)
         ):
             return []
-        return [TextContent(type="text", text=_to_markdown_table(returned_output_value))]
+        return [
+            TextContent(type="text", text=_to_markdown_table(returned_output_value))
+        ]
