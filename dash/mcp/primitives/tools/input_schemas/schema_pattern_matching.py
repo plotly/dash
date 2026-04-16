@@ -8,10 +8,13 @@ exist in the layout, the item type is inferred from a concrete match.
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
-from dash._layout_utils import find_matching_components, _WILDCARD_VALUES
+from dash._layout_utils import (
+    _WILDCARD_VALUES,
+    find_matching_components,
+    parse_wildcard_id,
+)
 from dash.mcp.types import MCPInput
 
 from .base import InputSchemaSource
@@ -26,7 +29,7 @@ class PatternMatchingSchema(InputSchemaSource):
 
     @classmethod
     def get_schema(cls, param: MCPInput) -> dict[str, Any] | None:
-        dep_id = _parse_dep_id(param["component_id"])
+        dep_id = parse_wildcard_id(param["component_id"])
         if dep_id is None:
             return None
 
@@ -52,15 +55,6 @@ class PatternMatchingSchema(InputSchemaSource):
         return {"type": "array", "items": item_schema}
 
 
-def _parse_dep_id(component_id: str) -> dict | None:
-    if not component_id.startswith("{"):
-        return None
-    try:
-        return json.loads(component_id)
-    except (json.JSONDecodeError, ValueError):
-        return None
-
-
 def _get_wildcard_type(dep_id: dict) -> str | None:
     """Return the wildcard type (ALL, MATCH, ALLSMALLER) or None."""
     for value in dep_id.values():
@@ -72,10 +66,11 @@ def _get_wildcard_type(dep_id: dict) -> str | None:
 
 def _infer_value_schema(param: MCPInput) -> dict[str, Any] | None:
     """Infer the JSON Schema for the ``value`` field from a matching component."""
-    matches = find_matching_components(_parse_dep_id(param["component_id"]))
+    matches = find_matching_components(parse_wildcard_id(param["component_id"]))
     if not matches:
         return None
 
+    # pylint: disable-next=cyclic-import,import-outside-toplevel
     from . import get_input_schema
 
     concrete_param: MCPInput = {

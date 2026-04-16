@@ -7,14 +7,10 @@ See: https://dash.plotly.com/pattern-matching-callbacks
 
 from __future__ import annotations
 
-import json
-
-from dash.dependencies import Wildcard
+from dash._layout_utils import _WILDCARD_VALUES, parse_wildcard_id
 from dash.mcp.types import MCPInput
 
 from .base import InputDescriptionSource
-
-_WILDCARD_VALUES = frozenset(w.value for w in Wildcard)
 
 
 class PatternMatchingDescription(InputDescriptionSource):
@@ -22,7 +18,7 @@ class PatternMatchingDescription(InputDescriptionSource):
 
     @classmethod
     def describe(cls, param: MCPInput) -> list[str]:
-        dep_id = _parse_dep_id(param["component_id"])
+        dep_id = parse_wildcard_id(param["component_id"])
         if dep_id is None:
             return []
 
@@ -54,15 +50,6 @@ class PatternMatchingDescription(InputDescriptionSource):
 
         desc = wildcard_descriptions.get(wildcard_type)
         return [desc] if desc else []
-
-
-def _parse_dep_id(component_id: str) -> dict | None:
-    if not component_id.startswith("{"):
-        return None
-    try:
-        return json.loads(component_id)
-    except (json.JSONDecodeError, ValueError):
-        return None
 
 
 def _find_wildcard(dep_id: dict) -> tuple[str | None, str | None]:
