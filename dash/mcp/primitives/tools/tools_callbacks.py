@@ -13,6 +13,7 @@ from dash import get_app
 from dash.mcp.types import CallbackExecutionError, ToolNotFoundError
 
 from .base import MCPToolProvider
+from .callback_utils import run_callback
 from .results import format_callback_response
 
 
@@ -31,8 +32,6 @@ class CallbackTools(MCPToolProvider):
     @classmethod
     def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
         """Execute a callback tool by name."""
-        from .callback_utils import run_callback
-
         callback_map = get_app().mcp_callback_map
         cb = callback_map.find_by_tool_name(tool_name)
         if cb is None:

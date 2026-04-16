@@ -75,7 +75,9 @@ class GetDashComponentTool(MCPToolProvider):
             ]
             msg = f"Component '{comp_id}' not found in static layout."
             if rendering_tools:
-                msg += f" However, the following tools would modify it: {rendering_tools}."
+                msg += (
+                    f" However, the following tools would modify it: {rendering_tools}."
+                )
             msg += " Use the dash://components resource to see statically available component IDs."
             return CallToolResult(
                 content=[TextContent(type="text", text=msg)],
@@ -122,6 +124,8 @@ class GetDashComponentTool(MCPToolProvider):
         )
 
         return CallToolResult(
-            content=[TextContent(type="text", text=json.dumps(structured, default=str))],
+            content=[
+                TextContent(type="text", text=json.dumps(structured, default=str))
+            ],
             structuredContent=structured,
         )
