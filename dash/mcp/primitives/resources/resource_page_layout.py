@@ -32,7 +32,7 @@ class PageLayoutResource(MCPResourceProvider):
 
     @classmethod
     def read_resource(cls, uri: str) -> ReadResourceResult:
-        path = uri[len(cls.uri):]
+        path = uri[len(cls.uri) :]
         if not path.startswith("/"):
             path = "/" + path
 

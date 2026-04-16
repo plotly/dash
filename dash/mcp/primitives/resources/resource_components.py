@@ -40,7 +40,10 @@ class ComponentsResource(MCPResourceProvider):
         layout = app.get_layout()
         components = sorted(
             [
-                {"id": str(comp.id), "type": getattr(comp, "_type", type(comp).__name__)}
+                {
+                    "id": str(comp.id),
+                    "type": getattr(comp, "_type", type(comp).__name__),
+                }
                 for comp, _ in traverse(layout)
                 if getattr(comp, "id", None) is not None
             ],
