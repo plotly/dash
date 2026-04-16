@@ -738,7 +738,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
         # Get allowed origins from dash app config
         allowed_origins = getattr(
-            dash_app, "_allowed_websocket_origins", []
+            dash_app, "_websocket_allowed_origins", []
         )  # pylint: disable=protected-access
 
         def validate_origin(origin: str | None, host: str | None) -> str | None:
