@@ -10,14 +10,19 @@ from __future__ import annotations
 from dash import get_app
 from dash.mcp.types import MCPInput
 
+from .base import InputDescriptionSource
 
-def label_description(param: MCPInput) -> list[str]:
+
+class LabelDescription(InputDescriptionSource):
     """Return the label text for this component, if any."""
-    component_id = param.get("component_id")
-    if not component_id:
+
+    @classmethod
+    def describe(cls, param: MCPInput) -> list[str]:
+        component_id = param.get("component_id")
+        if not component_id:
+            return []
+        label_map = get_app().mcp_callback_map.component_label_map
+        texts = label_map.get(component_id, [])
+        if texts:
+            return [f"Labeled with: {'; '.join(texts)}"]
         return []
-    label_map = get_app().mcp_callback_map.component_label_map
-    texts = label_map.get(component_id, [])
-    if texts:
-        return [f"Labeled with: {'; '.join(texts)}"]
-    return []

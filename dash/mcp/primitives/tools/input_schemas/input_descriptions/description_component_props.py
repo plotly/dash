@@ -11,6 +11,8 @@ from typing import Any
 from dash import get_app
 from dash.mcp.types import MCPInput
 
+from .base import InputDescriptionSource
+
 _MAX_VALUE_LENGTH = 200
 
 _MCP_EXCLUDED_PROPS = {"id", "className", "style"}
@@ -25,52 +27,56 @@ _PROP_TEMPLATES: dict[tuple[str | None, str], str] = {
 }
 
 
-def component_props_description(param: MCPInput) -> list[str]:
-    component = param.get("component")
-    if component is None:
-        return []
+class ComponentPropsDescription(InputDescriptionSource):
+    """Describe component properties with their current values."""
 
-    component_id = param["component_id"]
-    cbmap = get_app().mcp_callback_map
-    prop_lines: list[str] = []
+    @classmethod
+    def describe(cls, param: MCPInput) -> list[str]:
+        component = param.get("component")
+        if component is None:
+            return []
 
-    for prop_name in getattr(component, "_prop_names", []):
-        if prop_name in _MCP_EXCLUDED_PROPS:
-            continue
+        component_id = param["component_id"]
+        cbmap = get_app().mcp_callback_map
+        prop_lines: list[str] = []
 
-        upstream = cbmap.find_by_output(f"{component_id}.{prop_name}")
-        if upstream is not None and not upstream.prevents_initial_call:
-            value = upstream.initial_output_value(f"{component_id}.{prop_name}")
-        else:
-            value = getattr(component, prop_name, None)
-        tool_name = upstream.tool_name if upstream is not None else None
+        for prop_name in getattr(component, "_prop_names", []):
+            if prop_name in _MCP_EXCLUDED_PROPS:
+                continue
 
-        if value is None and tool_name is None:
-            continue
+            upstream = cbmap.find_by_output(f"{component_id}.{prop_name}")
+            if upstream is not None and not upstream.prevents_initial_call:
+                value = upstream.initial_output_value(f"{component_id}.{prop_name}")
+            else:
+                value = getattr(component, prop_name, None)
+            tool_name = upstream.tool_name if upstream is not None else None
 
-        component_type = param.get("component_type")
-        template = _PROP_TEMPLATES.get((component_type, prop_name))
-        formatted_value = (
-            _truncate_large_values(value, component_id, prop_name)
-            if value is not None
-            else None
-        )
+            if value is None and tool_name is None:
+                continue
 
-        if template and formatted_value is not None:
-            line = template.format(value=formatted_value)
-        elif formatted_value is not None:
-            line = f"{prop_name}: {formatted_value}"
-        else:
-            line = prop_name
+            component_type = param.get("component_type")
+            template = _PROP_TEMPLATES.get((component_type, prop_name))
+            formatted_value = (
+                _truncate_large_values(value, component_id, prop_name)
+                if value is not None
+                else None
+            )
 
-        if tool_name:
-            line += f" (can be updated by tool: `{tool_name}`)"
+            if template and formatted_value is not None:
+                line = template.format(value=formatted_value)
+            elif formatted_value is not None:
+                line = f"{prop_name}: {formatted_value}"
+            else:
+                line = prop_name
 
-        prop_lines.append(line)
+            if tool_name:
+                line += f" (can be updated by tool: `{tool_name}`)"
 
-    if not prop_lines:
-        return []
-    return [f"Component properties for {component_id}:"] + prop_lines
+            prop_lines.append(line)
+
+        if not prop_lines:
+            return []
+        return [f"Component properties for {component_id}:"] + prop_lines
 
 
 def _truncate_large_values(value: Any, component_id: str, prop_name: str) -> str:

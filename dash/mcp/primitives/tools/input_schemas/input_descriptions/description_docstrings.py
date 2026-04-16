@@ -19,6 +19,8 @@ import re
 
 from dash.mcp.types import MCPInput
 
+from .base import InputDescriptionSource
+
 _PROP_RE = re.compile(
     r"^[ ]*- (\w+) \([^)]+\):\s*\n((?:[ ]+.+\n)*)",
     re.MULTILINE,
@@ -29,12 +31,16 @@ _cache: dict[type, dict[str, str]] = {}
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s")
 
 
-def docstring_prop_description(param: MCPInput) -> list[str]:
-    component = param.get("component")
-    if component is None:
-        return []
-    desc = _get_prop_description(type(component), param["property"])
-    return [desc] if desc else []
+class DocstringPropDescription(InputDescriptionSource):
+    """Extract property description from the component's docstring."""
+
+    @classmethod
+    def describe(cls, param: MCPInput) -> list[str]:
+        component = param.get("component")
+        if component is None:
+            return []
+        desc = _get_prop_description(type(component), param["property"])
+        return [desc] if desc else []
 
 
 def _get_prop_description(cls: type, prop: str) -> str | None:
