@@ -15,7 +15,7 @@ from tests.unit.mcp.conftest import (
 
 from pydantic import TypeAdapter
 from dash.development.base_component import Component
-from dash.types import CallbackDispatchResponse
+from dash.types import CallbackExecutionResponse
 
 _DASH_COMPONENT_SCHEMA = TypeAdapter(Component).json_schema()
 
@@ -51,7 +51,7 @@ EXPECTED_TOOL = {
             },
         },
     },
-    "outputSchema": TypeAdapter(CallbackDispatchResponse).json_schema(),
+    "outputSchema": TypeAdapter(CallbackExecutionResponse).json_schema(),
 }
 
 
