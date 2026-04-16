@@ -474,6 +474,7 @@ class Dash(ObsoleteChecker):
         health_endpoint: Optional[str] = None,
         websocket_callbacks: Optional[bool] = False,
         allowed_websocket_origins: Optional[List[str]] = None,
+        websocket_inactivity_timeout: Optional[int] = 300000,
         **obsolete,
     ):
 
@@ -623,6 +624,7 @@ class Dash(ObsoleteChecker):
         self._background_manager = background_callback_manager
         self._websocket_callbacks = websocket_callbacks
         self._allowed_websocket_origins = allowed_websocket_origins or []
+        self._websocket_inactivity_timeout = websocket_inactivity_timeout
 
         self.logger = logging.getLogger(__name__)
 
@@ -957,6 +959,7 @@ class Dash(ObsoleteChecker):
                 "enabled": bool(self._websocket_callbacks),
                 "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
                 "worker_url": self._get_worker_url(),
+                "inactivity_timeout": self._websocket_inactivity_timeout,
             }
 
         return config

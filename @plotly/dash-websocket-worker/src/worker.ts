@@ -80,12 +80,18 @@ self.onconnect = (event: MessageEvent) => {
                 const connectMsg = message as ConnectMessage;
                 const rendererId = connectMsg.rendererId;
                 const newServerUrl = connectMsg.payload.serverUrl;
+                const inactivityTimeout = connectMsg.payload.inactivityTimeout;
 
                 // Register the renderer
                 router.registerRenderer(rendererId, port);
                 rendererIds.add(rendererId);
 
-                console.log(`[DashWSWorker] Renderer ${rendererId} connected`);
+                console.log(`[DashWSWorker] Renderer ${rendererId} connected, inactivityTimeout: ${inactivityTimeout}`);
+
+                // Update inactivity timeout if provided
+                if (typeof inactivityTimeout === 'number') {
+                    wsManager.setConfig({ inactivityTimeout });
+                }
 
                 // Connect to server if not already connected
                 if (!wsManager.isConnected) {

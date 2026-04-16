@@ -124,7 +124,11 @@ export async function initializeWebSocket(
 
     try {
         // config.websocket is guaranteed to exist due to wsAvailable check above
-        await workerClient.connect(config.websocket!.worker_url, wsUrl);
+        await workerClient.connect(
+            config.websocket!.worker_url,
+            wsUrl,
+            config.websocket!.inactivity_timeout
+        );
     } catch (error) {
         console.error('[Dash] Failed to connect to WebSocket worker:', error);
     }

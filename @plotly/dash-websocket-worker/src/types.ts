@@ -34,6 +34,7 @@ export interface ConnectMessage extends WorkerMessage {
     type: WorkerMessageType.CONNECT;
     payload: {
         serverUrl: string;
+        inactivityTimeout?: number;
     };
 }
 

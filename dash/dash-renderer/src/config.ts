@@ -26,6 +26,7 @@ export type DashConfig = {
         enabled: boolean;
         url: string;
         worker_url: string;
+        inactivity_timeout?: number;
     };
 };
 

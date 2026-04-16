@@ -80,8 +80,13 @@ class WorkerClient {
      * Initialize the worker connection.
      * @param workerUrl URL to the SharedWorker script
      * @param serverUrl WebSocket server URL
+     * @param inactivityTimeout Optional inactivity timeout in ms
      */
-    public async connect(workerUrl: string, serverUrl: string): Promise<void> {
+    public async connect(
+        workerUrl: string,
+        serverUrl: string,
+        inactivityTimeout?: number
+    ): Promise<void> {
         if (this.worker) {
             // Already connected
             return;
@@ -108,7 +113,8 @@ class WorkerClient {
             type: WorkerMessageType.CONNECT,
             rendererId: this.rendererId,
             payload: {
-                serverUrl
+                serverUrl,
+                inactivityTimeout
             }
         });
 
@@ -144,7 +150,11 @@ class WorkerClient {
      * @param config The Dash config with websocket settings
      */
     public async ensureConnected(config: {
-        websocket?: {url?: string; worker_url?: string};
+        websocket?: {
+            url?: string;
+            worker_url?: string;
+            inactivity_timeout?: number;
+        };
     }): Promise<void> {
         // Already connected
         if (this.isConnected) {
@@ -172,7 +182,11 @@ class WorkerClient {
         const host = window.location.host;
         const wsUrl = `${wsProtocol}//${host}${config.websocket.url}`;
 
-        await this.connect(config.websocket.worker_url, wsUrl);
+        await this.connect(
+            config.websocket.worker_url,
+            wsUrl,
+            config.websocket.inactivity_timeout
+        );
     }
 
     /**
@@ -181,12 +195,12 @@ class WorkerClient {
      * @returns Promise that resolves with the callback response
      */
     public async sendCallback(payload: unknown): Promise<CallbackResponse> {
-        // Wait for connection if one is in progress
+        // Wait for initial connection if one is in progress
         if (this.connectionPromise && !this.isConnected) {
             await this.connectionPromise;
         }
 
-        if (!this.worker || !this.isConnected) {
+        if (!this.worker) {
             throw new Error('Worker not connected');
         }
 
@@ -316,7 +330,12 @@ export function isWebSocketEnabled(config: {
  * @param config The Dash config
  */
 export function isWebSocketAvailable(config: {
-    websocket?: {enabled?: boolean; url?: string; worker_url?: string};
+    websocket?: {
+        enabled?: boolean;
+        url?: string;
+        worker_url?: string;
+        inactivity_timeout?: number;
+    };
 }): boolean {
     return !!(
         config.websocket?.url &&

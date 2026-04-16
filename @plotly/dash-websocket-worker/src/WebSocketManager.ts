@@ -12,6 +12,8 @@ interface WebSocketConfig {
     heartbeatInterval: number;
     /** Heartbeat timeout (ms) */
     heartbeatTimeout: number;
+    /** Inactivity timeout (ms) - 0 to disable */
+    inactivityTimeout: number;
 }
 
 const DEFAULT_CONFIG: WebSocketConfig = {
@@ -19,7 +21,8 @@ const DEFAULT_CONFIG: WebSocketConfig = {
     initialRetryDelay: 1000,
     maxRetryDelay: 30000,
     heartbeatInterval: 30000,
-    heartbeatTimeout: 10000
+    heartbeatTimeout: 10000,
+    inactivityTimeout: 300000  // 5 minutes default
 };
 
 /**
@@ -33,6 +36,7 @@ export class WebSocketManager {
     private retryTimeout: ReturnType<typeof setTimeout> | null = null;
     private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
     private heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
+    private lastActivityTime: number = Date.now();
     private messageQueue: string[] = [];
     private isConnecting = false;
 
@@ -47,6 +51,15 @@ export class WebSocketManager {
 
     constructor(config: Partial<WebSocketConfig> = {}) {
         this.config = { ...DEFAULT_CONFIG, ...config };
+    }
+
+    /**
+     * Update configuration options.
+     * Only updates the provided options, keeping others unchanged.
+     * @param config Partial configuration to merge
+     */
+    public setConfig(config: Partial<WebSocketConfig>): void {
+        this.config = { ...this.config, ...config };
     }
 
     /**
@@ -74,27 +87,39 @@ export class WebSocketManager {
      */
     public disconnect(): void {
         this.cleanup();
-        if (this.ws) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.close(1000, 'Client disconnect');
-            this.ws = null;
         }
+        this.ws = null;
         this.serverUrl = null;
         this.retryCount = 0;
     }
 
     /**
      * Send a message through the WebSocket connection.
-     * If not connected, queues the message for later delivery.
+     * If not connected, queues the message and triggers reconnection.
      * @param message The message to send
      */
     public send(message: unknown): void {
         const data = JSON.stringify(message);
+
+        // Track activity for non-heartbeat messages
+        const msgObj = message as { type?: string };
+        if (msgObj.type !== 'heartbeat') {
+            this.lastActivityTime = Date.now();
+        }
 
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(data);
         } else {
             // Queue message for when connection is established
             this.messageQueue.push(data);
+
+            // Trigger reconnect if we have a server URL but aren't connected/connecting
+            if (this.serverUrl && !this.isConnecting) {
+                this.isConnecting = true;
+                this.createConnection();
+            }
         }
     }
 
@@ -125,6 +150,7 @@ export class WebSocketManager {
     private handleOpen(): void {
         this.isConnecting = false;
         this.retryCount = 0;
+        this.lastActivityTime = Date.now();
 
         // Flush queued messages
         while (this.messageQueue.length > 0) {
@@ -134,7 +160,7 @@ export class WebSocketManager {
             }
         }
 
-        // Start heartbeat
+        // Start heartbeat (also handles inactivity check)
         this.startHeartbeat();
 
         if (this.onOpen) {
@@ -152,8 +178,10 @@ export class WebSocketManager {
             this.onClose(reason);
         }
 
-        // Only reconnect if we haven't explicitly disconnected
-        if (this.serverUrl && event.code !== 1000) {
+        // Only reconnect if:
+        // - We haven't explicitly disconnected (code 1000)
+        // - It's not an inactivity timeout (code 4001)
+        if (this.serverUrl && event.code !== 1000 && event.code !== 4001) {
             this.scheduleReconnect();
         }
     }
@@ -162,11 +190,14 @@ export class WebSocketManager {
         try {
             const data = JSON.parse(event.data);
 
-            // Handle heartbeat acknowledgment
+            // Handle heartbeat acknowledgment - does NOT count as activity
             if (data.type === 'heartbeat_ack') {
                 this.clearHeartbeatTimeout();
                 return;
             }
+
+            // Track activity for actual callback messages
+            this.lastActivityTime = Date.now();
 
             if (this.onMessage) {
                 this.onMessage(data);
@@ -214,10 +245,21 @@ export class WebSocketManager {
         this.stopHeartbeat();
 
         this.heartbeatInterval = setInterval(() => {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({ type: 'heartbeat' }));
-                this.setHeartbeatTimeout();
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+                return;
             }
+
+            // Check for inactivity timeout
+            if (this.config.inactivityTimeout > 0) {
+                const timeSinceActivity = Date.now() - this.lastActivityTime;
+                if (timeSinceActivity >= this.config.inactivityTimeout) {
+                    this.ws.close(4001, 'Inactivity timeout');
+                    return;
+                }
+            }
+
+            this.ws.send(JSON.stringify({ type: 'heartbeat' }));
+            this.setHeartbeatTimeout();
         }, this.config.heartbeatInterval);
     }
 
@@ -234,7 +276,7 @@ export class WebSocketManager {
 
         this.heartbeatTimeout = setTimeout(() => {
             // Heartbeat timeout - connection may be dead
-            if (this.ws) {
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
                 this.ws.close(4000, 'Heartbeat timeout');
             }
         }, this.config.heartbeatTimeout);

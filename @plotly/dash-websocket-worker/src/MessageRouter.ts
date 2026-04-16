@@ -97,8 +97,14 @@ export class MessageRouter {
      * @param message The message to broadcast
      */
     public broadcastToRenderers(message: WorkerMessage): void {
-        for (const [, port] of this.renderers) {
-            port.postMessage(message);
+        for (const [rendererId, port] of this.renderers) {
+            try {
+                port.postMessage(message);
+            } catch (error) {
+                // Port may be closed if tab was closed
+                console.warn(`Failed to send to renderer ${rendererId}, removing`);
+                this.renderers.delete(rendererId);
+            }
         }
     }
 
@@ -109,10 +115,15 @@ export class MessageRouter {
     public notifyConnected(rendererId: string): void {
         const port = this.renderers.get(rendererId);
         if (port) {
-            port.postMessage({
-                type: WorkerMessageType.CONNECTED,
-                rendererId
-            });
+            try {
+                port.postMessage({
+                    type: WorkerMessageType.CONNECTED,
+                    rendererId
+                });
+            } catch (error) {
+                console.warn(`Failed to notify renderer ${rendererId}, removing`);
+                this.renderers.delete(rendererId);
+            }
         }
     }
 
@@ -137,11 +148,16 @@ export class MessageRouter {
     public notifyError(rendererId: string, message: string, code?: string): void {
         const port = this.renderers.get(rendererId);
         if (port) {
-            port.postMessage({
-                type: WorkerMessageType.ERROR,
-                rendererId,
-                payload: { message, code }
-            });
+            try {
+                port.postMessage({
+                    type: WorkerMessageType.ERROR,
+                    rendererId,
+                    payload: { message, code }
+                });
+            } catch (error) {
+                console.warn(`Failed to send error to renderer ${rendererId}, removing`);
+                this.renderers.delete(rendererId);
+            }
         }
     }
 
@@ -170,7 +186,12 @@ export class MessageRouter {
     private forwardToRenderer(rendererId: string, message: WorkerMessage): void {
         const port = this.renderers.get(rendererId);
         if (port) {
-            port.postMessage(message);
+            try {
+                port.postMessage(message);
+            } catch (error) {
+                console.warn(`Failed to forward to renderer ${rendererId}, removing`);
+                this.renderers.delete(rendererId);
+            }
         } else {
             console.warn(`Renderer ${rendererId} not found for message`);
         }
