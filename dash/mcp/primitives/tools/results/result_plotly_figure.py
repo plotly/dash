@@ -6,9 +6,11 @@ import base64
 import logging
 from typing import Any
 
-from mcp.types import ImageContent
+from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
+
+from .base import ResultFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -35,18 +37,23 @@ def _render_image(figure: Any) -> ImageContent | None:
     return ImageContent(type="image", data=b64, mimeType="image/png")
 
 
-def plotly_figure_result(callback_output: MCPOutput, callback_output_value: Any) -> list:
+class PlotlyFigureResult(ResultFormatter):
     """Produce a rendered PNG for Graph.figure output values."""
-    if callback_output.get("component_type") != "Graph" or callback_output.get("property") != "figure":
-        return []
-    if not isinstance(callback_output_value, dict):
-        return []
 
-    try:
-        import plotly.graph_objects as go
-    except ImportError:
-        return []
+    @classmethod
+    def format(
+        cls, output: MCPOutput, returned_output_value: Any
+    ) -> list[TextContent | ImageContent]:
+        if output.get("component_type") != "Graph" or output.get("property") != "figure":
+            return []
+        if not isinstance(returned_output_value, dict):
+            return []
 
-    fig = go.Figure(callback_output_value)
-    image = _render_image(fig)
-    return [image] if image is not None else []
+        try:
+            import plotly.graph_objects as go
+        except ImportError:
+            return []
+
+        fig = go.Figure(returned_output_value)
+        image = _render_image(fig)
+        return [image] if image is not None else []
