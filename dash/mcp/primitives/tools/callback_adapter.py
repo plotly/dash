@@ -385,7 +385,7 @@ def _expand_output_spec(
     output_id: str,
     cb_info: dict,
     resolved_inputs: list[CallbackInput],
-) -> list[CallbackOutputTarget]:
+) -> CallbackOutputTarget | list[CallbackOutputTarget]:
     """Build the outputs spec, expanding wildcards to concrete IDs.
 
     For wildcard outputs, derives concrete IDs from the resolved inputs.
@@ -417,6 +417,11 @@ def _expand_output_spec(
         else:
             results.append({"id": pid, "property": prop})
 
+    # Mirror the Dash renderer: single-output callbacks send a bare dict,
+    # multi-output callbacks send a list. The framework's output value
+    # matching depends on this shape.
+    if len(results) == 1:
+        return results[0]
     return results
 
 
