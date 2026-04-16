@@ -44,7 +44,10 @@ class PlotlyFigureResult(ResultFormatter):
     def format(
         cls, output: MCPOutput, returned_output_value: Any
     ) -> list[TextContent | ImageContent]:
-        if output.get("component_type") != "Graph" or output.get("property") != "figure":
+        if (
+            output.get("component_type") != "Graph"
+            or output.get("property") != "figure"
+        ):
             return []
         if not isinstance(returned_output_value, dict):
             return []

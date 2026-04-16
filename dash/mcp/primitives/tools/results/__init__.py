@@ -40,7 +40,9 @@ def format_callback_response(
 
     resp = response.get("response") or {}
     for callback_output in callback.outputs:
-        value = resp.get(callback_output["component_id"], {}).get(callback_output["property"])
+        value = resp.get(callback_output["component_id"], {}).get(
+            callback_output["property"]
+        )
         for formatter in _RESULT_FORMATTERS:
             content.extend(formatter.format(callback_output, value))
 
