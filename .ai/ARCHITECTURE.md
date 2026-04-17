@@ -723,6 +723,11 @@ Special handling for Colab:
 - `background_callback_manager` - DiskcacheManager or CeleryManager
 - `on_error` - Global callback error handler
 
+**WebSocket Callbacks:**
+- `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
+- `websocket_allowed_origins` - List of allowed origins for WebSocket connections
+- `websocket_inactivity_timeout` - Disconnect WebSocket after inactivity period in ms (default: `300000` = 5 minutes). Set to `0` to disable.
+
 ### app.run() Parameters
 
 - `host` - Server IP (default: `"127.0.0.1"`, env: `HOST`)
@@ -860,6 +865,177 @@ async def async_background(n_clicks):
 ```
 
 Both DiskcacheManager and CeleryManager support async functions via `asyncio.run()`.
+
+## WebSocket Callbacks
+
+WebSocket callbacks use a persistent WebSocket connection instead of HTTP POST for callback execution. This reduces latency and connection overhead for applications with frequent callbacks.
+
+### Requirements
+
+- **FastAPI backend required**: WebSocket callbacks only work with FastAPI
+- **SharedWorker support**: Modern browsers (not IE)
+
+### Usage
+
+**Enable globally for all callbacks:**
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server, websocket_callbacks=True)
+```
+
+**Enable per-callback:**
+```python
+@app.callback(
+    Output('output', 'children'),
+    Input('input', 'value'),
+    websocket=True  # Use WebSocket for this callback only
+)
+def update(value):
+    return f"Value: {value}"
+```
+
+### Configuration
+
+```python
+app = Dash(
+    __name__,
+    server=server,
+    websocket_callbacks=True,
+    websocket_inactivity_timeout=300000,  # 5 minutes (default)
+    websocket_allowed_origins=['https://example.com'],
+)
+```
+
+- **`websocket_callbacks`** - Enable WebSocket for all callbacks (default: `False`)
+- **`websocket_inactivity_timeout`** - Close WebSocket after period of inactivity in milliseconds (default: `300000` = 5 minutes). Heartbeats do not count as activity. Set to `0` to disable timeout. Connection automatically reconnects when needed.
+- **`websocket_allowed_origins`** - List of allowed origins for WebSocket connections (security)
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Browser Tab 1                          Browser Tab 2                    │
+│ ┌─────────────┐                       ┌─────────────┐                   │
+│ │  Renderer   │                       │  Renderer   │                   │
+│ └──────┬──────┘                       └──────┬──────┘                   │
+│        │ postMessage                         │ postMessage              │
+│        └────────────┬───────────────────────┘                           │
+│                     ▼                                                   │
+│         ┌─────────────────────┐                                         │
+│         │    SharedWorker     │  (one per origin)                       │
+│         │   dash-ws-worker    │                                         │
+│         └──────────┬──────────┘                                         │
+└────────────────────│────────────────────────────────────────────────────┘
+                     │ WebSocket
+                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Server (FastAPI)                                                        │
+│   WebSocket Endpoint: /_dash-ws-callback                                │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Connection & Reconnection Flow:**
+```
+Renderer                   SharedWorker                 Server
+    │                              │                        │
+    │──[CONNECT]──────────────────>│                        │
+    │                              │──[WebSocket Connect]──>│
+    │<─[CONNECTED]─────────────────│<─[Connected]───────────│
+    │                              │                        │
+    │──[CALLBACK_REQUEST]─────────>│──[callback request]───>│
+    │<─[CALLBACK_RESPONSE]─────────│<─[callback response]───│
+    │                              │                        │
+    │      (inactivity)            │    (heartbeat check)   │
+    │                              │──[close 4001]─────────>│
+    │<─[DISCONNECTED]──────────────│                        │
+    │                              │                        │
+    │──[CALLBACK_REQUEST]─────────>│──[reconnect + send]───>│
+    │<─[CALLBACK_RESPONSE]─────────│<─[response]────────────│
+```
+
+- **SharedWorker**: Single WebSocket connection shared across browser tabs
+- **Heartbeat**: Periodic ping/pong to detect dead connections (30s interval)
+- **Inactivity timeout**: Closes connection after no actual callback activity (not heartbeats)
+- **Auto-reconnect**: Reconnects automatically when a callback is triggered after timeout
+
+### Long-Running Callbacks with set_props/get_props
+
+WebSocket callbacks can stream updates to the client during execution using `set_props()` and read current component values using `ctx.get_websocket()`:
+
+```python
+import asyncio
+from dash import callback, Output, Input, set_props, ctx
+
+@callback(
+    Output('result', 'children'),
+    Input('start-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+async def long_running_task(n_clicks):
+    ws = ctx.get_websocket()
+    if not ws:
+        return "WebSocket not available"
+
+    # Stream progress updates to the client
+    for i in range(100):
+        await asyncio.sleep(0.1)
+        set_props('progress-bar', {'value': i + 1})
+        set_props('status', {'children': f'Processing step {i + 1}/100...'})
+
+    # Read current value from another component
+    current_value = await ws.get_prop('input-field', 'value')
+
+    return f"Completed! Input was: {current_value}"
+```
+
+**API:**
+- `set_props(component_id, props_dict)` - Stream prop updates immediately to client
+- `ctx.get_websocket()` - Get WebSocket interface (returns `None` if not in WS context)
+- `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
+- `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
+- `await ws.close(code, reason)` - Close the WebSocket connection
+
+### Connection Hooks
+
+Use hooks to validate connections and messages:
+
+```python
+from dash import Dash, hooks
+
+@hooks.websocket_connect()
+async def validate_connection(websocket):
+    """Validate WebSocket connection before accepting."""
+    session_id = websocket.cookies.get("session_id")
+    if not session_id:
+        return (4001, "No session cookie")
+    if not await is_valid_session(session_id):
+        return (4002, "Invalid session")
+    return True  # Allow connection
+
+@hooks.websocket_message()
+async def validate_message(websocket, message):
+    """Validate each WebSocket message."""
+    session_id = websocket.cookies.get("session_id")
+    if not await is_session_active(session_id):
+        return (4002, "Session expired")
+    return True  # Allow message
+```
+
+**Hook Return Values:**
+- `True` (or truthy) - Allow connection/message
+- `False` - Reject with default code (4001)
+- `(code, reason)` - Reject with custom close code and reason
+
+### Key Files
+
+- `dash/dash.py` - WebSocket config in `_generate_config()`
+- `dash/dash-renderer/src/utils/workerClient.ts` - Browser-side SharedWorker client
+- `@plotly/dash-websocket-worker/src/WebSocketManager.ts` - WebSocket connection management
+- `@plotly/dash-websocket-worker/src/worker.ts` - SharedWorker entry point
+- `dash/backends/_fastapi.py` - Server-side WebSocket handler
 
 ## Security
 
