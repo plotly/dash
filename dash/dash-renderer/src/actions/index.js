@@ -61,11 +61,16 @@ export function hydrateInitialOutputs() {
 /* eslint-disable-next-line no-console */
 const logWarningOnce = once(console.warn);
 
-export function getCSRFHeader() {
+export function getCSRFHeader(config) {
     try {
-        return {
-            'X-CSRFToken': cookie.parse(document.cookie)._csrf_token
-        };
+        const tokenName = (config && config.csrf_token_name) || '_csrf_token';
+        const headerName = (config && config.csrf_header_name) || 'X-CSRFToken';
+        const cookies = cookie.parse(document.cookie);
+        const token = cookies[tokenName];
+        if (!token) {
+            return {};
+        }
+        return {[headerName]: token};
     } catch (e) {
         logWarningOnce(e);
         return {};
