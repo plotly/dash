@@ -33,7 +33,6 @@ from dash.testing.dash_page import DashPageMixin
 from dash.testing.errors import DashAppLoadingError, BrowserError, TestingTimeoutError
 from dash.testing.consts import SELENIUM_GRID_DEFAULT
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -187,8 +186,7 @@ class Browser(DashPageMixin):
             )
 
         if convert_canvases:
-            self.driver.execute_script(
-                """
+            self.driver.execute_script("""
                 const stash = window._canvasStash = [];
                 Array.from(document.querySelectorAll('canvas')).forEach(c => {
                     const i = document.createElement('img');
@@ -202,8 +200,7 @@ class Browser(DashPageMixin):
                     c.parentElement.insertBefore(i, c);
                     c.parentElement.removeChild(c);
                 });
-            """
-            )
+            """)
 
         try:
             self.percy_runner.snapshot(name=name, widths=widths)
@@ -213,8 +210,7 @@ class Browser(DashPageMixin):
                 raise err
 
         if convert_canvases:
-            self.driver.execute_script(
-                """
+            self.driver.execute_script("""
                 const stash = window._canvasStash;
                 Array.from(
                     document.querySelectorAll('img[data-canvasnum]')
@@ -224,8 +220,7 @@ class Browser(DashPageMixin):
                     i.parentElement.removeChild(i);
                 });
                 delete window._canvasStash;
-            """
-            )
+            """)
 
     def take_snapshot(self, name: str):
         """Hook method to take snapshot when a selenium test fails. The
@@ -624,7 +619,10 @@ class Browser(DashPageMixin):
                 for entry in self.driver.get_log("browser")
                 if entry["timestamp"] > self._last_ts
             ]
-        warnings.warn("get_logs always return None with webdrivers other than Chrome", stacklevel=2)
+        warnings.warn(
+            "get_logs always return None with webdrivers other than Chrome",
+            stacklevel=2,
+        )
         return None
 
     def reset_log_timestamp(self):

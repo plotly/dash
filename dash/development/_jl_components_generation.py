@@ -355,9 +355,11 @@ def generate_metadata_strings(resources, metatype):
             external_url=nothing_or_string(resource.get("external_url", "")),
             dynamic=str(resource.get("dynamic", "nothing")).lower(),
             type=metatype,
-            async_string=":{}".format(str(resource.get("async")).lower())
-            if "async" in resource.keys()
-            else "nothing",
+            async_string=(
+                ":{}".format(str(resource.get("async")).lower())
+                if "async" in resource.keys()
+                else "nothing"
+            ),
         )
         for resource in resources
     ]

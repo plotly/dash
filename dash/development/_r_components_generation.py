@@ -11,7 +11,6 @@ import warnings
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
 
-
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
