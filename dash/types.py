@@ -71,11 +71,14 @@ class CallbackInput(TypedDict):
     value: Any
 
 
+CallbackInputs = Union[CallbackInput, List[CallbackInput]]
+
+
 class CallbackExecutionBody(TypedDict):
     output: str
-    outputs: List[CallbackOutputTarget]
-    inputs: List[CallbackInput]
-    state: List[CallbackInput]
+    outputs: Union[CallbackOutputTarget, List[CallbackOutputTarget]]
+    inputs: List[CallbackInputs]
+    state: List[CallbackInputs]
     changedPropIds: List[str]
 
 

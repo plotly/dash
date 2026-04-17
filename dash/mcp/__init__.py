@@ -3,5 +3,5 @@
 from dash.mcp._server import enable_mcp_server
 
 __all__ = [
-    enable_mcp_server,
+    "enable_mcp_server",
 ]

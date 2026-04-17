@@ -125,5 +125,5 @@ class GetDashComponentTool(MCPToolProvider):
             content=[
                 TextContent(type="text", text=json.dumps(structured, default=str))
             ],
-            structuredContent=structured,
+            structuredContent=dict(structured),
         )

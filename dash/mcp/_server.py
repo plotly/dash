@@ -204,7 +204,8 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
     """
     method = data.get("method", "")
     params = data.get("params", {}) or {}
-    request_id = data.get("id")
+    _id = data.get("id")
+    request_id: str | int = _id if isinstance(_id, (str, int)) else ""
 
     app = get_app()
     if not hasattr(app, "mcp_callback_map"):

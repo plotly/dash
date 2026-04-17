@@ -23,7 +23,7 @@ class PatternMatchingDescription(InputDescriptionSource):
             return []
 
         wildcard_key, wildcard_type = _find_wildcard(dep_id)
-        if wildcard_key is None:
+        if wildcard_key is None or wildcard_type is None:
             return []
 
         non_wildcard = {k: v for k, v in dep_id.items() if k != wildcard_key}

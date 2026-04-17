@@ -10,7 +10,7 @@ import inspect
 import json
 import typing
 from functools import cached_property
-from typing import Any
+from typing import Any, cast
 
 from mcp.types import Tool
 
@@ -27,6 +27,7 @@ from dash.types import (
     CallbackDependency,
     CallbackExecutionBody,
     CallbackInput,
+    CallbackInputs,
     CallbackOutput,
     CallbackOutputTarget,
     WildcardId,
@@ -361,9 +362,7 @@ class CallbackAdapter:
         return [hints.get(func_name) for func_name, _ in self._dep_param_map]
 
 
-def _expand_dep(
-    dep: CallbackDependency, value: Any
-) -> CallbackInput | list[CallbackInput]:
+def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInputs:
     """Attach a concrete value to a callback dependency to produce a valid callback input.
 
     For regular deps, returns ``{id, property, value}``.
@@ -372,20 +371,20 @@ def _expand_dep(
     """
     pattern = parse_wildcard_id(dep.get("id", ""))
     if pattern is None:
-        return {**dep, "value": value}
+        return CallbackInput(id=dep["id"], property=dep["property"], value=value)
 
     # LLM provides browser-like format
     if isinstance(value, list):
-        return value
+        return cast(list[CallbackInput], value)
     if isinstance(value, dict) and "id" in value:
-        return value
-    return {**dep, "value": value}
+        return cast(CallbackInput, value)
+    return CallbackInput(id=dep["id"], property=dep["property"], value=value)
 
 
 def _expand_output_spec(
     output_id: str,
     cb_info: dict,
-    resolved_inputs: list[CallbackInput],
+    resolved_inputs: list[CallbackInputs],
 ) -> CallbackOutputTarget | list[CallbackOutputTarget]:
     """Build the outputs spec, expanding wildcards to concrete IDs.
 
@@ -408,15 +407,19 @@ def _expand_output_spec(
         if pattern is not None:
             concrete_ids = _derive_output_ids(pattern, resolved_inputs)
             if not concrete_ids:
-                concrete_ids = [comp.id for comp in find_matching_components(pattern)]
-            expanded = [{"id": cid, "property": prop} for cid in concrete_ids]
+                concrete_ids = [
+                    getattr(comp, "id") for comp in find_matching_components(pattern)
+                ]
+            expanded: list[CallbackDependency] = [
+                CallbackDependency(id=cid, property=prop) for cid in concrete_ids
+            ]
             # ALL/ALLSMALLER → nested list; MATCH → single dict
             if len(expanded) == 1:
                 results.append(expanded[0])
             else:
                 results.append(expanded)
         else:
-            results.append({"id": pid, "property": prop})
+            results.append(CallbackDependency(id=pid, property=prop))
 
     # Mirror the Dash renderer: single-output callbacks send a bare dict,
     # multi-output callbacks send a list. The framework's output value
@@ -428,7 +431,7 @@ def _expand_output_spec(
 
 def _derive_output_ids(
     output_pattern: WildcardId,
-    resolved_inputs: list[CallbackInput],
+    resolved_inputs: list[CallbackInputs],
 ) -> list[WildcardId] | None:
     """Derive concrete output IDs from the resolved input entries.
 
@@ -457,15 +460,19 @@ def _derive_output_ids(
         if isinstance(entry, list) and entry:
             concrete_ids = []
             for item in entry:
-                out = _substitute(item.get("id"))
-                if out:
-                    concrete_ids.append(out)
+                item_id = item.get("id")
+                if isinstance(item_id, dict):
+                    out = _substitute(item_id)
+                    if out:
+                        concrete_ids.append(out)
             if concrete_ids:
                 return concrete_ids
         # MATCH: single {id, property, value} dict
-        elif isinstance(entry, dict) and isinstance(entry.get("id"), dict):
-            out = _substitute(entry["id"])
-            if out:
-                return [out]
+        elif isinstance(entry, dict):
+            entry_id = entry.get("id")
+            if isinstance(entry_id, dict):
+                out = _substitute(entry_id)
+                if out:
+                    return [out]
 
     return None

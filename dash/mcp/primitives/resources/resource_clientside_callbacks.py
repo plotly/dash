@@ -10,6 +10,7 @@ from mcp.types import (
     Resource,
     TextResourceContents,
 )
+from pydantic import AnyUrl
 
 from dash import get_app
 from dash._utils import clean_property_name, split_callback_id
@@ -25,7 +26,7 @@ class ClientsideCallbacksResource(MCPResourceProvider):
         if not _get_clientside_callbacks():
             return None
         return Resource(
-            uri=cls.uri,
+            uri=AnyUrl(cls.uri),
             name="dash_clientside_callbacks",
             description=(
                 "Actions the user can take manually in the browser "
@@ -52,7 +53,7 @@ class ClientsideCallbacksResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=cls.uri,
+                    uri=AnyUrl(cls.uri),
                     mimeType="application/json",
                     text=json.dumps(data, default=str),
                 )
