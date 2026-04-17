@@ -2,14 +2,12 @@ import collections
 import hashlib
 import inspect
 from functools import wraps
-
-import sys
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
-if sys.version_info >= (3, 10):
+try:
     from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+except ImportError:  # Assume Python < 3.10
+    from typing_extensions import ParamSpec  # type: ignore
 
 import flask
 
@@ -251,10 +249,12 @@ def callback(
 def validate_background_inputs(deps):
     for dep in deps:
         if dep.has_wildcard():
-            raise WildcardInLongCallback(f"""
+            raise WildcardInLongCallback(
+                f"""
                 background callbacks does not support dependencies with
                 pattern-matching ids
-                    Received: {repr(dep)}\n""")
+                    Received: {repr(dep)}\n"""
+            )
 
 
 ClientsideFuncType = Union[str, ClientsideFunction]
