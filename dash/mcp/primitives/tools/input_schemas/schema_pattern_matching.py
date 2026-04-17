@@ -66,7 +66,10 @@ def _get_wildcard_type(dep_id: dict) -> str | None:
 
 def _infer_value_schema(param: MCPInput) -> dict[str, Any] | None:
     """Infer the JSON Schema for the ``value`` field from a matching component."""
-    matches = find_matching_components(parse_wildcard_id(param["component_id"]))
+    pattern = parse_wildcard_id(param["component_id"])
+    if pattern is None:
+        return None
+    matches = find_matching_components(pattern)
     if not matches:
         return None
 
