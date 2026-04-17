@@ -483,7 +483,7 @@ function handleServerside(
     }
 
     const fetchCallback = () => {
-        const headers = getCSRFHeader() as any;
+        const headers = getCSRFHeader(config) as any;
         let url = `${urlBase(config)}_dash-update-component`;
         let newBody = body;
 
