@@ -14,7 +14,6 @@ jobs:
     name: Detect Relevant Path Changes
     runs-on: ubuntu-latest
     outputs:
-      # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
       dcc_paths_changed: ${{ steps.filter.outputs.dcc_related_paths }}
