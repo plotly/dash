@@ -421,6 +421,15 @@ class Dash(ObsoleteChecker):
     :param health_endpoint: Path for the health check endpoint. Set to None to
         disable the health endpoint. Default is None.
     :type health_endpoint: string or None
+
+    :param csrf_token_name: Name of the cookie to read the CSRF token from.
+        Default ``'_csrf_token'``. Set this to match the CSRF cookie name
+        used by your server framework (e.g. ``'csrftoken'`` for Django).
+    :type csrf_token_name: string
+
+    :param csrf_header_name: Name of the HTTP header to send the CSRF token in.
+        Default ``'X-CSRFToken'``.
+    :type csrf_header_name: string
     """
 
     _plotlyjs_url: str
@@ -472,6 +481,8 @@ class Dash(ObsoleteChecker):
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
         health_endpoint: Optional[str] = None,
+        csrf_token_name: str = "_csrf_token",
+        csrf_header_name: str = "X-CSRFToken",
         **obsolete,
     ):
 
@@ -491,6 +502,11 @@ class Dash(ObsoleteChecker):
                 ) from exc
 
         _validate.check_obsolete(obsolete)
+
+        if not csrf_token_name or not csrf_token_name.strip():
+            raise ValueError("csrf_token_name must be a non-empty string")
+        if not csrf_header_name or not csrf_header_name.strip():
+            raise ValueError("csrf_header_name must be a non-empty string")
 
         caller_name: str = name if name is not None else get_caller_name()
 
@@ -545,6 +561,8 @@ class Dash(ObsoleteChecker):
             description=description,
             health_endpoint=health_endpoint,
             hide_all_callbacks=False,
+            csrf_token_name=csrf_token_name,
+            csrf_header_name=csrf_header_name,
         )
         self.config.set_read_only(
             [
@@ -555,6 +573,8 @@ class Dash(ObsoleteChecker):
                 "serve_locally",
                 "compress",
                 "pages_folder",
+                "csrf_token_name",
+                "csrf_header_name",
             ],
             "Read-only: can only be set in the Dash constructor",
         )
@@ -937,6 +957,9 @@ class Dash(ObsoleteChecker):
             "dash_version_url": DASH_VERSION_URL,
             "ddk_version": ddk_version,
             "plotly_version": plotly_version,
+            "validate_callbacks": self._dev_tools.validate_callbacks,
+            "csrf_token_name": self.config.csrf_token_name,
+            "csrf_header_name": self.config.csrf_header_name,
         }
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
@@ -1968,6 +1991,7 @@ class Dash(ObsoleteChecker):
             "hot_reload",
             "silence_routes_logging",
             "prune_errors",
+            "validate_callbacks",
         ):
             dev_tools[attr] = get_combined_config(
                 attr, kwargs.get(attr, None), default=debug
@@ -2003,6 +2027,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
+        dev_tools_validate_callbacks: Optional[bool] = None,
     ) -> bool:
         """Activate the dev tools, called by `run`. If your application
         is served by wsgi and you want to activate the dev tools, you can call
@@ -2024,6 +2049,7 @@ class Dash(ObsoleteChecker):
             - DASH_SILENCE_ROUTES_LOGGING
             - DASH_DISABLE_VERSION_CHECK
             - DASH_PRUNE_ERRORS
+            - DASH_VALIDATE_CALLBACKS
 
         :param debug: Enable/disable all the dev tools unless overridden by the
             arguments or environment variables. Default is ``True`` when
@@ -2079,6 +2105,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
+        :param dev_tools_validate_callbacks: Check for circular callback
+            dependencies and raise an error if any are found. env: ``DASH_VALIDATE_CALLBACKS``
+        :type dev_tools_validate_callbacks: bool
+
         :return: debug
         """
         if debug is None:
@@ -2096,6 +2126,7 @@ class Dash(ObsoleteChecker):
             silence_routes_logging=dev_tools_silence_routes_logging,
             disable_version_check=dev_tools_disable_version_check,
             prune_errors=dev_tools_prune_errors,
+            validate_callbacks=dev_tools_validate_callbacks,
         )
 
         if dev_tools.silence_routes_logging:
@@ -2319,6 +2350,7 @@ class Dash(ObsoleteChecker):
         dev_tools_silence_routes_logging: Optional[bool] = None,
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
+        dev_tools_validate_callbacks: Optional[bool] = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -2409,6 +2441,10 @@ class Dash(ObsoleteChecker):
             env: ``DASH_PRUNE_ERRORS``
         :type dev_tools_prune_errors: bool
 
+        :param dev_tools_validate_callbacks: Check for circular callback
+            dependencies and raise an error if any are found. env: ``DASH_VALIDATE_CALLBACKS``
+        :type dev_tools_validate_callbacks: bool
+
         :param jupyter_mode: How to display the application when running
             inside a jupyter notebook.
 
@@ -2446,6 +2482,7 @@ class Dash(ObsoleteChecker):
             dev_tools_silence_routes_logging,
             dev_tools_disable_version_check,
             dev_tools_prune_errors,
+            dev_tools_validate_callbacks,
         )
 
         # Evaluate the env variables at runtime

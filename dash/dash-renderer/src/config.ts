@@ -21,6 +21,9 @@ export type DashConfig = {
     };
     serve_locally?: boolean;
     plotlyjs_url?: string;
+    validate_callbacks: boolean;
+    csrf_token_name?: string;
+    csrf_header_name?: string;
 };
 
 export default function getConfigFromDOM(): DashConfig {

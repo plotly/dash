@@ -741,11 +741,18 @@ export interface DropdownProps extends BaseDccProps<DropdownProps> {
         clear_selection?: string;
         no_options_found?: string;
     };
-     /**
+    /**
      * If True, changes to input values will be sent back to the Dash server only when dropdown menu closes.
      * Use with `closeOnSelect=False`
      */
     debounce?: boolean;
+
+    /**
+     * The order in which to search results appear. 'index' (the default) means that
+     * options are presented based on search relevance, while 'original' keeps the
+     * order of options as they were originally provided.
+     */
+    search_order?: 'index' | 'original';
 }
 
 export interface ChecklistProps extends BaseDccProps<ChecklistProps> {

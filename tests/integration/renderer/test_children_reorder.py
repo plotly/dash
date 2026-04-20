@@ -63,16 +63,19 @@ def test_roc001_reorder_children(dash_duo):
     for i in range(2):
         dash_duo.wait_for_text_to_equal("h1", f"I am section {i}")
         dash_duo.find_element(f".dropdown_{i}").click()
-        dash_duo.find_element(".dash-dropdown-option:nth-child(1)").click()
+        dash_duo.find_element('.dash-dropdown-option[data-option-index="0"]').click()
         dash_duo.wait_for_text_to_equal(f".dropdown_{i} .dash-dropdown-trigger", "A")
-        dash_duo.find_element(".dash-dropdown-option:nth-child(2)").click()
+        dash_duo.find_element('.dash-dropdown-option[data-option-index="1"]').click()
         value_items = dash_duo.find_elements(f".dropdown_{i} .dash-dropdown-value-item")
         assert [item.text for item in value_items] == ["A", "B"]
-        dash_duo.find_element(".dash-dropdown-option:nth-child(3)").click()
+        dash_duo.find_element('.dash-dropdown-option[data-option-index="2"]').click()
         value_items = dash_duo.find_elements(f".dropdown_{i} .dash-dropdown-value-item")
         assert [item.text for item in value_items] == ["A", "B", "C"]
 
         dash_duo.find_element(f".swap_button_{i}").click()
+
+    # Wait for the final swap to complete before accessing elements
+    dash_duo.wait_for_text_to_equal("h1", "I am section 0")
 
     value_items = dash_duo.find_elements(f".dropdown_{0} .dash-dropdown-value-item")
     assert [item.text for item in value_items] == ["A", "B", "C"]

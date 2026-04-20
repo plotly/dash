@@ -483,7 +483,7 @@ function handleServerside(
     }
 
     const fetchCallback = () => {
-        const headers = getCSRFHeader() as any;
+        const headers = getCSRFHeader(config) as any;
         let url = `${urlBase(config)}_dash-update-component`;
         let newBody = body;
 
@@ -791,7 +791,7 @@ export function executeCallback(
         }
 
         const __execute = async (): Promise<CallbackResult> => {
-            const loadingOutputs = outputs.map(out => ({
+            const loadingOutputs = flatten(outputs).map(out => ({
                 path: getPath(paths, out.id),
                 property: out.property?.split('@')[0],
                 id: stringifyId(out.id)
