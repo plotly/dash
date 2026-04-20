@@ -518,7 +518,7 @@ jobs:
 
       - name: Run main integration tests
         run: |
-          if [ "${{ matrix.python-version }}" == "3.12" ]; then
+          if [ "${{ matrix.python-version }}" == "3.12" ] && [ "${{ matrix.react-version }}" == "18.3.1" ]; then
             npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
           else
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
@@ -609,7 +609,7 @@ jobs:
         working-directory: components/dash-html-components
         run: |
           npm ci
-          if [ "${{ matrix.python-version }}" == "3.12" ]; then
+          if [ "${{ matrix.python-version }}" == "3.12" ] && [ "${{ matrix.react-version }}" == "18.3.1" ]; then
             npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           else
             pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
