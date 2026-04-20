@@ -1,4 +1,5 @@
 import platform
+import time
 import pytest
 from functools import wraps
 import inspect
@@ -616,6 +617,9 @@ class DataTableMixin(object):
     def copy(self):
         with self.hold(CMD):
             self.send_keys("c")
+
+        # Small wait to let Chrome stabilize focus after clipboard operation
+        time.sleep(0.1)
 
     def paste(self):
         with self.hold(CMD):
