@@ -35,11 +35,14 @@ def click_everything_in_datepicker(datepicker_id, dash_dcc):
             assert not e, f"Unable to click on {el.tag_name})"
 
 
-def test_mspv001_popover_visibility_when_app_is_smaller_than_popup(dash_dcc):
+def test_mspv001_popover_visibility_when_app_is_smaller_than_popup(
+    dash_dcc_fresh_browser,
+):
     """
     This test clicks on each datepicker and verifies all calendar elements are clickable.
     It verifies that the calendar popover is properly positioned and not clipped.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(

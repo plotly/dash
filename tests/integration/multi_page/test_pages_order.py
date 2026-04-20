@@ -2,7 +2,8 @@ import dash
 from dash import Dash, dcc, html
 
 
-def test_paor001_order(dash_duo, clear_pages_state):
+def test_paor001_order(dash_duo_fresh_browser, clear_pages_state):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
 
     dash.register_page(

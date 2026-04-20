@@ -75,12 +75,13 @@ def test_dppt000_datepicker_single_default(dash_dcc):
     dash_dcc.wait_for_no_elements(".dash-datepicker-calendar-container", timeout=2)
 
 
-def test_dppt001_datepicker_single_with_portal(dash_dcc):
+def test_dppt001_datepicker_single_with_portal(dash_dcc_fresh_browser):
     """Test DatePickerSingle with with_portal=True.
 
     Verifies that the calendar opens in a portal (document.body) and all
-    elements are clickable.
+    elements are clickable. Uses fresh browser to avoid state bleeding.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(
@@ -109,12 +110,13 @@ def test_dppt001_datepicker_single_with_portal(dash_dcc):
     dash_dcc.wait_for_no_elements(".dash-datepicker-calendar-container", timeout=2)
 
 
-def test_dppt006_fullscreen_portal_close_button_keyboard(dash_dcc):
+def test_dppt006_fullscreen_portal_close_button_keyboard(dash_dcc_fresh_browser):
     """Test fullscreen portal dismiss behavior and keyboard accessibility.
 
     Verifies clicking background doesn't close the portal and close button
-    is keyboard-accessible.
+    is keyboard-accessible. Uses fresh browser to avoid state bleeding.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -154,7 +156,8 @@ def test_dppt006_fullscreen_portal_close_button_keyboard(dash_dcc):
     dash_dcc.wait_for_no_elements(".dash-datepicker-content", timeout=2)
 
 
-def test_dppt007_portal_close_by_clicking_outside(dash_dcc):
+def test_dppt007_portal_close_by_clicking_outside(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     """Test regular portal closes when clicking outside the calendar."""
     app = Dash(__name__)
     app.layout = html.Div(
@@ -182,11 +185,12 @@ def test_dppt007_portal_close_by_clicking_outside(dash_dcc):
     dash_dcc.wait_for_no_elements(".dash-datepicker-content", timeout=2)
 
 
-def test_dppt001a_datepicker_range_default(dash_dcc):
+def test_dppt001a_datepicker_range_default(dash_dcc_fresh_browser):
     """Test DatePickerRange with default (no portal) configuration.
 
     Verifies that the calendar opens without portal and all elements are clickable.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(
@@ -351,12 +355,14 @@ def test_dppt004_datepicker_range_with_fullscreen_portal(dash_dcc):
     click_everything_in_datepicker("#dpr-fullscreen", dash_dcc)
 
 
-def test_dppt005_portal_has_correct_classes(dash_dcc):
+def test_dppt005_portal_has_correct_classes(dash_dcc_fresh_browser):
     """Test that portal datepickers have the correct CSS classes.
 
     Verifies that default datepickers don't have portal classes, while
     with_portal=True datepickers have the portal class but not fullscreen class.
+    Uses fresh browser to avoid state bleeding.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(

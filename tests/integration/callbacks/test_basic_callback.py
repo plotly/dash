@@ -27,7 +27,8 @@ from dash.exceptions import PreventUpdate
 from tests.integration.utils import json_engine
 
 
-def test_cbsc001_simple_callback(dash_duo):
+def test_cbsc001_simple_callback(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     lock = Lock()
 
     app = Dash(__name__)
@@ -66,9 +67,9 @@ def test_cbsc001_simple_callback(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_cbsc002_callbacks_generating_children(dash_duo):
+def test_cbsc002_callbacks_generating_children(dash_duo_fresh_browser):
     """Modify the DOM tree by adding new components in the callbacks."""
-
+    dash_duo = dash_duo_fresh_browser
     # some components don't exist in the initial render
     app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
@@ -154,7 +155,8 @@ def test_cbsc002_callbacks_generating_children(dash_duo):
     assert dash_duo.get_logs() == [], "console is clean"
 
 
-def test_cbsc003_callback_with_unloaded_async_component(dash_duo):
+def test_cbsc003_callback_with_unloaded_async_component(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
     app.layout = html.Div(
         children=[

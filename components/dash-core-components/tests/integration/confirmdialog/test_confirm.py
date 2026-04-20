@@ -26,7 +26,8 @@ import time
         ],
     ],
 )
-def test_cnfd001_dialog(dash_dcc, confirm_callback, confirms, components):
+def test_cnfd001_dialog(dash_dcc_fresh_browser, confirm_callback, confirms, components):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(components + [html.Div(id="confirmed")])
 
@@ -88,7 +89,8 @@ def test_cnfd001_dialog(dash_dcc, confirm_callback, confirms, components):
     assert dash_dcc.get_logs() == []
 
 
-def test_cnfd002_injected_confirm(dash_dcc):
+def test_cnfd002_injected_confirm(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [

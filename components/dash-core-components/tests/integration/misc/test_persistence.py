@@ -6,7 +6,8 @@ from selenium.webdriver.common.keys import Keys
 from dash import Dash, Input, Output, dcc, html
 
 
-def test_msps001_basic_persistence(dash_dcc):
+def test_msps001_basic_persistence(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
 
     app.layout = html.Div(

@@ -52,7 +52,8 @@ def test_msmh002_window_override(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_msmh003_update_md(dash_dcc):
+def test_msmh003_update_md(dash_dcc_fresh_browser):
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         [

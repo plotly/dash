@@ -396,7 +396,9 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
+def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
+
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)
         actions.send_keys(key)

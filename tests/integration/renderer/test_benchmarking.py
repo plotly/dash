@@ -73,7 +73,7 @@ def make_app(num_groups=500, items_per_group=20):
                 html.H3("Dash 4 Firefox Performance MWE"),
                 dcc.Input(id="input", value="initial value", type="text"),
                 html.Div(id="output"),
-                dcc.Store(id="store", data=time.time()),
+                dcc.Store(id="store", data=int(time.time())),
                 html.Div(children),
             ]
         )

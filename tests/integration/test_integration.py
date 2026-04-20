@@ -12,7 +12,8 @@ from dash.exceptions import PreventUpdate
 from dash.testing.wait import until
 
 
-def test_inin003_wildcard_data_attributes(dash_duo):
+def test_inin003_wildcard_data_attributes(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
     test_time = datetime.datetime(2012, 1, 10, 2, 3)
     test_date = datetime.date(test_time.year, test_time.month, test_time.day)
@@ -87,7 +88,8 @@ def test_inin007_change_viewport_meta_tag(dash_duo):
     assert viewport_meta[0].get_attribute("content") == ""
 
 
-def test_inin008_index_customization(dash_duo):
+def test_inin008_index_customization(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     app = Dash()
 
     app.index_string = """<!DOCTYPE html>
@@ -301,7 +303,10 @@ def test_inin026_graphs_in_tabs_do_not_share_state(dash_duo):
     until(lambda: '"label": 3' in dash_duo.find_element("#graph2_info").text, timeout=3)
 
 
-def test_inin027_multi_page_without_pages_folder(dash_duo, clear_pages_state):
+def test_inin027_multi_page_without_pages_folder(
+    dash_duo_fresh_browser, clear_pages_state
+):
+    dash_duo = dash_duo_fresh_browser
     app = Dash(__name__, pages_folder="")
 
     # test for storing arbitrary keyword arguments: An `id` prop is defined for every page

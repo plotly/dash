@@ -1,13 +1,14 @@
 from dash import Dash, dcc, html
 
 
-def test_slsl_extreme_range_marks_density(dash_dcc):
+def test_slsl_extreme_range_marks_density(dash_dcc_fresh_browser):
     """
     Test that extreme ranges don't generate too many overlapping marks.
 
     With min=-1, max=480256671, and container width ~365px, we should have
     no more than ~7 marks to prevent overlap (given the long labels).
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         style={"width": "365px"},
@@ -47,12 +48,13 @@ def test_slsl_extreme_range_marks_density(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_slsl_extreme_range_no_width(dash_dcc):
+def test_slsl_extreme_range_no_width(dash_dcc_fresh_browser):
     """
     Test that extreme ranges work even before width is measured.
 
     This simulates the initial render state where sliderWidth is null.
     """
+    dash_dcc = dash_dcc_fresh_browser
     app = Dash(__name__)
     app.layout = html.Div(
         # No explicit width, so ResizeObserver will measure it

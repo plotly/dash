@@ -34,6 +34,15 @@ try:
     )
     from dash.testing.browser import Browser
     from dash.testing.composite import DashComposite, DashRComposite, DashJuliaComposite
+    from dash.testing.errors import DashAppLoadingError
+
+    from selenium.webdriver.support.wait import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.common.exceptions import (
+        TimeoutException,
+        StaleElementReferenceException,
+    )
 
     # pylint: disable=unused-import
     import dash_testing_stub  # noqa: F401
@@ -186,8 +195,148 @@ def dash_br(request, tmpdir) -> Browser:  # type: ignore[reportInvalidTypeForm]
         yield browser
 
 
+@pytest.fixture(scope="session")
+def _dash_browser_session(request, tmp_path_factory):
+    """Session-scoped browser instance, reused across all tests."""
+    if not _installed:
+        yield None
+        return
+
+    download_path = tmp_path_factory.mktemp("download")
+    browser = Browser(
+        browser=request.config.getoption("webdriver"),
+        remote=request.config.getoption("remote"),
+        remote_url=request.config.getoption("remote_url"),
+        headless=request.config.getoption("headless"),
+        options=request.config.hook.pytest_setup_options(),
+        download_path=str(download_path),
+        percy_assets_root=request.config.getoption("percy_assets"),
+        percy_finalize=request.config.getoption("nopercyfinalize"),
+        pause=request.config.getoption("pause"),
+    )
+    yield browser
+    browser.__exit__(None, None, None)
+
+
+class _ReusableDashComposite(DashComposite):
+    """DashComposite that reuses an existing browser instance."""
+
+    # pylint: disable=super-init-not-called
+    def __init__(self, server, browser_instance, **kwargs):
+        # Skip Browser.__init__, just set up the server
+        self.server = server
+        self._driver = browser_instance._driver
+        self._browser = browser_instance._browser
+        self._headless = browser_instance._headless
+        self._wait_timeout = browser_instance._wait_timeout
+        self._percy_run = browser_instance._percy_run
+        self._percy_finalize = browser_instance._percy_finalize
+        self._pause = browser_instance._pause
+        self._wd_wait = browser_instance._wd_wait
+        self._download_path = browser_instance._download_path
+        self._last_ts = 0
+        self._url = ""
+        self._window_idx = 0
+
+    def _reset_browser_state(self):
+        """Clear browser state between tests."""
+        try:
+            # Stop any running JavaScript
+            self.driver.execute_script("window.stop();")
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+        try:
+            self.driver.delete_all_cookies()
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+        try:
+            # Navigate to blank page
+            self.driver.get("about:blank")
+
+            # Wait for navigation to complete
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+
+            # Clear storage
+            self.clear_storage()
+
+            # Reset log timestamp to filter out logs from previous tests
+            self.reset_log_timestamp()
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+    def _ensure_blank_page(self):
+        """Ensure browser is on a blank page with no stale content."""
+        try:
+            current_url = self.driver.current_url
+            if current_url != "about:blank":
+                self.driver.get("about:blank")
+            # Wait for blank page to fully load
+            WebDriverWait(self.driver, 2).until(EC.url_to_be("about:blank"))
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass
+
+    def start_server(self, app, navigate=True, **kwargs):
+        """Start the local server with app."""
+        # Ensure browser is on blank page before starting new server
+        self._ensure_blank_page()
+        self.clear_log()
+        self.server(app, **kwargs)
+        if navigate:
+            self.server_url = self.server.url
+
+    def wait_for_page(self, url=None, timeout=10):
+        """Wait for page to load with improved synchronization."""
+        target_url = self.server_url if url is None else url
+
+        # Navigate to the target URL
+        self.driver.get(target_url)
+
+        try:
+            # Wait for URL to match (handles redirects)
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: target_url in d.current_url
+            )
+
+            # Wait for react entry point with staleness check
+            def fresh_react_entry(driver):
+                try:
+                    elem = driver.find_element(By.CSS_SELECTOR, self.dash_entry_locator)
+                    # Verify element is interactive (not stale)
+                    _ = elem.is_displayed()
+                    return elem
+                except StaleElementReferenceException:
+                    return False
+
+            WebDriverWait(self.driver, timeout).until(fresh_react_entry)
+
+        except TimeoutException as exc:
+            raise DashAppLoadingError("Dash app failed to load") from exc
+
+    def __enter__(self):
+        self._reset_browser_state()
+        return self
+
+    def __exit__(self, exc_type, exc_val, traceback):
+        # Don't quit the browser - it's shared
+        pass
+
+
 @pytest.fixture
-def dash_duo(request, dash_thread_server, tmpdir) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
+# pylint: disable=unused-argument
+def dash_duo(request, dash_thread_server, _dash_browser_session) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
+    """Dash test fixture with reusable browser (session-scoped)."""
+    with _ReusableDashComposite(
+        server=dash_thread_server,
+        browser_instance=_dash_browser_session,
+    ) as dc:
+        yield dc
+
+
+@pytest.fixture
+def dash_duo_fresh_browser(request, dash_thread_server, tmpdir) -> DashComposite:  # type: ignore[reportInvalidTypeForm]
+    """Dash test fixture with a fresh browser instance (for tests that need isolation)."""
     with DashComposite(
         server=dash_thread_server,
         browser=request.config.getoption("webdriver"),

@@ -909,7 +909,8 @@ def test_clsd021_simple_clientside_module_serverside_callback(dash_duo):
     dash_duo.wait_for_text_to_equal("#output-clientside", 'Client says "hello world"')
 
 
-def test_clsd022_clientside_pattern_matching_dots(dash_duo):
+def test_clsd022_clientside_pattern_matching_dots(dash_duo_fresh_browser):
+    dash_duo = dash_duo_fresh_browser
     # Test for bug https://github.com/plotly/dash/issues/3163
     # Allow dict id to contains a dot in the dict when using clientside callback.
     app = Dash()

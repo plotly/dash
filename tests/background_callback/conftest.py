@@ -1,5 +1,6 @@
 import os
 
+import psutil
 import pytest
 
 
@@ -13,3 +14,19 @@ else:
 @pytest.fixture(params=managers)
 def manager(request):
     return request.param
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup_background_processes():
+    """Ensure all background processes are cleaned up when tests finish."""
+    yield
+    # Kill any remaining celery workers
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+        try:
+            cmdline = proc.info.get("cmdline") or []
+            cmdline_str = " ".join(cmdline) if cmdline else ""
+            if "celery" in cmdline_str and "worker" in cmdline_str:
+                proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    # Don't wait - just kill and move on

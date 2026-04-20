@@ -67,10 +67,31 @@ def get_background_callback_manager():
 
 
 def kill(proc_pid):
-    process = psutil.Process(proc_pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
+    try:
+        # Kill by process group first to get all children
+        try:
+            os.killpg(proc_pid, 9)  # SIGKILL
+        except (ProcessLookupError, PermissionError, OSError):
+            pass
+
+        # Also kill individual processes in case they escaped the group
+        try:
+            process = psutil.Process(proc_pid)
+            children = process.children(recursive=True)
+            for proc in children:
+                try:
+                    proc.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            process.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+        # Brief wait - don't block too long
+        time.sleep(0.5)
+
+    except psutil.NoSuchProcess:
+        pass
 
 
 @contextmanager
@@ -128,6 +149,9 @@ def setup_background_callback_app(manager_name, app_name):
             os.environ.pop("LONG_CALLBACK_MANAGER")
             os.environ.pop("CELERY_BROKER")
             os.environ.pop("CELERY_BACKEND")
+            # Close stderr to prevent blocking on pipe buffer
+            if worker.stderr:
+                worker.stderr.close()
             kill(worker.pid)
             from dash import page_registry
 
