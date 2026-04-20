@@ -43,8 +43,8 @@ def bootstrap_components(components_source, concurrency, install_type):
         else "{dash-core-components,dash-html-components,dash-table}"
     )
 
-    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm {install_type}"
-    cmd = shlex.split(cmdstr, posix=not is_windows)
+    cmdstr = f'npx lerna exec --concurrency {concurrency} --scope="{source_glob}" -- npm {install_type}'
+    cmd = shlex.split(cmdstr, posix=True)
     status_print(cmdstr)
 
     with subprocess.Popen(
@@ -79,8 +79,8 @@ def build_components(components_source, concurrency):
         else "{dash-core-components,dash-html-components,dash-table}"
     )
 
-    cmdstr = f"npx lerna exec --concurrency {concurrency} --scope='{source_glob}' -- npm run build"
-    cmd = shlex.split(cmdstr, posix=not is_windows)
+    cmdstr = f'npx lerna exec --concurrency {concurrency} --scope="{source_glob}" -- npm run build'
+    cmd = shlex.split(cmdstr, posix=True)
     status_print(cmdstr)
 
     with subprocess.Popen(
