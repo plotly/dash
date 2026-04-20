@@ -128,7 +128,9 @@ def test_typi_callback_basic(typing_module, callback_code, expected_status, tmp_
 def test_typi_callback_strict_mode(typing_module, tmp_path):
     """Test that callback works with strict mypy/pyright settings."""
     codefile = os.path.join(tmp_path, "code.py")
-    code = format_template_and_save(strict_mypy_template, codefile, strict_mode_callback)
+    code = format_template_and_save(
+        strict_mypy_template, codefile, strict_mode_callback
+    )
 
     output, error, status = run_module(codefile, typing_module)
     assert status == 0, (
