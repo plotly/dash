@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import atexit
 import json
 import logging
-import uuid
 from typing import TYPE_CHECKING, Any
 
 from flask import Response, request
@@ -30,11 +28,6 @@ from mcp.types import (
 )
 
 from dash.version import __version__
-from dash.mcp._sse import (
-    close_sse_stream,
-    create_sse_stream,
-    shutdown_all_streams,
-)
 from dash.mcp.primitives import (
     call_tool,
     list_resource_templates,
@@ -50,25 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
-    """
-    Add MCP routes to a Dash/Flask app.
-
-    Registers a single Streamable HTTP endpoint for the MCP protocol.
-    Uses ``app._add_url()`` so that ``routes_pathname_prefix`` is applied
-    automatically.
-
-    Args:
-        app: The Dash application instance.
-        mcp_path: Route prefix for MCP endpoints.
-    """
-    # Session storage: session_id -> metadata
-    sessions: dict[str, dict[str, Any]] = {}
-
-    def _create_session() -> str:
-        sid = str(uuid.uuid4())
-        sessions[sid] = {}
-        return sid
-
+    """Add MCP routes to a Dash/Flask app."""
     # -- Streamable HTTP endpoint --------------------------------------------
 
     def mcp_handler() -> Response:
@@ -85,14 +60,13 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         )
 
     def _handle_get() -> Response:
-        session_id = request.headers.get("mcp-session-id")
-        if not session_id or session_id not in sessions:
-            return Response(
-                json.dumps({"error": "Session not found"}),
-                content_type="application/json",
-                status=404,
-            )
-        return create_sse_stream(sessions, session_id)
+        # MCP spec allows servers to opt out of GET-initiated SSE streams
+        # by returning 405. We don't push server-initiated events.
+        return Response(
+            json.dumps({"error": "Method not allowed"}),
+            content_type="application/json",
+            status=405,
+        )
 
     def _handle_post() -> Response:
         content_type = request.content_type or ""
@@ -112,27 +86,6 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
                 status=400,
             )
 
-        method = data.get("method", "")
-        request_id = data.get("id")
-        session_id = request.headers.get("mcp-session-id")
-
-        if method == "initialize":
-            session_id = _create_session()
-        elif session_id and session_id not in sessions:
-            return Response(
-                json.dumps({"error": "Session not found. Please reinitialize."}),
-                content_type="application/json",
-                status=404,
-            )
-        elif not session_id:
-            return Response(
-                json.dumps(
-                    {"error": "Missing session ID. Send an initialize request first."}
-                ),
-                content_type="application/json",
-                status=400,
-            )
-
         response_data = _process_mcp_message(data)
 
         if response_data is None:
@@ -142,21 +95,15 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             json.dumps(response_data),
             content_type="application/json",
             status=200,
-            headers={"mcp-session-id": session_id},
         )
 
     def _handle_delete() -> Response:
-        session_id = request.headers.get("mcp-session-id")
-        if not session_id or session_id not in sessions:
-            return Response(
-                json.dumps({"error": "Session not found"}),
-                content_type="application/json",
-                status=404,
-            )
-        close_sse_stream(sessions[session_id])
-        del sessions[session_id]
-        logger.info("MCP session terminated: %s", session_id)
-        return Response("", status=204)
+        # No sessions to terminate — server is stateless.
+        return Response(
+            json.dumps({"error": "Method not allowed"}),
+            content_type="application/json",
+            status=405,
+        )
 
     # -- Register routes -----------------------------------------------------
 
@@ -165,10 +112,6 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     app._add_url(
         mcp_path, with_app_context_factory(mcp_handler, app), ["GET", "POST", "DELETE"]
     )
-
-    # Close all SSE streams on server shutdown so MCP clients see a
-    # clean stream end and can reconnect promptly.
-    atexit.register(shutdown_all_streams, sessions)
 
     logger.info(
         "MCP routes registered at %s%s",
@@ -181,7 +124,7 @@ def _handle_initialize() -> InitializeResult:
     return InitializeResult(
         protocolVersion=LATEST_PROTOCOL_VERSION,
         capabilities=ServerCapabilities(
-            tools=ToolsCapability(listChanged=True),
+            tools=ToolsCapability(listChanged=False),
             resources=ResourcesCapability(),
         ),
         serverInfo=Implementation(name="Plotly Dash", version=__version__),

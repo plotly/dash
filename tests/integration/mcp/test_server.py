@@ -45,7 +45,7 @@ def _make_app(**kwargs):
 class TestMCPEndpoint:
     """Tests for the Streamable HTTP MCP endpoint at /_mcp."""
 
-    def test_post_initialize_creates_session(self):
+    def test_post_initialize_returns_protocol_version(self):
         app = _make_app()
         client = app.server.test_client()
         r = client.post(
@@ -56,11 +56,10 @@ class TestMCPEndpoint:
             content_type="application/json",
         )
         assert r.status_code == 200
-        assert "mcp-session-id" in r.headers
         data = json.loads(r.data)
         assert data["result"]["protocolVersion"] == LATEST_PROTOCOL_VERSION
 
-    def test_post_without_session_returns_400(self):
+    def test_post_tools_list(self):
         app = _make_app()
         client = app.server.test_client()
         r = client.post(
@@ -70,125 +69,32 @@ class TestMCPEndpoint:
             ),
             content_type="application/json",
         )
-        assert r.status_code == 400
-
-    def test_stale_session_returns_404(self):
-        app = _make_app()
-        client = app.server.test_client()
-        r = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {
-                    "jsonrpc": "2.0",
-                    "method": "tools/list",
-                    "id": 1,
-                    "params": {},
-                }
-            ),
-            content_type="application/json",
-            headers={"mcp-session-id": "old-session-from-before-restart"},
-        )
-        assert r.status_code == 404
-
-    def test_post_with_valid_session(self):
-        app = _make_app()
-        client = app.server.test_client()
-        # Initialize to get session
-        r1 = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "initialize", "id": 1, "params": {}}
-            ),
-            content_type="application/json",
-        )
-        session_id = r1.headers["mcp-session-id"]
-        # Use session for tools/list
-        r2 = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "tools/list", "id": 2, "params": {}}
-            ),
-            content_type="application/json",
-            headers={"mcp-session-id": session_id},
-        )
-        assert r2.status_code == 200
-        data = json.loads(r2.data)
+        assert r.status_code == 200
+        data = json.loads(r.data)
         assert "result" in data
         assert "tools" in data["result"]
 
     def test_notification_returns_202(self):
         app = _make_app()
         client = app.server.test_client()
-        # Initialize to get session
-        r1 = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "initialize", "id": 1, "params": {}}
-            ),
-            content_type="application/json",
-        )
-        session_id = r1.headers["mcp-session-id"]
-        # Send notification (no id field)
-        r2 = client.post(
+        r = client.post(
             f"/{MCP_PATH}",
             data=json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}),
             content_type="application/json",
-            headers={"mcp-session-id": session_id},
         )
-        assert r2.status_code == 202
+        assert r.status_code == 202
 
-    def test_delete_terminates_session(self):
+    def test_delete_returns_405(self):
         app = _make_app()
         client = app.server.test_client()
-        # Initialize
-        r1 = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "initialize", "id": 1, "params": {}}
-            ),
-            content_type="application/json",
-        )
-        session_id = r1.headers["mcp-session-id"]
-        # Delete
-        r2 = client.delete(
-            f"/{MCP_PATH}",
-            headers={"mcp-session-id": session_id},
-        )
-        assert r2.status_code == 204
-        # Post-delete requests return 404
-        r3 = client.post(
-            f"/{MCP_PATH}",
-            data=json.dumps(
-                {"jsonrpc": "2.0", "method": "tools/list", "id": 2, "params": {}}
-            ),
-            content_type="application/json",
-            headers={"mcp-session-id": session_id},
-        )
-        assert r3.status_code == 404
+        r = client.delete(f"/{MCP_PATH}")
+        assert r.status_code == 405
 
-    def test_delete_nonexistent_session_returns_404(self):
-        app = _make_app()
-        client = app.server.test_client()
-        r = client.delete(
-            f"/{MCP_PATH}",
-            headers={"mcp-session-id": "nonexistent"},
-        )
-        assert r.status_code == 404
-
-    def test_get_without_session_returns_404(self):
+    def test_get_returns_405(self):
         app = _make_app()
         client = app.server.test_client()
         r = client.get(f"/{MCP_PATH}")
-        assert r.status_code == 404
-
-    def test_get_with_stale_session_returns_404(self):
-        app = _make_app()
-        client = app.server.test_client()
-        r = client.get(
-            f"/{MCP_PATH}",
-            headers={"mcp-session-id": "nonexistent"},
-        )
-        assert r.status_code == 404
+        assert r.status_code == 405
 
     def test_post_rejects_wrong_content_type(self):
         app = _make_app()
