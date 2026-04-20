@@ -452,7 +452,7 @@ jobs:
           retention-days: 7
 
   test-main:
-    name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    name: Main Dash Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -460,11 +460,13 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.12"]
+        react-version: ["18.3.1", "19.2.0"]
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
 
     steps:
@@ -526,7 +528,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-main-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: test-main-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: test-reports/
           retention-days: 7
 
@@ -534,13 +536,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-main-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: test-main-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
 
   html-test:
-    name: HTML Components Tests (Python ${{ matrix.python-version }})
+    name: HTML Components Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }})
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
@@ -551,10 +553,12 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.12"]
+        react-version: ["18.3.1", "19.2.0"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
 
     steps:
@@ -615,7 +619,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-test-results-py${{ matrix.python-version }}
+          name: html-test-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}
           path: components/dash-html-components/test-reports/
           retention-days: 7
 
@@ -623,7 +627,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-test-dash-artifacts-py${{ matrix.python-version }}
+          name: html-test-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
@@ -718,7 +722,7 @@ jobs:
           npm run lint
 
   dcc-test:
-    name: DCC Integration Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    name: DCC Integration Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
@@ -729,11 +733,13 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.12"]
+        react-version: ["18.3.1", "19.2.0"]
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
 
     steps:
@@ -792,7 +798,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dcc-test-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: dcc-test-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: components/dash-core-components/test-reports/
           retention-days: 7
 
@@ -800,7 +806,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dcc-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: dcc-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
