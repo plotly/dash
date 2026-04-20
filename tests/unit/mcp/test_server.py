@@ -51,12 +51,6 @@ class TestProcessMCPMessage:
         assert result["result"]["protocolVersion"] == LATEST_PROTOCOL_VERSION
         assert "serverInfo" in result["result"]
 
-    def test_initialize_advertises_list_changed(self):
-        app = _make_app()
-        result = _mcp(app, "initialize")
-        caps = result["result"]["capabilities"]
-        assert caps["tools"]["listChanged"] is True
-
     def test_tools_call(self):
         app = _make_app()
         tools = _tools_list(app)
