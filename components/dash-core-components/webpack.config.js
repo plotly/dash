@@ -38,6 +38,8 @@ module.exports = (env, argv) => {
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
         'react-dom': 'ReactDOM',
+        'react/jsx-runtime': 'ReactJSXRuntime',
+        'react/jsx-dev-runtime': 'ReactJSXRuntime',
         'prop-types': 'PropTypes'
     });
 
@@ -56,11 +58,7 @@ module.exports = (env, argv) => {
         },
         externals,
         resolve: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-            alias: {
-                'react/jsx-runtime': require.resolve('react/jsx-runtime'),
-                'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
-            }
+            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
         },
         module: {
             noParse: /node_modules[\\\/]plotly.js-dist-min/,
