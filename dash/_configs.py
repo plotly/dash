@@ -35,6 +35,7 @@ def load_dash_env_vars():
                 "DASH_COMPRESS",
                 "DASH_MCP_ENABLED",
                 "DASH_MCP_PATH",
+                "DASH_MCP_EXPOSE_DOCSTRINGS",
                 "HOST",
                 "PORT",
             )
