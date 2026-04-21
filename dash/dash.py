@@ -488,6 +488,7 @@ class Dash(ObsoleteChecker):
         websocket_inactivity_timeout: Optional[int] = 300000,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
+        mcp_expose_docstrings: Optional[bool] = None,
         **obsolete,
     ):
 
@@ -569,6 +570,9 @@ class Dash(ObsoleteChecker):
             hide_all_callbacks=False,
             csrf_token_name=csrf_token_name,
             csrf_header_name=csrf_header_name,
+            mcp_expose_docstrings=get_combined_config(
+                "mcp_expose_docstrings", mcp_expose_docstrings, False
+            ),
         )
         self.config.set_read_only(
             [
