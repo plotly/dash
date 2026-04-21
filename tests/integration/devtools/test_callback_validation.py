@@ -1,7 +1,18 @@
 import flask
 import pytest
 
-from dash import Dash, Input, Output, State, MATCH, ALL, ALLSMALLER, html, dcc
+from dash import (
+    Dash,
+    Input,
+    Output,
+    State,
+    MATCH,
+    ALL,
+    ALLSMALLER,
+    html,
+    dcc,
+    set_props,
+)
 from dash.testing import wait
 
 debugging = dict(
@@ -813,5 +824,81 @@ def test_dvcv016_circular_with_input_output(dash_duo):
                 "c.children -> a.children__output",
             ],
         ]
+    ]
+    check_errors(dash_duo, specs)
+
+
+def test_dvcv017_match_input_permitted_no_output_match(dash_duo):
+    # Issue #2462: when Outputs don't carry MATCH wildcards, Inputs/State
+    # may use MATCH freely. These callbacks should load without errors.
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("btn", id={"type": "btn", "idx": 1}),
+            html.Div(id="out-a"),
+            html.Div(id="out-b"),
+            html.Div(id={"type": "wild", "idx": 1}),
+            html.Div(id={"type": "wild", "idx": 2}),
+        ]
+    )
+
+    # fixed Output + MATCH Input
+    @app.callback(
+        Output("out-a", "children"),
+        Input({"type": "btn", "idx": MATCH}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def a(_):
+        return "a"
+
+    # no-Output + MATCH Input
+    @app.callback(
+        Input({"type": "btn", "idx": MATCH}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def b(_):
+        set_props("out-b", {"children": "b"})
+
+    # ALL-only wildcard Output + MATCH Input on a different key
+    @app.callback(
+        Output({"type": "wild", "idx": ALL}, "children"),
+        Input({"type": "btn", "idx": MATCH}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def c(_):
+        return ["c", "c"]
+
+    dash_duo.start_server(app, **debugging)
+
+    # All three callbacks should register without validation errors.
+    wait.until(lambda: ~dash_duo.redux_state_is_loading, 2)
+    dash_duo.wait_for_no_elements(dash_duo.devtools_error_count_locator)
+    assert dash_duo.get_logs() == []
+
+
+def test_dvcv018_allsmaller_still_errors_with_fixed_output(dash_duo):
+    # Issue #2462 leaves ALLSMALLER strict: it still requires a
+    # corresponding MATCH in the Output(s).
+    app = Dash(__name__)
+    app.layout = html.Div()
+
+    @app.callback(
+        Output("out", "children"),
+        Input({"i": ALLSMALLER}, "value"),
+    )
+    def x(_):
+        return "x"
+
+    dash_duo.start_server(app, **debugging)
+
+    specs = [
+        [
+            "`Input` / `State` wildcards not in `Output`s",
+            [
+                'Input 0 ({"i":ALLSMALLER}.value)',
+                "has MATCH or ALLSMALLER on key(s) i",
+                "Output 0 (out.children)",
+            ],
+        ],
     ]
     check_errors(dash_duo, specs)
