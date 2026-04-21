@@ -434,24 +434,37 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
             ]);
         }
     });
+    // When the Outputs don't carry any MATCH keys (fixed-id outputs, no
+    // outputs, or wildcard outputs with only ALL), the Inputs/State may use
+    // MATCH freely — each firing is identified by the triggering input's
+    // MATCH values. ALLSMALLER still requires a MATCH reference, so that
+    // case remains an error. See issue #2462.
+    const outputsHaveMatch = out0MatchKeys.length > 0;
     [
         [inputs, 'Input'],
         [state, 'State']
     ].forEach(([args, cls]) => {
         args.forEach((arg, i) => {
             const {matchKeys, allsmallerKeys} = findWildcardKeys(arg.id);
-            const allWildcardKeys = matchKeys.concat(allsmallerKeys);
-            const diff = difference(allWildcardKeys, out0MatchKeys);
+            const diffKeys = outputsHaveMatch
+                ? matchKeys.concat(allsmallerKeys)
+                : allsmallerKeys;
+            const diff = difference(diffKeys, out0MatchKeys);
             if (diff.length) {
                 diff.sort();
+                const outDesc = outputs.length
+                    ? `Output 0 (${combineIdAndProp(outputs[0])})`
+                    : 'the (absent) Output';
                 dispatchError('`Input` / `State` wildcards not in `Output`s', [
                     head,
                     `${cls} ${i} (${combineIdAndProp(arg)})`,
                     `has MATCH or ALLSMALLER on key(s) ${diff.join(', ')}`,
-                    `where Output 0 (${combineIdAndProp(outputs[0])})`,
+                    `where ${outDesc}`,
                     'does not have a MATCH wildcard. Inputs and State do not',
-                    'need every MATCH from the Output(s), but they cannot have',
-                    'extras beyond the Output(s).'
+                    'need every MATCH from the Output(s), but ALLSMALLER',
+                    'requires a matching MATCH in the Output(s), and when',
+                    'the Output(s) have any MATCH, Input/State MATCH keys',
+                    'must be a subset of them.'
                 ]);
             }
         });
