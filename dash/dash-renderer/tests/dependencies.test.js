@@ -1,9 +1,6 @@
 import {expect} from 'chai';
 import {beforeEach, describe, it} from 'mocha';
-import {
-    computeGraphs,
-    getAnyVals
-} from '../src/actions/dependencies';
+import {computeGraphs, getAnyVals} from '../src/actions/dependencies';
 import {getCallbacksByInput} from '../src/actions/dependencies_ts';
 import {EventEmitter} from '../src/actions/utils';
 
@@ -44,9 +41,7 @@ describe('dependencies — MATCH validation (#2462)', () => {
             [
                 {
                     output: 'out.children',
-                    inputs: [
-                        {id: '{"id":["MATCH"]}', property: 'n_clicks'}
-                    ],
+                    inputs: [{id: '{"id":["MATCH"]}', property: 'n_clicks'}],
                     state: [],
                     no_output: false
                 }
@@ -62,9 +57,7 @@ describe('dependencies — MATCH validation (#2462)', () => {
             [
                 {
                     output: '',
-                    inputs: [
-                        {id: '{"id":["MATCH"]}', property: 'n_clicks'}
-                    ],
+                    inputs: [{id: '{"id":["MATCH"]}', property: 'n_clicks'}],
                     state: [],
                     no_output: true
                 }
@@ -80,12 +73,8 @@ describe('dependencies — MATCH validation (#2462)', () => {
             [
                 {
                     output: 'out.children',
-                    inputs: [
-                        {id: '{"id":["MATCH"]}', property: 'n_clicks'}
-                    ],
-                    state: [
-                        {id: '{"id":["MATCH"]}', property: 'id'}
-                    ],
+                    inputs: [{id: '{"id":["MATCH"]}', property: 'n_clicks'}],
+                    state: [{id: '{"id":["MATCH"]}', property: 'id'}],
                     no_output: false
                 }
             ],
@@ -101,7 +90,10 @@ describe('dependencies — MATCH validation (#2462)', () => {
                 {
                     output: '{"id":["ALL"]}.children',
                     inputs: [
-                        {id: '{"type":"btn","idx":["MATCH"]}', property: 'n_clicks'}
+                        {
+                            id: '{"type":"btn","idx":["MATCH"]}',
+                            property: 'n_clicks'
+                        }
                     ],
                     state: [],
                     no_output: false
@@ -118,9 +110,7 @@ describe('dependencies — MATCH validation (#2462)', () => {
             [
                 {
                     output: 'out.children',
-                    inputs: [
-                        {id: '{"id":["ALLSMALLER"]}', property: 'value'}
-                    ],
+                    inputs: [{id: '{"id":["ALLSMALLER"]}', property: 'value'}],
                     state: [],
                     no_output: false
                 }
@@ -139,9 +129,7 @@ describe('dependencies — MATCH validation (#2462)', () => {
             [
                 {
                     output: '{"a":["MATCH"]}.children',
-                    inputs: [
-                        {id: '{"b":["MATCH"]}', property: 'n_clicks'}
-                    ],
+                    inputs: [{id: '{"b":["MATCH"]}', property: 'n_clicks'}],
                     state: [],
                     no_output: false
                 }
@@ -173,7 +161,9 @@ describe('dependencies — MATCH validation (#2462)', () => {
             config
         );
         const msgs = errors.map(e => e.message);
-        expect(msgs).to.include('Mismatched `MATCH` wildcards across `Output`s');
+        expect(msgs).to.include(
+            'Mismatched `MATCH` wildcards across `Output`s'
+        );
     });
 });
 
@@ -186,9 +176,7 @@ describe('dependencies — MATCH trigger resolvedId (#2462)', () => {
             [
                 {
                     output: 'out.children',
-                    inputs: [
-                        {id: '{"id":["MATCH"]}', property: 'n_clicks'}
-                    ],
+                    inputs: [{id: '{"id":["MATCH"]}', property: 'n_clicks'}],
                     state: [],
                     no_output: false
                 }
@@ -208,9 +196,7 @@ describe('dependencies — MATCH trigger resolvedId (#2462)', () => {
             [
                 {
                     output: 'out.children',
-                    inputs: [
-                        {id: '{"id":["MATCH"]}', property: 'n_clicks'}
-                    ],
+                    inputs: [{id: '{"id":["MATCH"]}', property: 'n_clicks'}],
                     state: [],
                     no_output: false
                 }

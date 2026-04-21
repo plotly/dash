@@ -704,15 +704,10 @@ def test_cbwc010_match_input_no_output(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#out", "initial")
 
-    dash_duo.find_element(
-        '[id=\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"btn\\"\\}]'
-    ).click()
+    dash_duo.find_element('[id=\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"btn\\"\\}]').click()
     dash_duo.wait_for_text_to_equal("#out", "clicked index=1")
 
-    dash_duo.find_element(
-        '[id=\\{\\"index\\"\\:2\\,\\"type\\"\\:\\"btn\\"\\}]'
-    ).click()
+    dash_duo.find_element('[id=\\{\\"index\\"\\:2\\,\\"type\\"\\:\\"btn\\"\\}]').click()
     dash_duo.wait_for_text_to_equal("#out", "clicked index=2")
 
     assert dash_duo.get_logs() == []
-
