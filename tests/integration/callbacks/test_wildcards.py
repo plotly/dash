@@ -6,7 +6,18 @@ from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
-from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
+from dash import (
+    Dash,
+    Input,
+    Output,
+    State,
+    ALL,
+    ALLSMALLER,
+    MATCH,
+    html,
+    dcc,
+    set_props,
+)
 
 from tests.assets.todo_app import todo_app
 from tests.assets.grouping_app import grouping_app
@@ -619,3 +630,125 @@ def test_cbwc008_running_match(dash_duo):
         assert not dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
             "disabled"
         )
+
+
+def test_cbwc009_match_input_fixed_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with a fixed-id Output.
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "Alpha",
+                id={"type": "btn", "index": "alpha"},
+            ),
+            html.Button(
+                "Beta",
+                id={"type": "btn", "index": "beta"},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"),
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def show_clicked(_, id_):
+        return f"clicked {id_['index']}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"alpha\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked alpha")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"beta\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked beta")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc010_match_input_no_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with no Output (set_props).
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "One",
+                id={"type": "btn", "index": 1},
+            ),
+            html.Button(
+                "Two",
+                id={"type": "btn", "index": 2},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def announce(_, id_):
+        set_props("out", {"children": f"clicked index={id_['index']}"})
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=1")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:2\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=2")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc011_match_input_fixed_output_uses_state(dash_duo):
+    # Verifies the State-MATCH resolver uses the triggering input's MATCH
+    # value (not some stale first trigger), across repeated clicks.
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("A", id={"role": "tab", "name": "a"}),
+            html.Button("B", id={"role": "tab", "name": "b"}),
+            html.Button("C", id={"role": "tab", "name": "c"}),
+            html.Pre("-", id="trail"),
+        ]
+    )
+
+    @app.callback(
+        Output("trail", "children"),
+        Input({"role": "tab", "name": MATCH}, "n_clicks"),
+        State({"role": "tab", "name": MATCH}, "id"),
+        State("trail", "children"),
+        prevent_initial_call=True,
+    )
+    def append(_, id_, current):
+        prev = "" if current == "-" else current
+        return f"{prev}{id_['name']}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#trail", "-")
+
+    for name in ["a", "b", "c", "a"]:
+        dash_duo.find_element(
+            f'[id=\\{{\\"name\\"\\:\\"{name}\\"\\,\\"role\\"\\:\\"tab\\"\\}}]'
+        ).click()
+
+    dash_duo.wait_for_text_to_equal("#trail", "abca")
+    assert dash_duo.get_logs() == []
