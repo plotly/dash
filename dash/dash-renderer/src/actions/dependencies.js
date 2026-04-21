@@ -1056,7 +1056,7 @@ export function idMatch(
     return true;
 }
 
-function getAnyVals(patternVals, vals) {
+export function getAnyVals(patternVals, vals) {
     const matches = [];
     for (let i = 0; i < patternVals.length; i++) {
         if (patternVals[i] === MATCH) {
@@ -1155,7 +1155,12 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     });
 }
 
-export function addAllResolvedFromOutputs(resolve, paths, matches) {
+export function addAllResolvedFromOutputs(
+    resolve,
+    paths,
+    matches,
+    triggerAnyVals = ''
+) {
     return callback => {
         const {matchKeys, firstSingleOutput, outputs} = callback;
         if (matchKeys.length) {
@@ -1192,7 +1197,11 @@ export function addAllResolvedFromOutputs(resolve, paths, matches) {
                 });
             }
         } else {
-            const cb = makeResolvedCallback(callback, resolve, '');
+            // Outputs have no MATCH keys (fixed-id outputs or no output).
+            // Fall back to the triggering input's MATCH values so that
+            // separate MATCH triggers produce distinct resolvedIds and
+            // aren't deduplicated into a single firing. See issue #2462.
+            const cb = makeResolvedCallback(callback, resolve, triggerAnyVals);
             matches.push(cb);
         }
     };
