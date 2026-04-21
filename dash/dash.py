@@ -604,7 +604,7 @@ class Dash(ObsoleteChecker):
         self.title = title
 
         # MCP (Model Context Protocol) configuration
-        self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, True)
+        self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, False)
         _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
         self._mcp_path = (
             _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path

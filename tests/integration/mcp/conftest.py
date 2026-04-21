@@ -1,6 +1,13 @@
 """Shared helpers for MCP integration tests."""
 
+import pytest
 import requests
+
+
+@pytest.fixture(autouse=True)
+def _enable_mcp_for_integration_tests(monkeypatch):
+    """MCP is off by default; integration tests need it on."""
+    monkeypatch.setenv("DASH_MCP_ENABLED", "true")
 
 
 def _mcp_post(server_url, method, params=None, request_id=1):
