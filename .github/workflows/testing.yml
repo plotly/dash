@@ -14,9 +14,10 @@ jobs:
     name: Detect Relevant Path Changes
     runs-on: ubuntu-latest
     outputs:
-      # This output will be 'true' if files in the 'table_related_paths' list changed, 'false' otherwise.
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      dcc_paths_changed: ${{ steps.filter.outputs.dcc_related_paths }}
+      html_paths_changed: ${{ steps.filter.outputs.html_related_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,6 +30,12 @@ jobs:
             table_related_paths:
               - 'components/dash-table/**'
               - 'dash/dash-renderer/**'
+            dcc_related_paths:
+              - 'components/dash-core-components/**'
+              - 'dash/dash-renderer/**'
+            html_related_paths:
+              - 'components/dash-html-components/**'
+              - 'dash/dash-renderer/**'
             background_paths:
               - 'dash/background_callback/**'
               - 'dash/dash-renderer/**'
@@ -37,6 +44,71 @@ jobs:
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
               - 'requirements/**'
+
+  lint-unit:
+    name: Lint & Unit Tests (Python ${{ matrix.python-version }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Download built component folders for linting
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-components
+          path: ${{ github.workspace }}/dash
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci,testing]"' \;
+
+      - name: Install dash-renderer dependencies
+        working-directory: dash/dash-renderer
+        run: npm ci
+
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run citest.unit
 
   build:
     name: Build Dash Package
@@ -53,7 +125,7 @@ jobs:
       - name: Set up Node.js for frontend build
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
 
       - name: Install NPM dependencies
@@ -91,6 +163,16 @@ jobs:
           path: packages/ # Upload the contents of the dist directory
           retention-days: 1 # Keep artifact for 1 day (adjust as needed)
 
+      - name: Upload built component folders for linting
+        uses: actions/upload-artifact@v4
+        with:
+          name: dash-components
+          path: |
+            dash/dcc/
+            dash/html/
+            dash/dash_table/
+          retention-days: 1
+
   test-typing:
     name: Typing Tests
     runs-on: ubuntu-latest
@@ -107,7 +189,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install Node.js dependencies
@@ -118,6 +200,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -174,7 +257,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install Node.js dependencies
@@ -185,6 +268,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -196,60 +280,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<78.0.0"
-          python -m pip install "selenium==4.32.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache]"' \;
 
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          # Attempt to install a specific recent, stable version or just google-chrome-stable
-          # For more deterministic builds, you might consider a specific version if available via apt,
-          # or using a Docker image with Chrome pre-installed if extreme consistency is needed.
-          sudo apt-get install -y google-chrome-stable
-
-      - name: Install ChromeDriver
-        run: |
-          echo "Determining Chrome version..."
-          CHROME_BROWSER_VERSION=$(google-chrome --version)
-          echo "Installed Chrome Browser version: $CHROME_BROWSER_VERSION"
-          # Extract the major version number (e.g., 124 from "Google Chrome 124.0.6367.207")
-          CHROME_MAJOR_VERSION=$(echo "$CHROME_BROWSER_VERSION" | cut -f 3 -d ' ' | cut -f 1 -d '.')
-          echo "Detected Chrome Major version: $CHROME_MAJOR_VERSION"
-
-          # For Chrome 115 and later, use the new Chrome for Testing (CfT) JSON endpoints
-          if [ "$CHROME_MAJOR_VERSION" -ge 115 ]; then
-            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using CfT endpoint..."
-            # Get the latest known good version of chromedriver for this major Chrome version
-            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
-            if [ -z "$CHROMEDRIVER_VERSION_STRING" ]; then
-              echo "Could not automatically find ChromeDriver version for Chrome $CHROME_MAJOR_VERSION via LATEST_RELEASE. Please check CfT endpoints."
-              # As a fallback, attempt to fetch the known good versions and pick the latest chromedriver.
-              # This is more complex and might require parsing JSON with jq.
-              # For simplicity, we'll rely on LATEST_RELEASE_ for now.
-              # If that fails consistently, you might need a more robust script or a fixed ChromeDriver version.
-              # Alternative: List all known good versions
-              # curl -sS "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
-              exit 1
-            fi
-            CHROMEDRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION_STRING}/linux64/chromedriver-linux64.zip"
-          else
-            # For older Chrome versions (less common now)
-            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using older method..."
-            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
-            CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION_STRING}/chromedriver_linux64.zip"
-          fi
-
-          echo "Using ChromeDriver version string: $CHROMEDRIVER_VERSION_STRING"
-          echo "Downloading ChromeDriver from: $CHROMEDRIVER_URL"
-
-          wget -q -O chromedriver.zip "$CHROMEDRIVER_URL"
-          unzip -o chromedriver.zip -d /tmp/ # Unzip to /tmp
-          # The zip for CfT often contains a directory like chromedriver-linux64/
-          sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver || sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
-          sudo chmod +x /usr/local/bin/chromedriver
-          # Add /usr/local/bin to GITHUB_PATH to ensure chromedriver is found
-          echo "/usr/local/bin" >> $GITHUB_PATH
-        shell: bash
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Verify Redis connection
         run: |
@@ -258,18 +294,40 @@ jobs:
       - name: Build/Setup test components
         run: npm run setup-tests.py
 
-      - name: Run Background & Async Callback Tests
+      - name: Setup test directory
         run: |
           mkdir bgtests
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/background_callback -v -s
+          mkdir -p test-reports
 
-      - name: Run Async Callback Tests
+      - name: Run Background Callback Tests
+        timeout-minutes: 15
         run: |
           cd bgtests
-          pytest --headless --nopercyfinalize tests/async_tests -v -s
+          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_background.xml tests/background_callback -v -s
+
+      - name: Cleanup background processes
+        if: always()
+        run: |
+          pkill -f celery || true
+          pkill -f "dash" || true
+          sleep 2
+
+      - name: Run Async Callback Tests
+        timeout-minutes: 15
+        run: |
+          cd bgtests
+          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_async.xml tests/async_tests -v -s
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: background-test-results-py${{ matrix.python-version }}
+          path: bgtests/test-reports/
+          retention-days: 7
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -291,7 +349,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install Node.js dependencies
@@ -302,6 +360,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -349,7 +408,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install Node.js dependencies
@@ -360,6 +419,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
+          cache-dependency-path: requirements/*.txt
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -372,65 +432,576 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
-          pip install pytest-split
 
-      - name: Install Google Chrome
-        run: |
-          sudo apt-get update
-          # Attempt to install a specific recent, stable version or just google-chrome-stable
-          # For more deterministic builds, you might consider a specific version if available via apt,
-          # or using a Docker image with Chrome pre-installed if extreme consistency is needed.
-          sudo apt-get install -y google-chrome-stable
-
-      - name: Install ChromeDriver
-        run: |
-          echo "Determining Chrome version..."
-          CHROME_BROWSER_VERSION=$(google-chrome --version)
-          echo "Installed Chrome Browser version: $CHROME_BROWSER_VERSION"
-          # Extract the major version number (e.g., 124 from "Google Chrome 124.0.6367.207")
-          CHROME_MAJOR_VERSION=$(echo "$CHROME_BROWSER_VERSION" | cut -f 3 -d ' ' | cut -f 1 -d '.')
-          echo "Detected Chrome Major version: $CHROME_MAJOR_VERSION"
-
-          # For Chrome 115 and later, use the new Chrome for Testing (CfT) JSON endpoints
-          if [ "$CHROME_MAJOR_VERSION" -ge 115 ]; then
-            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using CfT endpoint..."
-            # Get the latest known good version of chromedriver for this major Chrome version
-            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
-            if [ -z "$CHROMEDRIVER_VERSION_STRING" ]; then
-              echo "Could not automatically find ChromeDriver version for Chrome $CHROME_MAJOR_VERSION via LATEST_RELEASE. Please check CfT endpoints."
-              # As a fallback, attempt to fetch the known good versions and pick the latest chromedriver.
-              # This is more complex and might require parsing JSON with jq.
-              # For simplicity, we'll rely on LATEST_RELEASE_ for now.
-              # If that fails consistently, you might need a more robust script or a fixed ChromeDriver version.
-              # Alternative: List all known good versions
-              # curl -sS "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
-              exit 1
-            fi
-            CHROMEDRIVER_URL="https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION_STRING}/linux64/chromedriver-linux64.zip"
-          else
-            # For older Chrome versions (less common now)
-            echo "Fetching ChromeDriver version for Chrome $CHROME_MAJOR_VERSION using older method..."
-            CHROMEDRIVER_VERSION_STRING=$(curl -sS "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
-            CHROMEDRIVER_URL="https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION_STRING}/chromedriver_linux64.zip"
-          fi
-
-          echo "Using ChromeDriver version string: $CHROMEDRIVER_VERSION_STRING"
-          echo "Downloading ChromeDriver from: $CHROMEDRIVER_URL"
-
-          wget -q -O chromedriver.zip "$CHROMEDRIVER_URL"
-          unzip -o chromedriver.zip -d /tmp/ # Unzip to /tmp
-          # The zip for CfT often contains a directory like chromedriver-linux64/
-          sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver || sudo mv /tmp/chromedriver /usr/local/bin/chromedriver
-          sudo chmod +x /usr/local/bin/chromedriver
-          # Add /usr/local/bin to GITHUB_PATH to ensure chromedriver is found
-          echo "/usr/local/bin" >> $GITHUB_PATH
-        shell: bash
-
-      - name: Verify ChromeDriver Installation
-        run: |
-          chromedriver --version
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
 
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize --headless --splits 3 --group ${{ matrix.test-group }}
+          pytest --nopercyfinalize --headless --junitxml=test-reports/junit_table.xml --splits 3 --group ${{ matrix.test-group }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: table-server-results-group${{ matrix.test-group }}
+          path: components/dash-table/test-reports/
+          retention-days: 7
+
+  test-main:
+    name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.12"]
+        test-group: ["1", "2", "3"]
+
+    env:
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      PERCY_PARALLEL_TOTAL: -1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run main integration tests
+        run: |
+          if [ "${{ matrix.python-version }}" == "3.12" ]; then
+            npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
+          else
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-main-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          path: test-reports/
+          retention-days: 7
+
+      - name: Upload dash artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-main-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          path: /tmp/dash_artifacts
+          retention-days: 7
+          if-no-files-found: ignore
+
+  html-test:
+    name: HTML Components Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.html_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.12"]
+
+    env:
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      PERCY_PARALLEL_TOTAL: -1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Run HTML components tests
+        working-directory: components/dash-html-components
+        run: |
+          npm ci
+          if [ "${{ matrix.python-version }}" == "3.12" ]; then
+            npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+          else
+            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-test-results-py${{ matrix.python-version }}
+          path: components/dash-html-components/test-reports/
+          retention-days: 7
+
+      - name: Upload dash artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-test-dash-artifacts-py${{ matrix.python-version }}
+          path: /tmp/dash_artifacts
+          retention-days: 7
+          if-no-files-found: ignore
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[dev,ci]
+
+      - name: Build dash-renderer
+        working-directory: dash/dash-renderer
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build dash-html-components
+        working-directory: components/dash-html-components
+        run: |
+          npm ci
+          npm run build
+
+  dcc-lint:
+    name: DCC Lint Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.dcc_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+
+      - name: Lint DCC
+        run: |
+          cd components/dash-core-components
+          npm ci
+          npm run lint
+
+  dcc-test:
+    name: DCC Integration Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.dcc_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.12"]
+        test-group: ["1", "2", "3"]
+
+    env:
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      PERCY_PARALLEL_TOTAL: -1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Remove DCC Python package and run tests
+        run: |
+          rm -rf components/dash-core-components/dash_core_components
+          cd components/dash-core-components
+          npm ci
+          npm run test:jest
+          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" tests/integration --splits 3 --group ${{ matrix.test-group }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcc-test-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          path: components/dash-core-components/test-reports/
+          retention-days: 7
+
+      - name: Upload dash artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcc-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          path: /tmp/dash_artifacts
+          retention-days: 7
+          if-no-files-found: ignore
+
+  table-visual-test:
+    name: Dash Table Visual Tests
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.table_paths_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN_TABLE }}
+      PERCY_ENABLE: '1'
+      # Note: percy-storybook auto-finalizes, don't use PERCY_PARALLEL_TOTAL here
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Run Table visual tests
+        working-directory: components/dash-table
+        run: |
+          npm ci
+          npm run test.visual
+
+      - name: Upload dash artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: table-visual-test-dash-artifacts
+          path: /tmp/dash_artifacts
+          retention-days: 7
+          if-no-files-found: ignore
+
+  percy-finalize:
+    name: Finalize Percy Snapshots
+    needs: [test-main, dcc-test, html-test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Finalize Main Percy Build
+        if: |
+          needs.test-main.result != 'skipped' ||
+          needs.dcc-test.result != 'skipped' ||
+          needs.html-test.result != 'skipped'
+        run: |
+          npm install -g @percy/cli
+          npx percy build:finalize
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
+  report-table-percy-skipped:
+    name: Report Percy Table Skipped
+    needs: table-visual-test
+    runs-on: ubuntu-latest
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      needs.table-visual-test.result == 'skipped'
+    permissions:
+      statuses: write
+    steps:
+      - name: Post success status for percy/dash-table-test
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'success',
+              context: 'percy/dash-table-test',
+              description: 'Skipped — no dash-table changes',
+            });
+
+  test-report:
+    name: Consolidated Test Report
+    needs: [lint-unit, test-main, dcc-test, html-test, table-server, background-callbacks, test-typing]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-results-*'
+          path: test-results
+          merge-multiple: false
+
+      - name: List downloaded results
+        run: find test-results -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results Summary
+          path: 'test-results/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+          list-suites: 'failed'
+          list-tests: 'failed'
+          max-annotations: '50'
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Unit Tests | ${{ needs.lint-unit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Main Integration Tests | ${{ needs.test-main.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| DCC Tests | ${{ needs.dcc-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| HTML Tests | ${{ needs.html-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Table Server Tests | ${{ needs.table-server.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Background Callbacks | ${{ needs.background-callbacks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Typing Tests | ${{ needs.test-typing.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📁 Detailed test reports are available in the artifacts section above." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for failures
+        if: always()
+        run: |
+          if [[ "${{ needs.lint-unit.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-main.result }}" == "failure" ]] || \
+             [[ "${{ needs.dcc-test.result }}" == "failure" ]] || \
+             [[ "${{ needs.html-test.result }}" == "failure" ]] || \
+             [[ "${{ needs.table-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.background-callbacks.result }}" == "failure" ]] || \
+             [[ "${{ needs.test-typing.result }}" == "failure" ]]; then
+            echo "One or more required jobs failed"
+            exit 1
+          fi
+
+  artifacts:
+    name: Store Build Artifacts
+    needs: [build, percy-finalize]
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/master' ||
+       github.ref == 'refs/heads/dev' ||
+       startsWith(github.ref, 'refs/tags/'))
+
+    steps:
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dash-build-artifacts-${{ github.sha }}
+          path: packages/
+          retention-days: 90

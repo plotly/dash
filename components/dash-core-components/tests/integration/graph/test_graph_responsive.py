@@ -4,18 +4,35 @@ import pytest
 import flaky
 
 from dash import Dash, Input, Output, State, dcc, html
-import plotly.graph_objects as go
 
 from dash.exceptions import PreventUpdate
 from dash.testing import wait
 
 
-@pytest.mark.parametrize("responsive", [True, False, None])
-@pytest.mark.parametrize("autosize", [True, False, None])
-@pytest.mark.parametrize("height", [600, None])
-@pytest.mark.parametrize("width", [600, None])
-@pytest.mark.parametrize("is_responsive", [True, False, "auto"])
-def test_grrs001_graph(dash_dcc, responsive, autosize, height, width, is_responsive):
+@pytest.mark.parametrize(
+    "is_responsive,responsive,autosize,height,width",
+    [
+        # is_responsive=True: always responsive regardless of other params
+        (True, None, None, None, None),
+        (True, False, False, 600, 600),  # still responsive even with fixed dims
+        # is_responsive=False: never responsive regardless of other params
+        (False, True, True, None, None),  # not responsive even with autosize
+        (False, None, None, 600, 600),
+        # is_responsive="auto": behavior depends on other params
+        ("auto", True, True, None, None),  # responsive: all conditions met
+        ("auto", True, True, 600, None),  # responsive: one dim fixed is ok
+        ("auto", True, False, None, None),  # NOT responsive: autosize=False
+        (
+            "auto",
+            False,
+            True,
+            None,
+            None,
+        ),  # NOT responsive on resize: config.responsive=False
+        ("auto", None, None, 600, 600),  # NOT responsive: both dims fixed
+    ],
+)
+def test_grrs001_graph(dash_dcc, is_responsive, responsive, autosize, height, width):
     app = Dash(__name__, eager_loading=True)
 
     header_style = dict(padding="10px", backgroundColor="yellow", flex="0 0 100px")

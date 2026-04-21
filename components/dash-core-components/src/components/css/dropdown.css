@@ -55,6 +55,12 @@
     cursor: not-allowed;
 }
 
+.dash-dropdown-focus-target {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .dash-dropdown-value {
     max-width: 100%;
     text-align: left;
