@@ -33,7 +33,11 @@ def _make_app(**kwargs):
         ]
     )
 
-    @app.callback(Output("my-output", "children"), Input("my-input", "children"))
+    @app.callback(
+        Output("my-output", "children"),
+        Input("my-input", "children"),
+        mcp_expose_docstring=True,
+    )
     def update_output(value):
         """Test callback docstring."""
         return f"echo: {value}"

@@ -201,10 +201,48 @@ class TestTool:
         assert isinstance(tool, Tool)
         assert tool.name == "update"
 
-    def test_description_includes_docstring(self, simple_app):
-        with simple_app.server.test_request_context():
-            tool = app_context.get().mcp_callback_map[0].as_mcp_tool
-        assert "Update output." in tool.description
+    def test_docstring_hidden_by_default(self):
+        """Callback docstrings are not exposed to MCP by default."""
+        app = Dash(__name__)
+        app.layout = html.Div([dcc.Input(id="inp"), html.Div(id="out")])
+
+        @app.callback(Output("out", "children"), Input("inp", "value"))
+        def update(val):
+            """sensitive callback docstring text that must not leak to LLMs"""
+            return val
+
+        app_context.set(app)
+        app.mcp_callback_map = CallbackAdapterCollection(app)
+
+        with app.server.test_request_context():
+            tool = app.mcp_callback_map[0].as_mcp_tool
+        assert (
+            "sensitive callback docstring text that must not leak to LLMs"
+            not in tool.description
+        )
+
+    def test_docstring_exposed_when_opted_in_per_callback(self):
+        app = Dash(__name__)
+        app.layout = html.Div([dcc.Input(id="inp"), html.Div(id="out")])
+
+        @app.callback(
+            Output("out", "children"),
+            Input("inp", "value"),
+            mcp_expose_docstring=True,
+        )
+        def update(val):
+            """intentionally-exposed callback docstring text for the LLM"""
+            return val
+
+        app_context.set(app)
+        app.mcp_callback_map = CallbackAdapterCollection(app)
+
+        with app.server.test_request_context():
+            tool = app.mcp_callback_map[0].as_mcp_tool
+        assert (
+            "intentionally-exposed callback docstring text for the LLM"
+            in tool.description
+        )
 
     def test_description_includes_output_target(self, simple_app):
         with simple_app.server.test_request_context():
