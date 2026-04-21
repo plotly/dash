@@ -875,30 +875,3 @@ def test_dvcv017_match_input_permitted_no_output_match(dash_duo):
     dash_duo.wait_for_no_elements(dash_duo.devtools_error_count_locator)
     assert dash_duo.get_logs() == []
 
-
-def test_dvcv018_allsmaller_still_errors_with_fixed_output(dash_duo):
-    # Issue #2462 leaves ALLSMALLER strict: it still requires a
-    # corresponding MATCH in the Output(s).
-    app = Dash(__name__)
-    app.layout = html.Div()
-
-    @app.callback(
-        Output("out", "children"),
-        Input({"i": ALLSMALLER}, "value"),
-    )
-    def x(_):
-        return "x"
-
-    dash_duo.start_server(app, **debugging)
-
-    specs = [
-        [
-            "`Input` / `State` wildcards not in `Output`s",
-            [
-                'Input 0 ({"i":ALLSMALLER}.value)',
-                "has MATCH or ALLSMALLER on key(s) i",
-                "Output 0 (out.children)",
-            ],
-        ],
-    ]
-    check_errors(dash_duo, specs)

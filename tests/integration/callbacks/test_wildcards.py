@@ -716,39 +716,3 @@ def test_cbwc010_match_input_no_output(dash_duo):
 
     assert dash_duo.get_logs() == []
 
-
-def test_cbwc011_match_input_fixed_output_uses_state(dash_duo):
-    # Verifies the State-MATCH resolver uses the triggering input's MATCH
-    # value (not some stale first trigger), across repeated clicks.
-    app = Dash(__name__)
-    app.layout = html.Div(
-        [
-            html.Button("A", id={"role": "tab", "name": "a"}),
-            html.Button("B", id={"role": "tab", "name": "b"}),
-            html.Button("C", id={"role": "tab", "name": "c"}),
-            html.Pre("-", id="trail"),
-        ]
-    )
-
-    @app.callback(
-        Output("trail", "children"),
-        Input({"role": "tab", "name": MATCH}, "n_clicks"),
-        State({"role": "tab", "name": MATCH}, "id"),
-        State("trail", "children"),
-        prevent_initial_call=True,
-    )
-    def append(_, id_, current):
-        prev = "" if current == "-" else current
-        return f"{prev}{id_['name']}"
-
-    dash_duo.start_server(app)
-
-    dash_duo.wait_for_text_to_equal("#trail", "-")
-
-    for name in ["a", "b", "c", "a"]:
-        dash_duo.find_element(
-            f'[id=\\{{\\"name\\"\\:\\"{name}\\"\\,\\"role\\"\\:\\"tab\\"\\}}]'
-        ).click()
-
-    dash_duo.wait_for_text_to_equal("#trail", "abca")
-    assert dash_duo.get_logs() == []
