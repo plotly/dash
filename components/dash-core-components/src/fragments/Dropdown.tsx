@@ -313,6 +313,7 @@ const Dropdown = (props: DropdownProps) => {
             const relevantKeys = [
                 'ArrowDown',
                 'ArrowUp',
+                'Tab',
                 'PageDown',
                 'PageUp',
                 'Home',
@@ -342,6 +343,19 @@ const Dropdown = (props: DropdownProps) => {
             let nextIndex: number;
 
             switch (e.key) {
+                case 'Tab': {
+                    // Trap Tab inside the popover so Safari (which
+                    // skips non-text inputs) can navigate options.
+                    const next = current + (e.shiftKey ? -1 : 1);
+                    if (next < minIndex) {
+                        nextIndex = maxIndex;
+                    } else if (next > maxIndex) {
+                        nextIndex = minIndex;
+                    } else {
+                        nextIndex = next;
+                    }
+                    break;
+                }
                 case 'ArrowDown':
                     nextIndex = current < maxIndex ? current + 1 : minIndex;
                     break;
@@ -408,12 +422,37 @@ const Dropdown = (props: DropdownProps) => {
 
     const popover = (
         <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
+            {/* Safari skips <button> in the Tab order; this hidden
+                input receives Tab focus and delegates to the button. */}
+            <input
+                className="dash-dropdown-focus-target"
+                tabIndex={disabled ? -1 : 0}
+                readOnly
+                aria-hidden="true"
+                onFocus={e => {
+                    if (e.relatedTarget !== dropdownContainerRef.current) {
+                        e.currentTarget.tabIndex = -1;
+                        dropdownContainerRef.current?.focus();
+                    }
+                }}
+                onClick={() => {
+                    dropdownContainerRef.current?.click();
+                }}
+            />
             <Popover.Trigger asChild>
                 <button
                     id={id}
                     ref={dropdownContainerRef}
                     disabled={disabled}
                     type="button"
+                    tabIndex={-1}
+                    onBlur={e => {
+                        const dummyInput =
+                            e.currentTarget.previousElementSibling;
+                        if (dummyInput instanceof HTMLElement) {
+                            dummyInput.tabIndex = 0;
+                        }
+                    }}
                     onKeyDown={e => {
                         if (['ArrowDown', 'Enter'].includes(e.key)) {
                             e.preventDefault();
