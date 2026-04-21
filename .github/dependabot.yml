@@ -2,17 +2,23 @@ version: 2
 updates:
   # Root package dependencies
   - package-ecosystem: "npm"
-    directory: "/"
+    directories:
+      - "/"
+      - "!/@plotly/*"
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
-    ignore:
-      # Ignore @plotly packages
-      - dependency-name: "@plotly/*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   # Dash renderer
   - package-ecosystem: "npm"
@@ -20,10 +26,27 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    allow:
+      - dependency-name: "@types/*"
+      - dependency-name: "@babel/*"
+      - dependency-name: "babel-loader"
+      - dependency-name: "ts-loader"
+      - dependency-name: "cookie"
+      - dependency-name: "eslint*"
+      - dependency-name: "prettier"
+      - dependency-name: "webpack*"
+      - dependency-name: "typescript"
 
   # Components - dash-core-components
   - package-ecosystem: "npm"
@@ -31,10 +54,31 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    # Only auto-update these packages for version updates
+    allow:
+      - dependency-name: "date-fns"
+      - dependency-name: "file-saver"
+      - dependency-name: "ramda"
+      - dependency-name: "react-window"
+      - dependency-name: "@radix-ui/*"
+      - dependency-name: "@types/*"
+      - dependency-name: "@babel/*"
+      - dependency-name: "babel-loader"
+      - dependency-name: "eslint*"
+      - dependency-name: "prettier"
+      - dependency-name: "webpack*"
+      - dependency-name: "typescript"
 
   # Components - dash-html-components
   - package-ecosystem: "npm"
@@ -42,10 +86,24 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    allow:
+      - dependency-name: "@types/*"
+      - dependency-name: "@babel/*"
+      - dependency-name: "babel-loader"
+      - dependency-name: "eslint*"
+      - dependency-name: "webpack*"
+      - dependency-name: "typescript"
 
   # Components - dash-table
   - package-ecosystem: "npm"
@@ -53,10 +111,29 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       npm-dependencies:
+        applies-to: version-updates
         patterns:
           - "*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    allow:
+      - dependency-name: "@types/*"
+      - dependency-name: "@babel/*"
+      - dependency-name: "babel-loader"
+      - dependency-name: "ts-loader"
+      - dependency-name: "css-loader"
+      - dependency-name: "less"
+      - dependency-name: "less-loader"
+      - dependency-name: "eslint*"
+      - dependency-name: "prettier"
+      - dependency-name: "webpack*"
+      - dependency-name: "typescript"
 
   # Python dependencies
   - package-ecosystem: "pip"
@@ -64,7 +141,14 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    cooldown:
+      default-days: 14
     groups:
       pip-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      pip-dependencies-security:
+        applies-to: security-updates
         patterns:
           - "*"

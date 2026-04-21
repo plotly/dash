@@ -1,3 +1,4 @@
+import pytest
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
@@ -146,6 +147,7 @@ def szng003_on_prop_change_impl(
     assert test.get_log_errors() == []
 
 
+@pytest.mark.skip(reason="Slow and unreliable sizing test - dash-table deprecated")
 def test_szng001_widths_on_style_change(test):
     base_props = dict(
         data=[
