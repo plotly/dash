@@ -87,6 +87,7 @@ def callback(
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
     mcp_enabled: bool = True,
+    mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -245,6 +246,7 @@ def callback(
         websocket=websocket,
         persistent=persistent,
         mcp_enabled=mcp_enabled,
+        mcp_expose_docstring=mcp_expose_docstring,
     )
 
     return cast(
@@ -299,6 +301,7 @@ def insert_callback(
     websocket=False,
     persistent=False,
     mcp_enabled=True,
+    mcp_expose_docstring=None,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -343,6 +346,7 @@ def insert_callback(
         "no_output": no_output,
         "websocket": websocket,
         "mcp_enabled": mcp_enabled,
+        "mcp_expose_docstring": mcp_expose_docstring,
     }
     callback_list.append(callback_spec)
 
@@ -683,6 +687,7 @@ def register_callback(
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
         mcp_enabled=_kwargs.get("mcp_enabled", True),
+        mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from dash import get_app
+
 from .base import ToolDescriptionSource
 
 if TYPE_CHECKING:
@@ -11,11 +13,26 @@ if TYPE_CHECKING:
 
 
 class DocstringDescription(ToolDescriptionSource):
-    """Return the callback's docstring as description lines."""
+    """Return the callback's docstring as description lines.
+
+    Gated behind an opt-in flag: docstrings may contain sensitive
+    implementation details that the browser never surfaces to users,
+    so we don't expose them to MCP clients unless the author opts in
+    — either per-callback or app-wide.
+    """
 
     @classmethod
     def describe(cls, callback: CallbackAdapter) -> list[str]:
+        if not cls._is_exposed(callback):
+            return []
         docstring = callback._docstring
         if docstring:
             return ["", docstring.strip()]
         return []
+
+    @classmethod
+    def _is_exposed(cls, callback: CallbackAdapter) -> bool:
+        per_callback = callback._cb_info.get("mcp_expose_docstring")
+        if per_callback is not None:
+            return per_callback
+        return get_app().config.get("mcp_expose_docstrings", False)
