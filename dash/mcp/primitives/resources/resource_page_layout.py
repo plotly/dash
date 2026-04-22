@@ -8,6 +8,7 @@ from mcp.types import (
     TextResourceContents,
 )
 
+from dash import html
 from dash._pages import PAGE_REGISTRY
 from dash._utils import to_json
 
@@ -49,8 +50,6 @@ class PageLayoutResource(MCPResourceProvider):
             page_layout = page_layout()
 
         if isinstance(page_layout, (list, tuple)):
-            from dash import html
-
             page_layout = html.Div(list(page_layout))
 
         return ReadResourceResult(

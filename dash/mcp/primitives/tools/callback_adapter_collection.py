@@ -109,10 +109,9 @@ class CallbackAdapterCollection:
         upstream_cb = self.find_by_output(id_and_prop)
         if upstream_cb is not None:
             return upstream_cb.initial_output_value(id_and_prop)
-        else:
-            component_id, prop = id_and_prop.rsplit(".", 1)
-            layout_component = find_component(component_id)
-            return getattr(layout_component, prop, None)
+        component_id, prop = id_and_prop.rsplit(".", 1)
+        layout_component = find_component(component_id)
+        return getattr(layout_component, prop, None)
 
     def as_mcp_tools(self) -> list[Tool]:
         """Stub — will be implemented in a future PR."""
@@ -142,13 +141,19 @@ class CallbackAdapterCollection:
 
             comp_id = getattr(comp, "id", None)
             if comp_id is not None:
-                for ancestor in reversed(ancestors):
-                    if getattr(ancestor, "_type", None) == "Label":
-                        text = extract_text(ancestor)
-                        if text:
-                            sid = str(comp_id)
-                            if text not in labels.get(sid, []):
-                                labels.setdefault(sid, []).append(text)
-                        break
+                self._add_ancestor_label(comp_id, ancestors, labels)
 
         return labels
+
+    @staticmethod
+    def _add_ancestor_label(comp_id, ancestors, labels: dict[str, list[str]]) -> None:
+        """Record the text of the nearest Label ancestor for ``comp_id``, if any."""
+        for ancestor in reversed(ancestors):
+            if getattr(ancestor, "_type", None) != "Label":
+                continue
+            text = extract_text(ancestor)
+            if text:
+                sid = str(comp_id)
+                if text not in labels.get(sid, []):
+                    labels.setdefault(sid, []).append(text)
+            return
