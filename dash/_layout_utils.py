@@ -117,7 +117,7 @@ def _collect_components(value: Any) -> list[Component]:
     if isinstance(value, Component):
         return [value]
     if isinstance(value, (list, tuple)):
-        return [item for item in value if isinstance(item, (Component, list, tuple))]
+        return [item for item in value if isinstance(item, Component)]
     return []
 
 

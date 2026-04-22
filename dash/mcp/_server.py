@@ -1,5 +1,9 @@
 """Flask route setup, Streamable HTTP transport, and MCP message handling."""
 
+# pylint: disable=cyclic-import
+# The MCP server imports dash primitives to dispatch callbacks, and dash
+# lazy-imports this module to wire the MCP endpoint. Cycle is managed here.
+
 from __future__ import annotations
 
 import json
@@ -7,14 +11,6 @@ import logging
 from typing import TYPE_CHECKING, Any
 
 from flask import Response, request
-
-from dash.mcp.types import MCPError
-
-if TYPE_CHECKING:
-    from dash import Dash
-
-from dash import get_app
-
 from mcp.types import (
     LATEST_PROTOCOL_VERSION,
     ErrorData,
@@ -27,7 +23,8 @@ from mcp.types import (
     ToolsCapability,
 )
 
-from dash.version import __version__
+from dash import get_app
+from dash._get_app import with_app_context_factory
 from dash.mcp.primitives import (
     call_tool,
     list_resource_templates,
@@ -38,6 +35,11 @@ from dash.mcp.primitives import (
 from dash.mcp.primitives.tools.callback_adapter_collection import (
     CallbackAdapterCollection,
 )
+from dash.mcp.types import MCPError
+from dash.version import __version__
+
+if TYPE_CHECKING:
+    from dash import Dash
 
 logger = logging.getLogger(__name__)
 
@@ -77,9 +79,8 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
                 status=415,
             )
 
-        try:
-            data = request.get_json()
-        except Exception:
+        data = request.get_json(silent=True)
+        if data is None:
             return Response(
                 json.dumps({"error": "Invalid JSON"}),
                 content_type="application/json",
@@ -107,8 +108,7 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
 
     # -- Register routes -----------------------------------------------------
 
-    from dash._get_app import with_app_context_factory
-
+    # pylint: disable-next=protected-access
     app._add_url(
         mcp_path, with_app_context_factory(mcp_handler, app), ["GET", "POST", "DELETE"]
     )
@@ -156,12 +156,12 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
 
     mcp_methods = {
         "initialize": _handle_initialize,
-        "tools/list": lambda: list_tools(),
+        "tools/list": list_tools,
         "tools/call": lambda: call_tool(
             params.get("name", ""), params.get("arguments", {})
         ),
-        "resources/list": lambda: list_resources(),
-        "resources/templates/list": lambda: list_resource_templates(),
+        "resources/list": list_resources,
+        "resources/templates/list": list_resource_templates,
         "resources/read": lambda: read_resource(params.get("uri", "")),
     }
 
@@ -188,7 +188,7 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
             id=request_id,
             error=ErrorData(code=e.code, message=str(e)),
         ).model_dump(exclude_none=True)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logger.error("MCP error: %s", e, exc_info=True)
         return JSONRPCError(
             jsonrpc="2.0",

@@ -375,7 +375,7 @@ def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInputs:
 
     # LLM provides browser-like format
     if isinstance(value, list):
-        return cast(list[CallbackInput], value)
+        return cast("list[CallbackInput]", value)
     if isinstance(value, dict) and "id" in value:
         return cast(CallbackInput, value)
     return CallbackInput(id=dep["id"], property=dep["property"], value=value)

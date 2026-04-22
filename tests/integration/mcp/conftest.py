@@ -1,7 +1,13 @@
 """Shared helpers for MCP integration tests."""
 
+import sys
+
 import pytest
 import requests
+
+collect_ignore_glob = []
+if sys.version_info < (3, 10):
+    collect_ignore_glob.append("*")
 
 
 @pytest.fixture(autouse=True)
