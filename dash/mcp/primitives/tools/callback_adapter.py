@@ -135,7 +135,8 @@ class CallbackAdapter:
 
     @property
     def tool_name(self) -> str:
-        return get_app().mcp_callback_map._tool_names_map[self._output_id]  # pylint: disable=protected-access
+        # pylint: disable-next=protected-access
+        return get_app().mcp_callback_map._tool_names_map[self._output_id]
 
     @cached_property
     def prevents_initial_call(self) -> bool:
