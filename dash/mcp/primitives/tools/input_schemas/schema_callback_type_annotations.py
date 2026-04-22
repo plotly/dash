@@ -39,7 +39,7 @@ def annotation_to_json_schema(annotation: type) -> dict[str, Any] | None:
 
     try:
         return TypeAdapter(annotation).json_schema()
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         return None
 
 
