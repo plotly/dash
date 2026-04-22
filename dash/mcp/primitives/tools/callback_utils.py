@@ -6,6 +6,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from dash import get_app
+from dash.mcp.types import CallbackExecutionError
 from dash.types import CallbackExecutionResponse
 
 if TYPE_CHECKING:
@@ -16,8 +17,6 @@ def run_callback(
     callback: CallbackAdapter, kwargs: dict[str, Any]
 ) -> CallbackExecutionResponse:
     """Execute a callback via the framework."""
-    from dash.mcp.types import CallbackExecutionError
-
     body = callback.as_callback_body(kwargs)
 
     app = get_app()
