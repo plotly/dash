@@ -14,7 +14,7 @@ def is_nullable(annotation: Any) -> bool:
     _is_union = origin is typing.Union
     if not _is_union:
         try:
-            import types as _types
+            import types as _types  # pylint: disable=import-outside-toplevel
 
             if isinstance(annotation, _types.UnionType):
                 _is_union = True

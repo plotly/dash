@@ -126,11 +126,11 @@ class CallbackAdapter:
 
     @property
     def tool_name(self) -> str:
-        return get_app().mcp_callback_map._tool_names_map[self._output_id]
+        return get_app().mcp_callback_map._tool_names_map[self._output_id]  # pylint: disable=protected-access
 
     @cached_property
     def prevents_initial_call(self) -> bool:
-        for cb in get_app()._callback_list:
+        for cb in get_app()._callback_list:  # pylint: disable=protected-access
             if cb["output"] == self._output_id:
                 return cb.get("prevent_initial_call", False)
         return False
@@ -191,7 +191,7 @@ class CallbackAdapter:
         try:
             result = run_callback(self, kwargs)
             return result.get("response", {})
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             return {}
 
     def initial_output_value(self, id_and_prop: str) -> Any:
@@ -346,7 +346,7 @@ class CallbackAdapter:
             return [None] * len(self._dep_param_map)
         try:
             hints = typing.get_type_hints(self._original_func)
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             hints = getattr(self._original_func, "__annotations__", {})
         return [hints.get(func_name) for func_name, _ in self._dep_param_map]
 
