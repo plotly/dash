@@ -6,6 +6,7 @@ import base64
 import logging
 from typing import Any
 
+import plotly.graph_objects as go
 from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
@@ -50,11 +51,6 @@ class PlotlyFigureResult(ResultFormatter):
         ):
             return []
         if not isinstance(returned_output_value, dict):
-            return []
-
-        try:
-            import plotly.graph_objects as go
-        except ImportError:
             return []
 
         fig = go.Figure(returned_output_value)
