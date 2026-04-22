@@ -67,6 +67,8 @@ const rendererOptions = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
+        'react/jsx-runtime': 'ReactJSXRuntime',
+        'react/jsx-dev-runtime': 'ReactJSXRuntime',
         'prop-types': 'PropTypes'
     },
     ...defaults

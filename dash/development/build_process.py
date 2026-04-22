@@ -143,7 +143,21 @@ class BuildProcess:
                 versions[f"extra_{name_squashed}_versions"] = f'"{extras_str}"'
 
                 for extra_version in extras:
-                    url = f"https://unpkg.com/{name}@{extra_version}/umd/{filename}"
+                    # React 19+ removed UMD builds, use umd-react package instead
+                    if name in ("react", "react-dom") and extra_version.startswith(
+                        "19."
+                    ):
+                        # Map filename to umd-react dist path
+                        if "production.min" in filename:
+                            umd_filename = f"{name}.production.min.js"
+                        elif "development" in filename:
+                            umd_filename = f"{name}.development.js"
+                        else:
+                            umd_filename = filename
+                        url = f"https://unpkg.com/umd-react@{extra_version}/dist/{umd_filename}"
+                    else:
+                        url = f"https://unpkg.com/{name}@{extra_version}/umd/{filename}"
+
                     res = requests.get(url)
                     extra_target = f"{name}@{extra_version}.{ext}"
                     extra_path = self._concat(self.deps_folder, extra_target)
@@ -169,7 +183,7 @@ class Renderer(BuildProcess):
         """dash-renderer's path is binding with the dash folder hierarchy."""
         extras = [
             "18.2.0",
-            "16.14.0",
+            "19.2.0",
         ]  # versions to include beyond what's in package.json
         super().__init__(
             self._concat(os.path.dirname(__file__), os.pardir, "dash-renderer"),
