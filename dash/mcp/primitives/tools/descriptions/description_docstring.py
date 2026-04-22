@@ -25,13 +25,14 @@ class DocstringDescription(ToolDescriptionSource):
     def describe(cls, callback: CallbackAdapter) -> list[str]:
         if not cls._is_exposed(callback):
             return []
-        docstring = callback._docstring
+        docstring = callback._docstring  # pylint: disable=protected-access
         if docstring:
             return ["", docstring.strip()]
         return []
 
     @classmethod
     def _is_exposed(cls, callback: CallbackAdapter) -> bool:
+        # pylint: disable-next=protected-access
         per_callback = callback._cb_info.get("mcp_expose_docstring")
         if per_callback is not None:
             return per_callback
