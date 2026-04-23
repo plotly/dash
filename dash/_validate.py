@@ -629,3 +629,33 @@ def check_backend(backend, inferred_backend):
             raise ValueError(
                 f"Conflict between provided backend '{backend}' and server type '{inferred_backend}'."
             )
+
+
+def validate_websocket_callback_request(
+    callback_id, callback_map, websocket_callbacks_enabled
+):
+    """Validate a WebSocket callback request at runtime.
+
+    Called by WebSocket handlers to verify that a callback received via WebSocket
+    is actually allowed to use WebSocket transport.
+
+    Args:
+        callback_id: The callback output ID from the request
+        callback_map: The app's callback_map dictionary
+        websocket_callbacks_enabled: Whether websocket_callbacks=True at app level
+
+    Raises:
+        WebSocketCallbackError: If the callback is not websocket-enabled
+    """
+    # If global websocket_callbacks is enabled, all callbacks can use WebSocket
+    if websocket_callbacks_enabled:
+        return
+
+    # Otherwise, check if this specific callback has websocket=True
+    cb = callback_map.get(callback_id, {})
+    if not cb.get("websocket"):
+        raise exceptions.WebSocketCallbackError(
+            f"Callback '{callback_id}' received via WebSocket but does not have "
+            f"websocket=True. Either enable websocket_callbacks=True globally "
+            f"or add websocket=True to this callback."
+        )

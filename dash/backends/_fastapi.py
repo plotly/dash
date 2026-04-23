@@ -852,6 +852,15 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         """
         payload = message.get("payload", {})
 
+        # Validate that the callback is allowed to use WebSocket transport
+        # pylint: disable=protected-access
+        _validate.validate_websocket_callback_request(
+            payload.get("output"),
+            dash_app.callback_map,
+            dash_app._websocket_callbacks,
+        )
+        # pylint: enable=protected-access
+
         # Create WebSocket callback context
         cb_ctx = self._create_ws_context(
             dash_app, websocket, payload, pending_get_props

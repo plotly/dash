@@ -113,3 +113,7 @@ class HookError(DashException):
 
 class AppNotFoundError(DashException):
     pass
+
+
+class WebSocketCallbackError(CallbackException):
+    pass

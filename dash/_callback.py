@@ -319,6 +319,7 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "websocket": websocket,
     }
     callback_list.append(callback_spec)
 

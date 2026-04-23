@@ -15,6 +15,7 @@ app = Dash(
     __name__,
     backend="fastapi",
     websocket_callbacks=True,
+    websocket_inactivity_timeout=10000,
 )
 
 app.layout = html.Div([
