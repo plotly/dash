@@ -28,6 +28,8 @@ export type DashConfig = {
         worker_url: string;
         inactivity_timeout?: number;
     };
+    csrf_token_name?: string;
+    csrf_header_name?: string;
 };
 
 export default function getConfigFromDOM(): DashConfig {
