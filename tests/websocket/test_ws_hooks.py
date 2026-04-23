@@ -44,7 +44,11 @@ def test_ws010_connect_hook_accept(dash_duo, ws_hook_cleanup):
 
 
 def test_ws011_connect_hook_reject_false(dash_duo, ws_hook_cleanup):
-    """Test websocket_connect hook that rejects with False."""
+    """Test websocket_connect hook that rejects with False.
+
+    When WebSocket connection is rejected, callbacks won't work since
+    websocket_callbacks=True requires WebSocket transport.
+    """
 
     @hooks.websocket_connect()
     def reject_all(websocket):
@@ -65,15 +69,24 @@ def test_ws011_connect_hook_reject_false(dash_duo, ws_hook_cleanup):
 
     dash_duo.start_server(app)
 
-    # Initial callback should still work via HTTP fallback
-    dash_duo.wait_for_text_to_equal("#output", "Clicked 0")
+    # WebSocket rejected - callbacks won't fire, output stays initial
+    import time
+
+    time.sleep(1)  # Give time for potential callback
+    assert dash_duo.find_element("#output").text == "initial"
+
     dash_duo.find_element("#btn").click()
-    # Should still get updates via HTTP fallback
-    dash_duo.wait_for_text_to_equal("#output", "Clicked 1")
+    time.sleep(1)
+    # Still initial since WebSocket was rejected
+    assert dash_duo.find_element("#output").text == "initial"
 
 
 def test_ws012_connect_hook_reject_tuple(dash_duo, ws_hook_cleanup):
-    """Test websocket_connect hook that rejects with custom code/reason."""
+    """Test websocket_connect hook that rejects with custom code/reason.
+
+    When WebSocket connection is rejected, callbacks won't work since
+    websocket_callbacks=True requires WebSocket transport.
+    """
 
     @hooks.websocket_connect()
     def reject_with_reason(websocket):
@@ -94,10 +107,15 @@ def test_ws012_connect_hook_reject_tuple(dash_duo, ws_hook_cleanup):
 
     dash_duo.start_server(app)
 
-    # Callbacks should still work via HTTP fallback
-    dash_duo.wait_for_text_to_equal("#output", "Clicked 0")
+    # WebSocket rejected - callbacks won't fire, output stays initial
+    import time
+
+    time.sleep(1)
+    assert dash_duo.find_element("#output").text == "initial"
+
     dash_duo.find_element("#btn").click()
-    dash_duo.wait_for_text_to_equal("#output", "Clicked 1")
+    time.sleep(1)
+    assert dash_duo.find_element("#output").text == "initial"
 
 
 def test_ws013_message_hook_accept(dash_duo, ws_hook_cleanup):

@@ -147,6 +147,7 @@ class ThreadedRunner(BaseDashRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
         super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.thread = None
+        self._app = None  # Store app reference for graceful shutdown
 
     def running_and_accessible(self, url):
         if self.thread.is_alive():  # type: ignore[reportOptionalMemberAccess]
@@ -156,6 +157,7 @@ class ThreadedRunner(BaseDashRunner):
     # pylint: disable=arguments-differ
     def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
+        self._app = app  # Store app reference for graceful shutdown
 
         def run():
             app.scripts.config.serve_locally = True
@@ -213,9 +215,17 @@ class ThreadedRunner(BaseDashRunner):
             raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
-        self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
-        self.thread.join()  # type: ignore[reportOptionalMemberAccess]
-        wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        # For FastAPI apps with uvicorn, use graceful shutdown
+        if self._app and hasattr(self._app, "_uvicorn_server"):
+            server = self._app._uvicorn_server  # pylint: disable=protected-access
+            server.should_exit = True
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        else:
+            # Fall back to killing threads for Flask/other backends
+            self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+            wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        self._app = None
         self.started = False
 
 

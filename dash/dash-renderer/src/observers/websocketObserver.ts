@@ -18,6 +18,25 @@ import {
 import {DashConfig} from '../config';
 
 /**
+ * Parse a component ID that may be a stringified JSON object.
+ * This handles dict IDs like '{"index":0,"type":"output"}' that need
+ * to be parsed back to objects for getPath to work correctly.
+ */
+function parseComponentId(
+    componentId: string
+): string | Record<string, unknown> {
+    if (componentId.startsWith('{') && componentId.endsWith('}')) {
+        try {
+            return JSON.parse(componentId);
+        } catch {
+            // Not valid JSON, return as-is
+            return componentId;
+        }
+    }
+    return componentId;
+}
+
+/**
  * Initialize the WebSocket observer.
  *
  * Sets up handlers for:
@@ -55,8 +74,9 @@ export async function initializeWebSocket(
     // Handle SET_PROPS messages
     workerClient.onSetProps = (payload: SetPropsPayload) => {
         const {componentId, props} = payload;
+        const parsedId = parseComponentId(componentId);
         const state = store.getState();
-        const componentPath = getPath(state.paths, componentId);
+        const componentPath = getPath(state.paths, parsedId);
 
         if (!componentPath) {
             console.warn(
@@ -75,7 +95,7 @@ export async function initializeWebSocket(
         );
 
         // Notify observers
-        store.dispatch(notifyObservers({id: componentId, props}) as any);
+        store.dispatch(notifyObservers({id: parsedId, props}) as any);
     };
 
     // Handle GET_PROPS_REQUEST messages
@@ -84,8 +104,9 @@ export async function initializeWebSocket(
         payload: GetPropsRequestPayload
     ) => {
         const {componentId, properties} = payload;
+        const parsedId = parseComponentId(componentId);
         const state = store.getState();
-        const componentPath = getPath(state.paths, componentId);
+        const componentPath = getPath(state.paths, parsedId);
 
         const result: Record<string, unknown> = {};
 
@@ -100,6 +121,10 @@ export async function initializeWebSocket(
                     result[propName] = componentProps[propName];
                 }
             }
+        } else {
+            console.warn(
+                `GET_PROPS_REQUEST: Component ${componentId} not found in layout`
+            );
         }
 
         // Send the response

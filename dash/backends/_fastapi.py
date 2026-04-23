@@ -89,16 +89,21 @@ class FastAPIWebsocketCallback(DashWebsocketCallback):
     """
 
     def __init__(
-        self, websocket: WebSocket, pending_get_props: Dict[str, asyncio.Future]
+        self,
+        websocket: WebSocket,
+        pending_get_props: Dict[str, asyncio.Future],
+        renderer_id: str = "",
     ):
         """Initialize the WebSocket callback interface.
 
         Args:
             websocket: The WebSocket connection
             pending_get_props: Dict to track pending get_props requests
+            renderer_id: The renderer ID for routing messages back to the correct client
         """
         self._websocket = websocket
         self._pending_get_props = pending_get_props
+        self._renderer_id = renderer_id
 
     async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
         """Send immediate prop update to the client via WebSocket.
@@ -111,6 +116,7 @@ class FastAPIWebsocketCallback(DashWebsocketCallback):
         await self._websocket.send_json(
             {
                 "type": "set_props",
+                "rendererId": self._renderer_id,
                 "payload": {"componentId": component_id, "props": {prop_name: value}},
             }
         )
@@ -135,6 +141,7 @@ class FastAPIWebsocketCallback(DashWebsocketCallback):
         await self._websocket.send_json(
             {
                 "type": "get_props_request",
+                "rendererId": self._renderer_id,
                 "requestId": request_id,
                 "payload": {"componentId": component_id, "properties": [prop_name]},
             }
@@ -445,11 +452,14 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         is_threaded = threading.current_thread() != threading.main_thread()
 
         if is_threaded:
-            # Running in a thread (testing context) - use uvicorn.run directly
-            # This allows the testing framework to control the server lifecycle
-            if kwargs.get("reload"):
-                kwargs["reload"] = True
-            uvicorn.run(self.server, host=host, port=port, **kwargs)
+            # Running in a thread (testing context) - use uvicorn.Server
+            # This allows graceful shutdown via should_exit flag
+            kwargs.pop("reload", None)  # Reload not supported in threaded mode
+            config = uvicorn.Config(self.server, host=host, port=port, **kwargs)
+            server = uvicorn.Server(config)
+            # Store server reference on the app for graceful shutdown
+            dash_app._uvicorn_server = server  # pylint: disable=protected-access
+            server.run()
         else:
             # Running in main thread (normal context) - use subprocess
             file_path = frame.filename
@@ -779,6 +789,27 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             # Track pending get_props requests
             pending_get_props: Dict[str, asyncio.Future] = {}
+            # Track running callback tasks
+            callback_tasks: Dict[str, asyncio.Task] = {}
+
+            async def execute_callback_task(
+                req_message: dict, req_renderer_id: str, req_id: str
+            ):
+                """Execute callback and send response."""
+                try:
+                    response = await self._execute_ws_callback(
+                        dash_app, websocket, req_message, pending_get_props
+                    )
+                    await websocket.send_json(
+                        {
+                            "type": "callback_response",
+                            "rendererId": req_renderer_id,
+                            "requestId": req_id,
+                            "payload": response,
+                        }
+                    )
+                finally:
+                    callback_tasks.pop(req_id, None)
 
             try:
                 while True:
@@ -799,17 +830,13 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                     renderer_id = message.get("rendererId")
 
                     if msg_type == "callback_request":
-                        response = await self._execute_ws_callback(
-                            dash_app, websocket, message, pending_get_props
+                        # Run callback in background task to allow receiving
+                        # get_props_response messages during execution
+                        request_id = message.get("requestId")
+                        task = asyncio.create_task(
+                            execute_callback_task(message, renderer_id, request_id)
                         )
-                        await websocket.send_json(
-                            {
-                                "type": "callback_response",
-                                "rendererId": renderer_id,
-                                "requestId": message.get("requestId"),
-                                "payload": response,
-                            }
-                        )
+                        callback_tasks[request_id] = task
 
                     elif msg_type == "get_props_response":
                         # Handle response for pending get_props request
@@ -825,10 +852,13 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             except WebSocketDisconnect:
                 pass  # Clean disconnect
             finally:
-                # Cancel any pending futures
+                # Cancel any pending futures and tasks
                 for future in pending_get_props.values():
                     if not future.done():
                         future.cancel()
+                for task in callback_tasks.values():
+                    if not task.done():
+                        task.cancel()
 
         self.server.add_api_websocket_route(ws_path, websocket_handler)
 
@@ -862,8 +892,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         # pylint: enable=protected-access
 
         # Create WebSocket callback context
+        renderer_id = message.get("rendererId", "")
         cb_ctx = self._create_ws_context(
-            dash_app, websocket, payload, pending_get_props
+            dash_app, websocket, payload, pending_get_props, renderer_id
         )
 
         try:
@@ -894,6 +925,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         websocket: WebSocket,
         payload: dict,
         pending_get_props: Dict[str, asyncio.Future],
+        renderer_id: str = "",
     ):
         """Create callback context from WebSocket message.
 
@@ -902,6 +934,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             websocket: The WebSocket connection
             payload: The callback payload
             pending_get_props: Dict to track pending get_props requests
+            renderer_id: The renderer ID for routing messages back to the correct client
 
         Returns:
             AttributeDict with callback context
@@ -923,7 +956,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         g.updated_props = {}
 
         # Add WebSocket callback interface
-        g.dash_websocket = FastAPIWebsocketCallback(websocket, pending_get_props)
+        g.dash_websocket = FastAPIWebsocketCallback(
+            websocket, pending_get_props, renderer_id
+        )
 
         return g
 

@@ -22,10 +22,14 @@ const AppProvider = ({
 }: any) => {
     const [{store}] = useState(() => new Store());
 
-    // Initialize WebSocket connection if enabled
+    // Initialize WebSocket connection if enabled or if websocket config is available
+    // (for per-callback websocket=True)
     useEffect(() => {
         const config = getConfigFromDOM();
-        if (config.websocket?.enabled) {
+        if (
+            config.websocket?.enabled ||
+            (config.websocket?.url && config.websocket?.worker_url)
+        ) {
             // Add fetch config for consistency
             const fullConfig = {
                 ...config,
