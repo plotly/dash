@@ -1,4 +1,4 @@
-"""Integration tests for MCP resources."""
+"""MCP resources — ``resources/list`` and ``resources/read`` via HTTP."""
 
 import json
 
@@ -7,7 +7,7 @@ from dash import Dash, dcc, html
 from tests.integration.mcp.conftest import _mcp_method
 
 
-def test_resources_list_includes_layout(dash_duo):
+def test_mcpz001_resources_list_includes_layout(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -24,7 +24,7 @@ def test_resources_list_includes_layout(dash_duo):
     assert "dash://layout" in uris
 
 
-def test_read_layout_resource(dash_duo):
+def test_mcpz002_read_layout_resource(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
         [
