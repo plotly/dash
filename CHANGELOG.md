@@ -18,6 +18,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
 
+## [4.2.0rc1] - 2026-04-13
+
+## Added
+- [#3742](https://github.com/plotly/dash/pull/3742) Add websocket callbacks to fastapi and quart backends.
+
 ## [4.1.0] - 2026-03-23
 
 ## Added
