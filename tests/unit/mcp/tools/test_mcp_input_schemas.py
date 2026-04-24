@@ -111,11 +111,6 @@ INTROSPECTION_CASES = [
         ),
     ),
     ("Input", "n_submit", nullable(NUMBER)),
-    (
-        "Dropdown",
-        "value",
-        nullable(STRING, NUMBER, BOOLEAN, array_of(STRING, NUMBER, BOOLEAN)),
-    ),
     ("Dropdown", "options", nullable({})),
     ("Checklist", "value", nullable(array_of(STRING, NUMBER, BOOLEAN))),
     ("Store", "data", nullable(OBJECT, array_of({}), NUMBER, STRING, BOOLEAN)),
@@ -150,6 +145,13 @@ def test_mcpi001_override_beats_introspection():
     assert schema["type"] == "string"
     assert schema["format"] == "date"
     assert "pattern" in schema
+
+
+def test_mcpi013_graph_figure_uses_plotly_schema_override():
+    """Graph.figure matches the FIGURE role's schema override (concrete via wildcard)."""
+    schema = _get_schema("Graph", "figure")
+    assert schema["type"] == "object"
+    assert set(schema["properties"]) == {"data", "layout", "frames"}
 
 
 @pytest.mark.parametrize(
@@ -268,3 +270,20 @@ def test_mcpi009_partial_annotations():
 def test_mcpi010_component_type_maps_to_string():
     """Component annotation type maps to string schema."""
     assert annotation_to_json_schema(Component) == STRING
+
+
+def test_mcpi011_dropdown_value_multi_false_narrows_to_scalar():
+    """Dropdown.value with multi=False narrows to a scalar union."""
+    app = _app_with_callback(dcc.Dropdown(id="dd"))
+    tool = _user_tool(_tools_list(app))
+    assert _schema_for(tool) == {"anyOf": [STRING, NUMBER, BOOLEAN]}
+
+
+def test_mcpi012_dropdown_value_multi_true_narrows_to_array():
+    """Dropdown.value with multi=True narrows to an array of scalars."""
+    app = _app_with_callback(dcc.Dropdown(id="dd", multi=True))
+    tool = _user_tool(_tools_list(app))
+    assert _schema_for(tool) == {
+        "type": "array",
+        "items": {"anyOf": [STRING, NUMBER, BOOLEAN]},
+    }
