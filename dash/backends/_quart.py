@@ -261,8 +261,12 @@ class QuartDashServer(BaseDashServer[Quart]):
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         import signal  # pylint: disable=import-outside-toplevel
         import threading  # pylint: disable=import-outside-toplevel
-        from hypercorn.config import Config  # pylint: disable=import-outside-toplevel
-        from hypercorn.asyncio import serve  # pylint: disable=import-outside-toplevel
+
+        # pylint: disable=import-outside-toplevel,import-error
+        from hypercorn.config import Config
+        from hypercorn.asyncio import serve
+
+        # pylint: enable=import-error
 
         self.config = {"debug": debug, **kwargs} if debug else kwargs
         # pylint: disable=protected-access
