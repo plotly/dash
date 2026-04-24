@@ -177,7 +177,10 @@ class ThreadedRunner(BaseDashRunner):
                 # FastAPI support
                 if module.startswith("fastapi"):
                     app.run(**options)
-                # Dash/Flask/Quart fallback
+                # Quart support (ASGI - runs its own async event loop)
+                elif module.startswith("quart"):
+                    app.run(**options)
+                # Flask fallback (WSGI - needs threaded mode)
                 else:
                     app.run(threaded=True, **options)
             except SystemExit:
@@ -249,7 +252,10 @@ class MultiProcessRunner(BaseDashRunner):
                 # FastAPI support
                 if module.startswith("fastapi"):
                     app.run(**options)
-                # Dash/Flask/Quart fallback
+                # Quart support (ASGI - runs its own async event loop)
+                elif module.startswith("quart"):
+                    app.run(**options)
+                # Flask fallback (WSGI - needs threaded mode)
                 else:
                     app.run(threaded=True, **options)
             except SystemExit:

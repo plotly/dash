@@ -4,6 +4,8 @@ This module provides abstract base classes and protocols that define the interfa
 for different web server backends (Flask, Quart, FastAPI, etc.) to integrate with Dash.
 """
 from abc import ABC, abstractmethod
+import asyncio
+import uuid
 from typing import Any, Dict, Type, TypeVar, Generic, Protocol, TYPE_CHECKING
 
 
@@ -385,42 +387,131 @@ class BaseDashServer(ABC, Generic[ServerType]):
 
 
 class DashWebsocketCallback(ABC):
-    """Abstract interface for WebSocket-based callback communication.
+    """Abstract base for WebSocket-based callback communication.
 
     Provides methods for real-time bidirectional communication between
     the server and renderer during callback execution.
+
+    Subclasses must implement _send_json and _close_websocket for their
+    specific WebSocket implementation.
     """
 
+    def __init__(
+        self,
+        pending_get_props: Dict[str, asyncio.Future],
+        renderer_id: str = "",
+    ):
+        """Initialize the WebSocket callback interface.
+
+        Args:
+            pending_get_props: Dict to track pending get_props requests
+            renderer_id: The renderer ID for routing messages back to the correct client
+        """
+        self._pending_get_props = pending_get_props
+        self._renderer_id = renderer_id
+
     @abstractmethod
+    async def _send_json(self, data: dict) -> None:
+        """Send JSON data over the WebSocket. Must be implemented by subclasses."""
+
+    @abstractmethod
+    async def _close_websocket(self, code: int, reason: str) -> None:
+        """Close the WebSocket connection. Must be implemented by subclasses."""
+
+    async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
+        """Send immediate prop update to the client via WebSocket.
+
+        Args:
+            component_id: The component ID (string or stringified dict)
+            prop_name: The property name to update
+            value: The new value to set
+        """
+        await self._send_json(
+            {
+                "type": "set_props",
+                "rendererId": self._renderer_id,
+                "payload": {"componentId": component_id, "props": {prop_name: value}},
+            }
+        )
+
     async def get_prop(self, component_id: str, prop_name: str) -> Any:
         """Request current prop value from the client.
 
         Args:
-            component_id: The component ID (string or stringified dict for pattern matching)
+            component_id: The component ID (string or stringified dict)
             prop_name: The property name to retrieve
 
         Returns:
             The current value of the property from the client's state
         """
+        request_id = str(uuid.uuid4())
 
-    @abstractmethod
-    async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
-        """Send immediate prop update to the client via WebSocket.
+        # Create a future to wait for the response
+        future: asyncio.Future = asyncio.get_event_loop().create_future()
+        self._pending_get_props[request_id] = future
 
-        Args:
-            component_id: The component ID (string or stringified dict for pattern matching)
-            prop_name: The property name to update
-            value: The new value to set
-        """
+        # Send the request
+        await self._send_json(
+            {
+                "type": "get_props_request",
+                "rendererId": self._renderer_id,
+                "requestId": request_id,
+                "payload": {"componentId": component_id, "properties": [prop_name]},
+            }
+        )
 
-    @abstractmethod
+        # Wait for the response with timeout
+        try:
+            result = await asyncio.wait_for(future, timeout=30.0)
+            if result and prop_name in result:
+                return result[prop_name]
+            return None
+        except asyncio.TimeoutError as exc:
+            self._pending_get_props.pop(request_id, None)
+            raise TimeoutError(
+                f"Timeout waiting for get_prop response for {component_id}.{prop_name}"
+            ) from exc
+
     async def close(self, code: int = 1000, reason: str = "Connection closed") -> None:
         """Close the WebSocket connection.
-
-        Allows developers to forcibly disconnect a client, e.g., on suspicious
-        activity, session revocation, or policy violation.
 
         Args:
             code: WebSocket close code (default 1000 for normal closure)
             reason: Human-readable reason for closing
         """
+        await self._close_websocket(code, reason)
+
+
+def create_ws_context(
+    payload: dict,
+    response_adapter: ResponseAdapter,
+    websocket_callback: DashWebsocketCallback,
+):
+    """Create callback context from WebSocket message.
+
+    Args:
+        payload: The callback payload
+        response_adapter: The response adapter instance for the backend
+        websocket_callback: The websocket callback instance for the backend
+
+    Returns:
+        AttributeDict with callback context
+    """
+    # pylint: disable=import-outside-toplevel
+    from dash._utils import AttributeDict, inputs_to_dict
+
+    g = AttributeDict({})
+    g.inputs_list = payload.get("inputs", [])
+    g.states_list = payload.get("state", [])
+    g.outputs_list = payload.get("outputs", [])
+    g.input_values = inputs_to_dict(g.inputs_list)
+    g.state_values = inputs_to_dict(g.states_list)
+    g.triggered_inputs = [
+        {"prop_id": x, "value": g.input_values.get(x)}
+        for x in payload.get("changedPropIds", [])
+    ]
+    g.dash_response = response_adapter
+    g.updated_props = {}
+    g.dash_websocket = websocket_callback
+
+    return g

@@ -1017,7 +1017,11 @@ class Dash(ObsoleteChecker):
         Returns:
             The fingerprinted URL for the worker script served via component suites.
         """
-        relative_path = "dash-renderer/build/dash-ws-worker.js"
+        # Use dev worker when serving dev bundles (has source maps, visible in devtools)
+        if self._dev_tools.serve_dev_bundles:
+            relative_path = "dash-renderer/build/dash-ws-worker.dev.js"
+        else:
+            relative_path = "dash-renderer/build/dash-ws-worker.js"
         namespace = "dash"
 
         # Register the path so it can be served
