@@ -9,6 +9,7 @@ import {path} from 'ramda';
 
 import {IStoreState} from '../store';
 import {updateProps, notifyObservers} from '../actions';
+import {parsePatchProps} from '../actions/patch';
 import {getPath} from '../actions/paths';
 import {
     getWorkerClient,
@@ -73,7 +74,7 @@ export async function initializeWebSocket(
 
     // Handle SET_PROPS messages
     workerClient.onSetProps = (payload: SetPropsPayload) => {
-        const {componentId, props} = payload;
+        const {componentId, props: rawProps} = payload;
         const parsedId = parseComponentId(componentId);
         const state = store.getState();
         const componentPath = getPath(state.paths, parsedId);
@@ -85,17 +86,24 @@ export async function initializeWebSocket(
             return;
         }
 
+        // Get old props for Patch processing
+        const oldProps = (path([...componentPath, 'props'], state.layout) ||
+            {}) as Record<string, unknown>;
+
+        // Process props to handle Patch objects
+        const processedProps = parsePatchProps(rawProps, oldProps);
+
         // Update the component props
         store.dispatch(
             updateProps({
-                props,
+                props: processedProps,
                 itempath: componentPath,
                 renderType: 'websocket'
             }) as any
         );
 
         // Notify observers
-        store.dispatch(notifyObservers({id: parsedId, props}) as any);
+        store.dispatch(notifyObservers({id: parsedId, props: processedProps}) as any);
     };
 
     // Handle GET_PROPS_REQUEST messages
