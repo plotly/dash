@@ -371,7 +371,8 @@ def set_props(component_id: typing.Union[str, dict], props: dict):
 
         async def _send_props():
             for prop_name, value in props.items():
-                if isinstance(value, Patch):
+                # Convert Patch and Dash Components to JSON-compatible format
+                if isinstance(value, Patch) or hasattr(value, "to_plotly_json"):
                     value = json.loads(to_json(value))
                 await ws.set_prop(_id, prop_name, value)
 
