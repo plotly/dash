@@ -9,7 +9,7 @@ Tests:
 """
 
 import asyncio
-from dash import Dash, html, Input, Output, set_props, Patch
+from dash import Dash, html, Input, Output, set_props
 from dash.exceptions import PreventUpdate
 
 
@@ -267,146 +267,132 @@ def test_ws036_set_props_dict_component_id(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_ws045_set_props_with_patch_objects(dash_duo):
-    """Test set_props with Patch objects - verifies bug fix for component property updates."""
+def test_ws045_set_props_component_prop_children(dash_duo):
+    """Test set_props updating component props like Div's children with component."""
     app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
 
     app.layout = html.Div(
         [
-            html.Button("Patch Update", id="btn"),
-            html.Div("initial text", id="output"),
+            html.Button("Update Children", id="btn"),
+            html.Div(id="container"),
             html.Div(id="result"),
         ]
     )
 
-    @app.callback(
-        Output("result", "children"), Input("btn", "n_clicks"), websocket=True
-    )
-    async def patch_update(n):
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_children(n):
         if not n:
             raise PreventUpdate
 
-        p = Patch()
-        p += f" - updated {n}"
-
-        set_props("output", {"children": p})
-        return f"Completed {n}"
+        set_props(
+            "container",
+            {
+                "children": html.Div(
+                    [
+                        html.Span(f"Updated {n}"),
+                        html.B(" - Bold Text"),
+                    ]
+                )
+            },
+        )
+        return f"Children updated {n}"
 
     dash_duo.start_server(app)
 
     dash_duo.find_element("#btn").click()
 
-    dash_duo.wait_for_text_to_equal("#output", "initial text - updated 1", timeout=10)
-    dash_duo.wait_for_text_to_equal("#result", "Completed 1")
+    dash_duo.wait_for_text_to_equal("#container span", "Updated 1", timeout=10)
+    dash_duo.wait_for_text_to_equal("#container b", "- Bold Text")
+    dash_duo.wait_for_text_to_equal("#result", "Children updated 1")
 
     assert dash_duo.get_logs() == []
 
 
-def test_ws046_set_props_multiple_props_with_patch(dash_duo):
-    """Test set_props with multiple props including Patch objects."""
+def test_ws046_set_props_nested_component_children(dash_duo):
+    """Test set_props with nested component in children prop."""
     app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
 
     app.layout = html.Div(
         [
-            html.Button("Multi Patch", id="btn"),
-            html.Div("start", id="output1"),
-            html.Div("count: 0", id="output2"),
+            html.Button("Update Nested", id="btn"),
+            html.Div(id="wrapper"),
             html.Div(id="result"),
         ]
     )
 
-    @app.callback(
-        Output("result", "children"), Input("btn", "n_clicks"), websocket=True
-    )
-    async def multi_patch_update(n):
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_nested(n):
         if not n:
             raise PreventUpdate
 
-        p = Patch()
-        p += f" + added {n}"
-
-        set_props("output1", {"children": p, "style": {"color": "blue"}})
-        set_props("output2", {"children": f"count: {n}"})
-        return f"Multi update {n}"
-
-    dash_duo.start_server(app)
-
-    dash_duo.find_element("#btn").click()
-
-    dash_duo.wait_for_text_to_equal("#output1", "start + added 1", timeout=10)
-    dash_duo.wait_for_text_to_equal("#output2", "count: 1")
-    dash_duo.wait_for_text_to_equal("#result", "Multi update 1")
-
-    assert dash_duo.get_logs() == []
-
-
-def test_ws047_set_props_patch_in_sync_callback(dash_duo):
-    """Test set_props with Patch in synchronous callback."""
-    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
-
-    app.layout = html.Div(
-        [
-            html.Button("Sync Patch", id="btn"),
-            html.Div("original", id="target"),
-            html.Div(id="result"),
-        ]
-    )
-
-    @app.callback(
-        Output("result", "children"), Input("btn", "n_clicks"), websocket=True
-    )
-    def sync_patch_update(n):
-        if not n:
-            raise PreventUpdate
-
-        p = Patch()
-        p += f" sync {n}"
-
-        set_props("target", {"children": p})
-        return f"Sync done {n}"
-
-    dash_duo.start_server(app)
-
-    dash_duo.find_element("#btn").click()
-
-    dash_duo.wait_for_text_to_equal("#target", "original sync 1", timeout=10)
-    dash_duo.wait_for_text_to_equal("#result", "Sync done 1")
-
-    assert dash_duo.get_logs() == []
-
-
-def test_ws048_set_props_patch_with_dict_id(dash_duo):
-    """Test set_props with Patch and dict component ID (pattern matching)."""
-    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
-
-    app.layout = html.Div(
-        [
-            html.Button("Dict ID Patch", id="btn"),
-            html.Div("base", id={"type": "item", "index": 0}),
-            html.Div(id="result"),
-        ]
-    )
-
-    @app.callback(
-        Output("result", "children"), Input("btn", "n_clicks"), websocket=True
-    )
-    async def dict_id_patch(n):
-        if not n:
-            raise PreventUpdate
-
-        p = Patch()
-        p += f" patched {n}"
-
-        set_props({"type": "item", "index": 0}, {"children": p})
-        return f"Patched item {n}"
+        set_props(
+            "wrapper",
+            {
+                "children": html.Div(
+                    [
+                        html.Ul(
+                            [
+                                html.Li(f"Item {n}.1"),
+                                html.Li(f"Item {n}.2"),
+                            ]
+                        )
+                    ]
+                )
+            },
+        )
+        return f"Nested updated {n}"
 
     dash_duo.start_server(app)
 
     dash_duo.find_element("#btn").click()
 
     dash_duo.wait_for_text_to_equal(
-        '[id=\'{"index":0,"type":"item"}\']', "base patched 1", timeout=10
+        "#wrapper ul li:first-child", "Item 1.1", timeout=10
     )
-    dash_duo.wait_for_text_to_equal("#result", "Patched item 1")
+    dash_duo.wait_for_text_to_equal("#wrapper ul li:last-child", "Item 1.2")
+    dash_duo.wait_for_text_to_equal("#result", "Nested updated 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_ws047_set_props_children_with_list(dash_duo):
+    """Test set_props with list of components wrapped in a single component."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Update List", id="btn"),
+            html.Div(id="list-container"),
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_list(n):
+        if not n:
+            raise PreventUpdate
+
+        set_props(
+            "list-container",
+            {
+                "children": html.Div(
+                    [
+                        html.Div(f"Item 1 - {n}"),
+                        html.Div(f"Item 2 - {n}"),
+                        html.Div(f"Item 3 - {n}"),
+                    ]
+                )
+            },
+        )
+        return f"List updated {n}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal("#result", "List updated 1", timeout=10)
+    assert "Item 1 - 1" in dash_duo.find_element("#list-container").text
+    assert "Item 2 - 1" in dash_duo.find_element("#list-container").text
+    assert "Item 3 - 1" in dash_duo.find_element("#list-container").text
 
     assert dash_duo.get_logs() == []
