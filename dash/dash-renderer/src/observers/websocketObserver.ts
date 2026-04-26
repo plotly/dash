@@ -103,7 +103,9 @@ export async function initializeWebSocket(
         );
 
         // Notify observers
-        store.dispatch(notifyObservers({id: parsedId, props: processedProps}) as any);
+        store.dispatch(
+            notifyObservers({id: parsedId, props: processedProps}) as any
+        );
     };
 
     // Handle GET_PROPS_REQUEST messages

@@ -13,9 +13,9 @@ from ._patch import Patch
 from ._utils import AttributeDict, stringify_id, to_json
 
 
-context_value: contextvars.ContextVar[typing.Dict[str, typing.Any]] = (
-    contextvars.ContextVar("callback_context")
-)
+context_value: contextvars.ContextVar[
+    typing.Dict[str, typing.Any]
+] = contextvars.ContextVar("callback_context")
 context_value.set({})
 
 
