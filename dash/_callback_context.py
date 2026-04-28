@@ -9,7 +9,6 @@ from dash.backends.base_server import DashWebsocketCallback
 
 from . import exceptions
 from ._get_app import get_app
-from ._patch import Patch
 from ._utils import AttributeDict, stringify_id, to_json
 
 
