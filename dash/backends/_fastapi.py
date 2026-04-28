@@ -94,8 +94,8 @@ class FastAPIWebsocketCallback(DashWebsocketCallback):
         super().__init__(pending_get_props, renderer_id)
         self._websocket = websocket
 
-    async def _send_json(self, data: dict) -> None:
-        await self._websocket.send_json(data)
+    async def _send(self, data: str) -> None:
+        await self._websocket.send({"type": "websocket.send", "text": data})
 
     async def _close_websocket(self, code: int, reason: str) -> None:
         await self._websocket.close(code=code, reason=reason)

@@ -5,6 +5,7 @@ for different web server backends (Flask, Quart, FastAPI, etc.) to integrate wit
 """
 from abc import ABC, abstractmethod
 import asyncio
+import json
 import uuid
 from typing import Any, Dict, Type, TypeVar, Generic, Protocol, TYPE_CHECKING
 
@@ -392,7 +393,7 @@ class DashWebsocketCallback(ABC):
     Provides methods for real-time bidirectional communication between
     the server and renderer during callback execution.
 
-    Subclasses must implement _send_json and _close_websocket for their
+    Subclasses must implement _send and _close_websocket for their
     specific WebSocket implementation.
     """
 
@@ -411,12 +412,28 @@ class DashWebsocketCallback(ABC):
         self._renderer_id = renderer_id
 
     @abstractmethod
-    async def _send_json(self, data: dict) -> None:
-        """Send JSON data over the WebSocket. Must be implemented by subclasses."""
+    async def _send(self, data: str) -> None:
+        """Send string data over the WebSocket. Must be implemented by subclasses."""
 
     @abstractmethod
     async def _close_websocket(self, code: int, reason: str) -> None:
         """Close the WebSocket connection. Must be implemented by subclasses."""
+
+    async def _send_plotly_json(self, value: Any) -> None:
+        """Serialize and send value to client using plotly JSON serialization.
+
+        Uses to_json for full compatibility with all supported prop types,
+        then sends the string directly to avoid double serialization.
+        """
+        # pylint: disable=import-outside-toplevel
+        from dash._utils import to_json
+
+        serialized = to_json(value)
+        await self._send(serialized)
+
+    async def _send_json(self, data: dict) -> None:
+        """Send JSON dict over the WebSocket."""
+        await self._send(json.dumps(data))
 
     async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
         """Send immediate prop update to the client via WebSocket.
@@ -426,13 +443,12 @@ class DashWebsocketCallback(ABC):
             prop_name: The property name to update
             value: The new value to set
         """
-        await self._send_json(
-            {
-                "type": "set_props",
-                "rendererId": self._renderer_id,
-                "payload": {"componentId": component_id, "props": {prop_name: value}},
-            }
-        )
+        payload = {
+            "type": "set_props",
+            "rendererId": self._renderer_id,
+            "payload": {"componentId": component_id, "props": {prop_name: value}},
+        }
+        await self._send_plotly_json(payload)
 
     async def get_prop(self, component_id: str, prop_name: str) -> Any:
         """Request current prop value from the client.
