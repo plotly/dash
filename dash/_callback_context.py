@@ -9,7 +9,7 @@ from dash.backends.base_server import DashWebsocketCallback
 
 from . import exceptions
 from ._get_app import get_app
-from ._utils import AttributeDict, stringify_id, to_json
+from ._utils import AttributeDict, stringify_id
 
 
 context_value: contextvars.ContextVar[
@@ -370,7 +370,6 @@ def set_props(component_id: typing.Union[str, dict], props: dict):
 
         async def _send_props():
             for prop_name, value in props.items():
-                value = json.loads(to_json(value))
                 await ws.set_prop(_id, prop_name, value)
 
         # If we're in an async context, schedule the coroutine
