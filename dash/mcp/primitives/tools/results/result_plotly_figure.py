@@ -6,7 +6,7 @@ import base64
 import logging
 from typing import Any
 
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore[import-untyped]
 from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
@@ -46,9 +46,7 @@ class PlotlyFigureResult(ResultFormatter):
     def format(
         cls, output: MCPOutput, returned_output_value: Any
     ) -> list[TextContent | ImageContent]:
-        if not PLOTLY_FIGURE.matches(
-            output.get("component_type"), output.get("property")
-        ):
+        if not PLOTLY_FIGURE.matches(output.get("component_type"), output["property"]):
             return []
         if not isinstance(returned_output_value, dict):
             return []
