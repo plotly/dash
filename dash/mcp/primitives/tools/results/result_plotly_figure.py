@@ -11,6 +11,7 @@ from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
 
+from ..prop_roles import PLOTLY_FIGURE
 from .base import ResultFormatter
 
 logger = logging.getLogger(__name__)
@@ -45,9 +46,8 @@ class PlotlyFigureResult(ResultFormatter):
     def format(
         cls, output: MCPOutput, returned_output_value: Any
     ) -> list[TextContent | ImageContent]:
-        if (
-            output.get("component_type") != "Graph"
-            or output.get("property") != "figure"
+        if not PLOTLY_FIGURE.matches(
+            output.get("component_type"), output.get("property")
         ):
             return []
         if not isinstance(returned_output_value, dict):
