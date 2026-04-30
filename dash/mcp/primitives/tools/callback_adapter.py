@@ -50,8 +50,17 @@ class CallbackAdapter:
 
     @cached_property
     def as_mcp_tool(self) -> Tool:
-        """Stub — will be implemented in a future PR."""
-        raise NotImplementedError("as_mcp_tool will be implemented in a future PR.")
+        """Transforms the internal Dash callback to a structured MCP tool.
+
+        This tool can be serialized for LLM consumption or used internally for
+        its computed data.
+        """
+        return Tool(
+            name=self.tool_name,
+            description=self._description,
+            inputSchema=self._input_schema,
+            outputSchema=self._output_schema,
+        )
 
     def as_callback_body(self, kwargs: dict[str, Any]) -> CallbackExecutionBody:
         """Transforms the given kwargs to a dict suitable for calling this callback.
@@ -126,7 +135,8 @@ class CallbackAdapter:
 
     @property
     def tool_name(self) -> str:
-        return get_app().mcp_callback_map._tool_names_map[self._output_id]  # pylint: disable=protected-access
+        # pylint: disable-next=protected-access
+        return get_app().mcp_callback_map._tool_names_map[self._output_id]
 
     @cached_property
     def prevents_initial_call(self) -> bool:
@@ -141,7 +151,7 @@ class CallbackAdapter:
 
     @cached_property
     def _description(self) -> str:
-        return build_tool_description(self.outputs, self._docstring)
+        return build_tool_description(self)
 
     @cached_property
     def _input_schema(self) -> dict[str, Any]:
@@ -376,7 +386,7 @@ def _expand_output_spec(
     output_id: str,
     cb_info: dict,
     resolved_inputs: list[CallbackInput],
-) -> list[CallbackOutputTarget]:
+) -> CallbackOutputTarget | list[CallbackOutputTarget]:
     """Build the outputs spec, expanding wildcards to concrete IDs.
 
     For wildcard outputs, derives concrete IDs from the resolved inputs.
@@ -408,6 +418,11 @@ def _expand_output_spec(
         else:
             results.append({"id": pid, "property": prop})
 
+    # Mirror the Dash renderer: single-output callbacks send a bare dict,
+    # multi-output callbacks send a list. The framework's output value
+    # matching depends on this shape.
+    if len(results) == 1:
+        return results[0]
     return results
 
 

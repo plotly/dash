@@ -114,8 +114,7 @@ class CallbackAdapterCollection:
         return getattr(layout_component, prop, None)
 
     def as_mcp_tools(self) -> list[Tool]:
-        """Stub — will be implemented in a future PR."""
-        raise NotImplementedError("as_mcp_tools will be implemented in a future PR.")
+        return [cb.as_mcp_tool for cb in self._callbacks if cb.is_valid]
 
     @property
     def tool_names(self) -> set[str]:

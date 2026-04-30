@@ -82,6 +82,7 @@ def callback(
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
     mcp_enabled: bool = True,
+    mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -234,6 +235,7 @@ def callback(
         optional=optional,
         hidden=hidden,
         mcp_enabled=mcp_enabled,
+        mcp_expose_docstring=mcp_expose_docstring,
     )
 
 
@@ -282,6 +284,7 @@ def insert_callback(
     optional=False,
     hidden=None,
     mcp_enabled=True,
+    mcp_expose_docstring=None,
 ):
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -323,6 +326,7 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "mcp_enabled": mcp_enabled,
+        "mcp_expose_docstring": mcp_expose_docstring,
     }
     callback_list.append(callback_spec)
 
@@ -658,6 +662,7 @@ def register_callback(
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", None),
         mcp_enabled=_kwargs.get("mcp_enabled", True),
+        mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals
