@@ -9,6 +9,10 @@ inputs:
     description: 'Percy token (pass secrets.PERCY_TOKEN)'
     required: false
     default: ''
+  working-directory:
+    description: 'Working directory for the command'
+    required: false
+    default: '.'
 
 runs:
   using: 'composite'
@@ -16,6 +20,7 @@ runs:
     - name: Run with Percy
       if: inputs.percy-token != ''
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       env:
         PERCY_TOKEN: ${{ inputs.percy-token }}
       run: npx percy exec -- ${{ inputs.command }}
@@ -23,6 +28,7 @@ runs:
     - name: Run without Percy (fork PR)
       if: inputs.percy-token == ''
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         echo "::notice::Skipping Percy (no token available - likely a fork PR)"
         ${{ inputs.command }}

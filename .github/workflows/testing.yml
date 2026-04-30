@@ -724,8 +724,9 @@ jobs:
         if: matrix.python-version == '3.12'
         uses: ./.github/actions/percy-exec
         with:
-          command: cd components/dash-html-components && pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+          command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          working-directory: components/dash-html-components
 
       - name: Upload test results
         if: always()
