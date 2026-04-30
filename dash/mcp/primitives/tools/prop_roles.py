@@ -100,7 +100,7 @@ MARKDOWN = PropRole(
     description="Returns formatted text",
 )
 
-GENERIC_FIGURE = PropRole(
+PLOTLY_FIGURE = PropRole(
     identifiers={(ANY_COMPONENT, "figure")},
     description="Returns chart/visualization data",
     input_schema={

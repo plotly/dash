@@ -13,14 +13,10 @@ from mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
 
+from ..prop_roles import TABULAR
 from .base import ResultFormatter
 
 MAX_ROWS = 50
-
-_TABULAR_PROPS = {
-    ("DataTable", "data"),
-    ("AgGrid", "rowData"),
-}
 
 
 def _to_markdown_table(rows: list[dict], max_rows: int = MAX_ROWS) -> str:
@@ -54,8 +50,7 @@ class DataFrameResult(ResultFormatter):
     def format(
         cls, output: MCPOutput, returned_output_value: Any
     ) -> list[TextContent | ImageContent]:
-        key = (output.get("component_type"), output.get("property"))
-        if key not in _TABULAR_PROPS:
+        if not TABULAR.matches(output.get("component_type"), output.get("property")):
             return []
         if (
             not isinstance(returned_output_value, list)
