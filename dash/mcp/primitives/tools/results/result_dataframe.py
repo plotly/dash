@@ -50,7 +50,7 @@ class DataFrameResult(ResultFormatter):
     def format(
         cls, output: MCPOutput, returned_output_value: Any
     ) -> list[TextContent | ImageContent]:
-        if not TABULAR.matches(output.get("component_type"), output.get("property")):
+        if not TABULAR.matches(output.get("component_type"), output["property"]):
             return []
         if (
             not isinstance(returned_output_value, list)
