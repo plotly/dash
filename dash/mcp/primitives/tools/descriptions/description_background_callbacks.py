@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..tool_background_tasks import GET_RESULT_TOOL_NAME
 from .base import ToolDescriptionSource
 
 if TYPE_CHECKING:
@@ -19,9 +20,9 @@ class BackgroundCallbackDescription(ToolDescriptionSource):
 
     @classmethod
     def describe(cls, callback: CallbackAdapter) -> list[str]:
+        # pylint: disable-next=protected-access
         if not callback._cb_info.get("background"):
             return []
-        from ..tool_background_tasks import GET_RESULT_TOOL_NAME
 
         return [
             "",
