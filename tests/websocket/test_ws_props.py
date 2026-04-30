@@ -5,11 +5,11 @@ Tests:
 - set_props streaming during long-running callback
 - get_prop reads current component value
 - async set_prop method
+- set_props with Patch objects (bug fix for component property updates)
 """
 
 import asyncio
-from dash import Dash, html, Input, Output
-from dash._callback_context import set_props
+from dash import Dash, html, Input, Output, set_props
 from dash.exceptions import PreventUpdate
 
 
@@ -263,5 +263,136 @@ def test_ws036_set_props_dict_component_id(dash_duo):
         '[id=\'{"index":0,"type":"output"}\']', "Updated 1", timeout=10
     )
     dash_duo.wait_for_text_to_equal("#result", "Done 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_ws045_set_props_component_prop_children(dash_duo):
+    """Test set_props updating component props like Div's children with component."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Update Children", id="btn"),
+            html.Div(id="container"),
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_children(n):
+        if not n:
+            raise PreventUpdate
+
+        set_props(
+            "container",
+            {
+                "children": html.Div(
+                    [
+                        html.Span(f"Updated {n}"),
+                        html.B(" - Bold Text"),
+                    ]
+                )
+            },
+        )
+        return f"Children updated {n}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal("#container span", "Updated 1", timeout=10)
+    dash_duo.wait_for_text_to_equal("#container b", "- Bold Text")
+    dash_duo.wait_for_text_to_equal("#result", "Children updated 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_ws046_set_props_nested_component_children(dash_duo):
+    """Test set_props with nested component in children prop."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Update Nested", id="btn"),
+            html.Div(id="wrapper"),
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_nested(n):
+        if not n:
+            raise PreventUpdate
+
+        set_props(
+            "wrapper",
+            {
+                "children": html.Div(
+                    [
+                        html.Ul(
+                            [
+                                html.Li(f"Item {n}.1"),
+                                html.Li(f"Item {n}.2"),
+                            ]
+                        )
+                    ]
+                )
+            },
+        )
+        return f"Nested updated {n}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal(
+        "#wrapper ul li:first-child", "Item 1.1", timeout=10
+    )
+    dash_duo.wait_for_text_to_equal("#wrapper ul li:last-child", "Item 1.2")
+    dash_duo.wait_for_text_to_equal("#result", "Nested updated 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_ws047_set_props_children_with_list(dash_duo):
+    """Test set_props with list of components wrapped in a single component."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Update List", id="btn"),
+            html.Div(id="list-container"),
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_list(n):
+        if not n:
+            raise PreventUpdate
+
+        set_props(
+            "list-container",
+            {
+                "children": html.Div(
+                    [
+                        html.Div(f"Item 1 - {n}"),
+                        html.Div(f"Item 2 - {n}"),
+                        html.Div(f"Item 3 - {n}"),
+                    ]
+                )
+            },
+        )
+        return f"List updated {n}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+
+    dash_duo.wait_for_text_to_equal("#result", "List updated 1", timeout=10)
+    assert "Item 1 - 1" in dash_duo.find_element("#list-container").text
+    assert "Item 2 - 1" in dash_duo.find_element("#list-container").text
+    assert "Item 3 - 1" in dash_duo.find_element("#list-container").text
 
     assert dash_duo.get_logs() == []
