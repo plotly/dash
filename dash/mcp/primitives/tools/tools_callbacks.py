@@ -47,6 +47,7 @@ class CallbackTools(MCPToolProvider):
                 " Please call tools/list to refresh your tool list."
             )
 
+        # pylint: disable-next=protected-access
         is_background = bool(cb._cb_info.get("background"))
 
         try:

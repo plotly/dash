@@ -21,10 +21,7 @@ CANCEL_TOOL_NAME = "cancel_background_task"
 
 
 def _has_background_callbacks() -> bool:
-    return any(
-        cb_info.get("background")
-        for cb_info in get_app().callback_map.values()
-    )
+    return any(cb_info.get("background") for cb_info in get_app().callback_map.values())
 
 
 class BackgroundTaskTools(MCPToolProvider):

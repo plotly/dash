@@ -6,7 +6,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from mcp.types import CreateTaskResult, GetTaskResult, Task
+from mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
 
 from dash import get_app
 from dash.mcp.primitives.tools.results import format_callback_response
@@ -33,6 +33,7 @@ def create_task(dispatch_response: dict[str, Any], callback) -> CreateTaskResult
     cache_key = dispatch_response["cacheKey"]
     job_id = str(dispatch_response["job"])
     task_id = f"{callback.tool_name}:{job_id}:{cache_key}"
+    # pylint: disable-next=protected-access
     interval = callback._cb_info.get("background", {}).get("interval", 1000)
     now = datetime.now(timezone.utc)
     return CreateTaskResult(
@@ -75,6 +76,7 @@ def get_task(task_id: str) -> GetTaskResult:
     adapter = get_app().mcp_callback_map.find_by_tool_name(tool_name)
     interval = None
     if adapter is not None:
+        # pylint: disable-next=protected-access
         interval = adapter._cb_info.get("background", {}).get("interval", 1000)
 
     now = datetime.now(timezone.utc)
@@ -82,7 +84,9 @@ def get_task(task_id: str) -> GetTaskResult:
         taskId=task_id,
         status=status,
         statusMessage=str(progress) if progress else None,
-        createdAt=datetime.fromisoformat(manager.handle.get(f"{cache_key}-created_at") or now.isoformat()),
+        createdAt=datetime.fromisoformat(
+            manager.handle.get(f"{cache_key}-created_at") or now.isoformat()
+        ),
         lastUpdatedAt=now,
         ttl=manager.expire * 1000 if manager.expire else None,
         pollInterval=interval,
@@ -117,7 +121,9 @@ def get_task_result(task_id: str) -> Any:
     response_data = json.loads(response.get_data(as_text=True))
 
     if "response" not in response_data:
-        raise MCPError("Task result not ready. Poll tasks/get until status is 'completed'.")
+        raise MCPError(
+            "Task result not ready. Poll tasks/get until status is 'completed'."
+        )
 
     return format_callback_response(response_data, adapter)
 
@@ -127,9 +133,7 @@ def cancel_task(task_id: str) -> Any:
 
     Same underlying mechanism as the renderer's cancelJob query param.
     """
-    from mcp.types import CancelTaskResult
-
-    tool_name, job_id, cache_key = parse_task_id(task_id)
+    _tool_name, job_id, cache_key = parse_task_id(task_id)
 
     manager = _get_callback_manager()
     if manager is None:

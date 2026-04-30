@@ -7,16 +7,18 @@ a tool result with additional content. All formatters are accumulated.
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from mcp.types import CallToolResult, CreateTaskResult, TextContent
 
 from dash.types import CallbackExecutionResponse
-from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
 from .base import ResultFormatter
 from .result_dataframe import DataFrameResult
 from .result_plotly_figure import PlotlyFigureResult
+
+if TYPE_CHECKING:
+    from dash.mcp.primitives.tools.callback_adapter import CallbackAdapter
 
 _RESULT_FORMATTERS: list[type[ResultFormatter]] = [
     PlotlyFigureResult,
@@ -61,17 +63,21 @@ def task_result_to_tool_result(create_task_result: CreateTaskResult) -> CallTool
     """
     task = create_task_result.task
     return CallToolResult(
-        content=[TextContent(
-            type="text",
-            text=json.dumps({
-                "taskId": task.taskId,
-                "status": task.status,
-                "pollInterval": task.pollInterval,
-                "message": (
-                    "This is a long-running background callback. "
-                    "Call the get_background_task_result tool with this taskId "
-                    "to poll for the result."
+        content=[
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "taskId": task.taskId,
+                        "status": task.status,
+                        "pollInterval": task.pollInterval,
+                        "message": (
+                            "This is a long-running background callback. "
+                            "Call the get_background_task_result tool with this taskId "
+                            "to poll for the result."
+                        ),
+                    }
                 ),
-            }),
-        )],
+            )
+        ],
     )
