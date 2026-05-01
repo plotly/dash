@@ -263,6 +263,11 @@ class WorkerClient {
 
             case WorkerMessageType.DISCONNECTED:
                 this.isConnected = false;
+                // Reject all pending callbacks so loading states don't stay on forever
+                for (const [, pending] of this.pendingCallbacks) {
+                    pending.reject(new Error('WebSocket disconnected'));
+                }
+                this.pendingCallbacks.clear();
                 if (this.onDisconnected) {
                     this.onDisconnected(message.payload?.reason);
                 }
