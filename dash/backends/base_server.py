@@ -5,10 +5,30 @@ for different web server backends (Flask, Quart, FastAPI, etc.) to integrate wit
 """
 from abc import ABC, abstractmethod
 import asyncio
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
+import inspect
 import json
+import queue
+import traceback
 import uuid
-from typing import Any, Dict, Type, TypeVar, Generic, Protocol, TYPE_CHECKING
+from contextvars import copy_context
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Type,
+    TypeVar,
+    Generic,
+    Protocol,
+    TYPE_CHECKING,
+    cast,
+)
 
+import janus
+
+from dash.exceptions import PreventUpdate
+from dash._utils import to_json
 
 if TYPE_CHECKING:
     import dash
@@ -182,6 +202,34 @@ class BaseDashServer(ABC, Generic[ServerType]):
         """
         super().__init__()
         self.server = server
+        self._callback_executor: ThreadPoolExecutor | None = None
+
+    def get_callback_executor(
+        self, max_workers: int | None = None
+    ) -> ThreadPoolExecutor:
+        """Get or create the thread pool executor for callback execution.
+
+        Args:
+            max_workers: Maximum number of worker threads. If None, uses default.
+
+        Returns:
+            ThreadPoolExecutor instance for running callbacks.
+        """
+        if self._callback_executor is None:
+            self._callback_executor = ThreadPoolExecutor(
+                max_workers=max_workers, thread_name_prefix="dash-callback-"
+            )
+        return self._callback_executor
+
+    def shutdown_executor(self, wait: bool = True) -> None:
+        """Shutdown the callback executor.
+
+        Args:
+            wait: If True, wait for pending tasks to complete.
+        """
+        if self._callback_executor is not None:
+            self._callback_executor.shutdown(wait=wait)
+            self._callback_executor = None
 
     def __call__(self, *args, **kwargs) -> Any:
         """Make the server wrapper callable as a WSGI/ASGI application.
@@ -387,115 +435,101 @@ class BaseDashServer(ABC, Generic[ServerType]):
         """
 
 
-class DashWebsocketCallback(ABC):
-    """Abstract base for WebSocket-based callback communication.
+class DashWebsocketCallback:
+    """WebSocket callback communication via queues.
 
     Provides methods for real-time bidirectional communication between
     the server and renderer during callback execution.
 
-    Subclasses must implement _send and _close_websocket for their
-    specific WebSocket implementation.
+    Uses janus.Queue for outbound messages (serialized with to_json) and
+    queue.Queue for get_props responses, enabling thread-safe communication
+    between worker threads and the main event loop.
     """
 
     def __init__(
         self,
-        pending_get_props: Dict[str, asyncio.Future],
-        renderer_id: str = "",
+        pending_get_props: Dict[str, queue.Queue[Any]],
+        renderer_id: str,
+        outbound_queue: janus.Queue[str],
     ):
         """Initialize the WebSocket callback interface.
 
         Args:
-            pending_get_props: Dict to track pending get_props requests
+            pending_get_props: Dict to track pending get_props requests.
+                Values are queue.Queue instances for blocking response retrieval.
             renderer_id: The renderer ID for routing messages back to the correct client
+            outbound_queue: janus.Queue for thread-safe outbound messaging.
         """
         self._pending_get_props = pending_get_props
         self._renderer_id = renderer_id
+        self._outbound_queue = outbound_queue
 
-    @abstractmethod
-    async def _send(self, data: str) -> None:
-        """Send string data over the WebSocket. Must be implemented by subclasses."""
+    def _queue_message(self, msg: dict) -> None:
+        """Serialize and queue message for sending (thread-safe, non-blocking).
 
-    @abstractmethod
-    async def _close_websocket(self, code: int, reason: str) -> None:
-        """Close the WebSocket connection. Must be implemented by subclasses."""
-
-    async def _send_plotly_json(self, value: Any) -> None:
-        """Serialize and send value to client using plotly JSON serialization.
-
-        Uses to_json for full compatibility with all supported prop types,
-        then sends the string directly to avoid double serialization.
+        Uses to_json for proper serialization of Dash components.
         """
-        # pylint: disable=import-outside-toplevel
-        from dash._utils import to_json
-
-        serialized = to_json(value)
-        await self._send(serialized)
-
-    async def _send_json(self, data: dict) -> None:
-        """Send JSON dict over the WebSocket."""
-        await self._send(json.dumps(data))
+        self._outbound_queue.sync_q.put_nowait(cast(str, to_json(msg)))
 
     async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
         """Send immediate prop update to the client via WebSocket.
+
+        Queues the message for the sender coroutine to send.
 
         Args:
             component_id: The component ID (string or stringified dict)
             prop_name: The property name to update
             value: The new value to set
         """
-        payload = {
+        msg = {
             "type": "set_props",
             "rendererId": self._renderer_id,
             "payload": {"componentId": component_id, "props": {prop_name: value}},
         }
-        await self._send_plotly_json(payload)
+        self._queue_message(msg)
 
-    async def get_prop(self, component_id: str, prop_name: str) -> Any:
+    async def get_prop(
+        self, component_id: str, prop_name: str, timeout: float = 30.0
+    ) -> Any:
         """Request current prop value from the client.
+
+        Uses queue.Queue for blocking wait in worker thread.
 
         Args:
             component_id: The component ID (string or stringified dict)
             prop_name: The property name to retrieve
+            timeout: Timeout in seconds for waiting for response
 
         Returns:
             The current value of the property from the client's state
         """
         request_id = str(uuid.uuid4())
+        msg = {
+            "type": "get_props_request",
+            "rendererId": self._renderer_id,
+            "requestId": request_id,
+            "payload": {"componentId": component_id, "properties": [prop_name]},
+        }
 
-        # Create a future to wait for the response
-        future: asyncio.Future = asyncio.get_event_loop().create_future()
-        self._pending_get_props[request_id] = future
+        # Use standard queue.Queue for response
+        response_queue: queue.Queue = queue.Queue()
+        self._pending_get_props[request_id] = response_queue
 
-        # Send the request
-        await self._send_json(
-            {
-                "type": "get_props_request",
-                "rendererId": self._renderer_id,
-                "requestId": request_id,
-                "payload": {"componentId": component_id, "properties": [prop_name]},
-            }
-        )
+        # Queue the outbound request via janus sync interface
+        self._queue_message(msg)
 
-        # Wait for the response with timeout
+        # Wait for response (blocking is OK in worker thread)
         try:
-            result = await asyncio.wait_for(future, timeout=30.0)
+            result = response_queue.get(timeout=timeout)
             if result and prop_name in result:
                 return result[prop_name]
             return None
-        except asyncio.TimeoutError as exc:
-            self._pending_get_props.pop(request_id, None)
+        except queue.Empty as exc:
             raise TimeoutError(
-                f"Timeout waiting for get_prop response for {component_id}.{prop_name}"
+                f"Timeout waiting for {component_id}.{prop_name}"
             ) from exc
-
-    async def close(self, code: int = 1000, reason: str = "Connection closed") -> None:
-        """Close the WebSocket connection.
-
-        Args:
-            code: WebSocket close code (default 1000 for normal closure)
-            reason: Human-readable reason for closing
-        """
-        await self._close_websocket(code, reason)
+        finally:
+            self._pending_get_props.pop(request_id, None)
 
 
 def create_ws_context(
@@ -531,3 +565,148 @@ def create_ws_context(
     g.dash_websocket = websocket_callback
 
     return g
+
+
+SHUTDOWN_SIGNAL = "__shutdown__"
+
+
+async def run_ws_sender(
+    send_text: Callable[[str], Any], outbound_queue: janus.Queue[str]
+) -> None:
+    """Sender coroutine - drains queue and sends to WebSocket.
+
+    This coroutine runs in the main event loop and handles sending
+    messages that are queued by worker threads via janus.Queue.
+
+    Messages are pre-serialized strings (using to_json).
+
+    Args:
+        send_text: Async function to send text data over WebSocket
+        outbound_queue: janus.Queue instance for receiving messages (strings)
+    """
+    try:
+        while True:
+            msg = await outbound_queue.async_q.get()
+            if msg == SHUTDOWN_SIGNAL:
+                break
+            await send_text(msg)
+    except asyncio.CancelledError:
+        pass
+
+
+def make_callback_done_handler(
+    outbound_queue: janus.Queue[str],
+    pending_callbacks: Dict[str, concurrent.futures.Future],
+    request_id: str,
+    renderer_id: str,
+) -> Callable[[concurrent.futures.Future], None]:
+    """Create a done callback handler for executor futures.
+
+    This factory creates a callback that sends the result back through
+    the WebSocket when an executor future completes.
+
+    Args:
+        outbound_queue: janus.Queue for sending responses
+        pending_callbacks: Dict tracking pending callbacks for cleanup
+        request_id: The request ID for the callback response
+        renderer_id: The renderer ID for routing the response
+
+    Returns:
+        A callback function suitable for Future.add_done_callback()
+    """
+
+    def on_done(f: concurrent.futures.Future) -> None:
+        try:
+            result = f.result()
+            outbound_queue.sync_q.put_nowait(
+                cast(
+                    str,
+                    to_json(
+                        {
+                            "type": "callback_response",
+                            "rendererId": renderer_id,
+                            "requestId": request_id,
+                            "payload": result,
+                        }
+                    ),
+                )
+            )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            outbound_queue.sync_q.put_nowait(
+                cast(
+                    str,
+                    to_json(
+                        {
+                            "type": "callback_response",
+                            "rendererId": renderer_id,
+                            "requestId": request_id,
+                            "payload": {
+                                "status": "error",
+                                "message": str(e),
+                            },
+                        }
+                    ),
+                )
+            )
+        finally:
+            pending_callbacks.pop(request_id, None)
+
+    return on_done
+
+
+def run_callback_in_executor(
+    executor: ThreadPoolExecutor,
+    dash_app: "dash.Dash",
+    payload: dict,
+    ws_callback: DashWebsocketCallback,
+    response_adapter: ResponseAdapter,
+) -> concurrent.futures.Future:
+    """Submit callback to executor for thread pool execution.
+
+    This function creates a callback execution context and runs it
+    in a separate thread. Both sync and async callbacks are supported.
+
+    Args:
+        executor: ThreadPoolExecutor to submit the task to
+        dash_app: The Dash application instance
+        payload: The callback payload from WebSocket message
+        ws_callback: WebSocket callback instance for set_prop/get_prop
+        response_adapter: Response adapter for the backend
+
+    Returns:
+        Future representing the pending callback execution
+    """
+
+    def execute() -> dict:
+        try:
+            cb_ctx = create_ws_context(payload, response_adapter, ws_callback)
+            # pylint: disable=protected-access
+            func = dash_app._prepare_callback(cb_ctx, payload)
+            args = dash_app._inputs_to_vals(  # pylint: disable=protected-access
+                cb_ctx.inputs_list + cb_ctx.states_list
+            )
+
+            ctx = copy_context()
+            partial_func = (
+                dash_app._execute_callback(  # pylint: disable=protected-access
+                    func, args, cb_ctx.outputs_list, cb_ctx
+                )
+            )
+
+            # Run in new event loop (handles both sync and async callbacks)
+            def run_callback():
+                result = partial_func()
+                if inspect.iscoroutine(result):
+                    return asyncio.run(result)
+                return result
+
+            response_data = ctx.run(run_callback)
+            return {"status": "ok", "data": json.loads(response_data)}
+
+        except PreventUpdate:
+            return {"status": "prevent_update"}
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            traceback.print_exc()
+            return {"status": "error", "message": str(e)}
+
+    return executor.submit(execute)

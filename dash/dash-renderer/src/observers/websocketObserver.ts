@@ -8,9 +8,9 @@ import {Store} from 'redux';
 import {path} from 'ramda';
 
 import {IStoreState} from '../store';
-import {updateProps, notifyObservers} from '../actions';
+import {updateProps, notifyObservers, setPaths} from '../actions';
 import {parsePatchProps} from '../actions/patch';
-import {getPath} from '../actions/paths';
+import {computePaths, getPath} from '../actions/paths';
 import {
     getWorkerClient,
     SetPropsPayload,
@@ -86,9 +86,12 @@ export async function initializeWebSocket(
             return;
         }
 
-        // Get old props for Patch processing
-        const oldProps = (path([...componentPath, 'props'], state.layout) ||
-            {}) as Record<string, unknown>;
+        // Get old component for Patch processing and path recomputation
+        const oldComponent = path(componentPath, state.layout) as Record<
+            string,
+            unknown
+        > | null;
+        const oldProps = (oldComponent?.props || {}) as Record<string, unknown>;
 
         // Process props to handle Patch objects
         const processedProps = parsePatchProps(rawProps, oldProps);
@@ -106,6 +109,24 @@ export async function initializeWebSocket(
         store.dispatch(
             notifyObservers({id: parsedId, props: processedProps}) as any
         );
+
+        // Recompute paths for any new child components
+        if (oldComponent) {
+            const updatedState = store.getState();
+            store.dispatch(
+                setPaths(
+                    computePaths(
+                        {
+                            ...oldComponent,
+                            props: {...oldProps, ...processedProps}
+                        },
+                        [...componentPath],
+                        updatedState.paths,
+                        updatedState.paths.events
+                    )
+                ) as any
+            );
+        }
     };
 
     // Handle GET_PROPS_REQUEST messages

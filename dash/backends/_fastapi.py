@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from contextvars import copy_context, ContextVar
 import asyncio
+import concurrent.futures
 import json
+import queue
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
@@ -30,6 +32,8 @@ except ImportError as _err:
         "All dependencies not installed. Please install it with `dash[fastapi]` to use the FastAPI backend."
     ) from _err
 
+import janus
+
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
@@ -38,7 +42,10 @@ from .base_server import (
     RequestAdapter,
     ResponseAdapter,
     DashWebsocketCallback,
-    create_ws_context,
+    run_ws_sender,
+    run_callback_in_executor,
+    make_callback_done_handler,
+    SHUTDOWN_SIGNAL,
 )
 from ._utils import format_traceback_html
 
@@ -80,25 +87,6 @@ class FastAPIResponseAdapter(ResponseAdapter):
             for key, (value, cookie_kwargs) in self._cookies.items():
                 resp.set_cookie(key, value, **cookie_kwargs)
         return resp
-
-
-class FastAPIWebsocketCallback(DashWebsocketCallback):
-    """WebSocket callback implementation for FastAPI backend."""
-
-    def __init__(
-        self,
-        websocket: WebSocket,
-        pending_get_props: Dict[str, asyncio.Future],
-        renderer_id: str = "",
-    ):
-        super().__init__(pending_get_props, renderer_id)
-        self._websocket = websocket
-
-    async def _send(self, data: str) -> None:
-        await self._websocket.send({"type": "websocket.send", "text": data})
-
-    async def _close_websocket(self, code: int, reason: str) -> None:
-        await self._websocket.close(code=code, reason=reason)
 
 
 _current_request_var = ContextVar("dash_current_request", default=None)
@@ -672,10 +660,13 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
     def serve_websocket_callback(self, dash_app: "Dash"):
         """Set up the WebSocket endpoint for callback handling.
 
+        Uses thread pool executor for callback execution with janus queues
+        for async/sync communication between main loop and worker threads.
+
         Args:
             dash_app: The Dash application instance
         """
-        # pylint: disable=too-many-statements
+        # pylint: disable=too-many-statements,too-many-locals
         ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
 
         # Get allowed origins from dash app config
@@ -719,29 +710,19 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             await websocket.accept()
 
-            # Track pending get_props requests
-            pending_get_props: Dict[str, asyncio.Future] = {}
-            # Track running callback tasks
-            callback_tasks: Dict[str, asyncio.Task] = {}
+            # Create janus queue for outbound messages (main loop context)
+            outbound_queue: janus.Queue[str] = janus.Queue()
+            # Track pending get_props requests with standard queue.Queue for responses
+            pending_get_props: Dict[str, queue.Queue] = {}
+            # Get thread pool executor
+            executor = self.get_callback_executor()
+            # Track pending callback futures
+            pending_callbacks: Dict[str, concurrent.futures.Future] = {}
 
-            async def execute_callback_task(
-                req_message: dict, req_renderer_id: str, req_id: str
-            ):
-                """Execute callback and send response."""
-                try:
-                    response = await self._execute_ws_callback(
-                        dash_app, websocket, req_message, pending_get_props
-                    )
-                    await websocket.send_json(
-                        {
-                            "type": "callback_response",
-                            "rendererId": req_renderer_id,
-                            "requestId": req_id,
-                            "payload": response,
-                        }
-                    )
-                finally:
-                    callback_tasks.pop(req_id, None)
+            # Start sender task to drain outbound queue (sends pre-serialized text)
+            sender_task = asyncio.create_task(
+                run_ws_sender(websocket.send_text, outbound_queue)
+            )
 
             try:
                 while True:
@@ -759,111 +740,73 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                         return
 
                     msg_type = message.get("type")
-                    renderer_id = message.get("rendererId")
 
                     if msg_type == "callback_request":
-                        # Run callback in background task to allow receiving
-                        # get_props_response messages during execution
                         request_id = message.get("requestId")
-                        task = asyncio.create_task(
-                            execute_callback_task(message, renderer_id, request_id)
+                        renderer_id = message.get("rendererId", "")
+                        payload = message.get("payload", {})
+
+                        # Validate that the callback is allowed to use WebSocket transport
+                        # pylint: disable=protected-access
+                        _validate.validate_websocket_callback_request(
+                            payload.get("output"),
+                            dash_app.callback_map,
+                            dash_app._websocket_callbacks,
                         )
-                        callback_tasks[request_id] = task
+
+                        # Create WebSocket callback instance with outbound queue
+                        ws_cb = DashWebsocketCallback(
+                            pending_get_props, renderer_id, outbound_queue
+                        )
+
+                        # Submit callback to executor
+                        future = run_callback_in_executor(
+                            executor,
+                            dash_app,
+                            payload,
+                            ws_cb,
+                            FastAPIResponseAdapter(),
+                        )
+
+                        # Set up done callback to send response
+                        future.add_done_callback(
+                            make_callback_done_handler(
+                                outbound_queue,
+                                pending_callbacks,
+                                request_id,
+                                renderer_id,
+                            )
+                        )
+                        pending_callbacks[request_id] = future
 
                     elif msg_type == "get_props_response":
-                        # Handle response for pending get_props request
+                        # Put response in waiting queue (non-blocking)
                         request_id = message.get("requestId")
-                        if request_id in pending_get_props:
-                            future = pending_get_props.pop(request_id)
-                            if not future.done():
-                                future.set_result(message.get("payload"))
+                        response_queue = pending_get_props.get(request_id)
+                        if response_queue is not None:
+                            response_queue.put_nowait(message.get("payload"))
 
                     elif msg_type == "heartbeat":
-                        await websocket.send_json({"type": "heartbeat_ack"})
+                        outbound_queue.sync_q.put_nowait('{"type": "heartbeat_ack"}')
 
             except WebSocketDisconnect:
                 pass  # Clean disconnect
             finally:
-                # Cancel any pending futures and tasks
-                for future in pending_get_props.values():
-                    if not future.done():
-                        future.cancel()
-                for task in callback_tasks.values():
-                    if not task.done():
-                        task.cancel()
+                # Signal sender to shutdown and cancel it
+                outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
+                sender_task.cancel()
+                try:
+                    await sender_task
+                except asyncio.CancelledError:
+                    pass
+                # Close the janus queue
+                outbound_queue.close()
+                await outbound_queue.wait_closed()
+                # Cancel any pending futures
+                for f in pending_callbacks.values():
+                    f.cancel()
 
         self.server.add_api_websocket_route(ws_path, websocket_handler)
-
-    async def _execute_ws_callback(
-        self,
-        dash_app: "Dash",
-        websocket: WebSocket,
-        message: dict,
-        pending_get_props: Dict[str, asyncio.Future],
-    ) -> dict:
-        """Execute callback from WebSocket message.
-
-        Args:
-            dash_app: The Dash application instance
-            websocket: The WebSocket connection
-            message: The callback request message
-            pending_get_props: Dict to track pending get_props requests
-
-        Returns:
-            Response dict with status and data
-        """
-        payload = message.get("payload", {})
-
-        # Validate that the callback is allowed to use WebSocket transport
-        # pylint: disable=protected-access
-        _validate.validate_websocket_callback_request(
-            payload.get("output"),
-            dash_app.callback_map,
-            dash_app._websocket_callbacks,
-        )
-        # pylint: enable=protected-access
-
-        # Create WebSocket callback context
-        renderer_id = message.get("rendererId", "")
-        cb_ctx = self._create_ws_context(
-            websocket, payload, pending_get_props, renderer_id
-        )
-
-        try:
-            # Reuse existing callback machinery
-            # pylint: disable=protected-access
-            func = dash_app._prepare_callback(cb_ctx, payload)
-            args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)
-            ctx = copy_context()
-            partial_func = dash_app._execute_callback(
-                func, args, cb_ctx.outputs_list, cb_ctx
-            )
-            # pylint: enable=protected-access
-            response_data = ctx.run(partial_func)
-            if inspect.iscoroutine(response_data):
-                response_data = await response_data
-
-            return {"status": "ok", "data": json.loads(response_data)}
-
-        except PreventUpdate:
-            return {"status": "prevent_update"}
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            traceback.print_exc()
-            return {"status": "error", "message": str(e)}
-
-    def _create_ws_context(
-        self,
-        websocket: WebSocket,
-        payload: dict,
-        pending_get_props: Dict[str, asyncio.Future],
-        renderer_id: str = "",
-    ):
-        """Create callback context from WebSocket message."""
-        return create_ws_context(
-            payload,
-            FastAPIResponseAdapter(),
-            FastAPIWebsocketCallback(websocket, pending_get_props, renderer_id),
-        )
 
 
 class FastAPIRequestAdapter(RequestAdapter):

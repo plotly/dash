@@ -6,10 +6,11 @@ Tests:
 - get_prop reads current component value
 - async set_prop method
 - set_props with Patch objects (bug fix for component property updates)
+- set_props with pattern-matching components triggering MATCH callbacks
 """
 
 import asyncio
-from dash import Dash, html, Input, Output, set_props
+from dash import Dash, html, Input, Output, State, set_props, MATCH
 from dash.exceptions import PreventUpdate
 
 
@@ -394,5 +395,77 @@ def test_ws047_set_props_children_with_list(dash_duo):
     assert "Item 1 - 1" in dash_duo.find_element("#list-container").text
     assert "Item 2 - 1" in dash_duo.find_element("#list-container").text
     assert "Item 3 - 1" in dash_duo.find_element("#list-container").text
+
+    assert dash_duo.get_logs() == []
+
+
+def test_ws048_set_props_dynamic_match_callback(dash_duo):
+    """Test set_props injecting components with pattern-matching IDs that trigger MATCH callbacks."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Add Component", id="add-btn"),
+            html.Div(id="container"),
+            html.Div("waiting", id="match-result"),
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("add-btn", "n_clicks"))
+    async def add_component(n):
+        if not n:
+            raise PreventUpdate
+
+        # Inject component with pattern-matching ID via set_props
+        set_props(
+            "container",
+            {
+                "children": html.Div(
+                    [
+                        html.Span("Hello"),
+                        html.Button("Click me", id={"type": "dynamic", "index": 0}),
+                    ]
+                )
+            },
+        )
+        return f"Component added {n}"
+
+    @app.callback(
+        Output("match-result", "children"),
+        Input({"type": "dynamic", "index": MATCH}, "n_clicks"),
+        State({"type": "dynamic", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def handle_dynamic_click(n_clicks, btn_id):
+        if not n_clicks:
+            raise PreventUpdate
+        return f"Clicked button index {btn_id['index']} - {n_clicks} times"
+
+    dash_duo.start_server(app)
+
+    # Initial state
+    dash_duo.wait_for_text_to_equal("#match-result", "waiting")
+
+    # Add the dynamic component
+    dash_duo.find_element("#add-btn").click()
+    dash_duo.wait_for_text_to_equal("#result", "Component added 1", timeout=10)
+
+    # Verify the component was added
+    dash_duo.wait_for_text_to_equal("#container span", "Hello", timeout=5)
+
+    # Click the dynamically added button with pattern-matching ID
+    dash_duo.find_element('[id=\'{"index":0,"type":"dynamic"}\']').click()
+
+    # Verify the MATCH callback fired
+    dash_duo.wait_for_text_to_equal(
+        "#match-result", "Clicked button index 0 - 1 times", timeout=10
+    )
+
+    # Click again to verify it continues to work
+    dash_duo.find_element('[id=\'{"index":0,"type":"dynamic"}\']').click()
+    dash_duo.wait_for_text_to_equal(
+        "#match-result", "Clicked button index 0 - 2 times", timeout=10
+    )
 
     assert dash_duo.get_logs() == []
