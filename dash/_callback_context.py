@@ -5,7 +5,7 @@ import json
 import contextvars
 import typing
 
-from dash.backends.base_server import DashWebsocketCallback
+from dash.backends.ws import DashWebsocketCallback
 
 from . import exceptions
 from ._get_app import get_app

@@ -41,6 +41,8 @@ from .base_server import (
     BaseDashServer,
     RequestAdapter,
     ResponseAdapter,
+)
+from .ws import (
     DashWebsocketCallback,
     run_ws_sender,
     run_callback_in_executor,
