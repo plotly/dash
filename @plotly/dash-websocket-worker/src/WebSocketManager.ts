@@ -118,6 +118,8 @@ export class WebSocketManager {
             // Trigger reconnect if we have a server URL but aren't connected/connecting
             if (this.serverUrl && !this.isConnecting) {
                 this.isConnecting = true;
+                // Reset retry count since this is user-initiated activity
+                this.retryCount = 0;
                 this.createConnection();
             }
         }
