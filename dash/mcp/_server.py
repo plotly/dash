@@ -25,6 +25,7 @@ from mcp.types import (
 
 from dash import get_app
 from dash._get_app import with_app_context_factory
+from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
 from dash.mcp.primitives import (
     call_tool,
     list_resource_templates,
@@ -46,6 +47,10 @@ logger = logging.getLogger(__name__)
 
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     """Add MCP routes to a Dash/Flask app."""
+
+    app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+    MCP_DECORATED_FUNCTIONS.clear()
+
     # -- Streamable HTTP endpoint --------------------------------------------
 
     def mcp_handler() -> Response:
