@@ -48,6 +48,7 @@ from .ws import (
     run_callback_in_executor,
     make_callback_done_handler,
     SHUTDOWN_SIGNAL,
+    DISCONNECTED,
 )
 from ._utils import format_traceback_html
 
@@ -716,6 +717,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             outbound_queue: janus.Queue[str] = janus.Queue()
             # Track pending get_props requests with standard queue.Queue for responses
             pending_get_props: Dict[str, queue.Queue] = {}
+            # Shutdown event to signal connection closure to worker threads
+            shutdown_event = threading.Event()
             # Get thread pool executor
             executor = self.get_callback_executor()
             # Track pending callback futures
@@ -758,7 +761,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
                         # Create WebSocket callback instance with outbound queue
                         ws_cb = DashWebsocketCallback(
-                            pending_get_props, renderer_id, outbound_queue
+                            pending_get_props,
+                            renderer_id,
+                            outbound_queue,
+                            shutdown_event,
                         )
 
                         # Submit callback to executor
@@ -777,6 +783,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                                 pending_callbacks,
                                 request_id,
                                 renderer_id,
+                                shutdown_event,
                             )
                         )
                         pending_callbacks[request_id] = future
@@ -794,6 +801,11 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             except WebSocketDisconnect:
                 pass  # Clean disconnect
             finally:
+                # Signal shutdown to worker threads
+                shutdown_event.set()
+                # Unblock any threads waiting on get_prop responses
+                for response_queue in pending_get_props.values():
+                    response_queue.put_nowait(DISCONNECTED)
                 # Signal sender to shutdown and cancel it
                 outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
                 sender_task.cancel()

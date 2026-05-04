@@ -9,6 +9,7 @@ import sys
 import asyncio
 import concurrent.futures
 import queue
+import threading
 from urllib.parse import urlparse
 
 from logging.config import dictConfig
@@ -52,6 +53,7 @@ from .ws import (
     run_callback_in_executor,
     make_callback_done_handler,
     SHUTDOWN_SIGNAL,
+    DISCONNECTED,
 )
 from ._utils import format_traceback_html
 
@@ -248,7 +250,6 @@ class QuartDashServer(BaseDashServer[Quart]):
     # pylint: disable=W0613
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
         import signal  # pylint: disable=import-outside-toplevel
-        import threading  # pylint: disable=import-outside-toplevel
 
         # pylint: disable=import-outside-toplevel,import-error
         from hypercorn.config import Config
@@ -521,7 +522,7 @@ class QuartDashServer(BaseDashServer[Quart]):
         allowed_origins = getattr(dash_app, "_websocket_allowed_origins", [])
 
         @self.server.websocket(ws_path)
-        async def websocket_handler():
+        async def websocket_handler():  # pylint: disable=too-many-branches
             ws = websocket
 
             # Validate Origin header
@@ -557,6 +558,8 @@ class QuartDashServer(BaseDashServer[Quart]):
             outbound_queue: janus.Queue[str] = janus.Queue()
             # Track pending get_props requests with standard queue.Queue for responses
             pending_get_props: Dict[str, queue.Queue] = {}
+            # Shutdown event to signal connection closure to worker threads
+            connection_shutdown_event = threading.Event()
             # Get thread pool executor
             executor = self.get_callback_executor()
             # Track pending callback futures
@@ -604,7 +607,10 @@ class QuartDashServer(BaseDashServer[Quart]):
 
                         # Create WebSocket callback instance with outbound queue
                         ws_cb = DashWebsocketCallback(
-                            pending_get_props, renderer_id, outbound_queue
+                            pending_get_props,
+                            renderer_id,
+                            outbound_queue,
+                            connection_shutdown_event,
                         )
 
                         # Submit callback to executor
@@ -623,6 +629,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                                 pending_callbacks,
                                 request_id,
                                 renderer_id,
+                                connection_shutdown_event,
                             )
                         )
                         pending_callbacks[request_id] = future
@@ -643,6 +650,11 @@ class QuartDashServer(BaseDashServer[Quart]):
                 pass  # Other exceptions treated as disconnect
             finally:
                 self._active_websockets.discard(ws_obj)
+                # Signal shutdown to worker threads
+                connection_shutdown_event.set()
+                # Unblock any threads waiting on get_prop responses
+                for response_queue in pending_get_props.values():
+                    response_queue.put_nowait(DISCONNECTED)
                 # Signal sender to shutdown and cancel it
                 outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
                 sender_task.cancel()

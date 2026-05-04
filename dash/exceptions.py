@@ -117,3 +117,7 @@ class AppNotFoundError(DashException):
 
 class WebSocketCallbackError(CallbackException):
     pass
+
+
+class WebsocketDisconnected(CallbackException):
+    pass

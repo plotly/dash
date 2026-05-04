@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import inspect
 import json
 import queue
+import threading
 import traceback
 import uuid
 from contextvars import copy_context
@@ -18,7 +19,7 @@ from typing import Any, Callable, Dict, TYPE_CHECKING, cast
 
 import janus
 
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate, WebsocketDisconnected
 from dash._utils import to_json
 
 if TYPE_CHECKING:
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
 
 
 SHUTDOWN_SIGNAL = "__shutdown__"
+DISCONNECTED = "__disconnected__"
 
 
 class DashWebsocketCallback:
@@ -45,6 +47,7 @@ class DashWebsocketCallback:
         pending_get_props: Dict[str, queue.Queue[Any]],
         renderer_id: str,
         outbound_queue: janus.Queue[str],
+        shutdown_event: "threading.Event",
     ):
         """Initialize the WebSocket callback interface.
 
@@ -53,16 +56,26 @@ class DashWebsocketCallback:
                 Values are queue.Queue instances for blocking response retrieval.
             renderer_id: The renderer ID for routing messages back to the correct client
             outbound_queue: janus.Queue for thread-safe outbound messaging.
+            shutdown_event: Event signaling the websocket connection has closed.
         """
         self._pending_get_props = pending_get_props
         self._renderer_id = renderer_id
         self._outbound_queue = outbound_queue
+        self._shutdown_event = shutdown_event
+
+    @property
+    def is_shutdown(self) -> bool:
+        """Check if the websocket connection has been shut down."""
+        return self._shutdown_event.is_set()
 
     def _queue_message(self, msg: dict) -> None:
         """Serialize and queue message for sending (thread-safe, non-blocking).
 
         Uses to_json for proper serialization of Dash components.
+        Does nothing if the connection has been shut down.
         """
+        if self._shutdown_event.is_set():
+            return
         self._outbound_queue.sync_q.put_nowait(cast(str, to_json(msg)))
 
     async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
@@ -96,7 +109,14 @@ class DashWebsocketCallback:
 
         Returns:
             The current value of the property from the client's state
+
+        Raises:
+            WebsocketDisconnected: If the websocket connection has been closed.
+            TimeoutError: If the response doesn't arrive within the timeout.
         """
+        if self._shutdown_event.is_set():
+            raise WebsocketDisconnected()
+
         request_id = str(uuid.uuid4())
         msg = {
             "type": "get_props_request",
@@ -115,6 +135,8 @@ class DashWebsocketCallback:
         # Wait for response (blocking is OK in worker thread)
         try:
             result = response_queue.get(timeout=timeout)
+            if result == DISCONNECTED:
+                raise WebsocketDisconnected()
             if result and prop_name in result:
                 return result[prop_name]
             return None
@@ -190,6 +212,7 @@ def make_callback_done_handler(
     pending_callbacks: Dict[str, concurrent.futures.Future],
     request_id: str,
     renderer_id: str,
+    shutdown_event: threading.Event,
 ) -> Callable[[concurrent.futures.Future], None]:
     """Create a done callback handler for executor futures.
 
@@ -201,6 +224,7 @@ def make_callback_done_handler(
         pending_callbacks: Dict tracking pending callbacks for cleanup
         request_id: The request ID for the callback response
         renderer_id: The renderer ID for routing the response
+        shutdown_event: Event signaling the websocket connection has closed.
 
     Returns:
         A callback function suitable for Future.add_done_callback()
@@ -208,6 +232,8 @@ def make_callback_done_handler(
 
     def on_done(f: concurrent.futures.Future) -> None:
         try:
+            if shutdown_event.is_set():
+                return
             result = f.result()
             outbound_queue.sync_q.put_nowait(
                 cast(
@@ -223,6 +249,8 @@ def make_callback_done_handler(
                 )
             )
         except Exception as e:  # pylint: disable=broad-exception-caught
+            if shutdown_event.is_set():
+                return
             outbound_queue.sync_q.put_nowait(
                 cast(
                     str,
