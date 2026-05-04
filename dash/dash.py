@@ -615,6 +615,7 @@ class Dash(ObsoleteChecker):
         # same deps as a list to catch duplicate outputs, and to send to the front end
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
+        self.mcp_decorated_functions: dict = {}
 
         # list of inline scripts
         self._inline_scripts: list = []

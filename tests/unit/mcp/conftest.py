@@ -9,10 +9,13 @@ collect_ignore_glob = []
 if sys.version_info < (3, 10):
     collect_ignore_glob.append("*")
 else:
-    from dash.mcp.primitives.tools import (
+    from dash.mcp._decorator import (  # pylint: disable=wrong-import-position
+        MCP_DECORATED_FUNCTIONS,
+    )
+    from dash.mcp.primitives.tools import (  # pylint: disable=wrong-import-position
         call_tool,
         list_tools,
-    )  # pylint: disable=wrong-import-position
+    )
     from dash.mcp.primitives.tools.callback_adapter_collection import (  # pylint: disable=wrong-import-position
         CallbackAdapterCollection,
     )
@@ -23,6 +26,9 @@ BUILTINS = {"get_dash_component"}
 def _setup_mcp(app):
     """Set up MCP for an app in tests."""
     app_context.set(app)
+    if MCP_DECORATED_FUNCTIONS:
+        app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+        MCP_DECORATED_FUNCTIONS.clear()
     app.mcp_callback_map = CallbackAdapterCollection(app)
     return app
 
