@@ -324,6 +324,8 @@ def run_callback_in_executor(
 
         except PreventUpdate:
             return {"status": "prevent_update"}
+        except WebsocketDisconnected:
+            return {"status": "prevent_update"}
         except Exception as e:  # pylint: disable=broad-exception-caught
             traceback.print_exc()
             return {"status": "error", "message": str(e)}

@@ -138,9 +138,9 @@ class WorkerClient {
         this.connectionPromise = null;
         this.connectionResolve = null;
 
-        // Reject any pending callbacks
+        // Resolve pending callbacks with prevent_update so loading states clear
         for (const [, pending] of this.pendingCallbacks) {
-            pending.reject(new Error('Worker disconnected'));
+            pending.resolve({status: 'prevent_update'});
         }
         this.pendingCallbacks.clear();
     }
@@ -263,9 +263,9 @@ class WorkerClient {
 
             case WorkerMessageType.DISCONNECTED:
                 this.isConnected = false;
-                // Reject all pending callbacks so loading states don't stay on forever
+                // Resolve pending callbacks with prevent_update so loading states clear
                 for (const [, pending] of this.pendingCallbacks) {
-                    pending.reject(new Error('WebSocket disconnected'));
+                    pending.resolve({status: 'prevent_update'});
                 }
                 this.pendingCallbacks.clear();
                 if (this.onDisconnected) {
