@@ -79,6 +79,9 @@ export class WebSocketManager {
 
         this.serverUrl = serverUrl;
         this.isConnecting = true;
+        // Reset retry count since this is an explicit connect request
+        // (e.g., from hot reload reconnection)
+        this.retryCount = 0;
         this.createConnection();
     }
 
