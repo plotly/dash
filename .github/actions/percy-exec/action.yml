@@ -1,0 +1,34 @@
+name: 'Percy Exec'
+description: 'Run a command with Percy, or skip Percy for fork PRs (no token access)'
+
+inputs:
+  command:
+    description: 'The command to run (e.g., "pytest --headless tests/")'
+    required: true
+  percy-token:
+    description: 'Percy token (pass secrets.PERCY_TOKEN)'
+    required: false
+    default: ''
+  working-directory:
+    description: 'Working directory for the command'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run with Percy
+      if: inputs.percy-token != ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        PERCY_TOKEN: ${{ inputs.percy-token }}
+      run: npx percy exec -- ${{ inputs.command }}
+
+    - name: Run without Percy (fork PR)
+      if: inputs.percy-token == ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "::notice::Skipping Percy (no token available - likely a fork PR)"
+        ${{ inputs.command }}

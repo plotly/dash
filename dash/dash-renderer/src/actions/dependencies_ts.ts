@@ -25,6 +25,7 @@ import {
 } from '../types/callbacks';
 import {
     addAllResolvedFromOutputs,
+    getAnyVals,
     getUnfilteredLayoutCallbacks,
     idMatch,
     isMultiValued,
@@ -72,11 +73,18 @@ export function getCallbacksByInput(
         }
         patterns.forEach(pattern => {
             if (idMatch(_keys, vals, pattern.values)) {
+                // When a callback's Outputs have no MATCH keys, the
+                // triggering Input's MATCH values are what uniquify each
+                // firing's resolvedId (see addAllResolvedFromOutputs).
+                // Callbacks whose Outputs do carry MATCH keys ignore this
+                // value since the Output pattern drives resolution.
+                const triggerAnyVals = getAnyVals(pattern.values, vals);
                 pattern.callbacks.forEach(
                     addAllResolvedFromOutputs(
                         resolveDeps(_keys, vals, pattern.values),
                         paths,
-                        matches
+                        matches,
+                        triggerAnyVals
                     )
                 );
             }
