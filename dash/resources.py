@@ -58,10 +58,12 @@ class Resources:
                 filtered_resource["dynamic"] = s["dynamic"]
             if "async" in s:
                 if "dynamic" in s:
-                    raise exceptions.ResourceException(f"""
+                    raise exceptions.ResourceException(
+                        f"""
                         Can't have both 'dynamic' and 'async'.
                         {json.dumps(filtered_resource)}
-                        """)
+                        """
+                    )
 
                 # Async assigns a value dynamically to 'dynamic'
                 # based on the value of 'async' and config.eager_loading
@@ -113,10 +115,12 @@ class Resources:
                 )
                 continue
             else:
-                raise exceptions.ResourceException(f"""
+                raise exceptions.ResourceException(
+                    f"""
                     {json.dumps(filtered_resource)} does not have a
                     relative_package_path, absolute_path, or an external_url.
-                    """)
+                    """
+                )
 
             if valid_resource:
                 filtered_resources.append(filtered_resource)

@@ -178,7 +178,8 @@ class Browser(DashPageMixin):
             )
 
         if convert_canvases:
-            self.driver.execute_script("""
+            self.driver.execute_script(
+                """
                 const stash = window._canvasStash = [];
                 Array.from(document.querySelectorAll('canvas')).forEach(c => {
                     const i = document.createElement('img');
@@ -192,7 +193,8 @@ class Browser(DashPageMixin):
                     c.parentElement.insertBefore(i, c);
                     c.parentElement.removeChild(c);
                 });
-            """)
+            """
+            )
 
         # NEW: Use percy-python-selenium SDK
         try:
@@ -205,7 +207,8 @@ class Browser(DashPageMixin):
             logger.warning("Percy snapshot failed: %s", err)
 
         if convert_canvases:
-            self.driver.execute_script("""
+            self.driver.execute_script(
+                """
                 const stash = window._canvasStash;
                 Array.from(
                     document.querySelectorAll('img[data-canvasnum]')
@@ -215,7 +218,8 @@ class Browser(DashPageMixin):
                     i.parentElement.removeChild(i);
                 });
                 delete window._canvasStash;
-            """)
+            """
+            )
 
     def take_snapshot(self, name: str):
         """Hook method to take snapshot when a selenium test fails. The

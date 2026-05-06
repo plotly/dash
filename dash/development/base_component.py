@@ -15,14 +15,22 @@ MutableSequence = patch_collections_abc("MutableSequence")
 rd = random.Random(0)
 
 _deprecated_components = {
-    "dash_core_components": {"LogoutButton": textwrap.dedent("""
+    "dash_core_components": {
+        "LogoutButton": textwrap.dedent(
+            """
         The Logout Button is no longer used with Dash Enterprise and can be replaced with a html.Button or html.A.
         eg: html.A(href=os.getenv('DASH_LOGOUT_URL'))
-    """)},
-    "dash_table": {"DataTable": textwrap.dedent("""
+    """
+        )
+    },
+    "dash_table": {
+        "DataTable": textwrap.dedent(
+            """
         The dash_table.DataTable will be removed from the builtin dash components in a future major version.
         We recommend using dash-ag-grid as a replacement. Install with `pip install dash[ag-grid]`.
-    """)},
+    """
+        )
+    },
 }
 
 
@@ -31,9 +39,9 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = OrderedSet()
-    children_props: typing.DefaultDict[str, typing.Dict[str, typing.Any]] = (
-        collections.defaultdict(dict)
-    )
+    children_props: typing.DefaultDict[
+        str, typing.Dict[str, typing.Any]
+    ] = collections.defaultdict(dict)
     namespace_to_package: typing.Dict[str, str] = {}
 
     @classmethod
@@ -213,22 +221,26 @@ class Component(metaclass=ComponentMeta):
         kind = f"`{self._namespace}.{self._type}`"  # pylint: disable=no-member
 
         if getattr(self, "persistence", False):
-            raise RuntimeError(f"""
+            raise RuntimeError(
+                f"""
                 Attempting to use an auto-generated ID with the `persistence` prop.
                 This is prohibited because persistence is tied to component IDs and
                 auto-generated IDs can easily change.
 
                 Please assign an explicit ID to this {kind} component.
-                """)
+                """
+            )
         if "dash_snapshots" in sys.modules:
-            raise RuntimeError(f"""
+            raise RuntimeError(
+                f"""
                 Attempting to use an auto-generated ID in an app with `dash_snapshots`.
                 This is prohibited because snapshots saves the whole app layout,
                 including component IDs, and auto-generated IDs can easily change.
                 Callbacks referencing the new IDs will not work with old snapshots.
 
                 Please assign an explicit ID to this {kind} component.
-                """)
+                """
+            )
 
         v = str(uuid.UUID(int=rd.randint(0, 2**128)))
         setattr(self, "id", v)
