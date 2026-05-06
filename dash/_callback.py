@@ -77,6 +77,7 @@ def callback(
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
+    websocket: Optional[bool] = False,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -228,6 +229,7 @@ def callback(
         api_endpoint=api_endpoint,
         optional=optional,
         hidden=hidden,
+        websocket=websocket,
     )
 
 
@@ -275,6 +277,7 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=None,
+    websocket=False,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -300,6 +303,7 @@ def insert_callback(
         "no_output": no_output,
         "optional": optional,
         "hidden": hidden,
+        "websocket": websocket,
     }
     if running:
         callback_spec["running"] = running
@@ -315,6 +319,7 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "websocket": websocket,
     }
     callback_list.append(callback_spec)
 
@@ -652,6 +657,7 @@ def register_callback(
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", None),
+        websocket=_kwargs.get("websocket", False),
     )
 
     # pylint: disable=too-many-locals

@@ -6,10 +6,15 @@ import inspect
 import pkgutil
 import time
 import sys
+import asyncio
+import concurrent.futures
+import queue
+import threading
+from urllib.parse import urlparse
 
 from logging.config import dictConfig
 from contextvars import copy_context
-from typing import Any
+from typing import Any, Dict, TYPE_CHECKING
 
 from importlib_metadata import version as _get_distribution_version
 
@@ -24,18 +29,36 @@ try:
         g as quart_g,
         has_request_context,
         redirect,
+        websocket,
     )
 except ImportError as _err:
     raise ImportError(
         "All dependencies not installed. Please install it with `dash[quart]` to use the Quart backend."
     ) from _err
 
+import janus
+
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash._utils import parse_version
-from dash import _validate, Dash
-from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
+from dash import _validate
+from .base_server import (
+    BaseDashServer,
+    RequestAdapter,
+    ResponseAdapter,
+)
+from .ws import (
+    DashWebsocketCallback,
+    run_ws_sender,
+    run_callback_in_executor,
+    make_callback_done_handler,
+    SHUTDOWN_SIGNAL,
+    DISCONNECTED,
+)
 from ._utils import format_traceback_html
+
+if TYPE_CHECKING:
+    from dash import Dash
 
 
 class QuartResponseAdapter(ResponseAdapter):
@@ -67,6 +90,8 @@ class QuartResponseAdapter(ResponseAdapter):
 
 
 class QuartDashServer(BaseDashServer[Quart]):
+    websocket_capability: bool = True
+
     def __init__(self, server: Quart) -> None:
         super().__init__(server)
         self.server_type = "quart"
@@ -74,6 +99,8 @@ class QuartDashServer(BaseDashServer[Quart]):
         self.error_handling_mode = "ignore"
         self.request_adapter = QuartRequestAdapter
         self.response_adapter = QuartResponseAdapter
+        self._active_websockets: set = set()
+        self._ws_shutdown_event: asyncio.Event | None = None
 
     def __call__(self, *args: Any, **kwargs: Any):  # type: ignore[name-defined]
         return self.server(*args, **kwargs)
@@ -222,6 +249,14 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     # pylint: disable=W0613
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: _t.Any):
+        import signal  # pylint: disable=import-outside-toplevel
+
+        # pylint: disable=import-outside-toplevel,import-error
+        from hypercorn.config import Config
+        from hypercorn.asyncio import serve
+
+        # pylint: enable=import-error
+
         self.config = {"debug": debug, **kwargs} if debug else kwargs
         # pylint: disable=protected-access
         if dash_app._dev_tools.silence_routes_logging:
@@ -236,7 +271,51 @@ class QuartDashServer(BaseDashServer[Quart]):
                 }
             )
 
-        self.server.run(host=host, port=port, debug=debug, **kwargs)
+        # Check if we're running in a non-main thread (e.g., testing context)
+        is_main_thread = threading.current_thread() is threading.main_thread()
+
+        config = Config()
+        config.bind = [f"{host}:{port}"]
+        config.use_reloader = False
+        if not is_main_thread:
+            config.accesslog = None
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        # Initialize shutdown event for WebSocket handlers
+        self._ws_shutdown_event = asyncio.Event()
+
+        def signal_handler():
+            """Handle shutdown signal by setting the WebSocket shutdown event."""
+            if self._ws_shutdown_event is not None:
+                self._ws_shutdown_event.set()
+
+        # Set up signal handlers in main thread
+        if is_main_thread:
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                try:
+                    loop.add_signal_handler(sig, signal_handler)
+                except (NotImplementedError, ValueError):
+                    pass
+
+            print(f" * Serving Quart app '{self.server.name}'")
+            print(f" * Debug mode: {debug}")
+            print(
+                " * Please use an ASGI server (e.g. Hypercorn) directly in production"
+            )
+            print(f" * Running on http://{host}:{port} (CTRL + C to quit)")
+
+        async def shutdown_trigger():
+            if self._ws_shutdown_event is not None:
+                await self._ws_shutdown_event.wait()
+
+        try:
+            loop.run_until_complete(
+                serve(self.server, config, shutdown_trigger=shutdown_trigger)
+            )
+        finally:
+            loop.close()
 
     def make_response(
         self,
@@ -384,6 +463,211 @@ class QuartDashServer(BaseDashServer[Quart]):
             raise ImportError(
                 "To use the compress option, you need to install quart_compress."
             ) from error
+
+    async def _run_ws_hooks(
+        self, hooks, ws, *args, default_reason: str = "Rejected"
+    ) -> tuple | None:
+        """Run WebSocket hooks and return rejection tuple or None if all pass.
+
+        Args:
+            hooks: List of hooks to run
+            ws: The WebSocket connection
+            *args: Additional arguments to pass to hooks
+            default_reason: Default reason if hook returns False
+
+        Returns:
+            None if all hooks pass, or (code, reason) tuple for rejection
+        """
+        for hook in hooks:
+            try:
+                result = hook(ws, *args)
+                if inspect.iscoroutine(result):
+                    result = await result
+                if result is False:
+                    return (4001, default_reason)
+                if isinstance(result, tuple) and len(result) == 2:
+                    return result
+            except Exception:  # pylint: disable=broad-exception-caught
+                return (4001, "Authentication error")
+        return None
+
+    def _validate_ws_origin(
+        self, origin: str | None, host: str | None, allowed_origins: list
+    ) -> str | None:
+        """Validate WebSocket origin. Returns error message or None if valid."""
+        if not origin:
+            return "Origin header required"
+        if origin in allowed_origins:
+            return None  # Explicitly allowed
+        if not host:
+            return "Origin not allowed"
+        # Check same-origin
+        origin_host = urlparse(origin).netloc
+        if origin_host != host:
+            return "Origin not allowed"
+        return None
+
+    def serve_websocket_callback(self, dash_app: "Dash"):
+        """Set up the WebSocket endpoint for callback handling.
+
+        Uses thread pool executor for callback execution with janus queues
+        for async/sync communication between main loop and worker threads.
+
+        Args:
+            dash_app: The Dash application instance
+        """
+        # pylint: disable=too-many-statements,too-many-locals
+        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+        # pylint: disable=protected-access
+        allowed_origins = getattr(dash_app, "_websocket_allowed_origins", [])
+
+        @self.server.websocket(ws_path)
+        async def websocket_handler():  # pylint: disable=too-many-branches
+            ws = websocket
+
+            # Validate Origin header
+            error = self._validate_ws_origin(
+                ws.headers.get("origin"), ws.headers.get("host"), allowed_origins
+            )
+            if error:
+                await ws.close(code=4003, reason=error)
+                return
+
+            # Call websocket_connect hooks
+            # pylint: disable=protected-access
+            rejection = await self._run_ws_hooks(
+                dash_app._hooks.get_hooks("websocket_connect"),
+                ws,
+                default_reason="Connection rejected",
+            )
+            if rejection:
+                await ws.close(code=rejection[0], reason=rejection[1])
+                return
+
+            await ws.accept()
+
+            # Track this connection for graceful shutdown
+            try:
+                ws_obj = ws._get_current_object()
+                self._active_websockets.add(ws_obj)
+            except AttributeError:
+                ws_obj = ws
+                self._active_websockets.add(ws)
+
+            # Create janus queue for outbound messages (main loop context)
+            outbound_queue: janus.Queue[str] = janus.Queue()
+            # Track pending get_props requests with standard queue.Queue for responses
+            pending_get_props: Dict[str, queue.Queue] = {}
+            # Shutdown event to signal connection closure to worker threads
+            connection_shutdown_event = threading.Event()
+            # Get thread pool executor
+            executor = self.get_callback_executor()
+            # Track pending callback futures
+            pending_callbacks: Dict[str, concurrent.futures.Future] = {}
+
+            # Start sender task to drain outbound queue (sends pre-serialized text)
+            sender_task = asyncio.create_task(run_ws_sender(ws.send, outbound_queue))
+
+            try:
+                shutdown_event = self._ws_shutdown_event
+                while shutdown_event is None or not shutdown_event.is_set():
+                    try:
+                        # Use timeout to periodically check shutdown event
+                        message = await asyncio.wait_for(ws.receive_json(), timeout=1.0)
+                    except asyncio.TimeoutError:
+                        # Re-check shutdown event (may have been set during run())
+                        shutdown_event = self._ws_shutdown_event
+                        continue
+
+                    # Call websocket_message hooks
+                    rejection = await self._run_ws_hooks(
+                        dash_app._hooks.get_hooks("websocket_message"),
+                        ws,
+                        message,
+                        default_reason="Message rejected",
+                    )
+                    if rejection:
+                        await ws.close(code=rejection[0], reason=rejection[1])
+                        return
+
+                    msg_type = message.get("type")
+
+                    if msg_type == "callback_request":
+                        request_id = message.get("requestId")
+                        renderer_id = message.get("rendererId", "")
+                        payload = message.get("payload", {})
+
+                        # Validate that the callback is allowed to use WebSocket transport
+                        # pylint: disable=protected-access
+                        _validate.validate_websocket_callback_request(
+                            payload.get("output"),
+                            dash_app.callback_map,
+                            dash_app._websocket_callbacks,
+                        )
+
+                        # Create WebSocket callback instance with outbound queue
+                        ws_cb = DashWebsocketCallback(
+                            pending_get_props,
+                            renderer_id,
+                            outbound_queue,
+                            connection_shutdown_event,
+                        )
+
+                        # Submit callback to executor
+                        future = run_callback_in_executor(
+                            executor,
+                            dash_app,
+                            payload,
+                            ws_cb,
+                            QuartResponseAdapter(),
+                        )
+
+                        # Set up done callback to send response
+                        future.add_done_callback(
+                            make_callback_done_handler(
+                                outbound_queue,
+                                pending_callbacks,
+                                request_id,
+                                renderer_id,
+                                connection_shutdown_event,
+                            )
+                        )
+                        pending_callbacks[request_id] = future
+
+                    elif msg_type == "get_props_response":
+                        # Put response in waiting queue (non-blocking)
+                        request_id = message.get("requestId")
+                        response_queue = pending_get_props.get(request_id)
+                        if response_queue is not None:
+                            response_queue.put_nowait(message.get("payload"))
+
+                    elif msg_type == "heartbeat":
+                        outbound_queue.sync_q.put_nowait('{"type": "heartbeat_ack"}')
+
+            except asyncio.CancelledError:
+                pass  # Server is shutting down, exit gracefully
+            except Exception:  # pylint: disable=broad-exception-caught
+                pass  # Other exceptions treated as disconnect
+            finally:
+                self._active_websockets.discard(ws_obj)
+                # Signal shutdown to worker threads
+                connection_shutdown_event.set()
+                # Unblock any threads waiting on get_prop responses
+                for response_queue in pending_get_props.values():
+                    response_queue.put_nowait(DISCONNECTED)
+                # Signal sender to shutdown and cancel it
+                outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
+                sender_task.cancel()
+                try:
+                    await sender_task
+                except asyncio.CancelledError:
+                    pass
+                # Close the janus queue
+                outbound_queue.close()
+                await outbound_queue.wait_closed()
+                # Cancel any pending futures
+                for f in pending_callbacks.values():
+                    f.cancel()
 
 
 class QuartRequestAdapter(RequestAdapter):

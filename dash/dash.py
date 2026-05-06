@@ -483,6 +483,9 @@ class Dash(ObsoleteChecker):
         health_endpoint: Optional[str] = None,
         csrf_token_name: str = "_csrf_token",
         csrf_header_name: str = "X-CSRFToken",
+        websocket_callbacks: Optional[bool] = False,
+        websocket_allowed_origins: Optional[List[str]] = None,
+        websocket_inactivity_timeout: Optional[int] = 300000,
         **obsolete,
     ):
 
@@ -639,6 +642,9 @@ class Dash(ObsoleteChecker):
         self._assets_files: list = []
 
         self._background_manager = background_callback_manager
+        self._websocket_callbacks = websocket_callbacks
+        self._websocket_allowed_origins = websocket_allowed_origins or []
+        self._websocket_inactivity_timeout = websocket_inactivity_timeout
 
         self.logger = logging.getLogger(__name__)
 
@@ -781,6 +787,12 @@ class Dash(ObsoleteChecker):
         )
         if self.config.health_endpoint is not None:
             self._add_url(self.config.health_endpoint, self.serve_health)
+
+        # Set up WebSocket callback route if backend supports it
+        # This enables both global websocket_callbacks and per-callback websocket=True
+        if self.backend.websocket_capability:
+            self.backend.serve_websocket_callback(self)
+
         self.backend.setup_index(self)
         self.backend.setup_catchall(self)
 
@@ -962,6 +974,16 @@ class Dash(ObsoleteChecker):
                 custom_dev_tools.append({**hook_dev_tools, "props": props})
             config["dev_tools"] = custom_dev_tools
 
+        # Add websocket config if backend supports it
+        # This enables both global websocket_callbacks and per-callback websocket=True
+        if self.backend.websocket_capability:
+            config["websocket"] = {
+                "enabled": bool(self._websocket_callbacks),
+                "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
+                "worker_url": self._get_worker_url(),
+                "inactivity_timeout": self._websocket_inactivity_timeout,
+            }
+
         return config
 
     def serve_reload_hash(self):
@@ -988,6 +1010,33 @@ class Dash(ObsoleteChecker):
         Returns a simple "OK" response with HTTP 200 status.
         """
         return self.backend.make_response("OK", status=200, mimetype="text/plain")
+
+    def _get_worker_url(self) -> str:
+        """Get the URL for the WebSocket worker script.
+
+        Returns:
+            The fingerprinted URL for the worker script served via component suites.
+        """
+        relative_path = "dash-renderer/build/dash-ws-worker.js"
+        namespace = "dash"
+
+        # Register the path so it can be served
+        self.registered_paths[namespace].add(relative_path)
+
+        # Build fingerprinted URL (same pattern as _collect_and_register_resources)
+        module_path = os.path.join(
+            os.path.dirname(sys.modules[namespace].__file__),  # type: ignore
+            relative_path,
+        )
+
+        # Use a fallback if the file doesn't exist yet (during development)
+        try:
+            modified = int(os.stat(module_path).st_mtime)
+        except FileNotFoundError:
+            modified = 0
+
+        fingerprint = build_fingerprint(relative_path, __version__, modified)
+        return f"{self.config.requests_pathname_prefix}_dash-component-suites/{namespace}/{fingerprint}"
 
     def get_dist(self, libraries: Sequence[str]) -> list:
         dists = []

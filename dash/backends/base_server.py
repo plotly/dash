@@ -3,9 +3,19 @@
 This module provides abstract base classes and protocols that define the interface
 for different web server backends (Flask, Quart, FastAPI, etc.) to integrate with Dash.
 """
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Type, TypeVar, Generic, Protocol, TYPE_CHECKING
+from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor
+from typing import (
+    Any,
+    Dict,
+    Type,
+    TypeVar,
+    Generic,
+    Protocol,
+    TYPE_CHECKING,
+)
 
 if TYPE_CHECKING:
     import dash
@@ -169,6 +179,7 @@ class BaseDashServer(ABC, Generic[ServerType]):
     config: Dict[str, Any]
     request_adapter: Type[RequestAdapter]
     response_adapter: Type[ResponseAdapter]
+    websocket_capability: bool = False
 
     def __init__(self, server: ServerType) -> None:
         """Initialize the server wrapper.
@@ -178,6 +189,34 @@ class BaseDashServer(ABC, Generic[ServerType]):
         """
         super().__init__()
         self.server = server
+        self._callback_executor: ThreadPoolExecutor | None = None
+
+    def get_callback_executor(
+        self, max_workers: int | None = None
+    ) -> ThreadPoolExecutor:
+        """Get or create the thread pool executor for callback execution.
+
+        Args:
+            max_workers: Maximum number of worker threads. If None, uses default.
+
+        Returns:
+            ThreadPoolExecutor instance for running callbacks.
+        """
+        if self._callback_executor is None:
+            self._callback_executor = ThreadPoolExecutor(
+                max_workers=max_workers, thread_name_prefix="dash-callback-"
+            )
+        return self._callback_executor
+
+    def shutdown_executor(self, wait: bool = True) -> None:
+        """Shutdown the callback executor.
+
+        Args:
+            wait: If True, wait for pending tasks to complete.
+        """
+        if self._callback_executor is not None:
+            self._callback_executor.shutdown(wait=wait)
+            self._callback_executor = None
 
     def __call__(self, *args, **kwargs) -> Any:
         """Make the server wrapper callable as a WSGI/ASGI application.
@@ -368,6 +407,15 @@ class BaseDashServer(ABC, Generic[ServerType]):
         """Perform any additional backend-specific setup.
 
         Override this method in concrete implementations to provide custom setup logic.
+
+        Args:
+            dash_app: The Dash application instance
+        """
+
+    def serve_websocket_callback(self, dash_app: "dash.Dash"):
+        """Set up the WebSocket endpoint for callback handling.
+
+        Override this method in backends that support WebSocket callbacks.
 
         Args:
             dash_app: The Dash application instance

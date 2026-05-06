@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 from contextvars import copy_context, ContextVar
+import asyncio
+import concurrent.futures
 import json
+import queue
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
@@ -13,6 +16,7 @@ import os
 import subprocess
 import threading
 import traceback
+from urllib.parse import urlparse
 
 try:
     from fastapi import FastAPI, Request, Response, Body
@@ -21,16 +25,31 @@ try:
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
     from starlette.types import ASGIApp, Scope, Receive, Send
+    from starlette.websockets import WebSocket, WebSocketDisconnect
     import uvicorn
 except ImportError as _err:
     raise ImportError(
         "All dependencies not installed. Please install it with `dash[fastapi]` to use the FastAPI backend."
     ) from _err
 
+import janus
+
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
-from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
+from .base_server import (
+    BaseDashServer,
+    RequestAdapter,
+    ResponseAdapter,
+)
+from .ws import (
+    DashWebsocketCallback,
+    run_ws_sender,
+    run_callback_in_executor,
+    make_callback_done_handler,
+    SHUTDOWN_SIGNAL,
+    DISCONNECTED,
+)
 from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -224,6 +243,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
+    websocket_capability: bool = True
+
     def __init__(self, server: FastAPI):
         super().__init__(server)
         self.server_type = "fastapi"
@@ -354,11 +375,14 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         is_threaded = threading.current_thread() != threading.main_thread()
 
         if is_threaded:
-            # Running in a thread (testing context) - use uvicorn.run directly
-            # This allows the testing framework to control the server lifecycle
-            if kwargs.get("reload"):
-                kwargs["reload"] = True
-            uvicorn.run(self.server, host=host, port=port, **kwargs)
+            # Running in a thread (testing context) - use uvicorn.Server
+            # This allows graceful shutdown via should_exit flag
+            kwargs.pop("reload", None)  # Reload not supported in threaded mode
+            config = uvicorn.Config(self.server, host=host, port=port, **kwargs)
+            server = uvicorn.Server(config)
+            # Store server reference on the app for graceful shutdown
+            dash_app._uvicorn_server = server  # pylint: disable=protected-access
+            server.run()
         else:
             # Running in main thread (normal context) - use subprocess
             file_path = frame.filename
@@ -608,6 +632,195 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             value += f";dur={info['dur']}"
                         headers.append("Server-Timing", value)
                 return response
+
+    async def _run_ws_hooks(
+        self, hooks, websocket: "WebSocket", *args, default_reason: str = "Rejected"
+    ) -> tuple | None:
+        """Run WebSocket hooks and return rejection tuple or None if all pass.
+
+        Args:
+            hooks: List of hooks to run
+            websocket: The WebSocket connection
+            *args: Additional arguments to pass to hooks
+            default_reason: Default reason if hook returns False
+
+        Returns:
+            None if all hooks pass, or (code, reason) tuple for rejection
+        """
+        for hook in hooks:
+            try:
+                result = hook(websocket, *args)
+                if inspect.iscoroutine(result):
+                    result = await result
+                if result is False:
+                    return (4001, default_reason)
+                if isinstance(result, tuple) and len(result) == 2:
+                    return result
+            except Exception:  # pylint: disable=broad-exception-caught
+                return (4001, "Authentication error")
+        return None
+
+    def serve_websocket_callback(self, dash_app: "Dash"):
+        """Set up the WebSocket endpoint for callback handling.
+
+        Uses thread pool executor for callback execution with janus queues
+        for async/sync communication between main loop and worker threads.
+
+        Args:
+            dash_app: The Dash application instance
+        """
+        # pylint: disable=too-many-statements,too-many-locals
+        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+
+        # Get allowed origins from dash app config
+        allowed_origins = getattr(
+            dash_app, "_websocket_allowed_origins", []
+        )  # pylint: disable=protected-access
+
+        def validate_origin(origin: str | None, host: str | None) -> str | None:
+            """Validate WebSocket origin. Returns error message or None if valid."""
+            if not origin:
+                return "Origin header required"
+            if origin in allowed_origins:
+                return None  # Explicitly allowed
+            if not host:
+                return "Origin not allowed"
+            # Check same-origin
+            origin_host = urlparse(origin).netloc
+            if origin_host != host:
+                return "Origin not allowed"
+            return None
+
+        async def websocket_handler(websocket: WebSocket):
+            # Validate Origin header to prevent Cross-Site WebSocket Hijacking
+            origin = websocket.headers.get("origin")
+            host = websocket.headers.get("host")
+            error = validate_origin(origin, host)
+            if error:
+                await websocket.close(code=4003, reason=error)
+                return
+
+            # Call websocket_connect hooks (before accept)
+            # pylint: disable=protected-access
+            rejection = await self._run_ws_hooks(
+                dash_app._hooks.get_hooks("websocket_connect"),
+                websocket,
+                default_reason="Connection rejected",
+            )
+            if rejection:
+                await websocket.close(code=rejection[0], reason=rejection[1])
+                return
+
+            await websocket.accept()
+
+            # Create janus queue for outbound messages (main loop context)
+            outbound_queue: janus.Queue[str] = janus.Queue()
+            # Track pending get_props requests with standard queue.Queue for responses
+            pending_get_props: Dict[str, queue.Queue] = {}
+            # Shutdown event to signal connection closure to worker threads
+            shutdown_event = threading.Event()
+            # Get thread pool executor
+            executor = self.get_callback_executor()
+            # Track pending callback futures
+            pending_callbacks: Dict[str, concurrent.futures.Future] = {}
+
+            # Start sender task to drain outbound queue (sends pre-serialized text)
+            sender_task = asyncio.create_task(
+                run_ws_sender(websocket.send_text, outbound_queue)
+            )
+
+            try:
+                while True:
+                    message = await websocket.receive_json()
+
+                    # Call websocket_message hooks
+                    rejection = await self._run_ws_hooks(
+                        dash_app._hooks.get_hooks("websocket_message"),
+                        websocket,
+                        message,
+                        default_reason="Message rejected",
+                    )
+                    if rejection:
+                        await websocket.close(code=rejection[0], reason=rejection[1])
+                        return
+
+                    msg_type = message.get("type")
+
+                    if msg_type == "callback_request":
+                        request_id = message.get("requestId")
+                        renderer_id = message.get("rendererId", "")
+                        payload = message.get("payload", {})
+
+                        # Validate that the callback is allowed to use WebSocket transport
+                        # pylint: disable=protected-access
+                        _validate.validate_websocket_callback_request(
+                            payload.get("output"),
+                            dash_app.callback_map,
+                            dash_app._websocket_callbacks,
+                        )
+
+                        # Create WebSocket callback instance with outbound queue
+                        ws_cb = DashWebsocketCallback(
+                            pending_get_props,
+                            renderer_id,
+                            outbound_queue,
+                            shutdown_event,
+                        )
+
+                        # Submit callback to executor
+                        future = run_callback_in_executor(
+                            executor,
+                            dash_app,
+                            payload,
+                            ws_cb,
+                            FastAPIResponseAdapter(),
+                        )
+
+                        # Set up done callback to send response
+                        future.add_done_callback(
+                            make_callback_done_handler(
+                                outbound_queue,
+                                pending_callbacks,
+                                request_id,
+                                renderer_id,
+                                shutdown_event,
+                            )
+                        )
+                        pending_callbacks[request_id] = future
+
+                    elif msg_type == "get_props_response":
+                        # Put response in waiting queue (non-blocking)
+                        request_id = message.get("requestId")
+                        response_queue = pending_get_props.get(request_id)
+                        if response_queue is not None:
+                            response_queue.put_nowait(message.get("payload"))
+
+                    elif msg_type == "heartbeat":
+                        outbound_queue.sync_q.put_nowait('{"type": "heartbeat_ack"}')
+
+            except WebSocketDisconnect:
+                pass  # Clean disconnect
+            finally:
+                # Signal shutdown to worker threads
+                shutdown_event.set()
+                # Unblock any threads waiting on get_prop responses
+                for response_queue in pending_get_props.values():
+                    response_queue.put_nowait(DISCONNECTED)
+                # Signal sender to shutdown and cancel it
+                outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
+                sender_task.cancel()
+                try:
+                    await sender_task
+                except asyncio.CancelledError:
+                    pass
+                # Close the janus queue
+                outbound_queue.close()
+                await outbound_queue.wait_closed()
+                # Cancel any pending futures
+                for f in pending_callbacks.values():
+                    f.cancel()
+
+        self.server.add_api_websocket_route(ws_path, websocket_handler)
 
 
 class FastAPIRequestAdapter(RequestAdapter):

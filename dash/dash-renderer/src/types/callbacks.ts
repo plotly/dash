@@ -15,6 +15,7 @@ export interface ICallbackDefinition {
     dynamic_creator?: boolean;
     running: any;
     no_output?: boolean;
+    websocket?: boolean;
 }
 
 export interface ICallbackProperty {

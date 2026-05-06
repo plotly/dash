@@ -49,6 +49,8 @@ class _Hooks:
             "index": [],
             "custom_data": [],
             "dev_tools": [],
+            "websocket_connect": [],
+            "websocket_message": [],
         }
         self._js_dist: _t.List[_t.Any] = []
         self._css_dist: _t.List[_t.Any] = []
@@ -243,6 +245,60 @@ class _Hooks:
                 "position": position,
             }
         )
+
+    def websocket_connect(self, priority: _t.Optional[int] = None, final: bool = False):
+        """
+        Register a WebSocket connection validation hook.
+
+        The hook receives the WebSocket object and should return:
+        - True (or any truthy value): Allow the connection
+        - False: Reject with default code (4001) and reason
+        - tuple (code, reason): Reject with custom close code and reason
+
+        Hooks can be sync or async.
+
+        Example:
+            @hooks.websocket_connect()
+            async def validate_session(websocket):
+                session_id = websocket.cookies.get("session_id")
+                if not session_id:
+                    return (4001, "No session cookie")
+                if not await is_valid_session(session_id):
+                    return (4002, "Invalid session")
+                return True
+        """
+
+        def decorator(func: _t.Callable):
+            self.add_hook("websocket_connect", func, priority=priority, final=final)
+            return func
+
+        return decorator
+
+    def websocket_message(self, priority: _t.Optional[int] = None, final: bool = False):
+        """
+        Register a WebSocket message validation hook.
+
+        The hook receives the WebSocket object and message dict, and should return:
+        - True (or any truthy value): Allow the message
+        - False: Disconnect with default code (4001) and reason
+        - tuple (code, reason): Disconnect with custom close code and reason
+
+        Hooks can be sync or async.
+
+        Example:
+            @hooks.websocket_message()
+            async def validate_session(websocket, message):
+                session_id = websocket.cookies.get("session_id")
+                if not await is_session_active(session_id):
+                    return (4002, "Session expired")
+                return True
+        """
+
+        def decorator(func: _t.Callable):
+            self.add_hook("websocket_message", func, priority=priority, final=final)
+            return func
+
+        return decorator
 
 
 hooks = _Hooks()

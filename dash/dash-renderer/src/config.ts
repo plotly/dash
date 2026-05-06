@@ -22,6 +22,12 @@ export type DashConfig = {
     serve_locally?: boolean;
     plotlyjs_url?: string;
     validate_callbacks: boolean;
+    websocket?: {
+        enabled: boolean;
+        url: string;
+        worker_url: string;
+        inactivity_timeout?: number;
+    };
     csrf_token_name?: string;
     csrf_header_name?: string;
 };
