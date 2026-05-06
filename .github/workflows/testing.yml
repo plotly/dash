@@ -939,7 +939,8 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        if: always()
+        # Skip for fork PRs - handled by post-test-status.yml workflow_run
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'

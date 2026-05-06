@@ -1,10 +1,10 @@
 name: Post Test Status
 
 # This workflow runs in the base repo context (with write permissions)
-# even for fork PRs, allowing us to post commit statuses.
+# even for fork PRs, allowing us to post commit statuses and check runs.
 #
-# Add any status posting for skipped jobs here to avoid "Resource not
-# accessible by integration" errors when PRs come from forks.
+# Add any status posting or check run creation for fork PRs here to avoid
+# "Resource not accessible by integration" errors.
 
 on:
   workflow_run:
@@ -30,19 +30,13 @@ jobs:
             const headSha = context.payload.workflow_run.head_sha;
 
             // Define jobs that need a success status posted when skipped
-            // Format: { jobName: 'GitHub Job Name', statusContext: 'status/context-name', description: 'Description' }
             const skippedStatusJobs = [
               {
                 jobName: 'Dash Table Visual Tests',
                 statusContext: 'percy/dash-table-test',
                 description: 'Skipped — no dash-table changes'
               }
-              // Add more jobs here as needed:
-              // {
-              //   jobName: 'Job Name',
-              //   statusContext: 'context/name',
-              //   description: 'Skipped — reason'
-              // }
+              // Add more jobs here as needed
             ];
 
             // Get all jobs for the workflow run
@@ -70,3 +64,39 @@ jobs:
                 console.log(`Job "${jobName}" status: ${job?.conclusion ?? 'not found'} - no status posted`);
               }
             }
+
+  test-report:
+    name: Consolidated Test Report (Fork PR)
+    runs-on: ubuntu-latest
+    # Only run for fork PRs (non-fork PRs are handled in the main workflow)
+    if: |
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name != github.repository
+    permissions:
+      checks: write
+      actions: read
+    steps:
+      - name: Download test results artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-results-*'
+          path: test-results
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: List downloaded results
+        run: find test-results -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results Summary
+          path: 'test-results/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+          list-suites: 'failed'
+          list-tests: 'failed'
+          max-annotations: '50'
