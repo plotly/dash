@@ -23,6 +23,7 @@ export interface SanitizedOptions {
     options: DetailedOption[];
     indexes: string[];
     valueSet: Set<OptionValue>;
+    search: Search;
 }
 
 // Single-pass sanitization via sanitizeOptions, plus detection of
@@ -55,38 +56,48 @@ export function sanitizeDropdownOptions(
         indexes.push('search');
     }
 
-    return {options: sanitized, indexes, valueSet};
-}
-
-export function filterOptions(
-    options: SanitizedOptions,
-    searchValue?: string,
-    search_order?: 'index' | 'original'
-): DetailedOption[] {
-    if (!searchValue) {
-        return options.options;
-    }
-
+    // Build the search index ONCE during sanitization
     const search = new Search('value');
     search.searchIndex = new UnorderedSearchIndex();
     search.indexStrategy = new AllSubstringsIndexStrategy();
     search.tokenizer = TOKENIZER;
 
-    options.indexes.forEach(index => {
+    indexes.forEach(index => {
         search.addIndex(index);
     });
 
-    if (options.options.length > 0) {
-        search.addDocuments(options.options);
+    if (sanitized.length > 0) {
+        search.addDocuments(sanitized);
     }
 
-    const searchResults =
-        (search.search(searchValue) as DetailedOption[]) || [];
+    return {
+        options: sanitized,
+        indexes,
+        valueSet,
+        search,
+    };
+}
 
-    if (search_order === 'original') {
-        const resultSet = new Set(searchResults);
-        return options.options.filter(option => resultSet.has(option));
+export function filterOptions(
+    options: SanitizedOptions,
+    searchValue?: string,
+    searchOrder?: string
+): DetailedOption[] {
+    if (!searchValue) {
+        return options.options;
     }
 
-    return searchResults;
+    const results =
+        (options.search.search(searchValue) as DetailedOption[]) || [];
+
+    // Preserve original option order
+    if (searchOrder === 'original') {
+        const resultSet = new Set(results.map(option => option.value));
+
+        return options.options.filter(option =>
+            resultSet.has(option.value)
+        );
+    }
+
+    return results;
 }
