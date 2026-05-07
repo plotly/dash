@@ -241,6 +241,7 @@ function offloadPatterns(patternsMap, targetMap) {
             targetMap[keyStr][prop] = Array.from(valueMap.values());
         }
     }
+    return targetMap;
 }
 
 function validateDependencies(parsedDependencies, dispatchError) {
@@ -944,7 +945,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
         const {matchKeys} = findWildcardKeys(
             outputs.length ? outputs[0].id : undefined
         );
-        const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
+        const firstSingleOutput = findIndex(o => !isMultiValued(o), outputs);
         const finalDependency = mergeRight(
             {matchKeys, firstSingleOutput, outputs},
             dependency
