@@ -1,0 +1,102 @@
+name: Post Test Status
+
+# This workflow runs in the base repo context (with write permissions)
+# even for fork PRs, allowing us to post commit statuses and check runs.
+#
+# Add any status posting or check run creation for fork PRs here to avoid
+# "Resource not accessible by integration" errors.
+
+on:
+  workflow_run:
+    workflows: ["Dash Testing"]
+    types:
+      - completed
+
+jobs:
+  post-skipped-statuses:
+    name: Post Statuses for Skipped Jobs
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    permissions:
+      statuses: write
+      actions: read
+    steps:
+      - name: Post statuses for skipped jobs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const runId = context.payload.workflow_run.id;
+            const headSha = context.payload.workflow_run.head_sha;
+
+            // Define jobs that need a success status posted when skipped
+            const skippedStatusJobs = [
+              {
+                jobName: 'Dash Table Visual Tests',
+                statusContext: 'percy/dash-table-test',
+                description: 'Skipped — no dash-table changes'
+              }
+              // Add more jobs here as needed
+            ];
+
+            // Get all jobs for the workflow run
+            const { data: { jobs } } = await github.rest.actions.listJobsForWorkflowRun({
+              owner,
+              repo,
+              run_id: runId,
+            });
+
+            // Post status for each skipped job
+            for (const { jobName, statusContext, description } of skippedStatusJobs) {
+              const job = jobs.find(j => j.name === jobName);
+
+              if (job && job.conclusion === 'skipped') {
+                await github.rest.repos.createCommitStatus({
+                  owner,
+                  repo,
+                  sha: headSha,
+                  state: 'success',
+                  context: statusContext,
+                  description: description,
+                });
+                console.log(`Posted skipped status for ${statusContext}`);
+              } else {
+                console.log(`Job "${jobName}" status: ${job?.conclusion ?? 'not found'} - no status posted`);
+              }
+            }
+
+  test-report:
+    name: Consolidated Test Report (Fork PR)
+    runs-on: ubuntu-latest
+    # Only run for fork PRs (non-fork PRs are handled in the main workflow)
+    if: |
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name != github.repository
+    permissions:
+      checks: write
+      actions: read
+    steps:
+      - name: Download test results artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-results-*'
+          path: test-results
+          merge-multiple: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: List downloaded results
+        run: find test-results -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results Summary
+          path: 'test-results/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+          fail-on-empty: false
+          list-suites: 'failed'
+          list-tests: 'failed'
+          max-annotations: '50'
