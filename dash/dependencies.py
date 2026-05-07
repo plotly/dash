@@ -43,6 +43,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     component_property: str
     allowed_wildcards: Sequence[Wildcard]
     allow_optional: bool
+    partial: bool
 
     def __init__(self, component_id: ComponentIdType, component_property: str):
 
@@ -54,6 +55,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         self.component_property = component_property
         self.allow_duplicate = False
         self.allow_optional = False
+        self.partial = False
 
     def __str__(self):
         return f"{self.component_id_str()}.{self.component_property}"
@@ -71,6 +73,8 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         }
         if self.allow_optional:
             specs["allow_optional"] = True
+        if self.partial:
+            specs["partial"] = True
         return specs
 
     def __eq__(self, other):
@@ -94,29 +98,34 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
         if self_dict != other_dict:
             return False
-        if self_dict:
-            if set(my_id.keys()) != set(other_id.keys()):  # type: ignore
+        if not self_dict:
+            return my_id == other_id
+
+        my_keys = set(my_id.keys())  # type: ignore
+        other_keys = set(other_id.keys())  # type: ignore
+        partial = self.partial or getattr(other, "partial", False)
+
+        keys_ok = (
+            (my_keys <= other_keys or other_keys <= my_keys)
+            if partial
+            else my_keys == other_keys
+        )
+        if not keys_ok:
+            return False
+        common_keys = my_keys & other_keys if partial else my_keys
+
+        for k in common_keys:
+            v = my_id[k]  # type: ignore
+            other_v = other_id[k]  # type: ignore
+            if v == other_v:
+                continue
+            v_wild = isinstance(v, Wildcard)
+            other_wild = isinstance(other_v, Wildcard)
+            if not (v_wild or other_wild):
                 return False
-
-            for k, v in my_id.items():  # type: ignore
-                other_v = other_id[k]
-                if v == other_v:
-                    continue
-                v_wild = isinstance(v, Wildcard)
-                other_wild = isinstance(other_v, Wildcard)
-                if v_wild or other_wild:
-                    if not (v_wild and other_wild):
-                        continue  # one wild, one not
-                    if v is ALL or other_v is ALL:
-                        continue  # either ALL
-                    if v is MATCH or other_v is MATCH:
-                        return False  # one MATCH, one ALLSMALLER
-                else:
-                    return False
-            return True
-
-        # both strings
-        return my_id == other_id
+            if v_wild and other_wild and not (v is ALL or other_v is ALL):
+                return False
+        return True
 
     def __hash__(self):
         return hash(str(self))
@@ -142,9 +151,11 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_duplicate: bool = False,
+        partial: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_duplicate = allow_duplicate
+        self.partial = partial
 
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
@@ -155,9 +166,11 @@ class Input(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_optional: bool = False,
+        partial: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
+        self.partial = partial
 
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
@@ -170,9 +183,11 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_optional: bool = False,
+        partial: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
+        self.partial = partial
 
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
