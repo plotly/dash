@@ -9,7 +9,6 @@ import flask
 from . import exceptions
 from ._utils import AttributeDict, stringify_id
 
-
 context_value: contextvars.ContextVar[
     typing.Dict[str, typing.Any]
 ] = contextvars.ContextVar("callback_context")
@@ -177,6 +176,7 @@ class CallbackContext:
             warnings.warn(
                 "outputs_list is deprecated, use outputs_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         return getattr(_get_context_value(), "outputs_list", [])
@@ -188,6 +188,7 @@ class CallbackContext:
             warnings.warn(
                 "inputs_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         return getattr(_get_context_value(), "inputs_list", [])
@@ -199,6 +200,7 @@ class CallbackContext:
             warnings.warn(
                 "states_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
         return getattr(_get_context_value(), "states_list", [])
 

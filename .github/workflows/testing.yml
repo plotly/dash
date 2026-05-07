@@ -517,12 +517,15 @@ jobs:
         run: npm run setup-tests.py
 
       - name: Run main integration tests
-        run: |
-          if [ "${{ matrix.python-version }}" == "3.12" ]; then
-            npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
-          else
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
-          fi
+        if: matrix.python-version != '3.12'
+        run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
+
+      - name: Run main integration tests with Percy
+        if: matrix.python-version == '3.12'
+        uses: ./.github/actions/percy-exec
+        with:
+          command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
+          percy-token: ${{ secrets.PERCY_TOKEN }}
 
       - name: Upload test results
         if: always()
@@ -603,15 +606,22 @@ jobs:
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      - name: Run HTML components tests
+      - name: Install HTML components dependencies
         working-directory: components/dash-html-components
-        run: |
-          npm ci
-          if [ "${{ matrix.python-version }}" == "3.12" ]; then
-            npx percy exec -- pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
-          else
-            pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
-          fi
+        run: npm ci
+
+      - name: Run HTML components tests
+        if: matrix.python-version != '3.12'
+        working-directory: components/dash-html-components
+        run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+
+      - name: Run HTML components tests with Percy
+        if: matrix.python-version == '3.12'
+        uses: ./.github/actions/percy-exec
+        with:
+          command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+          percy-token: ${{ secrets.PERCY_TOKEN }}
+          working-directory: components/dash-html-components
 
       - name: Upload test results
         if: always()
@@ -865,11 +875,18 @@ jobs:
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
-      - name: Run Table visual tests
+      - name: Install Table test dependencies
         working-directory: components/dash-table
-        run: |
-          npm ci
-          npm run test.visual
+        run: npm ci
+
+      - name: Run Table visual tests
+        if: env.PERCY_TOKEN != ''
+        working-directory: components/dash-table
+        run: npm run test.visual
+
+      - name: Skip Table visual tests (fork PR)
+        if: env.PERCY_TOKEN == ''
+        run: echo "::notice::Skipping Percy table visual tests (no token available - likely a fork PR)"
 
       - name: Upload dash artifacts
         if: always()
@@ -885,17 +902,23 @@ jobs:
     needs: [test-main, dcc-test, html-test]
     runs-on: ubuntu-latest
     if: always()
+    env:
+      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
     steps:
       - name: Finalize Main Percy Build
         if: |
-          needs.test-main.result != 'skipped' ||
-          needs.dcc-test.result != 'skipped' ||
-          needs.html-test.result != 'skipped'
+          env.PERCY_TOKEN != '' && (
+            needs.test-main.result != 'skipped' ||
+            needs.dcc-test.result != 'skipped' ||
+            needs.html-test.result != 'skipped'
+          )
         run: |
           npm install -g @percy/cli
           npx percy build:finalize
-        env:
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
+      - name: Skip Percy finalize (fork PR)
+        if: env.PERCY_TOKEN == ''
+        run: echo "::notice::Skipping Percy finalize (no token available - likely a fork PR)"
 
   test-report:
     name: Consolidated Test Report
@@ -918,7 +941,8 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        if: always()
+        # Skip for fork PRs - handled by post-test-status.yml workflow_run
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'

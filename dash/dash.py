@@ -663,7 +663,8 @@ class Dash(ObsoleteChecker):
         if self.__class__.__name__ == "JupyterDash":
             warnings.warn(
                 "JupyterDash is deprecated, use Dash instead.\n"
-                "See https://dash.plotly.com/dash-in-jupyter for more details."
+                "See https://dash.plotly.com/dash-in-jupyter for more details.",
+                stacklevel=2,
             )
         self.setup_startup_routes()
 
@@ -1139,9 +1140,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("link", link, opened=True)
-                if isinstance(link, dict)
-                else f'<link rel="stylesheet" href="{link}">'
+                (
+                    format_tag("link", link, opened=True)
+                    if isinstance(link, dict)
+                    else f'<link rel="stylesheet" href="{link}">'
+                )
                 for link in (external_links + links)
             ]
         )
@@ -1195,9 +1198,11 @@ class Dash(ObsoleteChecker):
 
         return "\n".join(
             [
-                format_tag("script", src)
-                if isinstance(src, dict)
-                else f'<script src="{src}"></script>'
+                (
+                    format_tag("script", src)
+                    if isinstance(src, dict)
+                    else f'<script src="{src}"></script>'
+                )
                 for src in srcs
             ]
             + [f"<script>{src}</script>" for src in self._inline_scripts]
@@ -1674,9 +1679,11 @@ class Dash(ObsoleteChecker):
         # For each callback function, if the hidden parameter uses the default value None,
         # replace it with the actual value of the self.config.hide_all_callbacks.
         self._callback_list = [
-            {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-            if _callback.get("hidden") is None
-            else _callback
+            (
+                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
+                if _callback.get("hidden") is None
+                else _callback
+            )
             for _callback in self._callback_list
         ]
 
@@ -2636,9 +2643,11 @@ class Dash(ObsoleteChecker):
                 if not self.config.suppress_callback_exceptions:
                     self.validation_layout = html.Div(
                         [
-                            asyncio.run(execute_async_function(page["layout"]))
-                            if callable(page["layout"])
-                            else page["layout"]
+                            (
+                                asyncio.run(execute_async_function(page["layout"]))
+                                if callable(page["layout"])
+                                else page["layout"]
+                            )
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + [
@@ -2708,9 +2717,11 @@ class Dash(ObsoleteChecker):
                         ]
                         self.validation_layout = html.Div(
                             [
-                                page["layout"]()
-                                if callable(page["layout"])
-                                else page["layout"]
+                                (
+                                    page["layout"]()
+                                    if callable(page["layout"])
+                                    else page["layout"]
+                                )
                                 for page in _pages.PAGE_REGISTRY.values()
                             ]
                             + layout

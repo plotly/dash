@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
 - [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 - Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
 
@@ -14,6 +15,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 - [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
 - [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings
+- [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines
+- [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
+- [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
 
 ## Changed
 - [#3691] Improve static typing for `dash.callback` by preserving wrapped callback signatures, and add callback typing coverage in compliance plus new callback decorator unit and integration tests.
