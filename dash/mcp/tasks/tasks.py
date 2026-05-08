@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Literal
 
 from mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
 
@@ -15,7 +15,8 @@ from dash.mcp.types import MCPError
 
 def parse_task_id(task_id: str) -> tuple[str, str, str]:
     """Parse a taskId into (tool_name, job_id, cache_key)."""
-    return task_id.split(":", 2)
+    tool_name, job_id, cache_key = task_id.split(":", 2)
+    return tool_name, job_id, cache_key
 
 
 def _get_callback_manager():
@@ -66,6 +67,7 @@ def get_task(task_id: str) -> GetTaskResult:
     running = manager.job_running(job_id)
     progress = manager.get_progress(cache_key)
 
+    status: Literal["working", "completed", "failed"]
     if running:
         status = "working"
     elif manager.result_ready(cache_key):
