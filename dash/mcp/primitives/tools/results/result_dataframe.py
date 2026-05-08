@@ -47,7 +47,7 @@ class DataFrameResult(ResultFormatter):
     """Produce a markdown table for tabular component output values."""
 
     @classmethod
-    def format(cls, output: MCPOutput, returned_output_value: Any) -> list[TextContent]:
+    def format(cls, output: MCPOutput, returned_output_value: Any) -> list[TextContent]:  # type: ignore[override]
         if not TABULAR.matches(output.get("component_type"), output["property"]):
             return []
         if (

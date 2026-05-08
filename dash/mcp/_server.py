@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from typing import TYPE_CHECKING, Any
 
 from flask import Response, request
@@ -51,6 +52,24 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
     MCP_DECORATED_FUNCTIONS.clear()
 
+    _session_id: str | None = None
+
+    def _get_or_create_session_id() -> str:
+        """Read the hot-reload hash or generate a stable fallback."""
+        # pylint: disable=protected-access
+        reload_hash = app._hot_reload.hash
+        return reload_hash if reload_hash is not None else uuid.uuid4().hex
+
+    def _is_session_stale(client_session_id: str | None) -> bool:
+        """True when the client's session doesn't match or the hash changed."""
+        if client_session_id != _session_id:
+            return True
+        # pylint: disable=protected-access
+        reload_hash = app._hot_reload.hash
+        if reload_hash is None:
+            return False
+        return reload_hash != _session_id
+
     # -- Streamable HTTP endpoint --------------------------------------------
 
     def mcp_handler() -> Response:
@@ -75,6 +94,42 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             status=405,
         )
 
+    def _check_session(method: str) -> bool:
+        """Validate the session header.
+
+        Raises ``ValueError`` when the header is missing.
+        Returns ``True`` when the session was stale and transparently
+        recovered, or ``False`` when the session is valid.
+        """
+        nonlocal _session_id
+        if method == "initialize":
+            _session_id = _get_or_create_session_id()
+            return False
+        client_session_id = request.headers.get("Mcp-Session-Id")
+        if _session_id is not None and not client_session_id:
+            raise ValueError("Missing Mcp-Session-Id header")
+        if _is_session_stale(client_session_id):
+            _session_id = _get_or_create_session_id()
+            logger.debug("MCP session recovered: %s", _session_id)
+            return True
+        return False
+
+    def _json_response(*messages: dict) -> Response:
+        """Wrap one or more JSON-RPC messages in a Flask Response.
+
+        A single message is serialised as a JSON object; multiple
+        messages are serialised as a JSON array.
+        """
+        body = messages[0] if len(messages) == 1 else list(messages)
+        resp = Response(
+            json.dumps(body),
+            content_type="application/json",
+            status=200,
+        )
+        if _session_id is not None:
+            resp.headers["Mcp-Session-Id"] = _session_id
+        return resp
+
     def _handle_post() -> Response:
         content_type = request.content_type or ""
         if "application/json" not in content_type:
@@ -92,16 +147,33 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
                 status=400,
             )
 
+        method = data.get("method", "")
+
+        try:
+            is_stale_session = _check_session(method)
+        except ValueError as err:
+            return Response(
+                json.dumps({"error": str(err)}),
+                content_type="application/json",
+                status=400,
+            )
+
         response_data = _process_mcp_message(data)
 
         if response_data is None:
             return Response("", status=202)
 
-        return Response(
-            json.dumps(response_data),
-            content_type="application/json",
-            status=200,
-        )
+        if is_stale_session:
+            return _json_response(
+                {"jsonrpc": "2.0", "method": "notifications/tools/list_changed"},
+                {
+                    "jsonrpc": "2.0",
+                    "method": "notifications/resources/list_changed",
+                },
+                response_data,
+            )
+
+        return _json_response(response_data)
 
     def _handle_delete() -> Response:
         # No sessions to terminate — server is stateless.
@@ -129,8 +201,8 @@ def _handle_initialize() -> InitializeResult:
     return InitializeResult(
         protocolVersion=LATEST_PROTOCOL_VERSION,
         capabilities=ServerCapabilities(
-            tools=ToolsCapability(listChanged=False),
-            resources=ResourcesCapability(),
+            tools=ToolsCapability(listChanged=True),
+            resources=ResourcesCapability(listChanged=True),
         ),
         serverInfo=Implementation(name="Plotly Dash", version=__version__),
         instructions=(
