@@ -86,8 +86,14 @@ class CallbackAdapterCollection:
                 return cb
         return None
 
-    def find_by_output(self, id_and_prop: str) -> CallbackAdapter | None:
-        """Find the adapter that outputs to ``id_and_prop`` (``"component_id.property"``)."""
+    @cached_property
+    def outputs_by_prop(self) -> dict[str, list[CallbackAdapter]]:
+        """Index ``id_and_prop`` → callbacks outputting it.
+
+        Mirrors the dash-renderer's ``outputMap`` (see
+        ``dash-renderer/src/actions/dependencies.js``).
+        """
+        idx: dict[str, list[CallbackAdapter]] = {}
         for cb in self._callbacks:
             try:
                 parsed = split_callback_id(cb.output_id)
@@ -96,9 +102,31 @@ class CallbackAdapterCollection:
             if isinstance(parsed, dict):
                 parsed = [parsed]
             for p in parsed:
-                if f"{p['id']}.{clean_property_name(p['property'])}" == id_and_prop:
-                    return cb
-        return None
+                key = f"{p['id']}.{clean_property_name(p['property'])}"
+                idx.setdefault(key, []).append(cb)
+        return idx
+
+    @cached_property
+    def inputs_by_prop(self) -> dict[str, list[CallbackAdapter]]:
+        """Index ``id_and_prop`` → callbacks consuming it as input/state.
+
+        Mirrors the dash-renderer's ``inputMap`` (see
+        ``dash-renderer/src/actions/dependencies.js``).
+        Many callbacks may share a key.
+        """
+        idx: dict[str, list[CallbackAdapter]] = {}
+        for cb in self._callbacks:
+            # pylint: disable-next=protected-access
+            deps = cb._cb_info.get("inputs", []) + cb._cb_info.get("state", [])
+            for dep in deps:
+                key = f"{dep.get('id', 'unknown')}.{dep.get('property', 'unknown')}"
+                idx.setdefault(key, []).append(cb)
+        return idx
+
+    def find_by_output(self, id_and_prop: str) -> CallbackAdapter | None:
+        """Find the adapter that outputs to ``id_and_prop`` (``"component_id.property"``)."""
+        candidates = self.outputs_by_prop.get(id_and_prop, [])
+        return candidates[0] if candidates else None
 
     def get_initial_value(self, id_and_prop: str) -> Any:
         """Return the initial value for ``id_and_prop`` (``"component_id.property"``).
