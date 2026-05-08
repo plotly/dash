@@ -108,7 +108,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci,testing]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci,testing,diskcache]"' \;
 
       - name: Install dash-renderer dependencies
         working-directory: dash/dash-renderer
@@ -231,7 +231,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,diskcache]"' \;
 
       - name: Build/Setup test components
         run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
