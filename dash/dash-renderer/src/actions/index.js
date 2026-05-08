@@ -109,7 +109,7 @@ function triggerDefaultState(dispatch, getState) {
         }
     );
 
-    // Also include no-output callbacks whose inputs are in the layout
+    // Also include no-output callbacks whose inputs are in the layout (or have no inputs)
     const noOutputCallbacks = (graphs.callbacks || [])
         .filter(cb => cb.noOutput && !cb.prevent_initial_call)
         .map(cb => {
@@ -118,6 +118,10 @@ function triggerDefaultState(dispatch, getState) {
             return resolved;
         })
         .filter(cb => {
+            // If no inputs, always include (fires once on initial load)
+            if (cb.callback.inputs.length === 0) {
+                return true;
+            }
             // Check if any input is in the layout
             const inputs = cb.getInputs(paths);
             return inputs.some(inp =>
@@ -125,7 +129,34 @@ function triggerDefaultState(dispatch, getState) {
             );
         });
 
-    dispatch(addRequestedCallbacks([...layoutCallbacks, ...noOutputCallbacks]));
+    // Also include no-input callbacks (with outputs) that should fire on initial load
+    const noInputCallbacks = (graphs.callbacks || [])
+        .filter(
+            cb =>
+                !cb.noOutput &&
+                cb.inputs.length === 0 &&
+                !cb.prevent_initial_call
+        )
+        .map(cb => {
+            const resolved = makeResolvedCallback(cb, resolveDeps(), '');
+            resolved.initialCall = true;
+            return resolved;
+        })
+        .filter(cb => {
+            // Check if any output is in the layout
+            const outputs = cb.getOutputs(paths);
+            return outputs.some(out =>
+                Array.isArray(out) ? out.length > 0 : out
+            );
+        });
+
+    dispatch(
+        addRequestedCallbacks([
+            ...layoutCallbacks,
+            ...noOutputCallbacks,
+            ...noInputCallbacks
+        ])
+    );
 }
 
 export const redo = moveHistory('REDO');
