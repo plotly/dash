@@ -5,7 +5,12 @@ import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import * as cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
-import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
+import {
+    includeObservers,
+    getLayoutCallbacks,
+    makeResolvedCallback,
+    resolveDeps
+} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 import {recordUiEdit} from '../persistence';
 
@@ -95,13 +100,32 @@ function triggerDefaultState(dispatch, getState) {
         );
     }
 
-    dispatch(
-        addRequestedCallbacks(
-            getLayoutCallbacks(graphs, paths, layout.components, {
-                outputsOnly: true
-            })
-        )
+    const layoutCallbacks = getLayoutCallbacks(
+        graphs,
+        paths,
+        layout.components,
+        {
+            outputsOnly: true
+        }
     );
+
+    // Also include no-output callbacks whose inputs are in the layout
+    const noOutputCallbacks = (graphs.callbacks || [])
+        .filter(cb => cb.noOutput && !cb.prevent_initial_call)
+        .map(cb => {
+            const resolved = makeResolvedCallback(cb, resolveDeps(), '');
+            resolved.initialCall = true;
+            return resolved;
+        })
+        .filter(cb => {
+            // Check if any input is in the layout
+            const inputs = cb.getInputs(paths);
+            return inputs.some(inp =>
+                Array.isArray(inp) ? inp.length > 0 : inp
+            );
+        });
+
+    dispatch(addRequestedCallbacks([...layoutCallbacks, ...noOutputCallbacks]));
 }
 
 export const redo = moveHistory('REDO');

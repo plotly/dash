@@ -917,3 +917,47 @@ def test_cbsc021_callback_running_non_existing_component(dash_duo):
         assert error.text == error_title
     for error_text in dash_duo.find_elements(".dash-backend-error"):
         assert all(line in error_text for line in error_message)
+
+
+def test_cbsc022_no_output_callback_initial_call(dash_duo):
+    """Test that no-output callbacks fire on initial load."""
+
+    call_count = Value("i", 0)
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Click", id="btn", n_clicks=0),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Input("btn", "n_clicks"),
+    )
+    def no_output_callback(n_clicks):
+        call_count.value += 1
+
+    @app.callback(
+        Output("output", "children"),
+        Input("btn", "n_clicks"),
+    )
+    def with_output_callback(n_clicks):
+        return f"Clicks: {n_clicks}"
+
+    dash_duo.start_server(app)
+
+    # Wait for initial render
+    dash_duo.wait_for_text_to_equal("#output", "Clicks: 0")
+
+    # No-output callback should have fired on initial load
+    assert call_count.value == 1, "no-output callback should fire on initial load"
+
+    # Click button
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", "Clicks: 1")
+
+    # No-output callback should have fired again
+    assert call_count.value == 2, "no-output callback should fire on click"
+
+    assert dash_duo.get_logs() == []
