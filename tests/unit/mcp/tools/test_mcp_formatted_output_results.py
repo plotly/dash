@@ -37,10 +37,10 @@ def _mock_callback(outputs=None):
 EXPECTED_TABLE = (
     "*2 rows \u00d7 2 columns*\n"
     "\n"
-    "| name | age |\n"
-    "| --- | --- |\n"
-    "| Alice | 30 |\n"
-    "| Bob | 25 |"
+    "name | age\n"
+    "--- | ---\n"
+    "Alice | 30\n"
+    "Bob | 25"
 )
 
 SAMPLE_ROWS = [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}]
@@ -134,7 +134,7 @@ def test_mcpr005_datatable_result_includes_markdown_table():
     ]
     result = format_callback_response(response, _mock_callback(outputs))
     texts = [c.text for c in result.content if c.type == "text"]
-    assert any("| name | age |" in t for t in texts)
+    assert any("name | age" in t for t in texts)
 
 
 def test_mcpr006_plotly_figure_includes_image():
@@ -196,8 +196,8 @@ def test_mcpr011_truncates_large_tables():
     rows = [{"i": n} for n in range(MAX_ROWS + 50)]
     result = DataFrameResult.format(DATATABLE_OUTPUT, rows)
     text = result[0].text
-    assert f"| {MAX_ROWS - 1} |" in text
-    assert f"| {MAX_ROWS} |" not in text
+    assert f"\n{MAX_ROWS - 1}\n" in text
+    assert f"\n{MAX_ROWS}\n" not in text
     assert "50 more rows" in text
 
 
