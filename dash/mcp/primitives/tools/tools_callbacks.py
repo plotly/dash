@@ -59,7 +59,7 @@ class CallbackTools(MCPToolProvider):
             )
 
         if is_background:
-            task_result = create_task(callback_response, cb)
+            task_result = create_task(dict(callback_response), cb)
             if task is not None:
                 return task_result
             return task_result_to_tool_result(task_result)
