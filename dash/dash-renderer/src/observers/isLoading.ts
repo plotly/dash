@@ -9,7 +9,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
         const pendingCallbacks = getPendingCallbacks(callbacks);
 
-        const next = Boolean(pendingCallbacks.length);
+        // Filter out persistent callbacks - they shouldn't trigger the loading indicator
+        const nonPersistentCallbacks = pendingCallbacks.filter(
+            cb => !cb.callback.persistent
+        );
+
+        const next = Boolean(nonPersistentCallbacks.length);
 
         if (isLoading !== next) {
             dispatch(setIsLoading(next));

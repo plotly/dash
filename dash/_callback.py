@@ -78,6 +78,7 @@ def callback(
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
+    persistent: Optional[bool] = False,
     **_kwargs,
 ) -> Callable[..., Any]:
     """
@@ -172,6 +173,10 @@ def callback(
             The endpoint is relative to the Dash app's base URL.
             Note that the endpoint will not appear in the list of registered
             callbacks in the Dash devtools.
+        :param persistent:
+            If True, this callback will not show the "Updating..." title while
+            running. Useful for persistent WebSocket callbacks that stay active
+            for long periods without requiring a loading indicator.
     """
 
     background_spec: Any = None
@@ -230,6 +235,7 @@ def callback(
         optional=optional,
         hidden=hidden,
         websocket=websocket,
+        persistent=persistent,
     )
 
 
@@ -278,6 +284,7 @@ def insert_callback(
     optional=False,
     hidden=None,
     websocket=False,
+    persistent=False,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -304,6 +311,7 @@ def insert_callback(
         "optional": optional,
         "hidden": hidden,
         "websocket": websocket,
+        "persistent": persistent,
     }
     if running:
         callback_spec["running"] = running
@@ -658,6 +666,7 @@ def register_callback(
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
+        persistent=_kwargs.get("persistent", False),
     )
 
     # pylint: disable=too-many-locals
