@@ -61,13 +61,16 @@ class GetDashComponentTool(MCPToolProvider):
     def call_tool(cls, tool_name: str, arguments: dict[str, Any]) -> CallToolResult:
         comp_id = arguments.get("component_id", "")
         if not comp_id:
-            raise ValueError("component_id is required")
+            return CallToolResult(
+                content=[TextContent(type="text", text="component_id is required")],
+                isError=True,
+            )
 
         prop_filter = arguments.get("property", "")
         component = find_component(comp_id)
+        callback_map = get_app().mcp_callback_map
 
         if component is None:
-            callback_map = get_app().mcp_callback_map
             rendering_tools = [
                 cb.tool_name
                 for cb in callback_map
@@ -84,29 +87,24 @@ class GetDashComponentTool(MCPToolProvider):
                 isError=True,
             )
 
-        callback_map = get_app().mcp_callback_map
-
         properties: dict[str, ComponentPropertyInfo] = {}
         for prop_name in getattr(component, "_prop_names", []):
             if prop_filter and prop_name != prop_filter:
                 continue
 
-            value = callback_map.get_initial_value(f"{comp_id}.{prop_name}")
+            id_and_prop = f"{comp_id}.{prop_name}"
+            value = callback_map.get_initial_value(id_and_prop)
             if value is None:
                 value = getattr(component, prop_name, None)
             if value is None:
                 continue
 
-            modified_by: list[str] = []
-            input_to: list[str] = []
-            id_and_prop = f"{comp_id}.{prop_name}"
-            for cb in callback_map:
-                for out in cb.outputs:
-                    if out["id_and_prop"] == id_and_prop:
-                        modified_by.append(cb.tool_name)
-                for inp in cb.inputs:
-                    if inp["id_and_prop"] == id_and_prop:
-                        input_to.append(cb.tool_name)
+            modified_by = [
+                cb.tool_name for cb in callback_map.outputs_by_prop.get(id_and_prop, [])
+            ]
+            input_to = [
+                cb.tool_name for cb in callback_map.inputs_by_prop.get(id_and_prop, [])
+            ]
 
             properties[prop_name] = ComponentPropertyInfo(
                 initial_value=value,
