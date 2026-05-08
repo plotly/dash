@@ -1,25 +1,12 @@
-"""Tests for partial pattern matching in callbacks."""
-
-import json
-
-from dash import Dash, Input, Output, ALL, html
+from dash import Dash, Input, Output, State, ALL, html, dcc
 
 
-def stringify_id(id_):
-    if isinstance(id_, dict):
-        return json.dumps(id_, sort_keys=True, separators=(",", ":"))
-    return id_
-
-
-def test_partial_match_basic(dash_duo):
-    """A callback with partial=True on Input matches components with extra keys.
-    Literal-only partial patterns are implicitly multi-valued (return a list).
-    """
+def test_pmcb001_partial_match_basic(dash_duo):
+    """Partial=True on Input matches components with extra keys."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
         [
-            # Components with extra keys beyond what the callback pattern specifies
             html.Button(
                 "Button A",
                 id={"type": "btn", "index": 1, "page": "home"},
@@ -38,7 +25,6 @@ def test_partial_match_basic(dash_duo):
         prevent_initial_call=True,
     )
     def on_click(n_clicks_list):
-        # Literal-only partial is multi-valued: receives a list
         total = sum(c or 0 for c in n_clicks_list)
         return f"total clicks: {total}"
 
@@ -46,15 +32,14 @@ def test_partial_match_basic(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#output", "initial")
 
-    # Click the first button - should trigger partial match
     dash_duo.find_element('[id=\'{"index":1,"page":"home","type":"btn"}\']').click()
     dash_duo.wait_for_text_to_equal("#output", "total clicks: 1")
 
     assert dash_duo.get_logs() == []
 
 
-def test_partial_match_all(dash_duo):
-    """A callback with partial=True and ALL collects all matching components."""
+def test_pmcb002_partial_match_all(dash_duo):
+    """Partial=True with ALL collects all matching components."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -84,7 +69,6 @@ def test_partial_match_all(dash_duo):
 
     dash_duo.start_server(app)
 
-    # Should collect all 3 buttons (all have "type" key)
     dash_duo.wait_for_text_to_equal("#output", "clicks: [None, None, None]")
 
     dash_duo.find_element('[id=\'{"index":1,"section":"alpha","type":"btn"}\']').click()
@@ -93,10 +77,8 @@ def test_partial_match_all(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_partial_match_with_literal_value(dash_duo):
-    """Partial matching with a literal value filters to specific matches.
-    Only components where type='btn' are collected (multi-valued).
-    """
+def test_pmcb003_partial_match_literal_filter(dash_duo):
+    """Partial matching with a literal value filters to specific matches."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -123,7 +105,6 @@ def test_partial_match_with_literal_value(dash_duo):
         prevent_initial_call=True,
     )
     def on_btn_click(n_clicks_list):
-        # Only type="btn" components are collected (not type="link")
         total = sum(c or 0 for c in n_clicks_list)
         return f"btn total: {total}, count: {len(n_clicks_list)}"
 
@@ -131,22 +112,18 @@ def test_partial_match_with_literal_value(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#output", "initial")
 
-    # Click a "btn" type - should trigger, collecting 2 btn components
     dash_duo.find_element('[id=\'{"index":1,"page":"home","type":"btn"}\']').click()
     dash_duo.wait_for_text_to_equal("#output", "btn total: 1, count: 2")
 
     assert dash_duo.get_logs() == []
 
 
-def test_partial_match_mixed_keys(dash_duo):
-    """Components with different extra keys all match the same partial pattern.
-    Both components have type='action' but different other keys.
-    """
+def test_pmcb004_partial_match_mixed_keys(dash_duo):
+    """Components with different extra keys match the same partial pattern."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
         [
-            # Different components with different key sets, all having "type"
             html.Button(
                 "A",
                 id={"type": "action", "index": 1},
@@ -165,7 +142,6 @@ def test_partial_match_mixed_keys(dash_duo):
         prevent_initial_call=True,
     )
     def on_action(n_clicks_list):
-        # Multi-valued: collects from all components with type="action"
         total = sum(c or 0 for c in n_clicks_list)
         return f"actions: {len(n_clicks_list)}, total: {total}"
 
@@ -175,5 +151,83 @@ def test_partial_match_mixed_keys(dash_duo):
     # Click first button
     dash_duo.find_element('[id=\'{"index":1,"type":"action"}\']').click()
     dash_duo.wait_for_text_to_equal("#output", "actions: 2, total: 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_pmcb005_partial_state(dash_duo):
+    """Partial=True on State reads values from components with extra keys."""
+    app = Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div(
+        [
+            dcc.Input(
+                id={"type": "field", "index": 1, "form": "login"},
+                value="alice",
+            ),
+            dcc.Input(
+                id={"type": "field", "index": 2, "form": "signup"},
+                value="bob",
+            ),
+            html.Button("Submit", id="btn", n_clicks=0),
+            html.Div("waiting", id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("btn", "n_clicks"),
+        State({"type": "field"}, "value", partial=True),
+        prevent_initial_call=True,
+    )
+    def on_submit(n, values):
+        return f"values: {values}"
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#output", "waiting")
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#output", "values: ['alice', 'bob']")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_pmcb006_partial_output(dash_duo):
+    """Partial=True on Output writes to components with extra keys."""
+    app = Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Go", id="btn", n_clicks=0),
+            html.Div(
+                "empty",
+                id={"type": "display", "index": 1, "page": "home"},
+            ),
+            html.Div(
+                "empty",
+                id={"type": "display", "index": 2, "page": "settings"},
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output({"type": "display"}, "children", partial=True),
+        Input("btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n):
+        return [f"updated-{n}"] * 2
+
+    dash_duo.start_server(app)
+
+    sel1 = '[id=\'{"index":1,"page":"home","type":"display"}\']'
+    sel2 = '[id=\'{"index":2,"page":"settings","type":"display"}\']'
+
+    dash_duo.wait_for_text_to_equal(sel1, "empty")
+    dash_duo.wait_for_text_to_equal(sel2, "empty")
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal(sel1, "updated-1")
+    dash_duo.wait_for_text_to_equal(sel2, "updated-1")
 
     assert dash_duo.get_logs() == []
