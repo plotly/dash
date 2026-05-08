@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import ImageContent, TextContent
+from mcp.types import TextContent
 
 from dash.mcp.types import MCPOutput
 
@@ -22,23 +22,23 @@ MAX_ROWS = 50
 def _to_markdown_table(rows: list[dict], max_rows: int = MAX_ROWS) -> str:
     """Render a list of row dicts as a markdown table."""
     columns = list(rows[0].keys())
-    total = len(rows)
+    total_rows = len(rows)
 
     lines: list[str] = []
-    lines.append(f"*{total} rows \u00d7 {len(columns)} columns*")
+    lines.append(f"*{total_rows} rows \u00d7 {len(columns)} columns*")
     lines.append("")
-    lines.append("| " + " | ".join(columns) + " |")
-    lines.append("| " + " | ".join("---" for _ in columns) + " |")
+    lines.append(" | ".join(columns))
+    lines.append(" | ".join("---" for _ in columns))
 
     for row in rows[:max_rows]:
         cells = [
             str(row.get(col, "")).replace("|", "\\|").replace("\n", " ")
             for col in columns
         ]
-        lines.append("| " + " | ".join(cells) + " |")
+        lines.append(" | ".join(cells))
 
-    if total > max_rows:
-        lines.append(f"\n(\u2026 {total - max_rows} more rows)")
+    if total_rows > max_rows:
+        lines.append(f"\n(\u2026 {total_rows - max_rows} more rows)")
 
     return "\n".join(lines)
 
@@ -47,14 +47,12 @@ class DataFrameResult(ResultFormatter):
     """Produce a markdown table for tabular component output values."""
 
     @classmethod
-    def format(
-        cls, output: MCPOutput, returned_output_value: Any
-    ) -> list[TextContent | ImageContent]:
+    def format(cls, output: MCPOutput, returned_output_value: Any) -> list[TextContent]:
         if not TABULAR.matches(output.get("component_type"), output["property"]):
             return []
         if (
-            not isinstance(returned_output_value, list)
-            or not returned_output_value
+            not returned_output_value
+            or not isinstance(returned_output_value, list)
             or not isinstance(returned_output_value[0], dict)
         ):
             return []

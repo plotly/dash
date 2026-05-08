@@ -21,7 +21,8 @@ IMAGE_HEIGHT = 450
 
 
 def _render_image(figure: Any) -> ImageContent | None:
-    """Render the figure as a base64 PNG ImageContent.
+    """
+    Render the figure as a base64 PNG ImageContent.
 
     Returns None if kaleido is not installed.
     """
@@ -48,7 +49,7 @@ class PlotlyFigureResult(ResultFormatter):
     ) -> list[TextContent | ImageContent]:
         if not PLOTLY_FIGURE.matches(output.get("component_type"), output["property"]):
             return []
-        if not isinstance(returned_output_value, dict):
+        if not returned_output_value or not isinstance(returned_output_value, dict):
             return []
 
         fig = go.Figure(returned_output_value)
