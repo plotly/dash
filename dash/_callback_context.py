@@ -328,7 +328,7 @@ class CallbackContext:
 
     @property
     @has_context
-    def get_websocket(self) -> typing.Optional[DashWebsocketCallback]:
+    def websocket(self) -> typing.Optional[DashWebsocketCallback]:
         """Get WebSocket interface if running in WebSocket context.
 
         Returns the DashWebsocketCallback instance if the callback is being

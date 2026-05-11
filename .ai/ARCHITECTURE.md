@@ -963,7 +963,7 @@ Renderer                   SharedWorker                 Server
 
 ### Long-Running Callbacks with set_props/get_props
 
-WebSocket callbacks can stream updates to the client during execution using `set_props()` and read current component values using `ctx.get_websocket()`:
+WebSocket callbacks can stream updates to the client during execution using `set_props()` and read current component values using `ctx.websocket`:
 
 ```python
 import asyncio
@@ -975,7 +975,7 @@ from dash import callback, Output, Input, set_props, ctx
     prevent_initial_call=True
 )
 async def long_running_task(n_clicks):
-    ws = ctx.get_websocket()
+    ws = ctx.websocket
     if not ws:
         return "WebSocket not available"
 
@@ -993,7 +993,7 @@ async def long_running_task(n_clicks):
 
 **API:**
 - `set_props(component_id, props_dict)` - Stream prop updates immediately to client
-- `ctx.get_websocket()` - Get WebSocket interface (returns `None` if not in WS context)
+- `ctx.websocket` - Get WebSocket interface (returns `None` if not in WS context)
 - `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
 - `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
 - `await ws.close(code, reason)` - Close the WebSocket connection
