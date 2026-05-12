@@ -109,54 +109,50 @@ function triggerDefaultState(dispatch, getState) {
         }
     );
 
-    // Also include no-output callbacks whose inputs are in the layout (or have no inputs)
-    const noOutputCallbacks = (graphs.callbacks || [])
-        .filter(cb => cb.noOutput && !cb.prevent_initial_call)
-        .map(cb => {
-            const resolved = makeResolvedCallback(cb, resolveDeps(), '');
-            resolved.initialCall = true;
-            return resolved;
-        })
-        .filter(cb => {
-            // If no inputs, always include (fires once on initial load)
-            if (cb.callback.inputs.length === 0) {
-                return true;
+    // Also include no-output and no-input callbacks that should fire on initial load
+    const specialCallbacks = (graphs.callbacks || []).reduce((acc, cb) => {
+        if (cb.prevent_initial_call) {
+            return acc;
+        }
+
+        const isNoOutput = cb.noOutput;
+        const isNoInput = !cb.noOutput && cb.inputs.length === 0;
+
+        if (!isNoOutput && !isNoInput) {
+            return acc;
+        }
+
+        const resolved = makeResolvedCallback(cb, resolveDeps(), '');
+        resolved.initialCall = true;
+
+        if (isNoOutput) {
+            // No-output: include if no inputs or any input is in layout
+            if (cb.inputs.length === 0) {
+                acc.push(resolved);
+            } else {
+                const inputs = resolved.getInputs(paths);
+                if (
+                    inputs.some(inp =>
+                        Array.isArray(inp) ? inp.length > 0 : inp
+                    )
+                ) {
+                    acc.push(resolved);
+                }
             }
-            // Check if any input is in the layout
-            const inputs = cb.getInputs(paths);
-            return inputs.some(inp =>
-                Array.isArray(inp) ? inp.length > 0 : inp
-            );
-        });
+        } else {
+            // No-input: include if any output is in layout
+            const outputs = resolved.getOutputs(paths);
+            if (
+                outputs.some(out => (Array.isArray(out) ? out.length > 0 : out))
+            ) {
+                acc.push(resolved);
+            }
+        }
 
-    // Also include no-input callbacks (with outputs) that should fire on initial load
-    const noInputCallbacks = (graphs.callbacks || [])
-        .filter(
-            cb =>
-                !cb.noOutput &&
-                cb.inputs.length === 0 &&
-                !cb.prevent_initial_call
-        )
-        .map(cb => {
-            const resolved = makeResolvedCallback(cb, resolveDeps(), '');
-            resolved.initialCall = true;
-            return resolved;
-        })
-        .filter(cb => {
-            // Check if any output is in the layout
-            const outputs = cb.getOutputs(paths);
-            return outputs.some(out =>
-                Array.isArray(out) ? out.length > 0 : out
-            );
-        });
+        return acc;
+    }, []);
 
-    dispatch(
-        addRequestedCallbacks([
-            ...layoutCallbacks,
-            ...noOutputCallbacks,
-            ...noInputCallbacks
-        ])
-    );
+    dispatch(addRequestedCallbacks([...layoutCallbacks, ...specialCallbacks]));
 }
 
 export const redo = moveHistory('REDO');
