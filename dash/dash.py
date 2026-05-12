@@ -670,7 +670,8 @@ class Dash(ObsoleteChecker):
         if self.__class__.__name__ == "JupyterDash":
             warnings.warn(
                 "JupyterDash is deprecated, use Dash instead.\n"
-                "See https://dash.plotly.com/dash-in-jupyter for more details."
+                "See https://dash.plotly.com/dash-in-jupyter for more details.",
+                stacklevel=2,
             )
         self.setup_startup_routes()
 
@@ -1604,9 +1605,11 @@ class Dash(ObsoleteChecker):
         # For each callback function, if the hidden parameter uses the default value None,
         # replace it with the actual value of the self.config.hide_all_callbacks.
         self._callback_list = [
-            {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-            if _callback.get("hidden") is None
-            else _callback
+            (
+                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
+                if _callback.get("hidden") is None
+                else _callback
+            )
             for _callback in self._callback_list
         ]
 

@@ -1070,30 +1070,6 @@ jobs:
         if: env.PERCY_TOKEN == ''
         run: echo "::notice::Skipping Percy finalize (no token available - likely a fork PR)"
 
-  report-table-percy-skipped:
-    name: Report Percy Table Skipped
-    needs: table-visual-test
-    runs-on: ubuntu-latest
-    if: |
-      always() &&
-      github.event_name == 'pull_request' &&
-      needs.table-visual-test.result == 'skipped'
-    permissions:
-      statuses: write
-    steps:
-      - name: Post success status for percy/dash-table-test
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
-              state: 'success',
-              context: 'percy/dash-table-test',
-              description: 'Skipped — no dash-table changes',
-            });
-
   test-report:
     name: Consolidated Test Report
     needs: [lint-unit, test-main, dcc-test, html-test, table-server, background-callbacks, test-typing]
@@ -1115,7 +1091,8 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        if: always()
+        # Skip for fork PRs - handled by post-test-status.yml workflow_run
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'
