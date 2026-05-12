@@ -72,6 +72,31 @@ const rendererOptions = {
     ...defaults
 };
 
+// WebSocket Worker configuration
+const workerOptions = {
+    mode: 'production',
+    entry: {
+        'dash-ws-worker': '../../@plotly/dash-websocket-worker/src/worker.ts',
+    },
+    output: {
+        path: path.resolve(__dirname, "build"),
+        filename: '[name].js',
+    },
+    target: 'webworker',
+    module: {
+        rules: [
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: ['ts-loader'],
+            },
+        ]
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
+    }
+};
+
 module.exports = options => [
     R.mergeAll([
         options,
@@ -109,5 +134,7 @@ module.exports = options => [
                 ]
             ),
         }
-    ])
+    ]),
+    // WebSocket Worker build
+    workerOptions
 ];

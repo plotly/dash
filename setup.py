@@ -36,6 +36,8 @@ setup(
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
         "compress": read_req_file("compress"),
+        "fastapi": read_req_file("fastapi"),
+        "quart": read_req_file("quart"),
         "cloud": read_req_file("cloud"),
         "ag-grid": read_req_file("ag-grid")
     },
