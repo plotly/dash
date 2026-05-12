@@ -16,6 +16,7 @@ export interface ICallbackDefinition {
     running: any;
     no_output?: boolean;
     websocket?: boolean;
+    persistent?: boolean;
 }
 
 export interface ICallbackProperty {

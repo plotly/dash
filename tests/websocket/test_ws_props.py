@@ -185,7 +185,7 @@ def test_ws034_get_prop_reads_value(dash_duo):
 
         from dash import ctx
 
-        ws = ctx.get_websocket
+        ws = ctx.websocket
         if ws:
             value = await ws.get_prop("source", "children")
             return f"Read: {value}"
@@ -219,7 +219,7 @@ def test_ws035_websocket_set_prop_method(dash_duo):
 
         from dash import ctx
 
-        ws = ctx.get_websocket
+        ws = ctx.websocket
         if ws:
             await ws.set_prop("target", "children", f"Set via WebSocket {n}")
             return "Set complete"

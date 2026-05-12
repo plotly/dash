@@ -82,7 +82,7 @@ def update_with_set_props(n_clicks):
 @callback(Output("output-6", "children"), Input("btn-3", "n_clicks"))
 def check_websocket_context(n_clicks):
     if n_clicks > 0:
-        ws = ctx.get_websocket
+        ws = ctx.websocket
         if ws is not None:
             return f"WebSocket context is available! (click {n_clicks})"
         else:

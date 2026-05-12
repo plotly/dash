@@ -298,3 +298,61 @@ def test_rdls004_update_title_chained_callbacks(dash_duo, update_title):
 
     dash_duo.wait_for_text_to_equal("#final-output", "1")
     until(lambda: dash_duo.driver.title == "Page 1", timeout=1)
+
+
+def test_rdls005_persistent_callback_no_update_title(dash_duo):
+    """Test that persistent=True callbacks don't trigger the 'Updating...' title."""
+    lock = Lock()
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        children=[
+            html.H3("Test persistent callback"),
+            html.Button("Persistent", id="persistent-btn", n_clicks=0),
+            html.Button("Regular", id="regular-btn", n_clicks=0),
+            html.Div(id="persistent-output"),
+            html.Div(id="regular-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("persistent-output", "children"),
+        Input("persistent-btn", "n_clicks"),
+        persistent=True,
+    )
+    def persistent_update(n):
+        with lock:
+            return f"Persistent: {n}"
+
+    @app.callback(
+        Output("regular-output", "children"),
+        Input("regular-btn", "n_clicks"),
+    )
+    def regular_update(n):
+        with lock:
+            return f"Regular: {n}"
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#persistent-output", "Persistent: 0")
+    dash_duo.wait_for_text_to_equal("#regular-output", "Regular: 0")
+
+    # Verify title is "Dash" after initial load
+    until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+
+    # Test that persistent callback does NOT change title to "Updating..."
+    with lock:
+        dash_duo.find_element("#persistent-btn").click()
+        # Title should remain "Dash" even while callback is running
+        until(lambda: dash_duo.driver.title == "Dash", timeout=1)
+
+    dash_duo.wait_for_text_to_equal("#persistent-output", "Persistent: 1")
+
+    # Test that regular callback DOES change title to "Updating..."
+    with lock:
+        dash_duo.find_element("#regular-btn").click()
+        until(lambda: dash_duo.driver.title == "Updating...", timeout=1)
+
+    dash_duo.wait_for_text_to_equal("#regular-output", "Regular: 1")
+    # Title should revert after callback completes
+    until(lambda: dash_duo.driver.title == "Dash", timeout=1)

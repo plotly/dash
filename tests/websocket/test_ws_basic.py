@@ -179,7 +179,7 @@ def test_ws005_websocket_context_available(dash_duo):
     def check_context(n_clicks):
         if not n_clicks:
             return "Click to check"
-        ws = ctx.get_websocket
+        ws = ctx.websocket
         if ws is not None:
             return "WebSocket context available"
         return "No WebSocket context"

@@ -165,6 +165,20 @@ def create_callback_id(output, inputs, no_output=False):
 
     if no_output:
         # No output will hash the inputs.
+        # For no-input callbacks, also include the call site to make each unique
+        if not inputs:
+            # Get the call site of the @callback decorator
+            stack = inspect.stack()
+            # Walk up the stack to find the actual callback call site
+            # Fallback to empty hash if no external frame found
+            # (skip internal dash package frames)
+            dash_package_path = os.path.dirname(__file__)
+            for frame_info in stack:
+                # Skip frames from within the dash package itself
+                if not frame_info.filename.startswith(dash_package_path):
+                    call_site = f"{frame_info.filename}:{frame_info.lineno}"
+                    return hashlib.sha256(call_site.encode("utf-8")).hexdigest()
+
         return _hash_inputs()
 
     if isinstance(output, (list, tuple)):
