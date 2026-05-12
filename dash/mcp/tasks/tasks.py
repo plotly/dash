@@ -13,30 +13,33 @@ from dash.mcp.primitives.tools.results import format_callback_response
 from dash.mcp.types import MCPError
 
 
-def parse_task_id(task_id: str) -> tuple[str, str, str]:
-    """Parse a taskId into (tool_name, job_id, cache_key)."""
-    tool_name, job_id, cache_key = task_id.split(":", 2)
-    return tool_name, job_id, cache_key
+def parse_task_id(task_id: str) -> tuple[str, str, str, datetime]:
+    """Parse a taskId into (tool_name, job_id, cache_key, created_at)."""
+    tool_name, job_id, rest = task_id.split(":", 2)
+    cache_key, created_epoch = rest.rsplit(":", 1)
+    created_at = datetime.fromtimestamp(int(created_epoch), tz=timezone.utc)
+    return tool_name, job_id, cache_key, created_at
 
 
-def _get_callback_manager():
-    """Get the background callback manager from the app's callback_map."""
-    app = get_app()
-    for cb_info in app.callback_map.values():
-        manager = cb_info.get("manager")
-        if manager is not None:
-            return manager
-    return None
+def _get_callback_manager(tool_name: str):
+    """Resolve the background callback manager for a specific MCP tool."""
+    adapter = get_app().mcp_callback_map.find_by_tool_name(tool_name)
+    if adapter is None:
+        return None
+    # pylint: disable-next=protected-access
+    return adapter._cb_info.get("manager")
 
 
 def create_task(dispatch_response: dict[str, Any], callback) -> CreateTaskResult:
     """Create a Task from a background callback's initial dispatch response."""
     cache_key = dispatch_response["cacheKey"]
     job_id = str(dispatch_response["job"])
-    task_id = f"{callback.tool_name}:{job_id}:{cache_key}"
+    now = datetime.now(timezone.utc)
+    # taskId encodes creation time so subsequent polls return a stable
+    # createdAt without server-side storage (works across gunicorn workers).
+    task_id = f"{callback.tool_name}:{job_id}:{cache_key}:{int(now.timestamp())}"
     # pylint: disable-next=protected-access
     interval = callback._cb_info.get("background", {}).get("interval", 1000)
-    now = datetime.now(timezone.utc)
     return CreateTaskResult(
         task=Task(
             taskId=task_id,
@@ -51,15 +54,15 @@ def create_task(dispatch_response: dict[str, Any], callback) -> CreateTaskResult
 
 def get_task(task_id: str) -> GetTaskResult:
     """Handle tasks/get — derive status from the callback manager."""
-    tool_name, job_id, cache_key = parse_task_id(task_id)
+    tool_name, job_id, cache_key, created_at = parse_task_id(task_id)
 
-    manager = _get_callback_manager()
+    manager = _get_callback_manager(tool_name)
     if manager is None:
         return GetTaskResult(
             taskId=task_id,
             status="failed",
             statusMessage="No background callback manager configured.",
-            createdAt=datetime.now(timezone.utc),
+            createdAt=created_at,
             lastUpdatedAt=datetime.now(timezone.utc),
             ttl=None,
         )
@@ -81,15 +84,12 @@ def get_task(task_id: str) -> GetTaskResult:
         # pylint: disable-next=protected-access
         interval = adapter._cb_info.get("background", {}).get("interval", 1000)
 
-    now = datetime.now(timezone.utc)
     return GetTaskResult(
         taskId=task_id,
         status=status,
         statusMessage=str(progress) if progress else None,
-        createdAt=datetime.fromisoformat(
-            manager.handle.get(f"{cache_key}-created_at") or now.isoformat()
-        ),
-        lastUpdatedAt=now,
+        createdAt=created_at,
+        lastUpdatedAt=datetime.now(timezone.utc),
         ttl=manager.expire * 1000 if manager.expire else None,
         pollInterval=interval,
     )
@@ -100,9 +100,9 @@ def get_task_result(task_id: str) -> Any:
 
     Mirrors the Dash renderer: calls get_result() which clears from cache.
     """
-    tool_name, job_id, cache_key = parse_task_id(task_id)
+    tool_name, job_id, cache_key, _created_at = parse_task_id(task_id)
 
-    manager = _get_callback_manager()
+    manager = _get_callback_manager(tool_name)
     if manager is None:
         raise MCPError("No background callback manager configured.")
 
@@ -135,22 +135,18 @@ def cancel_task(task_id: str) -> Any:
 
     Same underlying mechanism as the renderer's cancelJob query param.
     """
-    _tool_name, job_id, cache_key = parse_task_id(task_id)
+    tool_name, job_id, _cache_key, created_at = parse_task_id(task_id)
 
-    manager = _get_callback_manager()
+    manager = _get_callback_manager(tool_name)
     if manager is None:
         raise MCPError("No background callback manager configured.")
 
     manager.terminate_job(job_id)
 
-    now = datetime.now(timezone.utc)
-    created_at = manager.handle.get(f"{cache_key}-created_at")
-    manager.handle.delete(f"{cache_key}-created_at")
-
     return CancelTaskResult(
         taskId=task_id,
         status="cancelled",
-        createdAt=datetime.fromisoformat(created_at) if created_at else now,
-        lastUpdatedAt=now,
+        createdAt=created_at,
+        lastUpdatedAt=datetime.now(timezone.utc),
         ttl=manager.expire * 1000 if manager.expire else None,
     )

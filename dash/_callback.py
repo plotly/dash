@@ -446,12 +446,6 @@ def _setup_background_callback(
         ctx_value,
     )
 
-    callback_manager.handle.set(
-        f"{cache_key}-created_at",
-        datetime.now(timezone.utc).isoformat(),
-        expire=callback_manager.expire,
-    )
-
     data = {
         "cacheKey": cache_key,
         "job": job,
