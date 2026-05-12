@@ -20,7 +20,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
 
-## [4.2.0rc1] - 2026-05-01
+## [4.2.0rc3] - 2026-05-12
+
+- [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
+- Rename ctx.get_websocket to ctx.websocket
+
+## [4.2.0rc2] - 2026-05-01
 
 ## Fixed
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the error when using `set_props()` to update component-type properties in the `websocket` callback.
