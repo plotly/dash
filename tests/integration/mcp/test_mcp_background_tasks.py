@@ -9,7 +9,6 @@ appear in ``tools/list``.
 import json
 import re
 import time
-from datetime import datetime
 
 import diskcache
 from dash import Dash, Input, Output, html
@@ -84,14 +83,7 @@ def test_mcpbg012_trigger_poll_and_retrieve():
     task_id = task_info["taskId"]
     assert task_info["status"] == "working"
 
-    # Read createdAt from the callback manager directly
-    _, _, cache_key = task_id.split(":", 2)
-    stored_created_at = app.callback_map["output.children"]["manager"].handle.get(
-        f"{cache_key}-created_at"
-    )
-    assert stored_created_at is not None
-
-    # Poll — should be working, with createdAt matching the stored value
+    # Poll — should be working
     r = _post(
         client,
         "tools/call",
@@ -103,12 +95,10 @@ def test_mcpbg012_trigger_poll_and_retrieve():
     )
     assert r.status_code == 200
     poll_data = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
-    assert datetime.fromisoformat(poll_data["createdAt"]) == datetime.fromisoformat(
-        stored_created_at
-    )
+    assert poll_data["status"] == "working"
 
     # Wait for completion
-    _, job_id, _ = task_id.split(":", 2)
+    job_id = task_id.split(":")[1]
     manager = app.callback_map["output.children"]["manager"]
     deadline = time.time() + 5
     while time.time() < deadline:
@@ -133,7 +123,7 @@ def test_mcpbg012_trigger_poll_and_retrieve():
 
 
 def test_mcpbg013_result_expires():
-    """Result and createdAt are available until the cache expires."""
+    """Result is retrievable until the cache expires, then reports failure."""
     cache = diskcache.Cache()
     manager = DiskcacheManager(cache, cache_by=[lambda: "fixed"], expire=2)
 
@@ -151,7 +141,6 @@ def test_mcpbg013_result_expires():
 
     client = app.server.test_client()
 
-    # Trigger
     r = _post(
         client,
         "tools/call",
@@ -159,16 +148,15 @@ def test_mcpbg013_result_expires():
     )
     task_info = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
     task_id = task_info["taskId"]
-    _, job_id, cache_key = task_id.split(":", 2)
+    job_id = task_id.split(":")[1]
 
-    # Wait for job to finish
     deadline = time.time() + 3
     while time.time() < deadline:
         if not manager.job_running(job_id):
             break
         time.sleep(0.1)
 
-    # First retrieval — result and createdAt available
+    # Before expiry — result available
     r = _post(
         client,
         "tools/call",
@@ -178,12 +166,11 @@ def test_mcpbg013_result_expires():
         },
         request_id=2,
     )
-    text = json.loads(r.data)["result"]["content"][0]["text"]
-    assert "done:" in text
-    created_at = manager.handle.get(f"{cache_key}-created_at")
-    assert created_at is not None
+    assert "done:" in json.loads(r.data)["result"]["content"][0]["text"]
 
-    # Second retrieval — still available (cache_by keeps it)
+    time.sleep(2.5)
+
+    # After expiry — tool reports failure
     r = _post(
         client,
         "tools/call",
@@ -193,28 +180,8 @@ def test_mcpbg013_result_expires():
         },
         request_id=3,
     )
-    text = json.loads(r.data)["result"]["content"][0]["text"]
-    assert "done:" in text
-    assert manager.handle.get(f"{cache_key}-created_at") == created_at
-
-    # Wait for expiry
-    time.sleep(2.5)
-
-    # After expiry — tool reports failure, createdAt is fresh (stored value gone)
-    r = _post(
-        client,
-        "tools/call",
-        {
-            "name": "get_background_task_result",
-            "arguments": {"taskId": task_id},
-        },
-        request_id=4,
-    )
     poll_data = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
     assert poll_data["status"] == "failed"
-    assert datetime.fromisoformat(poll_data["createdAt"]) > datetime.fromisoformat(
-        created_at
-    )
 
 
 def test_mcpbg014_progress_in_poll_response():
@@ -296,3 +263,64 @@ def test_mcpbg015_background_tools_in_tools_list():
     assert "get_background_task_result" in names
     assert "cancel_background_task" in names
     assert "slow_callback" in names
+
+
+def test_mcpbg016_per_callback_manager_lookup():
+    """``tasks/get`` uses the manager attached to the specific callback."""
+    manager_a = DiskcacheManager(diskcache.Cache())
+    manager_b = DiskcacheManager(diskcache.Cache())
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(id="input_a"),
+            html.Div(id="output_a"),
+            html.Div(id="input_b"),
+            html.Div(id="output_b"),
+        ]
+    )
+
+    @app.callback(
+        Output("output_a", "children"),
+        Input("input_a", "children"),
+        background=True,
+        manager=manager_a,
+    )
+    def callback_a(value):
+        time.sleep(0.5)
+        return f"a: {value}"
+
+    @app.callback(
+        Output("output_b", "children"),
+        Input("input_b", "children"),
+        background=True,
+        manager=manager_b,
+    )
+    def callback_b(value):
+        time.sleep(0.5)
+        return f"b: {value}"
+
+    client = app.server.test_client()
+
+    r = _post(
+        client,
+        "tools/call",
+        {"name": "callback_b", "arguments": {"value": "hello"}},
+    )
+    assert r.status_code == 200
+    task_info = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
+    task_id = task_info["taskId"]
+    cache_key = task_id.split(":")[2]
+
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        if manager_b.result_ready(cache_key):
+            break
+        time.sleep(0.1)
+
+    assert manager_b.result_ready(cache_key)
+    assert not manager_a.result_ready(cache_key)
+
+    r = _post(client, "tasks/get", {"taskId": task_id}, request_id=2)
+    assert r.status_code == 200
+    assert json.loads(r.data)["result"]["status"] == "completed"

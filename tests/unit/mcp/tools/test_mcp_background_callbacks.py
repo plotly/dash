@@ -272,6 +272,7 @@ def test_mcpbg011_task_id_encodes_tool_name_job_id_cache_key():
         },
     )
     task_id = result["result"]["task"]["taskId"]
-    tool_name, _job_id, cache_key = task_id.split(":", 2)
+    tool_name, _job_id, cache_key, created_epoch = task_id.split(":")
     assert tool_name == "slow_callback"
     assert len(cache_key) == 64  # SHA256 hex
+    assert created_epoch.isdigit()
