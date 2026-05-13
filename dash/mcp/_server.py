@@ -11,7 +11,6 @@ import inspect
 import json
 import logging
 import os
-import threading
 from typing import TYPE_CHECKING, Any
 
 from mcp.types import (

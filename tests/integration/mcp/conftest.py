@@ -5,6 +5,8 @@ import sys
 import pytest
 import requests
 
+from dash import _get_app
+
 collect_ignore_glob = []
 if sys.version_info < (3, 10):
     collect_ignore_glob.append("*")
@@ -14,6 +16,14 @@ if sys.version_info < (3, 10):
 def _enable_mcp_for_integration_tests(monkeypatch):
     """MCP is off by default; integration tests need it on."""
     monkeypatch.setenv("DASH_MCP_ENABLED", "true")
+
+
+@pytest.fixture(autouse=True)
+def _reset_dash_app_state():
+    """Reset Dash module-level state after each MCP test."""
+    yield
+    _get_app.APP = None
+    _get_app.app_context.set(None)
 
 
 def _mcp_post(server_url, method, params=None, request_id=1):
