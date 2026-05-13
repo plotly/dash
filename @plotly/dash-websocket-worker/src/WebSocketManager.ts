@@ -195,7 +195,23 @@ export class WebSocketManager {
         try {
             const data = JSON.parse(event.data);
 
-            // Handle heartbeat acknowledgment - does NOT count as activity
+            // Handle batched messages - check for heartbeat_ack in the batch
+            if (Array.isArray(data)) {
+                for (const msg of data) {
+                    if (msg && msg.type === 'heartbeat_ack') {
+                        this.clearHeartbeatTimeout();
+                        break;
+                    }
+                }
+                // Track activity and forward batch for processing
+                this.lastActivityTime = Date.now();
+                if (this.onMessage) {
+                    this.onMessage(data);
+                }
+                return;
+            }
+
+            // Handle single heartbeat acknowledgment - does NOT count as activity
             if (data.type === 'heartbeat_ack') {
                 this.clearHeartbeatTimeout();
                 return;

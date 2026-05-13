@@ -111,6 +111,10 @@ export class MessageRouter {
 
         for (const message of messages) {
             const msg = message as WorkerMessage;
+            // Skip heartbeat_ack - already handled by WebSocketManager
+            if ((msg as any).type === 'heartbeat_ack') {
+                continue;
+            }
             if (msg.type === WorkerMessageType.SET_PROPS) {
                 const setPropsMsg = msg as SetPropsMessage;
                 const rendererId = setPropsMsg.rendererId;
