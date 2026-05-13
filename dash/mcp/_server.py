@@ -11,7 +11,6 @@ import logging
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from flask import Response, request
 from mcp.types import (
     LATEST_PROTOCOL_VERSION,
     ErrorData,
@@ -25,7 +24,6 @@ from mcp.types import (
 )
 
 from dash import get_app
-from dash._get_app import with_app_context_factory
 from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
 from dash.mcp.primitives import (
     call_tool,
@@ -47,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
-    """Add MCP routes to a Dash/Flask app."""
+    """Add MCP routes to a Dash app."""
 
     app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
     MCP_DECORATED_FUNCTIONS.clear()
@@ -72,28 +70,6 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
 
     # -- Streamable HTTP endpoint --------------------------------------------
 
-    def mcp_handler() -> Response:
-        if request.method == "POST":
-            return _handle_post()
-        if request.method == "GET":
-            return _handle_get()
-        if request.method == "DELETE":
-            return _handle_delete()
-        return Response(
-            json.dumps({"error": "Method not allowed"}),
-            content_type="application/json",
-            status=405,
-        )
-
-    def _handle_get() -> Response:
-        # MCP spec allows servers to opt out of GET-initiated SSE streams
-        # by returning 405. We don't push server-initiated events.
-        return Response(
-            json.dumps({"error": "Method not allowed"}),
-            content_type="application/json",
-            status=405,
-        )
-
     def _check_session(method: str) -> bool:
         """Validate the session header.
 
@@ -102,10 +78,11 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         recovered, or ``False`` when the session is valid.
         """
         nonlocal _session_id
+        adapter = app.backend.request_adapter()
         if method == "initialize":
             _session_id = _get_or_create_session_id()
             return False
-        client_session_id = request.headers.get("Mcp-Session-Id")
+        client_session_id = adapter.headers.get("Mcp-Session-Id")
         if _session_id is not None and not client_session_id:
             raise ValueError("Missing Mcp-Session-Id header")
         if _is_session_stale(client_session_id):
@@ -114,14 +91,14 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             return True
         return False
 
-    def _json_response(*messages: dict) -> Response:
-        """Wrap one or more JSON-RPC messages in a Flask Response.
+    def _json_response(*messages: dict):
+        """Wrap one or more JSON-RPC messages in a response.
 
         A single message is serialised as a JSON object; multiple
         messages are serialised as a JSON array.
         """
         body = messages[0] if len(messages) == 1 else list(messages)
-        resp = Response(
+        resp = app.backend.make_response(
             json.dumps(body),
             content_type="application/json",
             status=200,
@@ -130,18 +107,19 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             resp.headers["Mcp-Session-Id"] = _session_id
         return resp
 
-    def _handle_post() -> Response:
-        content_type = request.content_type or ""
+    def _handle_post() -> Any:
+        adapter = app.backend.request_adapter()
+        content_type = adapter.headers.get("Content-Type", "")
         if "application/json" not in content_type:
-            return Response(
+            return app.backend.make_response(
                 json.dumps({"error": "Content-Type must be application/json"}),
                 content_type="application/json",
                 status=415,
             )
 
-        data = request.get_json(silent=True)
+        data = adapter.get_json()
         if data is None:
-            return Response(
+            return app.backend.make_response(
                 json.dumps({"error": "Invalid JSON"}),
                 content_type="application/json",
                 status=400,
@@ -152,7 +130,7 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         try:
             is_stale_session = _check_session(method)
         except ValueError as err:
-            return Response(
+            return app.backend.make_response(
                 json.dumps({"error": str(err)}),
                 content_type="application/json",
                 status=400,
@@ -161,7 +139,7 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
         response_data = _process_mcp_message(data)
 
         if response_data is None:
-            return Response("", status=202)
+            return app.backend.make_response("", status=202)
 
         if is_stale_session:
             return _json_response(
@@ -175,20 +153,36 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
 
         return _json_response(response_data)
 
-    def _handle_delete() -> Response:
-        # No sessions to terminate — server is stateless.
-        return Response(
+    def _handle_not_allowed():
+        """Return 405 for GET and DELETE (MCP SSE not supported)."""
+        return app.backend.make_response(
             json.dumps({"error": "Method not allowed"}),
             content_type="application/json",
             status=405,
         )
 
     # -- Register routes -----------------------------------------------------
+    # Separate registrations per HTTP method so the handler never needs to
+    # inspect the request method.  Distinct endpoint names are required by
+    # Flask / Werkzeug when the same URL rule is registered more than once.
 
-    # pylint: disable-next=protected-access
-    app._add_url(
-        mcp_path, with_app_context_factory(mcp_handler, app), ["GET", "POST", "DELETE"]
+    mcp_url = app.config.routes_pathname_prefix + mcp_path
+    app.backend.add_url_rule(
+        mcp_url, view_func=_handle_post, endpoint=f"{mcp_url}:POST", methods=["POST"]
     )
+    app.backend.add_url_rule(
+        mcp_url,
+        view_func=_handle_not_allowed,
+        endpoint=f"{mcp_url}:GET",
+        methods=["GET"],
+    )
+    app.backend.add_url_rule(
+        mcp_url,
+        view_func=_handle_not_allowed,
+        endpoint=f"{mcp_url}:DELETE",
+        methods=["DELETE"],
+    )
+    app.routes.append(mcp_url)
 
     logger.info(
         "MCP routes registered at %s%s",
