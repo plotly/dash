@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import inspect
 import logging
 import uuid
 from typing import TYPE_CHECKING, Any
@@ -109,6 +110,14 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
 
     def _handle_post() -> Any:
         adapter = app.backend.request_adapter()
+        return _handle_mcp_request(adapter.get_json())
+
+    async def _handle_post_async() -> Any:
+        adapter = app.backend.request_adapter()
+        return _handle_mcp_request(await adapter.get_json())
+
+    def _handle_mcp_request(data) -> Any:
+        adapter = app.backend.request_adapter()
         content_type = adapter.headers.get("Content-Type", "")
         if "application/json" not in content_type:
             return app.backend.make_response(
@@ -117,7 +126,6 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
                 status=415,
             )
 
-        data = adapter.get_json()
         if data is None:
             return app.backend.make_response(
                 json.dumps({"error": "Invalid JSON"}),
@@ -165,10 +173,16 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     # Separate registrations per HTTP method so the handler never needs to
     # inspect the request method.  Distinct endpoint names are required by
     # Flask / Werkzeug when the same URL rule is registered more than once.
-
+    if inspect.iscoroutinefunction(app.backend.request_adapter.get_json):
+        post_handler = _handle_post_async
+    else:
+        post_handler = _handle_post
     mcp_url = app.config.routes_pathname_prefix + mcp_path
     app.backend.add_url_rule(
-        mcp_url, view_func=_handle_post, endpoint=f"{mcp_url}:POST", methods=["POST"]
+        mcp_url,
+        view_func=post_handler,
+        endpoint=f"{mcp_url}:POST",
+        methods=["POST"],
     )
     app.backend.add_url_rule(
         mcp_url,
