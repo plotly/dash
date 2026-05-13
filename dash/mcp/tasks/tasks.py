@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from typing import Any, Literal
 
 from mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
 
 from dash import get_app
+from dash._callback import _update_background_callback, _prepare_response
+from dash._utils import AttributeDict, split_callback_id
+from dash.development.base_component import ComponentRegistry
 from dash.mcp.primitives.tools.results import format_callback_response
 from dash.mcp.types import MCPError
 
@@ -98,7 +100,10 @@ def get_task(task_id: str) -> GetTaskResult:
 def get_task_result(task_id: str) -> Any:
     """Handle tasks/result — retrieve and format the callback result.
 
-    Mirrors the Dash renderer: calls get_result() which clears from cache.
+    Uses the framework's background callback retrieval functions
+    (``_update_background_callback`` and ``_prepare_response``) with
+    ``cache_key`` and ``job_id`` supplied directly, bypassing the
+    request adapter query-param lookup.
     """
     tool_name, job_id, cache_key, _created_at = parse_task_id(task_id)
 
@@ -106,28 +111,56 @@ def get_task_result(task_id: str) -> Any:
     if manager is None:
         raise MCPError("No background callback manager configured.")
 
-    # Mirror the renderer: dispatch with cacheKey/job query params.
-    # The framework handles result retrieval, wrapping, and cleanup.
-    adapter = get_app().mcp_callback_map.find_by_tool_name(tool_name)
-    body = adapter.as_callback_body({})
     app = get_app()
+    adapter = app.mcp_callback_map.find_by_tool_name(tool_name)
+    # pylint: disable-next=protected-access
+    cb_info = adapter._cb_info
+    background = cb_info.get("background")
+    has_output = not cb_info.get("no_output")
+    multi = adapter.output_id.startswith("..")
+    output = split_callback_id(adapter.output_id)
 
-    with app.server.test_request_context(
-        f"/_dash-update-component?cacheKey={cache_key}&job={job_id}",
-        method="POST",
-        data=json.dumps(body, default=str),
-        content_type="application/json",
-    ):
-        response = app.dispatch()
+    # Build the body to get output_spec, same as as_callback_body
+    body = adapter.as_callback_body({})
+    output_spec = body.get("outputs", [])
 
-    response_data = json.loads(response.get_data(as_text=True))
+    callback_ctx = AttributeDict({"updated_props": {}})
+    response = {"multi": True}
 
-    if "response" not in response_data:
+    output_value, has_update, skip = _update_background_callback(
+        error_handler=None,
+        callback_ctx=callback_ctx,
+        response=response,
+        kwargs={"background_callback_manager": manager},
+        background=background,
+        multi=multi,
+        cache_key=cache_key,
+        job_id=job_id,
+    )
+
+    if skip:
+        # Result not ready — still polling
         raise MCPError(
             "Task result not ready. Poll tasks/get until status is 'completed'."
         )
 
-    return format_callback_response(response_data, adapter)
+    _prepare_response(
+        output_value,
+        output_spec,
+        multi,
+        response,
+        callback_ctx,
+        app,
+        set(ComponentRegistry.registry),
+        background,
+        has_update,
+        has_output,
+        output,
+        adapter.output_id,
+        cb_info.get("allow_dynamic_callbacks"),
+    )
+
+    return format_callback_response(response, adapter)
 
 
 def cancel_task(task_id: str) -> Any:
