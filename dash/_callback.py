@@ -1,13 +1,10 @@
-from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
-from functools import wraps
 import collections
 import hashlib
 import inspect
+from functools import wraps
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
-try:
-    from typing import ParamSpec
-except ImportError:  # Assume Python < 3.10
-    from typing_extensions import ParamSpec  # type: ignore
+from typing_extensions import ParamSpec
 
 from .dependencies import (
     handle_callback_args,
