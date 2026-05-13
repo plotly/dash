@@ -40,14 +40,6 @@ def test_mcpse001_initialize_returns_session_id():
         assert len(session_id) > 0
 
 
-def test_mcpse002_request_without_session_after_init_returns_400():
-    app = _make_mcp_app()
-    with app.server.test_client() as client:
-        _post(client, "initialize")
-        resp = _post(client, "tools/list")
-        assert resp.status_code == 400
-
-
 def test_mcpse003_request_with_valid_session_succeeds():
     app = _make_mcp_app()
     with app.server.test_client() as client:

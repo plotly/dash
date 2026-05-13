@@ -6,10 +6,12 @@
 
 from __future__ import annotations
 
-import json
+import hashlib
 import inspect
+import json
 import logging
-import uuid
+import os
+import threading
 from typing import TYPE_CHECKING, Any
 
 from mcp.types import (
@@ -51,13 +53,22 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
     MCP_DECORATED_FUNCTIONS.clear()
 
-    _session_id: str | None = None
-
     def _get_or_create_session_id() -> str:
-        """Read the hot-reload hash or generate a stable fallback."""
+        """
+        Creates a shared session ID shared across all clients. The session is
+        used to notify clients of app restarts so they can refresh their view
+        of the app.
+        When hot-reloading is enabled, the reload_hash is used
+        Otherwise, the parent PID is used because it is a stable identifier
+        across different worker processes.
+        """
         # pylint: disable=protected-access
         reload_hash = app._hot_reload.hash
-        return reload_hash if reload_hash is not None else uuid.uuid4().hex
+        if reload_hash is not None:
+            return reload_hash
+        return hashlib.sha256(f"dash-mcp-{os.getppid()}".encode()).hexdigest()[:32]
+
+    _session_id: str = _get_or_create_session_id()
 
     def _is_session_stale(client_session_id: str | None) -> bool:
         """True when the client's session doesn't match or the hash changed."""
@@ -84,9 +95,7 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
             _session_id = _get_or_create_session_id()
             return False
         client_session_id = adapter.headers.get("Mcp-Session-Id")
-        if _session_id is not None and not client_session_id:
-            raise ValueError("Missing Mcp-Session-Id header")
-        if _is_session_stale(client_session_id):
+        if client_session_id and _is_session_stale(client_session_id):
             _session_id = _get_or_create_session_id()
             logger.debug("MCP session recovered: %s", _session_id)
             return True
