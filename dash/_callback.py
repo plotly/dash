@@ -1,8 +1,10 @@
-from typing import Callable, Optional, Any, List, Tuple, Union, Dict
-from functools import wraps
 import collections
 import hashlib
 import inspect
+from functools import wraps
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
+
+from typing_extensions import ParamSpec
 
 from .dependencies import (
     handle_callback_args,
@@ -61,6 +63,10 @@ GLOBAL_INLINE_SCRIPTS: List[Any] = []
 GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
+Params = ParamSpec("Params")
+ReturnVar = TypeVar("ReturnVar")
+
+
 # pylint: disable=too-many-locals,too-many-arguments
 def callback(
     *_args,
@@ -80,7 +86,7 @@ def callback(
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
     **_kwargs,
-) -> Callable[..., Any]:
+) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -221,7 +227,7 @@ def callback(
 
         background_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
-    return register_callback(
+    raw = register_callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
@@ -236,6 +242,10 @@ def callback(
         hidden=hidden,
         websocket=websocket,
         persistent=persistent,
+    )
+
+    return cast(
+        Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
 
 
