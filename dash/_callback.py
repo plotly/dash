@@ -3,7 +3,6 @@ from functools import wraps
 import collections
 import hashlib
 import inspect
-from datetime import datetime, timezone
 
 from .dependencies import (
     handle_callback_args,
@@ -453,10 +452,13 @@ def _setup_background_callback(
     return to_json(data)
 
 
-def _progress_background_callback(response, callback_manager, background):
+def _progress_background_callback(
+    response, callback_manager, background, cache_key=None
+):
     progress_outputs = background.get("progress")
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey")
+    if cache_key is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = adapter.args.get("cacheKey")
 
     if progress_outputs:
         # Get the progress before the result as it would be erased after the results.
@@ -468,21 +470,38 @@ def _progress_background_callback(response, callback_manager, background):
 
 
 def _update_background_callback(
-    error_handler, callback_ctx, response, kwargs, background, multi
+    error_handler,
+    callback_ctx,
+    response,
+    kwargs,
+    background,
+    multi,
+    cache_key=None,
+    job_id=None,
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
 
-    _progress_background_callback(response, callback_manager, background)
+    _progress_background_callback(
+        response, callback_manager, background, cache_key=cache_key
+    )
 
     output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
-        output_value, callback_manager, response, error_handler, callback_ctx, multi
+        output_value,
+        callback_manager,
+        response,
+        error_handler,
+        callback_ctx,
+        multi,
+        cache_key=cache_key,
+        job_id=job_id,
     )
 
 
@@ -494,10 +513,13 @@ def _handle_rest_background_callback(
     callback_ctx,
     multi,
     has_update=False,
+    cache_key=None,
+    job_id=None,
 ):
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
     # Must get job_running after get_result since get_results terminates it.
     job_running = callback_manager.job_running(job_id)
     if not job_running and output_value is callback_manager.UNDEFINED:
