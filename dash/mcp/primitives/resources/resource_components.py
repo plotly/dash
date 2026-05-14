@@ -42,7 +42,7 @@ class ComponentsResource(MCPResourceProvider):
         components = sorted(
             [
                 {
-                    "id": str(getattr(comp, "id", None)),
+                    "id": str(getattr(comp, "id")),
                     "type": getattr(comp, "_type", type(comp).__name__),
                 }
                 for comp, _ in traverse(layout)
