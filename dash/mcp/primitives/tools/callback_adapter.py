@@ -363,7 +363,8 @@ class CallbackAdapter:
 
 
 def _expand_dep(dep: CallbackDependency, value: Any) -> CallbackInputs:
-    """Attach a concrete value to a callback dependency to produce a valid callback input.
+    """
+    Attach a concrete value to a callback dependency to produce a valid callback input.
 
     For regular deps, returns ``{id, property, value}``.
     For ALL/ALLSMALLER: passes through the list of ``{id, property, value}`` dicts.
