@@ -450,6 +450,29 @@ class PlotlyGraph extends Component {
             if (!isNil(relayout) && !equals(relayout, relayoutData)) {
                 setProps({relayoutData: relayout});
             }
+            // Sync shapes from gd.layout to figure when shapes are modified by user
+            // This is needed because getLayout() clones layout to prevent mutation issues
+            if (eventData && gd.layout) {
+                const hasShapeChanges = Object.keys(eventData).some(
+                    key => key === 'shapes' || key.startsWith('shapes[')
+                );
+                if (hasShapeChanges) {
+                    const {figure} = this.props;
+                    const currentShapes = figure?.layout?.shapes;
+                    const newShapes = gd.layout.shapes;
+                    if (!equals(currentShapes, newShapes)) {
+                        setProps({
+                            figure: {
+                                ...figure,
+                                layout: {
+                                    ...figure?.layout,
+                                    shapes: newShapes,
+                                },
+                            },
+                        });
+                    }
+                }
+            }
         });
         gd.on('plotly_restyle', eventData => {
             const restyle = filterEventData(gd, eventData, 'restyle');
