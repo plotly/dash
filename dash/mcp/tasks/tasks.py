@@ -13,6 +13,7 @@ from dash._utils import AttributeDict, split_callback_id
 from dash.development.base_component import ComponentRegistry
 from dash.mcp.primitives.tools.results import format_callback_response
 from dash.mcp.types import MCPError
+from dash.types import CallbackExecutionResponse
 
 
 def parse_task_id(task_id: str) -> tuple[str, str, str, datetime]:
@@ -72,11 +73,13 @@ def get_task(task_id: str) -> GetTaskResult:
     running = manager.job_running(job_id)
     progress = manager.get_progress(cache_key)
 
+    # Check result_ready before job_running: the process may store its result
+    # while still technically alive (teardown race), so result_ready wins.
     status: Literal["working", "completed", "failed"]
-    if running:
-        status = "working"
-    elif manager.result_ready(cache_key):
+    if manager.result_ready(cache_key):
         status = "completed"
+    elif running:
+        status = "working"
     else:
         status = "failed"
 
@@ -125,7 +128,7 @@ def get_task_result(task_id: str) -> Any:
     output_spec = body.get("outputs", [])
 
     callback_ctx = AttributeDict({"updated_props": {}})
-    response = {"multi": True}
+    response: CallbackExecutionResponse = {"multi": True}
 
     output_value, has_update, skip = _update_background_callback(
         error_handler=None,
