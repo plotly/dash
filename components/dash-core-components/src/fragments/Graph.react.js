@@ -317,6 +317,8 @@ class PlotlyGraph extends Component {
         if (!layout) {
             return layout;
         }
+        // Clone layout to avoid mutating the original (important for Patch)
+        layout = {...layout};
         const override = this.getLayoutOverride(responsive);
         const {override: prev_override, originals: prev_originals} = this.state;
         // Store the original data that we're about to override
@@ -414,6 +416,8 @@ class PlotlyGraph extends Component {
         gd.on('plotly_click', eventData => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
+                // Add timestamp to ensure each click is unique (for DashWrapper deduplication)
+                clickData.timestamp = Date.now();
                 setProps({clickData});
             }
         });
@@ -422,6 +426,8 @@ class PlotlyGraph extends Component {
                 ['event', 'fullAnnotation'],
                 eventData
             );
+            // Add timestamp to ensure each click is unique (for DashWrapper deduplication)
+            clickAnnotationData.timestamp = Date.now();
             setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
