@@ -55,7 +55,8 @@ def format_callback_response(
 
 
 def task_result_to_tool_result(create_task_result: CreateTaskResult) -> CallToolResult:
-    """Wrap a CreateTaskResult as a CallToolResult with polling instructions.
+    """
+    Wrap a CreateTaskResult as a CallToolResult with polling instructions.
 
     MCP Tasks are not yet supported by LLM clients, so this converts the
     task metadata into a tool response that guides the LLM to poll via

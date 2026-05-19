@@ -85,18 +85,22 @@ class BackgroundTaskTools(MCPToolProvider):
     ) -> CallToolResult:
         task_id = arguments.get("taskId", "")
 
-        if tool_name == GET_RESULT_TOOL_NAME:
-            task_status = get_task(task_id)
-            if task_status.status == "completed":
-                return get_task_result(task_id)
-            return CallToolResult(
-                content=[TextContent(type="text", text=task_status.model_dump_json())],
-            )
+        match tool_name:
+            case name if name == GET_RESULT_TOOL_NAME:
+                task_status = get_task(task_id)
+                if task_status.status == "completed":
+                    return get_task_result(task_id)
+                return CallToolResult(
+                    content=[
+                        TextContent(type="text", text=task_status.model_dump_json())
+                    ],
+                )
 
-        if tool_name == CANCEL_TOOL_NAME:
-            result = cancel_task(task_id)
-            return CallToolResult(
-                content=[TextContent(type="text", text=result.model_dump_json())],
-            )
+            case name if name == CANCEL_TOOL_NAME:
+                result = cancel_task(task_id)
+                return CallToolResult(
+                    content=[TextContent(type="text", text=result.model_dump_json())],
+                )
 
-        raise ValueError(f"Unknown tool: {tool_name}")
+            case _:
+                raise ValueError(f"Unknown tool: {tool_name}")
