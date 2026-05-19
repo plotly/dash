@@ -18,9 +18,12 @@ from dash.types import CallbackExecutionResponse
 
 def parse_task_id(task_id: str) -> tuple[str, str, str, datetime]:
     """Parse a taskId into (tool_name, job_id, cache_key, created_at)."""
-    tool_name, job_id, rest = task_id.split(":", 2)
-    cache_key, created_epoch = rest.rsplit(":", 1)
-    created_at = datetime.fromtimestamp(int(created_epoch), tz=timezone.utc)
+    try:
+        tool_name, job_id, rest = task_id.split(":", 2)
+        cache_key, created_epoch = rest.rsplit(":", 1)
+        created_at = datetime.fromtimestamp(int(created_epoch), tz=timezone.utc)
+    except (ValueError, TypeError) as exc:
+        raise MCPError(f"Malformed taskId: {task_id!r}") from exc
     return tool_name, job_id, cache_key, created_at
 
 
@@ -116,6 +119,8 @@ def get_task_result(task_id: str) -> Any:
 
     app = get_app()
     adapter = app.mcp_callback_map.find_by_tool_name(tool_name)
+    if adapter is None:
+        raise MCPError(f"Task not found: {tool_name}")
     # pylint: disable-next=protected-access
     cb_info = adapter._cb_info
     background = cb_info.get("background")
