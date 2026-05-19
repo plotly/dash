@@ -457,7 +457,7 @@ class PlotlyGraph extends Component {
                     key => key === 'shapes' || key.startsWith('shapes[')
                 );
                 if (hasShapeChanges) {
-                    const {figure} = this.props;
+                    const {figure = {}} = this.props;
                     const currentShapes = figure?.layout?.shapes;
                     const newShapes = gd.layout.shapes;
                     if (!equals(currentShapes, newShapes)) {
