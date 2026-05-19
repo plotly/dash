@@ -131,9 +131,7 @@ export async function initializeWebSocket(
     };
 
     // Handle single SET_PROPS message
-    workerClient.onSetProps = (payload: SetPropsPayload) => {
-        processSetProps(payload);
-    };
+    workerClient.onSetProps = processSetProps;
 
     // Handle batched SET_PROPS_BATCH message
     workerClient.onSetPropsBatch = (payloads: SetPropsPayload[]) => {

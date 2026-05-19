@@ -202,10 +202,11 @@ async def run_ws_sender(
     Args:
         send_text: Async function to send text data over WebSocket
         outbound_queue: janus.Queue instance for receiving messages (strings)
-        batch_delay: Time in seconds to wait for additional messages (default: 5ms)
+        batch_delay: Time in seconds to wait for additional messages (default: 5ms).
+            Set to 0 to disable batching and send messages immediately.
     """
     q = outbound_queue.async_q
-    messages: list = []
+    messages: list[str] = []
     try:
         while True:
             # Wait indefinitely for first message, then use timeout for batching
@@ -221,7 +222,10 @@ async def run_ws_sender(
                         await _send_batched(send_text, messages)
                         messages = []
                     continue
-                messages.append(msg)
+                if not batch_delay:
+                    await send_text(msg)
+                else:
+                    messages.append(msg)
             except asyncio.TimeoutError:
                 await _send_batched(send_text, messages)
                 messages = []

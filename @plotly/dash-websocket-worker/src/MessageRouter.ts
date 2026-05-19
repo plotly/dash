@@ -70,7 +70,7 @@ export class MessageRouter {
     public handleServerMessage(message: unknown): void {
         // Handle batched messages (array of messages)
         if (Array.isArray(message)) {
-            this.handleBatchedMessages(message);
+            this.handleBatchedMessages(message as WorkerMessage[]);
             return;
         }
 
@@ -102,26 +102,32 @@ export class MessageRouter {
     /**
      * Handle a batch of messages from the server.
      * Groups set_props by renderer and forwards as a single batch message.
-     * @param messages Array of messages
+     *
+     * Note: set_props messages are processed before other message types.
+     * This is intentional - batching groups all set_props for efficiency,
+     * and the relative order within set_props is preserved.
+     *
+     * @param messages Array of messages (may include server-only types like heartbeat_ack)
      */
-    private handleBatchedMessages(messages: unknown[]): void {
+    private handleBatchedMessages(messages: WorkerMessage[]): void {
         // Group set_props by renderer, keep others separate
         const setPropsPayloadsByRenderer: Map<string, SetPropsMessage['payload'][]> = new Map();
         const otherMessages: WorkerMessage[] = [];
 
-        for (const message of messages) {
-            const msg = message as WorkerMessage;
-            // Skip heartbeat_ack - already handled by WebSocketManager
-            if ((msg as any).type === 'heartbeat_ack') {
+        for (const msg of messages) {
+            // Skip heartbeat_ack - server-only type, already handled by WebSocketManager
+            if (msg.type === WorkerMessageType.HEARTBEAT_ACK) {
                 continue;
             }
             if (msg.type === WorkerMessageType.SET_PROPS) {
                 const setPropsMsg = msg as SetPropsMessage;
                 const rendererId = setPropsMsg.rendererId;
-                if (!setPropsPayloadsByRenderer.has(rendererId)) {
-                    setPropsPayloadsByRenderer.set(rendererId, []);
+                const existing = setPropsPayloadsByRenderer.get(rendererId);
+                if (existing) {
+                    existing.push(setPropsMsg.payload);
+                } else {
+                    setPropsPayloadsByRenderer.set(rendererId, [setPropsMsg.payload]);
                 }
-                setPropsPayloadsByRenderer.get(rendererId)!.push(setPropsMsg.payload);
             } else {
                 otherMessages.push(msg);
             }
@@ -130,17 +136,19 @@ export class MessageRouter {
         // Forward batched set_props to each renderer
         for (const [rendererId, payloads] of setPropsPayloadsByRenderer) {
             const port = this.renderers.get(rendererId);
-            if (port) {
-                try {
-                    port.postMessage({
-                        type: WorkerMessageType.SET_PROPS_BATCH,
-                        rendererId,
-                        payload: payloads
-                    });
-                } catch (error) {
-                    console.warn(`Failed to forward batch to renderer ${rendererId}, removing`);
-                    this.renderers.delete(rendererId);
-                }
+            if (!port) {
+                console.warn(`Renderer ${rendererId} not found for batch, skipping`);
+                continue;
+            }
+            try {
+                port.postMessage({
+                    type: WorkerMessageType.SET_PROPS_BATCH,
+                    rendererId,
+                    payload: payloads
+                });
+            } catch (error) {
+                console.warn(`Failed to forward batch to renderer ${rendererId}, removing`);
+                this.renderers.delete(rendererId);
             }
         }
 

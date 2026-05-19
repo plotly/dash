@@ -15,7 +15,10 @@ export enum WorkerMessageType {
     SET_PROPS = 'set_props',
     SET_PROPS_BATCH = 'set_props_batch',
     GET_PROPS_REQUEST = 'get_props_request',
-    ERROR = 'error'
+    ERROR = 'error',
+
+    // Server -> Worker (not forwarded to renderer)
+    HEARTBEAT_ACK = 'heartbeat_ack'
 }
 
 /**

@@ -1,4 +1,13 @@
 /**
+ * Message received from the server.
+ * Can be a WorkerMessage or a heartbeat_ack.
+ */
+interface ServerMessage {
+    type: string;
+    [key: string]: unknown;
+}
+
+/**
  * Configuration options for WebSocket connection.
  */
 interface WebSocketConfig {
@@ -193,20 +202,29 @@ export class WebSocketManager {
 
     private handleMessage(event: MessageEvent): void {
         try {
-            const data = JSON.parse(event.data);
+            const data: ServerMessage | ServerMessage[] = JSON.parse(event.data);
 
             // Handle batched messages - check for heartbeat_ack in the batch
             if (Array.isArray(data)) {
+                let hasHeartbeatAck = false;
+                let hasOtherMessages = false;
                 for (const msg of data) {
-                    if (msg && msg.type === 'heartbeat_ack') {
-                        this.clearHeartbeatTimeout();
-                        break;
+                    if (msg.type === 'heartbeat_ack') {
+                        hasHeartbeatAck = true;
+                    } else {
+                        hasOtherMessages = true;
                     }
                 }
-                // Track activity and forward batch for processing
-                this.lastActivityTime = Date.now();
-                if (this.onMessage) {
-                    this.onMessage(data);
+                if (hasHeartbeatAck) {
+                    this.clearHeartbeatTimeout();
+                }
+                // Only track activity if there are non-heartbeat messages
+                // This matches the single-message behavior
+                if (hasOtherMessages) {
+                    this.lastActivityTime = Date.now();
+                    if (this.onMessage) {
+                        this.onMessage(data);
+                    }
                 }
                 return;
             }
