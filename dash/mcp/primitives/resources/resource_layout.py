@@ -7,6 +7,7 @@ from mcp.types import (
     Resource,
     TextResourceContents,
 )
+from pydantic import AnyUrl
 
 from dash import get_app
 from dash._utils import to_json
@@ -20,7 +21,7 @@ class LayoutResource(MCPResourceProvider):
     @classmethod
     def get_resource(cls) -> Resource | None:
         return Resource(
-            uri=cls.uri,
+            uri=AnyUrl(cls.uri),
             name="dash_app_layout",
             description=(
                 "Full component tree of the Dash app. "
@@ -35,7 +36,7 @@ class LayoutResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=cls.uri,
+                    uri=AnyUrl(cls.uri),
                     mimeType="application/json",
                     text=to_json(app.get_layout()),
                 )

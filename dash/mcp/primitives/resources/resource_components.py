@@ -9,6 +9,7 @@ from mcp.types import (
     Resource,
     TextResourceContents,
 )
+from pydantic import AnyUrl
 
 from dash import get_app
 from dash._layout_utils import traverse
@@ -22,7 +23,7 @@ class ComponentsResource(MCPResourceProvider):
     @classmethod
     def get_resource(cls) -> Resource | None:
         return Resource(
-            uri=cls.uri,
+            uri=AnyUrl(cls.uri),
             name="dash_components",
             description=(
                 "All components with IDs in the app layout. "
@@ -41,7 +42,7 @@ class ComponentsResource(MCPResourceProvider):
         components = sorted(
             [
                 {
-                    "id": str(comp.id),
+                    "id": str(getattr(comp, "id")),
                     "type": getattr(comp, "_type", type(comp).__name__),
                 }
                 for comp, _ in traverse(layout)
@@ -53,7 +54,7 @@ class ComponentsResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=cls.uri,
+                    uri=AnyUrl(cls.uri),
                     mimeType="application/json",
                     text=json.dumps(components),
                 )

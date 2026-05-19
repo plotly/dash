@@ -486,6 +486,9 @@ class Dash(ObsoleteChecker):
         websocket_callbacks: Optional[bool] = False,
         websocket_allowed_origins: Optional[List[str]] = None,
         websocket_inactivity_timeout: Optional[int] = 300000,
+        enable_mcp: Optional[bool] = None,
+        mcp_path: Optional[str] = None,
+        mcp_expose_docstrings: Optional[bool] = None,
         **obsolete,
     ):
 
@@ -567,6 +570,9 @@ class Dash(ObsoleteChecker):
             hide_all_callbacks=False,
             csrf_token_name=csrf_token_name,
             csrf_header_name=csrf_header_name,
+            mcp_expose_docstrings=get_combined_config(
+                "mcp_expose_docstrings", mcp_expose_docstrings, False
+            ),
         )
         self.config.set_read_only(
             [
@@ -597,11 +603,19 @@ class Dash(ObsoleteChecker):
         # keep title as a class property for backwards compatibility
         self.title = title
 
+        # MCP (Model Context Protocol) configuration
+        self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, False)
+        _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
+        self._mcp_path = (
+            _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path
+        )
+
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map: dict = {}
         # same deps as a list to catch duplicate outputs, and to send to the front end
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
+        self.mcp_decorated_functions: dict = {}
 
         # list of inline scripts
         self._inline_scripts: list = []
@@ -808,6 +822,21 @@ class Dash(ObsoleteChecker):
                 with_app_context_factory(hook.func, self),
                 hook.data["methods"],
             )
+
+        if self._enable_mcp:
+            from .mcp import (  # pylint: disable=import-outside-toplevel
+                enable_mcp_server,
+            )
+
+            try:
+                enable_mcp_server(self, self._mcp_path)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self._enable_mcp = False
+                self.logger.warning(
+                    "MCP server could not be started at '%s': %s",
+                    self._mcp_path,
+                    e,
+                )
 
     def setup_apis(self):
         """
@@ -2452,6 +2481,13 @@ class Dash(ObsoleteChecker):
 
             if not jupyter_dash or not jupyter_dash.in_ipython:
                 self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+                if self._enable_mcp:
+                    self.logger.info(
+                        " * MCP available at %s://%s%s%s%s\n",
+                        *display_url[:3],
+                        self.config.routes_pathname_prefix,
+                        self._mcp_path,
+                    )
 
         if self.config.extra_hot_reload_paths:
             extra_files = flask_run_options["extra_files"] = []

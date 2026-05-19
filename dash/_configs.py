@@ -33,6 +33,9 @@ def load_dash_env_vars():
                 "DASH_DISABLE_VERSION_CHECK",
                 "DASH_PRUNE_ERRORS",
                 "DASH_COMPRESS",
+                "DASH_MCP_ENABLED",
+                "DASH_MCP_PATH",
+                "DASH_MCP_EXPOSE_DOCSTRINGS",
                 "HOST",
                 "PORT",
             )

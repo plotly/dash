@@ -9,12 +9,14 @@ from mcp.types import CallToolResult, ListToolsResult
 from dash.mcp.types import ToolNotFoundError
 
 from .base import MCPToolProvider
+from .tool_decorated_mcp_functions import DecoratedFunctionTools
 from .tool_get_dash_component import GetDashComponentTool
 from .tools_callbacks import CallbackTools
 
 _TOOL_PROVIDERS: list[type[MCPToolProvider]] = [
     CallbackTools,
     GetDashComponentTool,
+    DecoratedFunctionTools,
 ]
 
 

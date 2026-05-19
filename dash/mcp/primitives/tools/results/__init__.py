@@ -48,5 +48,5 @@ def format_callback_response(
 
     return CallToolResult(
         content=content,
-        structuredContent=response,
+        structuredContent=dict(response),
     )

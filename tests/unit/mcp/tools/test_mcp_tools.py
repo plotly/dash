@@ -309,6 +309,51 @@ def test_mcpt014_typed_annotation_narrows_schema(typed_app):
     assert tool.inputSchema["properties"]["val"]["type"] == "string"
 
 
+def test_mcpt016_app_level_opt_in_exposes_docstrings():
+    """Dash(mcp_expose_docstrings=True) exposes docstrings for all callbacks."""
+    app = Dash(__name__, mcp_expose_docstrings=True)
+    app.layout = html.Div([dcc.Input(id="inp"), html.Div(id="out")])
+
+    @app.callback(Output("out", "children"), Input("inp", "value"))
+    def update(val):
+        """intentionally-exposed callback docstring text for the LLM"""
+        return val
+
+    app_context.set(app)
+    app.mcp_callback_map = CallbackAdapterCollection(app)
+
+    with app.server.test_request_context():
+        tool = app.mcp_callback_map[0].as_mcp_tool
+    assert (
+        "intentionally-exposed callback docstring text for the LLM" in tool.description
+    )
+
+
+def test_mcpt017_per_callback_false_overrides_app_level_opt_in():
+    """Per-callback mcp_expose_docstring=False wins over app-level opt-in."""
+    app = Dash(__name__, mcp_expose_docstrings=True)
+    app.layout = html.Div([dcc.Input(id="inp"), html.Div(id="out")])
+
+    @app.callback(
+        Output("out", "children"),
+        Input("inp", "value"),
+        mcp_expose_docstring=False,
+    )
+    def update(val):
+        """sensitive callback docstring text that must not leak to LLMs"""
+        return val
+
+    app_context.set(app)
+    app.mcp_callback_map = CallbackAdapterCollection(app)
+
+    with app.server.test_request_context():
+        tool = app.mcp_callback_map[0].as_mcp_tool
+    assert (
+        "sensitive callback docstring text that must not leak to LLMs"
+        not in tool.description
+    )
+
+
 # ---------------------------------------------------------------------------
 # Tests — end-to-end Tool shape
 # ---------------------------------------------------------------------------
