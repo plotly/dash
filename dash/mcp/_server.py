@@ -74,6 +74,15 @@ def _setup_mcp_oauth(app: Dash, mcp_path: str, mcp_authorization_server: str) ->
     server. Auth enforcement is the responsibility of the hosting platform
     (e.g. Plotly Cloud gateway, Dash Embedded, or a reverse proxy).
     """
+    if app.config.requests_pathname_prefix != "/":
+        raise ValueError(
+            "`mcp_authorization_server` cannot be used in conjunction with "
+            "`requests_pathname_prefix`. "
+            "Authorization must be implemented at the platform level "
+            "(see https://www.rfc-editor.org/rfc/rfc9728#section-3). "
+            "Remove the mcp_authorization_server parameter."
+        )
+
     well_known_path = urljoin("/.well-known/oauth-protected-resource/", mcp_path)
 
     def _serve_resource_metadata():
