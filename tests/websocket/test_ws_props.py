@@ -399,6 +399,48 @@ def test_ws047_set_props_children_with_list(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+def test_ws047b_set_props_batch_many_updates(dash_duo):
+    """Test that many rapid set_props calls are batched and all arrive correctly."""
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Update Many", id="btn"),
+            *[html.Div("0", id=f"output-{i}") for i in range(10)],
+            html.Div(id="result"),
+        ]
+    )
+
+    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
+    async def update_many(n):
+        if not n:
+            raise PreventUpdate
+
+        # Rapid-fire set_props calls without any await between them
+        # These should be batched together by the server
+        for i in range(10):
+            set_props(f"output-{i}", {"children": f"{n}"})
+
+        return f"Done {n}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn").click()
+
+    # All outputs should be updated
+    dash_duo.wait_for_text_to_equal("#result", "Done 1", timeout=10)
+    for i in range(10):
+        dash_duo.wait_for_text_to_equal(f"#output-{i}", "1")
+
+    # Click again to verify batching works consistently
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#result", "Done 2", timeout=10)
+    for i in range(10):
+        dash_duo.wait_for_text_to_equal(f"#output-{i}", "2")
+
+    assert dash_duo.get_logs() == []
+
+
 def test_ws048_set_props_dynamic_match_callback(dash_duo):
     """Test set_props injecting components with pattern-matching IDs that trigger MATCH callbacks."""
     app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
