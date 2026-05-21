@@ -20,6 +20,19 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
 
+## [4.3.0rc0] - 2026-05-21
+
+## Added
+- [#3710](https://github.com/plotly/dash/pull/3710) Framework utilities, types for interacting with layout
+- [#3711](https://github.com/plotly/dash/pull/3711) `CallbackAdapter` for representing callback-related data in MCP-friendly format
+- [#3712](https://github.com/plotly/dash/pull/3712) MCP `Resources` for exposing app layout, components, and pages
+- [#3731](https://github.com/plotly/dash/pull/3731) Expose callbacks as MCP `Tools`
+- [#3747](https://github.com/plotly/dash/pull/3747) Support pattern-matching callbacks in MCP tools
+- [#3748](https://github.com/plotly/dash/pull/3748) Format callback results for LLM consumption (rendered graphs, markdown tables)
+- [#3749](https://github.com/plotly/dash/pull/3749) `get_dash_component` MCP tool and callback execution
+- [#3750](https://github.com/plotly/dash/pull/3750) MCP server routes and Streamable HTTP transport
+- [#3766](https://github.com/plotly/dash/pull/3766) Support background callbacks in MCP tools
+
 ## [4.2.0rc3] - 2026-05-12
 
 - [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
