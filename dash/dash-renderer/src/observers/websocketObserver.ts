@@ -11,6 +11,7 @@ import {IStoreState} from '../store';
 import {updateProps, notifyObservers, setPaths} from '../actions';
 import {parsePatchProps} from '../actions/patch';
 import {computePaths, getPath} from '../actions/paths';
+import {batch} from 'react-redux';
 import {
     getWorkerClient,
     SetPropsPayload,
@@ -72,8 +73,8 @@ export async function initializeWebSocket(
 
     const workerClient = getWorkerClient();
 
-    // Handle SET_PROPS messages
-    workerClient.onSetProps = (payload: SetPropsPayload) => {
+    // Helper to process a single set_props payload
+    const processSetProps = (payload: SetPropsPayload) => {
         const {componentId, props: rawProps} = payload;
         const parsedId = parseComponentId(componentId);
         const state = store.getState();
@@ -127,6 +128,18 @@ export async function initializeWebSocket(
                 ) as any
             );
         }
+    };
+
+    // Handle single SET_PROPS message
+    workerClient.onSetProps = processSetProps;
+
+    // Handle batched SET_PROPS_BATCH message
+    workerClient.onSetPropsBatch = (payloads: SetPropsPayload[]) => {
+        batch(() => {
+            for (const payload of payloads) {
+                processSetProps(payload);
+            }
+        });
     };
 
     // Handle GET_PROPS_REQUEST messages
