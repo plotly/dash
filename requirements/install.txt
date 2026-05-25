@@ -1,10 +1,10 @@
-Flask>=1.0.4,<3.2
+Flask>=3.1.3,<3.2
 Werkzeug<3.2
-plotly>=5.0.0
+plotly>=6.7.0
 importlib-metadata
-typing_extensions>=4.1.1
+typing_extensions>=4.15.0
 requests
 retrying
 nest-asyncio
 setuptools
-janus>=1.0.0
+janus>=2.0.0
