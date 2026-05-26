@@ -245,7 +245,7 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
     request_id: str | int = _id if isinstance(_id, (str, int)) else ""
 
     app = get_app()
-    if not hasattr(app, "mcp_callback_map"):
+    if app.mcp_callback_map is None:
         app.mcp_callback_map = CallbackAdapterCollection(app)
 
     mcp_methods = {

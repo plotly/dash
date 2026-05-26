@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dash import get_app
-
+from ..tools_callbacks import CallbackTools
 from .base import ToolDescriptionSource
 
 if TYPE_CHECKING:
@@ -36,4 +35,4 @@ class DocstringDescription(ToolDescriptionSource):
         per_callback = callback._cb_info.get("mcp_expose_docstring")
         if per_callback is not None:
             return per_callback
-        return get_app().config.get("mcp_expose_docstrings", False)
+        return CallbackTools.expose_docstrings_by_default

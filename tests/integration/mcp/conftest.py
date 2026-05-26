@@ -6,6 +6,9 @@ import pytest
 import requests
 
 from dash import _get_app
+from dash.mcp.primitives.resources import _RESOURCE_PROVIDERS
+from dash.mcp.primitives.tools import _TOOL_PROVIDERS
+from dash.mcp.primitives.tools.tools_callbacks import CallbackTools
 
 collect_ignore_glob = []
 if sys.version_info < (3, 10):
@@ -21,7 +24,17 @@ def _enable_mcp_for_integration_tests(monkeypatch):
 @pytest.fixture(autouse=True)
 def _reset_dash_app_state():
     """Reset Dash module-level state after each MCP test."""
+    initial_resources = list(_RESOURCE_PROVIDERS)
+    initial_tools = list(_TOOL_PROVIDERS)
+    initial_callbacks_default = CallbackTools.callbacks_mcp_enabled_by_default
+    initial_expose_docstrings = CallbackTools.expose_docstrings_by_default
+
     yield
+
+    _RESOURCE_PROVIDERS[:] = initial_resources
+    _TOOL_PROVIDERS[:] = initial_tools
+    CallbackTools.callbacks_mcp_enabled_by_default = initial_callbacks_default
+    CallbackTools.expose_docstrings_by_default = initial_expose_docstrings
     _get_app.APP = None
     _get_app.app_context.set(None)
 

@@ -21,6 +21,10 @@ from .results import format_callback_response, task_result_to_tool_result
 class CallbackTools(MCPToolProvider):
     """Exposes every server-callable callback as an MCP tool."""
 
+    # Set by configure_mcp_server().
+    callbacks_mcp_enabled_by_default: bool = True
+    expose_docstrings_by_default: bool = False
+
     @classmethod
     def get_tool_names(cls) -> set[str]:
         return get_app().mcp_callback_map.tool_names

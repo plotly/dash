@@ -86,7 +86,7 @@ def callback(
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
-    mcp_enabled: bool = True,
+    mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
@@ -300,7 +300,7 @@ def insert_callback(
     hidden=None,
     websocket=False,
     persistent=False,
-    mcp_enabled=True,
+    mcp_enabled=None,
     mcp_expose_docstring=None,
 ) -> str:
     if prevent_initial_call is None:
@@ -709,7 +709,7 @@ def register_callback(
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
-        mcp_enabled=_kwargs.get("mcp_enabled", True),
+        mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
