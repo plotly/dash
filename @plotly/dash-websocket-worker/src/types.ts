@@ -7,6 +7,7 @@ export enum WorkerMessageType {
     DISCONNECT = 'disconnect',
     CALLBACK_REQUEST = 'callback_request',
     GET_PROPS_RESPONSE = 'get_props_response',
+    TAB_VISIBLE = 'tab_visible',
 
     // Worker -> Renderer
     CONNECTED = 'connected',

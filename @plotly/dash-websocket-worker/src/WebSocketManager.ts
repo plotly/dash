@@ -144,6 +144,14 @@ export class WebSocketManager {
         return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
     }
 
+    /**
+     * Reset the activity timer.
+     * Call this when a tab becomes visible to prevent inactivity timeout.
+     */
+    public resetActivity(): void {
+        this.lastActivityTime = Date.now();
+    }
+
     private createConnection(): void {
         if (!this.serverUrl) {
             return;

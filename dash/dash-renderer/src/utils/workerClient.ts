@@ -10,6 +10,7 @@ export enum WorkerMessageType {
     DISCONNECT = 'disconnect',
     CALLBACK_REQUEST = 'callback_request',
     GET_PROPS_RESPONSE = 'get_props_response',
+    TAB_VISIBLE = 'tab_visible',
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected',
     CALLBACK_RESPONSE = 'callback_response',
@@ -249,6 +250,19 @@ class WorkerClient {
      */
     public get connected(): boolean {
         return this.isConnected;
+    }
+
+    /**
+     * Notify the worker that the tab is now visible.
+     * This resets the inactivity timer to prevent timeout while user is viewing.
+     */
+    public notifyTabVisible(): void {
+        if (this.worker && this.isConnected) {
+            this.worker.port.postMessage({
+                type: WorkerMessageType.TAB_VISIBLE,
+                rendererId: this.rendererId
+            });
+        }
     }
 
     private handleMessage(event: MessageEvent): void {

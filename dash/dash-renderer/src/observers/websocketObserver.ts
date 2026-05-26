@@ -18,6 +18,8 @@ import {
     GetPropsRequestPayload
 } from '../utils/workerClient';
 import {DashConfig} from '../config';
+import {addRequestedCallbacks} from '../actions/callbacks';
+import {makeResolvedCallback, resolveDeps} from '../actions/dependencies_ts';
 
 /**
  * Parse a component ID that may be a stringified JSON object.
@@ -175,13 +177,53 @@ export async function initializeWebSocket(
         workerClient.sendGetPropsResponse(requestId, result);
     };
 
+    // Track connection state for reconnection handling
+    let wasDisconnected = false;
+
     // Handle connection events
     workerClient.onConnected = () => {
         console.log('[Dash] WebSocket connected');
+
+        // On reconnect (not initial connect), re-trigger persistent callbacks
+        if (wasDisconnected) {
+            console.log(
+                '[Dash] Reconnected - re-triggering persistent callbacks'
+            );
+            const state = store.getState();
+            const {graphs} = state;
+
+            if (graphs?.callbacks) {
+                const persistentCallbacks = graphs.callbacks.reduce(
+                    (acc: any[], cb: any) => {
+                        // Only re-trigger no-output callbacks with no inputs
+                        // These are the "persistent" callbacks that should restart
+                        if (cb.noOutput && cb.inputs.length === 0) {
+                            const resolved = makeResolvedCallback(
+                                cb,
+                                resolveDeps(),
+                                ''
+                            );
+                            resolved.initialCall = true;
+                            acc.push(resolved);
+                        }
+                        return acc;
+                    },
+                    []
+                );
+
+                if (persistentCallbacks.length > 0) {
+                    console.log(
+                        `[Dash] Re-triggering ${persistentCallbacks.length} persistent callback(s)`
+                    );
+                    store.dispatch(addRequestedCallbacks(persistentCallbacks));
+                }
+            }
+        }
     };
 
     workerClient.onDisconnected = (reason?: string) => {
         console.log(`[Dash] WebSocket disconnected: ${reason}`);
+        wasDisconnected = true;
     };
 
     workerClient.onError = (message: string, code?: string) => {
@@ -201,6 +243,24 @@ export async function initializeWebSocket(
     } catch (error) {
         console.error('[Dash] Failed to connect to WebSocket worker:', error);
     }
+
+    // Handle tab visibility changes
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            if (workerClient.connected) {
+                // Tab visible and connected - reset inactivity timer
+                workerClient.notifyTabVisible();
+            } else {
+                // Tab visible but disconnected - reconnect
+                console.log('[Dash] Tab visible, reconnecting WebSocket...');
+                workerClient
+                    .ensureConnected(config)
+                    .catch(err =>
+                        console.error('[Dash] Failed to reconnect:', err)
+                    );
+            }
+        }
+    });
 }
 
 /**

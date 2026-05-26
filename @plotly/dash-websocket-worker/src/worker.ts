@@ -122,6 +122,13 @@ self.onconnect = (event: MessageEvent) => {
                 break;
             }
 
+            case WorkerMessageType.TAB_VISIBLE: {
+                // Reset activity timer when tab becomes visible
+                // This prevents inactivity timeout while user is viewing the tab
+                wsManager.resetActivity();
+                break;
+            }
+
             default:
                 // Forward other messages through the router
                 router.handleRendererMessage(message.rendererId, message);
