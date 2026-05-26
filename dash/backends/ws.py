@@ -242,33 +242,60 @@ async def run_ws_sender(
     messages: list[str] = []
     try:
         while True:
-            # Wait indefinitely for first message, then use timeout for batching
-            timeout = batch_delay if messages else None
-            try:
-                msg = await asyncio.wait_for(q.get(), timeout=timeout)
-                if msg == SHUTDOWN_SIGNAL:
-                    if messages:
-                        await _send_batched(send_text, messages)
-                    return
-                if msg == FLUSH_SIGNAL:
-                    if messages:
-                        if not await _send_batched(send_text, messages):
-                            return  # Connection closed
-                        messages = []
-                    continue
-                if not batch_delay:
-                    try:
-                        await send_text(msg)
-                    except Exception:  # WebSocketDisconnect, RuntimeError, etc.
-                        return  # Connection closed
-                else:
-                    messages.append(msg)
-            except asyncio.TimeoutError:
-                if not await _send_batched(send_text, messages):
-                    return  # Connection closed
-                messages = []
+            result = await _process_ws_message(q, send_text, messages, batch_delay)
+            if result is False:
+                return
     except asyncio.CancelledError:
         pass
+
+
+async def _process_ws_message(
+    q: "janus._AsyncQueueProxy[str]",
+    send_text: Callable[[str], Any],
+    messages: list[str],
+    batch_delay: float,
+) -> bool | None:
+    """Process a single WebSocket message from the queue.
+
+    Args:
+        q: The async queue to read from
+        send_text: Async function to send text data over WebSocket
+        messages: List to accumulate messages for batching (mutated in place)
+        batch_delay: Batch delay in seconds
+
+    Returns:
+        True to continue processing, False to stop the sender loop,
+        None to continue (same as True but used for continue semantics).
+    """
+    timeout = batch_delay if messages else None
+    try:
+        msg = await asyncio.wait_for(q.get(), timeout=timeout)
+    except asyncio.TimeoutError:
+        if not await _send_batched(send_text, messages):
+            return False
+        messages.clear()
+        return True
+
+    if msg == SHUTDOWN_SIGNAL:
+        if messages:
+            await _send_batched(send_text, messages)
+        return False
+
+    if msg == FLUSH_SIGNAL:
+        if messages and not await _send_batched(send_text, messages):
+            return False
+        messages.clear()
+        return None
+
+    if not batch_delay:
+        try:
+            await send_text(msg)
+        except Exception:  # pylint: disable=broad-exception-caught
+            return False  # WebSocketDisconnect, RuntimeError, etc.
+    else:
+        messages.append(msg)
+
+    return True
 
 
 async def _send_batched(send_text: Callable[[str], Any], messages: list) -> bool:
@@ -291,8 +318,8 @@ async def _send_batched(send_text: Callable[[str], Any], messages: list) -> bool
             # Wrap in array: "[msg1,msg2,msg3]"
             await send_text("[" + ",".join(messages) + "]")
         return True
-    except Exception:  # WebSocketDisconnect, RuntimeError, etc.
-        return False  # Connection closed, cleanup handled by main loop
+    except Exception:  # pylint: disable=broad-exception-caught
+        return False  # WebSocketDisconnect, RuntimeError, etc.
 
 
 def make_callback_done_handler(
