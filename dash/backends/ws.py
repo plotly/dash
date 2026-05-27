@@ -254,7 +254,7 @@ async def _process_ws_message(
     send_text: Callable[[str], Any],
     messages: list[str],
     batch_delay: float,
-) -> bool | None:
+) -> bool:
     """Process a single WebSocket message from the queue.
 
     Args:
@@ -264,17 +264,15 @@ async def _process_ws_message(
         batch_delay: Batch delay in seconds
 
     Returns:
-        True to continue processing, False to stop the sender loop,
-        None to continue (same as True but used for continue semantics).
+        True to continue processing, False to stop the sender loop.
     """
     timeout = batch_delay if messages else None
     try:
         msg = await asyncio.wait_for(q.get(), timeout=timeout)
     except asyncio.TimeoutError:
-        if not await _send_batched(send_text, messages):
-            return False
+        success = await _send_batched(send_text, messages)
         messages.clear()
-        return True
+        return success
 
     if msg == SHUTDOWN_SIGNAL:
         if messages:
@@ -282,10 +280,9 @@ async def _process_ws_message(
         return False
 
     if msg == FLUSH_SIGNAL:
-        if messages and not await _send_batched(send_text, messages):
-            return False
+        success = not messages or await _send_batched(send_text, messages)
         messages.clear()
-        return None
+        return success
 
     if not batch_delay:
         try:
