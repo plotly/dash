@@ -272,6 +272,11 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
     def register_assets_blueprint(
         self, blueprint_name: str, assets_url_path: str, assets_folder: str
     ):
+        # Check if route is already mounted to avoid duplicate registration
+        # This can happen when init_app() is called multiple times
+        for route in self.server.routes:
+            if getattr(route, "name", None) == blueprint_name:
+                return
         try:
             self.server.mount(
                 assets_url_path,

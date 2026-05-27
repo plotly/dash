@@ -122,7 +122,10 @@ class QuartDashServer(BaseDashServer[Quart]):
     def register_assets_blueprint(
         self, blueprint_name: str, assets_url_path: str, assets_folder: str  # type: ignore[name-defined]
     ):
-
+        # Check if blueprint is already registered to avoid duplicate registration
+        # This can happen when init_app() is called multiple times (e.g., with quart run)
+        if blueprint_name in self.server.blueprints:
+            return
         bp = Blueprint(
             blueprint_name,
             __name__,

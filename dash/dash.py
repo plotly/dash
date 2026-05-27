@@ -731,6 +731,9 @@ class Dash(ObsoleteChecker):
         )
         if app is not None:
             self.server = app
+            # Also update the backend's server reference so routes are registered
+            # on the correct server (important when using server=False pattern)
+            self.backend.server = app
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
         self.backend.register_assets_blueprint(
