@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
 SHUTDOWN_SIGNAL = "__shutdown__"
 DISCONNECTED = "__disconnected__"
+FLUSH_SIGNAL = "__flush__"
 
 
 class DashWebsocketCallback:
@@ -184,27 +185,69 @@ def create_ws_context(
 
 
 async def run_ws_sender(
-    send_text: Callable[[str], Any], outbound_queue: janus.Queue[str]
+    send_text: Callable[[str], Any],
+    outbound_queue: janus.Queue[str],
+    batch_delay: float = 0.005,
 ) -> None:
     """Sender coroutine - drains queue and sends to WebSocket.
 
     This coroutine runs in the main event loop and handles sending
     messages that are queued by worker threads via janus.Queue.
 
-    Messages are pre-serialized strings (using to_json).
+    Messages are pre-serialized strings (using to_json). For efficiency,
+    this function batches messages that arrive within batch_delay of each
+    other, sending them as a JSON array. When no message arrives within
+    the window, all collected messages are sent immediately.
 
     Args:
         send_text: Async function to send text data over WebSocket
         outbound_queue: janus.Queue instance for receiving messages (strings)
+        batch_delay: Time in seconds to wait for additional messages (default: 5ms).
+            Set to 0 to disable batching and send messages immediately.
     """
+    q = outbound_queue.async_q
+    messages: list[str] = []
     try:
         while True:
-            msg = await outbound_queue.async_q.get()
-            if msg == SHUTDOWN_SIGNAL:
-                break
-            await send_text(msg)
+            # Wait indefinitely for first message, then use timeout for batching
+            timeout = batch_delay if messages else None
+            try:
+                msg = await asyncio.wait_for(q.get(), timeout=timeout)
+                if msg == SHUTDOWN_SIGNAL:
+                    if messages:
+                        await _send_batched(send_text, messages)
+                    return
+                if msg == FLUSH_SIGNAL:
+                    if messages:
+                        await _send_batched(send_text, messages)
+                        messages = []
+                    continue
+                if not batch_delay:
+                    await send_text(msg)
+                else:
+                    messages.append(msg)
+            except asyncio.TimeoutError:
+                await _send_batched(send_text, messages)
+                messages = []
     except asyncio.CancelledError:
         pass
+
+
+async def _send_batched(send_text: Callable[[str], Any], messages: list) -> None:
+    """Send messages as a batch.
+
+    Single messages are sent as-is. Multiple messages are wrapped
+    in a JSON array without re-parsing - just string concatenation.
+
+    Args:
+        send_text: Async function to send text data over WebSocket
+        messages: List of pre-serialized JSON message strings
+    """
+    if len(messages) == 1:
+        await send_text(messages[0])
+    else:
+        # Wrap in array: "[msg1,msg2,msg3]"
+        await send_text("[" + ",".join(messages) + "]")
 
 
 def make_callback_done_handler(
@@ -269,6 +312,8 @@ def make_callback_done_handler(
             )
         finally:
             pending_callbacks.pop(request_id, None)
+            if not shutdown_event.is_set():
+                outbound_queue.sync_q.put_nowait(FLUSH_SIGNAL)
 
     return on_done
 

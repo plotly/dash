@@ -14,6 +14,7 @@ export enum WorkerMessageType {
     DISCONNECTED = 'disconnected',
     CALLBACK_RESPONSE = 'callback_response',
     SET_PROPS = 'set_props',
+    SET_PROPS_BATCH = 'set_props_batch',
     GET_PROPS_REQUEST = 'get_props_request',
     ERROR = 'error'
 }
@@ -57,6 +58,10 @@ class WorkerClient {
 
     /** Callback when SET_PROPS message is received */
     public onSetProps: ((payload: SetPropsPayload) => void) | null = null;
+
+    /** Callback when SET_PROPS_BATCH message is received */
+    public onSetPropsBatch: ((payloads: SetPropsPayload[]) => void) | null =
+        null;
 
     /** Callback when GET_PROPS_REQUEST message is received */
     public onGetPropsRequest:
@@ -286,6 +291,12 @@ class WorkerClient {
             case WorkerMessageType.SET_PROPS:
                 if (this.onSetProps) {
                     this.onSetProps(message.payload);
+                }
+                break;
+
+            case WorkerMessageType.SET_PROPS_BATCH:
+                if (this.onSetPropsBatch) {
+                    this.onSetPropsBatch(message.payload);
                 }
                 break;
 

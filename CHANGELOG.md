@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3783](https://github.com/plotly/dash/pull/3783) Add batching/debouncing for websocket `set_props` messages to reduce lag when updating multiple components in a loop. Configurable via `websocket_batch_delay` (default 5ms, set to 0 to disable).
 - [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
 - [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 - Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
@@ -19,6 +20,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
+- [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
 
 ## [4.2.0rc3] - 2026-05-12
 
