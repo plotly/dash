@@ -968,6 +968,7 @@ WebSocket callbacks can stream updates to the client during execution using `set
 ```python
 import asyncio
 from dash import callback, Output, Input, set_props, ctx
+from dash.exceptions import PreventUpdate
 
 @callback(
     Output('result', 'children'),
@@ -981,6 +982,9 @@ async def long_running_task(n_clicks):
 
     # Stream progress updates to the client
     for i in range(100):
+        # IMPORTANT: Check is_shutdown in loops to detect disconnections
+        if ws.is_shutdown:
+            raise PreventUpdate  # Exit gracefully on disconnect
         await asyncio.sleep(0.1)
         set_props('progress-bar', {'value': i + 1})
         set_props('status', {'children': f'Processing step {i + 1}/100...'})
@@ -991,9 +995,19 @@ async def long_running_task(n_clicks):
     return f"Completed! Input was: {current_value}"
 ```
 
+**IMPORTANT - Checking `is_shutdown` in Loops:**
+
+Long-running callbacks that use loops **must** check `ws.is_shutdown` to detect when the WebSocket connection has closed. Without this check:
+- Callbacks continue running after the client disconnects, wasting server resources
+- `set_props` calls go to a closed connection and are lost
+- The callback result is never delivered to the client
+
+Only "persistent callbacks" (callbacks with no Output and no Input that use only `set_props`) are automatically restarted when the WebSocket reconnects. Regular callbacks with outputs are not restarted.
+
 **API:**
 - `set_props(component_id, props_dict)` - Stream prop updates immediately to client
 - `ctx.websocket` - Get WebSocket interface (returns `None` if not in WS context)
+- `ws.is_shutdown` - Check if the WebSocket connection has been closed
 - `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
 - `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
 - `await ws.close(code, reason)` - Close the WebSocket connection

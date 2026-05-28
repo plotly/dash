@@ -25,7 +25,6 @@ from dash._utils import to_json
 if TYPE_CHECKING:
     import dash
     from .base_server import ResponseAdapter
-    from ._ws_registry import ActiveCallbackRegistry
 
 
 SHUTDOWN_SIGNAL = "__shutdown__"
@@ -43,9 +42,24 @@ class DashWebsocketCallback:
     queue.Queue for get_props responses, enabling thread-safe communication
     between worker threads and the main event loop.
 
-    Supports two modes:
-    1. Registry mode: Uses ActiveCallbackRegistry to allow queue adoption on reconnect
-    2. Direct mode: Uses direct queue references (legacy, for backwards compatibility)
+    IMPORTANT: For long-running callbacks that use loops (e.g., streaming updates),
+    you MUST check `ws.is_shutdown` in your loop to detect disconnections:
+
+        @callback(Input('btn', 'n_clicks'))  # No Output - uses set_props only
+        async def long_running(n_clicks):
+            ws = ctx.websocket
+            while True:
+                if ws and ws.is_shutdown:
+                    raise PreventUpdate  # Exit gracefully on disconnect
+                set_props('progress', {'value': get_data()})
+                await asyncio.sleep(0.1)
+
+    Without this check, callbacks will continue running after the client disconnects,
+    wasting server resources.
+
+    Note: Only "persistent callbacks" (callbacks with no Output and no Input that use
+    only set_props) are automatically restarted when the WebSocket reconnects. Regular
+    callbacks with outputs are not restarted.
     """
 
     def __init__(
@@ -54,7 +68,6 @@ class DashWebsocketCallback:
         renderer_id: str,
         outbound_queue: janus.Queue[str],
         shutdown_event: "threading.Event",
-        registry: "ActiveCallbackRegistry | None" = None,
     ):
         """Initialize the WebSocket callback interface.
 
@@ -64,33 +77,23 @@ class DashWebsocketCallback:
             renderer_id: The renderer ID for routing messages back to the correct client
             outbound_queue: janus.Queue for thread-safe outbound messaging.
             shutdown_event: Event signaling the websocket connection has closed.
-            registry: Optional registry for handling reconnections. If provided,
-                the callback will use the registry to get current queues, allowing
-                it to survive reconnections.
         """
         self._pending_get_props = pending_get_props
         self._renderer_id = renderer_id
         self._outbound_queue = outbound_queue
         self._shutdown_event = shutdown_event
-        self._registry = registry
 
     @property
     def is_shutdown(self) -> bool:
         """Check if the websocket connection has been shut down."""
-        if self._registry is not None:
-            return self._registry.is_shutdown(self._renderer_id)
         return self._shutdown_event.is_set()
 
     def _get_outbound_queue(self) -> janus.Queue[str] | None:
-        """Get the current outbound queue (may be updated on reconnect)."""
-        if self._registry is not None:
-            return self._registry.get_queue(self._renderer_id)
+        """Get the outbound queue."""
         return self._outbound_queue
 
     def _get_pending_get_props(self) -> Dict[str, queue.Queue[Any]] | None:
-        """Get the current pending_get_props dict (may be updated on reconnect)."""
-        if self._registry is not None:
-            return self._registry.get_pending_get_props(self._renderer_id)
+        """Get the pending_get_props dict."""
         return self._pending_get_props
 
     def _queue_message(self, msg: dict) -> None:
@@ -325,7 +328,6 @@ def make_callback_done_handler(
     request_id: str,
     renderer_id: str,
     shutdown_event: threading.Event,
-    registry: "ActiveCallbackRegistry | None" = None,
 ) -> Callable[[concurrent.futures.Future], None]:
     """Create a done callback handler for executor futures.
 
@@ -338,73 +340,52 @@ def make_callback_done_handler(
         request_id: The request ID for the callback response
         renderer_id: The renderer ID for routing the response
         shutdown_event: Event signaling the websocket connection has closed.
-        registry: Optional registry for managing callback lifecycle.
 
     Returns:
         A callback function suitable for Future.add_done_callback()
     """
 
-    def _is_shutdown() -> bool:
-        """Check if connection is shutdown (registry-aware)."""
-        if registry is not None:
-            return registry.is_shutdown(renderer_id)
-        return shutdown_event.is_set()
-
-    def _get_queue() -> janus.Queue[str] | None:
-        """Get current outbound queue (may change on reconnect)."""
-        if registry is not None:
-            return registry.get_queue(renderer_id)
-        return outbound_queue
-
     def on_done(f: concurrent.futures.Future) -> None:
         try:
-            if _is_shutdown():
+            if shutdown_event.is_set():
                 return
             result = f.result()
-            current_queue = _get_queue()
-            if current_queue is not None:
-                current_queue.sync_q.put_nowait(
-                    cast(
-                        str,
-                        to_json(
-                            {
-                                "type": "callback_response",
-                                "rendererId": renderer_id,
-                                "requestId": request_id,
-                                "payload": result,
-                            }
-                        ),
-                    )
+            outbound_queue.sync_q.put_nowait(
+                cast(
+                    str,
+                    to_json(
+                        {
+                            "type": "callback_response",
+                            "rendererId": renderer_id,
+                            "requestId": request_id,
+                            "payload": result,
+                        }
+                    ),
                 )
+            )
         except Exception as e:  # pylint: disable=broad-exception-caught
-            if _is_shutdown():
+            if shutdown_event.is_set():
                 return
-            current_queue = _get_queue()
-            if current_queue is not None:
-                current_queue.sync_q.put_nowait(
-                    cast(
-                        str,
-                        to_json(
-                            {
-                                "type": "callback_response",
-                                "rendererId": renderer_id,
-                                "requestId": request_id,
-                                "payload": {
-                                    "status": "error",
-                                    "message": str(e),
-                                },
-                            }
-                        ),
-                    )
+            outbound_queue.sync_q.put_nowait(
+                cast(
+                    str,
+                    to_json(
+                        {
+                            "type": "callback_response",
+                            "rendererId": renderer_id,
+                            "requestId": request_id,
+                            "payload": {
+                                "status": "error",
+                                "message": str(e),
+                            },
+                        }
+                    ),
                 )
+            )
         finally:
             pending_callbacks.pop(request_id, None)
-            if registry is not None:
-                registry.unregister_callback(renderer_id)
-            if not _is_shutdown():
-                current_queue = _get_queue()
-                if current_queue is not None:
-                    current_queue.sync_q.put_nowait(FLUSH_SIGNAL)
+            if not shutdown_event.is_set():
+                outbound_queue.sync_q.put_nowait(FLUSH_SIGNAL)
 
     return on_done
 

@@ -55,7 +55,6 @@ from .ws import (
     SHUTDOWN_SIGNAL,
     DISCONNECTED,
 )
-from ._ws_registry import ActiveCallbackRegistry
 from ._utils import format_traceback_html
 
 if TYPE_CHECKING:
@@ -522,12 +521,6 @@ class QuartDashServer(BaseDashServer[Quart]):
         # pylint: disable=protected-access
         allowed_origins = getattr(dash_app, "_websocket_allowed_origins", [])
 
-        # Initialize registry on dash_app if not present
-        # pylint: disable=protected-access
-        if not hasattr(dash_app, "_ws_callback_registry"):
-            dash_app._ws_callback_registry = ActiveCallbackRegistry()
-        registry: ActiveCallbackRegistry = dash_app._ws_callback_registry
-
         @self.server.websocket(ws_path)
         async def websocket_handler():  # pylint: disable=too-many-branches
             ws = websocket
@@ -571,8 +564,6 @@ class QuartDashServer(BaseDashServer[Quart]):
             executor = self.get_callback_executor()
             # Track pending callback futures
             pending_callbacks: Dict[str, concurrent.futures.Future] = {}
-            # Track current renderer ID for this connection
-            current_renderer_id: str | None = None
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
             # pylint: disable=protected-access
@@ -610,22 +601,6 @@ class QuartDashServer(BaseDashServer[Quart]):
                         renderer_id = message.get("rendererId", "")
                         payload = message.get("payload", {})
 
-                        # Update current renderer ID for cleanup
-                        current_renderer_id = renderer_id
-
-                        # Adopt connection for this renderer (allows reconnection)
-                        # Called for every callback to ensure registry entry exists
-                        # (entry may have been cleaned up after previous callback)
-                        registry.adopt_connection(
-                            renderer_id,
-                            outbound_queue,
-                            pending_get_props,
-                            connection_shutdown_event,
-                        )
-
-                        # Register this callback with the registry
-                        registry.register_callback(renderer_id)
-
                         # Validate that the callback is allowed to use WebSocket transport
                         # pylint: disable=protected-access
                         _validate.validate_websocket_callback_request(
@@ -634,13 +609,12 @@ class QuartDashServer(BaseDashServer[Quart]):
                             dash_app._websocket_callbacks,
                         )
 
-                        # Create WebSocket callback instance with registry
+                        # Create WebSocket callback instance
                         ws_cb = DashWebsocketCallback(
                             pending_get_props,
                             renderer_id,
                             outbound_queue,
                             connection_shutdown_event,
-                            registry=registry,
                         )
 
                         # Submit callback to executor
@@ -660,7 +634,6 @@ class QuartDashServer(BaseDashServer[Quart]):
                                 request_id,
                                 renderer_id,
                                 connection_shutdown_event,
-                                registry=registry,
                             )
                         )
                         pending_callbacks[request_id] = future
@@ -699,9 +672,6 @@ class QuartDashServer(BaseDashServer[Quart]):
                 # Cancel any pending futures
                 for f in pending_callbacks.values():
                     f.cancel()
-                # Cleanup registry entry if no active callbacks
-                if current_renderer_id is not None:
-                    registry.cleanup_renderer(current_renderer_id)
 
 
 class QuartRequestAdapter(RequestAdapter):
