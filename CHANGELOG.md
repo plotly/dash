@@ -5,12 +5,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ## Added
+- [#3783](https://github.com/plotly/dash/pull/3783) Add batching/debouncing for websocket `set_props` messages to reduce lag when updating multiple components in a loop. Configurable via `websocket_batch_delay` (default 5ms, set to 0 to disable).
 - [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
 - [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 - Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
-
-## Added
 - [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix patch with dcc.Graph figure.
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix dcc.Graph not sending duplicate clicks because it had the same payload by adding a timestamp in the click event object.
 
 ## Fixed
 - [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
@@ -18,6 +19,28 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines
 - [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
+- [#3768](https://github.com/plotly/dash/pull/3768) Improved `Dropdown` search performance for large options lists
+- [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
+- [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
+
+## [4.2.0rc3] - 2026-05-12
+
+- [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
+- Rename ctx.get_websocket to ctx.websocket
+
+## [4.2.0rc2] - 2026-05-01
+
+## Fixed
+- [#3759](https://github.com/plotly/dash/pull/3759) Fix the error when using `set_props()` to update component-type properties in the `websocket` callback.
+- Add threadpool for running websocket callbacks.
+
+## [4.2.0rc1] - 2026-04-13
+
+## Added
+- [#3742](https://github.com/plotly/dash/pull/3742) Add websocket callbacks to fastapi and quart backends.
+
+## Changed
+- [#3691] Improve static typing for `dash.callback` by preserving wrapped callback signatures, and add callback typing coverage in compliance plus new callback decorator unit and integration tests.
 
 ## [4.1.0] - 2026-03-23
 
@@ -34,6 +57,22 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
 - [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
 
+# [4.2.0rc0] - 2026-04-13
+
+## Fixed
+
+- Fix websocket used in the same FastAPI server. Fix [#3636](https://github.com/plotly/dash/issues/3636)
+- Fix FastAPI url paths order. Fix [3667](https://github.com/plotly/dash/issues/3667)
+
+# [4.1.0rc0] - 2026-02-23
+
+## Added
+
+- Add support for multiple backend implementation beside flask such as fastapi and quart (both included).
+  - Add `app = Dash(backend="flask" | "fastapi" | "quart" | CustomBackendImpl)` parameter to automatically setup
+  - An existing `Fastapi`, `Quart` or `Flask` instance can also be given as `app = Dash(server=Fastapi())` to automatically setup a dash app on the server.
+  - Install fastapi dependencies with `pip install dash[fastapi]` or quart with `pip install dash[quart]`, flask is still included by default.
+  - Custom backend implementation can be added as a subclass of `dash.backends.base_server.BaseDashServer` and response/request adapters.
 
 ## [4.0.0] - 2026-02-03
 

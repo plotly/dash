@@ -69,10 +69,26 @@ def check_errors(dash_duo, specs):
 
 
 def test_dvcv001_blank(dash_duo):
+    """No-input no-output callbacks are allowed when prevent_initial_call=False (default)."""
     app = Dash(__name__)
     app.layout = html.Div()
 
-    @app.callback([], [])
+    @app.callback()
+    def x():
+        pass  # No-output callbacks shouldn't return anything
+
+    dash_duo.start_server(app, **debugging)
+    # No errors expected - no-input callbacks are allowed when prevent_initial_call=False
+    dash_duo.wait_for_element("div")
+    assert dash_duo.get_logs() == []
+
+
+def test_dvcv001b_blank_prevent_initial_call(dash_duo):
+    """No-input callbacks should error when prevent_initial_call=True."""
+    app = Dash(__name__)
+    app.layout = html.Div()
+
+    @app.callback([], [], prevent_initial_call=True)
     def x():
         return 42
 

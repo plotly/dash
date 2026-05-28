@@ -412,3 +412,138 @@ def test_grbs008_graph_with_empty_figure(dash_dcc):
     )
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grbs009_graph_click_same_point_twice(dash_dcc):
+    """Clicking the same point twice should trigger callback both times."""
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure=go.Figure(
+                    data=[go.Scatter(x=[1, 2, 3], y=[1, 2, 3], mode="markers")],
+                ),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="output", children="[]"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "clickData"),
+        prevent_initial_call=True,
+    )
+    def on_click(click_data):
+        # Return the timestamp to verify each click has a unique one
+        return json.dumps(click_data.get("timestamp", "missing"))
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    # Click on the graph area - uses the drag overlay which receives clicks
+    graph = dash_dcc.find_element("#graph .nsewdrag")
+    graph.click()
+
+    # Wait for callback to fire and verify timestamp exists
+    dash_dcc.wait_for_contains_text("#output", "")
+    first_output = dash_dcc.find_element("#output").text
+    assert first_output != "[]", "First click should trigger callback"
+    assert first_output != '"missing"', "clickData should contain timestamp"
+
+    # Click again - should trigger callback with different timestamp
+    graph.click()
+    sleep(0.5)
+    second_output = dash_dcc.find_element("#output").text
+    assert (
+        second_output != first_output
+    ), "Second click should trigger callback with new timestamp"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs010_graph_patch_deeply_nested_figure(dash_dcc):
+    """Patching deeply nested figure properties should work correctly."""
+    from dash import Patch
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={
+                    "data": [
+                        {
+                            "x": [1, 2, 3],
+                            "y": [1, 2, 3],
+                            "marker": {"color": "red", "size": 10},
+                            "type": "scatter",
+                            "mode": "markers",
+                        }
+                    ],
+                    "layout": {"title": {"text": "Initial Title"}},
+                },
+                style={"width": 600, "height": 400},
+            ),
+            html.Button("Patch Color", id="patch-color-btn"),
+            html.Button("Patch Title", id="patch-title-btn"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("patch-color-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_color(n):
+        p = Patch()
+        p.data[0].marker.color = "blue" if n % 2 else "green"
+        return p
+
+    @app.callback(
+        Output("graph", "figure", allow_duplicate=True),
+        Input("patch-title-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_title(n):
+        p = Patch()
+        p.layout.title.text = f"Updated Title {n}"
+        return p
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "figure"),
+    )
+    def show_figure_state(figure):
+        color = figure.get("data", [{}])[0].get("marker", {}).get("color", "unknown")
+        title = figure.get("layout", {}).get("title", {}).get("text", "unknown")
+        return f"color={color}, title={title}"
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    # Initial state
+    dash_dcc.wait_for_text_to_equal("#output", "color=red, title=Initial Title")
+
+    # Patch the color
+    dash_dcc.find_element("#patch-color-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=blue, title=Initial Title")
+
+    # Patch the title
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=blue, title=Updated Title 1")
+
+    # Patch color again - should toggle
+    dash_dcc.find_element("#patch-color-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=green, title=Updated Title 1")
+
+    # Multiple rapid patches
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=green, title=Updated Title 3")
+
+    assert dash_dcc.get_logs() == []

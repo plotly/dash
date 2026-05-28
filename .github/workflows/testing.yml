@@ -16,8 +16,10 @@ jobs:
     outputs:
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      backend_cb_changed: ${{ steps.filter.outputs.backend_paths }}
       dcc_paths_changed: ${{ steps.filter.outputs.dcc_related_paths }}
       html_paths_changed: ${{ steps.filter.outputs.html_related_paths }}
+      websocket_changed: ${{ steps.filter.outputs.websocket_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,6 +45,21 @@ jobs:
               - 'dash/_callback_context.py'
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
+              - 'requirements/**'
+            backend_paths:
+              - 'dash/backends/**'
+              - 'tests/backend_tests/**'
+            websocket_paths:
+              - 'dash/backends/_fastapi.py'
+              - 'dash/backends/_quart.py'
+              - 'dash/backends/base_server.py'
+              - 'dash/_callback.py'
+              - 'dash/_callback_context.py'
+              - 'dash/_hooks.py'
+              - 'dash/dash.py'
+              - '@dash-websocket-worker/**'
+              - 'dash/dash-renderer/src/**'
+              - 'tests/websocket/**'
               - 'requirements/**'
 
   lint-unit:
@@ -219,7 +236,9 @@ jobs:
 
       - name: Run typing tests
         run: |
-          pytest tests/compliance/test_typing.py
+          pytest \
+            tests/compliance/test_typing.py \
+            tests/compliance/test_callback_typing.py
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
@@ -328,6 +347,80 @@ jobs:
           name: background-test-results-py${{ matrix.python-version }}
           path: bgtests/test-reports/
           retention-days: 7
+
+  backend-tests:
+    name: Run Backend Callback Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.backend_cb_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache,fastapi,quart]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run Backend Callback Tests
+        run: |
+          mkdir bgtests
+          cp -r tests bgtests/tests
+          cd bgtests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/backend_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -450,6 +543,67 @@ jobs:
           name: table-server-results-group${{ matrix.test-group }}
           path: components/dash-table/test-reports/
           retention-days: 7
+
+  websocket-tests:
+    name: WebSocket Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.websocket_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,fastapi,quart]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run WebSocket tests
+        run: |
+          mkdir wstests
+          cp -r tests wstests/tests
+          cd wstests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/websocket -v -s
 
   test-main:
     name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
