@@ -10,9 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 - Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
 - [#3797](https://github.com/plotly/dash/pull/3797) Improved websocket callback management.
-
-## Added
 - [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix patch with dcc.Graph figure.
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix dcc.Graph not sending duplicate clicks because it had the same payload by adding a timestamp in the click event object.
 
 ## Fixed
 - [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines
 - [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
 - [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
+- [#3768](https://github.com/plotly/dash/pull/3768) Improved `Dropdown` search performance for large options lists
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
 - [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
 

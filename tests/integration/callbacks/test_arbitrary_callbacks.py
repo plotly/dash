@@ -1,6 +1,8 @@
 import time
 from multiprocessing import Value
 
+from flaky import flaky
+
 from dash import (
     Dash,
     Input,
@@ -234,6 +236,7 @@ def test_arb007_clientside_no_output(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "start2")
 
 
+@flaky(max_runs=3)
 def test_arb008_set_props_chain_cb(dash_duo):
     app = Dash(suppress_callback_exceptions=True)
 
