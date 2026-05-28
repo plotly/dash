@@ -80,8 +80,8 @@ export function sanitizeDropdownOptions(
 
 export function filterOptions(
     options: SanitizedOptions,
-    searchValue?: string,
-    searchOrder?: string
+    searchValue?: DropdownProps['search_value'],
+    searchOrder?: DropdownProps['search_order']
 ): DetailedOption[] {
     if (!searchValue) {
         return options.options;
