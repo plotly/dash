@@ -9,6 +9,7 @@ import {
     mergeDeepRight,
     omit,
     type,
+    clone,
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
@@ -313,12 +314,12 @@ class PlotlyGraph extends Component {
         return mergeDeepRight(config, this.getConfigOverride(responsive));
     }
 
-    getLayout(layout, responsive) {
-        if (!layout) {
-            return layout;
+    getLayout(originalLayout, responsive) {
+        if (!originalLayout) {
+            return originalLayout;
         }
         // Clone layout to avoid mutating the original (important for Patch)
-        layout = {...layout};
+        const layout = clone(originalLayout);
         const override = this.getLayoutOverride(responsive);
         const {override: prev_override, originals: prev_originals} = this.state;
         // Store the original data that we're about to override
@@ -341,7 +342,7 @@ class PlotlyGraph extends Component {
         for (const key in override) {
             layout[key] = override[key];
         }
-        return layout; // not really a clone
+        return layout;
     }
 
     getConfigOverride(responsive) {
