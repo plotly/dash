@@ -725,8 +725,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             pending_callbacks: Dict[str, concurrent.futures.Future] = {}
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
+            # pylint: disable=protected-access
+            batch_delay = getattr(dash_app, "_websocket_batch_delay", 0.005)
             sender_task = asyncio.create_task(
-                run_ws_sender(websocket.send_text, outbound_queue)
+                run_ws_sender(websocket.send_text, outbound_queue, batch_delay)
             )
 
             try:

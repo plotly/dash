@@ -486,6 +486,7 @@ class Dash(ObsoleteChecker):
         websocket_callbacks: Optional[bool] = False,
         websocket_allowed_origins: Optional[List[str]] = None,
         websocket_inactivity_timeout: Optional[int] = 300000,
+        websocket_batch_delay: Optional[float] = 0.005,
         **obsolete,
     ):
 
@@ -645,6 +646,7 @@ class Dash(ObsoleteChecker):
         self._websocket_callbacks = websocket_callbacks
         self._websocket_allowed_origins = websocket_allowed_origins or []
         self._websocket_inactivity_timeout = websocket_inactivity_timeout
+        self._websocket_batch_delay = websocket_batch_delay
 
         self.logger = logging.getLogger(__name__)
 
