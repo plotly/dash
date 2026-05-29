@@ -55,7 +55,7 @@
 
 .dash-slider-thumb {
     position: relative;
-    z-index: 1;
+    z-index: 10;
     display: block;
     width: 16px;
     height: 16px;
@@ -97,6 +97,7 @@
     color: var(--Dash-Text-Strong);
     white-space: nowrap;
     pointer-events: none;
+    z-index: 10;
 }
 
 .dash-slider-mark-outside-selection {
@@ -147,6 +148,7 @@
     background-color: var(--Dash-Fill-Inverse-Strong);
     user-select: none;
     z-index: 1000;
+    width: max-content;
     fill: var(--Dash-Fill-Inverse-Strong);
 }
 
@@ -195,6 +197,11 @@
     min-width: 0;
 }
 
+.dash-date-range-slider-wrapper {
+    position: relative;
+    flex: 1;
+}
+
 .dash-range-slider-inputs {
     display: flex;
     flex-direction: column;
@@ -204,23 +211,12 @@
 
 .dash-range-slider-min-input {
     text-align: center;
+    max-width: 140px;
 }
 
 .dash-range-slider-max-input {
     order: 1;
-}
-
-.dash-range-slider-input {
-    min-width: 5cqw; /* 5% of container width */
-    max-width: 25cqw; /* 25% of container width */
-    text-align: center;
-    -webkit-appearance: textfield;
-    -moz-appearance: textfield;
-    appearance: textfield;
-    font-family: inherit;
-    font-size: inherit;
-    box-sizing: content-box;
-    height: 30px;
+    max-width: 140px;
 }
 
 .dash-range-slider-input:only-of-type {
@@ -258,4 +254,42 @@
     .dash-slider-container .dash-range-slider-max-input {
         display: none;
     }
+}
+
+.dash-slider-disabled-ranges-container {
+    position: absolute;
+    inset: 0;
+    top: 10%;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    transform: translateX(5px);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.dash-slider-disabled-ranges-container.vertical {
+    top: 0;
+    left: 8px;
+    width: 4px;
+    height: 100%;
+    transform: translateY(5px);
+}
+
+.dash-slider-disabled-range {
+    position: absolute;
+    background: repeating-linear-gradient(
+        -45deg,
+        #dc2626 0px,
+        #dc2626 2.5px,
+        transparent 2px,
+        transparent 5px
+    );
+    opacity: 1;
+    height: 100%;
+}
+
+.dash-slider-disabled-ranges-container.vertical .dash-slider-disabled-range {
+    width: 100%;
+    height: auto;
 }
