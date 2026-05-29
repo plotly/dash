@@ -142,6 +142,6 @@ def test_ddsv003_dropdown_virtualized_component_label_filtering(dash_duo):
 
     # trigger filtering path that used to crash virtualized list
     search.send_keys("199")
-    sleep(.5)
+    sleep(0.5)
 
     assert dash_duo.get_logs() == []
