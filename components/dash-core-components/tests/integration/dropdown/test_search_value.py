@@ -107,3 +107,41 @@ def test_ddsv002_search_filter_and_scroll(dash_duo):
     last_option.click()
 
     dash_duo.wait_for_text_to_equal("#output", "value=opt_100")
+
+
+def test_ddsv003_dropdown_virtualized_component_label_filtering(dash_duo):
+    app = Dash(__name__)
+
+    options = [
+        {
+            "label": html.Div(["Item ", html.Span(f"#{i}")]),
+            "value": f"item_{i}",
+            "search": f"item_{i}",
+        }
+        for i in range(1, 2000)
+    ]
+
+    app.layout = html.Div(
+        [
+            dcc.Dropdown(
+                id="dd",
+                options=options,
+                value="item_1",
+                searchable=True,
+                clearable=True,
+            )
+        ]
+    )
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dd")
+    dropdown.click()
+
+    search = dash_duo.find_element(".dash-dropdown-search")
+
+    # trigger filtering path that used to crash virtualized list
+    search.send_keys("199")
+    sleep(0.5)
+
+    assert dash_duo.get_logs() == []
