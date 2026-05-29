@@ -122,7 +122,6 @@ class QuartDashServer(BaseDashServer[Quart]):
     def register_assets_blueprint(
         self, blueprint_name: str, assets_url_path: str, assets_folder: str  # type: ignore[name-defined]
     ):
-
         bp = Blueprint(
             blueprint_name,
             __name__,
