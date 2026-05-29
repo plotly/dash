@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3768](https://github.com/plotly/dash/pull/3768) Improved `Dropdown` search performance for large options lists
 - [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
 - [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
+- [#3799](https://github.com/plotly/dash/pull/3799) Fixed dropdown crash when filtering large datasets with component-based labels by using stable item keys for virtualized rows.
 
 ## [4.2.0rc3] - 2026-05-12
 
