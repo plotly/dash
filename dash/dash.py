@@ -135,6 +135,8 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
+_UNINITIALIZED = object()  # Sentinel for tracking init_app state
+
 DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
 # Handles the case in a newly cloned environment where the components are not yet generated.
@@ -734,6 +736,14 @@ class Dash(ObsoleteChecker):
             # Also update the backend's server reference so routes are registered
             # on the correct server (important when using server=False pattern)
             self.backend.server = app
+
+        # Skip registration if already initialized on this server
+        # This prevents double registration when init_app() is called multiple times
+        # (e.g., with flask run pattern where __init__ calls init_app, then user does too)
+        if getattr(self, "_initialized_server", _UNINITIALIZED) is self.server:
+            return
+        self._initialized_server = self.server
+
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
         self.backend.register_assets_blueprint(
