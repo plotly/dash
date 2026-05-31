@@ -65,27 +65,27 @@ export function getCallbacksByInput(
         );
     } else {
         // wildcard version
-        const _keys = Object.keys(id).sort();
-        const vals = props(_keys, id);
-        const keyStr = _keys.join(',');
-        const patterns: any[] = (graphs.inputPatterns[keyStr] || {})[prop];
+        const idKeys = Object.keys(id).sort();
+        const vals = props(idKeys, id);
+        const idKeyStr = idKeys.join(',');
+        const patterns: any[] = (graphs.inputPatterns[idKeyStr] || {})[prop];
         if (patterns) {
             patterns.forEach((pattern: any) => {
                 if (pattern.partial) {
-                    // Partial patterns stored under same keyStr won't happen
+                    // Partial patterns stored under same idKeyStr won't happen
                     // normally, but handle it for completeness
                     if (
                         partialIdMatch(
                             pattern.keys,
                             pattern.values,
-                            _keys,
+                            idKeys,
                             vals
                         )
                     ) {
                         const triggerAnyVals = getAnyVals(pattern.values, vals);
                         // Extract vals for pattern keys from the component
                         const patternRefVals = pattern.keys.map(
-                            (k: string) => vals[_keys.indexOf(k)]
+                            (k: string) => vals[idKeys.indexOf(k)]
                         );
                         pattern.callbacks.forEach(
                             addAllResolvedFromOutputs(
@@ -93,7 +93,7 @@ export function getCallbacksByInput(
                                     pattern.keys,
                                     patternRefVals,
                                     pattern.values,
-                                    _keys
+                                    idKeys
                                 ),
                                 paths,
                                 matches,
@@ -101,11 +101,11 @@ export function getCallbacksByInput(
                             )
                         );
                     }
-                } else if (idMatch(_keys, vals, pattern.values)) {
+                } else if (idMatch(idKeys, vals, pattern.values)) {
                     const triggerAnyVals = getAnyVals(pattern.values, vals);
                     pattern.callbacks.forEach(
                         addAllResolvedFromOutputs(
-                            resolveDeps(_keys, vals, pattern.values),
+                            resolveDeps(idKeys, vals, pattern.values),
                             paths,
                             matches,
                             triggerAnyVals
@@ -119,12 +119,12 @@ export function getCallbacksByInput(
         // component's keys
         if (graphs.hasPartialPatterns) {
             for (const patKeyStr in graphs.inputPatterns) {
-                if (patKeyStr === keyStr) {
+                if (patKeyStr === idKeyStr) {
                     continue; // already handled above
                 }
                 const patKeys = patKeyStr.split(',');
                 // Check if pattern keys are a subset of component keys
-                if (!patKeys.every((k: string) => _keys.indexOf(k) !== -1)) {
+                if (!patKeys.every((k: string) => idKeys.indexOf(k) !== -1)) {
                     continue;
                 }
                 const patPropPatterns: any[] =
@@ -140,14 +140,14 @@ export function getCallbacksByInput(
                         partialIdMatch(
                             pattern.keys,
                             pattern.values,
-                            _keys,
+                            idKeys,
                             vals
                         )
                     ) {
                         const triggerAnyVals = getAnyVals(pattern.values, vals);
                         // Extract vals for pattern keys from the component
                         const patternRefVals = pattern.keys.map(
-                            (k: string) => vals[_keys.indexOf(k)]
+                            (k: string) => vals[idKeys.indexOf(k)]
                         );
                         pattern.callbacks.forEach(
                             addAllResolvedFromOutputs(
@@ -155,7 +155,7 @@ export function getCallbacksByInput(
                                     pattern.keys,
                                     patternRefVals,
                                     pattern.values,
-                                    _keys
+                                    idKeys
                                 ),
                                 paths,
                                 matches,
@@ -519,17 +519,17 @@ export function resolveDeps(
                 const path = getPath(paths, idPattern);
                 return path ? [{id: idPattern, property, path}] : [];
             }
-            const _keys = Object.keys(idPattern).sort();
-            const patternVals = props(_keys, idPattern);
-            const keyStr = _keys.join(',');
-            const keyPaths = paths.objs[keyStr];
+            const idKeys = Object.keys(idPattern).sort();
+            const patternVals = props(idKeys, idPattern);
+            const idKeyStr = idKeys.join(',');
+            const keyPaths = paths.objs[idKeyStr];
 
             if (keyPaths) {
                 const result: ILayoutCallbackProperty[] = [];
                 keyPaths.forEach(({values: vals, path}: any) => {
                     if (
                         idMatch(
-                            _keys,
+                            idKeys,
                             vals,
                             patternVals,
                             refKeys,
@@ -537,20 +537,20 @@ export function resolveDeps(
                             refPatternVals
                         )
                     ) {
-                        result.push({id: zipObj(_keys, vals), property, path});
+                        result.push({id: zipObj(idKeys, vals), property, path});
                     }
                 });
                 return result;
             }
 
-            // If no exact keyStr match and input is partial, search for
+            // If no exact idKeyStr match and input is partial, search for
             // superset keyStrs (same logic as resolvePartialDeps)
             if (isPartial) {
                 const result: ILayoutCallbackProperty[] = [];
                 for (const objKeyStr in paths.objs) {
                     const objKeys = objKeyStr.split(',');
                     if (
-                        !_keys.every((k: string) => objKeys.indexOf(k) !== -1)
+                        !idKeys.every((k: string) => objKeys.indexOf(k) !== -1)
                     ) {
                         continue;
                     }
@@ -558,7 +558,7 @@ export function resolveDeps(
                     objKeyPaths.forEach(({values: vals, path}: any) => {
                         if (
                             partialIdMatch(
-                                _keys,
+                                idKeys,
                                 patternVals,
                                 objKeys,
                                 vals,
@@ -605,26 +605,26 @@ export function resolvePartialDeps(
                 const path = getPath(paths, idPattern);
                 return path ? [{id: idPattern, property, path}] : [];
             }
-            const _keys = Object.keys(idPattern).sort();
-            const patternVals = props(_keys, idPattern);
+            const idKeys = Object.keys(idPattern).sort();
+            const patternVals = props(idKeys, idPattern);
 
             if (!isPartial) {
                 // Non-partial dependency in the same callback - use exact match
-                const keyStr = _keys.join(',');
-                const keyPaths = paths.objs[keyStr];
+                const idKeyStr = idKeys.join(',');
+                const keyPaths = paths.objs[idKeyStr];
                 if (!keyPaths) {
                     return [];
                 }
                 const result: ILayoutCallbackProperty[] = [];
-                // Map refVals from patternKeys to _keys ordering
+                // Map refVals from patternKeys to idKeys ordering
                 const mappedRefVals = refVals
-                    ? _keys.map((k: string) => {
+                    ? idKeys.map((k: string) => {
                           const idx = patternKeys.indexOf(k);
                           return idx !== -1 ? refVals[idx] : undefined;
                       })
                     : undefined;
                 const mappedRefPatternVals = refPatternVals
-                    ? _keys.map((k: string) => {
+                    ? idKeys.map((k: string) => {
                           const idx = patternKeys.indexOf(k);
                           return idx !== -1 ? refPatternVals[idx] : undefined;
                       })
@@ -632,7 +632,7 @@ export function resolvePartialDeps(
                 keyPaths.forEach(({values: vals, path}: any) => {
                     if (
                         idMatch(
-                            _keys,
+                            idKeys,
                             vals,
                             patternVals,
                             patternKeys,
@@ -640,7 +640,7 @@ export function resolvePartialDeps(
                             mappedRefPatternVals
                         )
                     ) {
-                        result.push({id: zipObj(_keys, vals), property, path});
+                        result.push({id: zipObj(idKeys, vals), property, path});
                     }
                 });
                 return result;
@@ -651,15 +651,15 @@ export function resolvePartialDeps(
             const result: ILayoutCallbackProperty[] = [];
             for (const objKeyStr in paths.objs) {
                 const objKeys = objKeyStr.split(',');
-                // Check if objKeys is a superset of _keys
-                if (!_keys.every((k: string) => objKeys.indexOf(k) !== -1)) {
+                // Check if objKeys is a superset of idKeys
+                if (!idKeys.every((k: string) => objKeys.indexOf(k) !== -1)) {
                     continue;
                 }
                 const keyPaths = paths.objs[objKeyStr];
                 keyPaths.forEach(({values: vals, path}: any) => {
                     if (
                         partialIdMatch(
-                            _keys,
+                            idKeys,
                             patternVals,
                             objKeys,
                             vals,
