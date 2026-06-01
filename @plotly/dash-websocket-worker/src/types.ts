@@ -40,6 +40,7 @@ export interface ConnectMessage extends WorkerMessage {
     payload: {
         serverUrl: string;
         inactivityTimeout?: number;
+        heartbeatInterval?: number;
     };
 }
 

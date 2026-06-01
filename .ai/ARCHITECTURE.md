@@ -905,12 +905,14 @@ app = Dash(
     server=server,
     websocket_callbacks=True,
     websocket_inactivity_timeout=300000,  # 5 minutes (default)
+    websocket_heartbeat_interval=30000,   # 30 seconds (default)
     websocket_allowed_origins=['https://example.com'],
 )
 ```
 
 - **`websocket_callbacks`** - Enable WebSocket for all callbacks (default: `False`)
 - **`websocket_inactivity_timeout`** - Close WebSocket after period of inactivity in milliseconds (default: `300000` = 5 minutes). Heartbeats do not count as activity. Set to `0` to disable timeout. Connection automatically reconnects when needed.
+- **`websocket_heartbeat_interval`** - Interval for heartbeat/keep-alive checks in milliseconds (default: `30000` = 30 seconds). Also determines how frequently inactivity timeout is checked.
 - **`websocket_allowed_origins`** - List of allowed origins for WebSocket connections (security)
 
 ### Architecture

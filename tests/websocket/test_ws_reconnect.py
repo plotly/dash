@@ -118,6 +118,7 @@ def test_ws033_callback_after_reconnect(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=2000,  # 2 seconds
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(
@@ -211,6 +212,7 @@ def test_ws035_long_callback_with_shutdown_check(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=2000,  # 2 seconds
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(

@@ -87,11 +87,13 @@ class WorkerClient {
      * @param workerUrl URL to the SharedWorker script
      * @param serverUrl WebSocket server URL
      * @param inactivityTimeout Optional inactivity timeout in ms
+     * @param heartbeatInterval Optional heartbeat interval in ms
      */
     public async connect(
         workerUrl: string,
         serverUrl: string,
-        inactivityTimeout?: number
+        inactivityTimeout?: number,
+        heartbeatInterval?: number
     ): Promise<void> {
         if (this.worker) {
             // Already connected
@@ -120,7 +122,8 @@ class WorkerClient {
             rendererId: this.rendererId,
             payload: {
                 serverUrl,
-                inactivityTimeout
+                inactivityTimeout,
+                heartbeatInterval
             }
         });
 
@@ -160,6 +163,7 @@ class WorkerClient {
             url?: string;
             worker_url?: string;
             inactivity_timeout?: number;
+            heartbeat_interval?: number;
         };
     }): Promise<void> {
         // Already connected
@@ -191,7 +195,8 @@ class WorkerClient {
         await this.connect(
             config.websocket.worker_url,
             wsUrl,
-            config.websocket.inactivity_timeout
+            config.websocket.inactivity_timeout,
+            config.websocket.heartbeat_interval
         );
     }
 
