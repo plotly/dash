@@ -1,4 +1,5 @@
 import platform
+import time
 import pytest
 from functools import wraps
 import inspect
@@ -341,6 +342,7 @@ class DataTableColumnFacade(object):
     @preconditions(_validate_row)
     def sort(self, row=0):
         self.find_inside(row, ".column-header--sort").click()
+        self.mixin._wait_for_table(self.id)
 
     def filter(self):
         return (
@@ -615,6 +617,9 @@ class DataTableMixin(object):
     def copy(self):
         with self.hold(CMD):
             self.send_keys("c")
+
+        # Small wait to let Chrome stabilize focus after clipboard operation
+        time.sleep(0.1)
 
     def paste(self):
         with self.hold(CMD):

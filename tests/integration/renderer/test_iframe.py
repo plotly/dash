@@ -1,3 +1,5 @@
+from flask import make_response
+
 from dash import Dash, Input, Output, html
 from dash.exceptions import PreventUpdate
 
@@ -22,6 +24,19 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
         return ["{}={}".format(i, i + n_clicks) for i in range(N_OUTPUTS)]
 
+    @app.server.route("/iframe-wrapper")
+    def iframe_wrapper():
+        iframe_html = """
+        <!DOCTYPE html>
+        <html>
+        <iframe src="/" sandbox="allow-scripts" style="width:100%;height:100vh;border:none;">
+        </iframe>
+        </html>
+        """
+        response = make_response(iframe_html)
+        response.headers["Content-Type"] = "text/html"
+        return response
+
     @app.server.after_request
     def apply_cors(response):
         response.headers["Access-Control-Allow-Origin"] = "*"
@@ -37,17 +52,8 @@ def test_rdif001_sandbox_allow_scripts(dash_duo):
 
     assert dash_duo.get_logs() == []
 
-    iframe = """
-        <!DOCTYPE html>
-    <html>
-    <iframe src="{0}" sandbox="allow-scripts">
-    </iframe>
-    </html>
-    """
-
-    html_content = iframe.format(dash_duo.server_url)
-
-    dash_duo.driver.get("data:text/html;charset=utf-8," + html_content)
+    # Navigate to the iframe wrapper served from the same origin
+    dash_duo.driver.get(dash_duo.server_url + "/iframe-wrapper")
 
     dash_duo.driver.switch_to.frame(0)
 

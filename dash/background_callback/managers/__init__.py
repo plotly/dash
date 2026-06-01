@@ -56,7 +56,11 @@ class BaseBackgroundCallbackManager(ABC):
         raise NotImplementedError
 
     def build_cache_key(self, fn, args, cache_args_to_ignore, triggered):
-        fn_source = inspect.getsource(fn)
+        try:
+            fn_source = inspect.getsource(fn)
+            fn_str = fn_source
+        except OSError:  # pylint: disable=too-broad-exception
+            fn_str = getattr(fn, "__name__", "")
 
         if not isinstance(cache_args_to_ignore, (list, tuple)):
             cache_args_to_ignore = [cache_args_to_ignore]
@@ -69,7 +73,7 @@ class BaseBackgroundCallbackManager(ABC):
                     arg for i, arg in enumerate(args) if i not in cache_args_to_ignore
                 ]
 
-        hash_dict = dict(args=args, fn_source=fn_source, triggered=triggered)
+        hash_dict = dict(args=args, fn_source=fn_str, triggered=triggered)
 
         if self.cache_by is not None:
             # Caching enabled
