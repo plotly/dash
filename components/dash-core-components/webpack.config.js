@@ -98,7 +98,7 @@ module.exports = (env, argv) => {
                             presets: [
                                 ['@babel/preset-env', {
                                     targets: {
-                                        browsers: ['last 9 years and not dead']
+                                        browsers: ['last 10 years and not dead']
                                     },
                                     modules: false
                                 }]

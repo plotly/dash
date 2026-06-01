@@ -240,6 +240,9 @@ class Graph(Component):
             Localization definitions, if you choose to provide them with
             the plot rather than registering them globally.
 
+        - displayNotifier (boolean; optional):
+            Determines whether or not notifier is displayed.
+
     - extendData (list | dict; optional):
         Data that should be appended to existing traces. Has the form
         `[updateData, traceIndices, maxPoints]`, where `updateData` is an
@@ -382,6 +385,7 @@ class Graph(Component):
             "mapboxAccessToken": NotRequired[typing.Any],
             "locale": NotRequired[str],
             "locales": NotRequired[dict],
+            "displayNotifier": NotRequired[bool],
         },
     )
 

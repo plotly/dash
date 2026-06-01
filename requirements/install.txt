@@ -7,3 +7,4 @@ requests
 retrying
 nest-asyncio
 setuptools
+janus>=1.0.0

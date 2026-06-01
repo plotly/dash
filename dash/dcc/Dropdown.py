@@ -96,6 +96,12 @@ class Dropdown(Component):
         server only when dropdown menu closes. Use with
         `closeOnSelect=False`.
 
+    - search_order (a value equal to: None, 'index', 'original'; optional):
+        The order in which to search results appear. 'index' (the default)
+        means that options are presented based on search relevance, while
+        'original' keeps the order of options as they were originally
+        provided.
+
     - className (string; optional):
         Additional CSS class for the root DOM node.
 
@@ -165,6 +171,7 @@ class Dropdown(Component):
         style: typing.Optional[typing.Any] = None,
         labels: typing.Optional[typing.Union["Labels"]] = None,
         debounce: typing.Optional[typing.Union[bool]] = None,
+        search_order: typing.Optional[Literal[None, "index", "original"]] = None,
         className: typing.Optional[typing.Union[str]] = None,
         persistence: typing.Optional[typing.Union[str, NumberType, bool]] = None,
         persisted_props: typing.Optional[typing.Any] = None,
@@ -190,6 +197,7 @@ class Dropdown(Component):
             "style",
             "labels",
             "debounce",
+            "search_order",
             "className",
             "persistence",
             "persisted_props",
@@ -213,6 +221,7 @@ class Dropdown(Component):
             "style",
             "labels",
             "debounce",
+            "search_order",
             "className",
             "persistence",
             "persisted_props",

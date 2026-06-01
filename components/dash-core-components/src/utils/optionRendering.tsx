@@ -400,6 +400,9 @@ export const OptionsList = forwardRef<OptionsListHandle, OptionsListProps>(
                     className="dash-options-list-virtualized"
                     onItemsRendered={handleItemsRendered}
                     itemData={itemData}
+                    itemKey={(index, data) =>
+                        String(data.options[index]?.value ?? index)
+                    }
                 >
                     {Row}
                 </VariableSizeList>

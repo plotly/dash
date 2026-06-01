@@ -188,13 +188,13 @@ function Input({
 
             // Apply min/max constraints
             let constrainedValue = newValue;
-            if (props.min !== undefined) {
+            if (props.min !== null && props.min !== undefined) {
                 constrainedValue = Math.max(
                     constrainedValue,
                     parseFloat(props.min as string)
                 );
             }
-            if (props.max !== undefined) {
+            if (props.max !== null && props.min !== undefined) {
                 constrainedValue = Math.min(
                     constrainedValue,
                     parseFloat(props.max as string)
