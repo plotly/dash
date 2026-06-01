@@ -6,13 +6,20 @@ import pytest
 import requests
 
 from dash import _get_app
-from dash.mcp.primitives.resources import _RESOURCE_PROVIDERS
-from dash.mcp.primitives.tools import _TOOL_PROVIDERS
-from dash.mcp.primitives.tools.tools_callbacks import CallbackTools
 
 collect_ignore_glob = []
 if sys.version_info < (3, 10):
     collect_ignore_glob.append("*")
+else:
+    from dash.mcp.primitives.resources import (  # pylint: disable=wrong-import-position
+        _RESOURCE_PROVIDERS,
+    )
+    from dash.mcp.primitives.tools import (  # pylint: disable=wrong-import-position
+        _TOOL_PROVIDERS,
+    )
+    from dash.mcp.primitives.tools.tools_callbacks import (  # pylint: disable=wrong-import-position
+        CallbackTools,
+    )
 
 
 @pytest.fixture(autouse=True)
