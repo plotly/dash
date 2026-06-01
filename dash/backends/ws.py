@@ -41,6 +41,25 @@ class DashWebsocketCallback:
     Uses janus.Queue for outbound messages (serialized with to_json) and
     queue.Queue for get_props responses, enabling thread-safe communication
     between worker threads and the main event loop.
+
+    IMPORTANT: For long-running callbacks that use loops (e.g., streaming updates),
+    you MUST check `ws.is_shutdown` in your loop to detect disconnections:
+
+        @callback(Input('btn', 'n_clicks'))  # No Output - uses set_props only
+        async def long_running(n_clicks):
+            ws = ctx.websocket
+            while True:
+                if ws and ws.is_shutdown:
+                    raise PreventUpdate  # Exit gracefully on disconnect
+                set_props('progress', {'value': get_data()})
+                await asyncio.sleep(0.1)
+
+    Without this check, callbacks will continue running after the client disconnects,
+    wasting server resources.
+
+    Note: Only "persistent callbacks" (callbacks with no Output and no Input that use
+    only set_props) are automatically restarted when the WebSocket reconnects. Regular
+    callbacks with outputs are not restarted.
     """
 
     def __init__(
@@ -69,15 +88,25 @@ class DashWebsocketCallback:
         """Check if the websocket connection has been shut down."""
         return self._shutdown_event.is_set()
 
+    def _get_outbound_queue(self) -> janus.Queue[str] | None:
+        """Get the outbound queue."""
+        return self._outbound_queue
+
+    def _get_pending_get_props(self) -> Dict[str, queue.Queue[Any]] | None:
+        """Get the pending_get_props dict."""
+        return self._pending_get_props
+
     def _queue_message(self, msg: dict) -> None:
         """Serialize and queue message for sending (thread-safe, non-blocking).
 
         Uses to_json for proper serialization of Dash components.
         Does nothing if the connection has been shut down.
         """
-        if self._shutdown_event.is_set():
+        if self.is_shutdown:
             return
-        self._outbound_queue.sync_q.put_nowait(cast(str, to_json(msg)))
+        outbound_queue = self._get_outbound_queue()
+        if outbound_queue is not None:
+            outbound_queue.sync_q.put_nowait(cast(str, to_json(msg)))
 
     async def set_prop(self, component_id: str, prop_name: str, value: Any) -> None:
         """Send immediate prop update to the client via WebSocket.
@@ -115,7 +144,11 @@ class DashWebsocketCallback:
             WebsocketDisconnected: If the websocket connection has been closed.
             TimeoutError: If the response doesn't arrive within the timeout.
         """
-        if self._shutdown_event.is_set():
+        if self.is_shutdown:
+            raise WebsocketDisconnected()
+
+        pending_get_props = self._get_pending_get_props()
+        if pending_get_props is None:
             raise WebsocketDisconnected()
 
         request_id = str(uuid.uuid4())
@@ -128,7 +161,7 @@ class DashWebsocketCallback:
 
         # Use standard queue.Queue for response
         response_queue: queue.Queue = queue.Queue()
-        self._pending_get_props[request_id] = response_queue
+        pending_get_props[request_id] = response_queue
 
         # Queue the outbound request via janus sync interface
         self._queue_message(msg)
@@ -146,7 +179,10 @@ class DashWebsocketCallback:
                 f"Timeout waiting for {component_id}.{prop_name}"
             ) from exc
         finally:
-            self._pending_get_props.pop(request_id, None)
+            # Get fresh reference in case of reconnection
+            current_pending = self._get_pending_get_props()
+            if current_pending is not None:
+                current_pending.pop(request_id, None)
 
 
 def create_ws_context(
@@ -209,31 +245,60 @@ async def run_ws_sender(
     messages: list[str] = []
     try:
         while True:
-            # Wait indefinitely for first message, then use timeout for batching
-            timeout = batch_delay if messages else None
-            try:
-                msg = await asyncio.wait_for(q.get(), timeout=timeout)
-                if msg == SHUTDOWN_SIGNAL:
-                    if messages:
-                        await _send_batched(send_text, messages)
-                    return
-                if msg == FLUSH_SIGNAL:
-                    if messages:
-                        await _send_batched(send_text, messages)
-                        messages = []
-                    continue
-                if not batch_delay:
-                    await send_text(msg)
-                else:
-                    messages.append(msg)
-            except asyncio.TimeoutError:
-                await _send_batched(send_text, messages)
-                messages = []
+            result = await _process_ws_message(q, send_text, messages, batch_delay)
+            if result is False:
+                return
     except asyncio.CancelledError:
         pass
 
 
-async def _send_batched(send_text: Callable[[str], Any], messages: list) -> None:
+async def _process_ws_message(
+    q: "janus._AsyncQueueProxy[str]",
+    send_text: Callable[[str], Any],
+    messages: list[str],
+    batch_delay: float,
+) -> bool:
+    """Process a single WebSocket message from the queue.
+
+    Args:
+        q: The async queue to read from
+        send_text: Async function to send text data over WebSocket
+        messages: List to accumulate messages for batching (mutated in place)
+        batch_delay: Batch delay in seconds
+
+    Returns:
+        True to continue processing, False to stop the sender loop.
+    """
+    timeout = batch_delay if messages else None
+    try:
+        msg = await asyncio.wait_for(q.get(), timeout=timeout)
+    except asyncio.TimeoutError:
+        success = await _send_batched(send_text, messages)
+        messages.clear()
+        return success
+
+    if msg == SHUTDOWN_SIGNAL:
+        if messages:
+            await _send_batched(send_text, messages)
+        return False
+
+    if msg == FLUSH_SIGNAL:
+        success = not messages or await _send_batched(send_text, messages)
+        messages.clear()
+        return success
+
+    if not batch_delay:
+        try:
+            await send_text(msg)
+        except Exception:  # pylint: disable=broad-exception-caught
+            return False  # WebSocketDisconnect, RuntimeError, etc.
+    else:
+        messages.append(msg)
+
+    return True
+
+
+async def _send_batched(send_text: Callable[[str], Any], messages: list) -> bool:
     """Send messages as a batch.
 
     Single messages are sent as-is. Multiple messages are wrapped
@@ -242,12 +307,19 @@ async def _send_batched(send_text: Callable[[str], Any], messages: list) -> None
     Args:
         send_text: Async function to send text data over WebSocket
         messages: List of pre-serialized JSON message strings
+
+    Returns:
+        True if send succeeded, False if connection was closed
     """
-    if len(messages) == 1:
-        await send_text(messages[0])
-    else:
-        # Wrap in array: "[msg1,msg2,msg3]"
-        await send_text("[" + ",".join(messages) + "]")
+    try:
+        if len(messages) == 1:
+            await send_text(messages[0])
+        else:
+            # Wrap in array: "[msg1,msg2,msg3]"
+            await send_text("[" + ",".join(messages) + "]")
+        return True
+    except Exception:  # pylint: disable=broad-exception-caught
+        return False  # WebSocketDisconnect, RuntimeError, etc.
 
 
 def make_callback_done_handler(

@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
 - [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
 - Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
+- [#3797](https://github.com/plotly/dash/pull/3797) Improved websocket callback management.
 - [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
 - [#3785](https://github.com/plotly/dash/pull/3785) Fix patch with dcc.Graph figure.
 - [#3785](https://github.com/plotly/dash/pull/3785) Fix dcc.Graph not sending duplicate clicks because it had the same payload by adding a timestamp in the click event object.
