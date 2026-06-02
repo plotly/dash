@@ -4,22 +4,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
-## Added
-- [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings
-- [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search 
-- Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729)
-
-## Added
-- [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found
-
-## Fixed
-- [#3690](https://github.com/plotly/dash/pull/3690) Fixes Input when min or max is set to None
-- [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings
-- [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines
-- [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari
-- [#2462](https://github.com/plotly/dash/issues/2462) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output.
-- [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742)
-
 ## [4.3.0rc0] - 2026-05-21
 
 ## Added
@@ -33,24 +17,92 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3750](https://github.com/plotly/dash/pull/3750) MCP: Server routes, `mcp_enabled` function decorator, and Streamable HTTP transport
 - [#3766](https://github.com/plotly/dash/pull/3766) MCP: Support background callbacks in Tools
 
-## [4.2.0rc3] - 2026-05-12
+## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
-- [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
-- Rename ctx.get_websocket to ctx.websocket
+This release marks a major milestone for Dash, bringing unprecedented flexibility to how you build and deploy your applications.
 
-## [4.2.0rc2] - 2026-05-01
+### 🚀 Multiple Backend Support
+Dash is no longer tied to Flask. You can now run your Dash apps on **FastAPI** or **Quart**, or even bring your own backend implementation:
 
-## Fixed
-- [#3759](https://github.com/plotly/dash/pull/3759) Fix the error when using `set_props()` to update component-type properties in the `websocket` callback.
-- Add threadpool for running websocket callbacks.
+```python
+# FastAPI backend
+app = Dash(__name__, backend="fastapi")
 
-## [4.2.0rc1] - 2026-04-13
+# Quart backend (async-native)
+app = Dash(__name__, backend="quart")
+
+# Or use an existing server
+from fastapi import FastAPI
+server = FastAPI()
+app = Dash(__name__, server=server)
+```
+
+Install with `pip install dash[fastapi]` or `pip install dash[quart]`.
+
+### ⚡ Websocket Callbacks
+Real-time, bidirectional communication is here. Websocket callbacks enable persistent connections for live updates without polling:
+
+```python
+@callback(
+    Output("live-output", "children"),
+    Input("trigger", "n_clicks"),
+    websocket=True,
+    persistent=True
+)
+def live_updates(n_clicks):
+    ws = ctx.websocket
+    while True:
+        data = fetch_live_data()
+        ws.send(Output("live-output", "children", data))
+        time.sleep(1)
+```
+
+### 🔓 Relaxed Pattern Matching Rules
+`MATCH` wildcards are now allowed in `Input` and `State` even when your `Output` has no wildcards, making dynamic UIs simpler to build:
+
+```python
+@callback(
+    Output("summary", "children"),  # Fixed ID output
+    Input({"type": "item", "index": MATCH}, "value")  # MATCH input - now allowed!
+)
+def update_summary(value):
+    return f"Selected: {value}"
+```
+
+---
 
 ## Added
+- [#3783](https://github.com/plotly/dash/pull/3783) Add batching/debouncing for websocket `set_props` messages to reduce lag when updating multiple components in a loop. Configurable via `websocket_batch_delay` (default 5ms, set to 0 to disable).
+- [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings.
+- [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search.
+- [#3745](https://github.com/plotly/dash/pull/3745) Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729).
+- [#3797](https://github.com/plotly/dash/pull/3797) Improved websocket callback management with heartbeat configuration and proper reconnection handling.
+- [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found.
+- [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
 - [#3742](https://github.com/plotly/dash/pull/3742) Add websocket callbacks to fastapi and quart backends.
+- [#3737](https://github.com/plotly/dash/pull/3737) Add `displayNotifier` to `dcc.Graph` config props.
 
 ## Changed
-- [#3691] Improve static typing for `dash.callback` by preserving wrapped callback signatures, and add callback typing coverage in compliance plus new callback decorator unit and integration tests.
+- [#3746](https://github.com/plotly/dash/pull/3746) Improve static typing for `dash.callback` by preserving wrapped callback signatures, and add callback typing coverage in compliance plus new callback decorator unit and integration tests. Fixes [#3691](https://github.com/plotly/dash/issues/3691).
+- Rename `ctx.get_websocket` to `ctx.websocket`.
+- Add threadpool for running websocket callbacks.
+
+## Fixed
+- [#3690](https://github.com/plotly/dash/pull/3690) Fix `dcc.Input` when min or max is set to None.
+- [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings.
+- [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines.
+- [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari.
+- [#3756](https://github.com/plotly/dash/pull/3756) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output. Fixes [#2462](https://github.com/plotly/dash/issues/2462).
+- [#3768](https://github.com/plotly/dash/pull/3768) Improved `Dropdown` search performance for large options lists.
+- [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742).
+- [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
+- [#3799](https://github.com/plotly/dash/pull/3799) Fixed dropdown crash when filtering large datasets with component-based labels by using stable item keys for virtualized rows.
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix patch with `dcc.Graph` figure. Fix `dcc.Graph` not sending duplicate clicks because it had the same payload by adding a timestamp in the click event object.
+- [#3798](https://github.com/plotly/dash/pull/3798) Fix blueprint registering and double init when using `flask run` command. Fixes [#3787](https://github.com/plotly/dash/issues/3787).
+- [#3734](https://github.com/plotly/dash/pull/3734) Fix websocket used in the same FastAPI server. Fixes [#3636](https://github.com/plotly/dash/issues/3636).
+- [#3668](https://github.com/plotly/dash/pull/3668) Fix FastAPI url paths order. Fixes [#3667](https://github.com/plotly/dash/issues/3667).
+- [#3641](https://github.com/plotly/dash/pull/3641) Fix `dcc.Loading` spinner not triggering when callback `Output` uses the `ALL` wildcard. Fixes [#3619](https://github.com/plotly/dash/issues/3619).
+- [#3570](https://github.com/plotly/dash/pull/3570) Fix components not remounting when passed from a parent object. Fixes [#3330](https://github.com/plotly/dash/issues/3330).
 
 ## [4.1.0] - 2026-03-23
 
@@ -66,13 +118,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3643](https://github.com/plotly/dash/pull/3643) Fix multiselect dropdown with components as labels
 - [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
 - [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
-
-# [4.2.0rc0] - 2026-04-13
-
-## Fixed
-
-- Fix websocket used in the same FastAPI server. Fix [#3636](https://github.com/plotly/dash/issues/3636)
-- Fix FastAPI url paths order. Fix [3667](https://github.com/plotly/dash/issues/3667)
 
 # [4.1.0rc0] - 2026-02-23
 

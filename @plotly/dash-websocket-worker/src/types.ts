@@ -7,14 +7,19 @@ export enum WorkerMessageType {
     DISCONNECT = 'disconnect',
     CALLBACK_REQUEST = 'callback_request',
     GET_PROPS_RESPONSE = 'get_props_response',
+    TAB_VISIBLE = 'tab_visible',
 
     // Worker -> Renderer
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected',
     CALLBACK_RESPONSE = 'callback_response',
     SET_PROPS = 'set_props',
+    SET_PROPS_BATCH = 'set_props_batch',
     GET_PROPS_REQUEST = 'get_props_request',
-    ERROR = 'error'
+    ERROR = 'error',
+
+    // Server -> Worker (not forwarded to renderer)
+    HEARTBEAT_ACK = 'heartbeat_ack'
 }
 
 /**
@@ -35,6 +40,7 @@ export interface ConnectMessage extends WorkerMessage {
     payload: {
         serverUrl: string;
         inactivityTimeout?: number;
+        heartbeatInterval?: number;
     };
 }
 
@@ -86,6 +92,18 @@ export interface SetPropsMessage extends WorkerMessage {
         componentId: string;
         props: Record<string, unknown>;
     };
+}
+
+/**
+ * Message from worker to renderer to set props for multiple components at once.
+ * Used for batching multiple set_props calls for efficiency.
+ */
+export interface SetPropsBatchMessage extends WorkerMessage {
+    type: WorkerMessageType.SET_PROPS_BATCH;
+    payload: Array<{
+        componentId: string;
+        props: Record<string, unknown>;
+    }>;
 }
 
 /**
@@ -144,6 +162,7 @@ export type AnyWorkerMessage =
     | CallbackRequestMessage
     | CallbackResponseMessage
     | SetPropsMessage
+    | SetPropsBatchMessage
     | GetPropsRequestMessage
     | GetPropsResponseMessage
     | ErrorMessage

@@ -122,7 +122,6 @@ class QuartDashServer(BaseDashServer[Quart]):
     def register_assets_blueprint(
         self, blueprint_name: str, assets_url_path: str, assets_folder: str  # type: ignore[name-defined]
     ):
-
         bp = Blueprint(
             blueprint_name,
             __name__,
@@ -566,7 +565,11 @@ class QuartDashServer(BaseDashServer[Quart]):
             pending_callbacks: Dict[str, concurrent.futures.Future] = {}
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
-            sender_task = asyncio.create_task(run_ws_sender(ws.send, outbound_queue))
+            # pylint: disable=protected-access
+            batch_delay = getattr(dash_app, "_websocket_batch_delay", 0.005)
+            sender_task = asyncio.create_task(
+                run_ws_sender(ws.send, outbound_queue, batch_delay)
+            )
 
             try:
                 shutdown_event = self._ws_shutdown_event
@@ -605,7 +608,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                             dash_app._websocket_callbacks,
                         )
 
-                        # Create WebSocket callback instance with outbound queue
+                        # Create WebSocket callback instance
                         ws_cb = DashWebsocketCallback(
                             pending_get_props,
                             renderer_id,

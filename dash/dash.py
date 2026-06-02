@@ -135,6 +135,8 @@ _ID_LOCATION = "_pages_location"
 _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
+_UNINITIALIZED = object()  # Sentinel for tracking init_app state
+
 DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
 # Handles the case in a newly cloned environment where the components are not yet generated.
@@ -486,6 +488,8 @@ class Dash(ObsoleteChecker):
         websocket_callbacks: Optional[bool] = False,
         websocket_allowed_origins: Optional[List[str]] = None,
         websocket_inactivity_timeout: Optional[int] = 300000,
+        websocket_heartbeat_interval: Optional[int] = 30000,
+        websocket_batch_delay: Optional[float] = 0.005,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         mcp_expose_docstrings: Optional[bool] = None,
@@ -659,6 +663,8 @@ class Dash(ObsoleteChecker):
         self._websocket_callbacks = websocket_callbacks
         self._websocket_allowed_origins = websocket_allowed_origins or []
         self._websocket_inactivity_timeout = websocket_inactivity_timeout
+        self._websocket_heartbeat_interval = websocket_heartbeat_interval
+        self._websocket_batch_delay = websocket_batch_delay
 
         self.logger = logging.getLogger(__name__)
 
@@ -743,6 +749,17 @@ class Dash(ObsoleteChecker):
         )
         if app is not None:
             self.server = app
+            # Also update the backend's server reference so routes are registered
+            # on the correct server (important when using server=False pattern)
+            self.backend.server = app
+
+        # Skip registration if already initialized on this server
+        # This prevents double registration when init_app() is called multiple times
+        # (e.g., with flask run pattern where __init__ calls init_app, then user does too)
+        if getattr(self, "_initialized_server", _UNINITIALIZED) is self.server:
+            return
+        self._initialized_server = self.server
+
         bp_prefix = config.routes_pathname_prefix.replace("/", "_").replace(".", "_")
         assets_blueprint_name = f"{bp_prefix}dash_assets"
         self.backend.register_assets_blueprint(
@@ -1019,6 +1036,7 @@ class Dash(ObsoleteChecker):
                 "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
                 "worker_url": self._get_worker_url(),
                 "inactivity_timeout": self._websocket_inactivity_timeout,
+                "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
         return config

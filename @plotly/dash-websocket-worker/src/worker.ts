@@ -81,16 +81,24 @@ self.onconnect = (event: MessageEvent) => {
                 const rendererId = connectMsg.rendererId;
                 const newServerUrl = connectMsg.payload.serverUrl;
                 const inactivityTimeout = connectMsg.payload.inactivityTimeout;
+                const heartbeatInterval = connectMsg.payload.heartbeatInterval;
 
                 // Register the renderer
                 router.registerRenderer(rendererId, port);
                 rendererIds.add(rendererId);
 
-                console.log(`[DashWSWorker] Renderer ${rendererId} connected, inactivityTimeout: ${inactivityTimeout}`);
+                console.log(`[DashWSWorker] Renderer ${rendererId} connected, inactivityTimeout: ${inactivityTimeout}, heartbeatInterval: ${heartbeatInterval}`);
 
-                // Update inactivity timeout if provided
+                // Update config if provided
+                const configUpdate: {inactivityTimeout?: number; heartbeatInterval?: number} = {};
                 if (typeof inactivityTimeout === 'number') {
-                    wsManager.setConfig({ inactivityTimeout });
+                    configUpdate.inactivityTimeout = inactivityTimeout;
+                }
+                if (typeof heartbeatInterval === 'number') {
+                    configUpdate.heartbeatInterval = heartbeatInterval;
+                }
+                if (Object.keys(configUpdate).length > 0) {
+                    wsManager.setConfig(configUpdate);
                 }
 
                 // Connect to server if not already connected
@@ -119,6 +127,13 @@ self.onconnect = (event: MessageEvent) => {
                     serverUrl = null;
                     console.log('[DashWSWorker] All renderers disconnected, closing WebSocket');
                 }
+                break;
+            }
+
+            case WorkerMessageType.TAB_VISIBLE: {
+                // Reset activity timer when tab becomes visible
+                // This prevents inactivity timeout while user is viewing the tab
+                wsManager.resetActivity();
                 break;
             }
 
