@@ -223,7 +223,14 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             await self.app(scope, receive, send)
             return
 
-        # HTTP/WebSocket request handling
+        # Non-Dash routes pass through to avoid consuming body stream
+        path = scope["path"]
+        prefix = self.dash_app.config.routes_pathname_prefix
+        if "_dash-" not in path and path != prefix and path != prefix.rstrip("/"):
+            await self.app(scope, receive, send)
+            return
+
+        # HTTP request handling
         request = Request(scope, receive=receive)
         token = set_current_request(request)
 
