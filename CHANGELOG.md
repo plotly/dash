@@ -12,6 +12,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
 
+## Fixed
+- [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
+
 ## [4.3.0rc0] - 2026-05-21
 
 ## Added
