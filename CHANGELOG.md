@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Fixed
+- [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
+
 ## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
 This release marks a major milestone for Dash, bringing unprecedented flexibility to how you build and deploy your applications.
