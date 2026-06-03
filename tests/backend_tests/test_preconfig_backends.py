@@ -291,3 +291,46 @@ def test_silence_routes_logging(backend, expected_loggers):
         assert (
             logger.level == logging.ERROR
         ), f"Logger {logger_name} should be set to ERROR level for {backend} backend"
+
+
+def test_fastapi_custom_post_route(dash_duo):
+    """Test that user-defined POST routes work with FastAPI backend.
+
+    Regression test for https://github.com/plotly/dash/issues/3801
+    The DashMiddleware was consuming the request body for all routes,
+    causing POST requests to user-defined routes to hang.
+    """
+    from fastapi import FastAPI, Request
+    from fastapi.responses import JSONResponse
+    import requests
+
+    fastapi_app = FastAPI()
+
+    @fastapi_app.get("/api/echo")
+    async def echo_get():
+        return JSONResponse({"method": "GET", "ok": True})
+
+    @fastapi_app.post("/api/echo")
+    async def echo_post(request: Request):
+        body = await request.json()
+        return JSONResponse({"echo": body})
+
+    app = Dash(__name__, server=fastapi_app)
+    app.layout = html.Div("Dash is running")
+
+    dash_duo.start_server(app)
+
+    # Test GET request
+    url = dash_duo.server_url
+    resp = requests.get(f"{url}/api/echo", timeout=5)
+    assert resp.status_code == 200
+    assert resp.json() == {"method": "GET", "ok": True}
+
+    # Test POST request - this was hanging before the fix
+    resp = requests.post(
+        f"{url}/api/echo",
+        json={"hello": "world"},
+        timeout=5,
+    )
+    assert resp.status_code == 200
+    assert resp.json() == {"echo": {"hello": "world"}}
