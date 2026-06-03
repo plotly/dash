@@ -20,6 +20,10 @@ else:
     from dash.mcp.primitives.tools.tools_callbacks import (  # pylint: disable=wrong-import-position
         CallbackTools,
     )
+    from dash.mcp._decorator import (  # pylint: disable=wrong-import-position
+        MCP_DECORATED_FUNCTIONS,
+    )
+    from dash.mcp import _configure  # pylint: disable=wrong-import-position
 
 
 @pytest.fixture(autouse=True)
@@ -42,6 +46,8 @@ def _reset_dash_app_state():
     _TOOL_PROVIDERS[:] = initial_tools
     CallbackTools.callbacks_mcp_enabled_by_default = initial_callbacks_default
     CallbackTools.expose_docstrings_by_default = initial_expose_docstrings
+    MCP_DECORATED_FUNCTIONS.clear()
+    _configure._current_config = dict(_configure._DEFAULT_CONFIG)
     _get_app.APP = None
     _get_app.app_context.set(None)
 

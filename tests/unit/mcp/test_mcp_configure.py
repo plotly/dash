@@ -46,10 +46,13 @@ def _reset_mcp_module_state():
     """Restore module-level MCP state after every test."""
     yield
 
+    from dash.mcp import _configure
+
     CallbackTools.callbacks_mcp_enabled_by_default = True
     CallbackTools.expose_docstrings_by_default = False
     _RESOURCE_PROVIDERS[:] = list(_DEFAULT_RESOURCE_PROVIDERS)
     _TOOL_PROVIDERS[:] = list(_DEFAULT_TOOL_PROVIDERS)
+    _configure._current_config = dict(_configure._DEFAULT_CONFIG)
     _get_app_module.APP = None
     _get_app_module.app_context.set(None)
 
@@ -220,3 +223,60 @@ def test_mcpc007_configure_mcp_invalidates_mcp_callback_map():
     configure_mcp_server(include_callbacks=False)
 
     assert app.mcp_callback_map is None
+
+
+# ---------------------------------------------------------------------------
+# Patch-style semantics: omitted params retain their previous value
+# ---------------------------------------------------------------------------
+
+
+def test_mcpc009_omitted_params_retain_previous_value():
+    """A subsequent call only updates the params it is passed; previously-set
+    values persist instead of resetting to their defaults."""
+    _make_app()
+
+    configure_mcp_server(include_layout=False)
+    assert LayoutResource not in _RESOURCE_PROVIDERS
+    assert GetDashComponentTool not in _TOOL_PROVIDERS
+
+    # Touch an unrelated knob; include_layout must stay disabled.
+    configure_mcp_server(include_pages=False)
+
+    assert LayoutResource not in _RESOURCE_PROVIDERS
+    assert GetDashComponentTool not in _TOOL_PROVIDERS
+    assert PagesResource not in _RESOURCE_PROVIDERS
+
+
+# ---------------------------------------------------------------------------
+# Configuring before the app survives construction and first-request build
+# ---------------------------------------------------------------------------
+
+
+def test_mcpc010_configure_before_app_survives_construction():
+    """Config applied before `Dash()` exists is not reset by `Dash.__init__`:
+    provider lists set pre-app remain in effect after construction."""
+    # Configure first, with no app in context (must not raise).
+    configure_mcp_server(include_layout=False)
+
+    # Constructing the app must not restore the disabled providers.
+    _make_app()
+
+    assert LayoutResource not in _RESOURCE_PROVIDERS
+    assert ComponentsResource not in _RESOURCE_PROVIDERS
+    assert GetDashComponentTool not in _TOOL_PROVIDERS
+
+
+def test_mcpc011_configure_before_app_governs_callback_filter_mode():
+    """`include_callbacks=False` set before `Dash()` still governs how the
+    callback map is built on first request (opt-in mode is honored)."""
+    # Configure opt-in mode before any app exists.
+    configure_mcp_server(include_callbacks=False)
+
+    # App built afterward; its single callback does not opt in.
+    app_none = _make_app()  # mcp_enabled defaults to None
+    # The collection is built lazily (as on first request) and must reflect
+    # the pre-app opt-in config: the non-opted-in callback is excluded.
+    assert len(_collection(app_none)) == 0
+
+    app_opted_in = _make_app(mcp_enabled=True)
+    assert len(_collection(app_opted_in)) == 1

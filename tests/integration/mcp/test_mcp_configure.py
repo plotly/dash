@@ -93,3 +93,30 @@ def test_mcpcfg003_disable_callbacks_single_opt_in_layout_queryable(dash_duo):
     resources = _mcp_method(dash_duo.server.url, "resources/list")
     uris = [r["uri"] for r in resources["result"]["resources"]]
     assert "dash://layout" in uris
+
+
+def test_mcpcfg004_configure_before_app_governs_live_server(dash_duo):
+    """configure_mcp_server() called BEFORE Dash() still governs the running
+    server: app construction and the first request do not reset the config."""
+    # Configure before the app exists.
+    configure_mcp_server(include_layout=False, include_callbacks=False)
+
+    app = Dash(__name__)
+    app.layout = html.Div([dcc.Input(id="inp"), html.Div(id="out")])
+
+    @app.callback(Output("out", "children"), Input("inp", "value"), mcp_enabled=True)
+    def included(val):
+        return val
+
+    dash_duo.start_server(app)
+
+    # First real request builds the callback map; pre-app config must hold.
+    tools = _mcp_tools(dash_duo.server.url)
+    tool_names = [t["name"] for t in tools]
+    assert "included" in tool_names  # opt-in honored under include_callbacks=False
+    assert "get_dash_component" not in tool_names  # include_layout=False honored
+
+    resources = _mcp_method(dash_duo.server.url, "resources/list")
+    uris = [r["uri"] for r in resources["result"]["resources"]]
+    assert "dash://layout" not in uris
+    assert "dash://components" not in uris
