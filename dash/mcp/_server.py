@@ -50,9 +50,6 @@ logger = logging.getLogger(__name__)
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     """Add MCP routes to a Dash app."""
 
-    app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
-    MCP_DECORATED_FUNCTIONS.clear()
-
     def _get_or_create_session_id() -> str:
         """
         Creates a shared session ID shared across all clients. The session is
@@ -245,8 +242,9 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
     request_id: str | int = _id if isinstance(_id, (str, int)) else ""
 
     app = get_app()
-    if not hasattr(app, "mcp_callback_map"):
+    if app.mcp_callback_map is None:
         app.mcp_callback_map = CallbackAdapterCollection(app)
+        app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
 
     mcp_methods = {
         "initialize": _handle_initialize,

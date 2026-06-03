@@ -16,6 +16,7 @@ from dash import get_app
 from dash._utils import clean_property_name, split_callback_id
 from dash._layout_utils import extract_text, find_component, traverse
 from .callback_adapter import CallbackAdapter
+from .tools_callbacks import CallbackTools
 
 
 class CallbackAdapterCollection:
@@ -24,9 +25,14 @@ class CallbackAdapterCollection:
 
         raw: list[tuple[str, dict]] = []
         for output_id, cb_info in callback_map.items():
-            if cb_info.get("mcp_enabled") is False:
-                continue
             if "callback" not in cb_info:
+                continue
+            if CallbackTools.callbacks_mcp_enabled_by_default:
+                if cb_info.get("mcp_enabled") is False:
+                    # callbacks are included by default but this one has opted out
+                    continue
+            elif not cb_info.get("mcp_enabled"):
+                # callbacks are excluded by default and this one has not opted in
                 continue
             raw.append((output_id, cb_info))
 

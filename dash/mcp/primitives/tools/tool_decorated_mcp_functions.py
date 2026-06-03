@@ -11,6 +11,7 @@ from mcp.types import CallToolResult, TextContent, Tool
 
 from dash import get_app
 from dash.mcp._decorator import MCPToolRegistration
+from dash.mcp.primitives.tools.tools_callbacks import CallbackTools
 from dash.mcp.primitives.tools.input_schemas import get_input_schema
 from dash.mcp.primitives.tools.input_schemas.schema_callback_type_annotations import (
     annotation_to_json_schema,
@@ -93,7 +94,7 @@ def _build_tool(tool_name: str, reg: MCPToolRegistration) -> Tool:
 
     expose_docstring = reg["expose_docstring"]
     if expose_docstring is None:
-        expose_docstring = get_app().config.get("mcp_expose_docstrings", False)
+        expose_docstring = CallbackTools.expose_docstrings_by_default
 
     description = "MCP tool"
     if expose_docstring:

@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## [4.3.0rc1] - Unreleased
+
+## Added
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
+
+## Changed
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
+
 ## [4.3.0rc0] - 2026-05-21
 
 ## Added
