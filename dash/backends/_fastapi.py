@@ -226,7 +226,12 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         # Non-Dash routes pass through to avoid consuming body stream
         path = scope["path"]
         prefix = self.dash_app.config.routes_pathname_prefix
-        if "_dash-" not in path and path != prefix and path != prefix.rstrip("/"):
+        dash_prefix = prefix.rstrip("/") + "/_dash-"
+        if (
+            not path.startswith(dash_prefix)
+            and path != prefix
+            and path != prefix.rstrip("/")
+        ):
             await self.app(scope, receive, send)
             return
 
