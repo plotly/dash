@@ -122,7 +122,6 @@ class QuartDashServer(BaseDashServer[Quart]):
     def register_assets_blueprint(
         self, blueprint_name: str, assets_url_path: str, assets_folder: str  # type: ignore[name-defined]
     ):
-
         bp = Blueprint(
             blueprint_name,
             __name__,
@@ -609,7 +608,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                             dash_app._websocket_callbacks,
                         )
 
-                        # Create WebSocket callback instance with outbound queue
+                        # Create WebSocket callback instance
                         ws_cb = DashWebsocketCallback(
                             pending_get_props,
                             renderer_id,
