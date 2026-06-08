@@ -287,45 +287,31 @@ describe('parseYear', () => {
 describe('stepDate', () => {
     const baseDate = new Date(2026, 4, 4); // May 4, 2026
 
-    it('applies years, months, and days together', () => {
-        const cases: Array<[string, Date]> = [
-            ['1:2:3', new Date(2027, 6, 7)],
-            ['0:0:1', new Date(2026, 4, 5)],
-            ['1:0:0', new Date(2027, 4, 4)],
-            ['0:1:0', new Date(2026, 5, 4)],
-        ];
-
-        for (const [step, expected] of cases) {
-            expect(stepDate(baseDate, step)).toEqual(expected);
+    it('applies years, months, and days', () => {
+        const cases = [
+            [[3, 'days'], new Date(2026, 4, 7)],
+            [[1, 'years'], new Date(2027, 4, 4)],
+            [[1, 'months'], new Date(2026, 5, 4)],
+        ] as const;
+        for (const [[step, stepUnit], expected] of cases) {
+            expect(stepDate(baseDate, step, stepUnit)).toEqual(expected);
         }
-    });
-
-    it('handles zero step components (no-op parts)', () => {
-        expect(stepDate(baseDate, '0:0:0')).toEqual(baseDate);
     });
 
     it('handles month-end overflow correctly', () => {
         const may31 = new Date(2026, 4, 31);
-        expect(stepDate(may31, '0:1:0')).toEqual(new Date(2026, 5, 30));
+        expect(stepDate(may31, 1, 'months')).toEqual(new Date(2026, 5, 30));
     });
 
     it('handles leap year transitions', () => {
         const feb29 = new Date(2024, 1, 29);
-        expect(stepDate(feb29, '1:0:0')).toEqual(new Date(2025, 1, 28));
+        expect(stepDate(feb29, 1, 'years')).toEqual(new Date(2025, 1, 28));
     });
 
     it('returns undefined for missing date or step', () => {
-        expect(stepDate(undefined, '1:0:0')).toBeUndefined();
-        expect(stepDate(baseDate, undefined)).toBeUndefined();
-        expect(stepDate(undefined, undefined)).toBeUndefined();
-    });
-
-    it('returns undefined for malformed step strings', () => {
-        const invalidSteps = ['1:2', '1:2:3:4', 'a:b:c', '', '1:x:0'];
-
-        for (const step of invalidSteps) {
-            expect(stepDate(baseDate, step)).toBeUndefined();
-        }
+        expect(stepDate(undefined, 1, 'days')).toBeUndefined();
+        expect(stepDate(baseDate, undefined, 'days')).toBeUndefined();
+        expect(stepDate(baseDate, undefined, undefined)).toBeUndefined();
     });
 });
 
@@ -839,6 +825,7 @@ describe('snapToValidDate', () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             ranges
         );
         expect(result).toEqual(new Date(2026, 0, 11));
@@ -851,6 +838,7 @@ describe('snapToValidDate', () => {
         ];
         const result = snapToValidDate(
             date,
+            undefined,
             undefined,
             undefined,
             undefined,
@@ -871,6 +859,7 @@ describe('snapToValidDate', () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             ranges
         );
         expect(result).toEqual(new Date(2026, 0, 21));
@@ -884,6 +873,7 @@ describe('snapToValidDate', () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             disabled
         );
         expect(result).not.toEqual(date);
@@ -893,6 +883,7 @@ describe('snapToValidDate', () => {
         const saturday = new Date(2026, 4, 9);
         const result = snapToValidDate(
             saturday,
+            undefined,
             undefined,
             undefined,
             undefined,
@@ -915,6 +906,7 @@ describe('snapToValidDate', () => {
         const result = snapToValidDate(
             date,
             undefined,
+            undefined,
             minDate,
             maxDate,
             disabled
@@ -935,6 +927,7 @@ describe('snapToValidDate', () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             ranges
         );
         expect(result).toEqual(date);
@@ -950,6 +943,7 @@ describe('snapToValidDate', () => {
         const result = snapToValidDate(
             date,
             undefined,
+            undefined,
             minDate,
             maxDate,
             undefined,
@@ -959,13 +953,14 @@ describe('snapToValidDate', () => {
     });
 
     it('snaps to step grid when inside disabled range', () => {
-        const date = new Date(2026, 0, 8); // inside range
+        const date = new Date(2026, 0, 8);
         const ranges: [Date, Date][] = [
             [new Date(2026, 0, 5), new Date(2026, 0, 10)],
         ];
         const result = snapToValidDate(
             date,
-            '0:0:3',
+            3,
+            'days',
             undefined,
             undefined,
             undefined,
@@ -982,7 +977,8 @@ describe('snapToValidDate', () => {
         ];
         const result = snapToValidDate(
             date,
-            '0:0:3',
+            3,
+            'days',
             undefined,
             maxDate,
             undefined,
@@ -996,63 +992,60 @@ describe('snapToStep', () => {
     const anchor = new Date(2026, 0, 1); // Jan 1, 2026
 
     it('returns same date if already on a step boundary', () => {
-        expect(snapToStep(anchor, anchor, '0:1:0')).toEqual(anchor);
-        expect(snapToStep(new Date(2026, 1, 1), anchor, '0:1:0')).toEqual(
+        expect(snapToStep(anchor, anchor, 1, 'months')).toEqual(anchor);
+        expect(snapToStep(new Date(2026, 1, 1), anchor, 1, 'months')).toEqual(
             new Date(2026, 1, 1)
         );
     });
 
     it('snaps to nearest monthly step', () => {
-        // Jan 20 — closer to Feb 1 than Jan 1
+        // Jan 20 is closer to Feb 1 than Jan 1
         const date = new Date(2026, 0, 20);
-        expect(snapToStep(date, anchor, '0:1:0')).toEqual(new Date(2026, 1, 1));
-
-        // Jan 10 — closer to Jan 1 than Feb 1
+        expect(snapToStep(date, anchor, 1, 'months')).toEqual(
+            new Date(2026, 1, 1)
+        );
+        // Jan 10 is closer to Jan 1 than Feb 1
         const date2 = new Date(2026, 0, 10);
-        expect(snapToStep(date2, anchor, '0:1:0')).toEqual(
+        expect(snapToStep(date2, anchor, 1, 'months')).toEqual(
             new Date(2026, 0, 1)
         );
     });
 
     it('snaps to nearest weekly step', () => {
-        // Jan 1 + 3 days — closer to Jan 1 than Jan 8
+        // Jan 1 + 3 days is closer to Jan 1 than Jan 8
         const date = new Date(2026, 0, 4);
-        expect(snapToStep(date, anchor, '0:0:7')).toEqual(new Date(2026, 0, 1));
-
-        // Jan 1 + 5 days — closer to Jan 8 than Jan 1
+        expect(snapToStep(date, anchor, 7, 'days')).toEqual(
+            new Date(2026, 0, 1)
+        );
+        // Jan 1 + 5 days is closer to Jan 8 than Jan 1
         const date2 = new Date(2026, 0, 6);
-        expect(snapToStep(date2, anchor, '0:0:7')).toEqual(
+        expect(snapToStep(date2, anchor, 7, 'days')).toEqual(
             new Date(2026, 0, 8)
         );
     });
 
     it('snaps to nearest yearly step', () => {
-        const date = new Date(2026, 8, 1); // Sep 2026 — closer to Jan 2027
-        expect(snapToStep(date, anchor, '1:0:0')).toEqual(new Date(2027, 0, 1));
-
-        const date2 = new Date(2026, 2, 1); // Mar 2026 — closer to Jan 2026
-        expect(snapToStep(date2, anchor, '1:0:0')).toEqual(
+        const date = new Date(2026, 8, 1); // Sep 2026 is closer to Jan 2027
+        expect(snapToStep(date, anchor, 1, 'years')).toEqual(
+            new Date(2027, 0, 1)
+        );
+        const date2 = new Date(2026, 2, 1); // Mar 2026 is closer to Jan 2026
+        expect(snapToStep(date2, anchor, 1, 'years')).toEqual(
             new Date(2026, 0, 1)
         );
     });
 
     it('handles dates before anchor', () => {
-        const date = new Date(2025, 10, 1); // Nov 2025 — before anchor Jan 2026
-        const result = snapToStep(date, anchor, '0:1:0');
-        // Should snap to nearest month boundary before anchor
+        const date = new Date(2025, 10, 1); // Nov 2025 is before anchor Jan 2026
+        const result = snapToStep(date, anchor, 1, 'months');
         expect(result.getDate()).toBe(1);
         expect(result.getTime()).toBeLessThan(anchor.getTime());
-    });
-
-    it('returns date unchanged for empty step string', () => {
-        const date = new Date(2026, 0, 15);
-        expect(snapToStep(date, anchor, '')).toEqual(date);
     });
 
     it('snaps correctly with daily step', () => {
         const date = new Date(2026, 0, 5);
         // With step of 1 day, every date is on the grid
-        expect(snapToStep(date, anchor, '0:0:1')).toEqual(date);
+        expect(snapToStep(date, anchor, 1, 'days')).toEqual(date);
     });
 });
 
@@ -1198,7 +1191,7 @@ describe('enforceNoDisabledInBetween', () => {
             new Date(2026, 4, 1), // min = May 1
             new Date(2026, 4, 31)
         );
-        // Apr 25 is before min, so it's disabled — should collapse
+        // Apr 25 is before min, so it's disabled - should collapse
         expect(result).toEqual(['2026-04-25', '2026-04-25']);
     });
 });

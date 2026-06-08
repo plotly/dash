@@ -19,8 +19,12 @@ import {
     differenceInDays,
 } from 'date-fns';
 import type {Locale} from 'date-fns';
-import {DatePickerSingleProps} from '../../types';
-// import Holidays from 'date-holidays';
+import {
+    DatePickerSingleProps,
+    DateStepUnit,
+    DisableDatesFlag,
+    DateSliderMarks,
+} from '../../types';
 
 // Conversão para timestamps, deixei global depois posso trocar
 // Tenho de separar por causa do lint check
@@ -28,11 +32,15 @@ const HOURS_PER_DAY = 24;
 const MINUTES_PER_HOUR = 60;
 const SECONDS_PER_MINUTE = 60;
 const MILLISECONDS_PER_SECOND = 1000;
+const DAYS_PER_YEAR = 365.25;
+const MONTHS_PER_YEAR = 12;
 export const MS_PER_DAY =
     HOURS_PER_DAY *
     MINUTES_PER_HOUR *
     SECONDS_PER_MINUTE *
     MILLISECONDS_PER_SECOND;
+export const MS_PER_MONTH = (DAYS_PER_YEAR / MONTHS_PER_YEAR) * MS_PER_DAY;
+export const MS_PER_YEAR = DAYS_PER_YEAR * MS_PER_DAY;
 const EPOCH = new Date(0);
 
 declare global {
@@ -89,25 +97,6 @@ export function getUserLocale(): Locale | undefined {
     // No match found against user language preferences, we'll use first
     // loaded locale (ultimately determined by script order in HTML)
     return availableLocales[localeKeys[0]];
-}
-
-/**
- * Infers the user's country from their browser language preferences.
- * Extracts the region subtag from locale strings (e.g. 'en-US' → 'US').
- * Reflects browser language settings, not the user's actual location.
- */
-export function getUserCountry(): string {
-    const userLanguages = navigator.languages || [navigator.language];
-    for (const lang of userLanguages) {
-        // e.g. 'pt-PT' → 'PT', 'en-US' → 'US'
-        const parts = lang.split('-');
-        if (parts.length > 1) {
-            return parts[1].toUpperCase();
-        }
-    }
-
-    // No region subtag found, fall back to US
-    return 'US';
 }
 
 export function formatDate(date?: Date, formatStr = 'YYYY-MM-DD'): string {
@@ -202,19 +191,8 @@ export function isDateInRange(
 }
 
 export type DisablePredicate = (date: Date) => boolean;
-export type DisableFlag =
-    | 'weekends'
-    | 'weekdays'
-    | 'mondays'
-    | 'tuesdays'
-    | 'wednesdays'
-    | 'thursdays'
-    | 'fridays'
-    | 'saturdays'
-    | 'sundays';
-// | 'holidays';
 
-const DAY_FLAGS: Partial<Record<DisableFlag, number>> = {
+const DAY_FLAGS: Partial<Record<DisableDatesFlag, number>> = {
     sundays: 0,
     mondays: 1,
     tuesdays: 2,
@@ -263,9 +241,9 @@ export function isDateDisabled(
     disabledDates?: Date[],
     disabledRanges?: [Date, Date][],
     disableFlags?:
-        | DisableFlag
+        | DisableDatesFlag
         | DisablePredicate
-        | Array<DisableFlag | DisablePredicate>
+        | Array<DisableDatesFlag | DisablePredicate>
 ): boolean {
     // Check if date is outside min/max range
     if (!isDateInRange(date, minDate, maxDate)) {
@@ -396,32 +374,23 @@ export function parseYear(yearStr: string): number | undefined {
 }
 
 /**
- * Returns the next date after applying a "years:months:days" step to a start date.
+ * Returns the next date after applying a step with a stepUnit to a start date.
  */
-export function stepDate(date?: Date, step?: string): Date | undefined {
-    if (!date || !step) {
+export function stepDate(
+    date?: Date,
+    step?: number | null,
+    stepUnit?: DateStepUnit | null
+): Date | undefined {
+    if (!date || !step || !stepUnit) {
         return undefined;
     }
-
-    const parts = step.split(':').map(Number);
-    if (parts.length !== 3 || parts.some(isNaN)) {
-        return undefined;
+    if (stepUnit === 'years') {
+        return addYears(date, step);
     }
-
-    const [years, months, days] = parts;
-
-    let result = date;
-    if (years) {
-        result = addYears(result, years);
+    if (stepUnit === 'months') {
+        return addMonths(date, step);
     }
-    if (months) {
-        result = addMonths(result, months);
-    }
-    if (days) {
-        result = addDays(result, days);
-    }
-
-    return result;
+    return addDays(date, step);
 }
 
 /**
@@ -496,9 +465,9 @@ export function parseDisabledDates(disabled_dates?: (string | string[])[]): {
 
 export function expandDisableFlags(
     flags:
-        | DisableFlag
+        | DisableDatesFlag
         | DisablePredicate
-        | Array<DisableFlag | DisablePredicate>,
+        | Array<DisableDatesFlag | DisablePredicate>,
     minDate: Date,
     maxDate: Date
 ): {dates: Date[]; ranges: [Date, Date][]} {
@@ -548,19 +517,57 @@ export function expandDisableFlags(
  */
 export function snapToValidDate(
     date: Date,
-    step?: string,
+    step?: number | null,
+    stepUnit?: DateStepUnit | null,
     minDate?: Date,
     maxDate?: Date,
     disabledDates?: Date[],
     disabledRanges?: [Date, Date][],
     disableFlags?:
-        | DisableFlag
+        | DisableDatesFlag
         | DisablePredicate
-        | Array<DisableFlag | DisablePredicate>
+        | Array<DisableDatesFlag | DisablePredicate>,
+    marks?: DateSliderMarks | null
 ): Date {
     const MAX_SEARCH = 1000;
+    const s = step ?? 1;
+    const u = stepUnit ?? 'days';
 
-    const gridDate = step ? snapToStep(date, minDate ?? date, step) : date;
+    const markTimestamps: number[] | undefined =
+        !step && marks
+            ? Object.keys(marks)
+                  .map(dateStringToTimestamp)
+                  .filter((ts): ts is number => typeof ts === 'number')
+                  .sort((a, b) => a - b)
+            : undefined;
+
+    const nextStep = (d: Date, dir: 'fwd' | 'bwd'): Date | undefined => {
+        if (markTimestamps) {
+            const ts = d.getTime();
+            if (dir === 'fwd') {
+                const found = markTimestamps.find(m => m > ts);
+                return found ? new Date(found) : undefined;
+            }
+
+            const found = [...markTimestamps].reverse().find(m => m < ts);
+            return found ? new Date(found) : undefined;
+        }
+        return stepDate(d, dir === 'fwd' ? s : -s, u);
+    };
+
+    const snapGrid = (d: Date, anchor: Date): Date => {
+        if (markTimestamps) {
+            const ts = d.getTime();
+            const best = markTimestamps.reduce((a, b) =>
+                Math.abs(a - ts) <= Math.abs(b - ts) ? a : b
+            );
+            return new Date(best);
+        }
+        return snapToStep(d, anchor, s, u);
+    };
+
+    const anchor = minDate ?? date;
+    const gridDate = snapGrid(date, anchor);
 
     if (
         !isDateDisabled(
@@ -575,29 +582,21 @@ export function snapToValidDate(
         return gridDate;
     }
 
-    const backStep =
-        step
-            ?.split(':')
-            .map(n => String(-Number(n)))
-            .join(':') ?? '0:0:-1';
-    const fwdStep = step ?? '0:0:1';
-    const anchor = minDate ?? date;
-
     const walkToValid = (
         candidate: Date,
         direction: 'before' | 'after'
     ): Date | undefined => {
-        const dirStep = direction === 'before' ? backStep : fwdStep;
+        const dir = direction === 'before' ? 'bwd' : 'fwd';
         const boundOk = (d: Date) =>
             direction === 'before'
                 ? !minDate || d >= minDate
                 : !maxDate || d <= maxDate;
-        let d = step ? snapToStep(candidate, anchor, step) : candidate;
+        let d = snapGrid(candidate, anchor);
         if (direction === 'before' && d > candidate) {
-            d = stepDate(d, backStep) ?? d;
+            d = nextStep(d, 'bwd') ?? d;
         }
         if (direction === 'after' && d < candidate) {
-            d = stepDate(d, fwdStep) ?? d;
+            d = nextStep(d, 'fwd') ?? d;
         }
         for (let i = 0; i < MAX_SEARCH; i++) {
             if (
@@ -613,7 +612,7 @@ export function snapToValidDate(
             ) {
                 return d;
             }
-            const next = stepDate(d, dirStep);
+            const next = nextStep(d, dir);
             if (!next) {
                 break;
             }
@@ -627,18 +626,17 @@ export function snapToValidDate(
     );
     if (containingRange) {
         const [start, end] = containingRange;
-        const gridAnchor = minDate ?? date;
         const firstAfter = (() => {
-            const snapped = snapToStep(end, gridAnchor, fwdStep);
+            const snapped = snapGrid(end, anchor);
             return snapped > end
                 ? snapped
-                : stepDate(snapped, fwdStep) ?? undefined;
+                : nextStep(snapped, 'fwd') ?? undefined;
         })();
         const firstBefore = (() => {
-            const snapped = snapToStep(start, gridAnchor, step ?? '0:0:1');
+            const snapped = snapGrid(start, anchor);
             return snapped < start
                 ? snapped
-                : stepDate(snapped, backStep) ?? undefined;
+                : nextStep(snapped, 'bwd') ?? undefined;
         })();
         const validBefore = firstBefore
             ? walkToValid(firstBefore, 'before')
@@ -668,63 +666,44 @@ export function snapToValidDate(
 
 /**
  * Snaps a date to the nearest valid step interval relative to an anchor date.
- * The step format is "years:months:days".
  *
  * Example:
- * anchor = 2025-01-01
- * step = "0:0:7"
+ * anchor = 2025-01-01, step = 7, stepUnit = 'days'
  *
  * Valid snapped dates:
  * 2025-01-01, 2025-01-08, 2025-01-15, ...
  */
-export function snapToStep(date: Date, anchor: Date, step: string): Date {
-    const MAX_SEARCH = 1000;
+export function snapToStep(
+    date: Date,
+    anchor: Date,
+    step: number,
+    stepUnit: DateStepUnit
+): Date {
+    const nthStep = (n: number): Date =>
+        stepDate(anchor, step * n, stepUnit) ?? anchor;
 
-    if (!step) {
-        return date;
-    }
+    const diffMs = date.getTime() - anchor.getTime();
+    const msPerUnit =
+        stepUnit === 'years'
+            ? MS_PER_YEAR
+            : stepUnit === 'months'
+            ? MS_PER_MONTH
+            : MS_PER_DAY;
 
-    let prev = anchor;
-    let next = stepDate(anchor, step);
+    const approxN = Math.floor(diffMs / (step * msPerUnit));
 
-    if (!next) {
-        return date;
-    }
+    const candidates = [
+        nthStep(approxN - 1),
+        nthStep(approxN),
+        nthStep(approxN + 1),
+    ];
 
-    if (date < anchor) {
-        const negStep = step
-            .split(':')
-            .map(n => -Number(n))
-            .join(':');
-        prev = anchor;
-        next = stepDate(anchor, negStep) ?? anchor;
-        for (let i = 0; next > date && i < MAX_SEARCH; i++) {
-            prev = next;
-            const stepped = stepDate(next, negStep);
-            if (!stepped) {
-                break;
-            }
-            next = stepped;
-        }
-        const distPrev = Math.abs(differenceInDays(date, prev));
-        const distNext = Math.abs(differenceInDays(date, next));
-        const result = distNext <= distPrev ? next : prev;
-
-        return result;
-    }
-    for (let i = 0; next < date && i < MAX_SEARCH; i++) {
-        prev = next;
-        const stepped = stepDate(next, step);
-        if (!stepped) {
-            break;
-        }
-        next = stepped;
-    }
-    const distPrev = Math.abs(differenceInDays(date, prev));
-    const distNext = Math.abs(differenceInDays(date, next));
-    const result = distPrev <= distNext ? prev : next;
-
-    return result;
+    return candidates.reduce((a, b) =>
+        Math.abs(differenceInDays(date, a)) <=
+        Math.abs(differenceInDays(date, b))
+            ? a
+            : b
+    );
 }
 
 /**
@@ -740,18 +719,38 @@ export function enforceNoDisabledInBetween(
     disabledDates?: Date[],
     disabledRanges?: [Date, Date][],
     disableFlags?:
-        | DisableFlag
+        | DisableDatesFlag
         | DisablePredicate
-        | Array<DisableFlag | DisablePredicate>,
-    step?: string
+        | Array<DisableDatesFlag | DisablePredicate>,
+    step?: number | null,
+    stepUnit?: DateStepUnit | null,
+    marks?: DateSliderMarks | null
 ): [string, string] {
-    const forward = step ?? '0:0:1';
-    const backward = step
-        ? step
-              .split(':')
-              .map(n => String(-Number(n)))
-              .join(':')
-        : '0:0:-1';
+    const s = step ?? 1;
+    const u = stepUnit ?? 'days';
+
+    // If marks, use mark timestamps as the valid steps
+    const markTimestamps: number[] | undefined =
+        !step && marks
+            ? Object.keys(marks)
+                  .map(dateStringToTimestamp)
+                  .filter((ts): ts is number => typeof ts === 'number')
+                  .sort((a, b) => a - b)
+            : undefined;
+
+    const nextStep = (date: Date, dir: 'fwd' | 'bwd'): Date | undefined => {
+        if (markTimestamps) {
+            const ts = date.getTime();
+            if (dir === 'fwd') {
+                const found = markTimestamps.find(m => m > ts);
+                return found ? new Date(found) : undefined;
+            }
+
+            const found = [...markTimestamps].reverse().find(m => m < ts);
+            return found ? new Date(found) : undefined;
+        }
+        return stepDate(date, dir === 'fwd' ? s : -s, u);
+    };
 
     const [newLeftStr, newRightStr] = newDates;
     const [prevLeftStr, prevRightStr] = prevDates;
@@ -770,7 +769,8 @@ export function enforceNoDisabledInBetween(
     if (!leftChanged && !rightChanged) {
         return newDates;
     }
-    const walkFlags = (start: Date, end: Date, dir: string): Date => {
+
+    const walkFlags = (start: Date, end: Date, dir: 'fwd' | 'bwd'): Date => {
         if (
             !disableFlags ||
             (Array.isArray(disableFlags) && disableFlags.length === 0)
@@ -778,7 +778,7 @@ export function enforceNoDisabledInBetween(
             return end;
         }
         let d: Date | undefined = start;
-        while (d && (dir === forward ? d < end : d > end)) {
+        while (d && (dir === 'fwd' ? d < end : d > end)) {
             if (
                 isDateDisabled(
                     d,
@@ -791,7 +791,7 @@ export function enforceNoDisabledInBetween(
             ) {
                 return d;
             }
-            d = stepDate(d, dir);
+            d = nextStep(d, dir);
         }
         return end;
     };
@@ -809,7 +809,7 @@ export function enforceNoDisabledInBetween(
         ) {
             return [newLeftStr, newLeftStr];
         }
-        let clampRight = stepDate(newRight, forward) ?? newRight;
+        let clampRight = nextStep(newRight, 'fwd') ?? newRight;
         for (const candidate of [
             ...(disabledRanges?.map(([start]) => start) ?? []),
             ...(disabledDates ?? []),
@@ -822,8 +822,8 @@ export function enforceNoDisabledInBetween(
                 clampRight = candidate;
             }
         }
-        clampRight = walkFlags(newLeft, clampRight, forward);
-        clampRight = stepDate(clampRight, backward) ?? clampRight;
+        clampRight = walkFlags(newLeft, clampRight, 'fwd');
+        clampRight = nextStep(clampRight, 'bwd') ?? clampRight;
         if (clampRight < newLeft) {
             return [newLeftStr, newLeftStr];
         }
@@ -842,7 +842,7 @@ export function enforceNoDisabledInBetween(
     ) {
         return [newRightStr, newRightStr];
     }
-    let clampLeft = stepDate(newLeft, backward) ?? newLeft;
+    let clampLeft = nextStep(newLeft, 'bwd') ?? newLeft;
     for (const candidate of [
         ...(disabledRanges?.map(([, end]) => end) ?? []),
         ...(disabledDates ?? []),
@@ -855,8 +855,8 @@ export function enforceNoDisabledInBetween(
             clampLeft = candidate;
         }
     }
-    clampLeft = walkFlags(newRight, clampLeft, backward);
-    clampLeft = stepDate(clampLeft, forward) ?? clampLeft;
+    clampLeft = walkFlags(newRight, clampLeft, 'bwd');
+    clampLeft = nextStep(clampLeft, 'fwd') ?? clampLeft;
     if (clampLeft > newRight) {
         return [newRightStr, newRightStr];
     }

@@ -630,8 +630,10 @@ export type DisableDatesFlag =
     | 'tuesdays'
     | 'wednesdays'
     | 'thursdays'
-    | 'fridays';
-// | holidays;
+    | 'fridays'
+    | 'saturdays';
+
+export type DateStepUnit = 'days' | 'months' | 'years';
 
 export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
     /**
@@ -645,19 +647,14 @@ export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
     max?: string;
 
     /**
-     * Number of years to increment per step.
+     * Value by which increments or decrements are made
      */
-    delta_years?: number | null;
+    step?: number | null;
 
     /**
-     * Number of months to increment per step.
+     * Unit by which steps are made
      */
-    delta_months?: number | null;
-
-    /**
-     * Number of days to increment per step.
-     */
-    delta_days?: number | null;
+    step_unit?: DateStepUnit | null;
 
     /**
      * Marks on the slider.
@@ -730,12 +727,6 @@ export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
     verticalHeight?: number;
 
     /**
-     * If false, the input elements for directly entering values will be hidden.
-     * Only the slider will be visible and it will occupy 100% width of the container.
-     */
-    allow_direct_input?: boolean;
-
-    /**
      * An array of disabled dates. Can be an array of specific dates (strings)
      * or an array of date ranges (arrays of two date strings).
      */
@@ -773,19 +764,14 @@ export interface DateRangeSliderProps
     max?: string;
 
     /**
-     * Number of years to increment per step.
+     * Value by which increments or decrements are made
      */
-    delta_years?: number | null;
+    step?: number | null;
 
     /**
-     * Number of months to increment per step.
+     * Unit by which steps are made
      */
-    delta_months?: number | null;
-
-    /**
-     * Number of days to increment per step.
-     */
-    delta_days?: number | null;
+    step_unit?: DateStepUnit | null;
 
     /**
      * Marks on the slider.
