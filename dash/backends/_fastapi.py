@@ -725,6 +725,19 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             await websocket.accept()
 
+            # Capture request metadata from the WebSocket handshake once per
+            # connection so that callbacks running over the WebSocket transport
+            # can access cookies/headers (e.g. for authentication helpers such
+            # as dash_enterprise_auth.get_user_data).
+            request_context = {
+                "cookies": dict(websocket.cookies),
+                "headers": dict(websocket.headers),
+                "args": dict(websocket.query_params),
+                "path": websocket.url.path,
+                "remote": websocket.client.host if websocket.client else "",
+                "origin": websocket.headers.get("origin", ""),
+            }
+
             # Create janus queue for outbound messages (main loop context)
             outbound_queue: janus.Queue[str] = janus.Queue()
             # Track pending get_props requests with standard queue.Queue for responses
@@ -788,6 +801,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             payload,
                             ws_cb,
                             FastAPIResponseAdapter(),
+                            request_context,
                         )
 
                         # Set up done callback to send response

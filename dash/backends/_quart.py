@@ -545,6 +545,19 @@ class QuartDashServer(BaseDashServer[Quart]):
 
             await ws.accept()
 
+            # Capture request metadata from the WebSocket handshake once per
+            # connection so that callbacks running over the WebSocket transport
+            # can access cookies/headers (e.g. for authentication helpers such
+            # as dash_enterprise_auth.get_user_data).
+            request_context = {
+                "cookies": dict(ws.cookies),
+                "headers": dict(ws.headers),
+                "args": dict(ws.args),
+                "path": ws.path,
+                "remote": ws.remote_addr,
+                "origin": ws.headers.get("origin", ""),
+            }
+
             # Track this connection for graceful shutdown
             try:
                 ws_obj = ws._get_current_object()
@@ -623,6 +636,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                             payload,
                             ws_cb,
                             QuartResponseAdapter(),
+                            request_context,
                         )
 
                         # Set up done callback to send response
