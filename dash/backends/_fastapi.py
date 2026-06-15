@@ -328,7 +328,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         and passed through the middleware, which is necessary for features like authentication
         and timing to work correctly on all routes. FastAPI will match this catch-all route
         for any path that isn't matched by a more specific route, allowing the middleware to
-        process the request and then return the appropriate response (e.g., 404 if no Dash route matches)."""
+        process the request and then return the appropriate response (e.g., 404 if no Dash route matches).
+        """
 
     def _setup_catchall(self):
         try:

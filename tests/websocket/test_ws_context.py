@@ -27,7 +27,12 @@ def test_create_ws_context_propagates_request_context():
         "origin": "https://example.com",
     }
 
-    g = create_ws_context(payload, response_adapter=None, websocket_callback=None, request_context=request_context)
+    g = create_ws_context(
+        payload,
+        response_adapter=None,
+        websocket_callback=None,
+        request_context=request_context,
+    )
 
     assert g.cookies == {"kcIdToken": "token-value"}
     assert g.headers == {"Plotly-User-Data": "{}"}

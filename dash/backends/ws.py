@@ -3,6 +3,7 @@
 This module provides the WebSocket callback infrastructure for real-time
 bidirectional communication between Dash backends and the renderer.
 """
+
 from __future__ import annotations
 
 import asyncio
