@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
+- [#3815](https://github.com/plotly/dash/pull/3815) Fix missing request context (cookies/headers) in websocket callbacks.
 
 ## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
