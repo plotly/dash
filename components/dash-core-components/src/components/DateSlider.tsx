@@ -1,5 +1,6 @@
+import React, {lazy, Suspense, useCallback, useMemo, useState} from 'react';
 import {omit} from 'ramda';
-import React, {lazy, Suspense, useCallback, useMemo} from 'react';
+import DatePickerSingle from '../components/DatePickerSingle';
 import {
     PersistedProps,
     PersistenceTypes,
@@ -29,16 +30,21 @@ export default function DateSlider({
     drag_value,
     id,
     vertical = false,
+    min,
+    max,
+    display_format,
     ...props
 }: DateSliderProps) {
+    const [resetKey, setResetKey] = useState(0);
+
     // Convert single date value to array for DateRangeSlider
     const mappedValue: DateRangeSliderProps['value'] = useMemo(() => {
-        return typeof value === 'string' ? [value] : value;
+        return value ? [value] : value;
     }, [value]);
 
     // Convert single date drag value to array for DateRangeSlider
     const mappedDragValue: DateRangeSliderProps['drag_value'] = useMemo(() => {
-        return typeof drag_value === 'string' ? [drag_value] : drag_value;
+        return drag_value ? [drag_value] : undefined;
     }, [drag_value]);
 
     const mappedSetProps: DateRangeSliderProps['setProps'] = useCallback(
@@ -56,26 +62,69 @@ export default function DateSlider({
                     ? drag_value[0]
                     : drag_value;
             }
-
             setProps(mappedProps);
         },
         [setProps]
     );
 
+    const handleDateInputChange = useCallback(
+        (dateStr: `${string}-${string}-${string}` | undefined) => {
+            if (!dateStr) {
+                setProps({
+                    value:
+                        (min as `${string}-${string}-${string}`) ?? undefined,
+                });
+                return;
+            }
+            const hasNoChange = value === dateStr;
+            if (hasNoChange) {
+                setResetKey(k => k + 1);
+            } else {
+                setProps({value: dateStr});
+            }
+        },
+        [value, setProps, min]
+    );
+
     return (
-        <Suspense fallback={null}>
-            <RealSlider
-                id={id}
-                updatemode={updatemode}
-                verticalHeight={verticalHeight}
-                allow_direct_input={allow_direct_input}
-                vertical={vertical}
-                value={mappedValue}
-                drag_value={mappedDragValue}
-                setProps={mappedSetProps}
-                {...props}
-            />
-        </Suspense>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: vertical ? 'column' : 'row',
+                gap: '10px',
+            }}
+        >
+            {allow_direct_input && (
+                <DatePickerSingle
+                    key={`date-input-${resetKey}`}
+                    className="dash-range-slider-input"
+                    date={value ?? undefined}
+                    setProps={({date}) => handleDateInputChange(date)}
+                    min_date_allowed={min}
+                    max_date_allowed={max}
+                    display_format={display_format}
+                />
+            )}
+            <div style={{flex: 1, minWidth: 0}}>
+                <Suspense fallback={null}>
+                    <RealSlider
+                        key={resetKey}
+                        id={id}
+                        updatemode={updatemode}
+                        verticalHeight={verticalHeight}
+                        allow_direct_input={false}
+                        vertical={vertical}
+                        min={min}
+                        max={max}
+                        display_format={display_format}
+                        value={mappedValue}
+                        drag_value={mappedDragValue}
+                        setProps={mappedSetProps}
+                        {...props}
+                    />
+                </Suspense>
+            </div>
+        </div>
     );
 }
 

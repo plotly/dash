@@ -7,14 +7,14 @@
     touch-action: none;
     width: 100%;
     height: 14px;
-    padding: 17px 0 17px 0;
+    padding: 17px 0;
     box-sizing: border-box;
     /* Override Radix's default margin/padding behavior */
     --radix-slider-thumb-width: 16px;
 }
 
 .dash-slider-root.has-marks {
-    padding: 6px 0 28px 0;
+    padding: 6px 0 28px 0; 
 }
 
 .dash-slider-root[data-orientation='vertical'].has-marks {
@@ -98,6 +98,9 @@
     white-space: nowrap;
     pointer-events: none;
     z-index: 10;
+    transform: translateX(
+        max(-50%, calc(0px   - var(--dash-mark-offset, 0px)))
+    );
 }
 
 .dash-slider-mark-outside-selection {
@@ -200,6 +203,8 @@
 .dash-date-range-slider-wrapper {
     position: relative;
     flex: 1;
+    padding: 0 28px;
+    box-sizing: border-box;
 }
 
 .dash-range-slider-inputs {
@@ -260,8 +265,8 @@
     position: absolute;
     inset: 0;
     top: 10%;
-    left: 0;
-    width: 100%;
+    left: 28px;
+    width: calc(100% - 56px);
     height: 4px;
     transform: translateX(5px);
     pointer-events: none;

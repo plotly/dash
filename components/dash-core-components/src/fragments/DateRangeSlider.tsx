@@ -238,7 +238,9 @@ export default function DateRangeSlider({
         mappedValueRef.current = mappedValue;
     }, [mappedValue]);
 
-    const prevDateValueRef = useRef<string[] | undefined>(value ?? undefined);
+    const prevDateValueRef = useRef<
+        `${string}-${string}-${string}`[] | undefined
+    >(value ?? undefined);
 
     // Converts what comes back from the RangeSlider (timestamps) into date strings to show the user
     const mappedSetProps: RangeSliderProps['setProps'] = useCallback(
@@ -258,7 +260,10 @@ export default function DateRangeSlider({
                 // Convert slider timestamps to date strings
                 let rawDates = value
                     .map(raw => timestampToDateString(raw))
-                    .filter((v): v is string => v !== undefined);
+                    .filter(
+                        (v): v is `${string}-${string}-${string}` =>
+                            v !== undefined
+                    );
 
                 // If no_disabled_in_between enabled, prevents selection from crossing disabled dates
                 const prev = prevDateValueRef.current;
@@ -278,7 +283,7 @@ export default function DateRangeSlider({
                         step,
                         step_unit,
                         marks
-                    );
+                    ) as `${string}-${string}-${string}`[];
                 }
 
                 // Snap each date to avoid disabled dates and align to step
@@ -302,7 +307,10 @@ export default function DateRangeSlider({
                             ).getTime()
                         );
                     })
-                    .filter((v): v is string => v !== undefined);
+                    .filter(
+                        (v): v is `${string}-${string}-${string}` =>
+                            v !== undefined
+                    );
 
                 // Update the value
                 mappedProps.value = snappedDates;
@@ -321,7 +329,10 @@ export default function DateRangeSlider({
             if ('drag_value' in newProps && drag_value) {
                 mappedProps.drag_value = drag_value
                     .map(raw => timestampToDateString(raw))
-                    .filter((v): v is string => v !== undefined);
+                    .filter(
+                        (v): v is `${string}-${string}-${string}` =>
+                            v !== undefined
+                    );
             }
             setProps(mappedProps);
         },
@@ -338,8 +349,12 @@ export default function DateRangeSlider({
         // Register the formatter function globally
         win.dccFunctions[formatFuncName] = (timestamp: number) => {
             try {
-                const date = new Date(timestamp);
+                const dateStr = timestampToDateString(timestamp);
                 // Snap tooltip dates to step and valid dates to avoid showing disabled dates in tooltip
+                const date = strAsDate(dateStr);
+                if (!date) {
+                    return `${timestamp}`;
+                }
                 const snapped = snapToStep(
                     date,
                     parsedMin ?? date,
@@ -385,22 +400,25 @@ export default function DateRangeSlider({
         ]
     >(() => {
         if (Array.isArray(value)) {
-            return [
-                (value[0] as `${string}-${string}-${string}`) || undefined,
-                (value[1] as `${string}-${string}-${string}`) || undefined,
-            ];
+            return [value[0] ?? undefined, value[1] ?? undefined];
         }
         return [undefined, undefined];
     }, [value]);
 
     // Handle input changes for date inputs
     const handleDateInputChange = useCallback(
-        (index: number, dateStr: string) => {
-            const newValue = [...(Array.isArray(value) ? value : ['', ''])];
+        (
+            index: number,
+            dateStr: `${string}-${string}-${string}` | undefined
+        ) => {
+            const newValue: `${string}-${string}-${string}`[] = [
+                ...(Array.isArray(value) ? value : []),
+            ];
 
-            // If input is cleared, reset to min or max
             if (!dateStr) {
-                newValue[index] = index === 0 ? minStr || '' : maxStr || '';
+                newValue[index] = (
+                    index === 0 ? minStr : maxStr
+                ) as `${string}-${string}-${string}`;
                 setProps({value: newValue});
                 return;
             }
@@ -423,14 +441,17 @@ export default function DateRangeSlider({
                 disable_flags,
                 marks
             );
-
-            // Convert snapped date back to string for comparison and state update
-            const snappedDateStr = dateAsStr(snappedDate) || '';
+            // Convert snapped date to string format
+            const snappedDateStr = dateAsStr(snappedDate) as
+                | `${string}-${string}-${string}`
+                | undefined;
+            if (!snappedDateStr) {
+                return;
+            }
 
             // Check if the snapped date matches exactly what we already have in state
             const hasNoChange =
                 Array.isArray(value) && value[index] === snappedDateStr;
-
             if (hasNoChange) {
                 // ensures input corresponds to the snapped date even if user types a different but equivalent date
                 setResetKey(k => k + 1);
@@ -470,9 +491,7 @@ export default function DateRangeSlider({
                         key={`min-input-${resetKey}`}
                         className="dash-range-slider-min-input"
                         date={displayValues[0]}
-                        setProps={({date}) =>
-                            handleDateInputChange(0, date || '')
-                        }
+                        setProps={({date}) => handleDateInputChange(0, date)}
                         placeholder="Start date"
                         min_date_allowed={minStr}
                         max_date_allowed={maxStr}
@@ -515,9 +534,7 @@ export default function DateRangeSlider({
                         key={`max-input-${resetKey}`}
                         className="dash-range-slider-max-input"
                         date={displayValues[1]}
-                        setProps={({date}) =>
-                            handleDateInputChange(1, date || '')
-                        }
+                        setProps={({date}) => handleDateInputChange(1, date)}
                         placeholder="End date"
                         min_date_allowed={minStr}
                         max_date_allowed={maxStr}

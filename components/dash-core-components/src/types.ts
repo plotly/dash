@@ -667,14 +667,14 @@ export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
     marks?: DateSliderMarks | null;
 
     /**
-     * The date value of the input (Date string format)
+     * The date value of the input. Accepts datetime objects.
      */
-    value?: string | null;
+    value?: `${string}-${string}-${string}` | null;
 
     /**
-     * The date value of the input during a drag (Date string format)
+     * The date value of the input during a drag. Accepts datetime objects.
      */
-    drag_value?: string;
+    drag_value?: `${string}-${string}-${string}` | null;
 
     /**
      * If true, the handles can't be moved.
@@ -725,6 +725,12 @@ export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
      * The height, in px, of the slider if it is vertical.
      */
     verticalHeight?: number;
+
+    /**
+     * If false, the input element for directly entering a value will be hidden.
+     * Only the slider will be visible and it will occupy 100% width of the container.
+     */
+    allow_direct_input?: boolean;
 
     /**
      * An array of disabled dates. Can be an array of specific dates (strings)
@@ -784,14 +790,14 @@ export interface DateRangeSliderProps
     marks?: DateSliderMarks | null;
 
     /**
-     * The date value of the input (Date string format)
+     * The date value of the input. Accepts datetime objects.
      */
-    value?: string[] | null;
+    value?: `${string}-${string}-${string}`[] | null;
 
     /**
-     * The date value of the input during a drag (Date string format)
+     * The date value of the input during a drag. Accepts datetime objects.
      */
-    drag_value?: string[];
+    drag_value?: `${string}-${string}-${string}`[];
 
     /**
      * If true, the handles can't be moved.
