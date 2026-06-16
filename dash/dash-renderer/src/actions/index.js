@@ -5,7 +5,12 @@ import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
 import * as cookie from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
-import {includeObservers, getLayoutCallbacks} from './dependencies_ts';
+import {
+    includeObservers,
+    getLayoutCallbacks,
+    makeResolvedCallback,
+    resolveDeps
+} from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 import {recordUiEdit} from '../persistence';
 
@@ -95,13 +100,59 @@ function triggerDefaultState(dispatch, getState) {
         );
     }
 
-    dispatch(
-        addRequestedCallbacks(
-            getLayoutCallbacks(graphs, paths, layout.components, {
-                outputsOnly: true
-            })
-        )
+    const layoutCallbacks = getLayoutCallbacks(
+        graphs,
+        paths,
+        layout.components,
+        {
+            outputsOnly: true
+        }
     );
+
+    // Also include no-output and no-input callbacks that should fire on initial load
+    const specialCallbacks = (graphs.callbacks || []).reduce((acc, cb) => {
+        if (cb.prevent_initial_call) {
+            return acc;
+        }
+
+        const isNoOutput = cb.noOutput;
+        const isNoInput = !cb.noOutput && cb.inputs.length === 0;
+
+        if (!isNoOutput && !isNoInput) {
+            return acc;
+        }
+
+        const resolved = makeResolvedCallback(cb, resolveDeps(), '');
+        resolved.initialCall = true;
+
+        if (isNoOutput) {
+            // No-output: include if no inputs or any input is in layout
+            if (cb.inputs.length === 0) {
+                acc.push(resolved);
+            } else {
+                const inputs = resolved.getInputs(paths);
+                if (
+                    inputs.some(inp =>
+                        Array.isArray(inp) ? inp.length > 0 : inp
+                    )
+                ) {
+                    acc.push(resolved);
+                }
+            }
+        } else {
+            // No-input: include if any output is in layout
+            const outputs = resolved.getOutputs(paths);
+            if (
+                outputs.some(out => (Array.isArray(out) ? out.length > 0 : out))
+            ) {
+                acc.push(resolved);
+            }
+        }
+
+        return acc;
+    }, []);
+
+    dispatch(addRequestedCallbacks([...layoutCallbacks, ...specialCallbacks]));
 }
 
 export const redo = moveHistory('REDO');

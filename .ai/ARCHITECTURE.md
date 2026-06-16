@@ -2,7 +2,9 @@
 
 ## Python Backend Framework
 
-- **`dash/dash.py`** - Main `Dash` application class (~2000 lines). Orchestrates Flask server, layout management, callback registration, routing, and asset serving. Key methods: `layout` property, `callback()`, `clientside_callback()`, `run()`.
+- **`dash/dash.py`** - Main `Dash` application class (~2000 lines). Orchestrates the server backend, layout management, callback registration, routing, and asset serving. Key methods: `layout` property, `callback()`, `clientside_callback()`, `run()`.
+
+- **`dash/backends/`** - Server backend implementations. See [Server Backends](#server-backends) section for details.
 
 - **`dash/_callback.py`** - Callback registration and execution. Contains `callback()` decorator (usable as `@dash.callback` without app instance), `clientside_callback()`, and `register_callback()` which inserts callbacks into the callback map.
 
@@ -100,6 +102,127 @@ Use dict IDs with wildcards (`MATCH`, `ALL`, `ALLSMALLER`) to target dynamically
 - `/_dash-update-component` - Executes callbacks, returns updated props
 - `/_dash-component-suites/<package>/<path>` - Serves component JS/CSS assets
 - `/assets/<path>` - Serves static assets from app's assets folder
+
+## Server Backends
+
+Dash supports multiple web server backends. The backend abstraction is in `dash/backends/`.
+
+### Available Backends
+
+| Backend | Type | Install | Use Case |
+|---------|------|---------|----------|
+| **Flask** (default) | WSGI (sync) | `pip install dash` | Standard deployments, simplicity |
+| **Quart** | ASGI (async) | `pip install dash[quart]` | Async callbacks, WebSocket support |
+| **FastAPI** | ASGI (async) | `pip install dash[fastapi]` | OpenAPI docs, async, modern Python |
+
+### Usage
+
+**Default (Flask):**
+```python
+from dash import Dash
+app = Dash(__name__)
+```
+
+**With existing server instance:**
+```python
+from flask import Flask
+from dash import Dash
+
+server = Flask(__name__)
+app = Dash(__name__, server=server)
+```
+
+**Quart backend:**
+```python
+from quart import Quart
+from dash import Dash
+
+server = Quart(__name__)
+app = Dash(__name__, server=server)
+```
+
+**FastAPI backend:**
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server)
+
+# Run with: uvicorn module:app.server --reload
+```
+
+### Architecture
+
+The backend system uses an abstract interface:
+
+- **`BaseDashServer`** (`dash/backends/base_server.py`) - Abstract base class defining the server interface. All backends implement this.
+
+- **`RequestAdapter`** - Normalizes HTTP request objects across frameworks. Provides unified access to `args`, `cookies`, `headers`, `get_json()`, etc.
+
+- **`ResponseAdapter`** - Normalizes response creation. Handles `set_cookie()`, `set_header()`, `set_response()`.
+
+- **`get_backend(name)`** - Factory function to get backend class by name (`"flask"`, `"quart"`, `"fastapi"`).
+
+- **`get_server_type(server)`** - Auto-detects backend from a server instance.
+
+### Backend Implementations
+
+**Flask** (`dash/backends/_flask.py`):
+- `FlaskDashServer` - Wraps Flask app
+- `FlaskRequestAdapter` - Uses `flask.request` proxy
+- `FlaskResponseAdapter` - Uses `flask.Response`
+- Compression via `flask-compress`
+
+**Quart** (`dash/backends/_quart.py`):
+- `QuartDashServer` - Wraps Quart app (async Flask API)
+- `QuartRequestAdapter` - Uses `quart.request` proxy
+- `QuartResponseAdapter` - Uses `quart.Response`
+- All route handlers are `async def`
+- Compression via `quart-compress`
+
+**FastAPI** (`dash/backends/_fastapi.py`):
+- `FastAPIDashServer` - Wraps FastAPI app
+- `FastAPIRequestAdapter` - Uses context variable for current request
+- `FastAPIResponseAdapter` - Uses Starlette responses
+- `DashMiddleware` - Consolidated ASGI middleware for request handling
+- Runs with uvicorn, supports hot reload
+- Built-in GZip compression
+
+### Key Interface Methods
+
+All backends implement:
+
+```python
+class BaseDashServer(ABC):
+    def create_app(name, config) -> server        # Create new server
+    def add_url_rule(rule, view_func, ...)        # Register routes
+    def before_request(func)                       # Request hooks
+    def after_request(func)                        # Response hooks
+    def run(dash_app, host, port, debug)          # Start dev server
+    def make_response(data, mimetype, status)     # Create response
+    def jsonify(obj)                              # JSON response
+    def setup_index(dash_app)                     # Register / route
+    def serve_callback(dash_app)                  # Callback endpoint
+    def setup_component_suites(dash_app)          # JS/CSS serving
+```
+
+### Accessing the Backend
+
+```python
+app = Dash(__name__)
+
+# Get the underlying server
+app.server          # Flask/Quart/FastAPI instance
+
+# Get the backend wrapper
+app.backend         # BaseDashServer subclass instance
+app.backend.server_type  # "flask", "quart", or "fastapi"
+
+# Access request in callbacks
+from dash import dash
+dash.get_app().backend.request_adapter()  # RequestAdapter instance
+```
 
 ## Frontend (dash-renderer)
 
@@ -503,14 +626,14 @@ app.run(
 ### How It Works
 
 1. `app.run()` detects Jupyter environment via `get_ipython()`
-2. Flask server starts in background daemon thread
+2. Server starts in background daemon thread
 3. Jupyter comm protocol negotiates proxy configuration
 4. App displays according to selected mode
 
 ```
 app.run() in notebook
     ↓
-Detect Jupyter → Start Flask in background thread
+Detect Jupyter → Start server in background thread
     ↓
 Comm request → Extension responds with base_url
     ↓
@@ -572,8 +695,8 @@ Special handling for Colab:
 ### Dash() Constructor Parameters
 
 **Basic Setup:**
-- `name` - Flask app name (default: infers from `__name__`)
-- `server` - Flask instance or `True` to create new (default: `True`)
+- `name` - Application name (default: infers from `__name__`)
+- `server` - Server instance (Flask, Quart, or FastAPI) or `True` to create Flask (default: `True`)
 - `title` - Browser tab title (default: `"Dash"`)
 - `update_title` - Title during callbacks (default: `"Updating..."`)
 
@@ -599,6 +722,11 @@ Special handling for Colab:
 - `prevent_initial_callbacks` - Skip callbacks on load (default: `False`)
 - `background_callback_manager` - DiskcacheManager or CeleryManager
 - `on_error` - Global callback error handler
+
+**WebSocket Callbacks:**
+- `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
+- `websocket_allowed_origins` - List of allowed origins for WebSocket connections
+- `websocket_inactivity_timeout` - Disconnect WebSocket after inactivity period in ms (default: `300000` = 5 minutes). Set to `0` to disable.
 
 ### app.run() Parameters
 
@@ -682,6 +810,7 @@ Dash supports `async def` callbacks for non-blocking execution.
 
 ### Setup
 
+**With Flask backend:**
 ```bash
 pip install dash[async]
 ```
@@ -690,6 +819,16 @@ Async is auto-enabled when `asgiref` is detected. Or explicitly:
 
 ```python
 app = Dash(__name__, use_async=True)
+```
+
+**With Quart or FastAPI backend:** Async is native - no extra dependencies needed.
+
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server)  # Async works automatically
 ```
 
 ### Usage
@@ -708,7 +847,8 @@ async def async_update(value):
 - Regular async callbacks are **non-blocking** - multiple can run concurrently
 - Background callbacks also support `async def`
 - Jupyter uses `nest_asyncio` for event loop compatibility
-- Without `dash[async]`, coroutines raise an error
+- With Flask backend: requires `dash[async]`, coroutines raise error without it
+- With Quart/FastAPI backends: async is native, no extra setup needed
 
 ### Async with Background Callbacks
 
@@ -725,6 +865,193 @@ async def async_background(n_clicks):
 ```
 
 Both DiskcacheManager and CeleryManager support async functions via `asyncio.run()`.
+
+## WebSocket Callbacks
+
+WebSocket callbacks use a persistent WebSocket connection instead of HTTP POST for callback execution. This reduces latency and connection overhead for applications with frequent callbacks.
+
+### Requirements
+
+- **FastAPI backend required**: WebSocket callbacks only work with FastAPI
+- **SharedWorker support**: Modern browsers (not IE)
+
+### Usage
+
+**Enable globally for all callbacks:**
+```python
+from fastapi import FastAPI
+from dash import Dash
+
+server = FastAPI()
+app = Dash(__name__, server=server, websocket_callbacks=True)
+```
+
+**Enable per-callback:**
+```python
+@app.callback(
+    Output('output', 'children'),
+    Input('input', 'value'),
+    websocket=True  # Use WebSocket for this callback only
+)
+def update(value):
+    return f"Value: {value}"
+```
+
+### Configuration
+
+```python
+app = Dash(
+    __name__,
+    server=server,
+    websocket_callbacks=True,
+    websocket_inactivity_timeout=300000,  # 5 minutes (default)
+    websocket_heartbeat_interval=30000,   # 30 seconds (default)
+    websocket_allowed_origins=['https://example.com'],
+)
+```
+
+- **`websocket_callbacks`** - Enable WebSocket for all callbacks (default: `False`)
+- **`websocket_inactivity_timeout`** - Close WebSocket after period of inactivity in milliseconds (default: `300000` = 5 minutes). Heartbeats do not count as activity. Set to `0` to disable timeout. Connection automatically reconnects when needed.
+- **`websocket_heartbeat_interval`** - Interval for heartbeat/keep-alive checks in milliseconds (default: `30000` = 30 seconds). Also determines how frequently inactivity timeout is checked.
+- **`websocket_allowed_origins`** - List of allowed origins for WebSocket connections (security)
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Browser Tab 1                          Browser Tab 2                    │
+│ ┌─────────────┐                       ┌─────────────┐                   │
+│ │  Renderer   │                       │  Renderer   │                   │
+│ └──────┬──────┘                       └──────┬──────┘                   │
+│        │ postMessage                         │ postMessage              │
+│        └────────────┬───────────────────────┘                           │
+│                     ▼                                                   │
+│         ┌─────────────────────┐                                         │
+│         │    SharedWorker     │  (one per origin)                       │
+│         │   dash-ws-worker    │                                         │
+│         └──────────┬──────────┘                                         │
+└────────────────────│────────────────────────────────────────────────────┘
+                     │ WebSocket
+                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Server (FastAPI)                                                        │
+│   WebSocket Endpoint: /_dash-ws-callback                                │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Connection & Reconnection Flow:**
+```
+Renderer                   SharedWorker                 Server
+    │                              │                        │
+    │──[CONNECT]──────────────────>│                        │
+    │                              │──[WebSocket Connect]──>│
+    │<─[CONNECTED]─────────────────│<─[Connected]───────────│
+    │                              │                        │
+    │──[CALLBACK_REQUEST]─────────>│──[callback request]───>│
+    │<─[CALLBACK_RESPONSE]─────────│<─[callback response]───│
+    │                              │                        │
+    │      (inactivity)            │    (heartbeat check)   │
+    │                              │──[close 4001]─────────>│
+    │<─[DISCONNECTED]──────────────│                        │
+    │                              │                        │
+    │──[CALLBACK_REQUEST]─────────>│──[reconnect + send]───>│
+    │<─[CALLBACK_RESPONSE]─────────│<─[response]────────────│
+```
+
+- **SharedWorker**: Single WebSocket connection shared across browser tabs
+- **Heartbeat**: Periodic ping/pong to detect dead connections (30s interval)
+- **Inactivity timeout**: Closes connection after no actual callback activity (not heartbeats)
+- **Auto-reconnect**: Reconnects automatically when a callback is triggered after timeout
+
+### Long-Running Callbacks with set_props/get_props
+
+WebSocket callbacks can stream updates to the client during execution using `set_props()` and read current component values using `ctx.websocket`:
+
+```python
+import asyncio
+from dash import callback, Output, Input, set_props, ctx
+from dash.exceptions import PreventUpdate
+
+@callback(
+    Output('result', 'children'),
+    Input('start-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+async def long_running_task(n_clicks):
+    ws = ctx.websocket
+    if not ws:
+        return "WebSocket not available"
+
+    # Stream progress updates to the client
+    for i in range(100):
+        # IMPORTANT: Check is_shutdown in loops to detect disconnections
+        if ws.is_shutdown:
+            raise PreventUpdate  # Exit gracefully on disconnect
+        await asyncio.sleep(0.1)
+        set_props('progress-bar', {'value': i + 1})
+        set_props('status', {'children': f'Processing step {i + 1}/100...'})
+
+    # Read current value from another component
+    current_value = await ws.get_prop('input-field', 'value')
+
+    return f"Completed! Input was: {current_value}"
+```
+
+**IMPORTANT - Checking `is_shutdown` in Loops:**
+
+Long-running callbacks that use loops **must** check `ws.is_shutdown` to detect when the WebSocket connection has closed. Without this check:
+- Callbacks continue running after the client disconnects, wasting server resources
+- `set_props` calls go to a closed connection and are lost
+- The callback result is never delivered to the client
+
+Only "persistent callbacks" (callbacks with no Output and no Input that use only `set_props`) are automatically restarted when the WebSocket reconnects. Regular callbacks with outputs are not restarted.
+
+**API:**
+- `set_props(component_id, props_dict)` - Stream prop updates immediately to client
+- `ctx.websocket` - Get WebSocket interface (returns `None` if not in WS context)
+- `ws.is_shutdown` - Check if the WebSocket connection has been closed
+- `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
+- `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
+- `await ws.close(code, reason)` - Close the WebSocket connection
+
+### Connection Hooks
+
+Use hooks to validate connections and messages:
+
+```python
+from dash import Dash, hooks
+
+@hooks.websocket_connect()
+async def validate_connection(websocket):
+    """Validate WebSocket connection before accepting."""
+    session_id = websocket.cookies.get("session_id")
+    if not session_id:
+        return (4001, "No session cookie")
+    if not await is_valid_session(session_id):
+        return (4002, "Invalid session")
+    return True  # Allow connection
+
+@hooks.websocket_message()
+async def validate_message(websocket, message):
+    """Validate each WebSocket message."""
+    session_id = websocket.cookies.get("session_id")
+    if not await is_session_active(session_id):
+        return (4002, "Session expired")
+    return True  # Allow message
+```
+
+**Hook Return Values:**
+- `True` (or truthy) - Allow connection/message
+- `False` - Reject with default code (4001)
+- `(code, reason)` - Reject with custom close code and reason
+
+### Key Files
+
+- `dash/dash.py` - WebSocket config in `_generate_config()`
+- `dash/dash-renderer/src/utils/workerClient.ts` - Browser-side SharedWorker client
+- `@plotly/dash-websocket-worker/src/WebSocketManager.ts` - WebSocket connection management
+- `@plotly/dash-websocket-worker/src/worker.ts` - SharedWorker entry point
+- `dash/backends/_fastapi.py` - Server-side WebSocket handler
 
 ## Security
 
