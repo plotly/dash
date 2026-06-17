@@ -682,7 +682,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             dash_app: The Dash application instance
         """
         # pylint: disable=too-many-statements,too-many-locals
-        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+        ws_path = dash_app.config.routes_pathname_prefix + "_dash-ws-callback"
 
         # Get allowed origins from dash app config
         allowed_origins = getattr(
