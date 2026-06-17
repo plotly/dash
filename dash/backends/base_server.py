@@ -189,12 +189,16 @@ class BaseDashServer(ABC, Generic[ServerType]):
         """
         super().__init__()
         self.server = server
-        self._callback_executor: ThreadPoolExecutor | None = None
 
-    def get_callback_executor(
+    def create_callback_executor(
         self, max_workers: int | None = None
     ) -> ThreadPoolExecutor:
-        """Get or create the thread pool executor for callback execution.
+        """Create a new thread pool executor for callback execution.
+
+        A fresh executor is created per WebSocket connection so that long-lived
+        (session-persistent) callbacks on one connection cannot exhaust worker
+        threads shared with other connections. The executor should be shut down
+        when its connection closes.
 
         Args:
             max_workers: Maximum number of worker threads. If None, uses default.
@@ -202,21 +206,9 @@ class BaseDashServer(ABC, Generic[ServerType]):
         Returns:
             ThreadPoolExecutor instance for running callbacks.
         """
-        if self._callback_executor is None:
-            self._callback_executor = ThreadPoolExecutor(
-                max_workers=max_workers, thread_name_prefix="dash-callback-"
-            )
-        return self._callback_executor
-
-    def shutdown_executor(self, wait: bool = True) -> None:
-        """Shutdown the callback executor.
-
-        Args:
-            wait: If True, wait for pending tasks to complete.
-        """
-        if self._callback_executor is not None:
-            self._callback_executor.shutdown(wait=wait)
-            self._callback_executor = None
+        return ThreadPoolExecutor(
+            max_workers=max_workers, thread_name_prefix="dash-callback-"
+        )
 
     def __call__(self, *args, **kwargs) -> Any:
         """Make the server wrapper callable as a WSGI/ASGI application.

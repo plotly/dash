@@ -731,8 +731,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             pending_get_props: Dict[str, queue.Queue] = {}
             # Shutdown event to signal connection closure to worker threads
             shutdown_event = threading.Event()
-            # Get thread pool executor
-            executor = self.get_callback_executor()
+            # Create a per-connection thread pool executor so that long-lived
+            # callbacks on one connection cannot starve worker threads for others.
+            # pylint: disable=protected-access
+            executor = self.create_callback_executor(
+                getattr(dash_app, "_websocket_max_workers", 4)
+            )
             # Track pending callback futures
             pending_callbacks: Dict[str, concurrent.futures.Future] = {}
 
@@ -833,6 +837,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                 # Cancel any pending futures
                 for f in pending_callbacks.values():
                     f.cancel()
+                # Shut down this connection's executor (don't block the event loop)
+                executor.shutdown(wait=False)
 
         self.server.add_api_websocket_route(ws_path, websocket_handler)
 
