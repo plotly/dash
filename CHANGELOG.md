@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
 - [#3813](https://github.com/plotly/dash/pull/3813) Fix websockets using incorrect path when deployed behind a proxy
-- Fix `dash.testing` `ThreadedRunner.stop()` hanging at teardown for Quart apps. The graceful-shutdown branch was FastAPI-only, so a Quart app fell through to a thread kill followed by an unbounded `join()` that could block forever (the server thread is parked in a blocking syscall — IOCP on Windows, epoll on POSIX — so the injected `SystemExit` is not delivered promptly). `stop()` now signals the Quart backend's cooperative shutdown event on the server's own loop and joins bounded by `stop_timeout`.
+- [#3824](https://github.com/plotly/dash/pull/3824) Fix `dash.testing` `ThreadedRunner.stop()` hanging at teardown for Quart apps. Fixes [#3823](https://github.com/plotly/dash/issues/3823).
 
 ## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
