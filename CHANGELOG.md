@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#3817](https://github.com/plotly/dash/pull/3817) Fix background callback context serialisation for non-dict request args on the FastAPI and Quart backends. Fixes [#3816](https://github.com/plotly/dash/issues/3816).
 - [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
+- [#3813](https://github.com/plotly/dash/pull/3813) Fix websockets using incorrect path when deployed behind a proxy
 
 ## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
