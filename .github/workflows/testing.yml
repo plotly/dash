@@ -1018,6 +1018,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -1036,6 +1037,10 @@ jobs:
       - name: Run Table visual tests
         if: env.PERCY_TOKEN != ''
         working-directory: components/dash-table
+        # percy-storybook bundles an old puppeteer whose Chromium is absent on
+        # the runner; point it at the system Chrome installed above.
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: npm run test.visual
 
       - name: Skip Table visual tests (fork PR)
