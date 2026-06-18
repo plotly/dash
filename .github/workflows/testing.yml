@@ -1093,8 +1093,9 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        # Skip for fork PRs - handled by post-test-status.yml workflow_run
-        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # Skip for fork PRs and Dependabot PRs - both run with a read-only
+        # GITHUB_TOKEN, so they're handled by post-test-status.yml workflow_run.
+        if: always() && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'))
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'
