@@ -620,6 +620,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -713,6 +721,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -899,6 +915,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -1056,6 +1080,13 @@ jobs:
     if: always()
     env:
       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      # Must match the snapshot jobs so finalize targets the same parallel build
+      # and the result is attached to the PR head commit, not the merge SHA.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
     steps:
       - name: Finalize Main Percy Build
         if: |
