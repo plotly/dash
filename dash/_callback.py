@@ -39,6 +39,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
 from . import _validate
 
@@ -85,6 +86,8 @@ def callback(
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
+    mcp_enabled: Optional[bool] = None,
+    mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -242,6 +245,8 @@ def callback(
         hidden=hidden,
         websocket=websocket,
         persistent=persistent,
+        mcp_enabled=mcp_enabled,
+        mcp_expose_docstring=mcp_expose_docstring,
     )
 
     return cast(
@@ -295,6 +300,8 @@ def insert_callback(
     hidden=None,
     websocket=False,
     persistent=False,
+    mcp_enabled=None,
+    mcp_expose_docstring=None,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -338,6 +345,8 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
+        "mcp_enabled": mcp_enabled,
+        "mcp_expose_docstring": mcp_expose_docstring,
     }
     callback_list.append(callback_spec)
 
@@ -457,10 +466,13 @@ def _setup_background_callback(
     return to_json(data)
 
 
-def _progress_background_callback(response, callback_manager, background):
+def _progress_background_callback(
+    response, callback_manager, background, cache_key=None
+):
     progress_outputs = background.get("progress")
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey")
+    if cache_key is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = adapter.args.get("cacheKey")
 
     if progress_outputs:
         # Get the progress before the result as it would be erased after the results.
@@ -472,21 +484,38 @@ def _progress_background_callback(response, callback_manager, background):
 
 
 def _update_background_callback(
-    error_handler, callback_ctx, response, kwargs, background, multi
+    error_handler,
+    callback_ctx,
+    response,
+    kwargs,
+    background,
+    multi,
+    cache_key=None,
+    job_id=None,
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
 
-    _progress_background_callback(response, callback_manager, background)
+    _progress_background_callback(
+        response, callback_manager, background, cache_key=cache_key
+    )
 
     output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
-        output_value, callback_manager, response, error_handler, callback_ctx, multi
+        output_value,
+        callback_manager,
+        response,
+        error_handler,
+        callback_ctx,
+        multi,
+        cache_key=cache_key,
+        job_id=job_id,
     )
 
 
@@ -498,10 +527,13 @@ def _handle_rest_background_callback(
     callback_ctx,
     multi,
     has_update=False,
+    cache_key=None,
+    job_id=None,
 ):
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
     # Must get job_running after get_result since get_results terminates it.
     job_running = callback_manager.job_running(job_id)
     if not job_running and output_value is callback_manager.UNDEFINED:
@@ -550,7 +582,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response,
+    response: CallbackExecutionResponse,
     callback_ctx,
     app,
     original_packages,
@@ -562,7 +594,7 @@ def _prepare_response(
     allow_dynamic_callbacks,
 ):
     """Prepare the response object based on the callback output."""
-    component_ids = collections.defaultdict(dict)
+    component_ids: dict = collections.defaultdict(dict)
 
     if has_output:
         if not multi:
@@ -681,6 +713,8 @@ def register_callback(
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
+        mcp_enabled=_kwargs.get("mcp_enabled", None),
+        mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals
@@ -715,7 +749,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}  # type: ignore
+            response: CallbackExecutionResponse = {"multi": True}
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
@@ -787,7 +821,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            response: CallbackExecutionResponse = {"multi": True}
 
             try:
                 if background is not None:
