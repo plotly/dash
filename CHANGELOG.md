@@ -4,8 +4,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
-## [4.3.0rc1] - Unreleased
-
 ## Added
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
 
@@ -13,6 +11,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
 
 ## Fixed
+- [#3817](https://github.com/plotly/dash/pull/3817) Fix background callback context serialisation for non-dict request args on the FastAPI and Quart backends. Fixes [#3816](https://github.com/plotly/dash/issues/3816).
 - [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
 - [#3813](https://github.com/plotly/dash/pull/3813) Fix websockets using incorrect path when deployed behind a proxy
 - [#3830](https://github.com/plotly/dash/pull/3830) MCP: Respond to the Streamable HTTP `GET` (SSE) request with an empty event stream instead of `405 Method Not Allowed`

@@ -622,6 +622,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -656,6 +664,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -680,6 +689,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
 
       - name: Upload test results
         if: always()
@@ -715,6 +725,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -749,6 +767,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -775,6 +794,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
           working-directory: components/dash-html-components
 
       - name: Upload test results
@@ -901,6 +921,14 @@ jobs:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -1063,6 +1091,13 @@ jobs:
     if: always()
     env:
       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      # Must match the snapshot jobs so finalize targets the same parallel build
+      # and the result is attached to the PR head commit, not the merge SHA.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
     steps:
       - name: Finalize Main Percy Build
         if: |
@@ -1100,8 +1135,9 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        # Skip for fork PRs - handled by post-test-status.yml workflow_run
-        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # Skip for fork PRs and Dependabot PRs - both run with a read-only
+        # GITHUB_TOKEN, so they're handled by post-test-status.yml workflow_run.
+        if: always() && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'))
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'

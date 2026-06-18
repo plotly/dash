@@ -438,6 +438,10 @@ def _setup_background_callback(
     ctx_value.pop("background_callback_manager")
     ctx_value.pop("dash_response")
 
+    args_value = ctx_value.get("args")
+    if args_value is not None and not isinstance(args_value, dict):
+        ctx_value["args"] = dict(args_value)
+
     job = callback_manager.call_job_fn(
         cache_key,
         job_fn,
