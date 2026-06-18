@@ -91,11 +91,12 @@ def test_mcpe004_delete_returns_405():
     assert r.status_code == 405
 
 
-def test_mcpe005_get_returns_405():
+def test_mcpe005_get_opens_empty_sse_stream():
     app = _make_app()
     client = app.server.test_client()
     r = client.get(f"/{MCP_PATH}")
-    assert r.status_code == 405
+    assert r.status_code == 200
+    assert r.headers["Content-Type"].startswith("text/event-stream")
 
 
 def test_mcpe006_post_rejects_wrong_content_type():
