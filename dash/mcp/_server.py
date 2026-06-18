@@ -167,8 +167,25 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
 
         return _json_response(response_data)
 
-    def _handle_not_allowed():
-        """Return 405 for GET and DELETE (MCP SSE not supported)."""
+    def _handle_get():
+        """
+        Accept GET requests for SSE streams with an empty, immediately-completed
+        stream. This used to be a 405 "Method Not Allowed", but that caused the
+        dev server to close the connection, introducing intermittent Claude
+        connectivity timeouts.
+        """
+        resp = app.backend.make_response(
+            ": mcp stream open\n\n",
+            content_type="text/event-stream",
+            status=200,
+        )
+        resp.headers["Cache-Control"] = "no-cache, no-transform"
+        if _session_id is not None:
+            resp.headers["Mcp-Session-Id"] = _session_id
+        return resp
+
+    def _handle_delete():
+        """Return 405 for DELETE; the spec allows refusing session teardown."""
         return app.backend.make_response(
             json.dumps({"error": "Method not allowed"}),
             content_type="application/json",
@@ -192,13 +209,13 @@ def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     )
     app.backend.add_url_rule(
         mcp_url,
-        view_func=_handle_not_allowed,
+        view_func=_handle_get,
         endpoint=f"{mcp_url}:GET",
         methods=["GET"],
     )
     app.backend.add_url_rule(
         mcp_url,
-        view_func=_handle_not_allowed,
+        view_func=_handle_delete,
         endpoint=f"{mcp_url}:DELETE",
         methods=["DELETE"],
     )
