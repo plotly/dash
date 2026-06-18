@@ -195,7 +195,7 @@ jobs:
   test-typing:
     name: Typing Tests
     runs-on: ubuntu-latest
-    if: github.ref_name != 'master'
+    if: github.ref_name != 'master' && github.base_ref != 'master'
     needs: build
     timeout-minutes: 30
     strategy:
