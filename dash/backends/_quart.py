@@ -12,8 +12,10 @@ import queue
 import threading
 from urllib.parse import urlparse
 
+from contextlib import contextmanager
 from logging.config import dictConfig
 from contextvars import copy_context
+from types import SimpleNamespace
 from typing import Any, Dict, TYPE_CHECKING
 
 from importlib_metadata import version as _get_distribution_version
@@ -545,18 +547,24 @@ class QuartDashServer(BaseDashServer[Quart]):
 
             await ws.accept()
 
-            # Capture request metadata from the WebSocket handshake once per
-            # connection so that callbacks running over the WebSocket transport
-            # can access cookies/headers (e.g. for authentication helpers such
-            # as dash_enterprise_auth.get_user_data).
-            request_context = {
-                "cookies": dict(ws.cookies),
-                "headers": dict(ws.headers),
-                "args": dict(ws.args),
-                "path": ws.path,
-                "remote": ws.remote_addr,
-                "origin": ws.headers.get("origin", ""),
-            }
+            # Quart's request/websocket context cannot cross into the executor
+            # threads where callbacks run, so snapshot the handshake metadata
+            # here (where the ``websocket`` proxy is valid) into an adapter-shaped
+            # object. It is funnelled through the same ``populate_request_metadata``
+            # helper as HTTP callbacks so the context (cookies, headers, args,
+            # path, remote, origin) is populated identically.
+            request_snapshot = SimpleNamespace(
+                cookies=ws.cookies,
+                headers=ws.headers,
+                args=ws.args,
+                full_path=ws.full_path,
+                remote_addr=ws.remote_addr,
+                origin=ws.headers.get("origin"),
+            )
+
+            @contextmanager
+            def activate_request():
+                yield request_snapshot
 
             # Track this connection for graceful shutdown
             try:
@@ -636,7 +644,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                             payload,
                             ws_cb,
                             QuartResponseAdapter(),
-                            request_context,
+                            activate_request,
                         )
 
                         # Set up done callback to send response

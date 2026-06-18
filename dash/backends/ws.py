@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import inspect
 import json
 import queue
@@ -190,7 +191,7 @@ def create_ws_context(
     payload: dict,
     response_adapter: "ResponseAdapter",
     websocket_callback: DashWebsocketCallback,
-    request_context: "dict | None" = None,
+    request_adapter: Any = None,
 ):
     """Create callback context from WebSocket message.
 
@@ -198,18 +199,20 @@ def create_ws_context(
         payload: The callback payload
         response_adapter: The response adapter instance for the backend
         websocket_callback: The websocket callback instance for the backend
-        request_context: Optional request metadata (cookies, headers, args,
-            path, remote, origin) captured from the WebSocket handshake. This
-            mirrors the context populated for regular HTTP callbacks so that
-            ``callback_context.cookies``/``headers`` (and downstream helpers
-            such as ``dash_enterprise_auth.get_user_data``) work inside
-            WebSocket callbacks.
+        request_adapter: Optional request adapter (or any object exposing
+            ``cookies``/``headers``/``args``/``full_path``/``remote_addr``/
+            ``origin``) captured from the WebSocket handshake. When provided,
+            the request metadata is copied onto the context the same way as for
+            regular HTTP callbacks so that ``callback_context.cookies``/
+            ``headers`` (and downstream helpers such as
+            ``dash_enterprise_auth.get_user_data``) work inside WebSocket
+            callbacks.
 
     Returns:
         AttributeDict with callback context
     """
     # pylint: disable=import-outside-toplevel
-    from dash._utils import AttributeDict, inputs_to_dict
+    from dash._utils import AttributeDict, inputs_to_dict, populate_request_metadata
 
     g = AttributeDict({})
     g.inputs_list = payload.get("inputs", [])
@@ -225,13 +228,15 @@ def create_ws_context(
     g.updated_props = {}
     g.dash_websocket = websocket_callback
 
-    request_context = request_context or {}
-    g.cookies = request_context.get("cookies", {})
-    g.headers = request_context.get("headers", {})
-    g.args = request_context.get("args", "")
-    g.path = request_context.get("path", "")
-    g.remote = request_context.get("remote", "")
-    g.origin = request_context.get("origin", "")
+    if request_adapter is not None:
+        populate_request_metadata(g, request_adapter)
+    else:
+        g.cookies = {}
+        g.headers = {}
+        g.args = {}
+        g.path = ""
+        g.remote = ""
+        g.origin = ""
 
     return g
 
@@ -412,7 +417,7 @@ def run_callback_in_executor(
     payload: dict,
     ws_callback: DashWebsocketCallback,
     response_adapter: "ResponseAdapter",
-    request_context: "dict | None" = None,
+    activate_request: "Callable[[], Any] | None" = None,
 ) -> concurrent.futures.Future:
     """Submit callback to executor for thread pool execution.
 
@@ -425,9 +430,13 @@ def run_callback_in_executor(
         payload: The callback payload from WebSocket message
         ws_callback: WebSocket callback instance for set_prop/get_prop
         response_adapter: Response adapter for the backend
-        request_context: Optional request metadata (cookies, headers, args,
-            path, remote, origin) captured from the WebSocket handshake, made
-            available on the callback context.
+        activate_request: Optional zero-argument callable returning a context
+            manager that activates the WebSocket handshake request *inside the
+            worker thread* and yields a request adapter (or ``None``). This
+            lets each backend reuse its own request-context machinery (e.g.
+            ``set_current_request`` for FastAPI) so the callback context is
+            populated the same way as for HTTP callbacks. ContextVars do not
+            propagate into executor threads, so activation must happen here.
 
     Returns:
         Future representing the pending callback execution
@@ -435,31 +444,33 @@ def run_callback_in_executor(
 
     def execute() -> dict:
         try:
-            cb_ctx = create_ws_context(
-                payload, response_adapter, ws_callback, request_context
-            )
-            # pylint: disable=protected-access
-            func = dash_app._prepare_callback(cb_ctx, payload)
-            args = dash_app._inputs_to_vals(  # pylint: disable=protected-access
-                cb_ctx.inputs_list + cb_ctx.states_list
-            )
-
-            ctx = copy_context()
-            partial_func = (
-                dash_app._execute_callback(  # pylint: disable=protected-access
-                    func, args, cb_ctx.outputs_list, cb_ctx
+            request_cm = activate_request() if activate_request else nullcontext()
+            with request_cm as request_adapter:
+                cb_ctx = create_ws_context(
+                    payload, response_adapter, ws_callback, request_adapter
                 )
-            )
+                # pylint: disable=protected-access
+                func = dash_app._prepare_callback(cb_ctx, payload)
+                args = dash_app._inputs_to_vals(  # pylint: disable=protected-access
+                    cb_ctx.inputs_list + cb_ctx.states_list
+                )
 
-            # Run in new event loop (handles both sync and async callbacks)
-            def run_callback():
-                result = partial_func()
-                if inspect.iscoroutine(result):
-                    return asyncio.run(result)
-                return result
+                ctx = copy_context()
+                partial_func = (
+                    dash_app._execute_callback(  # pylint: disable=protected-access
+                        func, args, cb_ctx.outputs_list, cb_ctx
+                    )
+                )
 
-            response_data = ctx.run(run_callback)
-            return {"status": "ok", "data": json.loads(response_data)}
+                # Run in new event loop (handles both sync and async callbacks)
+                def run_callback():
+                    result = partial_func()
+                    if inspect.iscoroutine(result):
+                        return asyncio.run(result)
+                    return result
+
+                response_data = ctx.run(run_callback)
+                return {"status": "ok", "data": json.loads(response_data)}
 
         except PreventUpdate:
             return {"status": "prevent_update"}

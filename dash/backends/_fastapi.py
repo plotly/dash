@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from contextvars import copy_context, ContextVar
 import asyncio
 import concurrent.futures
@@ -726,18 +727,20 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             await websocket.accept()
 
-            # Capture request metadata from the WebSocket handshake once per
-            # connection so that callbacks running over the WebSocket transport
-            # can access cookies/headers (e.g. for authentication helpers such
-            # as dash_enterprise_auth.get_user_data).
-            request_context = {
-                "cookies": dict(websocket.cookies),
-                "headers": dict(websocket.headers),
-                "args": dict(websocket.query_params),
-                "path": websocket.url.path,
-                "remote": websocket.client.host if websocket.client else "",
-                "origin": websocket.headers.get("origin", ""),
-            }
+            # Activate the WebSocket handshake request using the same
+            # request-context machinery as HTTP callbacks (set_current_request)
+            # so that callbacks running over the WebSocket transport can access
+            # cookies/headers (e.g. for authentication helpers such as
+            # dash_enterprise_auth.get_user_data). ContextVars do not propagate
+            # into the executor threads, so activation happens inside the worker
+            # thread via this callable.
+            @contextmanager
+            def activate_request():
+                token = set_current_request(websocket)
+                try:
+                    yield FastAPIRequestAdapter()
+                finally:
+                    reset_current_request(token)
 
             # Create janus queue for outbound messages (main loop context)
             outbound_queue: janus.Queue[str] = janus.Queue()
@@ -802,7 +805,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             payload,
                             ws_cb,
                             FastAPIResponseAdapter(),
-                            request_context,
+                            activate_request,
                         )
 
                         # Set up done callback to send response

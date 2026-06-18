@@ -218,6 +218,23 @@ def inputs_to_dict(inputs_list):
     return inputs
 
 
+def populate_request_metadata(g, adapter):
+    """Copy request metadata from a request adapter onto a context object.
+
+    Shared by the HTTP path (``Dash._initialize_context``) and the WebSocket
+    path (``dash.backends.ws.create_ws_context``) so that both transports expose
+    identical request context (cookies, headers, args, path, remote, origin) on
+    ``callback_context``.
+    """
+    g.cookies = dict(adapter.cookies)
+    g.headers = dict(adapter.headers)
+    g.args = adapter.args
+    g.path = adapter.full_path
+    g.remote = adapter.remote_addr
+    g.origin = adapter.origin
+    return g
+
+
 def convert_to_AttributeDict(nested_list):
     new_dict = []
     for i in nested_list:

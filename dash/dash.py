@@ -46,6 +46,7 @@ from ._utils import (
     inputs_to_vals,
     interpolate_str,
     patch_collections_abc,
+    populate_request_metadata,
     split_callback_id,
     to_json,
     convert_to_AttributeDict,
@@ -1494,12 +1495,7 @@ class Dash(ObsoleteChecker):
             for x in body.get("changedPropIds", [])
         ]
         g.dash_response = self.backend.response_adapter()
-        g.cookies = dict(adapter.cookies)
-        g.headers = dict(adapter.headers)
-        g.args = adapter.args
-        g.path = adapter.full_path
-        g.remote = adapter.remote_addr
-        g.origin = adapter.origin
+        populate_request_metadata(g, adapter)
         g.updated_props = {}
         return g
 

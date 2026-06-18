@@ -252,3 +252,31 @@ def test_ws007_websocket_slider_callback(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "Slider value: 50")
 
     assert dash_duo.get_logs() == []
+
+
+def test_ws008_websocket_request_context_cookies(dash_duo):
+    """WebSocket callbacks should expose request cookies/headers on ctx (FastAPI)."""
+    app = Dash(__name__, backend="fastapi")
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="ws-input", type="text"),
+            html.Div(id="ws-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("ws-output", "children"), Input("ws-input", "value"), websocket=True
+    )
+    def show_context(value):
+        return f"cookie={ctx.cookies.get('wscookie', '')} headers={bool(ctx.headers)}"
+
+    dash_duo.start_server(app)
+
+    # Set a cookie, then reload so the WebSocket handshake carries it.
+    dash_duo.driver.add_cookie({"name": "wscookie", "value": "wsval"})
+    dash_duo.driver.refresh()
+
+    dash_duo.wait_for_text_to_equal("#ws-output", "cookie=wsval headers=True")
+
+    assert dash_duo.get_logs() == []
