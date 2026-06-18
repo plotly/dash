@@ -662,6 +662,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -686,6 +687,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
 
       - name: Upload test results
         if: always()
@@ -763,6 +765,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -789,6 +792,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
           working-directory: components/dash-html-components
 
       - name: Upload test results
