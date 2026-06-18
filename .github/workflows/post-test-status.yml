@@ -68,10 +68,13 @@ jobs:
   test-report:
     name: Consolidated Test Report (Fork PR)
     runs-on: ubuntu-latest
-    # Only run for fork PRs (non-fork PRs are handled in the main workflow)
+    # Run for fork PRs and Dependabot PRs. Both run with a read-only
+    # GITHUB_TOKEN in the main workflow, so the check run is created here in the
+    # base-repo context instead. Other same-repo PRs are handled in the main workflow.
     if: |
       github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.head_repository.full_name != github.repository
+      (github.event.workflow_run.head_repository.full_name != github.repository ||
+       github.event.workflow_run.actor.login == 'dependabot[bot]')
     permissions:
       checks: write
       actions: read
