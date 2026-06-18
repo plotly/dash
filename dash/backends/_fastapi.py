@@ -223,7 +223,19 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             await self.app(scope, receive, send)
             return
 
-        # HTTP/WebSocket request handling
+        # Non-Dash routes pass through to avoid consuming body stream
+        path = scope["path"]
+        prefix = self.dash_app.config.routes_pathname_prefix
+        dash_prefix = prefix.rstrip("/") + "/_dash-"
+        if (
+            not path.startswith(dash_prefix)
+            and path != prefix
+            and path != prefix.rstrip("/")
+        ):
+            await self.app(scope, receive, send)
+            return
+
+        # HTTP request handling
         request = Request(scope, receive=receive)
         token = set_current_request(request)
 
@@ -670,7 +682,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             dash_app: The Dash application instance
         """
         # pylint: disable=too-many-statements,too-many-locals
-        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+        ws_path = dash_app.config.routes_pathname_prefix + "_dash-ws-callback"
 
         # Get allowed origins from dash app config
         allowed_origins = getattr(
