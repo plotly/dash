@@ -4,14 +4,20 @@ import typing  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal  # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
 
+try:
+    from dash.types import NumberType  # noqa: F401
+except ImportError:
+    # Backwards compatibility for dash<=4.1.0
+    if typing.TYPE_CHECKING:
+        raise
+    NumberType = typing.Union[  # noqa: F401
+        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+    ]
+
 ComponentSingleType = typing.Union[str, int, float, Component, None]
 ComponentType = typing.Union[
     ComponentSingleType,
     typing.Sequence[ComponentSingleType],
-]
-
-NumberType = typing.Union[
-    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
 ]
 
 
@@ -1565,16 +1571,24 @@ class DataTable(Component):
         style_filter: typing.Optional[dict] = None,
         style_header: typing.Optional[dict] = None,
         style_cell_conditional: typing.Optional[
-            typing.Sequence["StyleCellConditional"]
+            typing.Sequence[
+                typing.Union["StyleCellConditional", typing.Dict[str, typing.Any]]
+            ]
         ] = None,
         style_data_conditional: typing.Optional[
-            typing.Sequence["StyleDataConditional"]
+            typing.Sequence[
+                typing.Union["StyleDataConditional", typing.Dict[str, typing.Any]]
+            ]
         ] = None,
         style_filter_conditional: typing.Optional[
-            typing.Sequence["StyleFilterConditional"]
+            typing.Sequence[
+                typing.Union["StyleFilterConditional", typing.Dict[str, typing.Any]]
+            ]
         ] = None,
         style_header_conditional: typing.Optional[
-            typing.Sequence["StyleHeaderConditional"]
+            typing.Sequence[
+                typing.Union["StyleHeaderConditional", typing.Dict[str, typing.Any]]
+            ]
         ] = None,
         virtualization: typing.Optional[bool] = None,
         derived_filter_query_structure: typing.Optional[dict] = None,
