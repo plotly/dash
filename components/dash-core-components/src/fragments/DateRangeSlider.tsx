@@ -19,7 +19,6 @@ import {
     dateStringToTimestamp,
     timestampToDateString,
     strAsDate,
-    stepDate,
     parseDisabledDates,
     snapToValidDate,
     enforceNoDisabledInBetween,
@@ -104,15 +103,16 @@ export default function DateRangeSlider({
     const [sliderWidth, setSliderWidth] = useState<number | null>(null);
     useEffect(() => {
         if (!containerRef.current) {
-            return;
+            return undefined;
         }
         const observer = new ResizeObserver(entries => {
-            const width = entries[0].contentRect.width;
+            const {width} = entries[0].contentRect;
             if (width > 0) {
                 setSliderWidth(width);
             }
         });
         observer.observe(containerRef.current);
+        return () => observer.disconnect();
     }, []);
 
     // Defines what marks are displayed on the slider
@@ -478,25 +478,25 @@ export default function DateRangeSlider({
     return (
         <div
             ref={containerRef}
-            style={{
-                display: 'flex',
-                flexDirection: vertical ? 'column' : 'row',
-                gap: '10px', // prevents overlay between input and slider/date marks
-            }}
+            className="date-range-slider-container"
+            data-vertical={vertical}
         >
             {allow_direct_input &&
                 Array.isArray(value) &&
                 value.length === 2 && (
-                    <DatePickerSingle
-                        key={`min-input-${resetKey}`}
-                        className="dash-range-slider-min-input"
-                        date={displayValues[0]}
-                        setProps={({date}) => handleDateInputChange(0, date)}
-                        placeholder="Start date"
-                        min_date_allowed={minStr}
-                        max_date_allowed={maxStr}
-                        display_format={display_format}
-                    />
+                    <div className="dash-range-slider-min-input">
+                        <DatePickerSingle
+                            key={`min-input-${resetKey}`}
+                            date={displayValues[0]}
+                            setProps={({date}) =>
+                                handleDateInputChange(0, date)
+                            }
+                            placeholder="Start date"
+                            min_date_allowed={minStr}
+                            max_date_allowed={maxStr}
+                            display_format={display_format}
+                        />
+                    </div>
                 )}
             <div className="dash-date-range-slider-wrapper">
                 <Suspense fallback={null}>
@@ -530,16 +530,19 @@ export default function DateRangeSlider({
             {allow_direct_input &&
                 Array.isArray(value) &&
                 value.length === 2 && (
-                    <DatePickerSingle
-                        key={`max-input-${resetKey}`}
-                        className="dash-range-slider-max-input"
-                        date={displayValues[1]}
-                        setProps={({date}) => handleDateInputChange(1, date)}
-                        placeholder="End date"
-                        min_date_allowed={minStr}
-                        max_date_allowed={maxStr}
-                        display_format={display_format}
-                    />
+                    <div className="dash-range-slider-max-input">
+                        <DatePickerSingle
+                            key={`max-input-${resetKey}`}
+                            date={displayValues[1]}
+                            setProps={({date}) =>
+                                handleDateInputChange(1, date)
+                            }
+                            placeholder="End date"
+                            min_date_allowed={minStr}
+                            max_date_allowed={maxStr}
+                            display_format={display_format}
+                        />
+                    </div>
                 )}
         </div>
     );

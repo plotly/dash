@@ -1,4 +1,11 @@
-import React, {lazy, Suspense, useCallback, useMemo, useState} from 'react';
+import React, {
+    lazy,
+    Suspense,
+    useCallback,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {omit} from 'ramda';
 import DatePickerSingle from '../components/DatePickerSingle';
 import {
@@ -8,7 +15,7 @@ import {
     DateRangeSliderProps,
 } from '../types';
 import dateRangeSlider from '../utils/LazyLoader/dateRangeSlider';
-import './css/sliders.css';
+import './css/datesliders.css';
 
 const RealSlider = lazy(dateRangeSlider);
 
@@ -36,6 +43,7 @@ export default function DateSlider({
     ...props
 }: DateSliderProps) {
     const [resetKey, setResetKey] = useState(0);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Convert single date value to array for DateRangeSlider
     const mappedValue: DateRangeSliderProps['value'] = useMemo(() => {
@@ -88,24 +96,11 @@ export default function DateSlider({
 
     return (
         <div
-            style={{
-                display: 'flex',
-                flexDirection: vertical ? 'column' : 'row',
-                gap: '10px',
-            }}
+            ref={containerRef}
+            className="date-slider-container"
+            data-vertical={vertical}
         >
-            {allow_direct_input && (
-                <DatePickerSingle
-                    key={`date-input-${resetKey}`}
-                    className="dash-range-slider-input"
-                    date={value ?? undefined}
-                    setProps={({date}) => handleDateInputChange(date)}
-                    min_date_allowed={min}
-                    max_date_allowed={max}
-                    display_format={display_format}
-                />
-            )}
-            <div style={{flex: 1, minWidth: 0}}>
+            <div className="dash-slider-wrapper">
                 <Suspense fallback={null}>
                     <RealSlider
                         key={resetKey}
@@ -124,6 +119,18 @@ export default function DateSlider({
                     />
                 </Suspense>
             </div>
+            {allow_direct_input && (
+                <div className="dash-range-slider-min-input">
+                    <DatePickerSingle
+                        key={`date-input-${resetKey}`}
+                        date={value ?? undefined}
+                        setProps={({date}) => handleDateInputChange(date)}
+                        min_date_allowed={min}
+                        max_date_allowed={max}
+                        display_format={display_format}
+                    />
+                </div>
+            )}
         </div>
     );
 }

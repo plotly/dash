@@ -2,7 +2,7 @@ import React, {lazy, Suspense} from 'react';
 import {PersistedProps, PersistenceTypes, DateRangeSliderProps} from '../types';
 import dateRangeSlider from '../utils/LazyLoader/dateRangeSlider';
 
-import './css/sliders.css';
+import './css/datesliders.css';
 
 const RealDateRangeSlider = lazy(dateRangeSlider);
 
