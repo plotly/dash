@@ -43,8 +43,6 @@ updates:
       - dependency-name: "babel-loader"
       - dependency-name: "ts-loader"
       - dependency-name: "cookie"
-      - dependency-name: "eslint*"
-      - dependency-name: "prettier"
       - dependency-name: "webpack*"
       - dependency-name: "typescript"
 
@@ -75,10 +73,12 @@ updates:
       - dependency-name: "@types/*"
       - dependency-name: "@babel/*"
       - dependency-name: "babel-loader"
-      - dependency-name: "eslint*"
-      - dependency-name: "prettier"
       - dependency-name: "webpack*"
       - dependency-name: "typescript"
+    # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
+    # the react-docgen 5 API) and must never be updated.
+    ignore:
+      - dependency-name: "react-docgen"
 
   # Components - dash-html-components
   - package-ecosystem: "npm"
@@ -101,9 +101,12 @@ updates:
       - dependency-name: "@types/*"
       - dependency-name: "@babel/*"
       - dependency-name: "babel-loader"
-      - dependency-name: "eslint*"
       - dependency-name: "webpack*"
       - dependency-name: "typescript"
+    # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
+    # the react-docgen 5 API) and must never be updated.
+    ignore:
+      - dependency-name: "react-docgen"
 
   # Components - dash-table
   - package-ecosystem: "npm"
@@ -130,10 +133,12 @@ updates:
       - dependency-name: "css-loader"
       - dependency-name: "less"
       - dependency-name: "less-loader"
-      - dependency-name: "eslint*"
-      - dependency-name: "prettier"
       - dependency-name: "webpack*"
       - dependency-name: "typescript"
+    # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
+    # the react-docgen 5 API) and must never be updated.
+    ignore:
+      - dependency-name: "react-docgen"
 
   # Python dependencies
   - package-ecosystem: "pip"
