@@ -14,6 +14,12 @@ import {
     DateSliderProps,
     DateRangeSliderProps,
 } from '../types';
+import {
+    strAsDate,
+    snapToValidDate,
+    dateAsStr,
+    snapToStep,
+} from '../utils/calendar/helpers';
 import dateRangeSlider from '../utils/LazyLoader/dateRangeSlider';
 import './css/datesliders.css';
 
@@ -84,6 +90,22 @@ export default function DateSlider({
                 });
                 return;
             }
+
+            const inputDate = strAsDate(dateStr);
+            if (inputDate && props.step && props.step_unit) {
+                const parsedMin = strAsDate(min);
+                const snapped = snapToStep(
+                    inputDate,
+                    parsedMin ?? inputDate,
+                    props.step,
+                    props.step_unit
+                );
+                if (snapped.getTime() !== inputDate.getTime()) {
+                    setResetKey(k => k + 1); // rejeitar
+                    return;
+                }
+            }
+
             const hasNoChange = value === dateStr;
             if (hasNoChange) {
                 setResetKey(k => k + 1);
@@ -91,7 +113,7 @@ export default function DateSlider({
                 setProps({value: dateStr});
             }
         },
-        [value, setProps, min]
+        [value, setProps, min, props.step, props.step_unit]
     );
 
     return (

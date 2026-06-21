@@ -188,6 +188,9 @@ def test_dslkb003_input_constrained_by_step_slider(dash_dcc):
     inpt.send_keys("2024-06-14", Keys.ENTER)
     dash_dcc.wait_for_text_to_equal("#value", "value is 2024-06-11")
 
+    input_container = dash_dcc.find_element(".dash-range-slider-min-input")
+    inpt = input_container.find_element("tag name", "input")
+
     # Valid step alignment matches smoothly
     inpt.click()
     inpt.send_keys(Keys.END)
