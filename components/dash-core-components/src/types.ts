@@ -800,6 +800,14 @@ export interface DateRangeSliderProps
     drag_value?: `${string}-${string}-${string}`[];
 
     /**
+     * pushable could be set as true to allow pushing of
+     * surrounding handles when moving an handle.
+     * When set to a number, the number will be the
+     * minimum ensured distance between handles in days.
+     */
+    pushable?: boolean | number;
+
+    /**
      * If true, the handles can't be moved.
      */
     disabled?: boolean;

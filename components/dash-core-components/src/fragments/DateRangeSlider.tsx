@@ -57,6 +57,7 @@ export default function DateRangeSlider({
     max,
     value,
     drag_value,
+    pushable = false,
     disabled_dates,
     disable_flags,
     display_format,
@@ -171,6 +172,19 @@ export default function DateRangeSlider({
         const timestamp = dateStringToTimestamp(drag_value);
         return typeof timestamp === 'number' ? [timestamp] : timestamp;
     }, [drag_value]);
+
+    // Convert pushable distance to timestamp
+    const mappedPushable = useMemo(() => {
+        if (typeof pushable === 'number') {
+            const pushableMs = pushable * MS_PER_DAY;
+            const stepMs = mappedStep || MS_PER_DAY;
+            if (pushableMs < stepMs) {
+                return 0;
+            }
+            return Math.round(pushableMs / stepMs);
+        }
+        return pushable;
+    }, [pushable, mappedStep]);
 
     const {parsedDisabledDates, parsedDisabledRanges} = useMemo(
         () => parseDisabledDates(disabled_dates),
@@ -514,6 +528,7 @@ export default function DateRangeSlider({
                         drag_value={mappedDragValue}
                         setProps={mappedSetProps}
                         {...props}
+                        pushable={mappedPushable}
                         tooltip={customTooltip}
                     />
                 </Suspense>
