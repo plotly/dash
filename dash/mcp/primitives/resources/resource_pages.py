@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 
-from mcp.types import (
+from dash.mcp.types import (
     ReadResourceResult,
     Resource,
     TextResourceContents,
 )
-from pydantic import AnyUrl
 
 from dash._pages import PAGE_REGISTRY
 
@@ -24,7 +23,7 @@ class PagesResource(MCPResourceProvider):
         if not PAGE_REGISTRY:
             return None
         return Resource(
-            uri=AnyUrl(cls.uri),
+            uri=cls.uri,
             name="dash_app_pages",
             description=(
                 "List of all pages in this multi-page Dash app "
@@ -52,7 +51,7 @@ class PagesResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=AnyUrl(cls.uri),
+                    uri=cls.uri,
                     mimeType="application/json",
                     text=json.dumps(pages, default=str),
                 )

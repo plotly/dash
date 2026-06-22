@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, CreateTaskResult, TextContent, Tool
+from dash.mcp.types import CallToolResult, CreateTaskResult, TextContent, Tool
 
 from dash import get_app
 from dash.mcp.tasks import create_task

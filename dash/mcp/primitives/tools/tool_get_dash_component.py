@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from mcp.types import CallToolResult, TextContent, Tool
+from dash.mcp.types import CallToolResult, TextContent, Tool
 from pydantic import Field, TypeAdapter
 from typing_extensions import Annotated, NotRequired, TypedDict
 

@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from mcp.types import (
+from dash.mcp.types import (
     ReadResourceResult,
     ResourceTemplate,
     TextResourceContents,
 )
-from pydantic import AnyUrl
 
 from dash import html
 from dash._pages import PAGE_REGISTRY
@@ -56,7 +55,7 @@ class PageLayoutResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=AnyUrl(uri),
+                    uri=uri,
                     mimeType="application/json",
                     text=to_json(page_layout),
                 )
