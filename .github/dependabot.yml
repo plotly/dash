@@ -148,6 +148,10 @@ updates:
       day: "monday"
     cooldown:
       default-days: 14
+    # Keep lower bounds (e.g. Flask>=1.0.4 in install.txt) low: only raise a
+    # floor when the latest release is incompatible with the current range.
+    # Exact (==) pins in ci/dev/testing still update as normal.
+    versioning-strategy: increase-if-necessary
     groups:
       pip-dependencies:
         applies-to: version-updates
