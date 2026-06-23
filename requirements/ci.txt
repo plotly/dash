@@ -18,6 +18,6 @@ pytest-sugar==1.1.1
 pyzmq>=27.1.0
 xlrd>=2.0.2
 pytest-rerunfailures
-jupyterlab<5.0.0
+jupyterlab<4.0.0
 pyright==1.1.410;python_version>="3.7"
 mypy==1.15.0;python_version>="3.12"

@@ -157,3 +157,8 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+    # jupyterlab is pinned <4.0.0: jupyterlab 4.x ships jlpm as Yarn Berry, which
+    # cannot consume @plotly/dash-jupyterlab's Yarn 1 lockfile and breaks the build.
+    ignore:
+      - dependency-name: "jupyterlab"
+        versions: [">=4.0.0"]
