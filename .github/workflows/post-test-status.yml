@@ -65,6 +65,44 @@ jobs:
               }
             }
 
+      - name: Post Percy status for fork/Dependabot PRs
+        # Percy needs PERCY_TOKEN to run, which is unavailable to fork PRs (and to
+        # Dependabot unless added to Dependabot secrets). Without a build, the
+        # Percy GitHub App never posts the required `percy/dash` status and the PR
+        # is blocked. Post a success status here so the check resolves — but only
+        # if Percy hasn't already posted one, so a real Percy result is never
+        # clobbered (e.g. when Dependabot does have the token).
+        if: >
+          github.event.workflow_run.head_repository.full_name != github.repository ||
+          github.event.workflow_run.actor.login == 'dependabot[bot]'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.payload.workflow_run.head_sha;
+            const statusContext = 'percy/dash';
+
+            const { data: { statuses } } = await github.rest.repos.getCombinedStatus({
+              owner,
+              repo,
+              ref: sha,
+            });
+
+            if (statuses.some(s => s.context === statusContext)) {
+              console.log(`'${statusContext}' already posted — leaving it untouched.`);
+              return;
+            }
+
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state: 'success',
+              context: statusContext,
+              description: 'Skipped — Percy unavailable for fork/Dependabot PRs',
+            });
+            console.log(`Posted skipped status for ${statusContext}`);
+
   test-report:
     name: Consolidated Test Report (Fork PR)
     runs-on: ubuntu-latest
@@ -79,6 +117,11 @@ jobs:
       checks: write
       actions: read
     steps:
+      # dorny/test-reporter runs `git ls-files` to resolve test paths, so the
+      # repo must be checked out. This workflow_run job otherwise has no checkout.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download test results artifact
         uses: actions/download-artifact@v4
         with:
