@@ -10,7 +10,13 @@ from typing_extensions import Annotated, NotRequired, TypedDict
 
 from dash import get_app
 from dash._layout_utils import find_component
-from dash.mcp.types import CallToolResult, ComponentPropertyInfo, ComponentQueryResult, TextContent, Tool
+from dash.mcp.types import (
+    CallToolResult,
+    ComponentPropertyInfo,
+    ComponentQueryResult,
+    TextContent,
+    Tool,
+)
 
 from .base import MCPToolProvider
 
