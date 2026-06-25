@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## Changed
+- Drop support for Python 3.8 (end-of-life since October 2024). The minimum supported version is now Python 3.9.
+
 ## [4.3.0] - 2026-06-18
 
 ## Added
