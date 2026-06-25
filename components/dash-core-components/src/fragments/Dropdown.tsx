@@ -148,7 +148,7 @@ const Dropdown = (props: DropdownProps) => {
     );
 
     const onInputChange = useCallback(
-        search_value => setProps({search_value}),
+        (search_value: string) => setProps({search_value}),
         []
     );
 
