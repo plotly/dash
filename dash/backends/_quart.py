@@ -516,7 +516,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             dash_app: The Dash application instance
         """
         # pylint: disable=too-many-statements,too-many-locals
-        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+        ws_path = dash_app.config.routes_pathname_prefix + "_dash-ws-callback"
         # pylint: disable=protected-access
         allowed_origins = getattr(dash_app, "_websocket_allowed_origins", [])
 

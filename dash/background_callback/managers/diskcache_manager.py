@@ -36,7 +36,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the ``cache`` instance.
         """
         try:
-            import diskcache  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel
+            import diskcache  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
             import psutil  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
             import multiprocess  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
         except ImportError as missing_imports:

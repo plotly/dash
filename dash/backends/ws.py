@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, TYPE_CHECKING, cast
 import janus
 
 from dash.exceptions import PreventUpdate, WebsocketDisconnected
+from dash.types import CallbackExecutionBody
 from dash._utils import to_json
 
 if TYPE_CHECKING:
@@ -186,7 +187,7 @@ class DashWebsocketCallback:
 
 
 def create_ws_context(
-    payload: dict,
+    payload: CallbackExecutionBody,
     response_adapter: "ResponseAdapter",
     websocket_callback: DashWebsocketCallback,
 ):
@@ -393,7 +394,7 @@ def make_callback_done_handler(
 def run_callback_in_executor(
     executor: ThreadPoolExecutor,
     dash_app: "dash.Dash",
-    payload: dict,
+    payload: CallbackExecutionBody,
     ws_callback: DashWebsocketCallback,
     response_adapter: "ResponseAdapter",
 ) -> concurrent.futures.Future:
