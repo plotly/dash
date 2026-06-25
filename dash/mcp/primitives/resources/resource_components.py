@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+from pydantic import AnyUrl
+
 from dash.mcp.types import (
     ReadResourceResult,
     Resource,
@@ -22,7 +24,7 @@ class ComponentsResource(MCPResourceProvider):
     @classmethod
     def get_resource(cls) -> Resource | None:
         return Resource(
-            uri=cls.uri,
+            uri=AnyUrl(cls.uri),
             name="dash_components",
             description=(
                 "All components with IDs in the app layout. "
@@ -53,7 +55,7 @@ class ComponentsResource(MCPResourceProvider):
         return ReadResourceResult(
             contents=[
                 TextResourceContents(
-                    uri=cls.uri,
+                    uri=AnyUrl(cls.uri),
                     mimeType="application/json",
                     text=json.dumps(components),
                 )

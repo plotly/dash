@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field
 
 LATEST_PROTOCOL_VERSION: str = "2025-11-25"
 
@@ -90,7 +90,7 @@ class InitializeResult(_Result):
 
 
 class Resource(BaseModel):
-    uri: str
+    uri: AnyUrl
     name: str
     description: str | None = None
     mimeType: str | None = None
@@ -106,7 +106,7 @@ class ResourceTemplate(BaseModel):
 
 
 class _ResourceContents(BaseModel):
-    uri: str
+    uri: AnyUrl
     mimeType: str | None = None
     model_config = ConfigDict(extra="allow")
 
