@@ -7,9 +7,32 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - Per-connection WebSocket callback thread pools. Each WebSocket connection now gets its own `ThreadPoolExecutor` instead of sharing a single app-wide pool, so long-lived (session-persistent) callbacks on one connection no longer limit the number of concurrent users. The per-connection size is configurable via the new `websocket_max_workers` argument to `Dash` (default `4`).
 
-### Fixed
+## [4.3.0] - 2026-06-18
+
+## Added
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
+
+## Changed
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
+
+## Fixed
+- [#3817](https://github.com/plotly/dash/pull/3817) Fix background callback context serialisation for non-dict request args on the FastAPI and Quart backends. Fixes [#3816](https://github.com/plotly/dash/issues/3816).
 - [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
 - [#3813](https://github.com/plotly/dash/pull/3813) Fix websockets using incorrect path when deployed behind a proxy
+- [#3830](https://github.com/plotly/dash/pull/3830) MCP: Respond to the Streamable HTTP `GET` (SSE) request with an empty event stream instead of `405 Method Not Allowed`
+
+## [4.3.0rc0] - 2026-05-21
+
+## Added
+- [#3710](https://github.com/plotly/dash/pull/3710) MCP: Framework utilities, types for interacting with layout
+- [#3711](https://github.com/plotly/dash/pull/3711) MCP: `CallbackAdapter` for representing callback-related data in MCP-friendly format
+- [#3712](https://github.com/plotly/dash/pull/3712) MCP: `Resources` for exposing app layout, components, and pages
+- [#3731](https://github.com/plotly/dash/pull/3731) MCP: Expose callbacks as `Tools`
+- [#3747](https://github.com/plotly/dash/pull/3747) MCP: Support pattern-matching callbacks in Tools
+- [#3748](https://github.com/plotly/dash/pull/3748) MCP: Format callback results for LLM consumption (rendered graphs, markdown tables)
+- [#3749](https://github.com/plotly/dash/pull/3749) MCP: `get_dash_component` Tool and callback execution
+- [#3750](https://github.com/plotly/dash/pull/3750) MCP: Server routes, `mcp_enabled` function decorator, and Streamable HTTP transport
+- [#3766](https://github.com/plotly/dash/pull/3766) MCP: Support background callbacks in Tools
 
 ## [4.2.0] - 2026-06-01 - *The Freedom Update*
 
