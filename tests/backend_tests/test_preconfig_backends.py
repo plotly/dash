@@ -334,3 +334,22 @@ def test_fastapi_custom_post_route(dash_duo):
     )
     assert resp.status_code == 200
     assert resp.json() == {"echo": {"hello": "world"}}
+
+
+def test_fastapi_catchall_request_context(dash_duo):
+    """Test that non-Dash paths falling through to the catch-all route work.
+
+    Regression test for https://github.com/plotly/dash/issues/3812
+    The catch-all route renders ``dash_app.index()``, which needs a request
+    context; without it the request raised ``RuntimeError: No active request in
+    context`` and returned a 500.
+    """
+    import requests
+
+    app = Dash(__name__, backend="fastapi")
+    app.layout = html.Div("Dash is running")
+
+    dash_duo.start_server(app)
+
+    resp = requests.get(f"{dash_duo.server_url}/some/non-dash/path", timeout=5)
+    assert resp.status_code == 200
