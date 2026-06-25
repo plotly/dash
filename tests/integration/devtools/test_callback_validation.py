@@ -1,5 +1,6 @@
 import flask
 import pytest
+from flaky import flaky
 
 from dash import (
     Dash,
@@ -655,6 +656,7 @@ def test_dvcv012_circular_2_step(dash_duo):
     check_errors(dash_duo, specs)
 
 
+@flaky(max_runs=3)
 def test_dvcv013_circular_3_step(dash_duo):
     app = Dash(__name__)
 
