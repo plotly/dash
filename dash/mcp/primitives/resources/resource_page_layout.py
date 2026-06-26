@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from mcp.types import (
+from pydantic import AnyUrl
+
+from dash.mcp.types import (
     ReadResourceResult,
     ResourceTemplate,
     TextResourceContents,
 )
-from pydantic import AnyUrl
 
 from dash import html
 from dash._pages import PAGE_REGISTRY

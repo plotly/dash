@@ -7,7 +7,7 @@ import logging
 from typing import Any
 
 import plotly.graph_objects as go  # type: ignore[import-untyped]
-from mcp.types import ImageContent, TextContent
+from dash.mcp.types import ImageContent, TextContent
 
 from dash.mcp.types import MCPOutput
 

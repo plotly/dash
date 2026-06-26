@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, TextContent, Tool
+from dash.mcp.types import CallToolResult, TextContent, Tool
 
 from dash import get_app
 from dash.mcp.tasks import get_task, get_task_result, cancel_task
