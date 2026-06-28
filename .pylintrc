@@ -18,6 +18,7 @@ ignore-patterns=
 ignore-paths=^dash/dcc/.*$,
              ^dash/html/.*$,
              ^dash/dash_table/.*$,
+             ^dash/dash_uploader/.*$,
              ^.*/node_modules/.*$
 
 # Python code to execute, usually for sys.path manipulation such as
