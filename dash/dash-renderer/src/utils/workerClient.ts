@@ -216,12 +216,11 @@ class WorkerClient {
         }
 
         const requestId = `${this.rendererId}-${++this.requestCounter}`;
-        const worker = this.worker;
 
         return new Promise((resolve, reject) => {
             this.pendingCallbacks.set(requestId, {resolve, reject});
 
-            worker.port.postMessage({
+            this.worker!.port.postMessage({
                 type: WorkerMessageType.CALLBACK_REQUEST,
                 rendererId: this.rendererId,
                 requestId,
