@@ -17,6 +17,7 @@ from . import resources  # noqa: F401,E402
 from . import dcc  # noqa: F401,E402
 from . import html  # noqa: F401,E402
 from . import dash_table  # noqa: F401,E402
+from . import dash_uploader  # noqa: F401,E402
 from .version import __version__  # noqa: F401,E402
 from ._callback_context import callback_context, set_props  # noqa: F401,E402
 from ._callback import callback, clientside_callback  # noqa: F401,E402
@@ -73,6 +74,7 @@ __all__ = [
     "dcc",
     "html",
     "dash_table",
+    "dash_uploader",
     "__version__",
     "callback_context",
     "set_props",

@@ -1,0 +1,44 @@
+{
+    "presets": [
+        "@babel/preset-env",
+        "@babel/preset-react"
+    ],
+    "env": {
+        "production": {
+            "plugins": [
+                "@babel/plugin-proposal-object-rest-spread",
+                "styled-jsx/babel",
+                [
+                    "@babel/plugin-proposal-class-properties",
+                    {
+                        "loose": true
+                    }
+                ]
+            ]
+        },
+        "development": {
+            "plugins": [
+                "@babel/plugin-proposal-object-rest-spread",
+                "styled-jsx/babel",
+                [
+                    "@babel/plugin-proposal-class-properties",
+                    {
+                        "loose": true
+                    }
+                ]
+            ]
+        },
+        "test": {
+            "plugins": [
+                "@babel/plugin-proposal-object-rest-spread",
+                "styled-jsx/babel-test",
+                [
+                    "@babel/plugin-proposal-class-properties",
+                    {
+                        "loose": true
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "dash_uploader",
+  "version": "0.6.1",
+  "description": "Upload large files using resumable.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/np-8/dash-uploader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/np-8/dash-uploader/issues"
+  },
+  "homepage": "https://github.com/np-8/dash-uploader",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "webpack-serve --config ./webpack.serve.config.js --open --host 127.0.0.1",
+    "validate-init": "python _validate_init.py",
+    "prepublishOnly": "npm run validate-init",
+    "build:js": "webpack --mode production",
+    "build:py": "dash-generate-components ./src/lib/components dash_uploader -p package-info.json ",
+    "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
+    "build": "npm run build:js && npm run build:py && python ./devscripts/post_build.py",
+    "build:activated": "npm run build:js && npm run build:py-activated"
+  },
+  "author": "Niko Pasanen <niko@pasanen.me>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": ">=4.17.21",
+    "ramda": "^0.27.1",
+    "resumablejs": "^1.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.14",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
+    "@babel/preset-env": "^7.13.12",
+    "@babel/preset-react": "^7.13.13",
+    "babel-eslint": "^10.0.2",
+    "babel-loader": "^8.2.2",
+    "copyfiles": "^2.4.1",
+    "css-loader": "^5.2.0",
+    "eslint": "^7.23.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-react": "^7.23.1",
+    "npm": "^6.14.15",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-docgen": "^5.3.1",
+    "react-dom": "^17.0.2",
+    "style-loader": "^2.0.0",
+    "styled-jsx": "^3.4.4",
+    "webpack": "^4.29.0",
+    "webpack-cli": "4.6.0",
+    "webpack-serve": "4.0.0"
+  },
+  "engines": {
+    "node": ">=8.11.0",
+    "npm": ">=6.1.0"
+  }
+}
