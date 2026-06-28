@@ -2,6 +2,7 @@ import React, {
     lazy,
     Suspense,
     useCallback,
+    useEffect,
     useMemo,
     useRef,
     useState,
@@ -14,16 +15,12 @@ import {
     DateSliderProps,
     DateRangeSliderProps,
 } from '../types';
-import {
-    strAsDate,
-    snapToValidDate,
-    dateAsStr,
-    snapToStep,
-} from '../utils/calendar/helpers';
+import {strAsDate, snapToStep} from '../utils/calendar/helpers';
 import dateRangeSlider from '../utils/LazyLoader/dateRangeSlider';
 import './css/datesliders.css';
 
 const RealSlider = lazy(dateRangeSlider);
+const narrowWindow = 500;
 
 /**
  * A slider component for selecting a single date.
@@ -49,6 +46,7 @@ export default function DateSlider({
     ...props
 }: DateSliderProps) {
     const [resetKey, setResetKey] = useState(0);
+    const [isNarrow, setIsNarrow] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Convert single date value to array for DateRangeSlider
@@ -116,11 +114,24 @@ export default function DateSlider({
         [value, setProps, min, props.step, props.step_unit]
     );
 
+    // Resize Logic
+    useEffect(() => {
+        if (!containerRef.current) {
+            return undefined;
+        }
+        const observer = new ResizeObserver(([entry]) => {
+            setIsNarrow(entry.contentRect.width < narrowWindow);
+        });
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div
             ref={containerRef}
             className="date-slider-container"
             data-vertical={vertical}
+            data-narrow={isNarrow}
         >
             <div className="dash-slider-wrapper">
                 <Suspense fallback={null}>

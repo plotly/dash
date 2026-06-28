@@ -41,7 +41,6 @@ export const MS_PER_DAY =
     MILLISECONDS_PER_SECOND;
 export const MS_PER_MONTH = (DAYS_PER_YEAR / MONTHS_PER_YEAR) * MS_PER_DAY;
 export const MS_PER_YEAR = DAYS_PER_YEAR * MS_PER_DAY;
-const EPOCH = new Date(0);
 
 declare global {
     interface Window {
@@ -223,7 +222,7 @@ export function dateStringToTimestamp(
 export function timestampToDateString(
     timestamp: number | undefined
 ): string | undefined {
-    if (!timestamp) {
+    if (timestamp === undefined || timestamp === null) {
         return undefined;
     }
     const days = Math.round(timestamp / MS_PER_DAY);

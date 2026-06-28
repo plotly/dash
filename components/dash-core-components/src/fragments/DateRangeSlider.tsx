@@ -489,11 +489,31 @@ export default function DateRangeSlider({
         ]
     );
 
+    // Resize Logic
+    const [isNarrow, setIsNarrow] = useState(false);
+    const narrowWindow = 500;
+
+    useEffect(() => {
+        if (!containerRef.current) {
+            return undefined;
+        }
+        const observer = new ResizeObserver(entries => {
+            const {width} = entries[0].contentRect;
+            if (width > 0) {
+                setSliderWidth(width);
+                setIsNarrow(width < narrowWindow);
+            }
+        });
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <div
             ref={containerRef}
             className="date-range-slider-container"
             data-vertical={vertical}
+            data-narrow={isNarrow}
         >
             {allow_direct_input &&
                 Array.isArray(value) &&
