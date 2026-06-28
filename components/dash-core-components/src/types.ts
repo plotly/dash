@@ -733,28 +733,10 @@ export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
     allow_direct_input?: boolean;
 
     /**
-     * An array of disabled dates. Can be an array of specific dates (strings)
-     * or an array of date ranges (arrays of two date strings).
-     */
-    disabled_dates?: (string | string[])[];
-
-    /**
-     * Specific flags to disable certain types of dates.
-     * Can be a single flag or an array of flags.
-     */
-    disable_flags?: DisableDatesFlag[];
-
-    /**
      * A string specifying the format in which the date should be displayed.
      * (e.g. 'YYYY-MM-DD', 'MM/DD/YYYY', etc.)
      */
     display_format?: string;
-
-    /**
-     * If true, the date or range of dates that are disabled will be shown by
-     * red stripes on the slider, and users will not be able to select those dates.
-     */
-    disabled_dates_indicator?: boolean;
 }
 
 export interface DateRangeSliderProps
@@ -864,18 +846,6 @@ export interface DateRangeSliderProps
     allow_direct_input?: boolean;
 
     /**
-     * An array of disabled dates. Can be an array of specific dates (strings)
-     * or an array of date ranges (arrays of two date strings).
-     */
-    disabled_dates?: (string | string[])[];
-
-    /**
-     * Specific flags to disable certain types of dates.
-     * Can be a single flag or an array of flags.
-     */
-    disable_flags?: DisableDatesFlag[];
-
-    /**
      * A string specifying the format in which the date should be displayed.
      * (e.g. 'YYYY-MM-DD', 'MM/DD/YYYY', etc.)
      */
@@ -888,12 +858,6 @@ export interface DateRangeSliderProps
      * Requires `value` to have exactly two dates (a start and end).
      */
     no_disabled_in_between?: boolean;
-
-    /**
-     * True by default, the date or range of dates that are disabled will be shown by
-     * red stripes on the slider, and users will not be able to select those dates.
-     */
-    disabled_dates_indicator?: boolean;
 }
 
 export type OptionValue = string | number | boolean;

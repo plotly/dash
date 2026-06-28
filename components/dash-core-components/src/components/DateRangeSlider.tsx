@@ -20,7 +20,6 @@ export default function DateRangeSlider({
     // eslint-disable-next-line no-magic-numbers
     verticalHeight = 400,
     allow_direct_input = true,
-    disabled_dates_indicator = true,
     ...props
 }: DateRangeSliderProps) {
     return (
@@ -29,7 +28,6 @@ export default function DateRangeSlider({
                 updatemode={updatemode}
                 verticalHeight={verticalHeight}
                 allow_direct_input={allow_direct_input}
-                disabled_dates_indicator={disabled_dates_indicator}
                 {...props}
             />
         </Suspense>

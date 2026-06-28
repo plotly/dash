@@ -19,14 +19,10 @@ import {
     dateStringToTimestamp,
     timestampToDateString,
     strAsDate,
-    parseDisabledDates,
-    snapToValidDate,
-    enforceNoDisabledInBetween,
     MS_PER_DAY,
     MS_PER_MONTH,
     MS_PER_YEAR,
     formatDate,
-    expandDisableFlags,
     dateAsStr,
     snapToStep,
 } from '../utils/calendar/helpers';
@@ -38,7 +34,7 @@ const RealSlider = lazy(rangeSlider);
 /**
  * Slider component for selecting a date.
  * This is a wrapper around RangeSlider that handles date-to-timestamp conversions
- * and calendar-aware stepping via snapToValidDate().
+ * and calendar-aware step snapping.
  */
 export default function DateRangeSlider({
     updatemode = 'mouseup',
@@ -58,13 +54,9 @@ export default function DateRangeSlider({
     value,
     drag_value,
     pushable = false,
-    disabled_dates,
-    disable_flags,
     display_format,
     id,
-    no_disabled_in_between = false,
     vertical = false,
-    disabled_dates_indicator = true,
     ...props
 }: DateRangeSliderProps) {
     const initialSortedValue = useRef([...(value ?? [])].sort());
@@ -186,64 +178,6 @@ export default function DateRangeSlider({
         return pushable;
     }, [pushable, mappedStep]);
 
-    const {parsedDisabledDates, parsedDisabledRanges} = useMemo(
-        () => parseDisabledDates(disabled_dates),
-        [disabled_dates]
-    );
-
-    // Creates visual indicators for disabled dates/ranges
-    const disabledIndicators = useMemo(() => {
-        if (!parsedMin || !parsedMax) {
-            return [];
-        }
-
-        // Helper to convert date to percentage position on slider
-        const minTs = parsedMin.getTime();
-        const totalRange = parsedMax.getTime() - minTs;
-        const toPercent = (ts: number) =>
-            Math.max(0, Math.min(100, ((ts - minTs) / totalRange) * 100));
-        const singleWidth = (MS_PER_DAY / totalRange) * 100;
-
-        // Expand disable_flags into individual dates and ranges
-        const {dates: flagDates, ranges: flagRanges} = disable_flags
-            ? expandDisableFlags(disable_flags, parsedMin, parsedMax)
-            : {dates: [], ranges: []};
-
-        const {parsedDisabledDates: allDates, parsedDisabledRanges: allRanges} =
-            parseDisabledDates([
-                ...(disabled_dates ?? []),
-                ...flagRanges.map(([s, e]) => [dateAsStr(s)!, dateAsStr(e)!]),
-                ...flagDates.map(d => dateAsStr(d)!),
-            ]);
-
-        return [
-            ...(allRanges ?? []),
-            ...(allDates?.map(d => [d, d] as [Date, Date]) ?? []),
-        ].map(([start, end], index) => {
-            // Calculate position and size of disabled range indicator
-            const startPercent = toPercent(start.getTime());
-            const endPercent = toPercent(end.getTime());
-            const margin = singleWidth / 2;
-
-            // Margin to make single-day disables visible
-            const position = Math.max(0, startPercent - margin);
-            const size = Math.min(100, endPercent + margin) - position;
-
-            // Disabled range indicators render
-            return (
-                <div
-                    key={`disabled-range-${index}`}
-                    className="dash-slider-disabled-range"
-                    style={
-                        vertical
-                            ? {bottom: `${position}%`, height: `${size}%`}
-                            : {left: `${position}%`, width: `${size}%`}
-                    }
-                />
-            );
-        });
-    }, [disabled_dates, disable_flags, parsedMin, parsedMax, vertical]);
-
     // Forces slider to reset to current value when marks change
     const [resetKey, setResetKey] = useState(0);
 
@@ -251,10 +185,6 @@ export default function DateRangeSlider({
     useEffect(() => {
         mappedValueRef.current = mappedValue;
     }, [mappedValue]);
-
-    const prevDateValueRef = useRef<
-        `${string}-${string}-${string}`[] | undefined
-    >(value ?? undefined);
 
     // Converts what comes back from the RangeSlider (timestamps) into date strings to show the user
     const mappedSetProps: RangeSliderProps['setProps'] = useCallback(
@@ -272,54 +202,27 @@ export default function DateRangeSlider({
             }
             if ('value' in newProps && value) {
                 // Convert slider timestamps to date strings
-                let rawDates = value
+                const rawDates = value
                     .map(raw => timestampToDateString(raw))
                     .filter(
                         (v): v is `${string}-${string}-${string}` =>
                             v !== undefined
                     );
 
-                // If no_disabled_in_between enabled, prevents selection from crossing disabled dates
-                const prev = prevDateValueRef.current;
-                if (
-                    no_disabled_in_between &&
-                    rawDates.length === 2 &&
-                    prev?.length === 2
-                ) {
-                    rawDates = enforceNoDisabledInBetween(
-                        rawDates as [string, string],
-                        prev as [string, string],
-                        parsedMin,
-                        parsedMax,
-                        parsedDisabledDates,
-                        parsedDisabledRanges,
-                        disable_flags,
-                        step,
-                        step_unit,
-                        marks
-                    ) as `${string}-${string}-${string}`[];
-                }
-
-                // Snap each date to avoid disabled dates and align to step
+                // Snap each date to align to step
                 const snappedDates = rawDates
                     .map(dateStr => {
                         const r = strAsDate(dateStr);
                         if (!r) {
                             return undefined;
                         }
-                        return timestampToDateString(
-                            snapToValidDate(
-                                r,
-                                step,
-                                step_unit,
-                                parsedMin,
-                                parsedMax,
-                                parsedDisabledDates,
-                                parsedDisabledRanges,
-                                disable_flags,
-                                marks
-                            ).getTime()
+                        const snapped = snapToStep(
+                            r,
+                            parsedMin ?? r,
+                            step ?? 1,
+                            step_unit ?? 'days'
                         );
+                        return timestampToDateString(snapped.getTime());
                     })
                     .filter(
                         (v): v is `${string}-${string}-${string}` =>
@@ -328,7 +231,6 @@ export default function DateRangeSlider({
 
                 // Update the value
                 mappedProps.value = snappedDates;
-                prevDateValueRef.current = snappedDates;
 
                 // Check if value changed after snapping
                 const snappedTs = snappedDates.map(dateStringToTimestamp);
@@ -350,7 +252,7 @@ export default function DateRangeSlider({
             }
             setProps(mappedProps);
         },
-        [setProps]
+        [setProps, parsedMin, step, step_unit]
     );
 
     // Timestamp to date conversion, respects display_format for tooltip and direct input
@@ -364,7 +266,7 @@ export default function DateRangeSlider({
         win.dccFunctions[formatFuncName] = (timestamp: number) => {
             try {
                 const dateStr = timestampToDateString(timestamp);
-                // Snap tooltip dates to step and valid dates to avoid showing disabled dates in tooltip
+                // Snap tooltip dates to step
                 const date = strAsDate(dateStr);
                 if (!date) {
                     return `${timestamp}`;
@@ -380,17 +282,7 @@ export default function DateRangeSlider({
                 return `${timestamp}`;
             }
         };
-    }, [
-        display_format,
-        id,
-        step,
-        step_unit,
-        parsedMin,
-        parsedMax,
-        parsedDisabledDates,
-        parsedDisabledRanges,
-        disable_flags,
-    ]);
+    }, [display_format, id, step, step_unit, parsedMin]);
 
     // Display dates in tooltip using the formatter function
     const customTooltip = useMemo(() => {
@@ -443,18 +335,14 @@ export default function DateRangeSlider({
                 return;
             }
 
-            // Snap to valid date, avoiding disabled dates and respecting step
-            const snappedDate = snapToValidDate(
+            // Snap to valid step base logic
+            const snappedDate = snapToStep(
                 inputDate,
-                step,
-                step_unit,
-                parsedMin,
-                parsedMax,
-                parsedDisabledDates,
-                parsedDisabledRanges,
-                disable_flags,
-                marks
+                parsedMin ?? inputDate,
+                step ?? 1,
+                step_unit ?? 'days'
             );
+
             // Convert snapped date to string format
             const snappedDateStr = dateAsStr(snappedDate) as
                 | `${string}-${string}-${string}`
@@ -475,18 +363,7 @@ export default function DateRangeSlider({
                 setProps({value: newValue});
             }
         },
-        [
-            value,
-            setProps,
-            minStr,
-            maxStr,
-            step,
-            parsedMin,
-            parsedMax,
-            parsedDisabledDates,
-            parsedDisabledRanges,
-            disable_flags,
-        ]
+        [value, setProps, minStr, maxStr, step, step_unit, parsedMin]
     );
 
     // Resize Logic
@@ -552,15 +429,6 @@ export default function DateRangeSlider({
                         tooltip={customTooltip}
                     />
                 </Suspense>
-                {disabled_dates_indicator && disabledIndicators.length > 0 && (
-                    <div
-                        className={`dash-slider-disabled-ranges-container ${
-                            vertical ? 'vertical' : ''
-                        }`.trim()}
-                    >
-                        {disabledIndicators}
-                    </div>
-                )}
             </div>
             {allow_direct_input &&
                 Array.isArray(value) &&
