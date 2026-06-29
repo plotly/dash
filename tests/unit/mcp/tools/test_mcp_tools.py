@@ -12,7 +12,7 @@ from dash import Dash, Input, Output, State, dcc, html
 from dash._get_app import app_context
 from dash.development.base_component import Component
 from dash.types import CallbackExecutionResponse
-from mcp.types import Tool
+from dash.mcp.types import Tool
 from pydantic import TypeAdapter
 
 from dash.mcp.primitives.tools.callback_adapter_collection import (
