@@ -8,7 +8,6 @@ import time
 import sys
 import asyncio
 import concurrent.futures
-import queue
 import threading
 from urllib.parse import urlparse
 
@@ -51,9 +50,9 @@ from .ws import (
     DashWebsocketCallback,
     run_ws_sender,
     run_callback_in_executor,
+    run_callback_on_loop,
     make_callback_done_handler,
-    SHUTDOWN_SIGNAL,
-    DISCONNECTED,
+    shutdown_ws_connection,
 )
 from ._utils import format_traceback_html
 
@@ -545,6 +544,10 @@ class QuartDashServer(BaseDashServer[Quart]):
 
             await ws.accept()
 
+            # The connection's event loop, used to dispatch async callbacks as
+            # tasks and to resolve get_props futures.
+            loop = asyncio.get_running_loop()
+
             # Track this connection for graceful shutdown
             try:
                 ws_obj = ws._get_current_object()
@@ -555,8 +558,9 @@ class QuartDashServer(BaseDashServer[Quart]):
 
             # Create janus queue for outbound messages (main loop context)
             outbound_queue: janus.Queue[str] = janus.Queue()
-            # Track pending get_props requests with standard queue.Queue for responses
-            pending_get_props: Dict[str, queue.Queue] = {}
+            # Track pending get_props requests. Values are queue.Queue (threadpool /
+            # sync path) or asyncio.Future (event-loop / async path).
+            pending_get_props: Dict[str, Any] = {}
             # Shutdown event to signal connection closure to worker threads
             connection_shutdown_event = threading.Event()
             # Create a per-connection thread pool executor so that long-lived
@@ -565,8 +569,11 @@ class QuartDashServer(BaseDashServer[Quart]):
             executor = self.create_callback_executor(
                 getattr(dash_app, "_websocket_max_workers", 4)
             )
-            # Track pending callback futures
-            pending_callbacks: Dict[str, concurrent.futures.Future] = {}
+            # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
+            # or asyncio.Task (async/event-loop).
+            pending_callbacks: Dict[
+                str, concurrent.futures.Future | asyncio.Future
+            ] = {}
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
             # pylint: disable=protected-access
@@ -612,41 +619,64 @@ class QuartDashServer(BaseDashServer[Quart]):
                             dash_app._websocket_callbacks,
                         )
 
-                        # Create WebSocket callback instance
+                        # Async callbacks (incl. persistent ones) run as tasks on
+                        # the event loop; sync callbacks go to the threadpool.
+                        # pylint: disable=protected-access
+                        cb_spec = dash_app.callback_map.get(payload.get("output"), {})
+                        is_async = inspect.iscoroutinefunction(cb_spec.get("callback"))
+
+                        # Create WebSocket callback instance. The loop is passed only
+                        # for the async path so get_prop awaits instead of blocking.
                         ws_cb = DashWebsocketCallback(
                             pending_get_props,
                             renderer_id,
                             outbound_queue,
                             connection_shutdown_event,
+                            loop if is_async else None,
                         )
 
-                        # Submit callback to executor
-                        future = run_callback_in_executor(
-                            executor,
-                            dash_app,
-                            payload,
-                            ws_cb,
-                            QuartResponseAdapter(),
+                        done_handler = make_callback_done_handler(
+                            outbound_queue,
+                            pending_callbacks,
+                            request_id,
+                            renderer_id,
+                            connection_shutdown_event,
                         )
 
-                        # Set up done callback to send response
-                        future.add_done_callback(
-                            make_callback_done_handler(
-                                outbound_queue,
-                                pending_callbacks,
-                                request_id,
-                                renderer_id,
-                                connection_shutdown_event,
+                        if is_async:
+                            task = asyncio.create_task(
+                                run_callback_on_loop(
+                                    dash_app,
+                                    payload,
+                                    ws_cb,
+                                    QuartResponseAdapter(),
+                                )
                             )
-                        )
-                        pending_callbacks[request_id] = future
+                            task.add_done_callback(done_handler)
+                            pending_callbacks[request_id] = task
+                        else:
+                            # Submit callback to executor
+                            future = run_callback_in_executor(
+                                executor,
+                                dash_app,
+                                payload,
+                                ws_cb,
+                                QuartResponseAdapter(),
+                            )
+                            # Set up done callback to send response
+                            future.add_done_callback(done_handler)
+                            pending_callbacks[request_id] = future
 
                     elif msg_type == "get_props_response":
-                        # Put response in waiting queue (non-blocking)
+                        # Resolve the waiting future (async path) or queue (thread
+                        # path) for this request (non-blocking).
                         request_id = message.get("requestId")
-                        response_queue = pending_get_props.get(request_id)
-                        if response_queue is not None:
-                            response_queue.put_nowait(message.get("payload"))
+                        pending = pending_get_props.get(request_id)
+                        if isinstance(pending, asyncio.Future):
+                            if not pending.done():
+                                pending.set_result(message.get("payload"))
+                        elif pending is not None:
+                            pending.put_nowait(message.get("payload"))
 
                     elif msg_type == "heartbeat":
                         outbound_queue.sync_q.put_nowait('{"type": "heartbeat_ack"}')
@@ -657,26 +687,14 @@ class QuartDashServer(BaseDashServer[Quart]):
                 pass  # Other exceptions treated as disconnect
             finally:
                 self._active_websockets.discard(ws_obj)
-                # Signal shutdown to worker threads
-                connection_shutdown_event.set()
-                # Unblock any threads waiting on get_prop responses
-                for response_queue in pending_get_props.values():
-                    response_queue.put_nowait(DISCONNECTED)
-                # Signal sender to shutdown and cancel it
-                outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
-                sender_task.cancel()
-                try:
-                    await sender_task
-                except asyncio.CancelledError:
-                    pass
-                # Close the janus queue
-                outbound_queue.close()
-                await outbound_queue.wait_closed()
-                # Cancel any pending futures
-                for f in pending_callbacks.values():
-                    f.cancel()
-                # Shut down this connection's executor (don't block the event loop)
-                executor.shutdown(wait=False)
+                await shutdown_ws_connection(
+                    connection_shutdown_event,
+                    pending_get_props,
+                    pending_callbacks,
+                    outbound_queue,
+                    sender_task,
+                    executor,
+                )
 
 
 class QuartRequestAdapter(RequestAdapter):
