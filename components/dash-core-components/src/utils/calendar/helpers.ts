@@ -19,8 +19,6 @@ import {
 import type {Locale} from 'date-fns';
 import {DatePickerSingleProps, DateStepUnit} from '../../types';
 
-// Conversão para timestamps, deixei global depois posso trocar
-// Tenho de separar por causa do lint check
 const HOURS_PER_DAY = 24;
 const MINUTES_PER_HOUR = 60;
 const SECONDS_PER_MINUTE = 60;
@@ -216,10 +214,15 @@ export function timestampToDateString(
 export function isDateDisabled(
     date: Date,
     minDate?: Date,
-    maxDate?: Date
+    maxDate?: Date,
+    disabledDates?: Date[]
 ): boolean {
     if (!isDateInRange(date, minDate, maxDate)) {
         return true;
+    }
+
+    if (disabledDates) {
+        return disabledDates.some(d => isSameDay(date, d));
     }
 
     return false;
