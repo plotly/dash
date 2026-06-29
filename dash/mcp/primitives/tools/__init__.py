@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, CreateTaskResult, ListToolsResult
+from dash.mcp.types import CallToolResult, CreateTaskResult, ListToolsResult
 
 from dash.mcp.types import ToolNotFoundError
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from mcp.types import ReadResourceResult, Resource, ResourceTemplate
+from dash.mcp.types import ReadResourceResult, Resource, ResourceTemplate
 
 
 class MCPResourceProvider:

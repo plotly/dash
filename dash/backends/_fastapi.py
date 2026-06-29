@@ -334,8 +334,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         try:
             dash_app = get_app()
 
-            async def catchall(_request: Request):
-                return Response(content=dash_app.index(), media_type="text/html")
+            async def catchall(request: Request):
+                token = set_current_request(request)
+                try:
+                    return Response(content=dash_app.index(), media_type="text/html")
+                finally:
+                    reset_current_request(token)
 
             # pylint: disable=protected-access
             self.add_url_rule("{path:path}", catchall, methods=["GET"])
