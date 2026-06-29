@@ -1,10 +1,11 @@
-"""Unit tests for the per-connection WebSocket callback thread pool.
+"""Unit tests for the shared WebSocket callback thread pool.
 
-These verify that each WebSocket connection gets its own ThreadPoolExecutor
-(rather than a single shared, app-wide pool), so that long-lived
-(session-persistent) callbacks on one connection cannot exhaust worker threads
-shared with other connections, and that the per-connection size is configurable
-via the ``websocket_max_workers`` argument to ``Dash``.
+These verify that a single app-wide ``ThreadPoolExecutor`` is shared across all
+WebSocket connections. Only *sync* callbacks run on it -- async (incl.
+session-persistent) callbacks run directly on the event loop -- so a fixed-size
+shared pool bounds the total worker-thread count regardless of how many
+connections are open. The pool size is configurable via the
+``websocket_max_workers`` argument to ``Dash``.
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -24,28 +25,39 @@ def test_websocket_max_workers_custom():
     assert app._websocket_max_workers == 16
 
 
-def test_create_callback_executor_is_per_connection():
-    """Each call returns a fresh executor, not a cached shared one."""
+def test_get_callback_executor_is_shared():
+    """Repeated calls return the same cached, app-wide executor."""
     backend = Dash(__name__).backend
 
-    ex1 = backend.create_callback_executor(4)
-    ex2 = backend.create_callback_executor(4)
+    ex1 = backend.get_callback_executor(4)
+    ex2 = backend.get_callback_executor(4)
     try:
         assert isinstance(ex1, ThreadPoolExecutor)
-        assert isinstance(ex2, ThreadPoolExecutor)
-        # Distinct instances => one connection's pool can't starve another's.
-        assert ex1 is not ex2
+        # Same instance => total thread count is bounded across connections.
+        assert ex1 is ex2
     finally:
-        ex1.shutdown(wait=False)
-        ex2.shutdown(wait=False)
+        backend.shutdown_executor(wait=False)
 
 
-def test_create_callback_executor_honors_max_workers():
+def test_get_callback_executor_honors_max_workers():
     """max_workers is forwarded to the ThreadPoolExecutor."""
     backend = Dash(__name__).backend
 
-    ex = backend.create_callback_executor(7)
+    ex = backend.get_callback_executor(7)
     try:
         assert ex._max_workers == 7
     finally:
-        ex.shutdown(wait=False)
+        backend.shutdown_executor(wait=False)
+
+
+def test_shutdown_executor_allows_recreation():
+    """After shutdown the next get_callback_executor call creates a fresh pool."""
+    backend = Dash(__name__).backend
+
+    ex1 = backend.get_callback_executor(4)
+    backend.shutdown_executor(wait=False)
+    ex2 = backend.get_callback_executor(4)
+    try:
+        assert ex1 is not ex2
+    finally:
+        backend.shutdown_executor(wait=False)

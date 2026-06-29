@@ -385,7 +385,6 @@ async def shutdown_ws_connection(
     pending_callbacks: Dict[str, "concurrent.futures.Future | asyncio.Future"],
     outbound_queue: janus.Queue[str],
     sender_task: "asyncio.Task",
-    executor: ThreadPoolExecutor,
 ) -> None:
     """Tear down a WebSocket connection's callback machinery.
 
@@ -393,6 +392,9 @@ async def shutdown_ws_connection(
     correctness-sensitive) stays in one place. Async callback tasks are cancelled
     and awaited *before* the outbound queue is closed, so their cleanup can't touch
     a closed queue.
+
+    The callback executor is intentionally *not* shut down here: it is a single
+    pool shared across all connections, so it outlives any one connection.
 
     The dicts are snapshotted before iteration: threadpool done-handlers and the
     blocking get_prop path pop from them on worker threads, so iterating the live
@@ -429,8 +431,6 @@ async def shutdown_ws_connection(
     # Close the janus queue
     outbound_queue.close()
     await outbound_queue.wait_closed()
-    # Shut down this connection's executor (don't block the event loop)
-    executor.shutdown(wait=False)
 
 
 def make_callback_done_handler(

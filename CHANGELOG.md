@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Added
-- Per-connection WebSocket callback thread pools. Each WebSocket connection now gets its own `ThreadPoolExecutor` instead of sharing a single app-wide pool, so long-lived (session-persistent) callbacks on one connection no longer limit the number of concurrent users. The per-connection size is configurable via the new `websocket_max_workers` argument to `Dash` (default `4`).
+- [#3826](https://github.com/plotly/dash/pull/3826) WebSocket callback dispatch no longer lets long-lived callbacks limit the number of concurrent users. Async callbacks (including session-persistent ones) run directly on the connection event loop instead of occupying a worker thread, and synchronous callbacks run on a shared `ThreadPoolExecutor` whose size is configurable via the new `websocket_max_workers` argument to `Dash` (default `4`). A synchronous persistent (no-output) callback now warns at registration since it would tie up a worker thread.
 
 ## [4.3.0] - 2026-06-18
 

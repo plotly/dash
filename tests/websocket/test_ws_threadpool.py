@@ -1,6 +1,6 @@
 """
 WebSocket callback dispatch tests: async callbacks run on the event loop, sync
-callbacks run on the per-connection threadpool.
+callbacks run on the shared threadpool.
 
 Tests:
 - Many long-lived async (persistent-style) callbacks do not exhaust the worker

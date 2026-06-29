@@ -4,6 +4,7 @@ from contextvars import copy_context, ContextVar
 import asyncio
 import concurrent.futures
 import json
+import queue
 from typing import TYPE_CHECKING, Any, Callable, Dict
 import sys
 import mimetypes
@@ -732,13 +733,13 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             outbound_queue: janus.Queue[str] = janus.Queue()
             # Track pending get_props requests. Values are queue.Queue (threadpool /
             # sync path) or asyncio.Future (event-loop / async path).
-            pending_get_props: Dict[str, Any] = {}
+            pending_get_props: Dict[str, queue.Queue | asyncio.Future] = {}
             # Shutdown event to signal connection closure to worker threads
             shutdown_event = threading.Event()
-            # Create a per-connection thread pool executor so that long-lived
-            # callbacks on one connection cannot starve worker threads for others.
-            # pylint: disable=protected-access
-            executor = self.create_callback_executor(
+            # Sync callbacks run on a shared thread pool executor (async callbacks
+            # run directly on the event loop). A single bounded pool caps the total
+            # worker-thread count regardless of how many connections are open.
+            executor = self.get_callback_executor(
                 getattr(dash_app, "_websocket_max_workers", 4)
             )
             # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
@@ -855,7 +856,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                     pending_callbacks,
                     outbound_queue,
                     sender_task,
-                    executor,
                 )
 
         self.server.add_api_websocket_route(ws_path, websocket_handler)

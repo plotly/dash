@@ -8,6 +8,7 @@ import time
 import sys
 import asyncio
 import concurrent.futures
+import queue
 import threading
 from urllib.parse import urlparse
 
@@ -560,13 +561,13 @@ class QuartDashServer(BaseDashServer[Quart]):
             outbound_queue: janus.Queue[str] = janus.Queue()
             # Track pending get_props requests. Values are queue.Queue (threadpool /
             # sync path) or asyncio.Future (event-loop / async path).
-            pending_get_props: Dict[str, Any] = {}
+            pending_get_props: Dict[str, queue.Queue | asyncio.Future] = {}
             # Shutdown event to signal connection closure to worker threads
             connection_shutdown_event = threading.Event()
-            # Create a per-connection thread pool executor so that long-lived
-            # callbacks on one connection cannot starve worker threads for others.
-            # pylint: disable=protected-access
-            executor = self.create_callback_executor(
+            # Sync callbacks run on a shared thread pool executor (async callbacks
+            # run directly on the event loop). A single bounded pool caps the total
+            # worker-thread count regardless of how many connections are open.
+            executor = self.get_callback_executor(
                 getattr(dash_app, "_websocket_max_workers", 4)
             )
             # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
@@ -693,7 +694,6 @@ class QuartDashServer(BaseDashServer[Quart]):
                     pending_callbacks,
                     outbound_queue,
                     sender_task,
-                    executor,
                 )
 
 
