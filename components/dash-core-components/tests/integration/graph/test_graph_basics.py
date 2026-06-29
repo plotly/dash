@@ -549,7 +549,6 @@ def test_grbs010_graph_patch_deeply_nested_figure(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-
 def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
     """When clickanywhere and hoveranywhere are enabled, clickData and hoverData include xvals and yvals"""
     app = Dash(__name__)
