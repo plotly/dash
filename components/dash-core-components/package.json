@@ -62,7 +62,7 @@
     "react-fast-compare": "^3.2.2",
     "react-input-autosize": "^3.0.0",
     "react-markdown": "^4.3.1",
-    "react-window": "^1.8.11",
+    "react-window": "^2.2.7",
     "remark-math": "^3.0.1",
     "uniqid": "^5.4.0"
   },
@@ -87,7 +87,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-input-autosize": "^2.2.4",
-    "@types/react-window": "^1.8.8",
+    "@types/react-window": "^2.0.0",
     "@types/uniqid": "^5.3.4",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
@@ -111,7 +111,7 @@
     "style-loader": "^3.3.3",
     "styled-jsx": "^5.1.7",
     "ts-jest": "^29.1.0",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.3",
     "webpack": "^5.104.1",
     "webpack-cli": "^7.0.3"
   },
