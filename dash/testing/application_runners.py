@@ -219,22 +219,25 @@ class ThreadedRunner(BaseDashRunner):
 
     def stop(self):
         # pylint: disable=protected-access
-        quart_shutdown_event = getattr(
-            getattr(self._app, "backend", None), "_ws_shutdown_event", None
+        server_type = getattr(
+            getattr(self._app, "backend", None), "server_type", "flask"
         )
         # For FastAPI apps with uvicorn, use graceful shutdown
-        if self._app and hasattr(self._app, "_uvicorn_server"):
-            server = self._app._uvicorn_server
+        if server_type == "fastapi":
+            server = self._app._uvicorn_server  # type: ignore[reportOptionalMemberAccess]
             server.should_exit = True
             self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         # For Quart apps, signal hypercorn's cooperative shutdown event. Only the
         # main-thread signal handler sets it, but in tests the server runs in a
         # worker thread, so we set it ourselves -- thread-safely, on the server's
         # own loop (the event binds its loop on first await) -- then join bounded.
-        elif quart_shutdown_event is not None:
+        elif server_type == "quart":
+            quart_shutdown_event = getattr(
+                getattr(self._app, "backend", None), "_ws_shutdown_event", None
+            )
             loop = getattr(quart_shutdown_event, "_loop", None)
             if loop is not None and not loop.is_closed():
-                loop.call_soon_threadsafe(quart_shutdown_event.set)
+                loop.call_soon_threadsafe(quart_shutdown_event.set)  # type: ignore[reportOptionalMemberAccess]
             self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         else:
             # Fall back to killing threads for Flask/other backends
