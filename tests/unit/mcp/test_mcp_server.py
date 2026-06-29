@@ -2,7 +2,7 @@
 
 from dash._get_app import app_context
 from dash.mcp._server import _process_mcp_message
-from mcp.types import LATEST_PROTOCOL_VERSION
+from dash.mcp.types import LATEST_PROTOCOL_VERSION
 
 from tests.unit.mcp.conftest import _make_app, _setup_mcp
 

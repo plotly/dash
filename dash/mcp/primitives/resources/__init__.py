@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from mcp.types import (
+from dash.mcp.types import (
     ListResourcesResult,
     ListResourceTemplatesResult,
     ReadResourceResult,

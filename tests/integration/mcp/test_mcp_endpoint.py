@@ -9,7 +9,7 @@ import json
 import os
 
 from dash import Dash, Input, Output, html
-from mcp.types import LATEST_PROTOCOL_VERSION
+from dash.mcp.types import LATEST_PROTOCOL_VERSION
 
 MCP_PATH = "_mcp"
 

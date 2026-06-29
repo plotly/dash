@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import json
 
-from mcp.types import (
+from pydantic import AnyUrl
+
+from dash.mcp.types import (
     ReadResourceResult,
     Resource,
     TextResourceContents,
 )
-from pydantic import AnyUrl
 
 from dash import get_app
 from dash._layout_utils import traverse
