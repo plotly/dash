@@ -5,7 +5,7 @@ import asyncio
 import concurrent.futures
 import json
 import queue
-from typing import TYPE_CHECKING, Any, Callable, Dict
+from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import sys
 import mimetypes
 import hashlib
@@ -263,8 +263,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self.error_handling_mode = "ignore"
         self.request_adapter = FastAPIRequestAdapter
         self.response_adapter = FastAPIResponseAdapter
-        self._before_request_funcs = []
-        self._after_request_func = None
+        self._before_request_funcs: List[Callable[[], Any]] = []
+        self._after_request_func: Callable[[], Any] | None = None
         self._enable_timing = False
 
     def __call__(self, *args: Any, **kwargs: Any):

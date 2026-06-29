@@ -95,7 +95,7 @@ class QuartDashServer(BaseDashServer[Quart]):
     def __init__(self, server: Quart) -> None:
         super().__init__(server)
         self.server_type = "quart"
-        self.config = {}
+        self.config: Dict[str, Any] = {}
         self.error_handling_mode = "ignore"
         self.request_adapter = QuartRequestAdapter
         self.response_adapter = QuartResponseAdapter
@@ -150,7 +150,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             tb = self._get_traceback(secret, error)
             return Response(tb, status=500, content_type="text/html")
 
-    def register_timing_hooks(self, _first_run: bool):  # type: ignore[name-defined] parity with Flask factory
+    def register_timing_hooks(self, _first_run: bool):  # type: ignore[override]  # parity with Flask factory
         @self.server.before_request
         async def _before_request():  # pragma: no cover - timing infra
             if quart_g is not None:
@@ -382,7 +382,7 @@ class QuartDashServer(BaseDashServer[Quart]):
         )
 
     # pylint: disable=unused-argument
-    def serve_callback(self, dash_app: Dash):  # type: ignore[name-defined] Quart always async
+    def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
         async def _dispatch():
             adapter = QuartRequestAdapter()
             body = await adapter.get_json()

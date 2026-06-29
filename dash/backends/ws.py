@@ -418,9 +418,9 @@ async def shutdown_ws_connection(
     if async_tasks:
         await asyncio.gather(*async_tasks, return_exceptions=True)
     # Cancel any pending threadpool futures (running ones run to completion)
-    for f in callbacks:
-        if not isinstance(f, asyncio.Future):
-            f.cancel()
+    for cb in callbacks:
+        if not isinstance(cb, asyncio.Future):
+            cb.cancel()
     # Signal sender to shutdown and cancel it
     outbound_queue.sync_q.put_nowait(SHUTDOWN_SIGNAL)
     sender_task.cancel()
