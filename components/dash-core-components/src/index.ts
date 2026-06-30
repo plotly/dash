@@ -19,6 +19,8 @@ import Markdown from './components/Markdown.react';
 import RadioItems from './components/RadioItems';
 import RangeSlider from './components/RangeSlider';
 import Slider from './components/Slider';
+import DateRangeSlider from './components/DateRangeSlider';
+import DateSlider from './components/DateSlider';
 import Store from './components/Store.react';
 import Tab from './components/Tab';
 import Tabs from './components/Tabs';
@@ -49,6 +51,8 @@ export {
     RadioItems,
     RangeSlider,
     Slider,
+    DateRangeSlider,
+    DateSlider,
     Store,
     Tab,
     Tabs,

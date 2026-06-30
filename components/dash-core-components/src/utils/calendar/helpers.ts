@@ -11,9 +11,27 @@ import {
     isWithinInterval,
     min,
     max,
+    addYears,
+    addMonths,
+    addDays,
+    differenceInDays,
 } from 'date-fns';
 import type {Locale} from 'date-fns';
-import {DatePickerSingleProps} from '../../types';
+import {DatePickerSingleProps, DateStepUnit} from '../../types';
+
+const HOURS_PER_DAY = 24;
+const MINUTES_PER_HOUR = 60;
+const SECONDS_PER_MINUTE = 60;
+const MILLISECONDS_PER_SECOND = 1000;
+const DAYS_PER_YEAR = 365.25;
+const MONTHS_PER_YEAR = 12;
+export const MS_PER_DAY =
+    HOURS_PER_DAY *
+    MINUTES_PER_HOUR *
+    SECONDS_PER_MINUTE *
+    MILLISECONDS_PER_SECOND;
+export const MS_PER_MONTH = (DAYS_PER_YEAR / MONTHS_PER_YEAR) * MS_PER_DAY;
+export const MS_PER_YEAR = DAYS_PER_YEAR * MS_PER_DAY;
 
 declare global {
     interface Window {
@@ -163,7 +181,35 @@ export function isDateInRange(
 }
 
 /**
- * Checks if a date is disabled based on min/max constraints and disabled dates array.
+ * Converts a YYYY-MM-DD date string to milliseconds.
+ * Always treats dates as UTC to avoid timezone shifts.
+ */
+export function dateStringToTimestamp(
+    dateStr: string | null | undefined
+): number | undefined {
+    if (!dateStr) {
+        return undefined;
+    }
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return Date.UTC(year, month - 1, day);
+}
+
+/**
+ * Converts milliseconds since epoch to a YYYY-MM-DD date string.
+ * Always treats dates as UTC to avoid timezone shifts.
+ */
+export function timestampToDateString(
+    timestamp: number | undefined
+): string | undefined {
+    if (timestamp === undefined || timestamp === null) {
+        return undefined;
+    }
+    const days = Math.round(timestamp / MS_PER_DAY);
+    return new Date(days * MS_PER_DAY).toISOString().split('T')[0];
+}
+
+/**
+ * Checks if a date is disabled based on min/max constraints
  */
 export function isDateDisabled(
     date: Date,
@@ -171,12 +217,10 @@ export function isDateDisabled(
     maxDate?: Date,
     disabledDates?: Date[]
 ): boolean {
-    // Check if date is outside min/max range
     if (!isDateInRange(date, minDate, maxDate)) {
         return true;
     }
 
-    // Check if date is in the disabled dates array
     if (disabledDates) {
         return disabledDates.some(d => isSameDay(date, d));
     }
@@ -270,4 +314,66 @@ export function parseYear(yearStr: string): number | undefined {
         }
     }
     return undefined;
+}
+
+/**
+ * Returns the next date after applying a step with a stepUnit to a start date.
+ */
+export function stepDate(
+    date?: Date,
+    step?: number | null,
+    stepUnit?: DateStepUnit | null
+): Date | undefined {
+    if (!date || !step || !stepUnit) {
+        return undefined;
+    }
+    if (stepUnit === 'years') {
+        return addYears(date, step);
+    }
+    if (stepUnit === 'months') {
+        return addMonths(date, step);
+    }
+    return addDays(date, step);
+}
+
+/**
+ * Snaps a date to the nearest valid step interval relative to an anchor date.
+ *
+ * Example:
+ * anchor = 2025-01-01, step = 7, stepUnit = 'days'
+ *
+ * Valid snapped dates:
+ * 2025-01-01, 2025-01-08, 2025-01-15, ...
+ */
+export function snapToStep(
+    date: Date,
+    anchor: Date,
+    step: number,
+    stepUnit: DateStepUnit
+): Date {
+    const nthStep = (n: number): Date =>
+        stepDate(anchor, step * n, stepUnit) ?? anchor;
+
+    const diffMs = date.getTime() - anchor.getTime();
+    const msPerUnit =
+        stepUnit === 'years'
+            ? MS_PER_YEAR
+            : stepUnit === 'months'
+            ? MS_PER_MONTH
+            : MS_PER_DAY;
+
+    const approxN = Math.floor(diffMs / (step * msPerUnit));
+
+    const candidates = [
+        nthStep(approxN - 1),
+        nthStep(approxN),
+        nthStep(approxN + 1),
+    ];
+
+    return candidates.reduce((a, b) =>
+        Math.abs(differenceInDays(date, a)) <=
+        Math.abs(differenceInDays(date, b))
+            ? a
+            : b
+    );
 }
