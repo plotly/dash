@@ -1,0 +1,8 @@
+include dash_uploader/_build/dash_uploader.min.js
+include dash_uploader/_build/dash_uploader.min.js.map
+include dash_uploader/_build/metadata.json
+include dash_uploader/_build/package-info.json
+include README.md
+include docs/README-PyPi.md
+include LICENSE
+include package.json

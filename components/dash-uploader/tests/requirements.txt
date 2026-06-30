@@ -1,0 +1,10 @@
+# Packages needed to run the tests.
+# Switch into a virtual environment
+# pip install -r requirements.txt
+
+dash[dev,testing]>=1.3.1
+# Automatically get the latest ChromeDriver. If Chrome updated, use
+# pip install --upgrade --force-reinstall chromedriver-binary-auto
+# to update the chromedriver binary.
+# Needs: import chromedriver_binary to the top of your test script.
+chromedriver-binary-auto

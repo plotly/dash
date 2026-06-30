@@ -8,6 +8,7 @@ include dash/deps/*.map
 include dash/dcc/*
 include dash/html/*
 include dash/dash_table/*
+include dash/dash_uploader/_build/*
 include dash/dash-renderer/build/*.js
 include dash/dash-renderer/build/*.map
 include dash/labextension/dist/dash-jupyterlab.tgz

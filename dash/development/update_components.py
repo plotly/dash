@@ -23,6 +23,7 @@ dest_dir_map = {
     "dash-core-components": "dcc",
     "dash-html-components": "html",
     "dash-table": "dash_table",
+    "dash-uploader": "dash_uploader",
 }
 
 

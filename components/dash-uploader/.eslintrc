@@ -1,0 +1,121 @@
+{
+  "extends": ["eslint:recommended", "prettier"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "arrowFunctions": true,
+      "blockBindings": true,
+      "classes": true,
+      "defaultParams": true,
+      "destructuring": true,
+      "forOf": true,
+      "generators": true,
+      "modules": true,
+      "templateStrings": true,
+      "jsx": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jasmine": true,
+    "jest": true,
+    "node": true
+  },
+  "globals": {
+    "jest": true
+  },
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "accessor-pairs": ["error"],
+    "block-scoped-var": ["error"],
+    "consistent-return": ["error"],
+    "curly": ["error", "all"],
+    "default-case": ["error"],
+    "dot-location": ["off"],
+    "dot-notation": ["error"],
+    "eqeqeq": ["error"],
+    "guard-for-in": ["off"],
+    "import/named": ["off"],
+    "import/no-duplicates": ["error"],
+    "import/no-named-as-default": ["error"],
+    "new-cap": ["error"],
+    "no-alert": [1],
+    "no-caller": ["error"],
+    "no-case-declarations": ["error"],
+    "no-console": ["off"],
+    "no-div-regex": ["error"],
+    "no-dupe-keys": ["error"],
+    "no-else-return": ["error"],
+    "no-empty-pattern": ["error"],
+    "no-eq-null": ["error"],
+    "no-eval": ["error"],
+    "no-extend-native": ["error"],
+    "no-extra-bind": ["error"],
+    "no-extra-boolean-cast": ["error"],
+    "no-inline-comments": ["error"],
+    "no-implicit-coercion": ["error"],
+    "no-implied-eval": ["error"],
+    "no-inner-declarations": ["off"],
+    "no-invalid-this": ["error"],
+    "no-iterator": ["error"],
+    "no-labels": ["error"],
+    "no-lone-blocks": ["error"],
+    "no-loop-func": ["error"],
+    "no-multi-str": ["error"],
+    "no-native-reassign": ["error"],
+    "no-new": ["error"],
+    "no-new-func": ["error"],
+    "no-new-wrappers": ["error"],
+    "no-param-reassign": ["error"],
+    "no-process-env": ["warn"],
+    "no-proto": ["error"],
+    "no-redeclare": ["error"],
+    "no-return-assign": ["error"],
+    "no-script-url": ["error"],
+    "no-self-compare": ["error"],
+    "no-sequences": ["error"],
+    "no-shadow": ["off"],
+    "no-throw-literal": ["error"],
+    "no-undefined": ["error"],
+    "no-unused-expressions": ["error"],
+    "no-use-before-define": ["error", "nofunc"],
+    "no-useless-call": ["error"],
+    "no-useless-concat": ["error"],
+    "no-with": ["error"],
+    "prefer-const": ["error"],
+    "radix": ["error"],
+    "react/jsx-no-duplicate-props": ["error"],
+    "react/jsx-no-undef": ["error"],
+    "react/jsx-uses-react": ["error"],
+    "react/jsx-uses-vars": ["error"],
+    "react/no-did-update-set-state": ["error"],
+    "react/no-direct-mutation-state": ["error"],
+    "react/no-is-mounted": ["error"],
+    "react/no-unknown-property": ["error"],
+    "react/prefer-es6-class": ["error", "always"],
+    "react/prop-types": "error",
+    "valid-jsdoc": ["off"],
+    "yoda": ["error"],
+    "spaced-comment": ["error", "always", {
+      "block": {
+        "exceptions": ["*"]
+      }
+    }],
+    "no-unused-vars": ["error", {
+        "args": "after-used",
+        "argsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^e$"
+    }],
+    "no-magic-numbers": ["error", {
+      "ignoreArrayIndexes": true,
+        "ignore": [-1, 0, 1, 2, 3, 100, 10, 0.5]
+    }],
+    "no-underscore-dangle": ["off"]
+  }
+}

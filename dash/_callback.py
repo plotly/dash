@@ -3,7 +3,7 @@ import hashlib
 import inspect
 import warnings
 from functools import wraps
-from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar
 
 from typing_extensions import ParamSpec
 
@@ -250,9 +250,7 @@ def callback(
         mcp_expose_docstring=mcp_expose_docstring,
     )
 
-    return cast(
-        Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
-    )
+    return raw
 
 
 def validate_background_inputs(deps):
@@ -657,12 +655,12 @@ def _prepare_response(
 
 # pylint: disable=too-many-branches,too-many-statements
 def register_callback(
-    callback_list,
-    callback_map,
-    config_prevent_initial_callbacks,
-    *_args,
-    **_kwargs,
-):
+    callback_list: List[Any],
+    callback_map: Dict[str, Any],
+    config_prevent_initial_callbacks: bool,
+    *_args: Any,
+    **_kwargs: Any,
+) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     (
         output,
         flat_inputs,
@@ -719,7 +717,7 @@ def register_callback(
     )
 
     # pylint: disable=too-many-locals
-    def wrap_func(func):
+    def wrap_func(func: Callable[Params, ReturnVar]) -> Callable[Params, ReturnVar]:
         if _kwargs.get("api_endpoint"):
             api_endpoint = _kwargs.get("api_endpoint")
             GLOBAL_API_PATHS[api_endpoint] = func
