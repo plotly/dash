@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## Fixed
 - [#3822](https://github.com/plotly/dash/pull/3822) Fix `UnboundLocalError` for `user_callback_output` in async background callbacks (Celery and Diskcache managers) when the callback raises `PreventUpdate` or another exception before the variable is assigned.
 - [#3819](https://github.com/plotly/dash/pull/3819) Fix `RuntimeError: No active request in context` when a non-Dash path falls through to the FastAPI catch-all route. Fixes [#3812](https://github.com/plotly/dash/issues/3812).
-- [#3838](https://github.com/plotly/dash/pull/3838) Replace `mcp` dependency with inline types
+- [#3838](https://github.com/plotly/dash/pull/3838) Replace `mcp` dependency with inline types.
+- [#3824](https://github.com/plotly/dash/pull/3824) Fix `dash.testing` `ThreadedRunner.stop()` hanging at teardown for Quart apps. Fixes [#3823](https://github.com/plotly/dash/issues/3823).
 
 ## Changed
 - Drop support for Python 3.8 (end-of-life since October 2024). The minimum supported version is now Python 3.9.
