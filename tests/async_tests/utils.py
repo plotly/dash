@@ -36,7 +36,7 @@ def get_background_callback_manager():
     """
     Get the long callback mangaer configured by environment variables
     """
-    if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery":
+    if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery-redis":
         from dash.background_callback import CeleryManager
         from celery import Celery
 
@@ -77,8 +77,8 @@ def kill(proc_pid):
 def setup_background_callback_app(manager_name, app_name):
     from dash.testing.application_runners import import_app
 
-    if manager_name == "celery":
-        os.environ["LONG_CALLBACK_MANAGER"] = "celery"
+    if manager_name == "celery-redis":
+        os.environ["LONG_CALLBACK_MANAGER"] = "celery-redis"
         redis_url = os.environ["REDIS_URL"].rstrip("/")
         os.environ["CELERY_BROKER"] = f"{redis_url}/0"
         os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
