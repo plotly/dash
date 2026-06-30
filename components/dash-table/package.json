@@ -101,7 +101,7 @@
     "typescript": "^5.8.3",
     "webpack": "^5.104.1",
     "webpack-cli": "^7.0.3",
-    "webpack-dev-server": "5.2.4",
+    "webpack-dev-server": "5.2.5",
     "webpack-preprocessor": "^0.1.12",
     "xlsx": "^0.18.5"
   },
