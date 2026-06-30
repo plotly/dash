@@ -334,8 +334,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         try:
             dash_app = get_app()
 
-            async def catchall(_request: Request):
-                return Response(content=dash_app.index(), media_type="text/html")
+            async def catchall(request: Request):
+                token = set_current_request(request)
+                try:
+                    return Response(content=dash_app.index(), media_type="text/html")
+                finally:
+                    reset_current_request(token)
 
             # pylint: disable=protected-access
             self.add_url_rule("{path:path}", catchall, methods=["GET"])
@@ -682,7 +686,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             dash_app: The Dash application instance
         """
         # pylint: disable=too-many-statements,too-many-locals
-        ws_path = dash_app.config.requests_pathname_prefix + "_dash-ws-callback"
+        ws_path = dash_app.config.routes_pathname_prefix + "_dash-ws-callback"
 
         # Get allowed origins from dash app config
         allowed_origins = getattr(
