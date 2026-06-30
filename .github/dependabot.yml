@@ -1,10 +1,17 @@
 version: 2
 updates:
-  # Root package dependencies
+  # Root package dependencies.
+  # NOTE: listing more than one entry under `directories` makes Dependabot treat
+  # "/" as a recursive glob, so it scans every nested package.json. The negated
+  # globs below keep it out of directories that have their own update entry — the
+  # components and the renderer carry narrow allow/ignore lists (e.g. react-docgen
+  # is pinned) that the root entry would otherwise bypass. @plotly/* is internal.
   - package-ecosystem: "npm"
     directories:
       - "/"
       - "!/@plotly/*"
+      - "!/components/*"
+      - "!/dash/dash-renderer"
     schedule:
       interval: "weekly"
       day: "monday"
