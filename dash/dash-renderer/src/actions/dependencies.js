@@ -34,7 +34,8 @@ import {
     INDIRECT,
     mergeMax,
     makeResolvedCallback,
-    resolveDeps
+    resolveDeps,
+    resolvePartialDeps
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 
@@ -190,7 +191,40 @@ function addPattern(patterns, idSpec, prop, dependency) {
 
     let valMatch = valueMap.get(valuesKey);
     if (!valMatch) {
-        valMatch = {keys, values, callbacks: []};
+        valMatch = {keys, values, callbacks: [], partial: false};
+        valueMap.set(valuesKey, valMatch);
+    }
+    valMatch.callbacks.push(dependency);
+}
+
+// Add a partial pattern - stored with partial flag so lookup knows to do
+// subset key matching.
+function addPartialPattern(patterns, idSpec, prop, dependency) {
+    const keys = Object.keys(idSpec).sort();
+    const keyStr = keys.join(',');
+    const values = props(keys, idSpec);
+    const valuesKey = values
+        .map(v =>
+            typeof v === 'object' && v !== null
+                ? v.wild
+                    ? v.wild
+                    : JSON.stringify(v)
+                : String(v)
+        )
+        .join('|');
+
+    if (!patterns.has(keyStr)) {
+        patterns.set(keyStr, new Map());
+    }
+    const propMap = patterns.get(keyStr);
+    if (!propMap.has(prop)) {
+        propMap.set(prop, new Map());
+    }
+    const valueMap = propMap.get(prop);
+
+    let valMatch = valueMap.get(valuesKey);
+    if (!valMatch) {
+        valMatch = {keys, values, callbacks: [], partial: true};
         valueMap.set(valuesKey, valMatch);
     }
     valMatch.callbacks.push(dependency);
@@ -207,6 +241,7 @@ function offloadPatterns(patternsMap, targetMap) {
             targetMap[keyStr][prop] = Array.from(valueMap.values());
         }
     }
+    return targetMap;
 }
 
 function validateDependencies(parsedDependencies, dispatchError) {
@@ -677,19 +712,28 @@ export function computeGraphs(dependencies, dispatchError, config) {
 
     const fixIds = map(evolve({id: parseIfWildcard}));
     const parsedDependencies = map(dep => {
-        const {output, no_output} = dep;
+        const {output, no_output, outputs_meta} = dep;
         const out = evolve({inputs: fixIds, state: fixIds}, dep);
         if (no_output) {
             // No output case
             out.outputs = [];
             out.noOutput = true;
         } else {
-            out.outputs = map(
-                outi => assoc('out', true, splitIdAndProp(outi)),
-                isMultiOutputProp(output)
-                    ? parseMultipleOutputs(output)
-                    : [output]
-            );
+            const outputStrs = isMultiOutputProp(output)
+                ? parseMultipleOutputs(output)
+                : [output];
+            out.outputs = outputStrs.map((outi, idx) => {
+                const parsed = assoc('out', true, splitIdAndProp(outi));
+                // Attach partial flag from outputs_meta if available
+                if (
+                    outputs_meta &&
+                    outputs_meta[idx] &&
+                    outputs_meta[idx].partial
+                ) {
+                    parsed.partial = true;
+                }
+                return parsed;
+            });
         }
 
         return out;
@@ -733,12 +777,15 @@ export function computeGraphs(dependencies, dispatchError, config) {
     let outputPatterns = {};
     let inputPatterns = {};
 
+    let hasPartialPatterns = false;
+
     const finalGraphs = {
         MultiGraph: multiGraph,
         outputMap,
         inputMap,
         outputPatterns,
         inputPatterns,
+        hasPartialPatterns,
         callbacks: parsedDependencies
     };
 
@@ -901,14 +948,14 @@ export function computeGraphs(dependencies, dispatchError, config) {
         const {matchKeys} = findWildcardKeys(
             outputs.length ? outputs[0].id : undefined
         );
-        const firstSingleOutput = findIndex(o => !isMultiValued(o.id), outputs);
+        const firstSingleOutput = findIndex(o => !isMultiValued(o), outputs);
         const finalDependency = mergeRight(
             {matchKeys, firstSingleOutput, outputs},
             dependency
         );
 
         outputs.forEach(outIdProp => {
-            const {id: outId, property} = outIdProp;
+            const {id: outId, property, partial: outPartial} = outIdProp;
             // check if this output is also an input to the same callback
             let alsoInput;
             if (config.validate_callbacks) {
@@ -928,7 +975,21 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         addOutputToMulti(id, outIdName);
                     });
                 }
-                addPattern(outputPatternMap, outId, property, finalDependency);
+                if (outPartial) {
+                    addPartialPattern(
+                        outputPatternMap,
+                        outId,
+                        property,
+                        finalDependency
+                    );
+                } else {
+                    addPattern(
+                        outputPatternMap,
+                        outId,
+                        property,
+                        finalDependency
+                    );
+                }
             } else {
                 if (config.validate_callbacks) {
                     let outIdName = combineIdAndProp(outIdProp);
@@ -944,9 +1005,22 @@ export function computeGraphs(dependencies, dispatchError, config) {
         });
 
         inputs.forEach(inputObject => {
-            const {id: inId, property: inProp} = inputObject;
+            const {
+                id: inId,
+                property: inProp,
+                partial: inPartial
+            } = inputObject;
             if (typeof inId === 'object') {
-                addPattern(inputPatternMap, inId, inProp, finalDependency);
+                if (inPartial) {
+                    addPartialPattern(
+                        inputPatternMap,
+                        inId,
+                        inProp,
+                        finalDependency
+                    );
+                } else {
+                    addPattern(inputPatternMap, inId, inProp, finalDependency);
+                }
             } else {
                 addMap(inputMap, inId, inProp, finalDependency);
             }
@@ -954,6 +1028,13 @@ export function computeGraphs(dependencies, dispatchError, config) {
     });
     outputPatterns = offloadPatterns(outputPatternMap, outputPatterns);
     inputPatterns = offloadPatterns(inputPatternMap, inputPatterns);
+    hasPartialPatterns = parsedDependencies.some(
+        dep =>
+            dep.outputs.some(o => o.partial) || dep.inputs.some(i => i.partial)
+    );
+    finalGraphs.outputPatterns = outputPatterns;
+    finalGraphs.inputPatterns = inputPatterns;
+    finalGraphs.hasPartialPatterns = hasPartialPatterns;
 
     // second pass for adding new output nodes as dependencies where needed
     duplicateOutputs.forEach(dupeOutIdProp => {
@@ -1059,6 +1140,73 @@ export function idMatch(
     return true;
 }
 
+/*
+ * Partial id matching: check if the pattern (with fewer keys) matches
+ * a component id (with more keys). Only keys present in the pattern
+ * are checked; extra keys in the component id are ignored.
+ *
+ * `patternKeys` and `patternVals` describe the pattern.
+ * `componentKeys` and `componentVals` describe the actual component id.
+ * The component must have all the pattern's keys (superset).
+ */
+export function partialIdMatch(
+    patternKeys,
+    patternVals,
+    componentKeys,
+    componentVals,
+    refKeys,
+    refVals,
+    refPatternVals
+) {
+    for (let i = 0; i < patternKeys.length; i++) {
+        const patternKey = patternKeys[i];
+        const patternVal = patternVals[i];
+        // Find this key in the component
+        const compIndex = componentKeys.indexOf(patternKey);
+        if (compIndex === -1) {
+            // Component doesn't have this key - no match
+            return false;
+        }
+        const val = componentVals[compIndex];
+        if (patternVal.wild) {
+            if (refKeys && patternVal !== ALL) {
+                const refIndex = refKeys.indexOf(patternKey);
+                if (refIndex === -1) {
+                    continue;
+                }
+                const refPatternVal = refPatternVals[refIndex];
+                if (patternVal === ALLSMALLER && refPatternVal === ALLSMALLER) {
+                    throw new Error(
+                        'invalid wildcard id pair (partial): ' +
+                            JSON.stringify({
+                                patternKeys,
+                                patternVals,
+                                componentKeys,
+                                componentVals,
+                                refKeys,
+                                refPatternVals,
+                                refVals
+                            })
+                    );
+                }
+                if (
+                    idValSort(val, refVals[refIndex]) !==
+                    (patternVal === ALLSMALLER
+                        ? -1
+                        : refPatternVal === ALLSMALLER
+                        ? 1
+                        : 0)
+                ) {
+                    return false;
+                }
+            }
+        } else if (val !== patternVal) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export function getAnyVals(patternVals, vals) {
     const matches = [];
     for (let i = 0; i < patternVals.length; i++) {
@@ -1071,10 +1219,22 @@ export function getAnyVals(patternVals, vals) {
 
 /*
  * Does this item (input / output / state) support multiple values?
- * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER
+ * string IDs do not; wildcard IDs only do if they contain ALL or ALLSMALLER.
+ * Partial patterns with no wildcards are implicitly multi-valued since they
+ * can match multiple components with different key sets.
  */
-export function isMultiValued({id}) {
-    return typeof id === 'object' && any(v => v.multi, values(id));
+export function isMultiValued({id, partial = false}) {
+    if (typeof id !== 'object') {
+        return false;
+    }
+    if (any(v => v.multi, values(id))) {
+        return true;
+    }
+    // partial with no wildcards: implicitly multi-valued
+    if (partial && !any(v => v && v.wild, values(id))) {
+        return true;
+    }
+    return false;
 }
 
 /*
@@ -1116,17 +1276,80 @@ function getCallbackByOutput(graphs, paths, id, prop) {
         }
     } else {
         // wildcard version
-        const keys = Object.keys(id).sort();
-        const vals = props(keys, id);
-        const keyStr = keys.join(',');
+        const _keys = Object.keys(id).sort();
+        const vals = props(_keys, id);
+        const keyStr = _keys.join(',');
         const patterns = (graphs.outputPatterns[keyStr] || {})[prop];
         if (patterns) {
             for (let i = 0; i < patterns.length; i++) {
                 const patternVals = patterns[i].values;
-                if (idMatch(keys, vals, patternVals)) {
+                if (patterns[i].partial) {
+                    if (
+                        partialIdMatch(
+                            patterns[i].keys,
+                            patternVals,
+                            _keys,
+                            vals
+                        )
+                    ) {
+                        callback = patterns[i].callbacks[0];
+                        resolve = resolvePartialDeps(
+                            patterns[i].keys,
+                            vals,
+                            patternVals,
+                            _keys
+                        );
+                        anyVals = getAnyVals(patternVals, vals);
+                        break;
+                    }
+                } else if (idMatch(_keys, vals, patternVals)) {
                     callback = patterns[i].callbacks[0];
-                    resolve = resolveDeps(keys, vals, patternVals);
+                    resolve = resolveDeps(_keys, vals, patternVals);
                     anyVals = getAnyVals(patternVals, vals);
+                    break;
+                }
+            }
+        }
+        // If not found, also check partial patterns with fewer keys
+        if (!resolve && graphs.hasPartialPatterns) {
+            for (const patKeyStr in graphs.outputPatterns) {
+                if (patKeyStr === keyStr) {
+                    continue;
+                }
+                const patKeys = patKeyStr.split(',');
+                if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
+                    continue;
+                }
+                const patPropPatterns = (graphs.outputPatterns[patKeyStr] ||
+                    {})[prop];
+                if (!patPropPatterns) {
+                    continue;
+                }
+                for (let i = 0; i < patPropPatterns.length; i++) {
+                    if (!patPropPatterns[i].partial) {
+                        continue;
+                    }
+                    const patternVals = patPropPatterns[i].values;
+                    if (
+                        partialIdMatch(
+                            patPropPatterns[i].keys,
+                            patternVals,
+                            _keys,
+                            vals
+                        )
+                    ) {
+                        callback = patPropPatterns[i].callbacks[0];
+                        resolve = resolvePartialDeps(
+                            patPropPatterns[i].keys,
+                            vals,
+                            patternVals,
+                            _keys
+                        );
+                        anyVals = getAnyVals(patternVals, vals);
+                        break;
+                    }
+                }
+                if (resolve) {
                     break;
                 }
             }
@@ -1236,15 +1459,45 @@ export function getWatchedKeys(id, newProps, graphs) {
     const vals = props(keys, id);
     const keyStr = keys.join(',');
     const keyPatterns = graphs.inputPatterns[keyStr];
-    if (!keyPatterns) {
-        return [];
-    }
+
     return newProps.filter(prop => {
-        const patterns = keyPatterns[prop];
-        return (
-            patterns &&
-            patterns.some(pattern => idMatch(keys, vals, pattern.values))
-        );
+        // Check exact keyStr patterns
+        if (keyPatterns) {
+            const patterns = keyPatterns[prop];
+            if (
+                patterns &&
+                patterns.some(pattern => idMatch(keys, vals, pattern.values))
+            ) {
+                return true;
+            }
+        }
+        // Check partial patterns whose keys are a subset of this component's keys
+        if (!graphs.hasPartialPatterns) {
+            return false;
+        }
+        for (const patKeyStr in graphs.inputPatterns) {
+            if (patKeyStr === keyStr) {
+                continue;
+            }
+            const patKeys = patKeyStr.split(',');
+            if (!patKeys.every(k => keys.indexOf(k) !== -1)) {
+                continue;
+            }
+            const patPropPatterns = graphs.inputPatterns[patKeyStr][prop];
+            if (!patPropPatterns) {
+                continue;
+            }
+            if (
+                patPropPatterns.some(
+                    pattern =>
+                        pattern.partial &&
+                        partialIdMatch(patKeys, pattern.values, keys, vals)
+                )
+            ) {
+                return true;
+            }
+        }
+        return false;
     });
 }
 
@@ -1366,11 +1619,63 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
                 const keyStr = Object.keys(id).sort().join(',');
+                const _keys = Object.keys(id).sort();
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
                     graphs.inputPatterns[keyStr]
                 );
+                // Also check partial patterns whose keys are a subset of
+                // this component's keys
+                if (graphs.hasPartialPatterns) {
+                    for (const patKeyStr in graphs.inputPatterns) {
+                        if (patKeyStr === keyStr) {
+                            continue;
+                        }
+                        const patKeys = patKeyStr.split(',');
+                        if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
+                            continue;
+                        }
+                        // Check if any patterns under this keyStr are partial
+                        const patProps = graphs.inputPatterns[patKeyStr];
+                        const partialProps = {};
+                        for (const prop in patProps) {
+                            const partialPats = patProps[prop].filter(
+                                p => p.partial
+                            );
+                            if (partialPats.length) {
+                                partialProps[prop] = partialPats;
+                            }
+                        }
+                        if (Object.keys(partialProps).length) {
+                            handleOneId(id, null, partialProps);
+                        }
+                    }
+                } // end hasPartialPatterns guard (input)
+                if (!removedArrayInputsOnly && graphs.hasPartialPatterns) {
+                    for (const patKeyStr in graphs.outputPatterns) {
+                        if (patKeyStr === keyStr) {
+                            continue;
+                        }
+                        const patKeys = patKeyStr.split(',');
+                        if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
+                            continue;
+                        }
+                        const patProps = graphs.outputPatterns[patKeyStr];
+                        const partialProps = {};
+                        for (const prop in patProps) {
+                            const partialPats = patProps[prop].filter(
+                                p => p.partial
+                            );
+                            if (partialPats.length) {
+                                partialProps[prop] = partialPats;
+                            }
+                        }
+                        if (Object.keys(partialProps).length) {
+                            handleOneId(id, partialProps, null);
+                        }
+                    }
+                }
             }
         }
     });

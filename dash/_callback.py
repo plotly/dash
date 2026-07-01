@@ -331,6 +331,13 @@ def insert_callback(
         "websocket": websocket,
         "persistent": persistent,
     }
+    # Include output metadata if any output uses partial matching
+    output_list = output if isinstance(output, (list, tuple)) else [output]
+    if any(getattr(o, "partial", False) for o in output_list):
+        callback_spec["outputs_meta"] = [
+            {"partial": True} if getattr(o, "partial", False) else {}
+            for o in output_list
+        ]
     if running:
         callback_spec["running"] = running
 
