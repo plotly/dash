@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 - [#3861](https://github.com/plotly/dash/issues/3861) Fix synchronous WebSocket callbacks not inheriting `ContextVar` values bound by ASGI middleware. `copy_context()` is now captured on the event-loop thread before the callback is submitted to the thread pool, instead of inside the worker thread where only default values were visible.
+- [#3779](https://github.com/plotly/dash/pull/3779) Fix `dash.testing` `Browser.get_logs()` returning `None` on non-Chrome webdrivers, which broke assertions like `assert dash_duo.get_logs() == []`. It now returns `[]`, matching the Chrome code path.
 - [#3822](https://github.com/plotly/dash/pull/3822) Fix `UnboundLocalError` for `user_callback_output` in async background callbacks (Celery and Diskcache managers) when the callback raises `PreventUpdate` or another exception before the variable is assigned.
 - [#3819](https://github.com/plotly/dash/pull/3819) Fix `RuntimeError: No active request in context` when a non-Dash path falls through to the FastAPI catch-all route. Fixes [#3812](https://github.com/plotly/dash/issues/3812).
 - [#3838](https://github.com/plotly/dash/pull/3838) Replace `mcp` dependency with inline types.
@@ -22,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
+- [#3852](https://github.com/plotly/dash/pull/3852)  Added support for Plotly hoveranywhere and clickanywhere events in `dcc.Graph` by adding `xvals` and `yvals` to `hoverData` and `clickData`.
 
 ## Changed
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
