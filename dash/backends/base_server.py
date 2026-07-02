@@ -194,7 +194,13 @@ class BaseDashServer(ABC, Generic[ServerType]):
     def get_callback_executor(
         self, max_workers: int | None = None
     ) -> ThreadPoolExecutor:
-        """Get or create the thread pool executor for callback execution.
+        """Get or create the shared thread pool executor for sync callbacks.
+
+        A single executor is shared across all WebSocket connections. Only
+        *sync* callbacks run here -- async callbacks (including session-persistent
+        ones) run directly on the connection event loop -- so worker threads are
+        released promptly and a fixed-size shared pool bounds the total thread
+        count regardless of how many connections are open.
 
         Args:
             max_workers: Maximum number of worker threads. If None, uses default.
@@ -209,7 +215,7 @@ class BaseDashServer(ABC, Generic[ServerType]):
         return self._callback_executor
 
     def shutdown_executor(self, wait: bool = True) -> None:
-        """Shutdown the callback executor.
+        """Shutdown the shared callback executor.
 
         Args:
             wait: If True, wait for pending tasks to complete.
