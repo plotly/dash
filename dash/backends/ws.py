@@ -550,13 +550,17 @@ def run_callback_in_executor(
         Future representing the pending callback execution
     """
 
+    # Snapshot the context on the calling thread (the event-loop thread) *before*
+    # submitting to the executor. ContextVars bound by ASGI middleware live on this
+    # thread; capturing inside execute() would run on a fresh worker thread and see
+    # only default values. This mirrors loop.run_in_executor's context propagation.
+    ctx = copy_context()
+
     def execute() -> dict:
         try:
             partial_func = _prepare_ws_partial(
                 dash_app, payload, ws_callback, response_adapter
             )
-
-            ctx = copy_context()
 
             # Run in new event loop (handles a callback that still returns a
             # coroutine, e.g. when reached outside the async dispatch path)
