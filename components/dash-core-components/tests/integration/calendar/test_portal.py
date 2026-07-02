@@ -138,7 +138,7 @@ def test_dppt006_fullscreen_portal_close_button_keyboard(dash_dcc):
     assert popover.is_displayed()
 
     action = ActionChains(dash_dcc.driver)
-    action.move_to_element_with_offset(popover, 10, 10).click().perform()
+    action.move_by_offset(10, 10).click().perform()
     sleep(0.2)
 
     popover = dash_dcc.find_element(".dash-datepicker-content")

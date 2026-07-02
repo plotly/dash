@@ -167,8 +167,14 @@ const DatePickerRange = ({
                 start_date: dateAsStr(internalStartDate),
                 end_date: dateAsStr(internalEndDate),
             });
-        } else if (endChanged && !internalEndDate) {
-            // End date was cleared (user started a new range).
+        } else if (
+            updatemode === 'singledate' &&
+            endChanged &&
+            !internalEndDate
+        ) {
+            // End date was cleared (user started a new range). Under
+            // 'bothdates' we wait for a complete range before updating props,
+            // so this partial update is only sent in 'singledate' mode.
             setProps({
                 start_date: dateAsStr(internalStartDate) ?? null,
                 end_date: null,
@@ -358,7 +364,7 @@ const DatePickerRange = ({
 
     return (
         <div className="dash-datepicker" ref={containerRef}>
-            <ResizeDetector onResize={handleResize} targets={[containerRef]}/>
+            <ResizeDetector onResize={handleResize} targets={[containerRef]} />
             <Popover.Root
                 open={!disabled && isCalendarOpen}
                 onOpenChange={disabled ? undefined : setIsCalendarOpen}
@@ -388,9 +394,7 @@ const DatePickerRange = ({
                             id={start_date_id || accessibleId}
                             inputClassName="dash-datepicker-input dash-datepicker-start-date"
                             value={startInputValue}
-                            onChange={e =>
-                                setStartInputValue(e.target?.value)
-                            }
+                            onChange={e => setStartInputValue(e.target?.value)}
                             onKeyDown={handleStartInputKeyDown}
                             onFocus={() => {
                                 if (isCalendarOpen) {
@@ -412,9 +416,7 @@ const DatePickerRange = ({
                             id={end_date_id || accessibleId + '-end-date'}
                             inputClassName="dash-datepicker-input dash-datepicker-end-date"
                             value={endInputValue}
-                            onChange={e =>
-                                setEndInputValue(e.target?.value)
-                            }
+                            onChange={e => setEndInputValue(e.target?.value)}
                             onKeyDown={handleEndInputKeyDown}
                             onFocus={() => {
                                 if (isCalendarOpen) {

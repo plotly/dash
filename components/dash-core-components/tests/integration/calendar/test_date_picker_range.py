@@ -534,3 +534,43 @@ def test_dtpr030_external_date_range_update(dash_dcc):
     ), "End input should display 2021-06-30"
 
     assert dash_dcc.get_logs() == []
+
+
+def test_dtpr031_bothdates_no_partial_update_on_new_start(dash_dcc):
+    """Bug #3425: with updatemode='bothdates', picking a new start date (which
+    clears the end date) must not fire a partial update for the incomplete range."""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.DatePickerRange(
+                id="dpr",
+                min_date_allowed=datetime(2021, 1, 1),
+                max_date_allowed=datetime(2021, 1, 31),
+                initial_visible_month=datetime(2021, 1, 1),
+                minimum_nights=0,
+                updatemode="bothdates",
+                display_format="MM/DD/YYYY",
+            ),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("dpr", "start_date"),
+        Input("dpr", "end_date"),
+        prevent_initial_call=True,
+    )
+    def display_dates(start_date, end_date):
+        return f"Start: {start_date}, End: {end_date}"
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.select_date_range("dpr", day_range=(2, 11))
+    dash_dcc.wait_for_text_to_equal("#output", "Start: 2021-01-02, End: 2021-01-11")
+
+    dash_dcc.select_date_range("dpr", day_range=(4,))
+    time.sleep(0.5)
+    assert dash_dcc.find_element("#output").text == "Start: 2021-01-02, End: 2021-01-11"
+
+    assert dash_dcc.get_logs() == []
