@@ -16,8 +16,10 @@ jobs:
     outputs:
       table_paths_changed: ${{ steps.filter.outputs.table_related_paths }}
       background_cb_changed: ${{ steps.filter.outputs.background_paths }}
+      backend_cb_changed: ${{ steps.filter.outputs.backend_paths }}
       dcc_paths_changed: ${{ steps.filter.outputs.dcc_related_paths }}
       html_paths_changed: ${{ steps.filter.outputs.html_related_paths }}
+      websocket_changed: ${{ steps.filter.outputs.websocket_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,6 +46,21 @@ jobs:
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
               - 'requirements/**'
+            backend_paths:
+              - 'dash/backends/**'
+              - 'tests/backend_tests/**'
+            websocket_paths:
+              - 'dash/backends/_fastapi.py'
+              - 'dash/backends/_quart.py'
+              - 'dash/backends/base_server.py'
+              - 'dash/_callback.py'
+              - 'dash/_callback_context.py'
+              - 'dash/_hooks.py'
+              - 'dash/dash.py'
+              - '@dash-websocket-worker/**'
+              - 'dash/dash-renderer/src/**'
+              - 'tests/websocket/**'
+              - 'requirements/**'
 
   lint-unit:
     name: Lint & Unit Tests (Python ${{ matrix.python-version }})
@@ -53,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.9", "3.12"]
 
     steps:
       - name: Checkout repository
@@ -91,7 +108,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci,testing]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[dev,ci,testing,diskcache]"' \;
 
       - name: Install dash-renderer dependencies
         working-directory: dash/dash-renderer
@@ -105,6 +122,8 @@ jobs:
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Run lint
+        env:
+          PYLINT_EXTRA_ARGS: ${{ matrix.python-version == '3.9' && '--ignored-modules=mcp' || '' }}
         run: npm run lint
 
       - name: Run unit tests
@@ -212,14 +231,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install "setuptools<80.0.0"
-          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,diskcache]"' \;
 
       - name: Build/Setup test components
         run: npm run setup-tests.py  # TODO build the packages and save them to packages/ in build job
 
       - name: Run typing tests
         run: |
-          pytest tests/compliance/test_typing.py
+          pytest \
+            tests/compliance/test_typing.py \
+            tests/compliance/test_callback_typing.py
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
@@ -328,6 +349,80 @@ jobs:
           name: background-test-results-py${{ matrix.python-version }}
           path: bgtests/test-reports/
           retention-days: 7
+
+  backend-tests:
+    name: Run Backend Callback Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.backend_cb_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,celery,diskcache,fastapi,quart]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run Backend Callback Tests
+        run: |
+          mkdir bgtests
+          cp -r tests bgtests/tests
+          cd bgtests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/backend_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -451,6 +546,67 @@ jobs:
           path: components/dash-table/test-reports/
           retention-days: 7
 
+  websocket-tests:
+    name: WebSocket Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.websocket_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,fastapi,quart]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run WebSocket tests
+        run: |
+          mkdir wstests
+          cp -r tests wstests/tests
+          cd wstests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/websocket -v -s
+
   test-main:
     name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
     needs: build
@@ -459,13 +615,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.9", "3.12"]
         test-group: ["1", "2", "3"]
 
     env:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -500,6 +664,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,celery,diskcache]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -524,6 +689,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
 
       - name: Upload test results
         if: always()
@@ -553,12 +719,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.9", "3.12"]
 
     env:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -593,6 +767,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -619,6 +794,7 @@ jobs:
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
           percy-token: ${{ secrets.PERCY_TOKEN }}
+          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
           working-directory: components/dash-html-components
 
       - name: Upload test results
@@ -690,7 +866,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.9", "3.12"]
 
     steps:
       - name: Checkout repository
@@ -738,13 +914,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.9", "3.12"]
         test-group: ["1", "2", "3"]
 
     env:
       PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
       PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
+      # Pin the build identity so every shard joins the same parallel build and
+      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
+      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
 
     steps:
       - name: Checkout repository
@@ -862,6 +1046,7 @@ jobs:
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
       - name: Setup Chrome and ChromeDriver
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
@@ -880,6 +1065,10 @@ jobs:
       - name: Run Table visual tests
         if: env.PERCY_TOKEN != ''
         working-directory: components/dash-table
+        # percy-storybook bundles an old puppeteer whose Chromium is absent on
+        # the runner; point it at the system Chrome installed above.
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
         run: npm run test.visual
 
       - name: Skip Table visual tests (fork PR)
@@ -902,6 +1091,13 @@ jobs:
     if: always()
     env:
       PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+      # Must match the snapshot jobs so finalize targets the same parallel build
+      # and the result is attached to the PR head commit, not the merge SHA.
+      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
+      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
+      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
     steps:
       - name: Finalize Main Percy Build
         if: |
@@ -939,8 +1135,9 @@ jobs:
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1
-        # Skip for fork PRs - handled by post-test-status.yml workflow_run
-        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        # Skip for fork PRs and Dependabot PRs - both run with a read-only
+        # GITHUB_TOKEN, so they're handled by post-test-status.yml workflow_run.
+        if: always() && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'))
         with:
           name: Test Results Summary
           path: 'test-results/**/*.xml'

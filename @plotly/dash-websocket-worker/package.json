@@ -1,0 +1,29 @@
+{
+  "name": "@plotly/dash-websocket-worker",
+  "version": "1.0.0",
+  "description": "SharedWorker for WebSocket-based Dash callbacks",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "dash",
+    "websocket",
+    "sharedworker"
+  ],
+  "author": "Plotly",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0",
+    "ts-loader": "^9.0.0"
+  }
+}

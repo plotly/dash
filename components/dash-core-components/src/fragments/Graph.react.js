@@ -9,6 +9,7 @@ import {
     mergeDeepRight,
     omit,
     type,
+    clone,
 } from 'ramda';
 import PropTypes from 'prop-types';
 import {graphPropTypes, graphDefaultProps} from '../components/Graph.react';
@@ -118,6 +119,28 @@ const filterEventData = (gd, eventData, event) => {
             points[i] = pointData;
         }
         filteredEventData = {points};
+
+        const includeXYVals =
+            (event === 'hover' && gd._fullLayout.hoveranywhere === true) ||
+            (event === 'click' && gd._fullLayout.clickanywhere === true);
+
+        if (includeXYVals) {
+            if (has('xvals', eventData)) {
+                filteredEventData.xvals = eventData.xvals;
+            }
+
+            if (has('yvals', eventData)) {
+                filteredEventData.yvals = eventData.yvals;
+            }
+
+            if (has('xaxes', eventData)) {
+                filteredEventData.xaxes_id = eventData.xaxes[0]._id;
+            }
+
+            if (has('yaxes', eventData)) {
+                filteredEventData.yaxes_id = eventData.yaxes[0]._id;
+            }
+        }
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
@@ -313,10 +336,12 @@ class PlotlyGraph extends Component {
         return mergeDeepRight(config, this.getConfigOverride(responsive));
     }
 
-    getLayout(layout, responsive) {
-        if (!layout) {
-            return layout;
+    getLayout(originalLayout, responsive) {
+        if (!originalLayout) {
+            return originalLayout;
         }
+        // Clone layout to avoid mutating the original (important for Patch)
+        const layout = clone(originalLayout);
         const override = this.getLayoutOverride(responsive);
         const {override: prev_override, originals: prev_originals} = this.state;
         // Store the original data that we're about to override
@@ -339,7 +364,7 @@ class PlotlyGraph extends Component {
         for (const key in override) {
             layout[key] = override[key];
         }
-        return layout; // not really a clone
+        return layout;
     }
 
     getConfigOverride(responsive) {
@@ -414,6 +439,8 @@ class PlotlyGraph extends Component {
         gd.on('plotly_click', eventData => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
+                // Add timestamp to ensure each click is unique (for DashWrapper deduplication)
+                clickData.timestamp = Date.now();
                 setProps({clickData});
             }
         });
@@ -422,6 +449,8 @@ class PlotlyGraph extends Component {
                 ['event', 'fullAnnotation'],
                 eventData
             );
+            // Add timestamp to ensure each click is unique (for DashWrapper deduplication)
+            clickAnnotationData.timestamp = Date.now();
             setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
@@ -443,6 +472,29 @@ class PlotlyGraph extends Component {
             const relayout = filterEventData(gd, eventData, 'relayout');
             if (!isNil(relayout) && !equals(relayout, relayoutData)) {
                 setProps({relayoutData: relayout});
+            }
+            // Sync shapes from gd.layout to figure when shapes are modified by user
+            // This is needed because getLayout() clones layout to prevent mutation issues
+            if (eventData && gd.layout) {
+                const hasShapeChanges = Object.keys(eventData).some(
+                    key => key === 'shapes' || key.startsWith('shapes[')
+                );
+                if (hasShapeChanges) {
+                    const {figure = {}} = this.props;
+                    const currentShapes = figure?.layout?.shapes;
+                    const newShapes = gd.layout.shapes;
+                    if (!equals(currentShapes, newShapes)) {
+                        setProps({
+                            figure: {
+                                ...figure,
+                                layout: {
+                                    ...figure?.layout,
+                                    shapes: newShapes,
+                                },
+                            },
+                        });
+                    }
+                }
             }
         });
         gd.on('plotly_restyle', eventData => {

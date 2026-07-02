@@ -25,6 +25,7 @@ def test_rtype001_rendertype(dash_duo):
             dash_clientside.set_props('render_test', {n_clicks: 20})
         }""",
         Input("clientside_render", "n_clicks"),
+        prevent_initial_call=True,
     )
 
     @app.callback(

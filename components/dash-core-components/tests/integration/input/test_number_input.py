@@ -238,6 +238,7 @@ def test_inni007_stepper_very_small_steps(dash_dcc, step):
 
 def test_inni010_valid_numbers(dash_dcc, ninput_app):
     dash_dcc.start_server(ninput_app)
+    elem = dash_dcc.wait_for_element("#input_false")
     for num, op in (
         ("1.0", lambda x: int(float(x))),  # limitation of js/json
         ("10e10", lambda x: int(float(x))),
@@ -245,7 +246,7 @@ def test_inni010_valid_numbers(dash_dcc, ninput_app):
         (str(sys.float_info.max), float),
         (str(sys.float_info.min), float),
     ):
-        elem = dash_dcc.find_element("#input_false")
+        elem = dash_dcc.wait_for_element("#input_false")
         elem.send_keys(num)
         assert dash_dcc.wait_for_text_to_equal(
             "#div_false", str(op(num))

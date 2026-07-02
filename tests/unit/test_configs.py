@@ -524,3 +524,43 @@ def test_csrf_config_read_only():
         app.config.csrf_token_name = "something_else"
     with pytest.raises(AttributeError):
         app.config.csrf_header_name = "something_else"
+
+
+def test_init_app_with_flask_run_pattern():
+    """Test that init_app works correctly with the flask run pattern.
+
+    This tests the fix for https://github.com/plotly/dash/issues/3787
+    where using flask run would cause a ValueError about duplicate blueprint
+    registration because init_app was called twice (once automatically in
+    __init__ with server=True, and once by the user in their create_app factory).
+    """
+    # Simulate the flask run pattern where:
+    # 1. Dash app is created with server=True (default)
+    # 2. User's create_app factory calls init_app with their Flask server
+    external_server = Flask("external_test")
+    app = Dash(__name__)
+
+    # This should NOT raise "ValueError: The name '_dash_assets' is already registered"
+    app.init_app(external_server)
+
+    # Verify the backend now uses the external server
+    assert app.server is external_server
+    assert app.backend.server is external_server
+
+
+def test_init_app_server_false_pattern():
+    """Test that init_app works correctly when server=False is used.
+
+    This tests the fix for https://github.com/plotly/dash/issues/3787
+    where using server=False and then calling init_app would result in
+    404 errors because the backend's server reference was not updated.
+    """
+    external_server = Flask("external_test_false")
+    app = Dash(__name__, server=False)
+
+    # Call init_app with the external server
+    app.init_app(external_server)
+
+    # Verify both the app and backend use the external server
+    assert app.server is external_server
+    assert app.backend.server is external_server

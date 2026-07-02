@@ -224,14 +224,17 @@ function validateDependencies(parsedDependencies, dispatchError) {
             'In the callback for output(s):\n  ' +
             outputs.map(combineIdAndProp).join('\n  ');
 
-        if (!inputs.length) {
+        if (!inputs.length && dep.prevent_initial_call) {
             dispatchError('A callback is missing Inputs', [
                 head,
                 'there are no `Input` elements.',
                 'Without `Input` elements, it will never get called.',
                 '',
                 'Subscribing to `Input` components will cause the',
-                'callback to be called whenever their values change.'
+                'callback to be called whenever their values change.',
+                '',
+                'If you want a callback without inputs that fires on initial load,',
+                'set prevent_initial_call=False.'
             ]);
         }
 

@@ -14,6 +14,19 @@ pip install -e .[ci,dev,testing,celery,diskcache]
 npm ci
 ```
 
+### Optional Backend Dependencies
+
+```bash
+# For Quart backend (ASGI async)
+pip install dash[quart]
+
+# For FastAPI backend (ASGI async)
+pip install dash[fastapi]
+
+# For async callbacks with Flask
+pip install dash[async]
+```
+
 ## Building
 
 ```bash

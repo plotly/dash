@@ -58,6 +58,13 @@ valid_callback = "html.Div('Valid')"
 invalid_callback = "[]"
 
 
+def _has_built_dash_components(project_root: str) -> bool:
+    return all(
+        os.path.exists(os.path.join(project_root, "dash", package, "__init__.py"))
+        for package in ("html", "dcc", "dash_table")
+    )
+
+
 def run_module(codefile: str, module: str, extra: str = ""):
     config_file_to_cleanup = None
 
@@ -76,19 +83,32 @@ def run_module(codefile: str, module: str, extra: str = ""):
         # Get the site-packages directory for standard packages
         site_packages = sysconfig.get_path("purelib")
 
-        # Check if dash is installed as editable or regular install
-        # If editable, we need project root first; if regular, site-packages first
+        # Include the directory containing the test file
+        test_file_dir = os.path.dirname(codefile)
+
+        # Check if dash is installed as editable or regular install.
+        # If the editable source tree is unbuilt, prefer the installed package.
         import dash
 
         dash_file = dash.__file__
         is_editable = project_root in dash_file
+        source_tree_is_built = _has_built_dash_components(project_root)
 
-        if is_editable:
+        if is_editable and source_tree_is_built:
             # Editable install: prioritize project root
             extra_paths = [project_root, site_packages]
+            execution_environments = [
+                {"root": project_root, "extraPaths": extra_paths},
+                {"root": test_file_dir, "extraPaths": extra_paths},
+            ]
         else:
-            # Regular install (CI): prioritize site-packages
+            # Regular installs and unbuilt editable checkouts should resolve the
+            # installed package first so generated component modules are present.
             extra_paths = [site_packages, project_root]
+            execution_environments = [
+                {"root": site_packages, "extraPaths": extra_paths},
+                {"root": test_file_dir, "extraPaths": extra_paths},
+            ]
 
         # Add the test component source directories
         # They are in the @plotly subdirectory of the project root
@@ -100,17 +120,10 @@ def run_module(codefile: str, module: str, extra: str = ""):
                 if os.path.isdir(component_path):
                     extra_paths.append(component_path)
 
-        # For files in /tmp (component tests), we need a different approach
-        # Include the directory containing the test file
-        test_file_dir = os.path.dirname(codefile)
-
         config = {
             "pythonVersion": f"{sys.version_info.major}.{sys.version_info.minor}",
             "pythonPlatform": sys.platform,
-            "executionEnvironments": [
-                {"root": project_root, "extraPaths": extra_paths},
-                {"root": test_file_dir, "extraPaths": extra_paths},
-            ],
+            "executionEnvironments": execution_environments,
         }
 
         # Write config to project root instead of test directory
@@ -142,14 +155,19 @@ def run_module(codefile: str, module: str, extra: str = ""):
         )
         test_components_dir = os.path.join(project_root, "@plotly")
 
-        mypy_paths = [project_root]
+        source_tree_is_built = _has_built_dash_components(project_root)
+
+        mypy_paths = [project_root] if source_tree_is_built else []
         if os.path.exists(test_components_dir):
             for component in os.listdir(test_components_dir):
                 component_path = os.path.join(test_components_dir, component)
                 if os.path.isdir(component_path):
                     mypy_paths.append(component_path)
 
-        env["MYPYPATH"] = os.pathsep.join(mypy_paths)
+        if mypy_paths:
+            env["MYPYPATH"] = os.pathsep.join(mypy_paths)
+        else:
+            env.pop("MYPYPATH", None)
 
     proc = subprocess.Popen(
         cmd,

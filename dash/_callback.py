@@ -1,11 +1,11 @@
 import collections
 import hashlib
 import inspect
+import warnings
 from functools import wraps
+from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
-from typing import Callable, Optional, Any, List, Tuple, Union, Dict
-
-import flask
+from typing_extensions import ParamSpec
 
 from .dependencies import (
     handle_callback_args,
@@ -23,7 +23,7 @@ from .exceptions import (
     BackgroundCallbackError,
     ImportedInsideCallbackError,
 )
-
+from ._get_app import get_app
 from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
@@ -38,10 +38,11 @@ from ._utils import (
     clean_property_name,
 )
 
-from . import _validate
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
+from . import _validate
 
 
 async def _async_invoke_callback(
@@ -64,6 +65,10 @@ GLOBAL_INLINE_SCRIPTS: List[Any] = []
 GLOBAL_API_PATHS: Dict[str, Any] = {}
 
 
+Params = ParamSpec("Params")
+ReturnVar = TypeVar("ReturnVar")
+
+
 # pylint: disable=too-many-locals,too-many-arguments
 def callback(
     *_args,
@@ -80,8 +85,12 @@ def callback(
     api_endpoint: Optional[str] = None,
     optional: Optional[bool] = False,
     hidden: Optional[bool] = None,
+    websocket: Optional[bool] = False,
+    persistent: Optional[bool] = False,
+    mcp_enabled: Optional[bool] = None,
+    mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
-) -> Callable[..., Any]:
+) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
     Normally used as a decorator, `@dash.callback` provides a server-side
     callback relating the values of one or more `Output` items to one or
@@ -174,6 +183,10 @@ def callback(
             The endpoint is relative to the Dash app's base URL.
             Note that the endpoint will not appear in the list of registered
             callbacks in the Dash devtools.
+        :param persistent:
+            If True, this callback will not show the "Updating..." title while
+            running. Useful for persistent WebSocket callbacks that stay active
+            for long periods without requiring a loading indicator.
     """
 
     background_spec: Any = None
@@ -218,7 +231,7 @@ def callback(
 
         background_spec["cache_ignore_triggered"] = cache_ignore_triggered
 
-    return register_callback(
+    raw = register_callback(
         callback_list,
         callback_map,
         config_prevent_initial_callbacks,
@@ -231,6 +244,14 @@ def callback(
         api_endpoint=api_endpoint,
         optional=optional,
         hidden=hidden,
+        websocket=websocket,
+        persistent=persistent,
+        mcp_enabled=mcp_enabled,
+        mcp_expose_docstring=mcp_expose_docstring,
+    )
+
+    return cast(
+        Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
 
 
@@ -278,7 +299,11 @@ def insert_callback(
     no_output=False,
     optional=False,
     hidden=None,
-):
+    websocket=False,
+    persistent=False,
+    mcp_enabled=None,
+    mcp_expose_docstring=None,
+) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
 
@@ -303,6 +328,8 @@ def insert_callback(
         "no_output": no_output,
         "optional": optional,
         "hidden": hidden,
+        "websocket": websocket,
+        "persistent": persistent,
     }
     if running:
         callback_spec["running"] = running
@@ -318,6 +345,9 @@ def insert_callback(
         "manager": manager,
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
+        "websocket": websocket,
+        "mcp_enabled": mcp_enabled,
+        "mcp_expose_docstring": mcp_expose_docstring,
     }
     callback_list.append(callback_spec)
 
@@ -359,7 +389,7 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
 
 def _get_callback_manager(
     kwargs: dict, background: dict
-) -> Union[BaseBackgroundCallbackManager, None]:
+) -> BaseBackgroundCallbackManager:
     """Set up the background callback and manage jobs."""
     callback_manager = background.get(
         "manager", kwargs.get("background_callback_manager", None)
@@ -375,7 +405,8 @@ def _get_callback_manager(
                 " and store results on redis.\n"
             )
 
-    old_job = flask.request.args.getlist("oldJob")
+    adapter = get_app().backend.request_adapter()
+    old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
         for job in old_job:
@@ -389,6 +420,8 @@ def _setup_background_callback(
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
+    if not callback_manager:
+        return to_json({"error": "No background callback manager configured"})
 
     progress_outputs = background.get("progress")
 
@@ -396,18 +429,19 @@ def _setup_background_callback(
 
     cache_key = callback_manager.build_cache_key(
         func,
-        # Inputs provided as dict is kwargs.
         func_args if func_args else func_kwargs,
         background.get("cache_args_to_ignore", []),
         None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
     )
-
     job_fn = callback_manager.func_registry.get(background_key)
-
     ctx_value = AttributeDict(**context_value.get())
     ctx_value.ignore_register_page = True
     ctx_value.pop("background_callback_manager")
     ctx_value.pop("dash_response")
+
+    args_value = ctx_value.get("args")
+    if args_value is not None and not isinstance(args_value, dict):
+        ctx_value["args"] = dict(args_value)
 
     job = callback_manager.call_job_fn(
         cache_key,
@@ -433,9 +467,13 @@ def _setup_background_callback(
     return to_json(data)
 
 
-def _progress_background_callback(response, callback_manager, background):
+def _progress_background_callback(
+    response, callback_manager, background, cache_key=None
+):
     progress_outputs = background.get("progress")
-    cache_key = flask.request.args.get("cacheKey")
+    if cache_key is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = adapter.args.get("cacheKey")
 
     if progress_outputs:
         # Get the progress before the result as it would be erased after the results.
@@ -447,20 +485,38 @@ def _progress_background_callback(response, callback_manager, background):
 
 
 def _update_background_callback(
-    error_handler, callback_ctx, response, kwargs, background, multi
+    error_handler,
+    callback_ctx,
+    response,
+    kwargs,
+    background,
+    multi,
+    cache_key=None,
+    job_id=None,
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    cache_key = flask.request.args.get("cacheKey")
-    job_id = flask.request.args.get("job")
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
 
-    _progress_background_callback(response, callback_manager, background)
+    _progress_background_callback(
+        response, callback_manager, background, cache_key=cache_key
+    )
 
     output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
-        output_value, callback_manager, response, error_handler, callback_ctx, multi
+        output_value,
+        callback_manager,
+        response,
+        error_handler,
+        callback_ctx,
+        multi,
+        cache_key=cache_key,
+        job_id=job_id,
     )
 
 
@@ -472,9 +528,13 @@ def _handle_rest_background_callback(
     callback_ctx,
     multi,
     has_update=False,
+    cache_key=None,
+    job_id=None,
 ):
-    cache_key = flask.request.args.get("cacheKey")
-    job_id = flask.request.args.get("job")
+    if cache_key is None or job_id is None:
+        adapter = get_app().backend.request_adapter()
+        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
+        job_id = job_id or (adapter.args.get("job") if adapter else None)
     # Must get job_running after get_result since get_results terminates it.
     job_running = callback_manager.job_running(job_id)
     if not job_running and output_value is callback_manager.UNDEFINED:
@@ -523,7 +583,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response,
+    response: CallbackExecutionResponse,
     callback_ctx,
     app,
     original_packages,
@@ -535,7 +595,7 @@ def _prepare_response(
     allow_dynamic_callbacks,
 ):
     """Prepare the response object based on the callback output."""
-    component_ids = collections.defaultdict(dict)
+    component_ids: dict = collections.defaultdict(dict)
 
     if has_output:
         if not multi:
@@ -652,6 +712,10 @@ def register_callback(
         no_output=not has_output,
         optional=_kwargs.get("optional", False),
         hidden=_kwargs.get("hidden", None),
+        websocket=_kwargs.get("websocket", False),
+        persistent=_kwargs.get("persistent", False),
+        mcp_enabled=_kwargs.get("mcp_enabled", None),
+        mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals
@@ -686,12 +750,12 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}  # type: ignore
-
-            jsonResponse = None
+            response: CallbackExecutionResponse = {"multi": True}
+            jsonResponse: Optional[str] = None
             try:
                 if background is not None:
-                    if not flask.request.args.get("cacheKey"):
+                    adapter = get_app().backend.request_adapter()
+                    if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,
                             background,
@@ -758,11 +822,12 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            response: CallbackExecutionResponse = {"multi": True}
 
             try:
                 if background is not None:
-                    if not flask.request.args.get("cacheKey"):
+                    adapter = get_app().backend.request_adapter()
+                    if not (adapter and adapter.args.get("cacheKey")):
                         return _setup_background_callback(
                             kwargs,
                             background,
@@ -816,6 +881,19 @@ def register_callback(
         if inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
+            # A persistent, no-output callback streams via set_props and typically
+            # runs for the life of the connection. When synchronous it occupies a
+            # WebSocket worker thread the whole time and can exhaust the pool, so
+            # warn that it should be async (async callbacks run on the event loop).
+            if _kwargs.get("persistent") and not has_output:
+                warnings.warn(
+                    f"persistent=True callback '{callback_id}' is synchronous and "
+                    "has no Output; it will occupy a WebSocket worker thread for the "
+                    "life of the connection and can exhaust the pool. Define it with "
+                    "'async def' so it runs on the event loop instead.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
             callback_map[callback_id]["callback"] = add_context
 
         return func

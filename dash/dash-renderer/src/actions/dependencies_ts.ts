@@ -352,12 +352,18 @@ export const getLayoutCallbacks = (
 
 export const getUniqueIdentifier = ({
     anyVals,
-    callback: {inputs, outputs, state}
-}: ICallback): string =>
-    concat(
-        map(combineIdAndProp, [...inputs, ...outputs, ...state]),
+    callback: {inputs, outputs, state, output}
+}: ICallback): string => {
+    const idParts = map(combineIdAndProp, [...inputs, ...outputs, ...state]);
+    // For no-output callbacks, include the output hash to ensure uniqueness
+    if (outputs.length === 0 && output) {
+        idParts.push(output);
+    }
+    return concat(
+        idParts,
         Array.isArray(anyVals) ? anyVals : anyVals === '' ? [] : [anyVals]
     ).join(',');
+};
 
 export function includeObservers(
     id: any,

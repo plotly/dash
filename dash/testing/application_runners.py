@@ -147,6 +147,7 @@ class ThreadedRunner(BaseDashRunner):
     def __init__(self, keep_open=False, stop_timeout=3):
         super().__init__(keep_open=keep_open, stop_timeout=stop_timeout)
         self.thread = None
+        self._app = None  # Store app reference for graceful shutdown
 
     def running_and_accessible(self, url):
         if self.thread.is_alive():  # type: ignore[reportOptionalMemberAccess]
@@ -156,6 +157,7 @@ class ThreadedRunner(BaseDashRunner):
     # pylint: disable=arguments-differ
     def start(self, app, start_timeout=3, **kwargs):
         """Start the app server in threading flavor."""
+        self._app = app  # Store app reference for graceful shutdown
 
         def run():
             app.scripts.config.serve_locally = True
@@ -171,7 +173,16 @@ class ThreadedRunner(BaseDashRunner):
                 self.port = options["port"]
 
             try:
-                app.run(threaded=True, **options)
+                module = app.server.__class__.__module__
+                # FastAPI support
+                if module.startswith("fastapi"):
+                    app.run(**options)
+                # Quart support (ASGI - runs its own async event loop)
+                elif module.startswith("quart"):
+                    app.run(**options)
+                # Flask fallback (WSGI - needs threaded mode)
+                else:
+                    app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
             except Exception as error:
@@ -207,9 +218,33 @@ class ThreadedRunner(BaseDashRunner):
             raise DashAppLoadingError("threaded server failed to start")
 
     def stop(self):
-        self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
-        self.thread.join()  # type: ignore[reportOptionalMemberAccess]
-        wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        # pylint: disable=protected-access
+        server_type = getattr(
+            getattr(self._app, "backend", None), "server_type", "flask"
+        )
+        # For FastAPI apps with uvicorn, use graceful shutdown
+        if server_type == "fastapi":
+            server = self._app._uvicorn_server  # type: ignore[reportOptionalMemberAccess]
+            server.should_exit = True
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        # For Quart apps, signal hypercorn's cooperative shutdown event. Only the
+        # main-thread signal handler sets it, but in tests the server runs in a
+        # worker thread, so we set it ourselves -- thread-safely, on the server's
+        # own loop (the event binds its loop on first await) -- then join bounded.
+        elif server_type == "quart":
+            quart_shutdown_event = getattr(
+                getattr(self._app, "backend", None), "_ws_shutdown_event", None
+            )
+            loop = getattr(quart_shutdown_event, "_loop", None)
+            if loop is not None and not loop.is_closed():
+                loop.call_soon_threadsafe(quart_shutdown_event.set)  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        else:
+            # Fall back to killing threads for Flask/other backends
+            self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+            wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
+        self._app = None
         self.started = False
 
 
@@ -229,7 +264,16 @@ class MultiProcessRunner(BaseDashRunner):
             options = kwargs.copy()
 
             try:
-                app.run(threaded=True, **options)
+                module = app.server.__class__.__module__
+                # FastAPI support
+                if module.startswith("fastapi"):
+                    app.run(**options)
+                # Quart support (ASGI - runs its own async event loop)
+                elif module.startswith("quart"):
+                    app.run(**options)
+                # Flask fallback (WSGI - needs threaded mode)
+                else:
+                    app.run(threaded=True, **options)
             except SystemExit:
                 logger.info("Server stopped")
                 raise

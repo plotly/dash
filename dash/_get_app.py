@@ -4,6 +4,8 @@ from contextvars import ContextVar, copy_context
 from textwrap import dedent
 from typing import Any, Optional
 
+from dash.exceptions import AppNotFoundError
+
 APP: Optional[Any] = None
 
 app_context: ContextVar[Any] = ContextVar("dash_app_context")
@@ -55,7 +57,7 @@ def get_app():
         pass
 
     if APP is None:
-        raise Exception(
+        raise AppNotFoundError(
             dedent(
                 """
                 App object is not yet defined.  `app = dash.Dash()` needs to be run
