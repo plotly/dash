@@ -119,6 +119,28 @@ const filterEventData = (gd, eventData, event) => {
             points[i] = pointData;
         }
         filteredEventData = {points};
+
+        const includeXYVals =
+            (event === 'hover' && gd._fullLayout.hoveranywhere === true) ||
+            (event === 'click' && gd._fullLayout.clickanywhere === true);
+
+        if (includeXYVals) {
+            if (has('xvals', eventData)) {
+                filteredEventData.xvals = eventData.xvals;
+            }
+
+            if (has('yvals', eventData)) {
+                filteredEventData.yvals = eventData.yvals;
+            }
+
+            if (has('xaxes', eventData)) {
+                filteredEventData.xaxes_id = eventData.xaxes[0]._id;
+            }
+
+            if (has('yaxes', eventData)) {
+                filteredEventData.yaxes_id = eventData.yaxes[0]._id;
+            }
+        }
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects

@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
+- [#3852](https://github.com/plotly/dash/pull/3852)  Added support for Plotly hoveranywhere and clickanywhere events in `dcc.Graph` by adding `xvals` and `yvals` to `hoverData` and `clickData`.
 
 ## Changed
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.

@@ -547,3 +547,52 @@ def test_grbs010_graph_patch_deeply_nested_figure(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#output", "color=green, title=Updated Title 3")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
+    """When clickanywhere and hoveranywhere are enabled, clickData and hoverData include xvals and yvals"""
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure=go.Figure(
+                    layout=go.Layout(hoveranywhere=True, clickanywhere=True)
+                ),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="output", children="[]"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "clickData"),
+        Input("graph", "hoverData"),
+        prevent_initial_call=True,
+    )
+    def on_event(click_data, hover_data):
+        result = {
+            "click_x": (click_data or {}).get("xvals", [None])[0],
+            "click_y": (click_data or {}).get("yvals", [None])[0],
+            "hover_x": (hover_data or {}).get("xvals", [None])[0],
+            "hover_y": (hover_data or {}).get("yvals", [None])[0],
+        }
+        return json.dumps(result)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    graph = dash_dcc.find_element("#graph .nsewdrag")
+    graph.click()
+
+    dash_dcc.wait_for_contains_text("#output", "{")
+
+    out = json.loads(dash_dcc.find_element("#output").text)
+
+    # click anywhere should produce coordinates
+    assert out["click_x"] is not None
+    assert out["click_y"] is not None
+    assert out["hover_x"] is not None
+    assert out["hover_y"] is not None
