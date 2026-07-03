@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
+from dash.mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
 
 from dash import get_app
 from dash._callback import _update_background_callback, _prepare_response

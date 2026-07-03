@@ -10,7 +10,7 @@ import re
 from functools import cached_property
 from typing import Any
 
-from mcp.types import Tool
+from dash.mcp.types import Tool
 
 from dash import get_app
 from dash._utils import clean_property_name, split_callback_id

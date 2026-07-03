@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp.types import CallToolResult, CreateTaskResult, Tool
+from dash.mcp.types import CallToolResult, CreateTaskResult, Tool
 
 
 class MCPToolProvider:

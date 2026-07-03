@@ -7,7 +7,7 @@ import json
 import typing
 from typing import Any, Callable
 
-from mcp.types import CallToolResult, TextContent, Tool
+from dash.mcp.types import CallToolResult, TextContent, Tool
 
 from dash import get_app
 from dash.mcp._decorator import MCPToolRegistration

@@ -13,7 +13,7 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
-from mcp.types import (
+from dash.mcp.types import (
     LATEST_PROTOCOL_VERSION,
     ErrorData,
     Implementation,
