@@ -12,7 +12,7 @@ import typing
 from functools import cached_property
 from typing import Any, cast
 
-from mcp.types import Tool
+from dash.mcp.types import Tool
 
 from dash import get_app
 from dash._layout_utils import (

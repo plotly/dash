@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
-from mcp.types import CallToolResult, CreateTaskResult, TextContent
+from dash.mcp.types import CallToolResult, CreateTaskResult, TextContent
 
 from dash.types import CallbackExecutionResponse
 

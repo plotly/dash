@@ -1,6 +1,7 @@
 import collections
 import hashlib
 import inspect
+import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
@@ -880,6 +881,19 @@ def register_callback(
         if inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
+            # A persistent, no-output callback streams via set_props and typically
+            # runs for the life of the connection. When synchronous it occupies a
+            # WebSocket worker thread the whole time and can exhaust the pool, so
+            # warn that it should be async (async callbacks run on the event loop).
+            if _kwargs.get("persistent") and not has_output:
+                warnings.warn(
+                    f"persistent=True callback '{callback_id}' is synchronous and "
+                    "has no Output; it will occupy a WebSocket worker thread for the "
+                    "life of the connection and can exhaust the pool. Define it with "
+                    "'async def' so it runs on the event loop instead.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
             callback_map[callback_id]["callback"] = add_context
 
         return func

@@ -5,12 +5,13 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from mcp.types import (
+from pydantic import AnyUrl
+
+from dash.mcp.types import (
     ReadResourceResult,
     Resource,
     TextResourceContents,
 )
-from pydantic import AnyUrl
 
 from dash import get_app
 from dash._utils import clean_property_name, split_callback_id
