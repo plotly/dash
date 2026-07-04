@@ -490,6 +490,7 @@ class Dash(ObsoleteChecker):
         websocket_inactivity_timeout: Optional[int] = 300000,
         websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
+        websocket_max_workers: Optional[int] = 4,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         **obsolete,
@@ -662,6 +663,7 @@ class Dash(ObsoleteChecker):
         self._websocket_inactivity_timeout = websocket_inactivity_timeout
         self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
+        self._websocket_max_workers = websocket_max_workers
 
         self.logger = logging.getLogger(__name__)
 
