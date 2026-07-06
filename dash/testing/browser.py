@@ -1,11 +1,11 @@
 # pylint: disable=missing-docstring
 import os
+import re
 import sys
 import time
 import logging
 from typing import Union, Optional
 import warnings
-from percy import percy_snapshot as _percy_snapshot
 
 from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -75,15 +75,13 @@ class Browser(DashPageMixin):
 
         self._window_idx = 0  # switch browser tabs
 
-        if self._percy_run:
-            # Percy CLI handles build initialization via percy exec wrapper
-            self._percy_assets_root = percy_assets_root
-            # No explicit initialization needed
+        # percy_run/percy_finalize/percy_assets_root are deprecated Percy-era
+        # options, accepted (and ignored) so existing callers don't break.
+        self._percy_assets_root = percy_assets_root
 
         logger.debug("initialize browser with arguments")
         logger.debug("  headless => %s", self._headless)
         logger.debug("  download_path => %s", self._download_path)
-        logger.debug("  percy asset root => %s", os.path.abspath(percy_assets_root))
 
     def __enter__(self):
         return self
@@ -91,11 +89,6 @@ class Browser(DashPageMixin):
     def __exit__(self, exc_type, exc_val, traceback):
         try:
             self.driver.quit()
-            if self._percy_run and self._percy_finalize:
-                logger.info("percy finalize will be handled by percy build:finalize")
-                # With percy CLI, finalization handled by separate command
-            else:
-                logger.info("percy finalize relies on CI job")
         except WebDriverException:
             logger.exception("webdriver quit was not successful")
 
@@ -137,20 +130,24 @@ class Browser(DashPageMixin):
     def percy_snapshot(
         self, name="", wait_for_callbacks=False, convert_canvases=False, widths=None
     ):
-        """percy_snapshot - visual test api shortcut to `percy_runner.snapshot`.
-        It also combines the snapshot `name` with the Python version,
+        """percy_snapshot - visual test snapshot, captured locally for nitpix.
+
+        Saves one PNG per width into the directory given by the
+        NITPIX_SNAPSHOT_DIR environment variable (does nothing when it is
+        unset); CI diffs them against baselines with plotly/nitpix. The method
+        keeps its historical name so existing tests, and component libraries
+        built on dash.testing, work unchanged.
         args:
-        - name: combined with the python version to give the final snapshot name
+        - name: the snapshot name; a `_async` suffix is added when asgiref is
+            installed so sync and async runs don't collide
         - wait_for_callbacks: default False, whether to wait for Dash callbacks,
             after an extra second to ensure that any relevant callbacks have
             been initiated
-        - convert_canvases: default False, whether to convert all canvas elements
-            in the DOM into static images for percy to see. They will be restored
-            after the snapshot is complete.
-        - widths: a list of pixel widths for percy to render the page with. Note
-            that this does not change the browser in which the DOM is constructed,
-            so the width will only affect CSS, not JS-driven layout.
-            Defaults to [1280]
+        - convert_canvases: deprecated and ignored. Real browser screenshots
+            capture canvas elements natively (Percy's DOM re-rendering did not).
+        - widths: a list of pixel widths to capture the page at. Unlike Percy,
+            the browser window is actually resized, so JS-driven layout
+            responds too, not just CSS. Defaults to [1280]
         """
         if widths is None:
             widths = [1280]
@@ -161,6 +158,11 @@ class Browser(DashPageMixin):
         except ImportError:
             pass
 
+        snapshot_dir = os.getenv("NITPIX_SNAPSHOT_DIR")
+        if not snapshot_dir:
+            logger.debug("visual snapshots disabled - NITPIX_SNAPSHOT_DIR not set")
+            return
+
         logger.info("taking snapshot name => %s", name)
         try:
             if wait_for_callbacks:
@@ -169,56 +171,37 @@ class Browser(DashPageMixin):
                 time.sleep(1)
                 until(self._wait_for_callbacks, timeout=40, poll=0.3)
         except TestingTimeoutError:
-            # API will log the error but this TimeoutError should not block
-            # the test execution to continue and it will still do a snapshot
-            # as diff reference for the build run.
+            # Log the error but this TimeoutError should not block the test
+            # execution; it will still take a snapshot as diff reference.
             logger.error(
                 "wait_for_callbacks failed => status of invalid rqs %s",
                 self.redux_state_rqs,
             )
 
-        if convert_canvases:
-            self.driver.execute_script(
-                """
-                const stash = window._canvasStash = [];
-                Array.from(document.querySelectorAll('canvas')).forEach(c => {
-                    const i = document.createElement('img');
-                    i.src = c.toDataURL();
-                    i.width = c.width;
-                    i.height = c.height;
-                    i.setAttribute('style', c.getAttribute('style'));
-                    i.className = c.className;
-                    i.setAttribute('data-canvasnum', stash.length);
-                    stash.push(c);
-                    c.parentElement.insertBefore(i, c);
-                    c.parentElement.removeChild(c);
-                });
-            """
-            )
-
-        # NEW: Use percy-python-selenium SDK
+        safe_name = re.sub(r"[^\w.@-]+", "_", name).strip("_")
+        original_size = self.driver.get_window_size()
         try:
-            if os.getenv("PERCY_TOKEN"):
-                percy_options = {"widths": widths, "min_height": 1024}
-                _percy_snapshot(self.driver, name, **percy_options)
-            else:
-                logger.debug("Percy snapshots disabled - PERCY_TOKEN not set")
-        except Exception as err:  # pylint: disable=broad-exception-caught
-            logger.warning("Percy snapshot failed: %s", err)
-
-        if convert_canvases:
-            self.driver.execute_script(
-                """
-                const stash = window._canvasStash;
-                Array.from(
-                    document.querySelectorAll('img[data-canvasnum]')
-                ).forEach(i => {
-                    const c = stash[+i.getAttribute('data-canvasnum')];
-                    i.parentElement.insertBefore(c, i);
-                    i.parentElement.removeChild(i);
-                });
-                delete window._canvasStash;
-            """
+            for width in widths:
+                self.driver.set_window_size(width, 1024)
+                try:
+                    # capture the full page height (Percy rendered full pages),
+                    # bounded to keep runaway layouts from producing huge images
+                    doc_height = self.driver.execute_script(
+                        "return document.documentElement.scrollHeight"
+                    )
+                    height = max(1024, min(int(doc_height or 0), 4096))
+                except WebDriverException:
+                    height = 1024
+                if height != 1024:
+                    self.driver.set_window_size(width, height)
+                snapshot_path = os.path.join(snapshot_dir, f"{safe_name}@{width}.png")
+                os.makedirs(os.path.dirname(snapshot_path), exist_ok=True)
+                self.driver.save_screenshot(snapshot_path)
+        except WebDriverException as err:
+            logger.warning("visual snapshot %s failed: %s", name, err)
+        finally:
+            self.driver.set_window_size(
+                original_size["width"], original_size["height"]
             )
 
     def take_snapshot(self, name: str):

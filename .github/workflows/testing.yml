@@ -327,7 +327,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd bgtests
-          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_background.xml tests/background_callback -v -s
+          pytest --headless --junitxml=test-reports/junit_background.xml tests/background_callback -v -s
 
       - name: Cleanup background processes
         if: always()
@@ -340,7 +340,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd bgtests
-          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_async.xml tests/async_tests -v -s
+          pytest --headless --junitxml=test-reports/junit_async.xml tests/async_tests -v -s
 
       - name: Upload test results
         if: always()
@@ -422,7 +422,7 @@ jobs:
           cp -r tests bgtests/tests
           cd bgtests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/backend_tests -v -s
+          pytest --headless tests/backend_tests -v -s
 
   table-unit:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
@@ -536,7 +536,7 @@ jobs:
       - name: Run Table Server Tests
         run: |
           cd components/dash-table
-          pytest --nopercyfinalize --headless --junitxml=test-reports/junit_table.xml --splits 3 --group ${{ matrix.test-group }}
+          pytest --headless --junitxml=test-reports/junit_table.xml --splits 3 --group ${{ matrix.test-group }}
 
       - name: Upload test results
         if: always()
@@ -605,7 +605,7 @@ jobs:
           cp -r tests wstests/tests
           cd wstests
           touch __init__.py
-          pytest --headless --nopercyfinalize tests/websocket -v -s
+          pytest --headless tests/websocket -v -s
 
   test-main:
     name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
@@ -619,17 +619,10 @@ jobs:
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
-      PERCY_PARALLEL_TOTAL: -1
-      # Pin the build identity so every shard joins the same parallel build and
-      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
-      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
-      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
-      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
-      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
+      # Visual snapshots (nitpix) are captured on a single matrix leg so
+      # parallel legs don't produce duplicate snapshot names. When unset,
+      # percy_snapshot() is a no-op.
+      NITPIX_SNAPSHOT_DIR: ${{ matrix.python-version == '3.12' && '/tmp/nitpix-snapshots' || '' }}
 
     steps:
       - name: Checkout repository
@@ -680,16 +673,14 @@ jobs:
         run: npm run setup-tests.py
 
       - name: Run main integration tests
-        if: matrix.python-version != '3.12'
-        run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
+        run: pytest --headless --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
 
-      - name: Run main integration tests with Percy
-        if: matrix.python-version == '3.12'
-        uses: ./.github/actions/percy-exec
+      - name: Upload visual snapshots
+        if: always() && matrix.python-version == '3.12'
+        uses: plotly/nitpix/upload@main # TODO: pin to @v1 once released
         with:
-          command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
-          percy-token: ${{ secrets.PERCY_TOKEN }}
-          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
+          name: main-${{ matrix.test-group }}
+          path: /tmp/nitpix-snapshots
 
       - name: Upload test results
         if: always()
@@ -722,17 +713,9 @@ jobs:
         python-version: ["3.9", "3.12"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
-      PERCY_PARALLEL_TOTAL: -1
-      # Pin the build identity so every shard joins the same parallel build and
-      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
-      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
-      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
-      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
-      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
+      # Visual snapshots (nitpix) are captured on a single matrix leg so
+      # parallel legs don't produce duplicate snapshot names.
+      NITPIX_SNAPSHOT_DIR: ${{ matrix.python-version == '3.12' && '/tmp/nitpix-snapshots' || '' }}
 
     steps:
       - name: Checkout repository
@@ -784,18 +767,15 @@ jobs:
         run: npm ci
 
       - name: Run HTML components tests
-        if: matrix.python-version != '3.12'
         working-directory: components/dash-html-components
-        run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
+        run: pytest --headless --junitxml=test-reports/junit_html.xml
 
-      - name: Run HTML components tests with Percy
-        if: matrix.python-version == '3.12'
-        uses: ./.github/actions/percy-exec
+      - name: Upload visual snapshots
+        if: always() && matrix.python-version == '3.12'
+        uses: plotly/nitpix/upload@main # TODO: pin to @v1 once released
         with:
-          command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
-          percy-token: ${{ secrets.PERCY_TOKEN }}
-          browser-executable: ${{ steps.setup-chrome.outputs.chrome-path }}
-          working-directory: components/dash-html-components
+          name: html
+          path: /tmp/nitpix-snapshots
 
       - name: Upload test results
         if: always()
@@ -918,17 +898,9 @@ jobs:
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
-      PERCY_PARALLEL_TOTAL: -1
-      # Pin the build identity so every shard joins the same parallel build and
-      # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
-      # merge SHA (refs/pull/N/merge), so the build never shows up on the PR.
-      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
-      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
-      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
+      # Visual snapshots (nitpix) are captured on a single matrix leg so
+      # parallel legs don't produce duplicate snapshot names.
+      NITPIX_SNAPSHOT_DIR: ${{ matrix.python-version == '3.12' && '/tmp/nitpix-snapshots' || '' }}
 
     steps:
       - name: Checkout repository
@@ -980,7 +952,14 @@ jobs:
           cd components/dash-core-components
           npm ci
           npm run test:jest
-          pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" tests/integration --splits 3 --group ${{ matrix.test-group }}
+          pytest --headless --junitxml=test-reports/junit_intg.xml --junitprefix="components.dash-core-components" tests/integration --splits 3 --group ${{ matrix.test-group }}
+
+      - name: Upload visual snapshots
+        if: always() && matrix.python-version == '3.12'
+        uses: plotly/nitpix/upload@main # TODO: pin to @v1 once released
+        with:
+          name: dcc-${{ matrix.test-group }}
+          path: /tmp/nitpix-snapshots
 
       - name: Upload test results
         if: always()
@@ -1084,35 +1063,12 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  percy-finalize:
-    name: Finalize Percy Snapshots
-    needs: [test-main, dcc-test, html-test]
-    runs-on: ubuntu-latest
-    if: always()
-    env:
-      PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
-      # Must match the snapshot jobs so finalize targets the same parallel build
-      # and the result is attached to the PR head commit, not the merge SHA.
-      PERCY_PARALLEL_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
-      PERCY_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-      PERCY_BRANCH: ${{ github.head_ref || github.ref_name }}
-      PERCY_PULL_REQUEST: ${{ github.event.pull_request.number }}
-      PERCY_TARGET_BRANCH: ${{ github.base_ref }}
-    steps:
-      - name: Finalize Main Percy Build
-        if: |
-          env.PERCY_TOKEN != '' && (
-            needs.test-main.result != 'skipped' ||
-            needs.dcc-test.result != 'skipped' ||
-            needs.html-test.result != 'skipped'
-          )
-        run: |
-          npm install -g @percy/cli
-          npx percy build:finalize
-
-      - name: Skip Percy finalize (fork PR)
-        if: env.PERCY_TOKEN == ''
-        run: echo "::notice::Skipping Percy finalize (no token available - likely a fork PR)"
+  # Visual diffing (nitpix) runs in a separate workflow (nitpix.yml) triggered
+  # by workflow_run: it downloads the nitpix-snapshots-* artifacts uploaded by
+  # the jobs above, diffs them against the baselines on the nitpix-baselines
+  # branch, and posts the PR comment + nitpix/visual commit status. Running it
+  # over there (base-repo context) is what makes it work for fork PRs and
+  # Dependabot, which get a read-only token in this workflow.
 
   test-report:
     name: Consolidated Test Report
@@ -1181,7 +1137,7 @@ jobs:
 
   artifacts:
     name: Store Build Artifacts
-    needs: [build, percy-finalize]
+    needs: [build, test-main]
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' &&
