@@ -35,6 +35,8 @@ module.exports = (options = {}) => {
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'ReactJSXRuntime',
+            'react/jsx-dev-runtime': 'ReactJSXRuntime',
         },
         module: {
             rules: [

@@ -67,9 +67,24 @@ const rendererOptions = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
+        'react/jsx-runtime': 'ReactJSXRuntime',
+        'react/jsx-dev-runtime': 'ReactJSXRuntime',
         'prop-types': 'PropTypes'
     },
     ...defaults
+};
+
+// Standalone React compatibility shim, loaded right after react/react-dom
+// and before any component package (see _js_dist_dependencies).
+const shimOptions = {
+    mode: 'production',
+    entry: {
+        'react-shim': './src/react-shim.js',
+    },
+    output: {
+        path: path.resolve(__dirname, "build"),
+        filename: '[name].min.js',
+    }
 };
 
 // WebSocket Worker configuration
@@ -136,5 +151,7 @@ module.exports = options => [
         }
     ]),
     // WebSocket Worker build
-    workerOptions
+    workerOptions,
+    // React compatibility shim build
+    shimOptions
 ];
