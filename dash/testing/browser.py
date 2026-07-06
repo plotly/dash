@@ -127,7 +127,8 @@ class Browser(DashPageMixin):
             logger.exception("snapshot at resource %s error", path)
             raise e
 
-    def percy_snapshot(
+    # convert_canvases is deprecated and ignored, kept for API compatibility
+    def percy_snapshot(  # pylint: disable=unused-argument
         self, name="", wait_for_callbacks=False, convert_canvases=False, widths=None
     ):
         """percy_snapshot - visual test snapshot, captured locally for nitpix.
