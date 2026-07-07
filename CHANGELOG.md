@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+## Fixed
+- [](https://github.com/plotly/dash/pull/) Fix callbacks being registered twice when running the app file as a script with a server that loads it by import string, e.g. `uvicorn.run("app:server", reload=True)` with `backend="fastapi"`. The spawned worker re-executes the main module as `__mp_main__` and the import string then executed the same file a second time, duplicating every callback in `_dash-dependencies` and triggering `Duplicate callback outputs` errors in the renderer. `Dash()` now pre-registers the running main module in `sys.modules` under its canonical import name so the second import reuses it instead of re-executing the file. Fixes [#3818](https://github.com/plotly/dash/issues/3818).
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
