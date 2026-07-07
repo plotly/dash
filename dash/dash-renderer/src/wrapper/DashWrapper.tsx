@@ -66,6 +66,16 @@ type MemoizedKeysType = {
     [key: string]: React.ReactNode | null; // This includes React elements, strings, numbers, etc.
 };
 
+// Identity of a dash component: which component it is, not what its
+// current prop values are. Used to decide between remounting (identity
+// changed) and reconciling in place (same component, new props).
+const componentIdentity = (component: any) => {
+    const id = component?.props?.id;
+    return `${component?.namespace}.${component?.type}.${
+        id ? stringifyId(id) : ''
+    }`;
+};
+
 function DashWrapper({
     componentPath,
     _dashprivate_error,
@@ -77,6 +87,7 @@ function DashWrapper({
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
     const freshRenders = useRef(0);
+    const renderedIdentity: MutableRefObject<string | null> = useRef(null);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
@@ -97,7 +108,19 @@ function DashWrapper({
         if (_newRender) {
             newRender.current = true;
             renderH = 0;
-            freshRenders.current += 1;
+            // Only force a remount (via the `key` bump below) when the
+            // component identity at this path actually changed. When the
+            // same component is passed again (eg: a callback returning
+            // updated children with the same structure), reconcile in
+            // place instead of unmounting the whole subtree. (#3846)
+            const identity = componentIdentity(_passedComponent);
+            if (
+                renderedIdentity.current !== null &&
+                renderedIdentity.current !== identity
+            ) {
+                freshRenders.current += 1;
+            }
+            renderedIdentity.current = identity;
             if (renderH in memoizedKeys.current) {
                 delete memoizedKeys.current[renderH];
             }

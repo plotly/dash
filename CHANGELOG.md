@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3925](https://github.com/plotly/dash/pull/3925) Use the proxied url as the Jupyter server url so `DASH_PROXY` is honored by the external url and inline iframe in notebooks.
 - [#3938](https://github.com/plotly/dash/pull/3938) Fix `dcc.Patch()` re-running the initial callbacks of components that were already on the page, including every matching (`MATCH`/`ALL`) element, and wiping their user-edited persisted values. Fixes [#3681](https://github.com/plotly/dash/issues/3681) and [#3937](https://github.com/plotly/dash/issues/3937)
 - [#3960](https://github.com/plotly/dash/pull/3960) Fix `dcc.Markdown` not rendering `<dccLink />` by using newer dependencies
+- [#3846](https://github.com/plotly/dash/issues/3846) Fix children returned by a callback being unmounted and remounted on every update instead of reconciled in place, which reset component state and slowed rendering of large subtrees 3-4x (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)). A component passed from a parent is now only remounted when its identity (namespace, type or id) at that position actually changed; the same component with new prop values updates in place, restoring pre-4.2 behavior. To force a remount of a stateful component from a callback, return it with a different `id`.
 
 ## [4.4.1] - 2026-07-21
 
