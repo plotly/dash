@@ -23,7 +23,11 @@
  *
  * This file is loaded standalone right after react/react-dom, before any
  * component package. It is also imported at the top of the dash-renderer
- * bundle as a fallback; it must stay idempotent.
+ * bundle, and the webpack configs (renderer, dcc, html, table) embed a copy
+ * of the jsx fallback in their react/jsx-runtime external so bundles built
+ * with that convention keep working on older Dash, which never defines
+ * window.ReactJSXRuntime. It must stay idempotent, and the jsx implementation
+ * must stay in sync with the fallback in those configs.
  */
 (function () {
     if (typeof window === 'undefined' || typeof window.React === 'undefined') {

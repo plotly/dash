@@ -242,7 +242,9 @@ Dash supports multiple React versions. Configured in `dash/_dash_renderer.py`.
 
 **Available versions:** 18.3.1 (default), 18.2.0, 19.2.4 (experimental)
 
-React 19 has no official UMD builds; Dash serves the `umd-react` package for it, plus a small shim (`dash-renderer/build/react-shim.min.js`, source `dash/dash-renderer/src/react-shim.js`) loaded right after react-dom and before any component package. The shim stubs the React <=18 secret internals (`ReactCurrentOwner`) some component libraries touch at load time, and provides `window.ReactJSXRuntime`, the global that component bundles externalize `react/jsx-runtime` to.
+React 19 has no official UMD builds; Dash serves the `umd-react` package for it, plus a small shim (`dash-renderer/build/react-shim.min.js`, source `dash/dash-renderer/src/react-shim.js`) loaded right after react-dom and before any component package. The shim stubs the React <=18 secret internals (`ReactCurrentOwner`) some component libraries touch at load time, redirects the legacy `react.element` `$$typeof` symbol so libraries that pre-bundled a React <=18 jsx-runtime don't hit React error #525, and provides `window.ReactJSXRuntime`, the global that component bundles externalize `react/jsx-runtime` to.
+
+**Convention for component libraries:** externalize `react/jsx-runtime` and `react/jsx-dev-runtime` using the *defensive* external expression found in `components/dash-core-components/webpack.config.js` (`jsxRuntimeExternal`), not a bare `'ReactJSXRuntime'` string. The expression falls back to building the runtime from `window.React.createElement` when the global is missing, so the same bundle works on Dash versions that predate the shim. A bare `'ReactJSXRuntime'` external throws `ReactJSXRuntime is not defined` / `Cannot read properties of undefined (reading 'jsx')` at bundle load on older Dash.
 
 Set via environment variable (experimental):
 
