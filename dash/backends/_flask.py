@@ -22,6 +22,7 @@ from flask import (
     g as flask_g,
     has_request_context,
     redirect,
+    stream_with_context,
 )
 from werkzeug.debug import tbtools
 
@@ -29,6 +30,14 @@ from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._streaming import (
+    STREAM_HEADERS,
+    STREAM_MIMETYPE,
+    StreamedCallbackResponse,
+    andjson_lines,
+    ndjson_lines,
+    sync_iter_asyncgen,
+)
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -251,6 +260,30 @@ class FlaskDashServer(BaseDashServer[Flask]):
 
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):
+        def _stream_response(
+            marker: StreamedCallbackResponse, with_request_ctx: bool
+        ) -> Response:
+            if marker.is_async:
+                # Drive the async frame generator on a private event-loop
+                # thread; the response iterator drains it synchronously.
+                body = sync_iter_asyncgen(andjson_lines(marker.frames))
+            else:
+                body = ndjson_lines(marker)
+            if with_request_ctx:
+                # Keep flask.request usable while the body is iterated (the
+                # generator runs after the view returns). Only valid on the
+                # sync dispatch path: under an async view (asgiref) the
+                # request context lives in a different contextvars context
+                # and stream_with_context would corrupt its teardown. Dash's
+                # own callback context always works — it travels in the
+                # marker's context snapshot.
+                body = stream_with_context(body)
+            return Response(
+                body,
+                content_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
         def _dispatch():
             body = request.get_json()
             # pylint: disable=protected-access
@@ -262,6 +295,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 func, args, cb_ctx.outputs_list, cb_ctx
             )
             response_data = ctx.run(partial_func)
+            if isinstance(response_data, StreamedCallbackResponse):
+                return _stream_response(response_data, with_request_ctx=True)
             if asyncio.iscoroutine(response_data):
                 raise Exception(
                     "You are trying to use a coroutine without dash[async]. "
@@ -283,6 +318,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
             response_data = ctx.run(partial_func)
             if asyncio.iscoroutine(response_data):
                 response_data = await response_data
+            if isinstance(response_data, StreamedCallbackResponse):
+                return _stream_response(response_data, with_request_ctx=False)
             return cb_ctx.dash_response.set_response(data=response_data)
 
         if dash_app._use_async:  # pylint: disable=protected-access

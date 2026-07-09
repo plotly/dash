@@ -21,6 +21,12 @@ import janus
 
 from dash.exceptions import PreventUpdate, WebsocketDisconnected
 from dash.types import CallbackExecutionBody
+from dash._streaming import (
+    StreamedCallbackResponse,
+    aiter_stream_frames,
+    iter_stream_frames,
+    sync_iter_asyncgen,
+)
 from dash._utils import to_json
 
 if TYPE_CHECKING:
@@ -506,6 +512,105 @@ def make_callback_done_handler(
     return on_done
 
 
+def make_stream_frame_emitter(
+    outbound_queue: janus.Queue[str],
+    request_id: str,
+    renderer_id: str,
+    shutdown_event: threading.Event,
+) -> Callable[[dict], None]:
+    """Create an emitter sending intermediate stream frames for a request.
+
+    Frames ride the ``callback_response`` message type with ``stream: True``
+    and no ``done`` flag, so the renderer keeps the request pending until the
+    final ``callback_response`` (sent by the done handler) resolves it.
+    """
+
+    def emit(frame: dict) -> None:
+        if shutdown_event.is_set():
+            return
+        outbound_queue.sync_q.put_nowait(
+            cast(
+                str,
+                to_json(
+                    {
+                        "type": "callback_response",
+                        "rendererId": renderer_id,
+                        "requestId": request_id,
+                        "payload": {"status": "ok", "stream": True, "data": frame},
+                    }
+                ),
+            )
+        )
+        # Flush so the frame doesn't sit in the sender's batching window.
+        outbound_queue.sync_q.put_nowait(FLUSH_SIGNAL)
+
+    return emit
+
+
+_STREAM_DONE_PAYLOAD = {"status": "ok", "stream": True, "done": True}
+
+
+def _stream_frame_result(frame: dict) -> "dict | None":
+    """Terminal payload for a frame, or None if it is an intermediate frame."""
+    if not frame.get("done"):
+        return None
+    error = frame.get("error")
+    if error:
+        return {"status": "error", "message": error.get("message", "")}
+    return dict(_STREAM_DONE_PAYLOAD)
+
+
+def consume_stream_frames(
+    marker: StreamedCallbackResponse,
+    ws_callback: DashWebsocketCallback,
+    stream_emitter: "Callable[[dict], None] | None",
+) -> dict:
+    """Drain a streamed callback synchronously (threadpool path).
+
+    Emits intermediate frames over the WebSocket and returns the terminal
+    payload for the done handler to send as the final callback_response.
+    """
+    emit = stream_emitter or (lambda _frame: None)
+    if marker.is_async:
+        # Defensive: an async generator that ended up on the thread path is
+        # driven on a private event-loop thread.
+        frames = sync_iter_asyncgen(marker.frames)
+    else:
+        frames = iter_stream_frames(marker)
+    try:
+        for frame in frames:
+            if ws_callback.is_shutdown:
+                return {"status": "prevent_update"}
+            result = _stream_frame_result(frame)
+            if result is not None:
+                return result
+            emit(frame)
+        return dict(_STREAM_DONE_PAYLOAD)
+    finally:
+        frames.close()
+
+
+async def aconsume_stream_frames(
+    marker: StreamedCallbackResponse,
+    ws_callback: DashWebsocketCallback,
+    stream_emitter: "Callable[[dict], None] | None",
+) -> dict:
+    """Drain a streamed callback on the event loop (async dispatch path)."""
+    emit = stream_emitter or (lambda _frame: None)
+    frames = marker.frames if marker.is_async else aiter_stream_frames(marker)
+    try:
+        async for frame in frames:
+            if ws_callback.is_shutdown:
+                return {"status": "prevent_update"}
+            result = _stream_frame_result(frame)
+            if result is not None:
+                return result
+            emit(frame)
+        return dict(_STREAM_DONE_PAYLOAD)
+    finally:
+        await frames.aclose()
+
+
 def _prepare_ws_partial(
     dash_app: "dash.Dash",
     payload: CallbackExecutionBody,
@@ -533,6 +638,7 @@ def run_callback_in_executor(
     payload: CallbackExecutionBody,
     ws_callback: DashWebsocketCallback,
     response_adapter: "ResponseAdapter",
+    stream_emitter: "Callable[[dict], None] | None" = None,
 ) -> concurrent.futures.Future:
     """Submit a synchronous callback to the executor for thread pool execution.
 
@@ -571,6 +677,10 @@ def run_callback_in_executor(
                 return result
 
             response_data = ctx.run(run_callback)
+            if isinstance(response_data, StreamedCallbackResponse):
+                # The frame generator carries its own context snapshot, so it
+                # can be driven outside ctx here.
+                return consume_stream_frames(response_data, ws_callback, stream_emitter)
             return {"status": "ok", "data": json.loads(response_data)}
 
         except PreventUpdate:
@@ -589,6 +699,7 @@ async def run_callback_on_loop(
     payload: CallbackExecutionBody,
     ws_callback: DashWebsocketCallback,
     response_adapter: "ResponseAdapter",
+    stream_emitter: "Callable[[dict], None] | None" = None,
 ) -> dict:
     """Run an async callback as a task on the connection's event loop.
 
@@ -616,6 +727,10 @@ async def run_callback_on_loop(
         )
         result = partial_func()
         response_data = await result if inspect.iscoroutine(result) else result
+        if isinstance(response_data, StreamedCallbackResponse):
+            return await aconsume_stream_frames(
+                response_data, ws_callback, stream_emitter
+            )
         return {"status": "ok", "data": json.loads(response_data)}
 
     except PreventUpdate:

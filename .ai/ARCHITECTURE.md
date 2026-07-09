@@ -1053,6 +1053,99 @@ async def validate_message(websocket, message):
 - `@plotly/dash-websocket-worker/src/worker.ts` - SharedWorker entry point
 - `dash/backends/_fastapi.py` - Server-side WebSocket handler
 
+## Streaming Callbacks
+
+`@callback(..., stream=True)` marks a generator (or async generator) callback
+whose yields are pushed to the browser as they are produced — for LLM token
+streaming, progress feeds, and long computations.
+
+```python
+import asyncio
+from dash import callback, Output, Input, Patch
+
+@callback(
+    Output('log', 'children'),
+    Input('btn', 'n_clicks'),
+    stream=True,
+    prevent_initial_call=True,
+)
+async def run(n):
+    yield 'Starting...'          # replaces children immediately
+    async for token in llm():
+        p = Patch()
+        p += token
+        yield p                  # appends to children (incremental)
+    yield 'Done'                 # last yield = final value
+```
+
+### Semantics
+
+- Each yield has the same shape as a regular return value (one value per
+  `Output`) and **replaces** the outputs. Yield `dash.Patch` objects for
+  incremental updates.
+- `no_update` works per-output within a yield; a yield where nothing updates
+  produces no frame. Raising `PreventUpdate` mid-stream ends the stream
+  cleanly.
+- `set_props()` between yields is folded into the next frame's `sideUpdate`
+  (HTTP) or streams immediately (WebSocket transport).
+- Intermediate frames are applied through the same renderer path as
+  `set_props`, so dependent callbacks fire per frame and loading states stay
+  on until the stream completes (`Updating...` title for the whole stream).
+- `on_error` applies per-stream: its return value becomes a final frame.
+  Without it, an exception mid-stream sends an error frame shown in devtools;
+  frames already applied stay applied.
+- Works with sync generators (Flask/Quart/FastAPI) and async generators.
+  Sync generators warn at registration: they occupy a server worker (or WS
+  executor thread) for the whole stream — prefer `async def`.
+- Incompatible with `background=True`, clientside callbacks, `mcp_enabled`,
+  and `api_endpoint` (validated at registration).
+
+### Transport & frame protocol
+
+Transport follows the callback's normal transport selection: if the callback
+runs over the WebSocket callback transport (`websocket=True` or
+`websocket_callbacks=True`), frames ride the open connection as
+`callback_response` messages with `stream: true`; the terminal message is
+`{status: 'ok', stream: true, done: true}`. Otherwise the HTTP POST response
+streams NDJSON (`application/x-ndjson`), one frame per line:
+
+```
+{"multi": true, "response": {"<id>": {"<prop>": <value>}}, "sideUpdate": {...}?}
+{"done": true}                                     <- terminal frame
+{"done": true, "error": {"message": "..."}}        <- error terminal frame
+```
+
+The renderer applies each frame on arrival (via the `sideUpdate` path, so
+`Patch` applies exactly once) and resolves the callback's execution promise
+with an empty result on the terminal frame.
+
+### Caveats
+
+- Long streams should check `ctx.websocket.is_shutdown` (WS transport) in
+  loops; on HTTP, client disconnect raises `GeneratorExit` into the user
+  generator at its current `yield`.
+- Proxies and compression middleware (nginx buffering, flask-compress/gzip,
+  Jupyter proxies) can buffer NDJSON and defeat streaming. Dash sets
+  `X-Accel-Buffering: no`, but middleware configuration may still be needed.
+- Streamed frames bypass persistence (`prunePersistence`/`applyPersistence`).
+- Wrapping a streamed output in `dcc.Loading` hides it for the entire stream
+  (loading stays on by design).
+- Flask + async generator requires `dash[async]`; frames are bridged from a
+  private event-loop thread.
+- `flask.request` inside a streamed callback body only works on the pure-WSGI
+  Flask path (no `dash[async]`/`use_async`); under async dispatch the request
+  context cannot be carried into the stream. Use Dash's `ctx` (cookies,
+  headers, args are captured at dispatch) instead.
+
+### Key Files
+
+- `dash/_callback.py` - `add_context_stream`/`async_add_context_stream` wrappers, frame builders
+- `dash/_streaming.py` - `StreamedCallbackResponse` marker, context-safe iteration, NDJSON helpers
+- `dash/backends/_flask.py`, `_quart.py`, `_fastapi.py` - streaming dispatch branches
+- `dash/backends/ws.py` - `make_stream_frame_emitter`, `consume_stream_frames`/`aconsume_stream_frames`
+- `dash/dash-renderer/src/actions/callbacks.ts` - `applyStreamFrame`, NDJSON reader, WS frame handling
+- `dash/dash-renderer/src/utils/workerClient.ts` - stream-aware `callback_response` handling
+
 ## Security
 
 ### XSS Protection

@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- [#]() Streaming callbacks: `@callback(..., stream=True)` marks a generator (or async generator) callback whose yields are pushed to the browser as they are produced. Each yielded value has the same shape as a regular return value and replaces the outputs; yielding `dash.Patch` objects gives incremental updates (e.g. LLM token streaming). Streams ride the WebSocket callback transport when active, otherwise the HTTP response streams NDJSON frames. Works on Flask, Quart, and FastAPI; synchronous generators warn at registration since they occupy a server worker for the whole stream.
+
 ## [4.4.0] - 2026-07-03
 
 ### Added

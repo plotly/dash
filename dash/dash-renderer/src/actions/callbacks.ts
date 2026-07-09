@@ -460,6 +460,36 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
     };
 }
 
+/**
+ * Apply an intermediate frame from a stream=True callback.
+ *
+ * The frame's declared outputs are flattened to `id.prop` keys and applied
+ * through the sideUpdate path (parsePatchProps + updateComponent), so Patch
+ * values apply incrementally, paths recompute for newly added components,
+ * and observers are notified — the same semantics as set_props. The
+ * callback's execution promise stays pending until the terminal frame.
+ */
+function applyStreamFrame(
+    dispatch: any,
+    frame: CallbackResponseData,
+    payload: ICallbackPayload
+) {
+    if (frame.response) {
+        const flat: SideUpdateOutput = {};
+        toPairs(frame.response).forEach(([id, props]) => {
+            toPairs(props as Record<string, any>).forEach(([prop, value]) => {
+                flat[`${id}.${prop}`] = value;
+            });
+        });
+        if (keys(flat).length) {
+            dispatch(sideUpdate(flat, payload));
+        }
+    }
+    if (frame.sideUpdate) {
+        dispatch(sideUpdate(frame.sideUpdate, payload));
+    }
+}
+
 function handleServerside(
     dispatch: any,
     hooks: any,
@@ -609,7 +639,92 @@ function handleServerside(
                 }
             };
 
+            // stream=True callbacks: read NDJSON frames as they arrive,
+            // apply each one immediately, and resolve on the terminal frame.
+            const handleStreamedResponse = async (streamRes: any) => {
+                const reader = streamRes.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let lastResponse: CallbackResponse | undefined;
+                let finished = false;
+
+                const processFrame = async (frame: CallbackResponseData) => {
+                    if (frame.done) {
+                        finished = true;
+                        completeJob();
+                        if (frame.error) {
+                            recordProfile({});
+                            reject(
+                                new Error(
+                                    frame.error.message || 'Callback error'
+                                )
+                            );
+                            return;
+                        }
+                        if (hooks.request_post) {
+                            hooks.request_post(payload, lastResponse);
+                        }
+                        recordProfile(lastResponse || {});
+                        // Frames were already applied; resolve empty so the
+                        // terminal store update is a no-op (Patch frames must
+                        // not re-apply).
+                        resolve({});
+                        return;
+                    }
+                    if (frame.dist) {
+                        await Promise.all(frame.dist.map(loadLibrary));
+                    }
+                    lastResponse = frame.response;
+                    applyStreamFrame(dispatch, frame, payload);
+                };
+
+                try {
+                    for (;;) {
+                        const {done, value} = await reader.read();
+                        if (done) {
+                            break;
+                        }
+                        buffer += decoder.decode(value, {stream: true});
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() as string;
+                        for (const line of lines) {
+                            if (!line.trim()) {
+                                continue;
+                            }
+                            await processFrame(JSON.parse(line));
+                            if (finished) {
+                                reader.cancel();
+                                return;
+                            }
+                        }
+                    }
+                    if (buffer.trim() && !finished) {
+                        await processFrame(JSON.parse(buffer));
+                    }
+                } catch (err) {
+                    if (!finished) {
+                        finished = true;
+                        completeJob();
+                        recordProfile({});
+                        reject(err);
+                        return;
+                    }
+                }
+                if (!finished) {
+                    // Stream ended without a terminal frame (connection
+                    // dropped): clear loading, keep applied frames.
+                    completeJob();
+                    recordProfile(lastResponse || {});
+                    resolve({});
+                }
+            };
+
             if (status === STATUS.OK) {
+                const contentType = res.headers.get('Content-Type') || '';
+                if (contentType.includes('application/x-ndjson') && res.body) {
+                    handleStreamedResponse(res);
+                    return;
+                }
                 res.json().then((data: CallbackResponseData) => {
                     if (!cacheKey && data.cacheKey) {
                         cacheKey = data.cacheKey;
@@ -721,7 +836,16 @@ async function handleWebsocketCallback(
         // Ensure WebSocket connection is established
         await workerClient.ensureConnected(config);
 
-        const response = await workerClient.sendCallback(payload);
+        // stream=True callbacks deliver intermediate frames before the
+        // terminal response; apply each one as it arrives.
+        let lastStreamResponse: CallbackResponse | undefined;
+        const response = await workerClient.sendCallback(
+            payload,
+            (frame: CallbackResponseData) => {
+                lastStreamResponse = frame?.response;
+                applyStreamFrame(dispatch, frame, payload);
+            }
+        );
 
         // Handle running off state
         if (runningOff) {
@@ -753,6 +877,34 @@ async function handleWebsocketCallback(
 
         if (response.status === 'error') {
             throw new Error(response.message || 'Callback error');
+        }
+
+        if (response.stream) {
+            // Terminal frame of a streamed callback: every frame was already
+            // applied on arrival, so resolve empty (the terminal store update
+            // must be a no-op — Patch frames must not re-apply).
+            if (hooks.request_post) {
+                hooks.request_post(payload, lastStreamResponse);
+            }
+            if (config.ui) {
+                const totalTime = Date.now() - requestTime;
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        usage: {
+                            __dash_server: totalTime,
+                            __dash_client: totalTime,
+                            __dash_upload: 0,
+                            __dash_download: 0
+                        },
+                        status: STATUS.OK,
+                        result: lastStreamResponse || {},
+                        inputs: payload.inputs,
+                        state: payload.state
+                    })
+                );
+            }
+            return {};
         }
 
         // Extract the callback data - structure is {multi: boolean, response: {...}}

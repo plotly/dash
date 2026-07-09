@@ -25,6 +25,10 @@ export interface CallbackResponse {
     status: 'ok' | 'prevent_update' | 'error';
     data?: Record<string, unknown>;
     message?: string;
+    /** True for responses from a stream=True callback */
+    stream?: boolean;
+    /** True on the terminal frame of a streamed callback */
+    done?: boolean;
 }
 
 /** Set props message payload */
@@ -43,6 +47,8 @@ export interface GetPropsRequestPayload {
 interface PendingRequest {
     resolve: (value: CallbackResponse) => void;
     reject: (error: Error) => void;
+    /** Receives intermediate frames from a stream=True callback */
+    onFrame?: (data: Record<string, unknown>) => void;
 }
 
 /**
@@ -203,9 +209,15 @@ class WorkerClient {
     /**
      * Send a callback request to the server via the worker.
      * @param payload The callback payload
+     * @param onFrame Optional handler for intermediate frames from a
+     *   stream=True callback; the returned promise still resolves once with
+     *   the terminal response.
      * @returns Promise that resolves with the callback response
      */
-    public async sendCallback(payload: unknown): Promise<CallbackResponse> {
+    public async sendCallback(
+        payload: unknown,
+        onFrame?: (data: Record<string, unknown>) => void
+    ): Promise<CallbackResponse> {
         // Wait for initial connection if one is in progress
         if (this.connectionPromise && !this.isConnected) {
             await this.connectionPromise;
@@ -218,7 +230,7 @@ class WorkerClient {
         const requestId = `${this.rendererId}-${++this.requestCounter}`;
 
         return new Promise((resolve, reject) => {
-            this.pendingCallbacks.set(requestId, {resolve, reject});
+            this.pendingCallbacks.set(requestId, {resolve, reject, onFrame});
 
             this.worker!.port.postMessage({
                 type: WorkerMessageType.CALLBACK_REQUEST,
@@ -301,8 +313,21 @@ class WorkerClient {
                 const requestId = message.requestId;
                 const pending = this.pendingCallbacks.get(requestId);
                 if (pending) {
+                    const payload = message.payload;
+                    if (
+                        payload?.stream &&
+                        !payload.done &&
+                        payload.status === 'ok'
+                    ) {
+                        // Intermediate stream frame: deliver it and keep the
+                        // request pending until the terminal frame arrives.
+                        if (pending.onFrame) {
+                            pending.onFrame(payload.data);
+                        }
+                        break;
+                    }
                     this.pendingCallbacks.delete(requestId);
-                    pending.resolve(message.payload);
+                    pending.resolve(payload);
                 }
                 break;
             }
