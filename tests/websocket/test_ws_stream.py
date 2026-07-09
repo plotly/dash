@@ -53,6 +53,7 @@ def _callback_request(request_id, output_id="out", prop="children"):
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_wsst001_async_stream_frames_over_ws():
+    pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
     from fastapi.testclient import TestClient
 
     app, server = _make_ws_app()
@@ -81,6 +82,7 @@ def test_wsst001_async_stream_frames_over_ws():
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_wsst002_sync_stream_frames_over_ws():
+    pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
     from fastapi.testclient import TestClient
 
     app, server = _make_ws_app()
@@ -106,6 +108,7 @@ def test_wsst002_sync_stream_frames_over_ws():
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_wsst003_stream_error_over_ws():
+    pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
     from fastapi.testclient import TestClient
 
     app, server = _make_ws_app()
