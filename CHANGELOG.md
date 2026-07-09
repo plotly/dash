@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- [#3827](https://github.com/plotly/dash/issues/3827) Fix Flask-WTF `CSRFProtect` (and Quart-WTF) exemptions breaking after the backend refactor. The callback dispatch view is now exposed with the fully-qualified name `dash.dash.dispatch` again, so `csrf._exempt_views.add("dash.dash.dispatch")` works as it did in Dash 4.1.0.
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
