@@ -104,7 +104,8 @@ export async function initializeWebSocket(
             updateProps({
                 props: processedProps,
                 itempath: componentPath,
-                renderType: 'websocket'
+                renderType: 'websocket',
+                recordState: true
             }) as any
         );
 

@@ -352,7 +352,12 @@ async function handleClientside(
     return result;
 }
 
-function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
+function updateComponent(
+    component_id: any,
+    props: any,
+    cb: ICallbackPayload,
+    recordState = false
+) {
     return function (dispatch: any, getState: any) {
         const {paths, config} = getState();
         const componentPath = getPath(paths, component_id);
@@ -379,7 +384,8 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
             updateProps({
                 props,
                 itempath: componentPath,
-                renderType: 'callback'
+                renderType: 'callback',
+                recordState
             })
         );
         dispatch(notifyObservers({id: component_id, props}));
@@ -393,7 +399,13 @@ function updateComponent(component_id: any, props: any, cb: ICallbackPayload) {
  * @param cb The originating callback info.
  * @returns
  */
-function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
+function sideUpdate(
+    outputs: SideUpdateOutput,
+    cb: ICallbackPayload,
+    // true for `set_props` payloads - persistent state the user asked for,
+    // as opposed to transient `running`/`progress` updates.
+    recordState = false
+) {
     return function (dispatch: any, getState: any) {
         toPairs(outputs)
             .reduce((acc, [id, value], i) => {
@@ -435,7 +447,7 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
 
                 const patchedProps = parsePatchProps(idProps, oldProps);
 
-                dispatch(updateComponent(id, patchedProps, cb));
+                dispatch(updateComponent(id, patchedProps, cb, recordState));
 
                 if (!componentPath) {
                     // Component doesn't exist, doesn't matter just allow the
@@ -628,7 +640,7 @@ function handleServerside(
                     }
 
                     if (data.sideUpdate) {
-                        dispatch(sideUpdate(data.sideUpdate, payload));
+                        dispatch(sideUpdate(data.sideUpdate, payload, true));
                     }
 
                     if (data.progress) {
@@ -760,7 +772,7 @@ async function handleWebsocketCallback(
 
         // Handle sideUpdate if present
         if (callbackData?.sideUpdate) {
-            dispatch(sideUpdate(callbackData.sideUpdate, payload));
+            dispatch(sideUpdate(callbackData.sideUpdate, payload, true));
         }
 
         // Extract the actual outputs from the response

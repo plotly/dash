@@ -29,6 +29,7 @@ def load_dash_env_vars():
                 "DASH_HOT_RELOAD_INTERVAL",
                 "DASH_HOT_RELOAD_WATCH_INTERVAL",
                 "DASH_HOT_RELOAD_MAX_RETRY",
+                "DASH_HOT_RELOAD_PRESERVE_STATE",
                 "DASH_SILENCE_ROUTES_LOGGING",
                 "DASH_DISABLE_VERSION_CHECK",
                 "DASH_PRUNE_ERRORS",

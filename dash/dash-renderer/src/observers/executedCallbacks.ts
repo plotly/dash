@@ -39,6 +39,7 @@ import {updateProps, setPaths, handleAsyncError} from '../actions';
 import {getPath, computePaths} from '../actions/paths';
 
 import {applyPersistence, prunePersistence} from '../persistence';
+import {applyReloadState} from '../reloadState';
 import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
@@ -65,7 +66,18 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
-            const {props} = applyPersistence({props: updatedProps}, dispatch);
+            let {props} = applyPersistence({props: updatedProps}, dispatch);
+            if (
+                pathOr(
+                    false,
+                    ['config', 'hot_reload', 'preserve_state'],
+                    getState()
+                )
+            ) {
+                // Restore UI state saved just before a hot reload to
+                // components inserted by callbacks (e.g. pages content).
+                ({props} = applyReloadState({props}));
+            }
             (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,

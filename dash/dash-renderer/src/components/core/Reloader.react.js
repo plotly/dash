@@ -13,6 +13,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import apiThunk from '../../actions/api';
+import {snapshotReloadState} from '../../reloadState';
 
 class Reloader extends React.Component {
     constructor(props) {
@@ -148,10 +149,16 @@ class Reloader extends React.Component {
                     // Assets file have changed
                     // or a component lib has been added/removed -
                     // Must do a hard reload
+                    if (this.props.config.hot_reload.preserve_state) {
+                        snapshotReloadState();
+                    }
                     window.location.reload();
                 }
             } else {
                 // Backend code changed - can do a soft reload in place
+                if (this.props.config.hot_reload.preserve_state) {
+                    snapshotReloadState();
+                }
                 dispatch({type: 'RELOAD'});
             }
         } else if (

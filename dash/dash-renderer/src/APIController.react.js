@@ -17,6 +17,7 @@ import {computeGraphs} from './actions/dependencies';
 import apiThunk from './actions/api';
 import {EventEmitter} from './actions/utils';
 import {applyPersistence} from './persistence';
+import {applyReloadState} from './reloadState';
 import {getAppState} from './reducers/constants';
 import {STATUS} from './constants/constants';
 import wait from './utils/wait';
@@ -158,10 +159,14 @@ function storeEffect(props, events, setErrorLoading) {
                 if (typeof hooks.layout_post === 'function') {
                     hooks.layout_post(layoutRequest.content);
                 }
-                const finalLayout = applyPersistence(
+                let finalLayout = applyPersistence(
                     layoutRequest.content,
                     dispatch
                 );
+                if (config.hot_reload && config.hot_reload.preserve_state) {
+                    // Restore UI state saved just before a hot reload.
+                    finalLayout = applyReloadState(finalLayout);
+                }
                 dispatch(
                     setPaths(
                         computePaths(

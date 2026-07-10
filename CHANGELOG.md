@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- New dev tools option `dev_tools_hot_reload_preserve_state` (env: `DASH_HOT_RELOAD_PRESERVE_STATE`, off by default): preserve UI state across hot reloads. Prop values edited in the browser (input values, dropdown selections, active tab...), props set through `set_props` (serverside or clientside), and memory-type `dcc.Store` data are saved right before a hot reload and re-applied afterward, unless the prop's initial value changed in the reloaded code - then the new code wins. Works for soft and hard reloads and for components created by callbacks (e.g. `pages` content). A manual browser refresh still resets the app.
+
 ## [4.4.0] - 2026-07-03
 
 ### Added

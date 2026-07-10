@@ -13,6 +13,7 @@ import {
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 import {recordUiEdit} from '../persistence';
+import {recordReloadEdit, shouldRecordReloadEdit} from '../reloadState';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -33,8 +34,15 @@ export const resetComponentState = createAction(
 
 export function updateProps(payload) {
     return (dispatch, getState) => {
-        const component = path(payload.itempath, getState().layout);
+        const {layout, config} = getState();
+        const component = path(payload.itempath, layout);
         recordUiEdit(component, payload.props, dispatch);
+        if (
+            path(['hot_reload', 'preserve_state'], config) &&
+            shouldRecordReloadEdit(component, payload)
+        ) {
+            recordReloadEdit(component, payload.props);
+        }
         dispatch(onPropChange(payload));
     };
 }
