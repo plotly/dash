@@ -1,17 +1,17 @@
 version: 2
 updates:
   # Root package dependencies.
-  # NOTE: listing more than one entry under `directories` makes Dependabot treat
-  # "/" as a recursive glob, so it scans every nested package.json. The negated
-  # globs below keep it out of directories that have their own update entry — the
-  # components and the renderer carry narrow allow/ignore lists (e.g. react-docgen
-  # is pinned) that the root entry would otherwise bypass. @plotly/* is internal.
+  # NOTE: Dependabot's npm updater recurses from "/" into every nested
+  # package.json, and neither the singular `directory` nor plural `directories`
+  # with `!` exclusion globs stops that recursion. So the ONLY reliable way to
+  # keep this entry from bumping the components/renderer (which carry their own
+  # narrow allow/ignore lists, e.g. react-docgen is pinned) is the `allow` list
+  # below: it names only packages that exist SOLELY in the root package.json, so
+  # even while recursing, Dependabot opens root-only PRs. npm-run-all, rimraf and
+  # @types/jest are intentionally omitted — they also live in the components and
+  # would produce duplicate PRs.
   - package-ecosystem: "npm"
-    directories:
-      - "/"
-      - "!/@plotly/*"
-      - "!/components/*"
-      - "!/dash/dash-renderer"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -26,6 +26,12 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
+    allow:
+      - dependency-name: "@lerna/*"
+      - dependency-name: "@percy/cli"
+      - dependency-name: "husky"
+      - dependency-name: "lerna"
+      - dependency-name: "lint-staged"
 
   # Dash renderer
   - package-ecosystem: "npm"
