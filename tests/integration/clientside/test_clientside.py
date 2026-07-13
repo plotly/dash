@@ -937,3 +937,274 @@ def test_clsd022_clientside_pattern_matching_dots(dash_duo):
     dash_duo.wait_for_text_to_equal(".output", "clicked 1")
 
     assert dash_duo.get_logs() == []
+
+
+def test_clsd023_clientside_running(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("start", id="start"),
+            html.Button("other", id="other-btn"),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        async function(n_clicks) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return `done ${n_clicks}`;
+        }
+        """,
+        Output("output-div", "children"),
+        Input("start", "n_clicks"),
+        running=[(Output("other-btn", "disabled"), True, False)],
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    assert dash_duo.find_element("#other-btn").get_attribute("disabled") is None
+
+    dash_duo.find_element("#start").click()
+    dash_duo.wait_for_element("#other-btn:disabled")
+    dash_duo.wait_for_text_to_equal("#output-div", "done 1")
+    dash_duo.wait_for_element("#other-btn:not(:disabled)")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd024_clientside_on_error_handled(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="fine"),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(value) {
+            if (value === "boom") {
+                throw new Error("something went wrong");
+            }
+            return `ok: ${value}`;
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "value"),
+        on_error="function(err) { return `handled: ${err.message}`; }",
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output-div", "ok: fine")
+
+    input_ = dash_duo.find_element("#input")
+    dash_duo.clear_input(input_)
+    input_.send_keys("boom")
+    dash_duo.wait_for_text_to_equal("#output-div", "handled: something went wrong")
+
+    # handled errors don't reach the devtools/console
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd025_clientside_on_error_no_return(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("ok", id="ok"),
+            html.Button("boom", id="boom"),
+            html.Div(id="output-div"),
+            html.Div(id="error-marker"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(ok, boom) {
+            const trig = window.dash_clientside.callback_context.triggered_id;
+            if (trig === "boom") {
+                throw new Error(`boom ${boom}`);
+            }
+            return `ok ${ok}`;
+        }
+        """,
+        Output("output-div", "children"),
+        Input("ok", "n_clicks"),
+        Input("boom", "n_clicks"),
+        # An on_error not returning anything leaves all outputs untouched,
+        # like a server-side error handler returning None.
+        on_error="""
+        function(err) {
+            window.dash_clientside.set_props("error-marker", {children: err.message});
+        }
+        """,
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#ok").click()
+    dash_duo.wait_for_text_to_equal("#output-div", "ok 1")
+
+    dash_duo.find_element("#boom").click()
+    dash_duo.wait_for_text_to_equal("#error-marker", "boom 1")
+    # output kept its last good value
+    dash_duo.wait_for_text_to_equal("#output-div", "ok 1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd026_clientside_on_error_async(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Input(id="input", value="start"),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        async function(value) {
+            throw new Error(`rejected ${value}`);
+        }
+        """,
+        Output("output-div", "children"),
+        Input("input", "value"),
+        on_error="""
+        async function(err) {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            return `async handled: ${err.message}`;
+        }
+        """,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#output-div", "async handled: rejected start")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd027_clientside_running_with_error(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("start", id="start"),
+            html.Button("other", id="other-btn"),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        async function(n_clicks) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            throw new Error("failed");
+        }
+        """,
+        Output("output-div", "children"),
+        Input("start", "n_clicks"),
+        running=[(Output("other-btn", "disabled"), True, False)],
+        on_error="function(err) { return `caught: ${err.message}`; }",
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#start").click()
+    dash_duo.wait_for_element("#other-btn:disabled")
+    dash_duo.wait_for_text_to_equal("#output-div", "caught: failed")
+    # runningOff is applied even when the callback errored
+    dash_duo.wait_for_element("#other-btn:not(:disabled)")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd028_clientside_triggered_prop_ids(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("btn0", id="btn0"),
+            html.Button("btn1:0", id={"btn1": 0}),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(n0, n1) {
+            const ids = window.dash_clientside.callback_context.triggered_prop_ids;
+            return JSON.stringify(ids);
+        }
+        """,
+        Output("output-div", "children"),
+        Input("btn0", "n_clicks"),
+        Input({"btn1": ALL}, "n_clicks"),
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn0").click()
+    dash_duo.wait_for_text_to_equal("#output-div", '{"btn0.n_clicks":"btn0"}')
+
+    dash_duo.find_element("button[id*='btn1\":0']").click()
+    dash_duo.wait_for_text_to_equal(
+        "#output-div", '{"{\\"btn1\\":0}.n_clicks":{"btn1":0}}'
+    )
+
+    assert dash_duo.get_logs() == []
+
+
+def test_clsd029_clientside_args_grouping_positional(dash_duo):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            html.Button("go", id="go"),
+            dcc.Input(id="other", value="v0"),
+            html.Div(id="output-div"),
+        ]
+    )
+
+    app.clientside_callback(
+        """
+        function(n_clicks, value) {
+            const ctx = window.dash_clientside.callback_context;
+            const g = ctx.args_grouping;
+            return JSON.stringify({
+                using_args: ctx.using_args_grouping,
+                using_outputs: ctx.using_outputs_grouping,
+                first_triggered: g[0].triggered,
+                second_triggered: g[1].triggered,
+                second_str_id: g[1].str_id,
+                second_value: g[1].value
+            });
+        }
+        """,
+        Output("output-div", "children"),
+        Input("go", "n_clicks"),
+        State("other", "value"),
+        prevent_initial_call=True,
+    )
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#go").click()
+    dash_duo.wait_for_text_to_equal(
+        "#output-div",
+        '{"using_args":false,"using_outputs":false,"first_triggered":true,'
+        '"second_triggered":false,"second_str_id":"other","second_value":"v0"}',
+    )
+
+    assert dash_duo.get_logs() == []

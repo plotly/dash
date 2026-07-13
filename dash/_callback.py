@@ -8,7 +8,6 @@ from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, c
 from typing_extensions import ParamSpec
 
 from .dependencies import (
-    handle_callback_args,
     handle_grouped_callback_args,
     Output,
     ClientsideFunction,
@@ -28,6 +27,7 @@ from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
     grouping_len,
+    is_nontrivial_grouping,
 )
 from ._utils import (
     create_callback_id,
@@ -269,7 +269,25 @@ def validate_background_inputs(deps):
 ClientsideFuncType = Union[str, ClientsideFunction]
 
 
+def _normalize_running(running):
+    if running is not None:
+        if not isinstance(running[0], (list, tuple)):
+            running = [running]
+        running = {
+            "running": {str(r[0]): r[1] for r in running},
+            "runningOff": {str(r[0]): r[2] for r in running},
+        }
+    return running
+
+
 def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs):
+    """Create a callback that updates the output by calling a clientside
+    (JavaScript) function instead of a Python function. See
+    `Dash.clientside_callback` for the full documentation, including
+    flexible signatures (grouped dependencies) and the `running=`,
+    `on_error=`, `hidden=`, `optional=` and `prevent_initial_call=`
+    keyword arguments.
+    """
     return register_clientside_callback(
         GLOBAL_CALLBACK_LIST,
         GLOBAL_CALLBACK_MAP,
@@ -683,15 +701,8 @@ def register_callback(
 
     background = _kwargs.get("background")
     manager = _kwargs.get("manager")
-    running = _kwargs.get("running")
+    running = _normalize_running(_kwargs.get("running"))
     on_error = _kwargs.get("on_error")
-    if running is not None:
-        if not isinstance(running[0], (list, tuple)):
-            running = [running]
-        running = {
-            "running": {str(r[0]): r[1] for r in running},
-            "runningOff": {str(r[0]): r[2] for r in running},
-        }
     allow_dynamic_callbacks = _kwargs.get("_allow_dynamic_callbacks")
 
     output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
@@ -910,31 +921,7 @@ _inline_clientside_template = """
 """
 
 
-def register_clientside_callback(
-    callback_list,
-    callback_map,
-    config_prevent_initial_callbacks,
-    inline_scripts,
-    clientside_function: ClientsideFuncType,
-    *args,
-    **kwargs,
-):
-    output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
-    no_output = isinstance(output, (list,)) and len(output) == 0
-    insert_callback(
-        callback_list,
-        callback_map,
-        config_prevent_initial_callbacks,
-        output,
-        None,
-        inputs,
-        state,
-        None,
-        prevent_initial_call,
-        no_output=no_output,
-        hidden=kwargs.get("hidden", None),
-    )
-
+def _resolve_clientside_function(clientside_function, inline_scripts):
     # If JS source is explicitly given, create a namespace and function
     # name, then inject the code.
     if isinstance(clientside_function, str):
@@ -955,7 +942,78 @@ def register_clientside_callback(
         namespace = clientside_function.namespace
         function_name = clientside_function.function_name
 
+    return namespace, function_name
+
+
+def register_clientside_callback(
+    callback_list,
+    callback_map,
+    config_prevent_initial_callbacks,
+    inline_scripts,
+    clientside_function: ClientsideFuncType,
+    *args,
+    **kwargs,
+):
+    _validate.validate_clientside_callback_kwargs(kwargs)
+    on_error = kwargs.get("on_error")
+    if on_error is not None:
+        _validate.validate_clientside_on_error(on_error, ClientsideFunction)
+
+    (
+        output,
+        flat_inputs,
+        flat_state,
+        inputs_state_indices,
+        prevent_initial_call,
+    ) = handle_grouped_callback_args(args, kwargs)
+    if isinstance(output, Output):
+        # Callback with a scalar (non-multi) Output
+        insert_output = output
+        has_output = True
+    else:
+        # Callback with multi or grouped Output
+        insert_output = flatten_grouping(output)
+        has_output = len(output) > 0
+
+    output_indices = make_grouping_by_index(output, list(range(grouping_len(output))))
+    insert_callback(
+        callback_list,
+        callback_map,
+        config_prevent_initial_callbacks,
+        insert_output,
+        output_indices,
+        flat_inputs,
+        flat_state,
+        inputs_state_indices,
+        prevent_initial_call,
+        running=_normalize_running(kwargs.get("running")),
+        no_output=not has_output,
+        optional=kwargs.get("optional", False),
+        hidden=kwargs.get("hidden", None),
+    )
+
+    namespace, function_name = _resolve_clientside_function(
+        clientside_function, inline_scripts
+    )
     callback_list[-1]["clientside_function"] = {
         "namespace": namespace,
         "function_name": function_name,
     }
+
+    if on_error is not None:
+        error_namespace, error_function_name = _resolve_clientside_function(
+            on_error, inline_scripts
+        )
+        callback_list[-1]["clientside_on_error"] = {
+            "namespace": error_namespace,
+            "function_name": error_function_name,
+        }
+
+    # Only serialize the argument/output groupings when they carry structure
+    # beyond a flat signature, so flat callbacks keep their existing spec and
+    # renderer code path.
+    if is_nontrivial_grouping(output_indices) or is_nontrivial_grouping(
+        inputs_state_indices
+    ):
+        callback_list[-1]["outputs_indices"] = output_indices
+        callback_list[-1]["inputs_state_indices"] = inputs_state_indices

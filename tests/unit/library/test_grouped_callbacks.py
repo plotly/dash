@@ -155,6 +155,24 @@ def test_callback_input_mixed_grouping(mixed_grouping_size):
     check_callback_inputs_for_grouping(mixed_grouping_size[0])
 
 
+def test_clientside_callback_flat_signature_spec_unchanged():
+    """
+    Flat clientside signatures must not gain the grouping keys, so existing
+    apps keep the byte-identical callback spec and renderer code path.
+    """
+    app = dash.Dash()
+    app.clientside_callback(
+        ClientsideFunction("foo", "bar"),
+        Output("output-a", "prop"),
+        Input("input-a", "prop"),
+        State("state-a", "prop"),
+    )
+    spec = app._callback_list[-1]
+    assert "outputs_indices" not in spec
+    assert "inputs_state_indices" not in spec
+    assert spec["output"] == "output-a.prop"
+
+
 @pytest.mark.parametrize(
     "grouping",
     [
@@ -162,43 +180,57 @@ def test_callback_input_mixed_grouping(mixed_grouping_size):
         dict(a=[0, 1], b=2),
     ],
 )
-def test_clientside_callback_grouping_validation(grouping):
+def test_clientside_callback_grouping_spec(grouping):
     """
-    Clientside callbacks do not support dependency groupings yet, so we make sure that
-    these are not allowed through validation.
-
-    This test should be removed when grouping support is added for clientside
-    callbacks.
+    Grouped clientside signatures serialize the argument/output groupings
+    into the callback spec for the renderer to reconstruct.
     """
     app = dash.Dash()
-
-    # Should pass validation with no groupings
+    outputs = make_dependency_grouping(grouping, [Output])
+    inputs = make_dependency_grouping(grouping, [Input])
     app.clientside_callback(
         ClientsideFunction("foo", "bar"),
-        Output("output-a", "prop"),
-        Input("input-a", "prop"),
+        output=outputs,
+        inputs=inputs,
     )
+    spec = app._callback_list[-1]
+    assert spec["outputs_indices"] == make_grouping_by_index(
+        grouping, list(range(grouping_len(grouping)))
+    )
+    assert spec["inputs_state_indices"] == make_grouping_by_index(
+        grouping, list(range(grouping_len(grouping)))
+    )
+    assert len(spec["inputs"]) == grouping_len(grouping)
+    assert spec["output"].startswith("..")
 
-    # Validation error with output is a grouping
-    with pytest.raises(dash.exceptions.IncorrectTypeException):
+
+def test_clientside_callback_mixed_input_state_grouping_spec():
+    """
+    Mixed Input/State dict groupings remap indices into the concatenation of
+    the flat inputs followed by the flat state.
+    """
+    app = dash.Dash()
+    app.clientside_callback(
+        ClientsideFunction("foo", "bar"),
+        output=Output("output-a", "prop"),
+        inputs=dict(
+            a=Input("input-a", "prop"),
+            s=State("state-a", "prop"),
+            b=Input("input-b", "prop"),
+        ),
+    )
+    spec = app._callback_list[-1]
+    assert spec["inputs_state_indices"] == dict(a=0, s=2, b=1)
+    assert [i["id"] for i in spec["inputs"]] == ["input-a", "input-b"]
+    assert [s["id"] for s in spec["state"]] == ["state-a"]
+
+
+def test_clientside_callback_malformed_grouping_raises():
+    app = dash.Dash()
+    with pytest.raises(ValueError):
         app.clientside_callback(
             ClientsideFunction("foo", "bar"),
-            make_dependency_grouping(grouping, [Output]),
-            Input("input-a", "prop"),
-        )
-
-    # Validation error with input is a grouping
-    with pytest.raises(dash.exceptions.IncorrectTypeException):
-        app.clientside_callback(
-            ClientsideFunction("foo", "bar"),
-            Output("output-a", "prop"),
-            make_dependency_grouping(grouping, [Input]),
-        )
-
-    # Validation error when both are groupings
-    with pytest.raises(dash.exceptions.IncorrectTypeException):
-        app.clientside_callback(
-            ClientsideFunction("foo", "bar"),
-            make_dependency_grouping(grouping, [Output]),
-            make_dependency_grouping(grouping, [Input]),
+            output=Output("output-a", "prop"),
+            inputs=dict(a=Input("input-a", "prop")),
+            state=[State("state-a", "prop")],
         )

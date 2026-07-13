@@ -1477,6 +1477,54 @@ class Dash(ObsoleteChecker):
         The last, optional argument `prevent_initial_call` causes the callback
         not to fire when its outputs are first added to the page. Defaults to
         `False` unless `prevent_initial_callbacks=True` at the app level.
+
+        Like `@app.callback`, dependencies may be given as flexible signatures
+        with the `output=`, `inputs=` and `state=` keyword arguments,
+        using dicts or nested lists/tuples of dependencies. A dict grouping is
+        passed to the JavaScript function as a single object argument that can
+        be destructured (the clientside analog of keyword arguments), and the
+        function returns an object with the same keys as the output grouping:
+        ```
+        app.clientside_callback(
+            '''
+            function({a, b}) {
+                return {sum: a + b, product: a * b};
+            }
+            ''',
+            output=dict(
+                sum=Output('sum', 'children'),
+                product=Output('product', 'children'),
+            ),
+            inputs=dict(
+                a=Input('a', 'value'),
+                b=Input('b', 'value'),
+            ),
+        )
+        ```
+        A list/tuple grouping provides one function argument per top-level
+        item, each of which may itself be a nested grouping.
+
+        Other supported keyword arguments:
+
+        - `running`: a list of `(Output, on_value, off_value)` tuples applied
+          when the callback starts and reverted when it finishes (most useful
+          for async/promise-returning clientside functions).
+        - `on_error`: a JavaScript error handler, given as a source string or
+          a `ClientsideFunction`. It is called with the error when the
+          callback throws (other than `dash_clientside.PreventUpdate`); its
+          return value is used as the callback's outputs, with `undefined`
+          leaving all outputs unchanged. The app-level (Python) `on_error`
+          does not apply to clientside callbacks.
+        - `hidden`: hide the callback from the devtools UI.
+        - `optional`: mark all dependencies as optional on layout checks.
+
+        Inside the function, `window.dash_clientside.callback_context`
+        provides `triggered`, `triggered_id`, `triggered_prop_ids`, `inputs`,
+        `inputs_list`, `states`, `states_list`, `outputs_list`,
+        `args_grouping`, `outputs_grouping`, `using_args_grouping` and
+        `using_outputs_grouping`. Request-bound fields of the server-side
+        `callback_context` (such as `cookies`, `headers` or `path`) have no
+        clientside equivalent.
         """
         return _callback.register_clientside_callback(
             self._callback_list,

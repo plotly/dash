@@ -23,6 +23,7 @@ import {
 import {
     CallbackResult,
     ICallback,
+    ICallbackDefinition,
     IExecutedCallback,
     IExecutingCallback,
     ICallbackPayload,
@@ -32,7 +33,8 @@ import {
     BackgroundCallbackInfo,
     CallbackResponse,
     CallbackResponseData,
-    SideUpdateOutput
+    SideUpdateOutput,
+    GroupingIndices
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
 import {urlBase} from './utils';
@@ -43,6 +45,7 @@ import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
 import {parsePatchProps} from './patch';
 import {computePaths, getPath} from './paths';
+import {mapGrouping, flattenGroupingByIndex} from '../utils/grouping';
 
 import {requestDependencies} from './requestDependencies';
 
@@ -246,12 +249,21 @@ function cleanOutputProp(property: string) {
     return property.split('@')[0];
 }
 
+const isRangeIndices = (indices: GroupingIndices) =>
+    Array.isArray(indices) && indices.every((ind, i) => ind === i);
+
 async function handleClientside(
     dispatch: any,
-    clientside_function: any,
+    callbackDefinition: ICallbackDefinition,
     config: any,
     payload: ICallbackPayload
 ) {
+    const {
+        clientside_function,
+        clientside_on_error,
+        outputs_indices,
+        inputs_state_indices
+    } = callbackDefinition;
     const dc = ((window as any).dash_clientside =
         (window as any).dash_clientside || {});
     if (!dc.no_update) {
@@ -274,27 +286,116 @@ async function handleClientside(
     const result: any = {};
     let status: any = STATUS.OK;
 
-    try {
-        const {namespace, function_name} = clientside_function;
-        let args = inputs.map(getVals);
-        if (state) {
-            args = concat(args, state.map(getVals));
+    const assignLeaf = (outij: any, retij: any) => {
+        const {id, property} = outij;
+        const idStr = stringifyId(id);
+        const dataForId = (result[idStr] = result[idStr] || {});
+        if (retij !== dc.no_update) {
+            dataForId[cleanOutputProp(property)] = retij;
         }
+    };
 
-        // setup callback context
-        dc.callback_context = {};
-        dc.callback_context.triggered = payload.changedPropIds.map(prop_id => ({
+    const assignResult = (returnValue: any) => {
+        if (!outputs) {
+            return;
+        }
+        if (outputs_indices !== undefined) {
+            const flatOutputs = Array.isArray(outputs) ? outputs : [outputs];
+            const flatReturn =
+                returnValue === dc.no_update
+                    ? new Array(flatOutputs.length).fill(dc.no_update)
+                    : flattenGroupingByIndex(
+                          outputs_indices,
+                          returnValue,
+                          flatOutputs.length
+                      );
+            zip(flatOutputs, flatReturn).forEach(([outi, reti]) => {
+                zipIfArray(outi, reti).forEach(([outij, retij]) =>
+                    assignLeaf(outij, retij)
+                );
+            });
+        } else {
+            zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
+                zipIfArray(outi, reti).forEach(([outij, retij]) =>
+                    assignLeaf(outij, retij)
+                );
+            });
+        }
+    };
+
+    // setup callback context, mirroring the server-side CallbackContext
+    // fields that have a clientside equivalent
+    const annotateEntry = (entry: any) => {
+        const strId = stringifyId(entry.id);
+        return {
+            ...entry,
+            value: entry.value,
+            str_id: strId,
+            triggered: payload.changedPropIds.includes(
+                `${strId}.${entry.property}`
+            ),
+            id: entry.id
+        };
+    };
+    const annotate = (entry: any) =>
+        Array.isArray(entry) ? entry.map(annotateEntry) : annotateEntry(entry);
+
+    const flatDeps = concat(inputs, state || []);
+    const annotatedDeps = flatDeps.map(annotate);
+    let argsGrouping: any = annotatedDeps;
+    let usingArgsGrouping = false;
+    if (inputs_state_indices !== undefined) {
+        argsGrouping = mapGrouping(i => annotatedDeps[i], inputs_state_indices);
+        usingArgsGrouping =
+            typeof inputs_state_indices !== 'number' &&
+            !isRangeIndices(inputs_state_indices);
+    }
+
+    let outputsGrouping: any = outputs;
+    let usingOutputsGrouping = false;
+    if (outputs !== undefined && outputs_indices !== undefined) {
+        const flatOutputs = Array.isArray(outputs) ? outputs : [outputs];
+        outputsGrouping = mapGrouping(i => flatOutputs[i], outputs_indices);
+        usingOutputsGrouping =
+            typeof outputs_indices !== 'number' &&
+            !isRangeIndices(outputs_indices);
+    }
+
+    const ctx: any = {
+        triggered: payload.changedPropIds.map(prop_id => ({
             prop_id: prop_id,
             value: inputDict[prop_id]
-        }));
-        dc.callback_context.triggered_id = getTriggeredId(
-            payload.changedPropIds
-        );
-        dc.callback_context.inputs_list = inputs;
-        dc.callback_context.inputs = inputDict;
-        dc.callback_context.states_list = state;
-        dc.callback_context.states = stateDict;
-        dc.callback_context.outputs_list = outputs;
+        })),
+        triggered_id: getTriggeredId(payload.changedPropIds),
+        triggered_prop_ids: getTriggeredPropIds(payload.changedPropIds),
+        inputs_list: inputs,
+        inputs: inputDict,
+        states_list: state,
+        states: stateDict,
+        outputs_list: outputs,
+        args_grouping: argsGrouping,
+        using_args_grouping: usingArgsGrouping,
+        outputs_grouping: outputsGrouping,
+        using_outputs_grouping: usingOutputsGrouping
+    };
+
+    try {
+        const {namespace, function_name} = clientside_function as any;
+        let args: any[];
+        if (inputs_state_indices !== undefined) {
+            const grouped = mapGrouping(
+                i => getVals(flatDeps[i]),
+                inputs_state_indices
+            );
+            // A list grouping provides one positional argument per top-level
+            // item; dict and scalar groupings provide a single argument (the
+            // clientside analog of keyword arguments).
+            args = Array.isArray(inputs_state_indices) ? grouped : [grouped];
+        } else {
+            args = flatDeps.map(getVals);
+        }
+
+        dc.callback_context = ctx;
 
         let returnValue = dc[namespace][function_name](...args);
 
@@ -304,21 +405,34 @@ async function handleClientside(
             returnValue = await returnValue;
         }
 
-        if (outputs) {
-            zipIfArray(outputs, returnValue).forEach(([outi, reti]) => {
-                zipIfArray(outi, reti).forEach(([outij, retij]) => {
-                    const {id, property} = outij;
-                    const idStr = stringifyId(id);
-                    const dataForId = (result[idStr] = result[idStr] || {});
-                    if (retij !== dc.no_update) {
-                        dataForId[cleanOutputProp(property)] = retij;
-                    }
-                });
-            });
-        }
+        assignResult(returnValue);
     } catch (e) {
         if (e === dc.PreventUpdate) {
             status = STATUS.PREVENT_UPDATE;
+        } else if (clientside_on_error) {
+            // Mirror the server-side per-callback on_error: the handler
+            // receives the error; its return value is used as the callback's
+            // outputs, `undefined` meaning no_update for all outputs. Errors
+            // thrown by the handler itself (or a PreventUpdate) propagate.
+            try {
+                dc.callback_context = ctx;
+                const {namespace, function_name} = clientside_on_error;
+                let handled = dc[namespace][function_name](e);
+                delete dc.callback_context;
+                if (typeof handled?.then === 'function') {
+                    handled = await handled;
+                }
+                if (handled !== undefined) {
+                    assignResult(handled);
+                }
+            } catch (handlerError) {
+                if (handlerError === dc.PreventUpdate) {
+                    status = STATUS.PREVENT_UPDATE;
+                } else {
+                    status = STATUS.CLIENTSIDE_ERROR;
+                    throw handlerError;
+                }
+            }
         } else {
             status = STATUS.CLIENTSIDE_ERROR;
             throw e;
@@ -853,6 +967,20 @@ function inputsToDict(inputs_list: any) {
     return inputs;
 }
 
+function getTriggeredPropIds(triggered: string[]): {[key: string]: any} {
+    // Mirrors the server-side callback_context.triggered_prop_ids: a dict
+    // mapping each triggered prop_id, e.g. "btn.n_clicks", to the component
+    // id, e.g. "btn" — parsed to an object for pattern-matching ids.
+    const triggeredPropIds: {[key: string]: any} = {};
+    (triggered || []).forEach(propId => {
+        const componentId = propId.substring(0, propId.lastIndexOf('.'));
+        triggeredPropIds[propId] = componentId.startsWith('{')
+            ? JSON.parse(componentId)
+            : componentId;
+    });
+    return triggeredPropIds;
+}
+
 function getTriggeredId(triggered: string[]): string | object | undefined {
     // for regular callbacks,  takes the first triggered prop_id, e.g.  "btn.n_clicks" and returns "btn"
     // for pattern matching callback, e.g. '{"index":0, "type":"btn"}' and returns {index:0, type: "btn"}'
@@ -886,7 +1014,8 @@ export function executeCallback(
         state,
         clientside_function,
         background,
-        dynamic_creator
+        dynamic_creator,
+        running
     } = cb.callback;
     try {
         const inVals = fillVals(paths, layout, cb, inputs, 'Input', true);
@@ -956,10 +1085,15 @@ export function executeCallback(
                 };
 
                 if (clientside_function) {
+                    let runningOff: any;
+                    if (running) {
+                        dispatch(sideUpdate(running.running, payload));
+                        runningOff = running.runningOff;
+                    }
                     try {
                         let data = await handleClientside(
                             dispatch,
-                            clientside_function,
+                            cb.callback,
                             config,
                             payload
                         );
@@ -991,6 +1125,10 @@ export function executeCallback(
                         return {data, payload};
                     } catch (error: any) {
                         return {error, payload};
+                    } finally {
+                        if (runningOff) {
+                            dispatch(sideUpdate(runningOff, payload));
+                        }
                     }
                 }
 
