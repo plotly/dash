@@ -1,10 +1,21 @@
 type CallbackId = string | {[key: string]: any};
 
+export type GroupingIndices =
+    | number
+    | GroupingIndices[]
+    | {[key: string]: GroupingIndices};
+
 export interface ICallbackDefinition {
     clientside_function?: {
         namespace: string;
         function_name: string;
     };
+    clientside_on_error?: {
+        namespace: string;
+        function_name: string;
+    };
+    outputs_indices?: GroupingIndices;
+    inputs_state_indices?: GroupingIndices;
     input: string;
     inputs: ICallbackProperty[];
     output: string;

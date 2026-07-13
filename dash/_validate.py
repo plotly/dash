@@ -51,6 +51,71 @@ def validate_callback(outputs, inputs, state, extra_args, types):
             validate_callback_arg(arg)
 
 
+CLIENTSIDE_CALLBACK_KWARGS = {
+    "output",
+    "inputs",
+    "state",
+    "prevent_initial_call",
+    "hidden",
+    "optional",
+    "running",
+    "on_error",
+}
+
+SERVERSIDE_ONLY_CALLBACK_KWARGS = {
+    "background",
+    "interval",
+    "progress",
+    "progress_default",
+    "cancel",
+    "manager",
+    "cache_args_to_ignore",
+    "cache_ignore_triggered",
+    "api_endpoint",
+    "websocket",
+    "persistent",
+    "mcp_enabled",
+    "mcp_expose_docstring",
+}
+
+
+def validate_clientside_callback_kwargs(kwargs):
+    invalid = set(kwargs) - CLIENTSIDE_CALLBACK_KWARGS
+    if not invalid:
+        return
+
+    messages = []
+    server_only = sorted(invalid & SERVERSIDE_ONLY_CALLBACK_KWARGS)
+    unknown = sorted(invalid - SERVERSIDE_ONLY_CALLBACK_KWARGS)
+    if server_only:
+        messages.append(
+            f"{', '.join(f'`{k}`' for k in server_only)}: "
+            "only supported by server-side callbacks, not clientside_callback."
+        )
+    if unknown:
+        messages.append(
+            f"{', '.join(f'`{k}`' for k in unknown)}: "
+            "unexpected keyword argument(s)."
+        )
+    raise exceptions.CallbackException(
+        "Invalid keyword arguments passed to clientside_callback:\n"
+        + "\n".join(f"  {m}" for m in messages)
+        + "\nSupported keyword arguments are: "
+        + ", ".join(sorted(CLIENTSIDE_CALLBACK_KWARGS))
+    )
+
+
+def validate_clientside_on_error(on_error, clientside_function_type):
+    if not isinstance(on_error, (str, clientside_function_type)):
+        raise exceptions.CallbackException(
+            "The `on_error` argument of clientside_callback must be a "
+            "JavaScript function, provided either as a source string or a "
+            f"ClientsideFunction, not {type(on_error).__name__}. "
+            "Python error handlers cannot run in the browser; the app-level "
+            "`on_error` does not apply to clientside callbacks."
+        )
+
+
 def validate_callback_arg(arg):
     if not isinstance(getattr(arg, "component_property", None), str):
         raise exceptions.IncorrectTypeException(

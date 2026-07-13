@@ -236,6 +236,17 @@ def validate_grouping(grouping, schema, full_schema=None, path=()):
         pass
 
 
+def is_nontrivial_grouping(grouping):
+    """
+    True if a grouping is anything other than a scalar or a flat list —
+    i.e. a dict at the top level, or a list/tuple with nested structure.
+    """
+    return isinstance(grouping, dict) or (
+        isinstance(grouping, (tuple, list))
+        and any(isinstance(g, (tuple, list, dict)) for g in grouping)
+    )
+
+
 def update_args_group(g, triggered):
     if isinstance(g, dict):
         str_id = stringify_id(g["id"])

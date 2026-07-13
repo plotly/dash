@@ -2,6 +2,18 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+- [#]() Clientside callbacks now support flexible callback signatures: `output=`, `inputs=` and `state=` may be given as dicts or nested lists/tuples, like server-side callbacks. A dict grouping is passed to the JavaScript function as a single destructurable object argument, and the function returns an object matching the output grouping.
+- [#]() Clientside callbacks now support `running=`, applying the on/off side updates around execution (including async/promise-returning functions and errors).
+- [#]() Clientside callbacks now support `on_error=`, a JavaScript error handler given as a source string or `ClientsideFunction`. Its return value is used as the callback's outputs; returning `undefined` leaves all outputs unchanged, mirroring the server-side per-callback error handler.
+- [#]() Clientside callbacks now support the `optional` keyword argument.
+- [#]() `dash_clientside.callback_context` now also provides `triggered_prop_ids`, `args_grouping`, `outputs_grouping`, `using_args_grouping` and `using_outputs_grouping`, matching the server-side `callback_context`.
+
+### Changed
+- [#]() `clientside_callback` now raises a `CallbackException` when passed keyword arguments it does not support (such as `background=`, `progress=`, `cancel=` or `manager=`) instead of silently ignoring them.
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
