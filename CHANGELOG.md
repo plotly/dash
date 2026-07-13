@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+## Fixed
+- [#3882](https://github.com/plotly/dash/pull/3882) Fix `dcc.Graph` user interactions (pan, zoom, edited shapes & annotations, ...) being reverted by a subsequent `Patch` update, by syncing all relayout changes back to the `figure` prop instead of only shapes. Fixes [#3810](https://github.com/plotly/dash/issues/3810).
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
