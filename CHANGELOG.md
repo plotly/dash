@@ -2,9 +2,10 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [Unreleased]
 
-## Fixed
+### Fixed
+- [3885](https://github.com/plotly/dash/pull/3885) Fix Flask-WTF `CSRFProtect` (and Quart-WTF) exemptions breaking after the backend refactor. The callback dispatch view is now exposed with the fully-qualified name `dash.dash.dispatch` again, so `csrf._exempt_views.add("dash.dash.dispatch")` works as it did in Dash 4.1.0. Fixes [#3827](https://github.com/plotly/dash/issues/3827).
 - [#3882](https://github.com/plotly/dash/pull/3882) Fix `dcc.Graph` user interactions (pan, zoom, edited shapes & annotations, ...) being reverted by a subsequent `Patch` update, by syncing all relayout changes back to the `figure` prop instead of only shapes. Fixes [#3810](https://github.com/plotly/dash/issues/3810).
 
 ## [4.4.0] - 2026-07-03
