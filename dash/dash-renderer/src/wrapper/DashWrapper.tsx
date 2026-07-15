@@ -113,10 +113,15 @@ function DashWrapper({
             // same component is passed again (eg: a callback returning
             // updated children with the same structure), reconcile in
             // place instead of unmounting the whole subtree. (#3846)
+            //
+            // `_dashprivate_remount` is set by `dash.remount()` and forces
+            // a remount even when the identity is unchanged, letting a
+            // callback explicitly reset a component's internal state.
             const identity = componentIdentity(_passedComponent);
             if (
-                renderedIdentity.current !== null &&
-                renderedIdentity.current !== identity
+                _passedComponent?._dashprivate_remount ||
+                (renderedIdentity.current !== null &&
+                    renderedIdentity.current !== identity)
             ) {
                 freshRenders.current += 1;
             }

@@ -1,5 +1,5 @@
 import time
-from dash import Dash, Input, Output, html
+from dash import Dash, Input, Output, html, ctx, remount
 
 import dash_test_components as dt
 
@@ -122,3 +122,50 @@ def test_rdraw003_children_update_in_place(dash_duo):
         ".filter(el => el.__dash_test_probe).length"
     )
     assert reused == n_elements
+
+
+def test_rdraw004_explicit_remount(dash_duo):
+    # `dash.remount()` forces a remount (resetting internal state) even when
+    # the component identity is unchanged, without having to change the id.
+    # The same component returned plain reconciles in place (counter keeps
+    # incrementing); wrapped in remount() it resets to 1.
+    app = Dash()
+
+    app.layout = html.Div(
+        [
+            html.Div(dt.DrawCounter(id="counter"), id="box"),
+            html.Button("plain", id="plain"),
+            html.Button("remount", id="remount"),
+        ]
+    )
+
+    @app.callback(
+        Output("box", "children"),
+        Input("plain", "n_clicks"),
+        Input("remount", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def update(_plain, _remount):
+        if ctx.triggered_id == "remount":
+            return remount(dt.DrawCounter(id="counter"))
+        return dt.DrawCounter(id="counter")
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#counter", "1")
+    # Plain re-renders reconcile in place: the counter increments.
+    dash_duo.find_element("#plain").click()
+    dash_duo.wait_for_text_to_equal("#counter", "2")
+    dash_duo.find_element("#plain").click()
+    dash_duo.wait_for_text_to_equal("#counter", "3")
+    # remount() resets internal state.
+    dash_duo.find_element("#remount").click()
+    dash_duo.wait_for_text_to_equal("#counter", "1")
+    # ...and reconciliation resumes afterwards.
+    dash_duo.find_element("#plain").click()
+    dash_duo.wait_for_text_to_equal("#counter", "2")
+    # remount() works repeatedly.
+    dash_duo.find_element("#remount").click()
+    dash_duo.wait_for_text_to_equal("#counter", "1")
+
+    assert dash_duo.get_logs() == []
