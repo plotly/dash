@@ -53,6 +53,7 @@ from ._utils import (
     hooks_to_js_object,
     get_caller_name,
     get_root_path,
+    alias_main_module,
 )
 from . import _callback
 from . import _get_paths
@@ -505,6 +506,8 @@ class Dash(ObsoleteChecker):
             raise ValueError("csrf_header_name must be a non-empty string")
 
         caller_name: str = name if name is not None else get_caller_name()
+
+        alias_main_module(caller_name)
 
         # Determine backend
         if backend is None:
