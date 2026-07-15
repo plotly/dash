@@ -53,6 +53,7 @@ from ._utils import (
     hooks_to_js_object,
     get_caller_name,
     get_root_path,
+    alias_main_module,
 )
 from . import _callback
 from . import _get_paths
@@ -152,37 +153,6 @@ try:
 # pylint: disable-next=bare-except
 except:  # noqa: E722
     page_container = None
-
-
-def _alias_main_module(caller_name: str) -> None:
-    # When the app module runs as a script (`__main__`), or is re-executed by
-    # multiprocessing's spawn as `__mp_main__` (e.g. in the worker process of
-    # uvicorn's reloader), a later import of the same file by its real name
-    # ("app:server" import strings) would execute the module a second time,
-    # registering every callback twice. Pre-register the running module under
-    # its canonical import name so that import resolves to this module
-    # instead of re-executing the file. See issue #3818.
-    if caller_name not in ("__main__", "__mp_main__"):
-        return
-    module = sys.modules.get(caller_name)
-    if module is None:
-        return
-    module_file = getattr(module, "__file__", None)
-    if not module_file:
-        return
-    import_name = os.path.splitext(os.path.basename(module_file))[0]
-    if not import_name.isidentifier() or import_name in sys.modules:
-        return
-    try:
-        spec = find_spec(import_name)
-        if (
-            spec is not None
-            and spec.origin is not None
-            and os.path.samefile(spec.origin, module_file)
-        ):
-            sys.modules[import_name] = module
-    except (ImportError, ValueError, OSError):
-        pass
 
 
 def _get_traceback(secret, error: Exception):
@@ -537,7 +507,7 @@ class Dash(ObsoleteChecker):
 
         caller_name: str = name if name is not None else get_caller_name()
 
-        _alias_main_module(caller_name)
+        alias_main_module(caller_name)
 
         # Determine backend
         if backend is None:

@@ -79,6 +79,72 @@ def test_main_module_alias_prevents_double_registration(tmp_path, monkeypatch):
         ]
 
 
+PKG_APP_SOURCE = """
+from dash import Dash, html, dcc, callback, Output, Input
+
+app = Dash(__name__)
+app.layout = html.Div([
+    dcc.Input(id="pkg-alias-in", value="hello"),
+    html.Div(id="pkg-alias-out"),
+])
+
+
+@callback(Output("pkg-alias-out", "children"), Input("pkg-alias-in", "value"))
+def update(value):
+    return value
+
+
+server = app.server
+"""
+
+PKG_NAME = "dash_test_alias_pkg"
+
+
+def test_main_module_alias_prevents_double_registration_nested(tmp_path, monkeypatch):
+    """A main module nested in a package (``package/app.py``) is re-imported by
+    its dotted import string (``package.app:server``), not its basename. The
+    alias must be registered under the dotted name so that import resolves to
+    the already-executed module instead of re-running the file."""
+    from dash import _callback
+
+    pkg_dir = tmp_path / PKG_NAME
+    pkg_dir.mkdir()
+    (pkg_dir / "__init__.py").write_text("")
+    app_file = pkg_dir / "app.py"
+    app_file.write_text(PKG_APP_SOURCE)
+
+    monkeypatch.syspath_prepend(str(tmp_path))
+    monkeypatch.chdir(tmp_path)
+
+    import_string = f"{PKG_NAME}.app"
+
+    try:
+        main_module = _run_as(app_file, "__mp_main__")
+
+        # The deployment import string ("dash_test_alias_pkg.app:server") must
+        # resolve to the module that already executed, not re-execute the file.
+        imported = importlib.import_module(import_string)
+        assert imported is main_module
+
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "pkg-alias-out.children"
+        ]
+        assert len(specs) == 1
+        assert "pkg-alias-out.children" in _callback.GLOBAL_CALLBACK_MAP
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(import_string, None)
+        sys.modules.pop(PKG_NAME, None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("pkg-alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "pkg-alias-out.children"
+        ]
+
+
 def test_no_alias_when_names_collide(tmp_path, monkeypatch):
     """A main module whose basename matches an already-imported module must
     not clobber the existing sys.modules entry (e.g. a script named dash.py)."""
