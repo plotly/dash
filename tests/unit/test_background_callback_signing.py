@@ -202,10 +202,13 @@ requires_mcp = pytest.mark.skipif(
 
 @requires_mcp
 def test_mcp_parse_task_id_accepts_signed_handles():
+    from dash import get_app
     from dash.mcp.tasks.tasks import parse_task_id
 
-    app, _ = _make_app()
-    secret = app._get_signing_secret()
+    _make_app()
+    # Sign with the same secret parse_task_id resolves (via get_app), so the
+    # signatures verify regardless of which app instance get_app returns.
+    secret = get_app()._get_signing_secret()
     # MCP dispatch has no end_id, so handles are signed with a None scope.
     signed_job = signing.sign(secret, signing.job_scope(None), "4242")
     signed_cache = signing.sign(secret, signing.cache_scope(None), "abc123")
