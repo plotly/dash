@@ -193,6 +193,14 @@ def test_secret_differs_for_unshared_caches():
 # --------------------------------------------------------------------------- #
 # MCP tasks/* surface (same job/cacheKey round-trip, no end_id)
 # --------------------------------------------------------------------------- #
+# MCP requires Python 3.10+ (its pydantic models use `X | None` syntax), so
+# these tests are skipped on older interpreters, matching the MCP test tree.
+requires_mcp = pytest.mark.skipif(
+    sys.version_info < (3, 10), reason="MCP requires Python 3.10+"
+)
+
+
+@requires_mcp
 def test_mcp_parse_task_id_accepts_signed_handles():
     from dash.mcp.tasks.tasks import parse_task_id
 
@@ -209,6 +217,7 @@ def test_mcp_parse_task_id_accepts_signed_handles():
     assert cache_key == "abc123"
 
 
+@requires_mcp
 def test_mcp_parse_task_id_rejects_forged_handles():
     from dash.mcp.tasks.tasks import parse_task_id
     from dash.mcp.types import MCPError
