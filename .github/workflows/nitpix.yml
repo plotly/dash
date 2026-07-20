@@ -1,0 +1,43 @@
+name: nitpix
+
+# Visual diffing (replaces Percy). Runs in the base-repo context via
+# workflow_run so it has a full-privilege token even for fork and Dependabot
+# PRs (which get a read-only token in "Dash Testing" itself).
+#
+# - PR-triggered test runs: diff the uploaded nitpix-snapshots-* artifacts
+#   against baselines/<base-branch>/ on the nitpix-baselines orphan branch,
+#   post/update the review comment and the `nitpix/visual` commit status.
+#   Approve visual changes by commenting `/nitpix approve` on the PR
+#   (see nitpix-approve.yml).
+# - push-triggered test runs (dev/master): promote that run's snapshots to
+#   the branch's baselines.
+#
+# SECURITY: never check out or execute PR code in this workflow — it runs
+# with write permissions for all PRs. nitpix only handles PNG artifacts.
+
+on:
+  workflow_run:
+    workflows: ["Dash Testing"]
+    types: [completed]
+
+permissions:
+  contents: write        # push to the nitpix-baselines branch
+  pull-requests: write   # the review comment
+  statuses: write        # the nitpix/visual check
+
+concurrency:
+  group: nitpix-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  visual-review:
+    name: Visual Review
+    runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'pull_request' ||
+       github.event.workflow_run.event == 'push')
+    steps:
+      - uses: plotly/nitpix@main # TODO: pin to @v1 once released
+        with:
+          baseline-branch: nitpix-baselines

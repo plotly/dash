@@ -1,0 +1,25 @@
+name: nitpix approve
+
+# Handles `/nitpix approve` comments on PRs: records the approved snapshot
+# hashes on the nitpix-baselines branch and flips the `nitpix/visual` commit
+# status to success — without re-running the test matrix. Only users with
+# write access can approve.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  approve:
+    name: Approve visual changes
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/nitpix')
+    steps:
+      - uses: plotly/nitpix/approve@main # TODO: pin to @v1 once released
+        with:
+          baseline-branch: nitpix-baselines
