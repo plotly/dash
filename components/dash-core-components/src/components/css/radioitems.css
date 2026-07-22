@@ -1,0 +1,4 @@
+.dash-options-list-option.dash-radioitems-inline {
+    display: inline-flex;
+    margin-right: calc(var(--Dash-Spacing) * 4);
+}

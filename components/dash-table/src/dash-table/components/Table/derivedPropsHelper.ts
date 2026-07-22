@@ -18,6 +18,9 @@ export default () => {
         page_current,
         page_size
     ]);
+    const selectedRowsCache = memoizeOneWithFlag(
+        selected_rows => selected_rows
+    );
     const sortCache = memoizeOneWithFlag(sort => sort);
     const viewportCache = memoizeOneWithFlag(viewport => viewport);
     const viewportSelectedColumnsCache = memoizeOneWithFlag(
@@ -37,6 +40,7 @@ export default () => {
             page_action,
             page_current,
             page_size,
+            selected_rows,
             sort_action,
             sort_by,
             viewport,
@@ -64,17 +68,19 @@ export default () => {
         const invalidatedFilter = filterCache(filter_query);
         const invalidatedPagination = paginationCache(page_current, page_size);
         const invalidatedSort = sortCache(sort_by);
+        const invalidatedSelectedRows = selectedRowsCache(selected_rows);
 
         const invalidateSelection =
-            (!invalidatedFilter.cached &&
+            invalidatedSelectedRows.cached &&
+            ((!invalidatedFilter.cached &&
                 !invalidatedFilter.first &&
                 filter_action.type === TableAction.Custom) ||
-            (!invalidatedPagination.cached &&
-                !invalidatedPagination.first &&
-                page_action === TableAction.Custom) ||
-            (!invalidatedSort.cached &&
-                !invalidatedSort.first &&
-                sort_action === TableAction.Custom);
+                (!invalidatedPagination.cached &&
+                    !invalidatedPagination.first &&
+                    page_action === TableAction.Custom) ||
+                (!invalidatedSort.cached &&
+                    !invalidatedSort.first &&
+                    sort_action === TableAction.Custom));
 
         const newProps: Partial<SanitizedAndDerivedProps> = {};
 

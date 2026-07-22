@@ -137,7 +137,7 @@ def test_slsh001_rangeslider_shorthand_props(dash_dcc):
     app.layout = html.Div(LAYOUT)
 
     dash_dcc.start_server(app)
-    dash_dcc.wait_for_element(".rc-slider")
+    dash_dcc.wait_for_element(".dash-slider-root")
     dash_dcc.percy_snapshot("slsh001 - test_slsh001_rangeslider_shorthand_props", True)
 
 
@@ -192,6 +192,6 @@ def test_slsh002_sliders_marks_si_unit_format(dash_dcc):
     app.layout = html.Div(LAYOUT)
 
     dash_dcc.start_server(app)
-    dash_dcc.wait_for_element(".rc-slider")
+    dash_dcc.wait_for_element(".dash-slider-root")
     time.sleep(2)
     dash_dcc.percy_snapshot("slsh002 - test_slsh002_sliders_marks_si_unit_format", True)

@@ -12,6 +12,7 @@ const TypeScriptComponent = ({
   bool_default = true,
   null_default = null,
   obj_default = { a: 'a', b: 3 },
+  array_primitive_mix = 1,
   ...props
 }: TypescriptComponentProps) => {
   return <div id={id}>{required_string}</div>;

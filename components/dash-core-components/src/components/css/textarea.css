@@ -1,0 +1,31 @@
+/* Input container styles */
+.dash-textarea {
+    background: var(--Dash-Fill-Inverse-Strong);
+    border-radius: var(--Dash-Spacing);
+    border: 1px solid var(--Dash-Stroke-Strong);
+    box-sizing: border-box;
+    color: inherit;
+    padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
+    width: 100%;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    outline-color: var(--Dash-Fill-Interactive-Strong);
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.dash-textarea:focus-within {
+    border: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-textarea:focus-visible {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dash-textarea:invalid {
+    outline: solid red;
+}

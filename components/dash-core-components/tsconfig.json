@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "jsx": "react",
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "types": ["node", "react", "react-dom", "jest"],
+        "baseUrl": ".",
+        "paths": {
+            "@dash-renderer/*": ["../../dash/dash-renderer/src/*"]
+        }
+    },
+    "include": ["src"]
+}

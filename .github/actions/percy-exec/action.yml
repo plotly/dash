@@ -1,0 +1,50 @@
+name: 'Percy Exec'
+description: 'Run a command with Percy, or skip Percy for fork PRs (no token access)'
+
+inputs:
+  command:
+    description: 'The command to run (e.g., "pytest --headless tests/")'
+    required: true
+  percy-token:
+    description: 'Percy token (pass secrets.PERCY_TOKEN)'
+    required: false
+    default: ''
+  working-directory:
+    description: 'Working directory for the command'
+    required: false
+    default: '.'
+  browser-executable:
+    description: 'Path to a Chrome/Chromium binary for Percy to use. Defaults to the one found on PATH.'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run with Percy
+      if: inputs.percy-token != ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        PERCY_TOKEN: ${{ inputs.percy-token }}
+        PERCY_BROWSER_EXECUTABLE: ${{ inputs.browser-executable }}
+      run: |
+        # Percy otherwise downloads its own Chromium from storage.googleapis.com
+        # on the first snapshot. That download stalls in CI, which blocks the
+        # synchronous percy_snapshot() calls (so pytest never finishes and writes
+        # no JUnit) and leaves an empty Percy build with no snapshots. Point Percy
+        # at the Chrome already installed in the job so it skips the download.
+        if [ -z "${PERCY_BROWSER_EXECUTABLE:-}" ]; then
+          PERCY_BROWSER_EXECUTABLE="$(command -v google-chrome || command -v google-chrome-stable || command -v chrome || command -v chromium || command -v chromium-browser || true)"
+          export PERCY_BROWSER_EXECUTABLE
+        fi
+        echo "PERCY_BROWSER_EXECUTABLE=${PERCY_BROWSER_EXECUTABLE:-<unset: Percy will download Chromium>}"
+        npx percy exec -- ${{ inputs.command }}
+
+    - name: Run without Percy (fork PR)
+      if: inputs.percy-token == ''
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "::notice::Skipping Percy (no token available - likely a fork PR)"
+        ${{ inputs.command }}

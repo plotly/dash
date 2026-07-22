@@ -1,7 +1,149 @@
-input.dash-input:invalid {
-    outline: solid red;
+/* Input container styles */
+.dash-input-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    height: 34px;
+    background: var(--Dash-Fill-Inverse-Strong);
+    border-radius: var(--Dash-Spacing);
+    border: 1px solid var(--Dash-Stroke-Strong);
+    box-sizing: border-box;
+    container-type: inline-size;
+    vertical-align: middle;
+    color: inherit;
+    overflow: hidden;
 }
 
-input.dash-input:valid {
-    outline: none black;
+.dash-input-container:focus-within {
+    border: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-container:has(:focus-visible) {
+    outline: 1px solid var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-container:has(.dash-input-element:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dash-input-container input:focus {
+    outline: none;
+}
+
+.dash-input-container:has(input[type='range']) {
+    background: inherit;
+}
+
+/* Input field styles */
+.dash-input-element {
+    padding: var(--Dash-Spacing) calc(2 * var(--Dash-Spacing));
+    color: inherit;
+    background: inherit;
+    border: none;
+    border-radius: var(--Dash-Spacing);
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    box-sizing: border-box;
+    z-index: 1;
+    order: 2;
+    accent-color: var(--Dash-Fill-Interactive-Strong);
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.dash-input-element::selection,
+.dash-input-element::-webkit-selection {
+    color: var(--Dash-Fill-Inverse-Strong);
+    background: var(--Dash-Fill-Interactive-Strong);
+}
+
+.dash-input-element:disabled {
+    cursor: not-allowed;
+}
+
+/* Hide native steppers for number inputs */
+.dash-input-element[type='number'] {
+    -moz-appearance: textfield;
+    border-radius: 0;
+}
+
+.dash-input-element[type='number']::-webkit-outer-spin-button,
+.dash-input-element[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Show native steppers when container is narrow and input is number type */
+@container (max-width: 99px) {
+    .dash-input-element[type='number'] {
+        -moz-appearance: number-input;
+    }
+
+    .dash-input-element[type='number']::-webkit-outer-spin-button,
+    .dash-input-element[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: inner-spin-button;
+        margin: 0;
+    }
+}
+
+/* Stepper button base styles */
+.dash-input-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 100%;
+    border: none;
+    background: var(--Dash-Fill-Inverse-Strong);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--Dash-Text-Primary);
+}
+
+.dash-input-stepper:hover,
+.dash-input-stepper:focus {
+    background: var(--Dash-Fill-Primary-Hover);
+}
+
+.dash-input-stepper:active {
+    background: var(--Dash-Fill-Primary-Active);
+}
+
+.dash-input-stepper:disabled {
+    background: var(--Dash-Fill-Inverse-Strong);
+    opacity: 0.5;
+    cursor: default;
+}
+
+@container (max-width: 99px) {
+    .dash-input-stepper {
+        display: none;
+    }
+}
+
+/* Decrement button specific styles */
+.dash-input-stepper.dash-stepper-decrement {
+    border-right: 1px solid var(--Dash-Stroke-Weak);
+    border-radius: var(--Dash-Spacing) 0 0 var(--Dash-Spacing);
+    order: 1;
+}
+
+/* Increment button specific styles */
+.dash-input-stepper.dash-stepper-increment {
+    border-left: 1px solid var(--Dash-Stroke-Weak);
+    border-radius: 0 var(--Dash-Spacing) var(--Dash-Spacing) 0;
+    order: 3;
+}
+
+/* Hidden input type */
+.dash-input-container.dash-input-hidden {
+    display: none;
+}
+
+input.dash-input-element:invalid {
+    color: red;
 }

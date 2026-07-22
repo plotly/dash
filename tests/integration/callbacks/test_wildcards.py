@@ -6,7 +6,18 @@ from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
-from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
+from dash import (
+    Dash,
+    Input,
+    Output,
+    State,
+    ALL,
+    ALLSMALLER,
+    MATCH,
+    html,
+    dcc,
+    set_props,
+)
 
 from tests.assets.todo_app import todo_app
 from tests.assets.grouping_app import grouping_app
@@ -538,18 +549,18 @@ def test_cbwc007_pmc_update_subtree_ordering(dash_duo):
         return str(values)
 
     dash_duo.start_server(app)
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(3)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(3) button", index=2)
 
     dash_duo.wait_for_text_to_equal("#selected-values", "[None, None, 'option2-2']")
 
     dash_duo.wait_for_element("#refresh-options").click()
 
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(2)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(2) button", index=2)
     dash_duo.wait_for_text_to_equal(
         "#selected-values", "[None, 'option1-2', 'option2-2']"
     )
 
-    dash_duo.select_dcc_dropdown(".dash-dropdown:nth-child(1)", index=2)
+    dash_duo.select_dcc_dropdown(".dash-dropdown-wrapper:nth-child(1) button", index=2)
     dash_duo.wait_for_text_to_equal(
         "#selected-values", "['option0-2', 'option1-2', 'option2-2']"
     )
@@ -619,3 +630,84 @@ def test_cbwc008_running_match(dash_duo):
         assert not dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
             "disabled"
         )
+
+
+def test_cbwc009_match_input_fixed_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with a fixed-id Output.
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "Alpha",
+                id={"type": "btn", "index": "alpha"},
+            ),
+            html.Button(
+                "Beta",
+                id={"type": "btn", "index": "beta"},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"),
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def show_clicked(_, id_):
+        return f"clicked {id_['index']}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"alpha\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked alpha")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"beta\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked beta")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc010_match_input_no_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with no Output (set_props).
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "One",
+                id={"type": "btn", "index": 1},
+            ),
+            html.Button(
+                "Two",
+                id={"type": "btn", "index": 2},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def announce(_, id_):
+        set_props("out", {"children": f"clicked index={id_['index']}"})
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element('[id=\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"btn\\"\\}]').click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=1")
+
+    dash_duo.find_element('[id=\\{\\"index\\"\\:2\\,\\"type\\"\\:\\"btn\\"\\}]').click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=2")
+
+    assert dash_duo.get_logs() == []

@@ -11,7 +11,6 @@ import warnings
 from ._all_keywords import r_keywords
 from ._py_components_generation import reorder_props
 
-
 # Declaring longer string templates as globals to improve
 # readability, make method logic clearer to anyone inspecting
 # code below
@@ -216,7 +215,8 @@ def generate_class_string(name, props, project_shortname, prefix):
                 (
                     'WARNING: prop "{}" in component "{}" is an R keyword'
                     " - REMOVED FROM THE R COMPONENT"
-                ).format(item, name)
+                ).format(item, name),
+                stacklevel=2,
             )
 
     default_argtext += ", ".join("{}=NULL".format(p) for p in prop_keys)
@@ -879,7 +879,7 @@ def get_r_prop_types(type_object):
         node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
-            ", ".join("{}".format(str(t["value"])) for t in type_object["value"])
+            ", ".join("{}".format(str(t.get("value"))) for t in type_object["value"])
         ),
         # React's PropTypes.oneOfType
         union=lambda: "{}".format(

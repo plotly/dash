@@ -109,3 +109,15 @@ class ImportedInsideCallbackError(DashException):
 
 class HookError(DashException):
     pass
+
+
+class AppNotFoundError(DashException):
+    pass
+
+
+class WebSocketCallbackError(CallbackException):
+    pass
+
+
+class WebsocketDisconnected(CallbackException):
+    pass

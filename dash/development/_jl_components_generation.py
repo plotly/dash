@@ -151,7 +151,7 @@ def get_jl_prop_types(type_object):
         node=lambda: "a list of or a singular dash component, string or number",
         # React's PropTypes.oneOf
         enum=lambda: "a value equal to: {}".format(
-            ", ".join("{}".format(str(t["value"])) for t in type_object["value"])
+            ", ".join("{}".format(str(t.get("value"))) for t in type_object["value"])
         ),
         # React's PropTypes.oneOfType
         union=lambda: "{}".format(
@@ -355,9 +355,11 @@ def generate_metadata_strings(resources, metatype):
             external_url=nothing_or_string(resource.get("external_url", "")),
             dynamic=str(resource.get("dynamic", "nothing")).lower(),
             type=metatype,
-            async_string=":{}".format(str(resource.get("async")).lower())
-            if "async" in resource.keys()
-            else "nothing",
+            async_string=(
+                ":{}".format(str(resource.get("async")).lower())
+                if "async" in resource.keys()
+                else "nothing"
+            ),
         )
         for resource in resources
     ]
@@ -468,7 +470,8 @@ def generate_class_string(name, props, description, project_shortname, prefix):
                 (
                     'WARNING: prop "{}" in component "{}" is a Julia keyword'
                     " - REMOVED FROM THE JULIA COMPONENT"
-                ).format(item, name)
+                ).format(item, name),
+                stacklevel=2,
             )
 
     default_paramtext += ", ".join(":{}".format(p) for p in prop_keys)

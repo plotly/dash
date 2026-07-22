@@ -140,7 +140,7 @@
     max-width: 50px;
 }
 .dash-debug-menu__outer.dash-debug-menu__outer--expanded {
-    max-width: 682px;
+    max-width: calc(100vw - 50px);
 }
 
 .dash-debug-menu__upgrade-tooltip {
@@ -184,6 +184,7 @@
     align-items: stretch;
     margin-left: 15px;
     transition: all 0.5s ease;
+    flex-shrink: 0;
 }
 
 .dash-debug-menu__version {

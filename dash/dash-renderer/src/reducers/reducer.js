@@ -49,6 +49,17 @@ const layoutHashes = (state = {}, action) => {
             },
             state
         );
+    } else if (action.type === 'RESET_COMPONENT_STATE') {
+        const {itempath} = action.payload;
+        if (itempath) {
+            const prefixStr = stringifyPath(itempath);
+            // Remove all hashes for keys starting with prefixStr
+            return Object.fromEntries(
+                Object.entries(state).filter(
+                    ([key]) => !key.startsWith(prefixStr)
+                )
+            );
+        }
     }
     return state;
 };

@@ -136,7 +136,7 @@ def _get_literal_value(value):
 
 
 def generate_enum(type_info, *_):
-    values = [_get_literal_value(v["value"]) for v in type_info["value"] if v]
+    values = [_get_literal_value(v.get("value")) for v in type_info["value"] if v]
     return f"Literal[{', '.join(values)}]"
 
 

@@ -108,7 +108,7 @@ def test_rext002_render_external_component_temp(dash_duo):
 
     dash_duo.find_element(".tab:nth-child(2)").click()
     assert (
-        dash_duo.find_element("#without-id > input").get_attribute("value")
+        dash_duo.find_element("#without-id input").get_attribute("value")
         == "without-id"
     )
 
@@ -120,7 +120,7 @@ def test_rext002_render_external_component_temp(dash_duo):
 
     dash_duo.find_element(".tab:nth-child(2)").click()
     assert (
-        dash_duo.find_element("#without-id > input").get_attribute("value")
+        dash_duo.find_element("#without-id input").get_attribute("value")
         == "without-id"
     )
 

@@ -24,15 +24,20 @@ import_string = """# AUTO GENERATED FILE - DO NOT EDIT
 import typing  # noqa: F401
 from typing_extensions import TypedDict, NotRequired, Literal # noqa: F401
 from dash.development.base_component import Component, _explicitize_args
+try:
+    from dash.types import NumberType  # noqa: F401
+except ImportError:
+    # Backwards compatibility for dash<=4.1.0
+    if typing.TYPE_CHECKING:
+        raise
+    NumberType = typing.Union[  # noqa: F401
+        typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
+    ]
 {custom_imports}
 ComponentSingleType = typing.Union[str, int, float, Component, None]
 ComponentType = typing.Union[
     ComponentSingleType,
     typing.Sequence[ComponentSingleType],
-]
-
-NumberType = typing.Union[
-    typing.SupportsFloat, typing.SupportsInt, typing.SupportsComplex
 ]
 
 
@@ -682,7 +687,7 @@ def map_js_to_py_types_prop_types(type_object, indent_num):
         # React's PropTypes.oneOf
         enum=lambda: (
             "a value equal to: "
-            + ", ".join(str(t["value"]) for t in type_object["value"])
+            + ", ".join(str(t.get("value")) for t in type_object["value"])
         ),
         # React's PropTypes.oneOfType
         union=lambda: " | ".join(

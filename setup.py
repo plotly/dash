@@ -27,7 +27,7 @@ setup(
     long_description=io.open("README.md", encoding="utf-8").read(),  # pylint: disable=consider-using-with
     long_description_content_type="text/markdown",
     install_requires=read_req_file("install"),
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     extras_require={
         "async": read_req_file("async"),
         "ci": read_req_file("ci"),
@@ -36,6 +36,8 @@ setup(
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
         "compress": read_req_file("compress"),
+        "fastapi": read_req_file("fastapi"),
+        "quart": read_req_file("quart"),
         "cloud": read_req_file("cloud"),
         "ag-grid": read_req_file("ag-grid")
     },
@@ -69,7 +71,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

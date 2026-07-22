@@ -6,7 +6,7 @@ from selenium.common.exceptions import WebDriverException
 
 
 def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
-
+    dash_dcc.driver.set_window_size(800, 600)
     dash_dcc.start_server(platter_app)
 
     dash_dcc.wait_for_element("#waitfor")
@@ -16,7 +16,8 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
 
     dash_dcc.percy_snapshot("gallery")
 
-    dash_dcc.find_element("#dropdown .Select-input input").send_keys("北")
+    dash_dcc.find_element("#dropdown").click()
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys("北")
     dash_dcc.percy_snapshot("gallery - chinese character")
 
     text_input = dash_dcc.find_element("#textinput")
@@ -38,7 +39,9 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
         elem.send_keys(len(elem.get_attribute("value")) * Keys.BACKSPACE)
         elem.send_keys("1997-05-03")
 
-    dt_input_1 = dash_dcc.find_element("#dt-single-no-date-value #date")
+    dt_input_1 = dash_dcc.find_element(
+        "#dt-single-no-date-value .dash-datepicker-input"
+    )
     dt_input_1.click()
     dash_dcc.percy_snapshot(
         "gallery - DatePickerSingle's datepicker "
@@ -46,7 +49,9 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
     )
     reset_input(dt_input_1)
 
-    dt_input_2 = dash_dcc.find_element("#dt-single-no-date-value-init-month #date")
+    dt_input_2 = dash_dcc.find_element(
+        "#dt-single-no-date-value-init-month  .dash-datepicker-input"
+    )
     dash_dcc.find_element("label").click()
     dt_input_2.click()
     dash_dcc.percy_snapshot(

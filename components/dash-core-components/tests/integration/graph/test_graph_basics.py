@@ -412,3 +412,277 @@ def test_grbs008_graph_with_empty_figure(dash_dcc):
     )
 
     assert dash_dcc.get_logs() == []
+
+
+def test_grbs009_graph_click_same_point_twice(dash_dcc):
+    """Clicking the same point twice should trigger callback both times."""
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure=go.Figure(
+                    data=[go.Scatter(x=[1, 2, 3], y=[1, 2, 3], mode="markers")],
+                ),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="output", children="[]"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "clickData"),
+        prevent_initial_call=True,
+    )
+    def on_click(click_data):
+        # Return the timestamp to verify each click has a unique one
+        return json.dumps(click_data.get("timestamp", "missing"))
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    # Click on the graph area - uses the drag overlay which receives clicks
+    graph = dash_dcc.find_element("#graph .nsewdrag")
+    graph.click()
+
+    # Wait for callback to fire and verify timestamp exists
+    dash_dcc.wait_for_contains_text("#output", "")
+    first_output = dash_dcc.find_element("#output").text
+    assert first_output != "[]", "First click should trigger callback"
+    assert first_output != '"missing"', "clickData should contain timestamp"
+
+    # Click again - should trigger callback with different timestamp
+    graph.click()
+    sleep(0.5)
+    second_output = dash_dcc.find_element("#output").text
+    assert (
+        second_output != first_output
+    ), "Second click should trigger callback with new timestamp"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs010_graph_patch_deeply_nested_figure(dash_dcc):
+    """Patching deeply nested figure properties should work correctly."""
+    from dash import Patch
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={
+                    "data": [
+                        {
+                            "x": [1, 2, 3],
+                            "y": [1, 2, 3],
+                            "marker": {"color": "red", "size": 10},
+                            "type": "scatter",
+                            "mode": "markers",
+                        }
+                    ],
+                    "layout": {"title": {"text": "Initial Title"}},
+                },
+                style={"width": 600, "height": 400},
+            ),
+            html.Button("Patch Color", id="patch-color-btn"),
+            html.Button("Patch Title", id="patch-title-btn"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("patch-color-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_color(n):
+        p = Patch()
+        p.data[0].marker.color = "blue" if n % 2 else "green"
+        return p
+
+    @app.callback(
+        Output("graph", "figure", allow_duplicate=True),
+        Input("patch-title-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_title(n):
+        p = Patch()
+        p.layout.title.text = f"Updated Title {n}"
+        return p
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "figure"),
+    )
+    def show_figure_state(figure):
+        color = figure.get("data", [{}])[0].get("marker", {}).get("color", "unknown")
+        title = figure.get("layout", {}).get("title", {}).get("text", "unknown")
+        return f"color={color}, title={title}"
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    # Initial state
+    dash_dcc.wait_for_text_to_equal("#output", "color=red, title=Initial Title")
+
+    # Patch the color
+    dash_dcc.find_element("#patch-color-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=blue, title=Initial Title")
+
+    # Patch the title
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=blue, title=Updated Title 1")
+
+    # Patch color again - should toggle
+    dash_dcc.find_element("#patch-color-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=green, title=Updated Title 1")
+
+    # Multiple rapid patches
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.find_element("#patch-title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#output", "color=green, title=Updated Title 3")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
+    """When clickanywhere and hoveranywhere are enabled, clickData and hoverData include xvals and yvals"""
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure=go.Figure(
+                    layout=go.Layout(hoveranywhere=True, clickanywhere=True)
+                ),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="output", children="[]"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("graph", "clickData"),
+        Input("graph", "hoverData"),
+        prevent_initial_call=True,
+    )
+    def on_event(click_data, hover_data):
+        result = {
+            "click_x": (click_data or {}).get("xvals", [None])[0],
+            "click_y": (click_data or {}).get("yvals", [None])[0],
+            "hover_x": (hover_data or {}).get("xvals", [None])[0],
+            "hover_y": (hover_data or {}).get("yvals", [None])[0],
+        }
+        return json.dumps(result)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    graph = dash_dcc.find_element("#graph .nsewdrag")
+    graph.click()
+
+    dash_dcc.wait_for_contains_text("#output", "{")
+
+    out = json.loads(dash_dcc.find_element("#output").text)
+
+    # click anywhere should produce coordinates
+    assert out["click_x"] is not None
+    assert out["click_y"] is not None
+    assert out["hover_x"] is not None
+    assert out["hover_y"] is not None
+
+
+def test_grbs012_graph_patch_keeps_relayout_ranges(dash_dcc):
+    """Panning/zooming then applying a Patch should keep the new axis range.
+
+    Regression test for https://github.com/plotly/dash/issues/3810 - since
+    getLayout() clones the layout, user relayout changes must be synced back
+    to the figure prop or a subsequent Patch reverts them.
+    """
+    from dash import Patch
+    from dash.exceptions import PreventUpdate
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={
+                    "data": [
+                        {
+                            "x": list(range(10)),
+                            "y": list(range(10)),
+                            "type": "scatter",
+                            "mode": "lines+markers",
+                        }
+                    ],
+                    "layout": {"xaxis": {"range": [2, 8], "autorange": False}},
+                },
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="range-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("graph", "relayoutData"),
+        prevent_initial_call=True,
+    )
+    def on_relayout(relayout_data):
+        if not relayout_data or "xaxis.range[0]" not in relayout_data:
+            raise PreventUpdate
+        # Data-only patch: the axis range must survive from the figure prop
+        p = Patch()
+        p.data[0].y = [i * 2 for i in range(10)]
+        return p
+
+    @app.callback(
+        Output("range-output", "children"),
+        Input("graph", "figure"),
+    )
+    def show_range(figure):
+        xrange = figure.get("layout", {}).get("xaxis", {}).get("range", "none")
+        return json.dumps(xrange)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+    dash_dcc.wait_for_text_to_equal("#range-output", "[2, 8]")
+
+    # Simulate a user pan - Plotly.relayout fires the same plotly_relayout
+    # event as a drag interaction
+    dash_dcc.driver.execute_script(
+        "Plotly.relayout("
+        "document.querySelector('#graph .js-plotly-plot'),"
+        "{'xaxis.range[0]': 3, 'xaxis.range[1]': 5})"
+    )
+
+    # The relayout triggers the data-only Patch; the panned range must
+    # survive in both the figure prop and the rendered graph
+    dash_dcc.wait_for_text_to_equal("#range-output", "[3, 5]")
+
+    def rendered_range():
+        return dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot')"
+            ".layout.xaxis.range"
+        )
+
+    wait.until(lambda: rendered_range() == [3, 5], timeout=3)
+    # Verify the patch was applied on top of the panned figure
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[9]"
+        )
+        == 18,
+        timeout=3,
+    )
+    assert rendered_range() == [3, 5]
+
+    assert dash_dcc.get_logs() == []

@@ -1,4 +1,10 @@
-import React, {useCallback, MutableRefObject, useRef, useMemo} from 'react';
+import React, {
+    useCallback,
+    MutableRefObject,
+    useRef,
+    useMemo,
+    useEffect
+} from 'react';
 import {
     path,
     concat,
@@ -21,7 +27,12 @@ import {useSelector, useDispatch, batch} from 'react-redux';
 import ComponentErrorBoundary from '../components/error/ComponentErrorBoundary.react';
 import {DashLayoutPath, UpdatePropsPayload} from '../types/component';
 import {DashConfig} from '../config';
-import {notifyObservers, onError, updateProps} from '../actions';
+import {
+    notifyObservers,
+    onError,
+    updateProps,
+    resetComponentState
+} from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {
     createElement,
@@ -65,6 +76,7 @@ function DashWrapper({
     const dispatch = useDispatch();
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
+    const freshRenders = useRef(0);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
@@ -85,6 +97,7 @@ function DashWrapper({
         if (_newRender) {
             newRender.current = true;
             renderH = 0;
+            freshRenders.current += 1;
             if (renderH in memoizedKeys.current) {
                 delete memoizedKeys.current[renderH];
             }
@@ -432,6 +445,16 @@ function DashWrapper({
         return props;
     };
 
+    useEffect(() => {
+        if (_newRender) {
+            dispatch(
+                resetComponentState({
+                    itempath: componentPath
+                })
+            );
+        }
+    }, [_newRender]);
+
     const hydrateFunc = () => {
         if (newRender.current) {
             renderComponent = _passedComponent;
@@ -498,6 +521,7 @@ function DashWrapper({
             }
             error={_dashprivate_error}
             dispatch={dispatch}
+            key={freshRenders.current}
         >
             <DashContextProvider componentPath={componentPath}>
                 {React.isValidElement(hydrated) ? hydrated : <div />}

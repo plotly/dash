@@ -128,10 +128,14 @@ export default class Clipboard extends React.Component {
     }
 
     render() {
-        const {id, title, className, style} = this.props;
-        const copyIcon = <FontAwesomeIcon icon={faCopy} />;
-        const copiedIcon = <FontAwesomeIcon icon={faCheckCircle} />;
-        const btnIcon = this.state.copied ? copiedIcon : copyIcon;
+        const {id, title, className, style, children, copied_children} =
+            this.props;
+
+        const isCopied = this.state.copied;
+
+        const button_children = isCopied
+            ? copied_children ?? <FontAwesomeIcon icon={faCheckCircle} />
+            : children ?? <FontAwesomeIcon icon={faCopy} />;
 
         return clipboardAPI ? (
             <LoadingElement
@@ -141,7 +145,7 @@ export default class Clipboard extends React.Component {
                 className={className}
                 onClick={this.onClickHandler}
             >
-                <i> {btnIcon}</i>
+                {button_children}
             </LoadingElement>
         ) : null;
     }
@@ -161,6 +165,16 @@ Clipboard.propTypes = {
     id: PropTypes.string,
 
     /**
+     * Children rendered inside the Clipboard button before copying. By default, a copy icon.
+     */
+    children: PropTypes.node,
+
+    /**
+     * Children rendered inside the Clipboard button after the value has been copied. By default, a check icon.
+     */
+    copied_children: PropTypes.node,
+
+    /**
      * The id of target component containing text to copy to the clipboard.
      * The inner text of the `children` prop will be copied to the clipboard.  If none, then the text from the
      *  `value` prop will be copied.
@@ -173,7 +187,7 @@ Clipboard.propTypes = {
     content: PropTypes.string,
 
     /**
-     * The number of times copy button was clicked
+     * The number of times Clipboard button was clicked
      */
     n_clicks: PropTypes.number,
 

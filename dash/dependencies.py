@@ -31,6 +31,11 @@ MATCH = Wildcard.MATCH
 ALL = Wildcard.ALL
 ALLSMALLER = Wildcard.ALLSMALLER
 
+# Backward compatibility alias — the class was renamed from _Wildcard to
+# Wildcard in Dash 3.4.  Third-party packages (e.g. dash-pydantic-form)
+# still import the old private name.
+_Wildcard = Wildcard
+
 
 class DashDependency:  # pylint: disable=too-few-public-methods
     component_id: ComponentIdType

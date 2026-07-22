@@ -2,16 +2,258 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [4.4.1] - 2026-07-21
+
+## Fixed
+- [#3902](https://github.com/plotly/dash/pull/3902) Fix background callbacks trusting the client-supplied `job`/`oldJob`/`cancelJob` and `cacheKey` query parameters verbatim, which let an unauthenticated client terminate an arbitrary process (with `DiskcacheManager`, by sending its PID) or read and delete arbitrary result-cache entries. The `cacheKey`/`job` handles are now HMAC-signed by the server and bound to a per-page-load token, so forged or replayed values are rejected. Handles stay opaque to the renderer, so no app or callback code changes are required.
+- [3883](https://github.com/plotly/dash/pull/3883) Fix callbacks being registered twice when running the app file as a script with a server that loads it by import string, e.g. `uvicorn.run("app:server", reload=True)` with `backend="fastapi"`. The spawned worker re-executes the main module as `__mp_main__` and the import string then executed the same file a second time, duplicating every callback in `_dash-dependencies` and triggering `Duplicate callback outputs` errors in the renderer. `Dash()` now pre-registers the running main module in `sys.modules` under its canonical import name so the second import reuses it instead of re-executing the file. Fixes [#3818](https://github.com/plotly/dash/issues/3818).
+- [3885](https://github.com/plotly/dash/pull/3885) Fix Flask-WTF `CSRFProtect` (and Quart-WTF) exemptions breaking after the backend refactor. The callback dispatch view is now exposed with the fully-qualified name `dash.dash.dispatch` again, so `csrf._exempt_views.add("dash.dash.dispatch")` works as it did in Dash 4.1.0. Fixes [#3827](https://github.com/plotly/dash/issues/3827).
+- [#3882](https://github.com/plotly/dash/pull/3882) Fix `dcc.Graph` user interactions (pan, zoom, edited shapes & annotations, ...) being reverted by a subsequent `Patch` update, by syncing all relayout changes back to the `figure` prop instead of only shapes. Fixes [#3810](https://github.com/plotly/dash/issues/3810).
+- [#3903](https://github.com/plotly/dash/pull/3903) Fix missing comm dependency, fix [#3657](https://github.com/plotly/dash/issues/3657).
+- Updated radix-ui to fix [#3786](https://github.com/plotly/dash/issues/3786)
+
+## [4.4.0] - 2026-07-03
+
+### Added
+- [#3826](https://github.com/plotly/dash/pull/3826) WebSocket callback dispatch no longer lets long-lived callbacks limit the number of concurrent users. Async callbacks (including session-persistent ones) run directly on the connection event loop instead of occupying a worker thread, and synchronous callbacks run on a shared `ThreadPoolExecutor` whose size is configurable via the new `websocket_max_workers` argument to `Dash` (default `4`). A synchronous persistent (no-output) callback now warns at registration since it would tie up a worker thread.
+- [#3852](https://github.com/plotly/dash/pull/3852)  Added support for Plotly hoveranywhere and clickanywhere events in `dcc.Graph` by adding `xvals` and `yvals` to `hoverData` and `clickData`.
+
+## Fixed
+- [#3861](https://github.com/plotly/dash/issues/3861) Fix synchronous WebSocket callbacks not inheriting `ContextVar` values bound by ASGI middleware. `copy_context()` is now captured on the event-loop thread before the callback is submitted to the thread pool, instead of inside the worker thread where only default values were visible.
+- [#3779](https://github.com/plotly/dash/pull/3779) Fix `dash.testing` `Browser.get_logs()` returning `None` on non-Chrome webdrivers, which broke assertions like `assert dash_duo.get_logs() == []`. It now returns `[]`, matching the Chrome code path.
+- [#3822](https://github.com/plotly/dash/pull/3822) Fix `UnboundLocalError` for `user_callback_output` in async background callbacks (Celery and Diskcache managers) when the callback raises `PreventUpdate` or another exception before the variable is assigned.
+- [#3819](https://github.com/plotly/dash/pull/3819) Fix `RuntimeError: No active request in context` when a non-Dash path falls through to the FastAPI catch-all route. Fixes [#3812](https://github.com/plotly/dash/issues/3812).
+- [#3838](https://github.com/plotly/dash/pull/3838) Replace `mcp` dependency with inline types.
+- [#3824](https://github.com/plotly/dash/pull/3824) Fix `dash.testing` `ThreadedRunner.stop()` hanging at teardown for Quart apps. Fixes [#3823](https://github.com/plotly/dash/issues/3823).
+- [#3425](https://github.com/plotly/dash/issues/3425) dcc.DatePicker: Fix `updatemode="bothdates"` not always respected
+
+## Changed
+- Drop support for Python 3.8 (end-of-life since October 2024). The minimum supported version is now Python 3.9.
+
+## [4.3.0] - 2026-06-18
 
 ## Added
-- [#3534]((https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338]((https://github.com/plotly/dash/pull/2338)
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
+
+## Changed
+- [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.
+
+## Fixed
+- [#3817](https://github.com/plotly/dash/pull/3817) Fix background callback context serialisation for non-dict request args on the FastAPI and Quart backends. Fixes [#3816](https://github.com/plotly/dash/issues/3816).
+- [#3805](https://github.com/plotly/dash/pull/3805) Fix FastAPI POST routes deadlock caused by middleware consuming request body. Fixes [#3801](https://github.com/plotly/dash/issues/3801).
+- [#3813](https://github.com/plotly/dash/pull/3813) Fix websockets using incorrect path when deployed behind a proxy
+- [#3830](https://github.com/plotly/dash/pull/3830) MCP: Respond to the Streamable HTTP `GET` (SSE) request with an empty event stream instead of `405 Method Not Allowed`
+
+## [4.3.0rc0] - 2026-05-21
+
+## Added
+- [#3710](https://github.com/plotly/dash/pull/3710) MCP: Framework utilities, types for interacting with layout
+- [#3711](https://github.com/plotly/dash/pull/3711) MCP: `CallbackAdapter` for representing callback-related data in MCP-friendly format
+- [#3712](https://github.com/plotly/dash/pull/3712) MCP: `Resources` for exposing app layout, components, and pages
+- [#3731](https://github.com/plotly/dash/pull/3731) MCP: Expose callbacks as `Tools`
+- [#3747](https://github.com/plotly/dash/pull/3747) MCP: Support pattern-matching callbacks in Tools
+- [#3748](https://github.com/plotly/dash/pull/3748) MCP: Format callback results for LLM consumption (rendered graphs, markdown tables)
+- [#3749](https://github.com/plotly/dash/pull/3749) MCP: `get_dash_component` Tool and callback execution
+- [#3750](https://github.com/plotly/dash/pull/3750) MCP: Server routes, `mcp_enabled` function decorator, and Streamable HTTP transport
+- [#3766](https://github.com/plotly/dash/pull/3766) MCP: Support background callbacks in Tools
+
+## [4.2.0] - 2026-06-01 - *The Freedom Update*
+
+This release marks a major milestone for Dash, bringing unprecedented flexibility to how you build and deploy your applications.
+
+### 🚀 Multiple Backend Support
+Dash is no longer tied to Flask. You can now run your Dash apps on **FastAPI** or **Quart**, or even bring your own backend implementation:
+
+```python
+# FastAPI backend
+app = Dash(__name__, backend="fastapi")
+
+# Quart backend (async-native)
+app = Dash(__name__, backend="quart")
+
+# Or use an existing server
+from fastapi import FastAPI
+server = FastAPI()
+app = Dash(__name__, server=server)
+```
+
+Install with `pip install dash[fastapi]` or `pip install dash[quart]`.
+
+### ⚡ Websocket Callbacks
+Real-time, bidirectional communication is here. Websocket callbacks enable persistent connections for live updates without polling:
+
+```python
+@callback(
+    Output("live-output", "children"),
+    Input("trigger", "n_clicks"),
+    websocket=True,
+    persistent=True
+)
+def live_updates(n_clicks):
+    ws = ctx.websocket
+    while True:
+        data = fetch_live_data()
+        ws.send(Output("live-output", "children", data))
+        time.sleep(1)
+```
+
+### 🔓 Relaxed Pattern Matching Rules
+`MATCH` wildcards are now allowed in `Input` and `State` even when your `Output` has no wildcards, making dynamic UIs simpler to build:
+
+```python
+@callback(
+    Output("summary", "children"),  # Fixed ID output
+    Input({"type": "item", "index": MATCH}, "value")  # MATCH input - now allowed!
+)
+def update_summary(value):
+    return f"Selected: {value}"
+```
+
+---
+
+## Added
+- [#3783](https://github.com/plotly/dash/pull/3783) Add batching/debouncing for websocket `set_props` messages to reduce lag when updating multiple components in a loop. Configurable via `websocket_batch_delay` (default 5ms, set to 0 to disable).
+- [#3669](https://github.com/plotly/dash/pull/3669) Selection for DataTable cleared with custom action settings.
+- [#3680](https://github.com/plotly/dash/pull/3680) Added `search_order` prop to `Dropdown` to allow users to preserve original option order during search.
+- [#3745](https://github.com/plotly/dash/pull/3745) Added `csrf_token_name` and `csrf_header_name` config options to allow configuring the CSRF cookie and header names. Fixes [#729](https://github.com/plotly/dash/issues/729).
+- [#3797](https://github.com/plotly/dash/pull/3797) Improved websocket callback management with heartbeat configuration and proper reconnection handling.
+- [#3523](https://github.com/plotly/dash/pull/3523) Fall back to background callback function names if source cannot be found.
+- [#3771](https://github.com/plotly/dash/pull/3771) Add persistent callbacks and no inputs/no outputs callback support.
+- [#3742](https://github.com/plotly/dash/pull/3742) Add websocket callbacks to fastapi and quart backends.
+- [#3737](https://github.com/plotly/dash/pull/3737) Add `displayNotifier` to `dcc.Graph` config props.
+
+## Changed
+- [#3746](https://github.com/plotly/dash/pull/3746) Improve static typing for `dash.callback` by preserving wrapped callback signatures, and add callback typing coverage in compliance plus new callback decorator unit and integration tests. Fixes [#3691](https://github.com/plotly/dash/issues/3691).
+- Rename `ctx.get_websocket` to `ctx.websocket`.
+- Add threadpool for running websocket callbacks.
+
+## Fixed
+- [#3690](https://github.com/plotly/dash/pull/3690) Fix `dcc.Input` when min or max is set to None.
+- [#3723](https://github.com/plotly/dash/pull/3723) Fix misaligned `dcc.Slider` marks when some labels are empty strings.
+- [#3738](https://github.com/plotly/dash/pull/3738) Add missing `stacklevel=2` to `warnings.warn()` calls so warnings report the caller's location instead of internal Dash source lines.
+- [#3740](https://github.com/plotly/dash/pull/3740) Fix cannot tab into dropdowns in Safari.
+- [#3756](https://github.com/plotly/dash/pull/3756) Allow `MATCH` in `Input`/`State` when the callback's `Output` has no wildcards (fixed-id Output, no Output, or `ALL`-only wildcard Output). `ALLSMALLER` still requires a corresponding `MATCH` in an Output. Fixes [#2462](https://github.com/plotly/dash/issues/2462).
+- [#3768](https://github.com/plotly/dash/pull/3768) Improved `Dropdown` search performance for large options lists.
+- [#3759](https://github.com/plotly/dash/pull/3759) Fix the issue where `Patch` objects cannot be updated via `set_props()` in `websocket` callback. Fix [#3742](https://github.com/plotly/dash/issues/3742).
+- [#3789](https://github.com/plotly/dash/pull/3789) Fixed extra wrapper in `DatePickerRange` and `DatePickerSingle` causing styling and layout issues.
+- [#3799](https://github.com/plotly/dash/pull/3799) Fixed dropdown crash when filtering large datasets with component-based labels by using stable item keys for virtualized rows.
+- [#3785](https://github.com/plotly/dash/pull/3785) Fix patch with `dcc.Graph` figure. Fix `dcc.Graph` not sending duplicate clicks because it had the same payload by adding a timestamp in the click event object.
+- [#3798](https://github.com/plotly/dash/pull/3798) Fix blueprint registering and double init when using `flask run` command. Fixes [#3787](https://github.com/plotly/dash/issues/3787).
+- [#3734](https://github.com/plotly/dash/pull/3734) Fix websocket used in the same FastAPI server. Fixes [#3636](https://github.com/plotly/dash/issues/3636).
+- [#3668](https://github.com/plotly/dash/pull/3668) Fix FastAPI url paths order. Fixes [#3667](https://github.com/plotly/dash/issues/3667).
+- [#3641](https://github.com/plotly/dash/pull/3641) Fix `dcc.Loading` spinner not triggering when callback `Output` uses the `ALL` wildcard. Fixes [#3619](https://github.com/plotly/dash/issues/3619).
+- [#3570](https://github.com/plotly/dash/pull/3570) Fix components not remounting when passed from a parent object. Fixes [#3330](https://github.com/plotly/dash/issues/3330).
+
+## [4.1.0] - 2026-03-23
+
+## Added
+- [#3637](https://github.com/plotly/dash/pull/3637) Added `debounce` prop to `Dropdown`.
+
+## Fixed
+- [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
+- [#3660](https://github.com/plotly/dash/pull/3660) Allow same date to be selected for both start and end in DatePickerRange components
+- [#3600](https://github.com/plotly/dash/pull/3600) DatePicker support for the Moment.js `Y` year token
+- [#3627](https://github.com/plotly/dash/pull/3627) Make dropdowns searchable wheen focused, without requiring to open them first
+- [#3656](https://github.com/plotly/dash/pull/3656) Improved dropdown performance for large collections of options
+- [#3643](https://github.com/plotly/dash/pull/3643) Fix multiselect dropdown with components as labels
+- [#3609](https://github.com/plotly/dash/pull/3609) Add backward compat alias for _Wildcard
+- [#3672](https://github.com/plotly/dash/pull/3672) Improve browser performance when app contains a large number of pattern matching callback callbacks. Exposes an api endpoint to fetch the latest computeGraph call.
+
+# [4.1.0rc0] - 2026-02-23
+
+## Added
+
+- Add support for multiple backend implementation beside flask such as fastapi and quart (both included).
+  - Add `app = Dash(backend="flask" | "fastapi" | "quart" | CustomBackendImpl)` parameter to automatically setup
+  - An existing `Fastapi`, `Quart` or `Flask` instance can also be given as `app = Dash(server=Fastapi())` to automatically setup a dash app on the server.
+  - Install fastapi dependencies with `pip install dash[fastapi]` or quart with `pip install dash[quart]`, flask is still included by default.
+  - Custom backend implementation can be added as a subclass of `dash.backends.base_server.BaseDashServer` and response/request adapters.
+
+## [4.0.0] - 2026-02-03
+
+## Added
+- Finalize all redesigned dash core components
+- Add a prop to sliders, `allow_direct_input`, that can be used to disable the inputs rendered with sliders.
+- Improve CSS styles in calendar when looking at selected dates outside the current calendar month (`show_outside_days=True`)
+
+## [4.0.0rc6] - 2026-01-07
+
+## Added
+- Restored missing implementation for `with_portal` and `with_full_screen_portal` in datepickers
+
+## Changed
+- Bugfixes for feedback received in `rc5`: notably, popovers are `position: fixed` once again.
+
+## [4.0.0rc5] - 2025-12-16
+
+## Added
+- [#3464](https://github.com/plotly/dash/issues/3464) Add folder upload functionality to `dcc.Upload` component. When `multiple=True`, users can now select and upload entire folders in addition to individual files. The folder hierarchy is preserved in filenames (e.g., `folder/subfolder/file.txt`). Files within folders are filtered according to the `accept` prop. Folder support is available in Chrome, Edge, and Opera; other browsers gracefully fall back to file-only mode. The uploaded files use the same output API as multiple file uploads.
+
+## Changed
+- Bugfixes for feedback received in `rc4`
+
+## [4.0.0rc4] - 2025-12-04
+
+## Added
+- New `dcc.Button` component that mirrors `html.Button` but with default styles applied
+
+## [4.0.0rc3] - 2025-11-27
+- Modernized `dcc.Tabs`
+- Modernized `dcc.DatePickerSingle` and `dcc.DatePickerRange`
+- DatePicker calendars can now accept translations as an external script, either with Dash's `external_scripts` or from the assets folder. See [documentation](https://date-fns.org/v4.1.0/docs/CDN) for the underlying library that supports this.
+
+## Changed
+- `dcc.Tab` now accepts a `width` prop which can be a pixel or percentage width for an individual tab.
+- `dcc.Tab` can accept other Dash Components for its label, in addition to a simple string.
+
+## [4.0.0rc2] - 2025-10-10
+
+## Added
+- [3468](https://github.com/plotly/dash/pull/3468) Modernize dcc.TextArea & dcc.Tooltip
+- [3467](https://github.com/plotly/dash/pull/3467) Modernize dcc.Loading
+- [3453](https://github.com/plotly/dash/pull/3453) Modernize dcc.Checklist & dcc.RadioItems
+
+## Changed
+
+- Various tweaks and bugfixes to issues reported in `4.0.0rc1`
+
+- Dropdown API changes
+    * default value of optionHeight is now 'auto' which supports text wrapping of lengthy text on small screens; you can still specify a numeric pixel height if desired
+    * new `labels` prop to customize strings used within the component
+    * default value for closeOnSelect is now `True` for single-select dropdowns and `False` for multi-select
+
+- Slider API changes
+    * default value of `step` is now only set to `1` if the `min` and `max` props are both integers. Otherwise, it will be dynamically computed according to the available space for the slider
+
+## [4.0.0rc1] - 2025-09-22
+
+## Added
+- [#3440](https://github.com/plotly/dash/pull/3440) Modernize dcc.Dropdown
+
+## [4.0.0rc0] - 2025-09-11
+- [#3398](https://github.com/plotly/dash/pull/3398) Modernize dcc.Input
+- [#3414](https://github.com/plotly/dash/pull/3414) Modernize dcc.Slider
+
+
+## [3.4.0] - 2026-01-19
+
+## Added
+
+- [#3568](https://github.com/plotly/dash/pull/3568) Added `children` and `copied_children` props to `dcc.Clipboard` to customize the button contents before and after copying.
+- [#3534](https://github.com/plotly/dash/pull/3534) Adds `playsInline` prop to `html.Video`.  Based on [#2338](https://github.com/plotly/dash/pull/2338)
 - [#3541](https://github.com/plotly/dash/pull/3541) Add `attributes` dictionary to be be formatted on script/link (_js_dist/_css_dist) tags of the index, allows for `type="module"` or `type="importmap"`. [#3538](https://github.com/plotly/dash/issues/3538)
+- [#3542](https://github.com/plotly/dash/pull/3542) Add hidden=True to dash pages callback.
+- [#3564](https://github.com/plotly/dash/pull/3564) Add new parameter `hide_all_callbacks` to `run()`. Closes [#3493](https://github.com/plotly/dash/issues/3493)
+- [#3563](https://github.com/plotly/dash/pull/3563) Add hidden to clientside callbacks as configurable parameter
 
 ## Fixed
 - [#3541](https://github.com/plotly/dash/pull/3541) Remove last reference of deprecated `pkg_resources`.
-- [#3520](https://github.com/plotly/dash/pull/3520). Set `pointer-events` to `auto` on `Tooltip` to make it possible to interact with tooltip content when `targetable=True`
+- [#3548](https://github.com/plotly/dash/pull/3548) Fix devtools overflowing it's container on version update. Fix [#3535](https://github.com/plotly/dash/issues/3535).
+- [#3545](https://github.com/plotly/dash/pull/3545) Replace deprecated asyncio.iscoroutinefunction() call with inspect.iscoroutinefunction()
 
+# Changed
+- [#3540](https://github.com/plotly/dash/pull/3540) Expose more types for better static typing options.
+- [#3520](https://github.com/plotly/dash/pull/3520). Set `pointer-events` to `auto` on `Tooltip` to make it possible to interact with tooltip content when `targetable=True`
 
 ## [3.3.0] - 2025-11-12
 
@@ -24,7 +266,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3347](https://github.com/plotly/dash/pull/3347) Added 'api_endpoint' to `callback` to expose api endpoints at the provided path for use to be executed directly without dash.
 - [#3445](https://github.com/plotly/dash/pull/3445) Added API to reverse direction of slider component.
 - [#3460](https://github.com/plotly/dash/pull/3460) Add `/health` endpoint for server monitoring and health checks.
-- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies. 
+- [#3465](https://github.com/plotly/dash/pull/3465) Plotly cloud integrations, add devtool API, placeholder plotly cloud CLI & publish button, `dash[cloud]` extra dependencies.
 
 ## Fixed
 - [#3490](https://github.com/plotly/dash/pull/3490) Fix stack overflow when circular callbacks are displayed on the devtool callback 
@@ -55,7 +297,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 # [3.1.1] - 2025-06-29
 
 ## Fixed
-[#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
+- [#3351](https://github.com/plotly/dash/pull/3351) Fix multi-page app with `suppress_callback_exceptions=True`
 
 ## [3.1.0] - 2025-06-27
 
