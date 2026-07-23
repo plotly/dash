@@ -26,7 +26,7 @@ const sh_cd = (directory, command) => {
 
 module.exports = {
     // Python checks (run from root, using root venv)
-    "dash/*.py": (filenames) => [
+    "dash/**/*.py": (filenames) => [
         `${venvBin("python")} -m pylint --rcfile=.pylintrc ${filenames.join(
             " "
         )}`,
@@ -93,7 +93,9 @@ module.exports = {
         ];
     },
 
-    "dash/dash-renderer/**/*.{js,jsx,ts,tsx}": (filenames) => {
+    // Only src and tests are covered by dash-renderer's tsconfig; eslint's
+    // type-aware parser errors on files outside it (e.g. webpack configs).
+    "dash/dash-renderer/{src,tests}/**/*.{js,jsx,ts,tsx}": (filenames) => {
         const relativeFilePaths = filenames.map((f) =>
             path.relative(path.join("dash", "dash-renderer"), f)
         );
