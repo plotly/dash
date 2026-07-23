@@ -118,6 +118,12 @@ DiskcacheManager requires extra dependencies which can be installed doing
     def clear_cache_entry(self, key):
         self.handle.delete(key)
 
+    def get_or_create_signing_secret(self, generate):
+        # ``add`` only sets the value if the key is absent (atomic in diskcache),
+        # so the first worker wins and the rest read back the stored secret.
+        self.handle.add(self.SIGNING_SECRET_KEY, generate())
+        return self.handle.get(self.SIGNING_SECRET_KEY)
+
     # noinspection PyUnresolvedReferences
     def call_job_fn(self, key, job_fn, args, context):
         """

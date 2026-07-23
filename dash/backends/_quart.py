@@ -402,6 +402,15 @@ class QuartDashServer(BaseDashServer[Quart]):
                 response_data = await response_data
             return cb_ctx.dash_response.set_response(data=response_data)  # type: ignore[arg-type]
 
+        # Preserve the view function's identity as `dash.dash.dispatch` so that
+        # integrations keying on the fully-qualified view name keep working after
+        # the backend refactor moved dispatching out of `dash.dash.Dash.dispatch`.
+        # e.g. (Quart-)WTF CSRFProtect exemptions:
+        #   csrf._exempt_views.add("dash.dash.dispatch")
+        _dispatch.__name__ = "dispatch"
+        _dispatch.__qualname__ = "dispatch"
+        _dispatch.__module__ = "dash.dash"
+
         return _dispatch
 
     def register_callback_api_routes(

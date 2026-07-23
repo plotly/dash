@@ -53,8 +53,10 @@ from ._utils import (
     hooks_to_js_object,
     get_caller_name,
     get_root_path,
+    alias_main_module,
 )
 from . import _callback
+from . import _callback_signing
 from . import _get_paths
 from . import _dash_renderer
 from . import _validate
@@ -506,6 +508,8 @@ class Dash(ObsoleteChecker):
 
         caller_name: str = name if name is not None else get_caller_name()
 
+        alias_main_module(caller_name)
+
         # Determine backend
         if backend is None:
             backend_cls = get_backend("flask")
@@ -680,6 +684,11 @@ class Dash(ObsoleteChecker):
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
+
+        # Secret used to sign background-callback handles (see _callback_signing).
+        # Prefer the Flask/Quart secret_key (shared across workers when the
+        # operator sets one); otherwise fall back to a per-process random secret.
+        self._generated_signing_secret: Optional[bytes] = None
 
         if server:
             self.init_app()
@@ -962,6 +971,69 @@ class Dash(ObsoleteChecker):
             mimetype="application/json",
         )
 
+    def _get_signing_secret(self) -> bytes:
+        """Return the secret used to sign background-callback handles.
+
+        Resolution order:
+
+        1. The server's ``secret_key`` if set (shared across workers when the
+           operator configures one, e.g. for Flask-Login).
+        2. Otherwise a random secret persisted in the background-callback result
+           store, so every worker reads back the same value. This is exactly as
+           shared as the callback results themselves, so it works cross-worker
+           whenever the deployment is set up for multi-worker background
+           callbacks (an explicitly shared cache / broker).
+        3. Finally, if no background manager is available, a per-process random
+           secret (there are no background handles to verify in that case).
+        """
+        key = getattr(self.server, "secret_key", None)
+        if key:
+            return key.encode("utf-8") if isinstance(key, str) else key
+        if self._generated_signing_secret is None:
+            self._generated_signing_secret = self._resolve_fallback_signing_secret()
+        return self._generated_signing_secret
+
+    def _background_managers(self):
+        """The background-callback managers this app uses, deterministically
+        ordered and de-duplicated by identity."""
+        managers = []
+        seen = set()
+        for candidate in [self._background_manager] + [
+            cb.get("manager") for cb in self.callback_map.values()
+        ]:
+            if candidate is not None and id(candidate) not in seen:
+                seen.add(id(candidate))
+                managers.append(candidate)
+        return managers
+
+    def _resolve_fallback_signing_secret(self) -> bytes:
+        def _generate() -> bytes:
+            return gen_salt(64).encode("utf-8")
+
+        def _coerce(value) -> bytes:
+            if isinstance(value, bytes):
+                return value
+            if isinstance(value, str):
+                return value.encode("utf-8")
+            return bytes(value)
+
+        # Persist the secret in the (shared) result store this app's manager
+        # uses so all workers read back the same value. Every worker runs the
+        # same code, so they resolve the same manager and the same store.
+        for manager in self._background_managers():
+            try:
+                secret = manager.get_or_create_signing_secret(_generate)
+            except NotImplementedError:
+                continue
+            except Exception:  # pylint: disable=broad-except
+                # A misbehaving/unreachable store must not break app startup;
+                # try the next manager, then fall back to a per-process secret.
+                continue
+            if secret:
+                return _coerce(secret)
+
+        return _generate()
+
     def _config(self):
         # pieces of config needed by the front end
         config = {
@@ -984,6 +1056,17 @@ class Dash(ObsoleteChecker):
             "csrf_token_name": self.config.csrf_token_name,
             "csrf_header_name": self.config.csrf_header_name,
         }
+
+        # Server-issued, server-signed token for this page load. The renderer
+        # echoes it on every callback request; the server binds background
+        # callback handles (cacheKey/job) to it so they cannot be forged or
+        # replayed from another page load. See dash/_callback_signing.py.
+        end_id = gen_salt(24)
+        config["end_id"] = _callback_signing.sign(
+            self._get_signing_secret(),
+            _callback_signing.END_SCOPE,
+            end_id,
+        )
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
                 # Disable the placeholder button on workspace.
@@ -1694,8 +1777,13 @@ class Dash(ObsoleteChecker):
                     job_ids = callback_context.args.getlist("cancelJob")
                     executor = _callback.context_value.get().background_callback_manager
                     if job_ids:
+                        secret = self._get_signing_secret()
+                        end_id = _callback.get_request_end_id(secret)
+                        scope = _callback_signing.job_scope(end_id)
                         for job_id in job_ids:
-                            executor.terminate_job(job_id)
+                            job = _callback_signing.unsign(secret, scope, job_id)
+                            if job is not None:
+                                executor.terminate_job(job)
                     return no_update
 
     def _add_assets_resource(self, url_path, file_path):

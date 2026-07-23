@@ -3,6 +3,9 @@ const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 
 const basePreprocessing = require('./base.preprocessing');
 const packagejson = require('./../../package.json');
+const {
+    jsxRuntimeExternal
+} = require('../../../../dash/dash-renderer/jsx-runtime-external');
 
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
@@ -35,6 +38,8 @@ module.exports = (options = {}) => {
         externals: {
             react: 'React',
             'react-dom': 'ReactDOM',
+            'react/jsx-runtime': jsxRuntimeExternal,
+            'react/jsx-dev-runtime': jsxRuntimeExternal,
         },
         module: {
             rules: [

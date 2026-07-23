@@ -20,8 +20,11 @@ def test_health_disabled_by_default_returns_404():
     # When health endpoint is disabled, it returns the main page (200) instead of 404
     # This is expected behavior - the health endpoint is not available
     assert r.status_code == 200
-    # Should return HTML content, not "OK"
-    assert b"OK" not in r.data
+    # Should return the index HTML page, not the plain-text "OK" health response.
+    # (A substring check for b"OK" is unreliable: the page embeds random tokens
+    # such as the signing end_id that can contain those letters by chance.)
+    assert r.mimetype == "text/html"
+    assert r.data != b"OK"
 
 
 def test_health_enabled_returns_ok_200_plain_text():

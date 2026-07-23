@@ -2,6 +2,24 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- [#3646](https://github.com/plotly/dash/pull/3646) Experimental support for React 19. The default is still React 18.3.1; to use React 19 set the environment variable `REACT_VERSION=19.2.4` before running your app, or call `dash._dash_renderer._set_react_version("19.2.4")` inside the app. React 19 has no official UMD builds, so Dash serves the [`umd-react`](https://www.npmjs.com/package/umd-react) package, together with a compatibility shim loaded after react-dom and before any component package. The shim keeps component libraries built against React <=18 (e.g. dash-bootstrap-components, dash-mantine-components) working under React 19: it stubs the removed `ReactCurrentOwner` internals, redirects the legacy element `$$typeof` symbol so pre-bundled React 18 jsx-runtimes produce elements React 19 accepts (error #525), and exposes a global `react/jsx-runtime` (`window.ReactJSXRuntime`) that Dash's own component bundles externalize to. Component library authors adopting this convention should copy the defensive `jsxRuntimeExternal` webpack external from `components/dash-core-components/webpack.config.js` rather than a bare `'ReactJSXRuntime'` string: it falls back to a `React.createElement`-based runtime when the global is missing, so the same build also works on Dash versions older than this release.
+
+### Removed
+- [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
+
+## [4.4.1] - 2026-07-21
+
+## Fixed
+- [#3902](https://github.com/plotly/dash/pull/3902) Fix background callbacks trusting the client-supplied `job`/`oldJob`/`cancelJob` and `cacheKey` query parameters verbatim, which let an unauthenticated client terminate an arbitrary process (with `DiskcacheManager`, by sending its PID) or read and delete arbitrary result-cache entries. The `cacheKey`/`job` handles are now HMAC-signed by the server and bound to a per-page-load token, so forged or replayed values are rejected. Handles stay opaque to the renderer, so no app or callback code changes are required.
+- [3883](https://github.com/plotly/dash/pull/3883) Fix callbacks being registered twice when running the app file as a script with a server that loads it by import string, e.g. `uvicorn.run("app:server", reload=True)` with `backend="fastapi"`. The spawned worker re-executes the main module as `__mp_main__` and the import string then executed the same file a second time, duplicating every callback in `_dash-dependencies` and triggering `Duplicate callback outputs` errors in the renderer. `Dash()` now pre-registers the running main module in `sys.modules` under its canonical import name so the second import reuses it instead of re-executing the file. Fixes [#3818](https://github.com/plotly/dash/issues/3818).
+- [3885](https://github.com/plotly/dash/pull/3885) Fix Flask-WTF `CSRFProtect` (and Quart-WTF) exemptions breaking after the backend refactor. The callback dispatch view is now exposed with the fully-qualified name `dash.dash.dispatch` again, so `csrf._exempt_views.add("dash.dash.dispatch")` works as it did in Dash 4.1.0. Fixes [#3827](https://github.com/plotly/dash/issues/3827).
+- [#3882](https://github.com/plotly/dash/pull/3882) Fix `dcc.Graph` user interactions (pan, zoom, edited shapes & annotations, ...) being reverted by a subsequent `Patch` update, by syncing all relayout changes back to the `figure` prop instead of only shapes. Fixes [#3810](https://github.com/plotly/dash/issues/3810).
+- [#3903](https://github.com/plotly/dash/pull/3903) Fix missing comm dependency, fix [#3657](https://github.com/plotly/dash/issues/3657).
+- Updated radix-ui to fix [#3786](https://github.com/plotly/dash/issues/3786)
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
