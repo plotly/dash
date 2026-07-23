@@ -10,10 +10,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
+## [4.4.1] - 2026-07-21
+
+## Fixed
+- [#3902](https://github.com/plotly/dash/pull/3902) Fix background callbacks trusting the client-supplied `job`/`oldJob`/`cancelJob` and `cacheKey` query parameters verbatim, which let an unauthenticated client terminate an arbitrary process (with `DiskcacheManager`, by sending its PID) or read and delete arbitrary result-cache entries. The `cacheKey`/`job` handles are now HMAC-signed by the server and bound to a per-page-load token, so forged or replayed values are rejected. Handles stay opaque to the renderer, so no app or callback code changes are required.
+- [3883](https://github.com/plotly/dash/pull/3883) Fix callbacks being registered twice when running the app file as a script with a server that loads it by import string, e.g. `uvicorn.run("app:server", reload=True)` with `backend="fastapi"`. The spawned worker re-executes the main module as `__mp_main__` and the import string then executed the same file a second time, duplicating every callback in `_dash-dependencies` and triggering `Duplicate callback outputs` errors in the renderer. `Dash()` now pre-registers the running main module in `sys.modules` under its canonical import name so the second import reuses it instead of re-executing the file. Fixes [#3818](https://github.com/plotly/dash/issues/3818).
+- [3885](https://github.com/plotly/dash/pull/3885) Fix Flask-WTF `CSRFProtect` (and Quart-WTF) exemptions breaking after the backend refactor. The callback dispatch view is now exposed with the fully-qualified name `dash.dash.dispatch` again, so `csrf._exempt_views.add("dash.dash.dispatch")` works as it did in Dash 4.1.0. Fixes [#3827](https://github.com/plotly/dash/issues/3827).
+- [#3882](https://github.com/plotly/dash/pull/3882) Fix `dcc.Graph` user interactions (pan, zoom, edited shapes & annotations, ...) being reverted by a subsequent `Patch` update, by syncing all relayout changes back to the `figure` prop instead of only shapes. Fixes [#3810](https://github.com/plotly/dash/issues/3810).
+- [#3903](https://github.com/plotly/dash/pull/3903) Fix missing comm dependency, fix [#3657](https://github.com/plotly/dash/issues/3657).
+- Updated radix-ui to fix [#3786](https://github.com/plotly/dash/issues/3786)
+
 ## [4.4.0] - 2026-07-03
 
 ### Added
 - [#3826](https://github.com/plotly/dash/pull/3826) WebSocket callback dispatch no longer lets long-lived callbacks limit the number of concurrent users. Async callbacks (including session-persistent ones) run directly on the connection event loop instead of occupying a worker thread, and synchronous callbacks run on a shared `ThreadPoolExecutor` whose size is configurable via the new `websocket_max_workers` argument to `Dash` (default `4`). A synchronous persistent (no-output) callback now warns at registration since it would tie up a worker thread.
+- [#3852](https://github.com/plotly/dash/pull/3852)  Added support for Plotly hoveranywhere and clickanywhere events in `dcc.Graph` by adding `xvals` and `yvals` to `hoverData` and `clickData`.
 
 ## Fixed
 - [#3861](https://github.com/plotly/dash/issues/3861) Fix synchronous WebSocket callbacks not inheriting `ContextVar` values bound by ASGI middleware. `copy_context()` is now captured on the event-loop thread before the callback is submitted to the thread pool, instead of inside the worker thread where only default values were visible.
@@ -31,7 +42,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Add `configure_mcp_server()` to toggle which content the MCP server exposes (`include_layout`, `include_callbacks`, `include_clientside_callbacks`, `include_pages`, `expose_callback_docstrings`). Only the parameters explicitly passed are updated; omitted parameters retain their current value.
-- [#3852](https://github.com/plotly/dash/pull/3852)  Added support for Plotly hoveranywhere and clickanywhere events in `dcc.Graph` by adding `xvals` and `yvals` to `hoverData` and `clickData`.
 
 ## Changed
 - [#3796](https://github.com/plotly/dash/pull/3796) MCP: Remove the `mcp_expose_docstrings` `Dash()` constructor argument; callback docstring exposure is now controlled via `configure_mcp_server(expose_callback_docstrings=...)`.

@@ -24,6 +24,7 @@ from .exceptions import (
     ImportedInsideCallbackError,
 )
 from ._get_app import get_app
+from . import _callback_signing
 from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
@@ -387,6 +388,24 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
     )
 
 
+def get_request_end_id(secret: bytes):
+    """Return the verified end_id for the current request, or ``None``.
+
+    The renderer echoes the server-signed ``endId`` token on every callback
+    request; this verifies the signature and returns the underlying end_id so
+    background handles can be checked against it.
+    """
+    adapter = get_app().backend.request_adapter()
+    if not adapter:
+        return None
+    token = adapter.args.get("endId")
+    return _callback_signing.unsign(secret, _callback_signing.END_SCOPE, token)
+
+
+def _get_signing_secret() -> bytes:
+    return get_app()._get_signing_secret()  # pylint: disable=protected-access
+
+
 def _get_callback_manager(
     kwargs: dict, background: dict
 ) -> BaseBackgroundCallbackManager:
@@ -409,8 +428,14 @@ def _get_callback_manager(
     old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
-        for job in old_job:
-            callback_manager.terminate_job(job)
+        secret = _get_signing_secret()
+        scope = _callback_signing.job_scope(get_request_end_id(secret))
+        for signed_job in old_job:
+            # Only terminate jobs whose handle we actually signed for this page
+            # load; ignore forged or replayed pids.
+            job = _callback_signing.unsign(secret, scope, signed_job)
+            if job is not None:
+                callback_manager.terminate_job(job)
 
     return callback_manager
 
@@ -450,9 +475,18 @@ def _setup_background_callback(
         ctx_value,
     )
 
+    # Sign the handles before handing them to the browser so they cannot be
+    # forged (arbitrary pid kill / arbitrary cache read) or replayed from
+    # another page load. The renderer treats them as opaque strings.
+    secret = _get_signing_secret()
+    end_id = get_request_end_id(secret)
     data = {
-        "cacheKey": cache_key,
-        "job": job,
+        "cacheKey": _callback_signing.sign(
+            secret, _callback_signing.cache_scope(end_id), cache_key
+        ),
+        "job": _callback_signing.sign(
+            secret, _callback_signing.job_scope(end_id), str(job)
+        ),
     }
 
     cancel = background.get("cancel")
@@ -467,15 +501,38 @@ def _setup_background_callback(
     return to_json(data)
 
 
+def _read_request_handles():
+    """Read and verify the signed cacheKey/job handles from the current request.
+
+    Returns ``(cache_key, job_id)`` as the raw (unsigned) values, or ``None`` for
+    any handle that is missing or whose signature does not verify against this
+    page load's end_id. This is what prevents a client from supplying an
+    arbitrary cache key (read/delete) or an arbitrary pid (kill).
+    """
+    adapter = get_app().backend.request_adapter()
+    if not adapter:
+        return None, None
+    secret = _get_signing_secret()
+    end_id = get_request_end_id(secret)
+    cache_key = _callback_signing.unsign(
+        secret,
+        _callback_signing.cache_scope(end_id),
+        adapter.args.get("cacheKey"),
+    )
+    job_id = _callback_signing.unsign(
+        secret,
+        _callback_signing.job_scope(end_id),
+        adapter.args.get("job"),
+    )
+    return cache_key, job_id
+
+
 def _progress_background_callback(
     response, callback_manager, background, cache_key=None
 ):
     progress_outputs = background.get("progress")
-    if cache_key is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = adapter.args.get("cacheKey")
 
-    if progress_outputs:
+    if progress_outputs and cache_key is not None:
         # Get the progress before the result as it would be erased after the results.
         progress = callback_manager.get_progress(cache_key)
         if progress:
@@ -498,15 +555,19 @@ def _update_background_callback(
     callback_manager = _get_callback_manager(kwargs, background)
 
     if cache_key is None or job_id is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
-        job_id = job_id or (adapter.args.get("job") if adapter else None)
+        req_cache_key, req_job_id = _read_request_handles()
+        cache_key = cache_key or req_cache_key
+        job_id = job_id or req_job_id
 
     _progress_background_callback(
         response, callback_manager, background, cache_key=cache_key
     )
 
-    output_value = callback_manager.get_result(cache_key, job_id)
+    if cache_key is None:
+        # No valid handle for this page load -> read nothing, delete nothing.
+        output_value = callback_manager.UNDEFINED
+    else:
+        output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
         output_value,
@@ -531,12 +592,8 @@ def _handle_rest_background_callback(
     cache_key=None,
     job_id=None,
 ):
-    if cache_key is None or job_id is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
-        job_id = job_id or (adapter.args.get("job") if adapter else None)
     # Must get job_running after get_result since get_results terminates it.
-    job_running = callback_manager.job_running(job_id)
+    job_running = callback_manager.job_running(job_id) if job_id is not None else False
     if not job_running and output_value is callback_manager.UNDEFINED:
         # Job canceled -> no output to close the loop.
         output_value = NoUpdate()
