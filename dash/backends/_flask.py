@@ -35,6 +35,7 @@ from dash._streaming import (
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
     andjson_lines,
+    keepalive_seconds,
     ndjson_lines,
     sync_iter_asyncgen,
 )
@@ -263,12 +264,15 @@ class FlaskDashServer(BaseDashServer[Flask]):
         def _stream_response(
             marker: StreamedCallbackResponse, with_request_ctx: bool
         ) -> Response:
+            keepalive = keepalive_seconds(
+                dash_app._stream_keepalive_interval  # pylint: disable=protected-access
+            )
             if marker.is_async:
                 # Drive the async frame generator on a private event-loop
                 # thread; the response iterator drains it synchronously.
-                body = sync_iter_asyncgen(andjson_lines(marker.frames))
+                body = sync_iter_asyncgen(andjson_lines(marker.frames, keepalive))
             else:
-                body = ndjson_lines(marker)
+                body = ndjson_lines(marker, keepalive)
             if with_request_ctx:
                 # Keep flask.request usable while the body is iterated (the
                 # generator runs after the view returns). Only valid on the

@@ -2,12 +2,20 @@
 import asyncio
 import contextvars
 import json
+import time
 
 import pytest
 
 from dash import Dash, Input, Output, Patch, callback, html, no_update, set_props
 from dash._callback import GLOBAL_CALLBACK_LIST, GLOBAL_CALLBACK_MAP
-from dash._streaming import sync_iter_asyncgen
+from dash._streaming import (
+    StreamedCallbackResponse,
+    _keepalive_frames,
+    andjson_lines,
+    keepalive_seconds,
+    marker_ndjson_aiter,
+    sync_iter_asyncgen,
+)
 from dash.exceptions import (
     BackgroundCallbackError,
     PreventUpdate,
@@ -24,13 +32,18 @@ def make_body(output_id, prop, input_id="btn"):
     }
 
 
-def post_stream(app, body):
-    """POST a callback request and return the parsed NDJSON frames."""
+def post_stream_raw(app, body):
+    """POST a callback request and return the raw NDJSON body."""
     client = app.server.test_client()
     resp = client.post("/_dash-update-component", json=body)
     assert resp.status_code == 200
     assert resp.headers.get("Content-Type") == "application/x-ndjson"
-    data = resp.get_data(as_text=True)
+    return resp.get_data(as_text=True)
+
+
+def post_stream(app, body):
+    """POST a callback request and return the parsed NDJSON frames."""
+    data = post_stream_raw(app, body)
     return [json.loads(line) for line in data.splitlines() if line.strip()]
 
 
@@ -277,7 +290,116 @@ def test_stcb014_sync_iter_asyncgen_close_cancels():
     for _ in range(100):
         if closed:
             break
-        import time
+        time.sleep(0.01)
+    assert closed == [True]
 
+
+def test_stcb015_keepalive_seconds_normalization():
+    assert keepalive_seconds(15000) == 15.0
+    assert keepalive_seconds(None) is None
+    assert keepalive_seconds(0) is None
+    assert keepalive_seconds(-1) is None
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_stcb016_flask_keepalive_between_slow_yields():
+    app = Dash(__name__, stream_keepalive_interval=50)
+    app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    def stream_cb(n):
+        time.sleep(0.3)
+        yield "start"
+        time.sleep(0.3)
+        yield "final"
+
+    raw = post_stream_raw(app, make_body("out", "children"))
+    # Blank keepalive lines while the callback is between yields.
+    assert len([line for line in raw.splitlines() if not line.strip()]) >= 2
+    # The frames themselves are unaffected.
+    frames = [json.loads(line) for line in raw.splitlines() if line.strip()]
+    assert frames[0]["response"] == {"out": {"children": "start"}}
+    assert frames[1]["response"] == {"out": {"children": "final"}}
+    assert frames[2] == {"done": True}
+
+
+@pytest.mark.filterwarnings("ignore::RuntimeWarning")
+def test_stcb017_flask_keepalive_disabled():
+    app = Dash(__name__, stream_keepalive_interval=None)
+    app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    def stream_cb(n):
+        time.sleep(0.2)
+        yield "only"
+
+    raw = post_stream_raw(app, make_body("out", "children"))
+    assert [line for line in raw.splitlines() if not line.strip()] == []
+
+
+def test_stcb018_async_keepalive_does_not_cancel_source():
+    async def agen():
+        await asyncio.sleep(0.3)
+        yield {"multi": True}
+        await asyncio.sleep(0.3)
+        yield {"done": True}
+
+    async def collect():
+        return [line async for line in andjson_lines(agen(), keepalive=0.05)]
+
+    lines = asyncio.run(collect())
+    assert lines.count("\n") >= 2
+    # Holding the pending __anext__ across keepalives means both frames still
+    # arrive; a bare wait_for would have cancelled the generator mid-step.
+    assert [json.loads(line) for line in lines if line.strip()] == [
+        {"multi": True},
+        {"done": True},
+    ]
+
+
+def test_stcb020_async_keepalive_over_sync_generator():
+    """marker_ndjson_aiter with is_async=False: sync generator, ASGI backend."""
+
+    def frames():
+        time.sleep(0.3)
+        yield {"multi": True}
+        yield {"done": True}
+
+    marker = StreamedCallbackResponse(
+        frames(), is_async=False, ctx=contextvars.copy_context()
+    )
+
+    async def collect():
+        return [line async for line in marker_ndjson_aiter(marker, keepalive=0.05)]
+
+    lines = asyncio.run(collect())
+    assert lines.count("\n") >= 2
+    assert [json.loads(line) for line in lines if line.strip()] == [
+        {"multi": True},
+        {"done": True},
+    ]
+
+
+def test_stcb019_keepalive_frames_closes_generator_when_consumer_leaves():
+    closed = []
+
+    def frames():
+        try:
+            while True:
+                yield {"multi": True}
+        finally:
+            closed.append(True)
+
+    marker = StreamedCallbackResponse(
+        frames(), is_async=False, ctx=contextvars.copy_context()
+    )
+    gen = _keepalive_frames(marker, 0.05)
+    assert next(gen) == {"multi": True}
+    gen.close()
+    # The pump thread owns the generator, so cleanup happens once it notices
+    # the stop flag rather than at the consumer's close().
+    for _ in range(200):
+        if closed:
+            break
         time.sleep(0.01)
     assert closed == [True]

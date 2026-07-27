@@ -40,6 +40,7 @@ from dash._streaming import (
     STREAM_HEADERS,
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
+    keepalive_seconds,
     marker_ndjson_aiter,
 )
 from dash.exceptions import PreventUpdate
@@ -575,7 +576,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
                 return StreamingResponse(
-                    marker_ndjson_aiter(response_data),
+                    marker_ndjson_aiter(
+                        response_data,
+                        keepalive_seconds(dash_app._stream_keepalive_interval),
+                    ),
                     media_type=STREAM_MIMETYPE,
                     headers=dict(STREAM_HEADERS),
                 )

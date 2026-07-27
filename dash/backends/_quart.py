@@ -44,6 +44,7 @@ from dash._streaming import (
     STREAM_HEADERS,
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
+    keepalive_seconds,
     marker_ndjson_aiter,
 )
 from dash._utils import parse_version
@@ -409,7 +410,10 @@ class QuartDashServer(BaseDashServer[Quart]):
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
                 return Response(  # type: ignore[return-value]
-                    marker_ndjson_aiter(response_data),
+                    marker_ndjson_aiter(
+                        response_data,
+                        keepalive_seconds(dash_app._stream_keepalive_interval),
+                    ),
                     content_type=STREAM_MIMETYPE,
                     headers=dict(STREAM_HEADERS),
                 )

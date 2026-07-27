@@ -433,6 +433,13 @@ class Dash(ObsoleteChecker):
     :param csrf_header_name: Name of the HTTP header to send the CSRF token in.
         Default ``'X-CSRFToken'``.
     :type csrf_header_name: string
+
+    :param stream_keepalive_interval: How long a ``stream=True`` callback may
+        go without yielding, in milliseconds, before the response emits a
+        blank keepalive line. Default 15000. Keeps proxy idle timeouts
+        (nginx ``proxy_read_timeout`` defaults to 60s) from closing a stream
+        while the callback is still working. Set to None or 0 to disable.
+    :type stream_keepalive_interval: int or None
     """
 
     _plotlyjs_url: str
@@ -493,6 +500,7 @@ class Dash(ObsoleteChecker):
         websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
         websocket_max_workers: Optional[int] = 4,
+        stream_keepalive_interval: Optional[int] = 15000,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         **obsolete,
@@ -668,6 +676,7 @@ class Dash(ObsoleteChecker):
         self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
         self._websocket_max_workers = websocket_max_workers
+        self._stream_keepalive_interval = stream_keepalive_interval
 
         self.logger = logging.getLogger(__name__)
 
