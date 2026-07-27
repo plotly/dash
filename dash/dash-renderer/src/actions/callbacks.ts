@@ -529,6 +529,11 @@ function handleServerside(
             }
             url = `${url}${delim}${name}=${value}`;
         };
+        // Echo the server-issued token so the server can bind/verify the
+        // background-callback handles (cacheKey/job/oldJob/cancelJob) it signs.
+        if (config.end_id) {
+            addArg('endId', config.end_id);
+        }
         if (cacheKey || job) {
             if (cacheKey) addArg('cacheKey', cacheKey);
             if (job) addArg('job', job);
