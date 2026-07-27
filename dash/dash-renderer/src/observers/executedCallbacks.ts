@@ -52,7 +52,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {executed}
         } = getState();
 
-        function applyProps(id: any, updatedProps: any) {
+        function applyProps(
+            id: any,
+            updatedProps: any,
+            patchAnalysis?: PatchAnalysis
+        ) {
             const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
@@ -70,7 +74,20 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
-            const {props} = applyPersistence({props: updatedProps}, dispatch);
+            // A Patch resolves by carrying pre-existing children over from
+            // Redux, user edits included, so applyPersistence must leave those
+            // alone. It would otherwise see a "server override" and clear the
+            // stored edit. The analysis says which components the patch really
+            // created. Everything else came from a full replacement, where the
+            // server returns fresh default values and persisted edits must be
+            // restored (e.g. after a component moves on page).
+            // Only the `children` prop matters here, that is the one
+            // applyPersistence recurses through
+            const {props} = applyPersistence(
+                {props: updatedProps},
+                dispatch,
+                analysisForProp(patchAnalysis, 'children')
+            );
             (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
@@ -114,7 +131,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                         const patchAnalysis = patchedOutputs?.[id];
 
                         // Components will trigger callbacks on their own as required (eg. derived)
-                        const appliedProps = applyProps(parsedId, props);
+                        const appliedProps = applyProps(
+                            parsedId,
+                            props,
+                            patchAnalysis
+                        );
 
                         // Add callbacks for modified inputs
                         requestedCallbacks = concat(
