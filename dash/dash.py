@@ -434,7 +434,7 @@ class Dash(ObsoleteChecker):
         Default ``'X-CSRFToken'``.
     :type csrf_header_name: string
 
-    :param stream_keepalive_interval: How long a ``stream=True`` callback may
+    :param stream_keepalive_interval: How long a streaming callback may
         go without yielding, in milliseconds, before the response emits a
         blank keepalive line. Default 15000. Keeps proxy idle timeouts
         (nginx ``proxy_read_timeout`` defaults to 60s) from closing a stream

@@ -1,4 +1,4 @@
-"""Browser integration tests for stream=True callbacks over HTTP (NDJSON)."""
+"""Browser integration tests for streaming callbacks over HTTP (NDJSON)."""
 import time
 
 import pytest
@@ -29,7 +29,6 @@ def test_stst001_stream_progressive_render(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):
@@ -62,7 +61,6 @@ def test_stst002_stream_patch_appends_once(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):
@@ -99,7 +97,6 @@ def test_stst003_stream_multi_output_and_set_props(dash_duo):
         Output("a", "children"),
         Output("b", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):
@@ -131,7 +128,6 @@ def test_stst004_stream_triggers_downstream_callback(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):
@@ -166,7 +162,6 @@ def test_stst005_stream_error_shows_in_devtools(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):
@@ -195,7 +190,6 @@ def test_stst006_stream_loading_state(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     def stream_cb(n):

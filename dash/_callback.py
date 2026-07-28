@@ -94,7 +94,6 @@ def callback(
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
-    stream: Optional[bool] = False,
     mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
@@ -115,6 +114,14 @@ def callback(
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
     `False` and unlike `app.callback` is not configurable at the app level.
+
+    Decorating a generator function (or async generator function) registers a
+    streaming callback: each yielded value has the same shape as a regular
+    return value (one value per `Output`) and is pushed to the browser
+    immediately; yield `dash.Patch` objects for incremental updates. Streams
+    over the WebSocket callback transport when active, otherwise over the HTTP
+    response (NDJSON). Streaming callbacks cannot be combined with
+    `background=True`, `mcp_enabled=True` or `api_endpoint`.
 
     :Keyword Arguments:
         :param background:
@@ -195,33 +202,9 @@ def callback(
             If True, this callback will not show the "Updating..." title while
             running. Useful for persistent WebSocket callbacks that stay active
             for long periods without requiring a loading indicator.
-        :param stream:
-            If True, the callback must be a generator (or async generator)
-            function. Each yielded value has the same shape as a regular
-            return value (one value per Output) and is pushed to the browser
-            immediately; yield `dash.Patch` objects for incremental updates.
-            Streams over the WebSocket callback transport when active,
-            otherwise over the HTTP response (NDJSON). Cannot be combined
-            with `background=True`.
     """
 
     background_spec: Any = None
-
-    if stream:
-        if background:
-            raise BackgroundCallbackError(
-                "stream=True cannot be combined with background=True."
-            )
-        if mcp_enabled:
-            raise StreamCallbackError(
-                "stream=True cannot be combined with mcp_enabled=True: "
-                "MCP tools expect a single JSON result."
-            )
-        if api_endpoint:
-            raise StreamCallbackError(
-                "stream=True cannot be combined with api_endpoint: "
-                "API endpoints expect a single JSON result."
-            )
 
     config_prevent_initial_callbacks = _kwargs.pop(
         "config_prevent_initial_callbacks", False
@@ -278,7 +261,6 @@ def callback(
         hidden=hidden,
         websocket=websocket,
         persistent=persistent,
-        stream=stream,
         mcp_enabled=mcp_enabled,
         mcp_expose_docstring=mcp_expose_docstring,
     )
@@ -286,6 +268,25 @@ def callback(
     return cast(
         Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
+
+
+def _validate_stream_callback(callback_id, background, kwargs):
+    """Reject options a streaming (generator) callback cannot be combined with."""
+    if background is not None:
+        raise BackgroundCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "background=True: background callbacks return a single result."
+        )
+    if kwargs.get("mcp_enabled"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "mcp_enabled=True: MCP tools expect a single JSON result."
+        )
+    if kwargs.get("api_endpoint"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "api_endpoint: API endpoints expect a single JSON result."
+        )
 
 
 def validate_background_inputs(deps):
@@ -334,7 +335,6 @@ def insert_callback(
     hidden=None,
     websocket=False,
     persistent=False,
-    stream=False,
     mcp_enabled=None,
     mcp_expose_docstring=None,
 ) -> str:
@@ -364,7 +364,6 @@ def insert_callback(
         "hidden": hidden,
         "websocket": websocket,
         "persistent": persistent,
-        "stream": stream,
     }
     if running:
         callback_spec["running"] = running
@@ -381,7 +380,9 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
-        "stream": stream,
+        # Flipped to True by register_callback when the decorated function
+        # turns out to be a generator (streaming callback).
+        "stream": False,
         "mcp_enabled": mcp_enabled,
         "mcp_expose_docstring": mcp_expose_docstring,
     }
@@ -806,13 +807,20 @@ def register_callback(
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
-        stream=_kwargs.get("stream", False),
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+        # A generator (or async generator) callback streams its yields; that is
+        # inferred from the function itself, there is no opt-in keyword.
+        is_gen_func = inspect.isgeneratorfunction(func)
+        is_async_gen_func = inspect.isasyncgenfunction(func)
+        is_stream = is_gen_func or is_async_gen_func
+        if is_stream:
+            _validate_stream_callback(callback_id, background, _kwargs)
+
         if _kwargs.get("api_endpoint"):
             api_endpoint = _kwargs.get("api_endpoint")
             GLOBAL_API_PATHS[api_endpoint] = func
@@ -1095,7 +1103,7 @@ def register_callback(
 
         @wraps(func)
         def add_context_stream(*args, **kwargs):
-            """Handles stream=True callbacks defined as sync generators."""
+            """Handles streaming callbacks defined as sync generators."""
             error_handler = on_error or kwargs.pop("app_on_error", None)
 
             (
@@ -1126,7 +1134,7 @@ def register_callback(
 
         @wraps(func)
         async def async_add_context_stream(*args, **kwargs):
-            """Handles stream=True callbacks defined as async generators."""
+            """Handles streaming callbacks defined as async generators."""
             error_handler = on_error or kwargs.pop("app_on_error", None)
 
             (
@@ -1152,22 +1160,14 @@ def register_callback(
             )
             return StreamedCallbackResponse(frames, is_async=True)
 
-        stream = _kwargs.get("stream", False)
-        is_gen_func = inspect.isgeneratorfunction(func)
-        is_async_gen_func = inspect.isasyncgenfunction(func)
-        if stream:
-            if not (is_gen_func or is_async_gen_func):
-                raise StreamCallbackError(
-                    f"stream=True callback '{callback_id}' must be a generator "
-                    "function (or async generator function) that yields output "
-                    "updates."
-                )
+        if is_stream:
+            callback_map[callback_id]["stream"] = True
             if is_gen_func:
                 # A sync generator stream occupies a server worker (or WS
                 # executor thread) for the whole stream duration; recommend
                 # async so it runs on the event loop.
                 warnings.warn(
-                    f"stream=True callback '{callback_id}' is a synchronous "
+                    f"Streaming callback '{callback_id}' is a synchronous "
                     "generator; it will occupy a server worker for the whole "
                     "stream. Define it with 'async def' so it runs on the "
                     "event loop instead.",
@@ -1177,12 +1177,6 @@ def register_callback(
                 callback_map[callback_id]["callback"] = add_context_stream
             else:
                 callback_map[callback_id]["callback"] = async_add_context_stream
-        elif is_gen_func or is_async_gen_func:
-            raise StreamCallbackError(
-                f"Callback '{callback_id}' is a generator function but was not "
-                "registered with stream=True. Did you mean "
-                "@callback(..., stream=True)?"
-            )
         elif inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
@@ -1224,10 +1218,6 @@ def register_clientside_callback(
     *args,
     **kwargs,
 ):
-    if kwargs.get("stream"):
-        raise StreamCallbackError(
-            "stream=True is not supported for clientside callbacks."
-        )
     output, inputs, state, prevent_initial_call = handle_callback_args(args, kwargs)
     no_output = isinstance(output, (list,)) and len(output) == 0
     insert_callback(

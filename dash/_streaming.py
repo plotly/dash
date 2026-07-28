@@ -1,4 +1,4 @@
-"""Transport helpers for streaming callbacks (``@callback(..., stream=True)``).
+"""Transport helpers for streaming callbacks (generator callbacks).
 
 A streaming callback is a generator (or async generator) whose yields are
 converted to "frames" — dicts with the same shape as a regular callback
@@ -61,7 +61,7 @@ def to_json(value) -> str:
 
 
 class StreamedCallbackResponse:  # pylint: disable=too-few-public-methods
-    """Marker returned by ``stream=True`` callback wrappers.
+    """Marker returned by streaming callback wrappers.
 
     Backends detect this instead of a JSON string and return a streaming
     response. ``frames`` is a generator (async generator when ``is_async``)

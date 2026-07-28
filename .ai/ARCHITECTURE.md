@@ -1059,9 +1059,12 @@ async def validate_message(websocket, message):
 
 ## Streaming Callbacks
 
-`@callback(..., stream=True)` marks a generator (or async generator) callback
-whose yields are pushed to the browser as they are produced — for LLM token
-streaming, progress feeds, and long computations.
+A callback defined as a generator function (or async generator function)
+streams: its yields are pushed to the browser as they are produced — for LLM
+token streaming, progress feeds, and long computations. There is no opt-in
+keyword; `dash._callback.register_callback` infers it from the decorated
+function (`inspect.isgeneratorfunction` / `isasyncgenfunction`) and registers
+the streaming wrapper instead of the regular one.
 
 ```python
 import asyncio
@@ -1070,7 +1073,6 @@ from dash import callback, Output, Input, Patch
 @callback(
     Output('log', 'children'),
     Input('btn', 'n_clicks'),
-    stream=True,
     prevent_initial_call=True,
 )
 async def run(n):
@@ -1101,8 +1103,12 @@ async def run(n):
 - Works with sync generators (Flask/Quart/FastAPI) and async generators.
   Sync generators warn at registration: they occupy a server worker (or WS
   executor thread) for the whole stream — prefer `async def`.
-- Incompatible with `background=True`, clientside callbacks, `mcp_enabled`,
-  and `api_endpoint` (validated at registration).
+- Incompatible with `background=True`, `mcp_enabled` and `api_endpoint`
+  (validated at registration, when the function is inspected). Clientside
+  callbacks cannot stream at all.
+- `callback_map[callback_id]['stream']` records the inferred flag server-side;
+  it is not part of the callback spec sent to the client, which detects a
+  stream from the response instead (NDJSON content type / `stream` frames).
 
 ### Transport & frame protocol
 
@@ -1125,6 +1131,10 @@ with an empty result on the terminal frame.
 
 ### Caveats
 
+- Streaming is inferred from the decorated function, so another decorator
+  between `@callback` and the generator hides it: if that decorator returns a
+  plain function, Dash registers a regular callback and the returned generator
+  object fails to serialize (`InvalidCallbackReturnValue: type generator`).
 - Long streams should check `ctx.websocket.is_shutdown` (WS transport) in
   loops; on HTTP, client disconnect raises `GeneratorExit` into the user
   generator at its current `yield`.

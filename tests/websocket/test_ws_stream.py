@@ -1,8 +1,8 @@
 """WebSocket streaming callback tests.
 
 Protocol-level tests (FastAPI TestClient, no browser) verifying that
-stream=True callbacks emit intermediate callback_response frames with
-stream=True followed by a terminal done frame, plus browser tests for the
+streaming callbacks emit intermediate callback_response frames with
+``stream: true`` followed by a terminal done frame, plus browser tests for the
 full renderer round-trip.
 """
 import asyncio
@@ -58,7 +58,7 @@ def test_wsst001_async_stream_frames_over_ws():
 
     app, server = _make_ws_app()
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     async def stream_cb(n):
         yield "start"
         await asyncio.sleep(0.01)
@@ -87,7 +87,7 @@ def test_wsst002_sync_stream_frames_over_ws():
 
     app, server = _make_ws_app()
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     def stream_cb(n):
         yield "s1"
         yield "s2"
@@ -113,7 +113,7 @@ def test_wsst003_stream_error_over_ws():
 
     app, server = _make_ws_app()
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     async def stream_cb(n):
         yield "one"
         raise ValueError("boom")
@@ -145,7 +145,6 @@ def test_wsst004_browser_stream_over_websocket(dash_duo):
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         prevent_initial_call=True,
     )
     async def stream_cb(n):

@@ -25,7 +25,7 @@ export interface CallbackResponse {
     status: 'ok' | 'prevent_update' | 'error';
     data?: Record<string, unknown>;
     message?: string;
-    /** True for responses from a stream=True callback */
+    /** True for responses from a streaming callback */
     stream?: boolean;
     /** True on the terminal frame of a streamed callback */
     done?: boolean;
@@ -47,7 +47,7 @@ export interface GetPropsRequestPayload {
 interface PendingRequest {
     resolve: (value: CallbackResponse) => void;
     reject: (error: Error) => void;
-    /** Receives intermediate frames from a stream=True callback */
+    /** Receives intermediate frames from a streaming callback */
     onFrame?: (data: Record<string, unknown>) => void;
 }
 
@@ -210,7 +210,7 @@ class WorkerClient {
      * Send a callback request to the server via the worker.
      * @param payload The callback payload
      * @param onFrame Optional handler for intermediate frames from a
-     *   stream=True callback; the returned promise still resolves once with
+     *   streaming callback; the returned promise still resolves once with
      *   the terminal response.
      * @returns Promise that resolves with the callback response
      */

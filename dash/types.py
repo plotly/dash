@@ -102,6 +102,6 @@ class CallbackExecutionResponse(TypedDict):
     response: NotRequired[Dict[str, CallbackOutput]]
     sideUpdate: NotRequired[Dict[str, CallbackSideOutput]]
     dist: NotRequired[List[Any]]
-    # stream=True callbacks: terminal frame marker and mid-stream error.
+    # Streaming callbacks: terminal frame marker and mid-stream error.
     done: NotRequired[bool]
     error: NotRequired[Dict[str, str]]

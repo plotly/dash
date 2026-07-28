@@ -461,7 +461,7 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
 }
 
 /**
- * Apply an intermediate frame from a stream=True callback.
+ * Apply an intermediate frame from a streaming callback.
  *
  * The frame's declared outputs are flattened to `id.prop` keys and applied
  * through the sideUpdate path (parsePatchProps + updateComponent), so Patch
@@ -644,7 +644,7 @@ function handleServerside(
                 }
             };
 
-            // stream=True callbacks: read NDJSON frames as they arrive,
+            // Streaming callbacks: read NDJSON frames as they arrive,
             // apply each one immediately, and resolve on the terminal frame.
             const handleStreamedResponse = async (streamRes: any) => {
                 const reader = streamRes.body.getReader();
@@ -841,7 +841,7 @@ async function handleWebsocketCallback(
         // Ensure WebSocket connection is established
         await workerClient.ensureConnected(config);
 
-        // stream=True callbacks deliver intermediate frames before the
+        // Streaming callbacks deliver intermediate frames before the
         // terminal response; apply each one as it arrives.
         let lastStreamResponse: CallbackResponse | undefined;
         const response = await workerClient.sendCallback(

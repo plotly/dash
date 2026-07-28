@@ -17,7 +17,6 @@ export interface ICallbackDefinition {
     no_output?: boolean;
     websocket?: boolean;
     persistent?: boolean;
-    stream?: boolean;
 }
 
 export interface ICallbackProperty {
@@ -110,7 +109,7 @@ export type CallbackResponseData = {
     cancel?: ICallbackProperty[];
     dist?: any;
     sideUpdate?: any;
-    // stream=True callbacks: terminal frame marker and mid-stream error.
+    // Streaming callbacks: terminal frame marker and mid-stream error.
     done?: boolean;
     error?: {message?: string};
 };

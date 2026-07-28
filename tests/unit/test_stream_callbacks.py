@@ -1,4 +1,4 @@
-"""Unit tests for stream=True callbacks - no browser required."""
+"""Unit tests for streaming (generator) callbacks - no browser required."""
 import asyncio
 import contextvars
 import json
@@ -47,20 +47,20 @@ def post_stream(app, body):
     return [json.loads(line) for line in data.splitlines() if line.strip()]
 
 
-def test_stcb001_stream_requires_generator():
-    with pytest.raises(StreamCallbackError, match="must be a generator"):
+def test_stcb001_non_generator_is_not_streamed():
+    @callback(Output("stcb001", "children"), Input("in", "value"))
+    def not_a_generator(value):
+        return value
 
-        @callback(Output("stcb001", "children"), Input("in", "value"), stream=True)
-        def not_a_generator(value):
-            return value
+    assert GLOBAL_CALLBACK_MAP["stcb001.children"]["stream"] is False
 
 
-def test_stcb002_generator_requires_stream():
-    with pytest.raises(StreamCallbackError, match="stream=True"):
+def test_stcb002_generator_streams_without_a_keyword():
+    @callback(Output("stcb002", "children"), Input("in", "value"))
+    async def a_generator(value):
+        yield value
 
-        @callback(Output("stcb002", "children"), Input("in", "value"))
-        def a_generator(value):
-            yield value
+    assert GLOBAL_CALLBACK_MAP["stcb002.children"]["stream"] is True
 
 
 def test_stcb003_stream_incompatible_kwargs():
@@ -69,7 +69,6 @@ def test_stcb003_stream_incompatible_kwargs():
         @callback(
             Output("stcb003a", "children"),
             Input("in", "value"),
-            stream=True,
             background=True,
         )
         def bg(value):
@@ -80,7 +79,6 @@ def test_stcb003_stream_incompatible_kwargs():
         @callback(
             Output("stcb003b", "children"),
             Input("in", "value"),
-            stream=True,
             mcp_enabled=True,
         )
         def mcp(value):
@@ -91,55 +89,39 @@ def test_stcb003_stream_incompatible_kwargs():
         @callback(
             Output("stcb003c", "children"),
             Input("in", "value"),
-            stream=True,
             api_endpoint="/stream",
         )
         def api(value):
             yield value
 
 
-def test_stcb004_stream_not_clientside():
-    app = Dash(__name__)
-    with pytest.raises(StreamCallbackError, match="clientside"):
-        app.clientside_callback(
-            "function(v) { return v; }",
-            Output("stcb004", "children"),
-            Input("in", "value"),
-            stream=True,
-        )
-
-
 def test_stcb005_sync_generator_warns():
     with pytest.warns(RuntimeWarning, match="synchronous generator"):
 
-        @callback(Output("stcb005", "children"), Input("in", "value"), stream=True)
+        @callback(Output("stcb005", "children"), Input("in", "value"))
         def sync_gen(value):
             yield value
 
 
 def test_stcb006_async_generator_no_warning(recwarn):
-    @callback(Output("stcb006", "children"), Input("in", "value"), stream=True)
+    @callback(Output("stcb006", "children"), Input("in", "value"))
     async def async_gen(value):
         yield value
 
     assert not [w for w in recwarn.list if issubclass(w.category, RuntimeWarning)]
 
 
-def test_stcb007_stream_flag_in_spec_and_map():
-    @callback(Output("stcb007", "children"), Input("in", "value"), stream=True)
+def test_stcb007_stream_wrapper_registered():
+    @callback(Output("stcb007", "children"), Input("in", "value"))
     async def async_gen(value):
         yield value
 
-    spec = [s for s in GLOBAL_CALLBACK_LIST if s["output"] == "stcb007.children"][-1]
-    assert spec["stream"] is True
     assert GLOBAL_CALLBACK_MAP["stcb007.children"]["stream"] is True
 
-    @callback(Output("stcb007b", "children"), Input("in", "value"))
-    def regular(value):
-        return value
-
-    spec = [s for s in GLOBAL_CALLBACK_LIST if s["output"] == "stcb007b.children"][-1]
-    assert spec["stream"] is False
+    # The flag is server-side only: the client detects a stream from the
+    # response (NDJSON content type / stream frames), not the callback spec.
+    spec = [s for s in GLOBAL_CALLBACK_LIST if s["output"] == "stcb007.children"][-1]
+    assert "stream" not in spec
 
 
 @pytest.mark.filterwarnings("ignore::RuntimeWarning")
@@ -149,7 +131,7 @@ def test_stcb008_flask_ndjson_frames():
         [html.Button(id="btn"), html.Div(id="out"), html.Div(id="side")]
     )
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     def stream_cb(n):
         yield "start"
         patch = Patch()
@@ -176,7 +158,7 @@ def test_stcb009_stream_error_frame():
     app = Dash(__name__)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     def err_cb(n):
         yield "one"
         raise ValueError("boom")
@@ -198,7 +180,6 @@ def test_stcb010_stream_on_error_handler():
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
         on_error=handle,
     )
     def err_cb(n):
@@ -222,7 +203,6 @@ def test_stcb011_prevent_update_and_no_update_yields():
         Output("out", "children"),
         Output("out2", "children"),
         Input("btn", "n_clicks"),
-        stream=True,
     )
     def stream_cb(n):
         yield "a", no_update
@@ -306,7 +286,7 @@ def test_stcb016_flask_keepalive_between_slow_yields():
     app = Dash(__name__, stream_keepalive_interval=50)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     def stream_cb(n):
         time.sleep(0.3)
         yield "start"
@@ -328,7 +308,7 @@ def test_stcb017_flask_keepalive_disabled():
     app = Dash(__name__, stream_keepalive_interval=None)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"), stream=True)
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     def stream_cb(n):
         time.sleep(0.2)
         yield "only"
