@@ -258,7 +258,7 @@ def test_inni010_valid_numbers(dash_dcc, ninput_app):
     assert dash_dcc.get_logs() == []
 
 
-@pytest.mark.parametrize("min", [None, 1])
+@pytest.mark.parametrize("min", [None, 0, 1])
 def test_inni011_min_max_bug(dash_dcc, min):
     """Test that decrement increment button works correctly with min/max set to None or only min is set."""
 
