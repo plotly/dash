@@ -194,7 +194,7 @@ function Input({
                     parseFloat(props.min as string)
                 );
             }
-            if (props.max !== null && props.min !== undefined) {
+            if (props.max !== null && props.max !== undefined) {
                 constrainedValue = Math.min(
                     constrainedValue,
                     parseFloat(props.max as string)
