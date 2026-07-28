@@ -283,4 +283,3 @@ def test_inni011_min_max_bug(dash_dcc, min):
     dash_dcc.wait_for_text_to_equal("#output", "16")
 
     assert dash_dcc.get_logs() == []
-
