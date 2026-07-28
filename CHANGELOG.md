@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
+### Fixed
+- [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
+
 ## [4.4.1] - 2026-07-21
 
 ## Fixed
