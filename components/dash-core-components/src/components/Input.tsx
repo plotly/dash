@@ -128,7 +128,7 @@ function Input({
         setValue(value);
     }, []);
 
-    const onKeyPress: KeyboardEventHandler<HTMLInputElement> = useCallback(
+    const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
                 props.setProps({
@@ -288,7 +288,7 @@ function Input({
                         className="dash-input-element"
                         onBlur={onBlur}
                         onChange={onChange}
-                        onKeyPress={onKeyPress}
+                        onKeyDown={onKeyDown}
                         {...valprops}
                         {...pickedInputs}
                         {...loadingProps}
