@@ -25,7 +25,9 @@ def click_everything_in_datepicker(datepicker_id, dash_dcc):
         )
     )
     interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "button"))
-    interactive_elements.extend(popover.find_elements(By.CSS_SELECTOR, "input"))
+    interactive_elements.extend(
+        popover.find_elements(By.CSS_SELECTOR, "input:not([aria-hidden])")
+    )
     for el in interactive_elements:
         try:
             el.click()

@@ -99,26 +99,28 @@ def test_inni004_steppers(dash_dcc, debounce_number_app):
     dash_dcc.wait_for_text_to_equal("#div-fast", "106")
 
     # Test that steppers respect min constraint
+    # Use step-valid value: with min=10 and step=3, valid values are 10, 13, 16, ...
     dash_dcc.clear_input(input_elem)
-    input_elem.send_keys("11")  # Close to min=10
+    input_elem.send_keys("13")  # First valid value above min
+    time.sleep(0.3)  # Wait for debounce (0.25s) to settle before clicking
     decrement_btn.click()  # Should go to 10 (min)
     dash_dcc.wait_for_text_to_equal("#div-fast", "10")
 
     # Verify decrement button is disabled at minimum
-    assert (
-        decrement_btn.get_attribute("disabled") == "true"
-    ), "Decrement should be disabled at minimum"
+    decrement_btn = dash_dcc.find_element("#input-fast~.dash-stepper-decrement")
+    assert not decrement_btn.is_enabled(), "Decrement should be disabled at minimum"
 
     # Test that steppers respect max constraint
+    # Use step-valid value: 9997 = 10 + 3*3329, and 9997 + 3 = 10000
     dash_dcc.clear_input(input_elem)
-    input_elem.send_keys("9999")  # Close to max=10000
+    input_elem.send_keys("9997")  # Close to max=10000, step-valid
+    time.sleep(0.3)  # Wait for debounce (0.25s) to settle before clicking
     increment_btn.click()  # Should go to 10000 (max)
     dash_dcc.wait_for_text_to_equal("#div-fast", "10000")
 
     # Verify increment button is disabled at maximum
-    assert (
-        increment_btn.get_attribute("disabled") == "true"
-    ), "Increment should be disabled at maximum"
+    increment_btn = dash_dcc.find_element("#input-fast~.dash-stepper-increment")
+    assert not increment_btn.is_enabled(), "Increment should be disabled at maximum"
 
     assert dash_dcc.get_logs() == []
 
@@ -238,6 +240,7 @@ def test_inni007_stepper_very_small_steps(dash_dcc, step):
 
 def test_inni010_valid_numbers(dash_dcc, ninput_app):
     dash_dcc.start_server(ninput_app)
+    elem = dash_dcc.wait_for_element("#input_false")
     for num, op in (
         ("1.0", lambda x: int(float(x))),  # limitation of js/json
         ("10e10", lambda x: int(float(x))),
@@ -245,7 +248,7 @@ def test_inni010_valid_numbers(dash_dcc, ninput_app):
         (str(sys.float_info.max), float),
         (str(sys.float_info.min), float),
     ):
-        elem = dash_dcc.find_element("#input_false")
+        elem = dash_dcc.wait_for_element("#input_false")
         elem.send_keys(num)
         assert dash_dcc.wait_for_text_to_equal(
             "#div_false", str(op(num))

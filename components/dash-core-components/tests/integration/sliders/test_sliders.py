@@ -734,3 +734,30 @@ def test_slsl019_allow_direct_input_false(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#rangeslider-output", "RangeSlider: 10-75")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_slsl020_empty_mark_labels_keep_tick_alignment(dash_dcc):
+    app = Dash(__name__)
+    marks = {val: (str(val) if val % 10 == 0 else "") for val in range(0, 151, 5)}
+
+    app.layout = dcc.Slider(
+        id="slider-empty-mark-labels",
+        min=0,
+        max=150,
+        step=None,
+        value=0,
+        marks=marks,
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#slider-empty-mark-labels")
+
+    rendered_marks = dash_dcc.find_elements(
+        "#slider-empty-mark-labels .dash-slider-mark"
+    )
+    labeled_mark = next(mark for mark in rendered_marks if mark.text)
+    empty_mark = next(mark for mark in rendered_marks if not mark.text)
+
+    assert labeled_mark.size["height"] == 12
+    assert empty_mark.size["height"] == labeled_mark.size["height"]
+    assert dash_dcc.get_logs() == []

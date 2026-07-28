@@ -355,6 +355,7 @@ if (!listPath) {
 const list = fs
     .readFileSync(listPath, 'utf8')
     .split('\n')
+    .map(item => item.trim())
     .filter(item => Boolean(item));
 
 // Get the mapping of attributes to elements

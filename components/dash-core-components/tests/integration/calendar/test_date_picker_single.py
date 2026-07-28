@@ -142,7 +142,9 @@ def test_dtps012_initial_visible_month(dash_dcc):
 
     # Check that calendar shows January 2010 (initial_visible_month), not June 2020 (date)
     month_dropdown = dash_dcc.find_element(".dash-datepicker-controls .dash-dropdown")
-    year_input = dash_dcc.find_element(".dash-datepicker-controls input")
+    year_input = dash_dcc.find_element(
+        ".dash-datepicker-controls input:not([aria-hidden])"
+    )
 
     assert "January" in month_dropdown.text, "Calendar should show January"
     assert year_input.get_attribute("value") == "2010", "Calendar should show year 2010"

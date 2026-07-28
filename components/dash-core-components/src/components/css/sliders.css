@@ -92,6 +92,7 @@
 .dash-slider-mark {
     position: absolute;
     font-size: 12px;
+    height: 12px;
     line-height: 12px;
     color: var(--Dash-Text-Strong);
     white-space: nowrap;

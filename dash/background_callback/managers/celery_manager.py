@@ -92,6 +92,16 @@ CeleryManager requires extra dependencies which can be installed doing
     def clear_cache_entry(self, key):
         self.handle.backend.delete(key)
 
+    def get_or_create_signing_secret(self, generate):
+        backend = self.handle.backend
+        existing = backend.get(self.SIGNING_SECRET_KEY)
+        if existing is not None:
+            return existing
+        secret = generate()
+        backend.set(self.SIGNING_SECRET_KEY, secret)
+        # Re-read so workers that raced on the initial set converge on one value.
+        return backend.get(self.SIGNING_SECRET_KEY) or secret
+
     def call_job_fn(self, key, job_fn, args, context):
         task = job_fn.delay(key, self._make_progress_key(key), args, context)
         return task.task_id
@@ -209,6 +219,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             errored = False
+            user_callback_output = None  # to help type checking
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = await fn(
@@ -243,10 +254,10 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     ),
                 )
 
-            if asyncio.iscoroutine(user_callback_output):
-                user_callback_output = await user_callback_output
-
             if not errored:
+                if asyncio.iscoroutine(user_callback_output):
+                    user_callback_output = await user_callback_output
+
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )

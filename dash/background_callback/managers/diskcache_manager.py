@@ -36,7 +36,7 @@ class DiskcacheManager(BaseBackgroundCallbackManager):
             is determined by the default behavior of the ``cache`` instance.
         """
         try:
-            import diskcache  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel
+            import diskcache  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
             import psutil  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable,import-error
             import multiprocess  # type: ignore[import-untyped] # noqa: F401,E402 pylint: disable=import-outside-toplevel,unused-import,unused-variable
         except ImportError as missing_imports:
@@ -117,6 +117,12 @@ DiskcacheManager requires extra dependencies which can be installed doing
 
     def clear_cache_entry(self, key):
         self.handle.delete(key)
+
+    def get_or_create_signing_secret(self, generate):
+        # ``add`` only sets the value if the key is absent (atomic in diskcache),
+        # so the first worker wins and the rest read back the stored secret.
+        self.handle.add(self.SIGNING_SECRET_KEY, generate())
+        return self.handle.get(self.SIGNING_SECRET_KEY)
 
     # noinspection PyUnresolvedReferences
     def call_job_fn(self, key, job_fn, args, context):
@@ -263,6 +269,7 @@ def _make_job_fn(fn, cache, progress):
             c.updated_props = ProxySetProps(_set_props)
             context_value.set(c)
             errored = False
+            user_callback_output = None  # to help type checking
             try:
                 if isinstance(user_callback_args, dict):
                     user_callback_output = await fn(
@@ -289,9 +296,9 @@ def _make_job_fn(fn, cache, progress):
                     },
                 )
 
-            if asyncio.iscoroutine(user_callback_output):
-                user_callback_output = await user_callback_output
             if not errored:
+                if asyncio.iscoroutine(user_callback_output):
+                    user_callback_output = await user_callback_output
                 try:
                     cache.set(result_key, user_callback_output)
                 except Exception as err:  # pylint: disable=broad-except

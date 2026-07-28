@@ -22,6 +22,20 @@ export type DashConfig = {
     serve_locally?: boolean;
     plotlyjs_url?: string;
     validate_callbacks: boolean;
+    websocket?: {
+        enabled: boolean;
+        url: string;
+        worker_url: string;
+        inactivity_timeout?: number;
+        heartbeat_interval?: number;
+    };
+    csrf_token_name?: string;
+    csrf_header_name?: string;
+    // Server-issued, server-signed token for this page load. Echoed on every
+    // callback request so the server can bind/verify background-callback
+    // handles (cacheKey/job) to this page load. Treated as an opaque string.
+    // (Unrelated to the client-side rendererId used for SharedWorker routing.)
+    end_id?: string;
 };
 
 export default function getConfigFromDOM(): DashConfig {

@@ -89,6 +89,8 @@ def test_tdrp001_select_rows(test):
     target.row(0).select()
     target.row(1).select()
 
+    time.sleep(1)
+
     assert test.find_element("#active_cell").get_attribute("innerHTML") in [
         "None",
         json.dumps([]),
@@ -412,6 +414,8 @@ def test_tdrp005_filtered_and_sorted_row_select(test):
     target.row(0).select()
     target.row(1).select()
     target.row(2).select()
+
+    time.sleep(1)
 
     assert test.find_element("#active_cell").get_attribute("innerHTML") in [
         "None",
