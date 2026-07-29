@@ -14,6 +14,7 @@ import {
     assocPath
 } from 'ramda';
 
+import {fromByteArray} from 'base64-js';
 import {gzipSync} from 'fflate';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -536,14 +537,17 @@ function handleServerside(
         ) {
             try {
                 const compressed = gzipSync(new TextEncoder().encode(newBody));
-                const compressedB64 = btoa(
-                    Array.from(compressed, b => String.fromCharCode(b)).join('')
-                );
+                const compressedB64 = fromByteArray(compressed);
                 newBody = JSON.stringify({
                     __compressed_payload__: compressedB64
                 });
             } catch (error) {
                 // Fall through to send uncompressed
+                // eslint-disable-next-line no-console
+                console.warn(
+                    'Sending uncompressed payload, because compressing failed:',
+                    error
+                );
             }
         }
 
