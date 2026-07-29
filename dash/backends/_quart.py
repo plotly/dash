@@ -42,6 +42,7 @@ from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash._utils import parse_version
 from dash import _validate
+from dash._compression import decompress_payload
 from .base_server import (
     BaseDashServer,
     RequestAdapter,
@@ -386,6 +387,8 @@ class QuartDashServer(BaseDashServer[Quart]):
         async def _dispatch():
             adapter = QuartRequestAdapter()
             body = await adapter.get_json()
+            # Decompress payload if it was compressed
+            body = decompress_payload(body)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access

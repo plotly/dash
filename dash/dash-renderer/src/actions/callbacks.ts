@@ -14,6 +14,8 @@ import {
     assocPath
 } from 'ramda';
 
+import {gzipSync} from 'fflate';
+
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
 import {MAX_AUTH_RETRIES} from './constants';
 import {
@@ -468,7 +470,9 @@ function handleServerside(
     background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    running: any
+    running: any,
+    compressPayload?: boolean,
+    compressThreshold?: number
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -522,6 +526,25 @@ function handleServerside(
         if (moreArgs) {
             moreArgs.forEach(([key, value]) => addArg(key, value));
             moreArgs = moreArgs.filter(([_, __, single]) => !single);
+        }
+
+        // Compress payload if enabled and size threshold is met
+        if (
+            compressPayload &&
+            compressThreshold !== undefined &&
+            newBody.length > compressThreshold
+        ) {
+            try {
+                const compressed = gzipSync(new TextEncoder().encode(newBody));
+                const compressedB64 = btoa(
+                    Array.from(compressed, b => String.fromCharCode(b)).join('')
+                );
+                newBody = JSON.stringify({
+                    __compressed_payload__: compressedB64
+                });
+            } catch (error) {
+                // Fall through to send uncompressed
+            }
         }
 
         return fetch(
@@ -1069,7 +1092,9 @@ export function executeCallback(
                                     ? additionalArgs
                                     : undefined,
                                 getState,
-                                cb.callback.running
+                                cb.callback.running,
+                                cb.callback.compress_payload,
+                                cb.callback.compress_threshold
                             );
                         }
 

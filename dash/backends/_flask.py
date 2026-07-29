@@ -29,6 +29,7 @@ from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._compression import decompress_payload
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -253,6 +254,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
     def serve_callback(self, dash_app: Dash):
         def _dispatch():
             body = request.get_json()
+            # Decompress payload if it was compressed
+            body = decompress_payload(body)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -272,7 +275,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
 
         async def _dispatch_async():
             body = request.get_json()
-            # pylint: disable=protected-access
+            # Decompress payload if it was compressed
+            body = decompress_payload(body)
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
             args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)

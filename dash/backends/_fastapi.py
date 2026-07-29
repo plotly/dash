@@ -37,6 +37,7 @@ import janus
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
+from dash._compression import decompress_payload
 from .base_server import (
     BaseDashServer,
     RequestAdapter,
@@ -550,6 +551,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         async def _dispatch(request: Request):  # pylint: disable=unused-argument
             # pylint: disable=protected-access
             body = self.request_adapter().get_json()
+            # Decompress payload if it was compressed
+            body = decompress_payload(body)
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access

@@ -17,6 +17,8 @@ export interface ICallbackDefinition {
     no_output?: boolean;
     websocket?: boolean;
     persistent?: boolean;
+    compress_payload?: boolean;
+    compress_threshold?: number;
 }
 
 export interface ICallbackProperty {
