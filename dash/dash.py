@@ -965,6 +965,14 @@ class Dash(ObsoleteChecker):
             self.validation_layout = layout_value
 
     @property
+    def shared_storage_enabled(self) -> bool:
+        """Whether this app has a shared-storage backend (not ``None``).
+
+        Cheap to read and does not start the backend, unlike ``shared_storage``.
+        """
+        return self._shared_storage_arg is not None
+
+    @property
     def shared_storage(self) -> BaseSharedStorage:
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 

@@ -220,7 +220,9 @@ class _LocalSubscription(Subscription):
     def _poll_once(self) -> PollResult:
         if self._coord.is_owner():
             engine = self._coord.engine
-            assert engine is not None
+            if engine is None or engine.closed:
+                self._closed.set()  # owner gone -> end iteration, don't busy-loop
+                return PollResult([], self._cursor, False)
             return engine.poll(self._topic, self._cursor, _OWNER_POLL_TIMEOUT)
         return self._client_poll()
 

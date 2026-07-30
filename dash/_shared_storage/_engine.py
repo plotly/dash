@@ -46,6 +46,10 @@ class StoreEngine:
         self._topics_lock = threading.Lock()
         self._closed = False
 
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         with self._data_lock:
