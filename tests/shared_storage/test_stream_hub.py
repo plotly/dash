@@ -109,6 +109,30 @@ def test_async_pump_publishes_frames(storage):
     ]
 
 
+def test_publish_frame_reduces_patch_to_plain_json(storage):
+    # A frame carrying a dash.Patch must be reduced to plain JSON before it hits
+    # shared storage, or the data-only wire codec (msgspec) cannot encode it --
+    # the failure seen in multi-process deployments (the socket path).
+    from dash import Patch
+    from dash._shared_storage._codec import encode
+
+    patch = Patch()
+    patch["x"] = 1
+    frame = {"multi": True, "response": {"o": {"children": patch}}}
+
+    out = []
+    th = threading.Thread(target=_drain, args=(storage, "cpatch", 1, out), daemon=True)
+    th.start()
+    time.sleep(0.3)
+    publish_frame(storage, "cpatch", "r1", frame)
+    th.join(timeout=5)
+
+    delivered = out[0]["frame"]
+    encode(delivered)  # the op that raised over the socket; must not raise now
+    child = delivered["response"]["o"]["children"]
+    assert child["__dash_patch_update"] == "__dash_patch_update"
+
+
 def test_sync_pump_drives_async_frames(storage):
     marker = _frames_marker({"response": {"b": 2}}, {"done": True})
     out = []

@@ -22,10 +22,11 @@ terminal, exactly as the single-callback NDJSON transport emits today.
 """
 
 import asyncio
+import json
 from typing import Any, AsyncIterator, Iterator, Optional
 
 from ._shared_storage.base import BaseSharedStorage
-from ._streaming import StreamedCallbackResponse, sync_iter_asyncgen
+from ._streaming import StreamedCallbackResponse, sync_iter_asyncgen, to_json
 
 _TOPIC_PREFIX = "_dash_stream:"
 
@@ -44,8 +45,16 @@ def publish_frame(
     request_id: str,
     frame: Any,
 ) -> None:
-    """Publish one streaming frame onto a connection's downlink topic."""
-    storage.publish(stream_topic(connection_id), {"rid": request_id, "frame": frame})
+    """Publish one streaming frame onto a connection's downlink topic.
+
+    A frame may carry ``dash.Patch`` objects (and components) that only Dash's
+    JSON encoder understands; reduce it to a plain JSON structure here, before it
+    reaches shared storage, whose wire codec is data-only. This also matches what
+    the single-connection NDJSON path emits, so the client applies frames
+    identically either way.
+    """
+    plain = json.loads(to_json(frame))
+    storage.publish(stream_topic(connection_id), {"rid": request_id, "frame": plain})
 
 
 def subscribe_envelopes(
