@@ -42,19 +42,35 @@ class Subscription(abc.ABC):
     messages buffered since the subscription's cursor replay first. Iteration
     ends when the subscription is closed. Raises ``SharedStorageGap`` if the
     buffer overran while the consumer was behind.
+
+    ``iter_with_seq`` / ``aiter_with_seq`` yield ``(sequence, message)`` pairs so
+    a consumer can record its position and resume a later subscription from it
+    (via ``replay_from``) -- how the streaming downlink survives a reconnect
+    without losing frames. The plain message iterators are built on these.
     """
 
     @abc.abstractmethod
-    def __iter__(self) -> Iterator[Any]:
+    def iter_with_seq(self) -> Iterator[Any]:
         ...
 
     @abc.abstractmethod
-    def __aiter__(self) -> AsyncIterator[Any]:
+    def aiter_with_seq(self) -> AsyncIterator[Any]:
         ...
 
     @abc.abstractmethod
     def close(self) -> None:
         ...
+
+    def __iter__(self) -> Iterator[Any]:
+        for _seq, message in self.iter_with_seq():
+            yield message
+
+    def __aiter__(self) -> AsyncIterator[Any]:
+        return self._messages()
+
+    async def _messages(self) -> AsyncIterator[Any]:
+        async for _seq, message in self.aiter_with_seq():
+            yield message
 
     def __enter__(self) -> "Subscription":
         return self

@@ -58,10 +58,12 @@ def test_downlink_relays_tagged_frames(storage):
     publish_frame(storage, "c1", "r1", {"done": True})
 
     th.join(timeout=5)
-    assert out == [
-        {"rid": "r1", "frame": {"multi": True, "response": {"o": {"children": "a"}}}},
-        {"rid": "r1", "frame": {"done": True}},
+    assert [(e["rid"], e["frame"]) for e in out] == [
+        ("r1", {"multi": True, "response": {"o": {"children": "a"}}}),
+        ("r1", {"done": True}),
     ]
+    # Each envelope carries its storage seq, ascending, for reconnect resume.
+    assert [e["seq"] for e in out] == [1, 2]
 
 
 def test_downlink_multiplexes_multiple_callbacks(storage):

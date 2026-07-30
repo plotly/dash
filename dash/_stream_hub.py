@@ -59,10 +59,12 @@ def subscribe_envelopes(
     response path serializes and keep-alives them -- no bespoke endpoint. It is
     long-lived: it carries frames for every callback on the connection, not one
     stream, and ends when the client hangs up. ``replay_from`` resumes a
-    reconnecting downlink from its last cursor.
+    reconnecting downlink from its last cursor. Each envelope carries its ``seq``
+    so the client can resume from it after a reconnect without losing frames.
     """
     with storage.subscribe(stream_topic(connection_id), replay_from) as sub:
-        yield from sub
+        for seq, message in sub.iter_with_seq():
+            yield {**message, "seq": seq}
 
 
 async def asubscribe_envelopes(
@@ -73,8 +75,8 @@ async def asubscribe_envelopes(
     """Async counterpart of :func:`subscribe_envelopes` for ASGI backends."""
     sub = storage.subscribe(stream_topic(connection_id), replay_from)
     try:
-        async for envelope in sub:
-            yield envelope
+        async for seq, message in sub.aiter_with_seq():
+            yield {**message, "seq": seq}
     finally:
         sub.close()
 
