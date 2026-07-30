@@ -1187,6 +1187,11 @@ class Dash(ObsoleteChecker):
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
+        # Streaming callbacks use the single multiplexed downlink only when a
+        # shared-storage backend is available to broker frames across workers;
+        # otherwise the client streams each callback on its own connection.
+        config["stream"] = {"enabled": self.shared_storage_enabled}
+
         return config
 
     def serve_reload_hash(self):

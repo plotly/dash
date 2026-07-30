@@ -29,6 +29,9 @@ export type DashConfig = {
         inactivity_timeout?: number;
         heartbeat_interval?: number;
     };
+    stream?: {
+        enabled: boolean;
+    };
     csrf_token_name?: string;
     csrf_header_name?: string;
     // Server-issued, server-signed token for this page load. Echoed on every

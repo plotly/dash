@@ -203,3 +203,14 @@ export function getStreamClient(): StreamClient {
     }
     return singleton;
 }
+
+/**
+ * Whether the server offers the multiplexed streaming transport (i.e. it has a
+ * shared-storage backend). When false, streaming callbacks fall back to one
+ * NDJSON connection each.
+ */
+export function isStreamMultiplexed(config: {
+    stream?: {enabled?: boolean};
+}): boolean {
+    return !!config.stream?.enabled;
+}
