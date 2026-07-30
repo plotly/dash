@@ -295,7 +295,12 @@ class _LocalSubscription(Subscription):
         loop = asyncio.get_running_loop()
         try:
             while not self._closed.is_set():
-                res = await loop.run_in_executor(None, self._poll_once)
+                try:
+                    res = await loop.run_in_executor(None, self._poll_once)
+                except RuntimeError:
+                    # The loop/executor is shutting down (client disconnected or
+                    # the app is stopping) -- end the subscription cleanly.
+                    break
                 if res.gap:
                     raise SharedStorageGap(
                         f"replay buffer overran on topic {self._topic!r}"
