@@ -21,12 +21,17 @@ where ``frame`` is a ``CallbackExecutionResponse`` frame or a ``{"done": true}``
 terminal, exactly as the single-callback NDJSON transport emits today.
 """
 
+import asyncio
 from typing import Any, AsyncIterator, Iterator, Optional
 
 from ._shared_storage.base import BaseSharedStorage
 from ._streaming import StreamedCallbackResponse, sync_iter_asyncgen
 
 _TOPIC_PREFIX = "_dash_stream:"
+
+# The uplink's fast acknowledgement -- the streaming callback's POST returns this
+# immediately; its outputs arrive on the downlink, not this response.
+STREAM_ACK = {"multi": True, "stream": True}
 
 
 def stream_topic(connection_id: str) -> str:
@@ -102,3 +107,34 @@ def pump_to_storage(
     """
     for frame in sync_iter_asyncgen(marker.frames):
         publish_frame(storage, connection_id, request_id, frame)
+
+
+def async_downlink_marker(
+    storage: BaseSharedStorage,
+    connection_id: str,
+    replay_from: Optional[int] = None,
+) -> StreamedCallbackResponse:
+    """A downlink as a ``StreamedCallbackResponse`` for the ASGI NDJSON path."""
+    return StreamedCallbackResponse(
+        asubscribe_envelopes(storage, connection_id, replay_from), is_async=True
+    )
+
+
+# Keep a reference to in-flight pump tasks so the loop doesn't GC them mid-stream.
+_pending_pumps: "set[asyncio.Task]" = set()
+
+
+def spawn_async_pump(
+    storage: BaseSharedStorage,
+    connection_id: str,
+    request_id: str,
+    marker: StreamedCallbackResponse,
+) -> None:
+    """Run the pump as a fire-and-forget task on the ASGI event loop, so the
+    callback's request returns immediately while frames keep flowing.
+    """
+    task = asyncio.ensure_future(
+        apump_to_storage(storage, connection_id, request_id, marker)
+    )
+    _pending_pumps.add(task)
+    task.add_done_callback(_pending_pumps.discard)

@@ -42,7 +42,9 @@ from dash._streaming import (
     StreamedCallbackResponse,
     keepalive_seconds,
     marker_ndjson_aiter,
+    to_json,
 )
+from dash._stream_hub import STREAM_ACK, async_downlink_marker, spawn_async_pump
 from dash.exceptions import PreventUpdate
 from .base_server import (
     BaseDashServer,
@@ -555,9 +557,30 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         )
 
     def serve_callback(self, dash_app: Dash):
+        def _ndjson_response(marker):
+            # pylint: disable=protected-access
+            return StreamingResponse(
+                marker_ndjson_aiter(
+                    marker,
+                    keepalive_seconds(dash_app._stream_keepalive_interval),
+                ),
+                media_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
         async def _dispatch(request: Request):  # pylint: disable=unused-argument
             # pylint: disable=protected-access
             body = self.request_adapter().get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                # The client's single multiplexed streaming connection.
+                return _ndjson_response(
+                    async_downlink_marker(
+                        dash_app.shared_storage,
+                        downlink["connectionId"],
+                        downlink.get("from"),
+                    )
+                )
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access
@@ -575,14 +598,18 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             if inspect.iscoroutine(response_data):
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
-                return StreamingResponse(
-                    marker_ndjson_aiter(
+                stream_conn = body.get("streamConnection")
+                if stream_conn and dash_app.shared_storage_enabled:
+                    # Multiplexed uplink: pump frames onto the connection's topic
+                    # and return immediately instead of holding this connection.
+                    spawn_async_pump(
+                        dash_app.shared_storage,
+                        stream_conn["connectionId"],
+                        stream_conn["requestId"],
                         response_data,
-                        keepalive_seconds(dash_app._stream_keepalive_interval),
-                    ),
-                    media_type=STREAM_MIMETYPE,
-                    headers=dict(STREAM_HEADERS),
-                )
+                    )
+                    return cb_ctx.dash_response.set_response(data=to_json(STREAM_ACK))
+                return _ndjson_response(response_data)
             return cb_ctx.dash_response.set_response(data=response_data)
 
         return _dispatch
