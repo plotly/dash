@@ -2,27 +2,61 @@
 Integration tests for callback payload compression.
 """
 
-import flask
 import pytest
 from dash import Dash, html, dcc, Input, Output, State
 from dash._compression import COMPRESSED_PAYLOAD_FIELD
 
 
+@pytest.mark.parametrize(
+    "backend,dash_duo_fixture",
+    [("flask", "dash_duo"), ("quart", "dash_duo_mp"), ("fastapi", "dash_duo")],
+)
 @pytest.mark.parametrize("payload_size", [1, 500_000])
 @pytest.mark.parametrize("compress_threshold", [0, 500_000])
-def test_cbcomp01_always_compress(dash_duo, payload_size, compress_threshold):
+def test_cbcomp01_compress_request_payload(
+    request, dash_duo_fixture, backend, payload_size, compress_threshold
+):
     """Test that the client sends a compressed body when appropriate."""
-    app = Dash(__name__)
+    if backend == "quart":
+        pytest.importorskip(
+            "quart", reason="Quart extra dependencies are not installed"
+        )
+        pytest.importorskip("hypercorn", reason="hypercorn is not installed")
+    elif backend == "fastapi":
+        pytest.importorskip(
+            "fastapi", reason="fastapi extra dependencies are not installed"
+        )
 
-    @app.server.before_request
-    def capture_compression():
-        # intercept the request to /_dash-update-component and record whether the payload was compressed
-        if flask.request.path == "/_dash-update-component":
-            body = flask.request.get_json(silent=True) or {}
-            if COMPRESSED_PAYLOAD_FIELD in body:
-                flask.g.compressed_payload_size = len(body[COMPRESSED_PAYLOAD_FIELD])
-            else:
-                flask.g.compressed_payload_size = None
+    app = Dash(__name__, backend=backend)
+
+    # intercept the request to /_dash-update-component and record whether the payload was compressed
+    if backend == "quart":
+        # async capture for quart
+        @app.backend.before_request
+        async def capture_compression():
+            request = app.backend.request_adapter()
+            if request.path == "/_dash-update-component":
+                body = await request.get_json() or {}
+                if COMPRESSED_PAYLOAD_FIELD in body:
+                    request.context.compressed_payload_size = len(
+                        body[COMPRESSED_PAYLOAD_FIELD]
+                    )
+                else:
+                    request.context.compressed_payload_size = None
+
+    else:
+        # sync capture for flask and fastapi
+        @app.backend.before_request
+        def capture_compression():
+            request = app.backend.request_adapter()
+            if request.path == "/_dash-update-component":
+                body = request.get_json() or {}
+                if COMPRESSED_PAYLOAD_FIELD in body:
+                    request.context.compressed_payload_size = len(
+                        body[COMPRESSED_PAYLOAD_FIELD]
+                    )
+                else:
+                    request.context.compressed_payload_size = None
 
     @app.callback(
         Output("data_size", "children"),
@@ -36,10 +70,13 @@ def test_cbcomp01_always_compress(dash_duo, payload_size, compress_threshold):
     )
     def on_click(n, data):
         # log the size of the data and whether it was compressed
+        compressed_payload_size = (
+            app.backend.request_adapter().context.compressed_payload_size
+        )
         return (
             len(data),
-            repr(flask.g.compressed_payload_size is not None),
-            flask.g.compressed_payload_size,
+            repr(compressed_payload_size is not None),
+            compressed_payload_size,
         )
 
     app.layout = html.Div(
@@ -52,6 +89,7 @@ def test_cbcomp01_always_compress(dash_duo, payload_size, compress_threshold):
         ]
     )
 
+    dash_duo = request.getfixturevalue(dash_duo_fixture)
     dash_duo.start_server(app)
     dash_duo.find_element("#btn").click()
     # assert that the data size matches the expected payload size
