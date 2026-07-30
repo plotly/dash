@@ -817,6 +817,10 @@ def register_callback(
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
+    # The client-facing spec insert_callback just appended. Streaming is flagged
+    # on it below (once the function is known to be a generator) so the renderer
+    # can keep streaming callbacks out of its concurrent-request budget.
+    client_spec = callback_list[-1]
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
@@ -1119,6 +1123,10 @@ def register_callback(
             # Only async generators reach here; sync generators are rejected in
             # _validate_stream_callback above.
             callback_map[callback_id]["stream"] = True
+            # Server-inferred flag (not the removed stream=True keyword): the
+            # renderer reads it to exclude long-lived streams from its
+            # concurrent-request limit.
+            client_spec["stream"] = True
             callback_map[callback_id]["callback"] = async_add_context_stream
         elif inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context

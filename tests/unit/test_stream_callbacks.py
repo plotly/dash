@@ -119,10 +119,12 @@ def test_stcb007_stream_wrapper_registered():
 
     assert GLOBAL_CALLBACK_MAP["stcb007.children"]["stream"] is True
 
-    # The flag is server-side only: the client detects a stream from the
-    # response (NDJSON content type / stream frames), not the callback spec.
+    # The client spec carries a server-inferred stream flag. The client still
+    # detects streaming at runtime from the response (NDJSON content type /
+    # stream frames); the scheduler reads this flag only to keep long-lived
+    # streams out of its concurrent-request budget.
     spec = [s for s in GLOBAL_CALLBACK_LIST if s["output"] == "stcb007.children"][-1]
-    assert "stream" not in spec
+    assert spec["stream"] is True
 
 
 def test_stcb008_flask_ndjson_frames():
