@@ -53,7 +53,10 @@ export class StreamClient {
     private fetchImpl: FetchImpl;
 
     constructor(opts: {fetchImpl?: FetchImpl; reconnectDelay?: number} = {}) {
-        this.fetchImpl = opts.fetchImpl ?? fetch;
+        // Native fetch must be invoked with `this === window`; calling it as a
+        // method of this object throws "Illegal invocation", so bind it.
+        // globalThis is window on a page and self in a worker.
+        this.fetchImpl = opts.fetchImpl ?? fetch.bind(globalThis);
         this.reconnectDelay = opts.reconnectDelay ?? 1000;
     }
 

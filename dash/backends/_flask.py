@@ -291,7 +291,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 headers=dict(STREAM_HEADERS),
             )
 
-        def _serve_downlink(downlink):
+        def _serve_downlink(downlink, with_request_ctx):
             # The client's single multiplexed streaming connection: relay this
             # connection's frames (published by streaming callbacks, possibly on
             # other workers, via shared storage) as an ordinary NDJSON stream.
@@ -302,7 +302,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             marker = StreamedCallbackResponse(
                 frames, is_async=False, ctx=copy_context()
             )
-            return _stream_response(marker, with_request_ctx=True)
+            return _stream_response(marker, with_request_ctx=with_request_ctx)
 
         def _serve_uplink(marker, body, cb_ctx):
             # Multiplexed uplink: if the streaming callback carries a connection,
@@ -331,7 +331,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = request.get_json()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                return _serve_downlink(downlink)
+                return _serve_downlink(downlink, with_request_ctx=True)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -358,7 +358,9 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = request.get_json()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                return _serve_downlink(downlink)
+                # Async view: request context lives in a different contextvars
+                # context, so stream_with_context must not wrap the body.
+                return _serve_downlink(downlink, with_request_ctx=False)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
