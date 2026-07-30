@@ -4,7 +4,6 @@ Integration tests for callback payload compression.
 
 import pytest
 from dash import Dash, html, dcc, Input, Output, State
-from dash._compression import COMPRESSED_PAYLOAD_FIELD
 
 
 @pytest.mark.parametrize(
@@ -29,34 +28,17 @@ def test_cbcomp01_compress_request_payload(
 
     app = Dash(__name__, backend=backend)
 
-    # intercept the request to /_dash-update-component and record whether the payload was compressed
-    if backend == "quart":
-        # async capture for quart
-        @app.backend.before_request
-        async def capture_compression():
-            request = app.backend.request_adapter()
-            if request.path == "/_dash-update-component":
-                body = await request.get_json() or {}
-                if COMPRESSED_PAYLOAD_FIELD in body:
-                    request.context.compressed_payload_size = len(
-                        body[COMPRESSED_PAYLOAD_FIELD]
-                    )
-                else:
-                    request.context.compressed_payload_size = None
-
-    else:
-        # sync capture for flask and fastapi
-        @app.backend.before_request
-        def capture_compression():
-            request = app.backend.request_adapter()
-            if request.path == "/_dash-update-component":
-                body = request.get_json() or {}
-                if COMPRESSED_PAYLOAD_FIELD in body:
-                    request.context.compressed_payload_size = len(
-                        body[COMPRESSED_PAYLOAD_FIELD]
-                    )
-                else:
-                    request.context.compressed_payload_size = None
+    @app.backend.before_request
+    def capture_compression():
+        # intercept the request to /_dash-update-component and record whether the payload was compressed
+        req = app.backend.request_adapter()
+        if req.path == "/_dash-update-component":
+            if "gzip" in req.headers.get("Content-Encoding", ""):
+                req.context.compressed_payload_size = int(
+                    req.headers.get("content-length", 0)
+                )
+            else:
+                req.context.compressed_payload_size = None
 
     @app.callback(
         Output("data_size", "children"),

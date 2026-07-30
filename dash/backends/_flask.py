@@ -33,7 +33,6 @@ from dash._compression import decompress_payload
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
-
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
@@ -253,9 +252,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):
         def _dispatch():
-            body = request.get_json()
-            # Decompress payload if it was compressed
-            body = decompress_payload(body)
+            if "gzip" in request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(request.data)
+            else:
+                body = request.get_json()
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -274,9 +274,11 @@ class FlaskDashServer(BaseDashServer[Flask]):
             return cb_ctx.dash_response.set_response(data=response_data)
 
         async def _dispatch_async():
-            body = request.get_json()
-            # Decompress payload if it was compressed
-            body = decompress_payload(body)
+            if "gzip" in request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(request.data)
+            else:
+                body = request.get_json()
+            # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
             args = dash_app._inputs_to_vals(cb_ctx.inputs_list + cb_ctx.states_list)

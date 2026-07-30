@@ -386,9 +386,10 @@ class QuartDashServer(BaseDashServer[Quart]):
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
         async def _dispatch():
             adapter = QuartRequestAdapter()
-            body = await adapter.get_json()
-            # Decompress payload if it was compressed
-            body = decompress_payload(body)
+            if "gzip" in adapter.request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(await adapter.request.get_data())
+            else:
+                body = await adapter.get_json()
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access
@@ -584,9 +585,9 @@ class QuartDashServer(BaseDashServer[Quart]):
             )
             # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
             # or asyncio.Task (async/event-loop).
-            pending_callbacks: Dict[
-                str, concurrent.futures.Future | asyncio.Future
-            ] = {}
+            pending_callbacks: Dict[str, concurrent.futures.Future | asyncio.Future] = (
+                {}
+            )
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
             # pylint: disable=protected-access

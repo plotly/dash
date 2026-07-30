@@ -329,7 +329,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         and passed through the middleware, which is necessary for features like authentication
         and timing to work correctly on all routes. FastAPI will match this catch-all route
         for any path that isn't matched by a more specific route, allowing the middleware to
-        process the request and then return the appropriate response (e.g., 404 if no Dash route matches)."""
+        process the request and then return the appropriate response (e.g., 404 if no Dash route matches).
+        """
 
     def _setup_catchall(self):
         try:
@@ -550,9 +551,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
     def serve_callback(self, dash_app: Dash):
         async def _dispatch(request: Request):  # pylint: disable=unused-argument
             # pylint: disable=protected-access
-            body = self.request_adapter().get_json()
-            # Decompress payload if it was compressed
-            body = decompress_payload(body)
+            if "gzip" in request.headers.get("content-encoding", ""):
+                body = decompress_payload(await self.request_adapter()._request.body())
+            else:
+                body = self.request_adapter().get_json()
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access
@@ -751,9 +753,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             )
             # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
             # or asyncio.Task (async/event-loop).
-            pending_callbacks: Dict[
-                str, concurrent.futures.Future | asyncio.Future
-            ] = {}
+            pending_callbacks: Dict[str, concurrent.futures.Future | asyncio.Future] = (
+                {}
+            )
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
             # pylint: disable=protected-access

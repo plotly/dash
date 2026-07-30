@@ -2,39 +2,37 @@
 Unit tests for dash._compression.decompress_payload.
 """
 
-import base64
 import json
 import zlib
 
 import pytest
 
-from dash._compression import COMPRESSED_PAYLOAD_FIELD, decompress_payload
+from dash._compression import decompress_payload
 
 
-def _compress(payload: dict) -> dict:
-    """Helper: compress a dict and wrap it for decompress_payload."""
-    compressed = zlib.compress(json.dumps(payload).encode(), wbits=zlib.MAX_WBITS + 16)
-    return {COMPRESSED_PAYLOAD_FIELD: base64.b64encode(compressed).decode()}
+def _gzip(payload: dict) -> bytes:
+    """Helper: gzip-compress a dict to raw bytes."""
+    return zlib.compress(json.dumps(payload).encode(), wbits=zlib.MAX_WBITS + 16)
 
 
 class TestDecompressPayload:
-    def test_uncompressed_passthrough(self):
-        payload = {"output": "out", "inputs": [], "changedPropIds": []}
-        assert decompress_payload(payload) == payload
-
     def test_compressed_roundtrip(self):
         original = {
             "output": "out",
             "inputs": [{"id": "a", "property": "value", "value": "x"}],
             "changedPropIds": [],
         }
-        assert decompress_payload(_compress(original)) == original
+        assert decompress_payload(_gzip(original)) == original
 
     @pytest.mark.parametrize(
-        "compressed_payload",
-        [None, "", "not-valid-base64!@#", base64.b64encode(b"not gzip").decode()],
+        "bad_data",
+        [b"", b"not gzip at all", b"\x1f\x8b\x00truncated"],
     )
-    def test_decompress_payload_raises(self, compressed_payload):
-        payload = {COMPRESSED_PAYLOAD_FIELD: compressed_payload}
+    def test_decompress_invalid_raises(self, bad_data):
         with pytest.raises(ValueError):
-            decompress_payload(payload)
+            decompress_payload(bad_data)
+
+    def test_decompress_valid_gzip_invalid_json_raises(self):
+        bad_json = zlib.compress(b"not json", wbits=zlib.MAX_WBITS + 16)
+        with pytest.raises(ValueError):
+            decompress_payload(bad_json)

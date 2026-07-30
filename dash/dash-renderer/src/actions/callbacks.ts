@@ -14,7 +14,6 @@ import {
     assocPath
 } from 'ramda';
 
-import {fromByteArray} from 'base64-js';
 import {gzipSync} from 'fflate';
 
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
@@ -529,6 +528,8 @@ function handleServerside(
             moreArgs = moreArgs.filter(([_, __, single]) => !single);
         }
 
+        let fetchBody: BodyInit = newBody;
+
         // Compress payload if enabled and size threshold is met
         if (
             compressPayload &&
@@ -536,11 +537,8 @@ function handleServerside(
             newBody.length > compressThreshold
         ) {
             try {
-                const compressed = gzipSync(new TextEncoder().encode(newBody));
-                const compressedB64 = fromByteArray(compressed);
-                newBody = JSON.stringify({
-                    __compressed_payload__: compressedB64
-                });
+                fetchBody = gzipSync(new TextEncoder().encode(newBody));
+                headers['Content-Encoding'] = 'gzip';
             } catch (error) {
                 // Fall through to send uncompressed
                 // eslint-disable-next-line no-console
@@ -556,7 +554,7 @@ function handleServerside(
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body: newBody
+                body: fetchBody
             })
         );
     };
