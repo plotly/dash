@@ -91,7 +91,7 @@ def callback(
     mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
     compress_payload: bool = False,
-    compress_threshold: int = 500_000,
+    compress_threshold: int = 5_000,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -198,7 +198,7 @@ def callback(
         :param compress_threshold:
             The size threshold in bytes above which the payload will be compressed
             when `compress_payload` is True. Set to 0 to always compress regardless
-            of size. Defaults to 500,000 bytes (500 KB).
+            of size. Defaults to 5,000 bytes (5 kB).
     """
 
     background_spec: Any = None
@@ -318,7 +318,7 @@ def insert_callback(
     mcp_enabled=None,
     mcp_expose_docstring=None,
     compress_payload: bool = False,
-    compress_threshold: int = 500_000,
+    compress_threshold: int = 5_000,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -793,7 +793,7 @@ def register_callback(
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
         compress_payload=_kwargs.get("compress_payload", False),
-        compress_threshold=_kwargs.get("compress_threshold", 500_000),
+        compress_threshold=_kwargs.get("compress_threshold", 5_000),
     )
 
     # pylint: disable=too-many-locals
