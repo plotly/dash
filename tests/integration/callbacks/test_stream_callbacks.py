@@ -1,7 +1,6 @@
 """Browser integration tests for streaming callbacks over HTTP (NDJSON)."""
+import asyncio
 import time
-
-import pytest
 
 from dash import (
     Dash,
@@ -15,7 +14,6 @@ from dash import (
 from dash.testing.wait import until
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst001_stream_progressive_render(dash_duo):
     """Intermediate yields render before the stream completes."""
     app = Dash(__name__)
@@ -31,11 +29,11 @@ def test_stst001_stream_progressive_render(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "step-1"
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         yield "step-2"
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         yield "done"
 
     dash_duo.start_server(app)
@@ -47,7 +45,6 @@ def test_stst001_stream_progressive_render(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst002_stream_patch_appends_once(dash_duo):
     """Patch yields apply exactly once (token streaming)."""
     app = Dash(__name__)
@@ -63,10 +60,10 @@ def test_stst002_stream_patch_appends_once(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "->"
         for token in ["alpha", "beta", "gamma"]:
-            time.sleep(0.2)
+            await asyncio.sleep(0.2)
             patch = Patch()
             patch += token
             yield patch
@@ -81,7 +78,6 @@ def test_stst002_stream_patch_appends_once(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst003_stream_multi_output_and_set_props(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
@@ -99,9 +95,9 @@ def test_stst003_stream_multi_output_and_set_props(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "a1", no_update
-        time.sleep(0.3)
+        await asyncio.sleep(0.3)
         set_props("side", {"children": "from-set-props"})
         yield no_update, "b1"
 
@@ -113,7 +109,6 @@ def test_stst003_stream_multi_output_and_set_props(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst004_stream_triggers_downstream_callback(dash_duo):
     """The final streamed value triggers dependent callbacks."""
     app = Dash(__name__)
@@ -130,9 +125,9 @@ def test_stst004_stream_triggers_downstream_callback(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "one"
-        time.sleep(0.2)
+        await asyncio.sleep(0.2)
         yield "two"
 
     @app.callback(
@@ -149,7 +144,6 @@ def test_stst004_stream_triggers_downstream_callback(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst005_stream_error_shows_in_devtools(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div(
@@ -164,7 +158,7 @@ def test_stst005_stream_error_shows_in_devtools(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "before-error"
         raise ValueError("stream blew up")
 
@@ -176,7 +170,6 @@ def test_stst005_stream_error_shows_in_devtools(dash_duo):
     dash_duo.wait_for_text_to_equal(".test-devtools-error-count", "1")
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stst006_stream_loading_state(dash_duo):
     """The callback stays in loading state for the whole stream."""
     app = Dash(__name__)
@@ -192,9 +185,9 @@ def test_stst006_stream_loading_state(dash_duo):
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "working"
-        time.sleep(1.5)
+        await asyncio.sleep(1.5)
         yield "finished"
 
     dash_duo.start_server(app)

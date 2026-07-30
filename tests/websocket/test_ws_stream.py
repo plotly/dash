@@ -51,7 +51,6 @@ def _callback_request(request_id, output_id="out", prop="children"):
     }
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_wsst001_async_stream_frames_over_ws():
     pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
     from fastapi.testclient import TestClient
@@ -80,33 +79,20 @@ def test_wsst001_async_stream_frames_over_ws():
     assert msgs[2]["payload"] == {"status": "ok", "stream": True, "done": True}
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
-def test_wsst002_sync_stream_frames_over_ws():
-    pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
-    from fastapi.testclient import TestClient
+def test_wsst002_sync_stream_generator_forbidden():
+    """Sync generator streaming callbacks are rejected at registration."""
+    from dash.exceptions import StreamCallbackError
 
-    app, server = _make_ws_app()
+    app, _ = _make_ws_app()
 
-    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
-    def stream_cb(n):
-        yield "s1"
-        yield "s2"
+    with pytest.raises(StreamCallbackError, match="synchronous generator"):
 
-    app._setup_server()
-
-    client = TestClient(server)
-    with client.websocket_connect(
-        "/_dash-ws-callback", headers={"origin": "http://testserver"}
-    ) as ws:
-        ws.send_text(json.dumps(_callback_request("r1")))
-        msgs = _collect_stream_messages(ws)
-
-    assert msgs[0]["payload"]["data"]["response"] == {"out": {"children": "s1"}}
-    assert msgs[1]["payload"]["data"]["response"] == {"out": {"children": "s2"}}
-    assert msgs[2]["payload"] == {"status": "ok", "stream": True, "done": True}
+        @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
+        def stream_cb(n):
+            yield "s1"
+            yield "s2"
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_wsst003_stream_error_over_ws():
     pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
     from fastapi.testclient import TestClient

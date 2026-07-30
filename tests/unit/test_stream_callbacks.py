@@ -71,7 +71,7 @@ def test_stcb003_stream_incompatible_kwargs():
             Input("in", "value"),
             background=True,
         )
-        def bg(value):
+        async def bg(value):
             yield value
 
     with pytest.raises(StreamCallbackError, match="mcp_enabled"):
@@ -81,7 +81,7 @@ def test_stcb003_stream_incompatible_kwargs():
             Input("in", "value"),
             mcp_enabled=True,
         )
-        def mcp(value):
+        async def mcp(value):
             yield value
 
     with pytest.raises(StreamCallbackError, match="api_endpoint"):
@@ -91,23 +91,24 @@ def test_stcb003_stream_incompatible_kwargs():
             Input("in", "value"),
             api_endpoint="/stream",
         )
-        def api(value):
+        async def api(value):
             yield value
 
 
-def test_stcb005_sync_generator_warns():
-    with pytest.warns(RuntimeWarning, match="synchronous generator"):
+def test_stcb005_sync_generator_forbidden():
+    with pytest.raises(StreamCallbackError, match="synchronous generator"):
 
         @callback(Output("stcb005", "children"), Input("in", "value"))
         def sync_gen(value):
             yield value
 
 
-def test_stcb006_async_generator_no_warning(recwarn):
+def test_stcb006_async_generator_allowed(recwarn):
     @callback(Output("stcb006", "children"), Input("in", "value"))
     async def async_gen(value):
         yield value
 
+    assert GLOBAL_CALLBACK_MAP["stcb006.children"]["stream"] is True
     assert not [w for w in recwarn.list if issubclass(w.category, RuntimeWarning)]
 
 
@@ -124,7 +125,6 @@ def test_stcb007_stream_wrapper_registered():
     assert "stream" not in spec
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb008_flask_ndjson_frames():
     app = Dash(__name__)
     app.layout = html.Div(
@@ -132,7 +132,7 @@ def test_stcb008_flask_ndjson_frames():
     )
 
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "start"
         patch = Patch()
         patch += " token"
@@ -153,13 +153,12 @@ def test_stcb008_flask_ndjson_frames():
     assert frames[3] == {"done": True}
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb009_stream_error_frame():
     app = Dash(__name__)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
-    def err_cb(n):
+    async def err_cb(n):
         yield "one"
         raise ValueError("boom")
 
@@ -169,7 +168,6 @@ def test_stcb009_stream_error_frame():
     assert "boom" in frames[1]["error"]["message"]
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb010_stream_on_error_handler():
     app = Dash(__name__)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
@@ -182,7 +180,7 @@ def test_stcb010_stream_on_error_handler():
         Input("btn", "n_clicks"),
         on_error=handle,
     )
-    def err_cb(n):
+    async def err_cb(n):
         yield "one"
         raise ValueError("boom")
 
@@ -192,7 +190,6 @@ def test_stcb010_stream_on_error_handler():
     assert frames[2] == {"done": True}
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb011_prevent_update_and_no_update_yields():
     app = Dash(__name__)
     app.layout = html.Div(
@@ -204,7 +201,7 @@ def test_stcb011_prevent_update_and_no_update_yields():
         Output("out2", "children"),
         Input("btn", "n_clicks"),
     )
-    def stream_cb(n):
+    async def stream_cb(n):
         yield "a", no_update
         yield no_update, no_update  # produces no frame
         yield no_update, "b"
@@ -281,16 +278,15 @@ def test_stcb015_keepalive_seconds_normalization():
     assert keepalive_seconds(-1) is None
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb016_flask_keepalive_between_slow_yields():
     app = Dash(__name__, stream_keepalive_interval=50)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
-    def stream_cb(n):
-        time.sleep(0.3)
+    async def stream_cb(n):
+        await asyncio.sleep(0.3)
         yield "start"
-        time.sleep(0.3)
+        await asyncio.sleep(0.3)
         yield "final"
 
     raw = post_stream_raw(app, make_body("out", "children"))
@@ -303,14 +299,13 @@ def test_stcb016_flask_keepalive_between_slow_yields():
     assert frames[2] == {"done": True}
 
 
-@pytest.mark.filterwarnings("ignore::RuntimeWarning")
 def test_stcb017_flask_keepalive_disabled():
     app = Dash(__name__, stream_keepalive_interval=None)
     app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
 
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
-    def stream_cb(n):
-        time.sleep(0.2)
+    async def stream_cb(n):
+        await asyncio.sleep(0.2)
         yield "only"
 
     raw = post_stream_raw(app, make_body("out", "children"))
