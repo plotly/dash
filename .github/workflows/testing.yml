@@ -138,6 +138,9 @@ jobs:
       - name: Run unit tests
         run: npm run citest.unit
 
+      - name: Run shared-storage tests
+        run: pytest tests/shared_storage -v
+
   build:
     name: Build Dash Package
     runs-on: ubuntu-latest
