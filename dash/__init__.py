@@ -45,7 +45,9 @@ from ._jupyter import jupyter_dash  # noqa: F401,E402
 
 from ._shared_storage import (  # noqa: F401,E402
     BaseSharedStorage,
+    DiskcacheSharedStorage,
     LocalSharedStorage,
+    RedisSharedStorage,
     SharedStorageError,
     SharedStorageGap,
     Subscription,
@@ -103,7 +105,9 @@ __all__ = [
     "hooks",
     "stringify_id",
     "BaseSharedStorage",
+    "DiskcacheSharedStorage",
     "LocalSharedStorage",
+    "RedisSharedStorage",
     "SharedStorageError",
     "SharedStorageGap",
     "Subscription",
