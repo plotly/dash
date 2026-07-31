@@ -43,9 +43,8 @@ def _require_redis():
         return redis
     except ImportError as exc:
         raise ImportError(
-            "RedisSharedStorage requires the redis package (in the celery "
-            "extra):\n\n"
-            '    $ pip install "dash[celery]"\n'
+            "RedisSharedStorage requires the redis extra:\n\n"
+            '    $ pip install "dash[redis]"\n'
         ) from exc
 
 

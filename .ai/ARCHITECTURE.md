@@ -887,7 +887,7 @@ more than one container/pod (see [Deployment Topology](#deployment-topology-and-
 |---------|---------------|---------|-------|
 | `LocalSharedStorage` *(default)* | in-memory, owner-elected socket | one **container** (all its workers) | none |
 | `DiskcacheSharedStorage` | a `diskcache.Cache` | one **host** (all processes sharing the dir) | `dash[diskcache]` |
-| `RedisSharedStorage` | Redis (Streams for pub/sub) | **any** process/container/pod | `dash[celery]` (redis) |
+| `RedisSharedStorage` | Redis (Streams for pub/sub) | **any** process/container/pod | `dash[redis]` |
 
 All three implement the same `BaseSharedStorage` contract (KV + ordered,
 replayable pub/sub with `SharedStorageGap` on buffer overrun), so app code is
@@ -962,7 +962,7 @@ top-level `dash`; the poll-loop helpers (`PollResult`, the polling subscription)
 are private and not part of the contract.
 
 Core only ships backends whose dependency is already a Dash extra (`msgspec`
-base; `diskcache`; `redis` via `celery`). Anything needing a heavier dependency
+base; `dash[diskcache]`; `dash[redis]`). Anything needing a heavier dependency
 belongs **out of tree** behind this same interface — e.g. a Postgres backend
 (`LISTEN`/`NOTIFY` for push pub/sub + a table for KV and replay) lives in its own
 package so a `psycopg` connection is never pulled into Dash core. It plugs in the
@@ -984,7 +984,7 @@ same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
 | `_callback_context.py` | `dash.ctx.shared_storage` accessor |
 
 Requires `msgspec` (in `requirements/install.txt`); `DiskcacheSharedStorage`
-needs the `diskcache` extra and `RedisSharedStorage` the `celery` extra (redis).
+needs the `diskcache` extra and `RedisSharedStorage` the `redis` extra.
 
 ## Async Callbacks
 
