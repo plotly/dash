@@ -2,6 +2,18 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- [#3646](https://github.com/plotly/dash/pull/3646) Experimental support for React 19. The default is still React 18.3.1; to use React 19 set the environment variable `REACT_VERSION=19.2.4` before running your app, or call `dash._dash_renderer._set_react_version("19.2.4")` inside the app. React 19 has no official UMD builds, so Dash serves the [`umd-react`](https://www.npmjs.com/package/umd-react) package, together with a compatibility shim loaded after react-dom and before any component package. The shim keeps component libraries built against React <=18 (e.g. dash-bootstrap-components, dash-mantine-components) working under React 19: it stubs the removed `ReactCurrentOwner` internals, redirects the legacy element `$$typeof` symbol so pre-bundled React 18 jsx-runtimes produce elements React 19 accepts (error #525), and exposes a global `react/jsx-runtime` (`window.ReactJSXRuntime`) that Dash's own component bundles externalize to. Component library authors adopting this convention should copy the defensive `jsxRuntimeExternal` webpack external from `components/dash-core-components/webpack.config.js` rather than a bare `'ReactJSXRuntime'` string: it falls back to a `React.createElement`-based runtime when the global is missing, so the same build also works on Dash versions older than this release.
+
+### Removed
+- [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
+
+### Fixed
+- [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
+- [#3922](https://github.com/plotly/dash/pull/3922) Fix `dcc.Input(type="number")` stepper behavior when only `min` is set.
+
 ## [4.4.1] - 2026-07-21
 
 ## Fixed
