@@ -946,9 +946,27 @@ election only reaches processes in the same network + filesystem namespace.
   This works at 1 pod and fragments silently once it scales — use
   `RedisSharedStorage` (one Redis shared by all pods) instead.
 
-**Custom backends** subclass `BaseSharedStorage` and implement `get` / `set` /
-`delete` / `publish` / `subscribe` (plus optional `start` / `close`, called once
-per worker) — the seam for e.g. a database-backed store.
+### Custom and Out-of-Tree Backends
+
+`BaseSharedStorage` is the stable, public extension point. A backend — shipped
+in-tree or as a **separate package** — implements:
+
+- `get(key, default)` / `set(key, value)` / `delete(key)` — JSON-compatible values
+- `publish(topic, message)` and `subscribe(topic, replay_from=None) -> Subscription`
+- optional `start()` / `close()` (idempotent, called once per worker)
+
+and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises
+`SharedStorageGap` when the replay buffer overran. That trio —
+`BaseSharedStorage`, `Subscription`, `SharedStorageGap` — is exported from
+top-level `dash`; the poll-loop helpers (`PollResult`, the polling subscription)
+are private and not part of the contract.
+
+Core only ships backends whose dependency is already a Dash extra (`msgspec`
+base; `diskcache`; `redis` via `celery`). Anything needing a heavier dependency
+belongs **out of tree** behind this same interface — e.g. a Postgres backend
+(`LISTEN`/`NOTIFY` for push pub/sub + a table for KV and replay) lives in its own
+package so a `psycopg` connection is never pulled into Dash core. It plugs in the
+same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
 
 ### Module Layout
 
