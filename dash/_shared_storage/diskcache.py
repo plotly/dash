@@ -31,7 +31,7 @@ _POLL_INTERVAL = 0.05
 
 def _require_diskcache():
     try:
-        import diskcache  # pylint: disable=import-outside-toplevel
+        import diskcache  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
 
         return diskcache
     except ImportError as exc:

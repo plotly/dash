@@ -38,7 +38,7 @@ return seq
 
 def _require_redis():
     try:
-        import redis  # pylint: disable=import-outside-toplevel
+        import redis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
 
         return redis
     except ImportError as exc:
@@ -86,7 +86,7 @@ class RedisSharedStorage(BaseSharedStorage):
             self._owns_client = True
         self._prefix = key_prefix
         self._buffer_size = buffer_size
-        self._publish_script = None
+        self._publish_script: Any = None
 
     def start(self) -> None:
         if self._publish_script is None:

@@ -692,7 +692,7 @@ class Dash(ObsoleteChecker):
         # preload master or the Flask reloader parent -- only in the worker that
         # actually touches it.
         self._shared_storage_arg = shared_storage
-        self._shared_storage_instance = None
+        self._shared_storage_instance: Optional[BaseSharedStorage] = None
         self._shared_storage_lock = threading.Lock()
 
         self.logger = logging.getLogger(__name__)

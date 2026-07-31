@@ -173,6 +173,7 @@ class _Coordinator:
 
     def connect(self) -> socket.socket:
         self.ensure()
+        assert self._family is not None and self._token is not None
         return connect_to_owner(self._family, self._address, self._token)
 
     def on_owner_lost(self) -> None:
