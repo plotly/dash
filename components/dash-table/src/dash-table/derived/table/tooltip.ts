@@ -42,7 +42,7 @@ function getSelectedTooltip(
               return (
                   !tt.if ||
                   (ifColumnId(tt.if, id) &&
-                      ifRowIndex(tt.if, row) &&
+                      ifRowIndex(tt.if, virtualized.indices[row - virtualized.offset.rows]) &&
                       ifFilter(
                           tt.if,
                           virtualized.data[row - virtualized.offset.rows]
