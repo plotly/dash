@@ -49,6 +49,7 @@ import {computePaths, getPath} from './paths';
 import {requestDependencies} from './requestDependencies';
 
 import {loadLibrary} from '../utils/libraries';
+import {getStreamClient, isStreamMultiplexed} from '../utils/streamClient';
 
 import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
@@ -531,6 +532,43 @@ function applyStreamFrame(
     if (frame.sideUpdate) {
         dispatch(sideUpdate(frame.sideUpdate, payload));
     }
+}
+
+/**
+ * Run a streaming callback over the multiplexed transport: a single downlink
+ * shared by all of the page's streams (see utils/streamClient). Frames are
+ * applied as they arrive, so the resolved value is empty like the WebSocket
+ * streaming path.
+ */
+async function handleStreamCallback(
+    dispatch: any,
+    config: any,
+    payload: ICallbackPayload,
+    running: any
+): Promise<CallbackResponse> {
+    let runningOff: any;
+    if (running) {
+        dispatch(sideUpdate(running.running, payload));
+        runningOff = running.runningOff;
+    }
+    const url = `${urlBase(config)}_dash-update-component`;
+    const init = mergeDeepRight(config.fetch, {
+        headers: getCSRFHeader(config) as any
+    });
+    try {
+        await getStreamClient().run(url, init, payload, (frame: any) => {
+            if (frame.dist) {
+                Promise.all(frame.dist.map(loadLibrary));
+            }
+            applyStreamFrame(dispatch, frame, payload);
+        });
+    } finally {
+        if (runningOff) {
+            dispatch(sideUpdate(runningOff, payload));
+        }
+    }
+    // Frames were applied as they arrived; the terminal store update is a no-op.
+    return {};
 }
 
 function handleServerside(
@@ -1253,6 +1291,15 @@ export function executeCallback(
                         (cb.callback.websocket &&
                             isWebSocketAvailable(config)));
 
+                // Streaming callbacks ride the single multiplexed downlink when
+                // the server offers it (shared storage enabled) and they are not
+                // already on the WebSocket transport or a background job.
+                const useStream =
+                    !background &&
+                    !useWebSocket &&
+                    cb.callback.stream &&
+                    isStreamMultiplexed(config);
+
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
                         let data: CallbackResponse;
@@ -1262,6 +1309,14 @@ export function executeCallback(
                             data = await handleWebsocketCallback(
                                 dispatch,
                                 hooks,
+                                newConfig,
+                                payload,
+                                cb.callback.running
+                            );
+                        } else if (useStream) {
+                            // Multiplexed HTTP streaming (single downlink)
+                            data = await handleStreamCallback(
+                                dispatch,
                                 newConfig,
                                 payload,
                                 cb.callback.running

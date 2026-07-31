@@ -965,6 +965,14 @@ class Dash(ObsoleteChecker):
             self.validation_layout = layout_value
 
     @property
+    def shared_storage_enabled(self) -> bool:
+        """Whether this app has a shared-storage backend (not ``None``).
+
+        Cheap to read and does not start the backend, unlike ``shared_storage``.
+        """
+        return self._shared_storage_arg is not None
+
+    @property
     def shared_storage(self) -> BaseSharedStorage:
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
@@ -1178,6 +1186,11 @@ class Dash(ObsoleteChecker):
                 "inactivity_timeout": self._websocket_inactivity_timeout,
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
+
+        # Streaming callbacks use the single multiplexed downlink only when a
+        # shared-storage backend is available to broker frames across workers;
+        # otherwise the client streams each callback on its own connection.
+        config["stream"] = {"enabled": self.shared_storage_enabled}
 
         return config
 

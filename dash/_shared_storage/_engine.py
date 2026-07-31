@@ -59,6 +59,10 @@ class StoreEngine:
         populates the store first does not re-mark every restored key dirty)."""
         self._persistence = persistence
 
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         with self._data_lock:

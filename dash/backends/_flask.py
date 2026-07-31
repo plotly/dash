@@ -4,6 +4,7 @@ import asyncio
 import pkgutil
 import sys
 import mimetypes
+import threading
 import time
 import inspect
 import traceback
@@ -39,7 +40,9 @@ from dash._streaming import (
     keepalive_seconds,
     ndjson_lines,
     sync_iter_asyncgen,
+    to_json,
 )
+from dash._stream_hub import pump_to_storage, subscribe_envelopes
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -288,11 +291,50 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 headers=dict(STREAM_HEADERS),
             )
 
+        def _serve_downlink(downlink, with_request_ctx):
+            # The client's single multiplexed streaming connection: relay this
+            # connection's frames (published by streaming callbacks, possibly on
+            # other workers, via shared storage) as an ordinary NDJSON stream.
+            storage = dash_app.shared_storage
+            frames = subscribe_envelopes(
+                storage, downlink["connectionId"], downlink.get("from")
+            )
+            marker = StreamedCallbackResponse(
+                frames, is_async=False, ctx=copy_context()
+            )
+            return _stream_response(marker, with_request_ctx=with_request_ctx)
+
+        def _serve_uplink(marker, body, cb_ctx):
+            # Multiplexed uplink: if the streaming callback carries a connection,
+            # pump its frames onto that connection's topic on a background thread
+            # and return immediately, so this request does not hold a connection
+            # for the stream's life. Returns None to fall back to inline NDJSON.
+            stream_conn = body.get("streamConnection")
+            if not (stream_conn and dash_app.shared_storage_enabled):
+                return None
+            threading.Thread(
+                target=pump_to_storage,
+                args=(
+                    dash_app.shared_storage,
+                    stream_conn["connectionId"],
+                    stream_conn["requestId"],
+                    marker,
+                ),
+                daemon=True,
+                name="dash-stream-pump",
+            ).start()
+            return cb_ctx.dash_response.set_response(
+                data=to_json({"multi": True, "stream": True})
+            )
+
         def _dispatch():
             if "gzip" in request.headers.get("Content-Encoding", ""):
                 body = decompress_payload(request.data)
             else:
                 body = request.get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                return _serve_downlink(downlink, with_request_ctx=True)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -303,6 +345,9 @@ class FlaskDashServer(BaseDashServer[Flask]):
             )
             response_data = ctx.run(partial_func)
             if isinstance(response_data, StreamedCallbackResponse):
+                uplink = _serve_uplink(response_data, body, cb_ctx)
+                if uplink is not None:
+                    return uplink
                 return _stream_response(response_data, with_request_ctx=True)
             if asyncio.iscoroutine(response_data):
                 raise Exception(
@@ -317,6 +362,9 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 body = decompress_payload(request.data)
             else:
                 body = request.get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                return _serve_downlink(downlink, with_request_ctx=False)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -329,6 +377,9 @@ class FlaskDashServer(BaseDashServer[Flask]):
             if asyncio.iscoroutine(response_data):
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
+                uplink = _serve_uplink(response_data, body, cb_ctx)
+                if uplink is not None:
+                    return uplink
                 return _stream_response(response_data, with_request_ctx=False)
             return cb_ctx.dash_response.set_response(data=response_data)
 

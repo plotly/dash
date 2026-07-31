@@ -46,7 +46,9 @@ from dash._streaming import (
     StreamedCallbackResponse,
     keepalive_seconds,
     marker_ndjson_aiter,
+    to_json,
 )
+from dash._stream_hub import STREAM_ACK, async_downlink_marker, spawn_async_pump
 from dash._utils import parse_version
 from dash import _validate
 from dash._compression import decompress_payload
@@ -392,12 +394,31 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
+        def _ndjson_response(marker):
+            # pylint: disable=protected-access
+            return Response(  # type: ignore[return-value]
+                marker_ndjson_aiter(
+                    marker,
+                    keepalive_seconds(dash_app._stream_keepalive_interval),
+                ),
+                content_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
         async def _dispatch():
             adapter = QuartRequestAdapter()
             if "gzip" in adapter.request.headers.get("Content-Encoding", ""):
                 body = decompress_payload(await adapter.request.get_data())
             else:
                 body = await adapter.get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                marker = async_downlink_marker(
+                    dash_app.shared_storage,
+                    downlink["connectionId"],
+                    downlink.get("from"),
+                )
+                return _ndjson_response(marker)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access
@@ -413,14 +434,18 @@ class QuartDashServer(BaseDashServer[Quart]):
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
-                return Response(  # type: ignore[return-value]
-                    marker_ndjson_aiter(
+                stream_conn = body.get("streamConnection")
+                if stream_conn and dash_app.shared_storage_enabled:
+                    # Multiplexed uplink: pump frames onto the connection's topic
+                    # and return immediately instead of holding this connection.
+                    spawn_async_pump(
+                        dash_app.shared_storage,
+                        stream_conn["connectionId"],
+                        stream_conn["requestId"],
                         response_data,
-                        keepalive_seconds(dash_app._stream_keepalive_interval),
-                    ),
-                    content_type=STREAM_MIMETYPE,
-                    headers=dict(STREAM_HEADERS),
-                )
+                    )
+                    return cb_ctx.dash_response.set_response(data=to_json(STREAM_ACK))
+                return _ndjson_response(response_data)
             return cb_ctx.dash_response.set_response(data=response_data)  # type: ignore[arg-type]
 
         # Preserve the view function's identity as `dash.dash.dispatch` so that
