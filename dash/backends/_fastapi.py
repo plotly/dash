@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 
 try:
     from fastapi import FastAPI, Request, Response, Body
-    from fastapi.responses import JSONResponse, RedirectResponse
+    from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
@@ -36,6 +36,13 @@ import janus
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
+from dash._streaming import (
+    STREAM_HEADERS,
+    STREAM_MIMETYPE,
+    StreamedCallbackResponse,
+    keepalive_seconds,
+    marker_ndjson_aiter,
+)
 from dash.exceptions import PreventUpdate
 from dash._compression import decompress_payload
 from .base_server import (
@@ -49,6 +56,7 @@ from .ws import (
     run_callback_in_executor,
     run_callback_on_loop,
     make_callback_done_handler,
+    make_stream_frame_emitter,
     shutdown_ws_connection,
 )
 from ._utils import format_traceback_html
@@ -571,6 +579,15 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):
                 response_data = await response_data
+            if isinstance(response_data, StreamedCallbackResponse):
+                return StreamingResponse(
+                    marker_ndjson_aiter(
+                        response_data,
+                        keepalive_seconds(dash_app._stream_keepalive_interval),
+                    ),
+                    media_type=STREAM_MIMETYPE,
+                    headers=dict(STREAM_HEADERS),
+                )
             return cb_ctx.dash_response.set_response(data=response_data)
 
         return _dispatch
@@ -817,6 +834,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             renderer_id,
                             shutdown_event,
                         )
+                        stream_emitter = make_stream_frame_emitter(
+                            outbound_queue,
+                            request_id,
+                            renderer_id,
+                            shutdown_event,
+                        )
 
                         if is_async:
                             task = asyncio.create_task(
@@ -825,6 +848,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                                     payload,
                                     ws_cb,
                                     FastAPIResponseAdapter(),
+                                    stream_emitter,
                                 )
                             )
                             task.add_done_callback(done_handler)
@@ -837,6 +861,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                                 payload,
                                 ws_cb,
                                 FastAPIResponseAdapter(),
+                                stream_emitter,
                             )
                             # Set up done callback to send response
                             future.add_done_callback(done_handler)

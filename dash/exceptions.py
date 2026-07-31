@@ -121,3 +121,7 @@ class WebSocketCallbackError(CallbackException):
 
 class WebsocketDisconnected(CallbackException):
     pass
+
+
+class StreamCallbackError(CallbackException):
+    pass
