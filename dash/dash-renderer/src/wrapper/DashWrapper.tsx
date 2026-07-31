@@ -446,7 +446,7 @@ function DashWrapper({
     };
 
     useEffect(() => {
-        if (_newRender) {
+        if (_newRender && freshRenders.current > 1) {
             dispatch(
                 resetComponentState({
                     itempath: componentPath
