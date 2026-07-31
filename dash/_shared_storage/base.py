@@ -1,20 +1,20 @@
 """Backend-agnostic shared state + pub/sub for Dash.
 
 A ``BaseSharedStorage`` gives every worker process a common key/value store and
-an ordered publish/subscribe channel. Dash uses it internally (e.g. to route
-streaming-callback frames between the worker that runs a callback and the
-worker holding the client's streaming connection), and apps can use it directly
-for cross-callback or session state without reaching for an external service.
+an ordered publish/subscribe channel. Dash uses it internally, and apps can use
+it directly for cross-callback or session state without reaching for an external
+service.
 
 Semantics every backend must honor:
 
-- **Values are picklable.** They may cross a process boundary.
+- **Values are JSON-compatible.** They may cross a process boundary, the same
+  constraint as ``dcc.Store`` and callback outputs.
 - **Pub/sub is ordered and replayable.** Each ``publish`` to a topic gets a
   monotonically increasing sequence number; a subscriber receives every message
   published after it subscribed, in order. A consumer that drops and resubscribes
   replays what it missed from a bounded buffer, so no message is silently lost
   within that window -- a buffer overrun surfaces as an explicit gap error rather
-  than a missing frame.
+  than a missing message.
 """
 
 import abc
@@ -30,7 +30,7 @@ class SharedStorageGap(SharedStorageError):
 
     Signals that the replay buffer overran (the consumer fell too far behind),
     or that the owner was re-elected and its buffer was lost; the caller must
-    treat it as lost data rather than a clean end of stream.
+    treat it as lost data rather than a clean end of the subscription.
     """
 
 
@@ -110,5 +110,5 @@ class BaseSharedStorage(abc.ABC):
         only receives messages published from now on. ``replay_from`` (a sequence
         number a previous subscription last saw) resumes after that point,
         replaying buffered messages -- this is how a reconnecting consumer avoids
-        losing frames.
+        losing messages.
         """

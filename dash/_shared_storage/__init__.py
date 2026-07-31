@@ -1,8 +1,7 @@
 """Backend-agnostic shared state + pub/sub (state manager).
 
-Public surface grows as backends land. Today: the interface and the in-memory
-engine; ``LocalSharedStorage`` (owner-elected, cross-process) and the Dash
-wiring come next.
+Exposes the ``BaseSharedStorage`` interface and the default
+``LocalSharedStorage`` backend (owner-elected, cross-process).
 """
 
 from .base import (

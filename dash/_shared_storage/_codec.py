@@ -1,9 +1,9 @@
-"""Wire codec for the shared-storage socket transport.
+"""Codec for the shared-storage socket transport.
 
 Prefers ``msgspec`` (msgpack: fast, compact) and falls back to stdlib ``json``.
-Both are **data-only -- never pickle** -- so bytes read off the socket cannot
-execute code. All workers in one deployment share a single install, hence a
-single codec, so the two ends always agree on the format.
+Both are data-only, so bytes read off the socket cannot execute code. All
+workers in one deployment share a single install, hence a single codec, so the
+two ends always agree on the format.
 
 Payloads must be JSON-compatible (dict / list / str / int / float / bool /
 None) under either codec -- the same constraint as ``dcc.Store`` and callback
