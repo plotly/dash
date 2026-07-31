@@ -726,6 +726,7 @@ Special handling for Colab:
 - `prevent_initial_callbacks` - Skip callbacks on load (default: `False`)
 - `background_callback_manager` - DiskcacheManager or CeleryManager
 - `on_error` - Global callback error handler
+- `shared_storage` - Cross-process state + pub/sub backend (default: `LocalSharedStorage`). Pass `None` to disable, or a `BaseSharedStorage` subclass/instance to swap. See [Shared Storage](#shared-storage).
 
 **WebSocket Callbacks:**
 - `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
@@ -807,6 +808,130 @@ Supported components: Input, Dropdown, Checklist, RadioItems, Slider, RangeSlide
 | Remember user selections | Component `persistence=True` |
 | Share state across tabs | `dcc.Store` with `storage_type='local'` |
 | Session-only state | `persistence_type='session'` |
+
+## Shared Storage
+
+Backend-agnostic **server-side** state shared across worker processes: a
+cross-process key/value store plus an ordered, replayable publish/subscribe
+channel. Unlike `dcc.Store` (which lives in the browser), shared storage lives
+on the server and lets callbacks running in different workers see the same keys
+and topics without standing up an external service like Redis.
+
+Enabled by default on every app. It starts lazily on first use, so it costs
+nothing until touched.
+
+### Accessing It
+
+```python
+import dash
+from dash import Input, Output, callback
+
+@callback(Output("out", "children"), Input("btn", "n_clicks"))
+def handler(n):
+    store = dash.ctx.shared_storage      # inside a callback
+    store.set("clicks", n)
+    return store.get("clicks", 0)
+
+# Or off the app directly:
+app = dash.Dash()
+app.shared_storage.set("key", {"any": "json-compatible value"})
+```
+
+Values (and published messages) must be **JSON-compatible** — dict / list / str
+/ int / float / bool / None — the same constraint as `dcc.Store` and callback
+outputs. Messages are encoded with `msgspec` (msgpack), with a stdlib `json`
+fallback.
+
+### API
+
+`app.shared_storage` (and `dash.ctx.shared_storage`) is a `BaseSharedStorage`:
+
+| Method | Purpose |
+|--------|---------|
+| `get(key, default=None)` | Read a value |
+| `set(key, value)` | Write a value |
+| `delete(key)` | Remove a key |
+| `publish(topic, message)` | Append a message to a topic |
+| `subscribe(topic, replay_from=None)` | Return a `Subscription` |
+
+**Ordered pub/sub.** Each `publish` to a topic gets a monotonically increasing
+sequence number (per topic, starting at 1; `0` means "before the first
+message"). A subscriber receives every message published after it subscribed,
+in order:
+
+```python
+# Producer (one worker):
+store.publish("progress", {"pct": 50})
+
+# Consumer (another worker/callback):
+with store.subscribe("progress") as sub:
+    for message in sub:          # or: async for message in sub
+        print(message["pct"])
+```
+
+**Replay on reconnect.** Pass `replay_from=<last-seen-seq>` to resume after a
+drop; buffered messages since that cursor replay first, so a reconnecting
+consumer doesn't miss messages. If the consumer fell farther behind than the
+bounded buffer holds, the subscription raises `SharedStorageGap` (an explicit
+gap rather than a silent hole). A `Subscription` is iterable synchronously
+(`for`) or asynchronously (`async for`), is a context manager, and has
+`close()`.
+
+### Default Backend: `LocalSharedStorage`
+
+In-memory, owner-elected — no external service required:
+
+- On first use, every worker races to become the single **owner** for the
+  machine by binding a stable address (`AF_UNIX` socket on POSIX, TCP loopback
+  on Windows). The winner hosts the authoritative in-memory engine; the losers
+  become clients that proxy over the socket.
+- The bind *is* the lease: when the owner dies the address frees and a surviving
+  worker re-elects — **coming up cold** (state is not durable; a re-election
+  starts with an empty store).
+- A single-process deployment is its own owner and pays **no socket overhead**.
+- The channel is gated by a per-owner random token written to a `0600`
+  advertisement file, so only same-host clients that can read it may attach.
+
+Constructor knobs (rarely needed):
+
+```python
+from dash._shared_storage import LocalSharedStorage
+
+Dash(shared_storage=LocalSharedStorage(
+    namespace=None,     # defaults to a hash of cwd + argv[0] (isolates apps)
+    buffer_size=2048,   # per-topic replay buffer depth
+))
+```
+
+### Configuration
+
+```python
+Dash(shared_storage=LocalSharedStorage)   # default
+Dash(shared_storage=None)                 # disabled
+Dash(shared_storage=MyBackend())          # custom backend
+```
+
+When disabled, accessing `app.shared_storage` / `dash.ctx.shared_storage`
+raises `SharedStorageError`.
+
+**Custom backends** subclass `BaseSharedStorage` and implement `get` / `set` /
+`delete` / `publish` / `subscribe` (plus optional `start` / `close`, called once
+per worker). This is the seam for a Redis- or database-backed store that shares
+state across *machines*, not just processes on one host.
+
+### Module Layout
+
+| File | Responsibility |
+|------|----------------|
+| `_shared_storage/base.py` | Abstract interface: `BaseSharedStorage`, `Subscription`, `SharedStorageError`, `SharedStorageGap` |
+| `_shared_storage/_engine.py` | `StoreEngine`: authoritative in-memory kv map + per-topic ordered log with bounded replay buffer (thread-safe, transport-agnostic) |
+| `_shared_storage/local.py` | `LocalSharedStorage`: owner election; owner hosts the engine, clients proxy |
+| `_shared_storage/_transport.py` | Length-prefixed, token-gated socket transport |
+| `_shared_storage/_codec.py` | msgspec/json codec (data-only) |
+| `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
+| `_callback_context.py` | `dash.ctx.shared_storage` accessor |
+
+Requires the `msgspec` dependency (declared in `requirements/install.txt`).
 
 ## Async Callbacks
 
