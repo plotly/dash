@@ -62,7 +62,10 @@ function getSelectedTooltip(
             ? headerTooltip?.[row]
             : headerTooltip;
     } else {
-        tooltip = tooltip_data?.[row]?.[id];
+        tooltip =
+            tooltip_data?.[virtualized.indices[row - virtualized.offset.rows]]?.[
+                id
+            ];
     }
 
     if (tooltip) {
