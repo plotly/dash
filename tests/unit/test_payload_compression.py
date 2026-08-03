@@ -24,6 +24,12 @@ class TestDecompressPayload:
         }
         assert decompress_payload(_gzip(original)) == original
 
+    def test_decompressed_payload_exceeds_size_limit(self):
+        payload = {"value": "x" * 1_000}
+
+        with pytest.raises(ValueError):
+            decompress_payload(_gzip(payload), max_size=100)
+
     @pytest.mark.parametrize(
         "bad_data",
         [b"", b"not gzip at all", b"\x1f\x8b\x00truncated"],
