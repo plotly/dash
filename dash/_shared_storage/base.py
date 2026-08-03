@@ -91,8 +91,14 @@ class BaseSharedStorage(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def set(self, key: str, value: Any) -> None:
-        ...
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        """Write ``value`` under ``key``.
+
+        ``ttl`` is an optional lifetime in seconds; the key expires (reads
+        return the ``default``) once it elapses. ``None`` means it never
+        expires. Expiry is best-effort/lazy -- an expired key is dropped on the
+        next read of it, not at a guaranteed instant.
+        """
 
     @abc.abstractmethod
     def delete(self, key: str) -> None:

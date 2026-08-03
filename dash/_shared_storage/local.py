@@ -350,7 +350,7 @@ class LocalSharedStorage(BaseSharedStorage):
         if op == "get":
             return engine.get(req[1], req[2])
         if op == "set":
-            return engine.set(req[1], req[2])
+            return engine.set(req[1], req[2], req[3] if len(req) > 3 else None)
         if op == "delete":
             return engine.delete(req[1])
         if op == "publish":
@@ -383,8 +383,8 @@ class LocalSharedStorage(BaseSharedStorage):
     def get(self, key: str, default: Any = None) -> Any:
         return self._call(["get", key, default])
 
-    def set(self, key: str, value: Any) -> None:
-        self._call(["set", key, value])
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        self._call(["set", key, value, ttl])
 
     def delete(self, key: str) -> None:
         self._call(["delete", key])

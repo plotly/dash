@@ -848,10 +848,18 @@ outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
 | Method | Purpose |
 |--------|---------|
 | `get(key, default=None)` | Read a value |
-| `set(key, value)` | Write a value |
+| `set(key, value, ttl=None)` | Write a value; `ttl` = optional lifetime in seconds |
 | `delete(key)` | Remove a key |
 | `publish(topic, message)` | Append a message to a topic |
 | `subscribe(topic, replay_from=None)` | Return a `Subscription` |
+
+**Key expiry (TTL).** `set(key, value, ttl=<seconds>)` gives a key a bounded
+lifetime; once it elapses, reads return the `default` again. `ttl=None` (the
+default) never expires. Expiry is lazy/best-effort — an expired key is dropped
+on its next read, not at a guaranteed instant. Each backend uses its native
+mechanism: a monotonic deadline on the in-memory owner, diskcache `expire`,
+Redis `PX`. Use it for session-scoped or cache-like state you don't want to
+accumulate unboundedly.
 
 **Ordered pub/sub.** Each `publish` to a topic gets a monotonically increasing
 sequence number (per topic, starting at 1; `0` means "before the first

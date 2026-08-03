@@ -67,6 +67,13 @@ def test_kv_get_set_delete(store):
     store.delete("a")  # idempotent
 
 
+def test_kv_ttl_expires(store):
+    store.set("a", "v", ttl=0.2)
+    assert store.get("a") == "v"
+    time.sleep(0.35)
+    assert store.get("a", "gone") == "gone"
+
+
 def test_fresh_subscriber_only_sees_future_messages(store):
     store.publish("t", "old")
     sub = store.subscribe("t")  # cursor at current head

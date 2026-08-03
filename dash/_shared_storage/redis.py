@@ -114,8 +114,11 @@ class RedisSharedStorage(BaseSharedStorage):
         raw = self._redis.get(self._kv(key))
         return default if raw is None else decode(raw)
 
-    def set(self, key: str, value: Any) -> None:
-        self._redis.set(self._kv(key), encode(value))
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        # px (milliseconds) preserves sub-second ttl; ex only takes whole
+        # seconds. Floor at 1ms so a tiny positive ttl still sets an expiry.
+        px = max(1, round(ttl * 1000)) if ttl is not None else None
+        self._redis.set(self._kv(key), encode(value), px=px)
 
     def delete(self, key: str) -> None:
         self._redis.delete(self._kv(key))

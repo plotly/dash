@@ -90,8 +90,8 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         raw = self._cache.get(self._kv(key))
         return default if raw is None else decode(raw)
 
-    def set(self, key: str, value: Any) -> None:
-        self._cache.set(self._kv(key), encode(value))
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        self._cache.set(self._kv(key), encode(value), expire=ttl)
 
     def delete(self, key: str) -> None:
         self._cache.delete(self._kv(key))

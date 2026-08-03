@@ -14,7 +14,7 @@ The engine is thread-safe and transport-agnostic; sockets live one layer up.
 import threading
 import time
 from collections import deque
-from typing import Any, Deque, Dict, List, NamedTuple, Tuple
+from typing import Any, Deque, Dict, List, NamedTuple, Optional, Tuple
 
 # Per-topic replay buffer size. Kept small by default because messages are
 # arbitrary user payloads and every topic retains up to this many -- unbounded
@@ -43,7 +43,9 @@ class _Topic:  # pylint: disable=too-few-public-methods
 class StoreEngine:
     def __init__(self, buffer_size: int = DEFAULT_BUFFER):
         self._buffer_size = buffer_size
-        self._data: Dict[str, Any] = {}
+        # key -> (value, expiry). expiry is a monotonic deadline, or None for
+        # no TTL. Expired entries are dropped lazily on the next read.
+        self._data: Dict[str, Tuple[Any, Optional[float]]] = {}
         self._data_lock = threading.Lock()
         self._topics: Dict[str, _Topic] = {}
         self._topics_lock = threading.Lock()
@@ -52,11 +54,19 @@ class StoreEngine:
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         with self._data_lock:
-            return self._data.get(key, default)
+            entry = self._data.get(key)
+            if entry is None:
+                return default
+            value, deadline = entry
+            if deadline is not None and deadline <= time.monotonic():
+                del self._data[key]
+                return default
+            return value
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        deadline = time.monotonic() + ttl if ttl is not None else None
         with self._data_lock:
-            self._data[key] = value
+            self._data[key] = (value, deadline)
 
     def delete(self, key: str) -> None:
         with self._data_lock:

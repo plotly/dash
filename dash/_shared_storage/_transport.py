@@ -105,7 +105,7 @@ class OwnerServer:
             if op == "get":
                 return ("ok", self._engine.get(req[1], req[2]))
             if op == "set":
-                self._engine.set(req[1], req[2])
+                self._engine.set(req[1], req[2], req[3] if len(req) > 3 else None)
                 return ("ok", None)
             if op == "delete":
                 self._engine.delete(req[1])

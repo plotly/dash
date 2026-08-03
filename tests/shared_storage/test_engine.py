@@ -16,6 +16,44 @@ def test_kv_get_set_delete():
     e.delete("a")  # idempotent
 
 
+def test_kv_ttl_expires_lazily(monkeypatch):
+    from dash._shared_storage import _engine
+
+    clock = {"t": 1000.0}
+    monkeypatch.setattr(_engine.time, "monotonic", lambda: clock["t"])
+    e = _engine.StoreEngine()
+    e.set("a", "v", ttl=10)
+    assert e.get("a") == "v"
+    clock["t"] += 9  # 9s in, still alive
+    assert e.get("a") == "v"
+    clock["t"] += 2  # 11s in, past the ttl
+    assert e.get("a", "gone") == "gone"
+    assert "a" not in e._data  # expired entry is dropped, not just hidden
+
+
+def test_kv_ttl_none_never_expires(monkeypatch):
+    from dash._shared_storage import _engine
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(_engine.time, "monotonic", lambda: clock["t"])
+    e = _engine.StoreEngine()
+    e.set("a", "v")  # no ttl
+    clock["t"] += 10_000
+    assert e.get("a") == "v"
+
+
+def test_kv_set_without_ttl_clears_prior_ttl(monkeypatch):
+    from dash._shared_storage import _engine
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(_engine.time, "monotonic", lambda: clock["t"])
+    e = _engine.StoreEngine()
+    e.set("a", "v1", ttl=5)
+    e.set("a", "v2")  # overwrite drops the expiry
+    clock["t"] += 100
+    assert e.get("a") == "v2"
+
+
 def test_publish_assigns_monotonic_seq():
     e = StoreEngine()
     assert e.head_seq("t") == 0
