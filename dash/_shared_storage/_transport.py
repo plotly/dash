@@ -3,7 +3,7 @@
 A single owner process serves one :class:`StoreEngine` over a stream socket
 (AF_UNIX where available, TCP loopback otherwise). Messages are length-prefixed:
 a 4-byte big-endian length followed by a body encoded by ``_codec`` (msgspec
-msgpack, or stdlib JSON as a fallback). The codec is data-only -- the socket is
+msgpack). The codec is data-only -- the socket is
 localhost-only, but deserializing untrusted bytes off a socket is a
 remote-code-execution hazard, so the transport carries only data. The channel is
 additionally gated by a per-owner random token; only same-host clients that read

@@ -839,8 +839,7 @@ app.shared_storage.set("key", {"any": "json-compatible value"})
 
 Values (and published messages) must be **JSON-compatible** — dict / list / str
 / int / float / bool / None — the same constraint as `dcc.Store` and callback
-outputs. Messages are encoded with `msgspec` (msgpack), with a stdlib `json`
-fallback.
+outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
 
 ### API
 
@@ -979,7 +978,7 @@ same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
 | `_shared_storage/redis.py` | `RedisSharedStorage`: KV + Redis Streams pub/sub (atomic `INCR`+`XADD`) |
 | `_shared_storage/_polling.py` | `PollingSubscription`: shared poll-loop subscription for the diskcache/Redis backends |
 | `_shared_storage/_transport.py` | Length-prefixed, token-gated socket transport (local backend) |
-| `_shared_storage/_codec.py` | msgspec/json codec (data-only) |
+| `_shared_storage/_codec.py` | msgspec msgpack codec (data-only) |
 | `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
 | `_callback_context.py` | `dash.ctx.shared_storage` accessor |
 

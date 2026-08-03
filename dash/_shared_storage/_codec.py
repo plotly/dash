@@ -1,37 +1,23 @@
 """Codec for the shared-storage socket transport.
 
-Prefers ``msgspec`` (msgpack: fast, compact) and falls back to stdlib ``json``.
-Both are data-only, so bytes read off the socket cannot execute code. All
-workers in one deployment share a single install, hence a single codec, so the
-two ends always agree on the format.
+Uses ``msgspec`` (msgpack: fast, compact), a hard dependency of Dash. The
+format is data-only, so bytes read off the socket cannot execute code.
 
 Payloads must be JSON-compatible (dict / list / str / int / float / bool /
-None) under either codec -- the same constraint as ``dcc.Store`` and callback
-outputs.
+None) -- the same constraint as ``dcc.Store`` and callback outputs.
 """
 
 from typing import Any
 
-try:
-    import msgspec
+import msgspec
 
-    _encoder = msgspec.msgpack.Encoder()
-    _decoder = msgspec.msgpack.Decoder()
+_encoder = msgspec.msgpack.Encoder()
+_decoder = msgspec.msgpack.Decoder()
 
-    def encode(obj: Any) -> bytes:
-        return _encoder.encode(obj)
 
-    def decode(data: bytes) -> Any:
-        return _decoder.decode(data)
+def encode(obj: Any) -> bytes:
+    return _encoder.encode(obj)
 
-    CODEC = "msgpack"
-except ImportError:  # pragma: no cover - exercised via the fallback install
-    import json
 
-    def encode(obj: Any) -> bytes:
-        return json.dumps(obj).encode("utf-8")
-
-    def decode(data: bytes) -> Any:
-        return json.loads(data.decode("utf-8"))
-
-    CODEC = "json"
+def decode(data: bytes) -> Any:
+    return _decoder.decode(data)
