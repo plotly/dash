@@ -16,10 +16,13 @@ import time
 from collections import deque
 from typing import Any, Deque, Dict, List, NamedTuple, Tuple
 
-# Per-topic replay buffer size. Sized to cover a reconnect window comfortably;
-# a producer that outruns a disconnected consumer past this raises a gap rather
-# than dropping messages silently.
-DEFAULT_BUFFER = 2048
+# Per-topic replay buffer size. Kept small by default because messages are
+# arbitrary user payloads and every topic retains up to this many -- unbounded
+# defaults are a memory hazard. It still buffers enough to survive normal
+# publish bursts and brief reconnects; a producer that outruns a disconnected
+# consumer past this raises a gap rather than dropping messages silently.
+# Deployments that need a wider reconnect window set buffer_size explicitly.
+DEFAULT_BUFFER = 32
 
 
 class PollResult(NamedTuple):

@@ -914,7 +914,8 @@ the engine, losers proxy over the socket. The bind *is* the lease — when the
 owner dies the address frees and a survivor re-elects **cold** (state is not
 durable). A single-process deployment is its own owner and pays no socket
 overhead. Knobs: `namespace` (defaults to a hash of cwd + argv[0]),
-`buffer_size` (default 2048).
+`buffer_size` (default 32 — small on purpose, since each topic retains that
+many arbitrary payloads; raise it for a wider reconnect window).
 
 **`DiskcacheSharedStorage`** — KV + an append-log pub/sub on a `diskcache.Cache`,
 the same store `DiskcacheManager` uses; pass an existing `cache` to share one.
