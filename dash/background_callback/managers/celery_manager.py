@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 import traceback
 from contextvars import copy_context
 import asyncio
@@ -12,6 +13,12 @@ from dash._utils import AttributeDict
 from dash.exceptions import PreventUpdate
 from dash.background_callback._proxy_set_props import ProxySetProps
 from dash.background_callback.managers import BaseBackgroundCallbackManager
+
+logging.basicConfig(
+    encoding="utf-8", level=logging.DEBUG, format="%(levelname)s:%(name)s:%(message)s"
+)
+logging.getLogger("selenium.webdriver.remote.remote_connection").setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class CeleryManager(BaseBackgroundCallbackManager):
@@ -41,12 +48,10 @@ class CeleryManager(BaseBackgroundCallbackManager):
                 DisabledBackend,
             )
         except ImportError as missing_imports:
-            raise ImportError(
-                """\
+            raise ImportError("""\
 CeleryManager requires extra dependencies which can be installed doing
 
-    $ pip install "dash[celery]"\n"""
-            ) from missing_imports
+    $ pip install "dash[celery]"\n""") from missing_imports
 
         if not isinstance(celery_app, celery.Celery):
             raise ValueError("First argument must be a celery.Celery object")
@@ -67,6 +72,7 @@ CeleryManager requires extra dependencies which can be installed doing
     def terminate_unhealthy_job(self, job):
         task = self.get_task(job)
         if task and task.status in ("FAILURE", "REVOKED"):
+            logger.info("Terminating unhealthy job %s with status %s", job, task.status)
             return self.terminate_job(job)
         return False
 
@@ -89,8 +95,18 @@ CeleryManager requires extra dependencies which can be installed doing
 
         return None
 
+    @staticmethod
+    def _ensure_bytes(o) -> bytes:
+        if isinstance(o, bytes):
+            return o
+        return str(o).encode()
+
     def clear_cache_entry(self, key):
-        self.handle.backend.delete(key)
+        logger.info("Clearing cache entry for %s", key)
+        # delete should not be called when the entry is not present
+        value = self.handle.backend.get(self._ensure_bytes(key))
+        if value is not None:
+            self.handle.backend.delete(self._ensure_bytes(key))
 
     def get_or_create_signing_secret(self, generate):
         backend = self.handle.backend
@@ -103,24 +119,33 @@ CeleryManager requires extra dependencies which can be installed doing
         return backend.get(self.SIGNING_SECRET_KEY) or secret
 
     def call_job_fn(self, key, job_fn, args, context):
-        task = job_fn.delay(key, self._make_progress_key(key), args, context)
+        result_key = self._ensure_bytes(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
+        set_props_key = self._ensure_bytes(self._make_set_props_key(key))
+        task = job_fn.delay(result_key, progress_key, set_props_key, args, context)
         return task.task_id
 
     def get_progress(self, key):
-        progress_key = self._make_progress_key(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
+        logger.info("Getting progress for %s", progress_key)
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
-            self.handle.backend.delete(progress_key)
+            self.clear_cache_entry(progress_key)
             return json.loads(progress_data)
 
         return None
 
     def result_ready(self, key):
-        return self.handle.backend.get(key) is not None
+        result_key = self._ensure_bytes(key)
+        logger.info("Getting result for %s", result_key)
+        return self.handle.backend.get(result_key) is not None
 
     def get_result(self, key, job):
+        result_key = self._ensure_bytes(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
         # Get result value
-        result = self.handle.backend.get(key)
+        logger.info("Getting result for %s", key)
+        result = self.handle.backend.get(result_key)
         if result is None:
             return self.UNDEFINED
 
@@ -128,22 +153,24 @@ CeleryManager requires extra dependencies which can be installed doing
 
         # Clear result if not caching
         if self.cache_by is None:
-            self.clear_cache_entry(key)
+            self.clear_cache_entry(result_key)
         else:
             if self.expire:
                 # Set/update expiration time
-                self.handle.backend.expire(key, self.expire)
-        self.clear_cache_entry(self._make_progress_key(key))
+                self.handle.backend.expire(result_key, self.expire)
+        self.clear_cache_entry(progress_key)
 
         self.terminate_job(job)
         return result
 
     def get_updated_props(self, key):
-        updated_props = self.handle.backend.get(self._make_set_props_key(key))
+        set_props_key = self._ensure_bytes(self._make_set_props_key(key))
+        logger.info("Getting updated props for %s", set_props_key)
+        updated_props = self.handle.backend.get(set_props_key)
         if updated_props is None:
             return {}
 
-        self.clear_cache_entry(key)
+        self.clear_cache_entry(set_props_key)
 
         return json.loads(updated_props)
 
@@ -153,25 +180,28 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
 
     @celery_app.task(name=f"background_callback_{key}")
     def job_fn(
-        result_key, progress_key, user_callback_args, context=None
+        result_key, progress_key, set_props_key, user_callback_args, context=None
     ):  # pylint: disable=too-many-statements
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
+            logger.info("Setting progress for %s to %s", progress_key, progress_value)
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
         maybe_progress = [_set_progress] if progress else []
 
         def _set_props(_id, props):
+            logger.info("Setting updated props for %s to %s", set_props_key, props)
             cache.set(
-                f"{result_key}-set_props",
+                set_props_key,
                 json.dumps({_id: props}, cls=PlotlyJSONEncoder),
             )
 
         ctx = copy_context()
 
         def run():
+            logger.info("Running callback for %s", result_key)
             c = AttributeDict(**context)  # type: ignore[reportCallIssue]
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
@@ -188,6 +218,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
                 errored = True
+                logger.info("Callback prevented update for %s", result_key)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -195,6 +226,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     ),
                 )
             except Exception as err:  # pylint: disable=broad-except
+                logger.info("Callback failed with error: %s", err)
                 errored = True
                 cache.set(
                     result_key,
@@ -209,6 +241,9 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 )
 
             if not errored:
+                logger.info(
+                    "Setting result for %s to %s", result_key, user_callback_output
+                )
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
@@ -234,6 +269,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
                 errored = True
+                logger.info("Callback prevented update for %s", result_key)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -242,6 +278,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 )
             except Exception as err:  # pylint: disable=broad-except
                 errored = True
+                logger.info("Callback failed with error: %s", err)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -258,6 +295,9 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 if asyncio.iscoroutine(user_callback_output):
                     user_callback_output = await user_callback_output
 
+                logger.info(
+                    "Setting result for %s to %s", result_key, user_callback_output
+                )
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )

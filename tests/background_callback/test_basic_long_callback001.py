@@ -10,7 +10,7 @@ from .utils import setup_background_callback_app
 @pytest.mark.skipif(
     sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
 )
-@flaky(max_runs=3)
+@flaky(max_runs=1)
 def test_lcbc001_fast_input(dash_duo, manager):
     """
     Make sure that we settle to the correct final value when handling rapid inputs

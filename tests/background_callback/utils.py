@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import shutil
@@ -48,6 +49,24 @@ def get_background_callback_manager():
         background_callback_manager = CeleryManager(celery_app)
         redis_conn = redis.Redis(host="localhost", port=6379, db=1)
         background_callback_manager.test_lock = redis_conn.lock("test-lock")
+    elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery-filesystem":
+        from dash.background_callback import CeleryManager
+        from celery import Celery
+
+        celery_app = Celery(
+            __name__,
+            broker=os.environ.get("CELERY_BROKER"),
+            backend=os.environ.get("CELERY_BACKEND"),
+            broker_transport_options={
+                "data_folder_in": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
+                "data_folder_out": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
+                "control_folder": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
+            },
+        )
+        background_callback_manager = CeleryManager(celery_app)
+
+        # TODO implement lock based on filesystem for testing?
+        # background_callback_manager.test_lock = ???
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "diskcache":
         import diskcache
 
@@ -77,17 +96,28 @@ def kill(proc_pid):
 def setup_background_callback_app(manager_name, app_name):
     from dash.testing.application_runners import import_app
 
-    if manager_name == "celery-redis":
-        os.environ["LONG_CALLBACK_MANAGER"] = "celery-redis"
-        redis_url = os.environ["REDIS_URL"].rstrip("/")
-        os.environ["CELERY_BROKER"] = f"{redis_url}/0"
-        os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
+    if manager_name in ["celery-redis", "celery-filesystem"]:
+        os.environ["LONG_CALLBACK_MANAGER"] = manager_name
 
-        # Clear redis of cached values
-        redis_conn = redis.Redis(host="localhost", port=6379, db=1)
-        cache_keys = redis_conn.keys()
-        if cache_keys:
-            redis_conn.delete(*cache_keys)
+        if manager_name == "celery-redis":
+            redis_url = os.environ["REDIS_URL"].rstrip("/")
+            os.environ["CELERY_BROKER"] = f"{redis_url}/0"
+            os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
+
+            # Clear redis of cached values
+            redis_conn = redis.Redis(host="localhost", port=6379, db=1)
+            cache_keys = redis_conn.keys()
+            if cache_keys:
+                redis_conn.delete(*cache_keys)
+        elif manager_name == "celery-filesystem":
+            # celery_filesystem_directory = tempfile.mkdtemp(prefix="lc-celery-")
+            celery_filesystem_directory = "/tmp/lc-celery-broker-filesystem"
+            os.environ["CELERY_BROKER"] = "filesystem://"
+            os.environ["CELERY_BROKER_FILESYSTEM_DIRECTORY"] = (
+                celery_filesystem_directory
+            )
+            print(f"{celery_filesystem_directory=}")
+            os.environ["CELERY_BACKEND"] = f"file://{celery_filesystem_directory}"
 
         worker = subprocess.Popen(
             [
@@ -102,22 +132,25 @@ def setup_background_callback_app(manager_name, app_name):
                 "--concurrency",
                 "2",
                 "--loglevel=info",
+                "--logfile=/tmp/lc-celery-broker-filesystem/celery_worker_%i.log",
             ],
             encoding="utf8",
             preexec_fn=os.setpgrp,
-            stderr=subprocess.PIPE,
+            # stderr=subprocess.PIPE,
         )
+        logging.debug(f"Started celery worker with PID {worker.pid}")
         # Wait for the worker to be ready, if you cancel before it is ready, the job
         # will still be queued.
-        lines = []
-        for line in iter(worker.stderr.readline, ""):
-            if "ready" in line:
-                break
-            lines.append(line)
-        else:
-            error = "\n".join(lines)
-            error += f"\nPath: {sys.path}"
-            raise RuntimeError(f"celery failed to start: {error}")
+        time.sleep(5)
+        # lines = []
+        # for line in iter(worker.stderr.readline, ""):
+        #     if "ready" in line:
+        #         break
+        #     lines.append(line)
+        # else:
+        #     error = "\n".join(lines)
+        #     error += f"\nPath: {sys.path}"
+        #     raise RuntimeError(f"celery failed to start: {error}")
 
         try:
             yield import_app(f"tests.background_callback.{app_name}")
