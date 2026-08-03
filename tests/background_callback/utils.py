@@ -52,21 +52,28 @@ def get_background_callback_manager():
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery-filesystem":
         from dash.background_callback import CeleryManager
         from celery import Celery
+        from filelock import FileLock
+
+        celery_broker_path = os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY")
+        assert (
+            celery_broker_path is not None
+        ), "CELERY_BROKER_FILESYSTEM_DIRECTORY must be set"
 
         celery_app = Celery(
             __name__,
             broker=os.environ.get("CELERY_BROKER"),
             backend=os.environ.get("CELERY_BACKEND"),
             broker_transport_options={
-                "data_folder_in": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
-                "data_folder_out": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
-                "control_folder": os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY"),
+                "data_folder_in": celery_broker_path,
+                "data_folder_out": celery_broker_path,
+                "control_folder": celery_broker_path,
             },
         )
         background_callback_manager = CeleryManager(celery_app)
 
-        # TODO implement lock based on filesystem for testing?
-        # background_callback_manager.test_lock = ???
+        background_callback_manager.test_lock = FileLock(
+            os.path.join(celery_broker_path, "test-lock")
+        )
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "diskcache":
         import diskcache
 

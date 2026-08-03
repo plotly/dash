@@ -2,6 +2,7 @@
 black==22.3.0
 flake8==7.0.0
 flaky==3.8.1
+filelock>=3.0
 flask-talisman==1.0.0
 ipython<9.0.0
 mimesis<=11.1.0
