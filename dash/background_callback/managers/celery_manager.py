@@ -39,6 +39,7 @@ class CeleryManager(BaseBackgroundCallbackManager):
             import celery  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
             from celery.backends.base import (  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
                 DisabledBackend,
+                BaseKeyValueStoreBackend,
             )
         except ImportError as missing_imports:
             raise ImportError("""\
@@ -51,6 +52,11 @@ CeleryManager requires extra dependencies which can be installed doing
 
         if isinstance(celery_app.backend, DisabledBackend):
             raise ValueError("Celery instance must be configured with a result backend")
+
+        if not isinstance(celery_app.backend, BaseKeyValueStoreBackend):
+            raise ValueError(
+                "Celery must be configured with a key-value store backend (e.g. Redis or Filesystem)"
+            )
 
         self.handle = celery_app
         self.expire = expire
