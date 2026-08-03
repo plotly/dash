@@ -25,6 +25,7 @@ import time
 from typing import Any, Optional
 
 from ._engine import DEFAULT_BUFFER, PollResult, StoreEngine
+from ._persistence import _Persistence, default_store_dir
 from ._transport import EOF, OwnerServer, connect_to_owner, recv_frame, send_frame
 from .base import BaseSharedStorage, SharedStorageError, SharedStorageGap, Subscription
 
@@ -120,9 +121,19 @@ def _try_bind(namespace: str, sock_path: str):
 class _Coordinator:
     """Owns this worker's role (owner or client) and re-elects on owner loss."""
 
-    def __init__(self, namespace: str, buffer_size: int):
+    def __init__(
+        self,
+        namespace: str,
+        buffer_size: int,
+        mode: str = "memory",
+        path: Optional[str] = None,
+        flush_interval: float = 60.0,
+    ):
         self._namespace = namespace
         self._buffer_size = buffer_size
+        self._mode = mode
+        self._path = path
+        self._flush_interval = flush_interval
         self._sock_path, self._addr_path = _paths(namespace)
         self._lock = threading.RLock()
         self._role: Optional[str] = None
@@ -157,6 +168,16 @@ class _Coordinator:
             token = secrets.token_hex(16)
             _write_advertisement(self._addr_path, family, address, token)
             engine = StoreEngine(self._buffer_size)
+            if self._mode != "memory":
+                assert self._path is not None
+                persistence = _Persistence(
+                    self._path, self._mode, self._flush_interval, engine
+                )
+                # Recover before serving (so clients see the restored state) and
+                # before attaching (so restored keys are not re-marked dirty).
+                persistence.recover()
+                engine.attach_persistence(persistence)
+                persistence.start()
             server = OwnerServer(engine, listen_sock, token)
             server.start()
             self._engine, self._server = engine, server
@@ -188,6 +209,9 @@ class _Coordinator:
         with self._lock:
             if self._server is not None:
                 self._server.close()
+                if self._engine is not None:
+                    # Triggers the persistence final flush (save-on-exit).
+                    self._engine.close()
                 for path in (self._sock_path, self._addr_path):
                     try:
                         os.unlink(path)
@@ -306,14 +330,47 @@ class _LocalSubscription(Subscription):
 class LocalSharedStorage(BaseSharedStorage):
     """In-memory shared storage, elected to a single owner process per machine.
 
-    Values and published messages must be JSON-compatible. State is not durable:
-    if the owning process dies, a survivor re-elects with an empty store.
+    Values and published messages must be JSON-compatible.
+
+    ``mode`` controls durability of the key/value store (pub/sub is always
+    transient):
+
+    - ``"memory"`` (default): purely in-memory. If the owning process dies, a
+      survivor re-elects with an empty store.
+    - ``"persist"``: write-through to disk on every set/delete. A re-elected
+      owner -- or a fresh run -- recovers the store, so data survives a crash.
+    - ``"persist-reset"``: in-memory speed, flushed to disk every
+      ``flush_interval`` seconds and on clean exit, and recovered on start; up to
+      one interval of writes may be lost on an unclean crash.
+
+    ``path`` is the on-disk store directory for the persistent modes; it defaults
+    to a per-namespace folder under the user cache directory. ``flush_interval``
+    (seconds) only applies to ``"persist-reset"``.
     """
 
+    _MODES = ("memory", "persist", "persist-reset")
+
     def __init__(
-        self, namespace: Optional[str] = None, buffer_size: int = DEFAULT_BUFFER
+        self,
+        namespace: Optional[str] = None,
+        buffer_size: int = DEFAULT_BUFFER,
+        mode: str = "memory",
+        path: Optional[str] = None,
+        flush_interval: float = 60.0,
     ):
-        self._coord = _Coordinator(namespace or _default_namespace(), buffer_size)
+        if mode not in self._MODES:
+            raise SharedStorageError(
+                f"invalid shared-storage mode {mode!r}; "
+                f"expected one of {self._MODES}"
+            )
+        if mode == "persist-reset" and flush_interval <= 0:
+            raise SharedStorageError(
+                f"flush_interval must be positive, got {flush_interval!r}"
+            )
+        ns = namespace or _default_namespace()
+        if mode != "memory" and path is None:
+            path = default_store_dir(ns)
+        self._coord = _Coordinator(ns, buffer_size, mode, path, flush_interval)
         self._conn: Optional[socket.socket] = None
         self._conn_lock = threading.Lock()
 

@@ -89,6 +89,21 @@ def test_counter_shared_across_callbacks_local(dash_duo):
     _drive_counter(dash_duo)
 
 
+def test_counter_shared_across_callbacks_local_persist(dash_duo, tmp_path):
+    dash_duo.start_server(
+        _counter_app(
+            LocalSharedStorage(
+                namespace=f"duo-{uuid.uuid4().hex[:12]}",
+                mode="persist",
+                path=str(tmp_path / "ss"),
+            )
+        )
+    )
+    _drive_counter(dash_duo)
+    # The write-through store landed on disk.
+    assert (tmp_path / "ss" / "index.msgpack").exists()
+
+
 def test_counter_shared_across_callbacks_diskcache(dash_duo, tmp_path):
     dash_duo.start_server(
         _counter_app(DiskcacheSharedStorage(directory=str(tmp_path / "ss")))

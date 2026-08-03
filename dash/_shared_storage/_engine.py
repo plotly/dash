@@ -41,7 +41,7 @@ class _Topic:  # pylint: disable=too-few-public-methods
 
 
 class StoreEngine:
-    def __init__(self, buffer_size: int = DEFAULT_BUFFER):
+    def __init__(self, buffer_size: int = DEFAULT_BUFFER, persistence: Any = None):
         self._buffer_size = buffer_size
         # key -> (value, expiry). expiry is a monotonic deadline, or None for
         # no TTL. Expired entries are dropped lazily on the next read.
@@ -50,6 +50,14 @@ class StoreEngine:
         self._topics: Dict[str, _Topic] = {}
         self._topics_lock = threading.Lock()
         self._closed = False
+        # Optional _Persistence policy (owner only). Notified on each mutation;
+        # file IO happens in it, outside _data_lock.
+        self._persistence = persistence
+
+    def attach_persistence(self, persistence: Any) -> None:
+        """Wire persistence in after construction (so a recover() run that
+        populates the store first does not re-mark every restored key dirty)."""
+        self._persistence = persistence
 
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
@@ -67,10 +75,55 @@ class StoreEngine:
         deadline = time.monotonic() + ttl if ttl is not None else None
         with self._data_lock:
             self._data[key] = (value, deadline)
+        if self._persistence is not None:
+            self._persistence.mark(key)
 
     def delete(self, key: str) -> None:
         with self._data_lock:
-            self._data.pop(key, None)
+            existed = self._data.pop(key, None) is not None
+        if existed and self._persistence is not None:
+            self._persistence.mark(key)
+
+    def restore(self, items: Dict[str, Tuple[Any, Optional[float]]]) -> None:
+        """Bulk-load persisted ``key -> (value, expire_at)`` into the store.
+
+        ``expire_at`` is an absolute wall-clock deadline; convert it to a
+        monotonic deadline and drop entries that have already expired.
+        """
+        now_mono = time.monotonic()
+        now_wall = time.time()
+        with self._data_lock:
+            for key, (value, expire_at) in items.items():
+                if expire_at is None:
+                    self._data[key] = (value, None)
+                    continue
+                remaining = expire_at - now_wall
+                if remaining <= 0:
+                    continue
+                self._data[key] = (value, now_mono + remaining)
+
+    def snapshot_keys(self, keys: Any) -> Dict[str, Tuple[Any, Optional[float]]]:
+        """Return current ``(value, expire_at)`` for each live key in ``keys``.
+
+        Expiry is emitted as an absolute wall-clock deadline for durable
+        storage. Keys that are absent or expired are omitted -- the caller
+        treats their absence as a deletion.
+        """
+        now_mono = time.monotonic()
+        now_wall = time.time()
+        out: Dict[str, Tuple[Any, Optional[float]]] = {}
+        with self._data_lock:
+            for key in keys:
+                entry = self._data.get(key)
+                if entry is None:
+                    continue
+                value, deadline = entry
+                if deadline is None:
+                    out[key] = (value, None)
+                elif deadline > now_mono:
+                    out[key] = (value, now_wall + (deadline - now_mono))
+                # else: expired -> omit (treated as deleted)
+        return out
 
     # --- pub/sub -----------------------------------------------------------
     def _topic(self, name: str) -> _Topic:
@@ -121,6 +174,9 @@ class StoreEngine:
 
     def close(self) -> None:
         self._closed = True
+        if self._persistence is not None:
+            # Final flush (save-on-exit for persist-reset) + stop its thread.
+            self._persistence.close()
         with self._topics_lock:
             topics = list(self._topics.values())
         for t in topics:

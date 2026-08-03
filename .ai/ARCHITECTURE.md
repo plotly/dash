@@ -919,11 +919,33 @@ raises `SharedStorageError`.
 worker races to become the single **owner** for the machine by binding a stable
 address (`AF_UNIX` on POSIX, `127.0.0.1` loopback on Windows); the winner hosts
 the engine, losers proxy over the socket. The bind *is* the lease — when the
-owner dies the address frees and a survivor re-elects **cold** (state is not
-durable). A single-process deployment is its own owner and pays no socket
-overhead. Knobs: `namespace` (defaults to a hash of cwd + argv[0]),
-`buffer_size` (default 32 — small on purpose, since each topic retains that
-many arbitrary payloads; raise it for a wider reconnect window).
+owner dies the address frees and a survivor re-elects. A single-process
+deployment is its own owner and pays no socket overhead. Knobs: `namespace`
+(defaults to a hash of cwd + argv[0]), `buffer_size` (default 32 — small on
+purpose, since each topic retains that many arbitrary payloads; raise it for a
+wider reconnect window).
+
+*Durability* is controlled by `mode` (the key/value store only — pub/sub is
+always transient):
+
+| `mode` | Writes | On owner death / restart |
+|--------|--------|--------------------------|
+| `"memory"` *(default)* | none | re-elects **cold** (state lost) |
+| `"persist"` | write-through on every set/delete | re-elected/fresh owner **recovers** from disk |
+| `"persist-reset"` | flushed every `flush_interval`s (default 60) + on clean exit | recovers to the last snapshot (up to one interval may be lost on an unclean crash) |
+
+Only the owner persists. The on-disk store is *chunked* (keys sharded across
+msgpack chunk files via a key→chunk index, so a mutation rewrites only the
+affected chunk — adapted from raposa's `BinaryStorage`); each chunk write is
+atomic (temp file + `os.replace`). TTLs survive restarts (stored as wall-clock
+deadlines; expired keys are dropped on load). `path` sets the store directory
+(default: a per-namespace folder under the user cache dir). Recovery runs on
+every election, so persisted data also survives owner re-election:
+
+```python
+Dash(shared_storage=LocalSharedStorage(mode="persist"))
+Dash(shared_storage=LocalSharedStorage(mode="persist-reset", flush_interval=30))
+```
 
 **`DiskcacheSharedStorage`** — KV + an append-log pub/sub on a `diskcache.Cache`,
 the same store `DiskcacheManager` uses; pass an existing `cache` to share one.

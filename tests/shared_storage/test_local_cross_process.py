@@ -17,9 +17,9 @@ from dash._shared_storage import LocalSharedStorage
 CTX = mp.get_context("spawn")
 
 
-def _owner_main(namespace, cmd_q, done_q, ready_ev):
+def _owner_main(namespace, cmd_q, done_q, ready_ev, mode="memory", path=None):
     """A controllable owner: wins election, then runs commands on demand."""
-    store = LocalSharedStorage(namespace=namespace)
+    store = LocalSharedStorage(namespace=namespace, mode=mode, path=path)
     store.start()
     if not store._coord.is_owner():  # pragma: no cover - defensive
         done_q.put(("error", "child did not win election"))
@@ -41,13 +41,13 @@ def _owner_main(namespace, cmd_q, done_q, ready_ev):
 class _Owner:
     """Test helper: spawn a controllable owner and drive it synchronously."""
 
-    def __init__(self, namespace):
+    def __init__(self, namespace, mode="memory", path=None):
         self.cmd_q = CTX.Queue()
         self.done_q = CTX.Queue()
         self.ready = CTX.Event()
         self.proc = CTX.Process(
             target=_owner_main,
-            args=(namespace, self.cmd_q, self.done_q, self.ready),
+            args=(namespace, self.cmd_q, self.done_q, self.ready, mode, path),
             daemon=True,
         )
 
@@ -174,6 +174,33 @@ def test_reelection_after_owner_killed(owner):
     assert client.get("after") == "fresh"
     assert client._coord.is_owner()  # we are the new owner
     client.close()
+
+
+def test_reelection_recovers_persisted_data(tmp_path):
+    """With mode='persist', a re-elected owner recovers the killed owner's data
+    from disk instead of coming up cold."""
+    ns = f"xproc-{uuid.uuid4().hex[:12]}"
+    path = str(tmp_path / "store")
+    o = _Owner(ns, mode="persist", path=path)
+    o.start()
+    try:
+        client = LocalSharedStorage(namespace=ns, mode="persist", path=path)
+        client.start()
+        assert not client._coord.is_owner()
+
+        o.do("set", "durable", {"n": 7})
+        assert client.get("durable") == {"n": 7}
+
+        # Kill the owner without a clean shutdown; write-through already flushed.
+        o.proc.terminate()
+        o.proc.join(timeout=10)
+
+        # The survivor re-elects and recovers the persisted value from disk.
+        assert client.get("durable") == {"n": 7}
+        assert client._coord.is_owner()
+        client.close()
+    finally:
+        o.stop()
 
 
 def _wait_until(pred, timeout):
