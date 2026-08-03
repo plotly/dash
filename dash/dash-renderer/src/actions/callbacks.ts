@@ -14,8 +14,6 @@ import {
     assocPath
 } from 'ramda';
 
-import {gzipSync} from 'fflate';
-
 import {STATUS, JWT_EXPIRED_MESSAGE} from '../constants/constants';
 import {MAX_AUTH_RETRIES} from './constants';
 import {
@@ -491,7 +489,7 @@ function handleServerside(
         runningOff = running.runningOff;
     }
 
-    const fetchCallback = () => {
+    const fetchCallback = async () => {
         const headers = getCSRFHeader(config) as any;
         let url = `${urlBase(config)}_dash-update-component`;
         let newBody = body;
@@ -537,7 +535,10 @@ function handleServerside(
             newBody.length > compressThreshold
         ) {
             try {
-                fetchBody = gzipSync(new TextEncoder().encode(newBody));
+                const stream = new Blob([newBody])
+                    .stream()
+                    .pipeThrough(new CompressionStream('gzip'));
+                fetchBody = await new Response(stream).blob();
                 headers['Content-Encoding'] = 'gzip';
             } catch (error) {
                 // Fall through to send uncompressed
