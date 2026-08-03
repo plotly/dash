@@ -1,6 +1,5 @@
 import inspect
 import json
-import logging
 import traceback
 from contextvars import copy_context
 import asyncio
@@ -13,12 +12,6 @@ from dash._utils import AttributeDict
 from dash.exceptions import PreventUpdate
 from dash.background_callback._proxy_set_props import ProxySetProps
 from dash.background_callback.managers import BaseBackgroundCallbackManager
-
-logging.basicConfig(
-    encoding="utf-8", level=logging.DEBUG, format="%(levelname)s:%(name)s:%(message)s"
-)
-logging.getLogger("selenium.webdriver.remote.remote_connection").setLevel(logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class CeleryManager(BaseBackgroundCallbackManager):
@@ -72,7 +65,6 @@ CeleryManager requires extra dependencies which can be installed doing
     def terminate_unhealthy_job(self, job):
         task = self.get_task(job)
         if task and task.status in ("FAILURE", "REVOKED"):
-            logger.info("Terminating unhealthy job %s with status %s", job, task.status)
             return self.terminate_job(job)
         return False
 
@@ -102,7 +94,6 @@ CeleryManager requires extra dependencies which can be installed doing
         return str(o).encode()
 
     def clear_cache_entry(self, key):
-        logger.info("Clearing cache entry for %s", key)
         # delete should not be called when the entry is not present
         value = self.handle.backend.get(self._ensure_bytes(key))
         if value is not None:
@@ -127,7 +118,6 @@ CeleryManager requires extra dependencies which can be installed doing
 
     def get_progress(self, key):
         progress_key = self._ensure_bytes(self._make_progress_key(key))
-        logger.info("Getting progress for %s", progress_key)
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
             self.clear_cache_entry(progress_key)
@@ -137,14 +127,12 @@ CeleryManager requires extra dependencies which can be installed doing
 
     def result_ready(self, key):
         result_key = self._ensure_bytes(key)
-        logger.info("Getting result for %s", result_key)
         return self.handle.backend.get(result_key) is not None
 
     def get_result(self, key, job):
         result_key = self._ensure_bytes(key)
         progress_key = self._ensure_bytes(self._make_progress_key(key))
         # Get result value
-        logger.info("Getting result for %s", key)
         result = self.handle.backend.get(result_key)
         if result is None:
             return self.UNDEFINED
@@ -165,7 +153,6 @@ CeleryManager requires extra dependencies which can be installed doing
 
     def get_updated_props(self, key):
         set_props_key = self._ensure_bytes(self._make_set_props_key(key))
-        logger.info("Getting updated props for %s", set_props_key)
         updated_props = self.handle.backend.get(set_props_key)
         if updated_props is None:
             return {}
@@ -186,13 +173,11 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
-            logger.info("Setting progress for %s to %s", progress_key, progress_value)
             cache.set(progress_key, json.dumps(progress_value, cls=PlotlyJSONEncoder))
 
         maybe_progress = [_set_progress] if progress else []
 
         def _set_props(_id, props):
-            logger.info("Setting updated props for %s to %s", set_props_key, props)
             cache.set(
                 set_props_key,
                 json.dumps({_id: props}, cls=PlotlyJSONEncoder),
@@ -201,7 +186,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
         ctx = copy_context()
 
         def run():
-            logger.info("Running callback for %s", result_key)
             c = AttributeDict(**context)  # type: ignore[reportCallIssue]
             c.ignore_register_page = False
             c.updated_props = ProxySetProps(_set_props)
@@ -218,7 +202,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
                 errored = True
-                logger.info("Callback prevented update for %s", result_key)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -226,7 +209,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                     ),
                 )
             except Exception as err:  # pylint: disable=broad-except
-                logger.info("Callback failed with error: %s", err)
                 errored = True
                 cache.set(
                     result_key,
@@ -241,9 +223,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 )
 
             if not errored:
-                logger.info(
-                    "Setting result for %s to %s", result_key, user_callback_output
-                )
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )
@@ -269,7 +248,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
             except PreventUpdate:
                 # Put NoUpdate dict directly to avoid circular imports.
                 errored = True
-                logger.info("Callback prevented update for %s", result_key)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -278,7 +256,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 )
             except Exception as err:  # pylint: disable=broad-except
                 errored = True
-                logger.info("Callback failed with error: %s", err)
                 cache.set(
                     result_key,
                     json.dumps(
@@ -295,9 +272,6 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
                 if asyncio.iscoroutine(user_callback_output):
                     user_callback_output = await user_callback_output
 
-                logger.info(
-                    "Setting result for %s to %s", result_key, user_callback_output
-                )
                 cache.set(
                     result_key, json.dumps(user_callback_output, cls=PlotlyJSONEncoder)
                 )

@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 import shutil
@@ -117,8 +116,7 @@ def setup_background_callback_app(manager_name, app_name):
             if cache_keys:
                 redis_conn.delete(*cache_keys)
         elif manager_name == "celery-filesystem":
-            # celery_filesystem_directory = tempfile.mkdtemp(prefix="lc-celery-")
-            celery_filesystem_directory = "/tmp/lc-celery-broker-filesystem"
+            celery_filesystem_directory = tempfile.mkdtemp(prefix="lc-celery-")
             os.environ["CELERY_BROKER"] = "filesystem://"
             os.environ["CELERY_BROKER_FILESYSTEM_DIRECTORY"] = (
                 celery_filesystem_directory
@@ -139,25 +137,22 @@ def setup_background_callback_app(manager_name, app_name):
                 "--concurrency",
                 "2",
                 "--loglevel=info",
-                "--logfile=/tmp/lc-celery-broker-filesystem/celery_worker_%i.log",
             ],
             encoding="utf8",
             preexec_fn=os.setpgrp,
-            # stderr=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
-        logging.debug(f"Started celery worker with PID {worker.pid}")
         # Wait for the worker to be ready, if you cancel before it is ready, the job
         # will still be queued.
-        time.sleep(5)
-        # lines = []
-        # for line in iter(worker.stderr.readline, ""):
-        #     if "ready" in line:
-        #         break
-        #     lines.append(line)
-        # else:
-        #     error = "\n".join(lines)
-        #     error += f"\nPath: {sys.path}"
-        #     raise RuntimeError(f"celery failed to start: {error}")
+        lines = []
+        for line in iter(worker.stderr.readline, ""):
+            if "ready" in line:
+                break
+            lines.append(line)
+        else:
+            error = "\n".join(lines)
+            error += f"\nPath: {sys.path}"
+            raise RuntimeError(f"celery failed to start: {error}")
 
         try:
             yield import_app(f"tests.background_callback.{app_name}")
