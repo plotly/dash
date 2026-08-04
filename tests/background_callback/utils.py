@@ -44,6 +44,7 @@ def get_background_callback_manager():
             __name__,
             broker=os.environ.get("CELERY_BROKER"),
             backend=os.environ.get("CELERY_BACKEND"),
+            broker_connection_retry_on_startup=True,
         )
         background_callback_manager = CeleryManager(celery_app)
         redis_conn = redis.Redis(host="localhost", port=6379, db=1)
@@ -118,9 +119,9 @@ def setup_background_callback_app(manager_name, app_name):
         elif manager_name == "celery-filesystem":
             celery_filesystem_directory = tempfile.mkdtemp(prefix="lc-celery-")
             os.environ["CELERY_BROKER"] = "filesystem://"
-            os.environ["CELERY_BROKER_FILESYSTEM_DIRECTORY"] = (
-                celery_filesystem_directory
-            )
+            os.environ[
+                "CELERY_BROKER_FILESYSTEM_DIRECTORY"
+            ] = celery_filesystem_directory
             print(f"{celery_filesystem_directory=}")
             os.environ["CELERY_BACKEND"] = f"file://{celery_filesystem_directory}"
 
