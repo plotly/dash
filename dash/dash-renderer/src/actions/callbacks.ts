@@ -252,6 +252,43 @@ function patchedResultFields(patchedOutputs: PatchedOutputs) {
     return keys(patchedOutputs).length ? {patchedOutputs} : {};
 }
 
+// When the Layout may have changed, run each output through parsePatchProps against
+// the current layout, recording a PatchAnalysis for each output that
+// returned a Patch. Shared by the clientside and serverside result paths
+function applyPatchedOutputs(
+    outputs: any,
+    paths: any,
+    currentLayout: any,
+    data: any
+) {
+    const patchedOutputs: PatchedOutputs = {};
+    flatten(outputs).forEach((out: any) => {
+        const propName = cleanOutputProp(out.property);
+        const outputPath = getPath(paths, out.id);
+        const idStr = stringifyId(out.id);
+        const dataPath = [idStr, propName];
+        const outputValue = path(dataPath, data);
+        if (outputValue === undefined) {
+            return;
+        }
+        if (isPatch(outputValue)) {
+            // One analysis per output, shared by all of its
+            // patched props
+            patchedOutputs[idStr] =
+                patchedOutputs[idStr] || createPatchAnalysis();
+        }
+        const oldProps =
+            path(outputPath.concat(['props']), currentLayout) || {};
+        const newProps = parsePatchProps(
+            {[propName]: outputValue},
+            oldProps,
+            patchedOutputs[idStr]
+        );
+        data = assocPath(dataPath, newProps[propName], data);
+    });
+    return {data, patchedOutputs};
+}
+
 async function handleClientside(
     dispatch: any,
     clientside_function: any,
@@ -968,49 +1005,23 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        let data = await handleClientside(
+                        const data = await handleClientside(
                             dispatch,
                             clientside_function,
                             config,
                             payload
                         );
-                        // Patch methodology: always run through parsePatchProps for each output
-                        const currentLayout = getState().layout;
-                        const patchedOutputs: PatchedOutputs = {};
-                        flatten(outputs).forEach((out: any) => {
-                            const propName = cleanOutputProp(out.property);
-                            const outputPath = getPath(paths, out.id);
-                            const idStr = stringifyId(out.id);
-                            const dataPath = [idStr, propName];
-                            const outputValue = path(dataPath, data);
-                            if (outputValue === undefined) {
-                                return;
-                            }
-                            if (isPatch(outputValue)) {
-                                // One analysis per output, shared by all of its
-                                // patched props
-                                patchedOutputs[idStr] =
-                                    patchedOutputs[idStr] ||
-                                    createPatchAnalysis();
-                            }
-                            const oldProps =
-                                path(
-                                    outputPath.concat(['props']),
-                                    currentLayout
-                                ) || {};
-                            const newProps = parsePatchProps(
-                                {[propName]: outputValue},
-                                oldProps,
-                                patchedOutputs[idStr]
-                            );
-                            data = assocPath(
-                                dataPath,
-                                newProps[propName],
+                        // Layout may have changed
+                        //  Run every output through parsePatchProps against the current layout
+                        const {data: patchedData, patchedOutputs} =
+                            applyPatchedOutputs(
+                                outputs,
+                                paths,
+                                getState().layout,
                                 data
                             );
-                        });
                         return {
-                            data,
+                            data: patchedData,
                             payload,
                             ...patchedResultFields(patchedOutputs)
                         };
@@ -1097,42 +1108,14 @@ export function executeCallback(
                             dispatch(addHttpHeaders(newHeaders));
                         }
                         // Layout may have changed.
-                        // DRY: Always run through parsePatchProps for each output
-                        const currentLayout = getState().layout;
-                        const patchedOutputs: PatchedOutputs = {};
-                        flatten(outputs).forEach((out: any) => {
-                            const propName = cleanOutputProp(out.property);
-                            const outputPath = getPath(paths, out.id);
-                            const idStr = stringifyId(out.id);
-                            const dataPath = [idStr, propName];
-                            const outputValue = path(dataPath, data);
-                            if (outputValue === undefined) {
-                                return;
-                            }
-                            if (isPatch(outputValue)) {
-                                // One analysis per output, shared by all of its
-                                // patched props
-                                patchedOutputs[idStr] =
-                                    patchedOutputs[idStr] ||
-                                    createPatchAnalysis();
-                            }
-                            const oldProps =
-                                path(
-                                    outputPath.concat(['props']),
-                                    currentLayout
-                                ) || {};
-                            const newProps = parsePatchProps(
-                                {[propName]: outputValue},
-                                oldProps,
-                                patchedOutputs[idStr]
-                            );
-
-                            data = assocPath(
-                                dataPath,
-                                newProps[propName],
+                        // Run parsePatchProps against the current layout
+                        const {data: patchedData, patchedOutputs} =
+                            applyPatchedOutputs(
+                                outputs,
+                                paths,
+                                getState().layout,
                                 data
                             );
-                        });
 
                         if (dynamic_creator) {
                             setTimeout(
@@ -1142,7 +1125,7 @@ export function executeCallback(
                         }
 
                         return {
-                            data,
+                            data: patchedData,
                             payload,
                             ...patchedResultFields(patchedOutputs)
                         };
