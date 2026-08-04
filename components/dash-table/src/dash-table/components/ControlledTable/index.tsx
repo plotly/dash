@@ -180,7 +180,21 @@ export default class ControlledTable extends PureComponent<ControlledTableProps>
         document.removeEventListener('copy', this.handleCopy);
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps: ControlledTableProps) {
+        const {currentTooltip, data, setState, tooltip_data} = this.props;
+
+        // Row indices captured in currentTooltip (set on hover/move) are only
+        // valid for the data snapshot they were captured against. If rows are
+        // added/removed/reordered, those indices point at different rows now,
+        // so the tooltip would show stale position/content for a row that may
+        // no longer even be the one the user is hovering (dash#1848).
+        if (
+            currentTooltip &&
+            (data !== prevProps.data || tooltip_data !== prevProps.tooltip_data)
+        ) {
+            setState({currentTooltip: undefined});
+        }
+
         this.updateStylesheet();
         this.updateUiViewport();
 
