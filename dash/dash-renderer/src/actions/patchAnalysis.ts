@@ -46,7 +46,7 @@ export function analysisForProp(
     analysis: PatchAnalysis | undefined,
     property: string
 ): PatchAnalysis | undefined {
-    return analysis && analysis.patchedProps[property] ? analysis : undefined;
+    return analysis?.patchedProps[property] ? analysis : undefined;
 }
 
 /*

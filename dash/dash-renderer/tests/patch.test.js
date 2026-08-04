@@ -36,7 +36,7 @@ describe('patch analysis, what a Patch changed', () => {
             analysis
         );
 
-        expect(result.length).to.equal(2);
+        expect(result).to.have.lengthOf(2);
         expect(analysis.freshIds).to.deep.equal({added: true});
         expect(isCarriedOverByPatch(analysis, 'added')).to.equal(false);
         expect(isCarriedOverByPatch(analysis, 'kept')).to.equal(true);
@@ -60,7 +60,7 @@ describe('patch analysis, what a Patch changed', () => {
             analysis
         );
 
-        expect(result.length).to.equal(1);
+        expect(result).to.have.lengthOf(1);
         expect(analysis.freshIds).to.deep.equal({reused: true});
         expect(isCarriedOverByPatch(analysis, 'reused')).to.equal(false);
         expect(isUntouchedByPatch(analysis, 'reused')).to.equal(false);
@@ -169,7 +169,7 @@ describe('patch analysis, what a Patch changed', () => {
             analysis
         );
 
-        expect(props.children.length).to.equal(2);
+        expect(props.children).to.have.lengthOf(2);
         expect(analysis.patchedProps).to.deep.equal({children: true});
         expect(analysisForProp(analysis, 'children')).to.equal(analysis);
         expect(analysisForProp(analysis, 'style')).to.equal(undefined);
