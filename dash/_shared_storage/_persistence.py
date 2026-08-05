@@ -179,8 +179,8 @@ class ChunkedStore:
                     new_keys = True
                 self._chunks[chunk_num][key] = [value, expire_at]
                 touched.add(chunk_num)
-            for chunk_num in touched:
-                self._write_chunk(chunk_num)
+            for touched_chunk in touched:
+                self._write_chunk(touched_chunk)
             if new_keys:
                 self._write_index()
 
