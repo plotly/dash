@@ -107,8 +107,9 @@ class ChunkedStore:
         try:
             with open(path, "rb") as f:
                 return _codec.decode(f.read())
-        except (OSError, ValueError):
-            # OSError -> missing/unreadable; ValueError -> msgspec DecodeError.
+        except (OSError, ValueError, _codec.DecodeError):
+            # OSError -> missing/unreadable; DecodeError -> corrupt msgpack
+            # (caught by name since it does not subclass ValueError everywhere).
             return None
 
     def _write_chunk(self, chunk_num: int) -> None:

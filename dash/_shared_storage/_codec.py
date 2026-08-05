@@ -11,6 +11,10 @@ from typing import Any
 
 import msgspec
 
+# msgspec raises this on malformed input. It subclasses ``ValueError`` in
+# current msgspec but not in every version, so callers should catch it by name.
+DecodeError = msgspec.DecodeError
+
 _encoder = msgspec.msgpack.Encoder()
 _decoder = msgspec.msgpack.Decoder()
 
