@@ -2605,6 +2605,14 @@ class Dash(ObsoleteChecker):
                     extra_files.append(path)
 
         if jupyter_dash.active:
+            if jupyter_server_url is None and proxy:
+                # The app is served on host:port but reached through the proxy,
+                # so the notebook must display the proxied url.
+                proxied_url = urlparse(proxy.split("::")[1])
+                jupyter_server_url = (
+                    f"{proxied_url.scheme}://{proxied_url.hostname}"
+                    + (f":{proxied_url.port}" if proxied_url.port else "")
+                )
             jupyter_dash.run_app(
                 self,
                 mode=jupyter_mode,
