@@ -28,6 +28,14 @@ from dash.testing import wait
 logger = logging.getLogger(__name__)
 
 
+def _run_app(app, options):
+    server_type = getattr(getattr(app, "backend", None), "server_type", "flask")
+    if server_type in ("fastapi", "quart"):
+        app.run(**options)
+    else:
+        app.run(threaded=True, **options)
+
+
 def import_app(app_file, application_name="app"):
     """Import a dash application from a module. The import path is in dot
     notation to the module. The variable named app will be returned.
@@ -173,16 +181,7 @@ class ThreadedRunner(BaseDashRunner):
                 self.port = options["port"]
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
             except Exception as error:
@@ -264,16 +263,7 @@ class MultiProcessRunner(BaseDashRunner):
             options = kwargs.copy()
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
                 raise
