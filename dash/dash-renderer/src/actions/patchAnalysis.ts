@@ -93,3 +93,21 @@ export function isUntouchedByPatch(
     }
     return !analysis.freshIds[idStr] && !analysis.writtenProps[idStr];
 }
+
+/*
+ * Did the patch write directly on this prop of a component it did not
+ * recreate? This can be true for a component whose own initial call stays
+ * suppressed by `isCarriedOverByPatch`, it's not fresh, even though one of
+ * its props changed, callbacks that depend on that prop as an Input
+ * still need to run
+ */
+export function wasWrittenByPatch(
+    analysis: PatchAnalysis | undefined,
+    idStr: string | undefined | null,
+    property: string
+): boolean {
+    if (!analysis || !idStr) {
+        return false;
+    }
+    return Boolean(analysis.writtenProps[idStr]?.[property]);
+}
