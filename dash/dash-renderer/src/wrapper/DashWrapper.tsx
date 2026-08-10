@@ -88,6 +88,7 @@ function DashWrapper({
     const newRender = useRef(false);
     const freshRenders = useRef(0);
     const renderedIdentity: MutableRefObject<string | null> = useRef(null);
+    const hasFreshRendered = useRef(false);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
     let renderComponent: any = null;
     let renderComponentProps: any = null;
@@ -475,11 +476,21 @@ function DashWrapper({
 
     useEffect(() => {
         if (_newRender) {
-            dispatch(
-                resetComponentState({
-                    itempath: componentPath
-                })
-            );
+            // Don't reset descendant layout hashes on the component's very
+            // first fresh render: components that set their initial state on
+            // mount (eg. dbc Tabs picking the default active tab) would have
+            // that state wiped before it takes effect. Stale descendant
+            // hashes are only a concern once the subtree has rendered at
+            // least once, so reset from the second fresh render onward.
+            // (#3929, keeps #3330 fixed.)
+            if (hasFreshRendered.current) {
+                dispatch(
+                    resetComponentState({
+                        itempath: componentPath
+                    })
+                );
+            }
+            hasFreshRendered.current = true;
         }
     }, [_newRender]);
 
