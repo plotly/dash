@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
 - [#3922](https://github.com/plotly/dash/pull/3922) Fix `dcc.Input(type="number")` stepper behavior when only `min` is set.
 - [#3925](https://github.com/plotly/dash/pull/3925) Use the proxied url as the Jupyter server url so `DASH_PROXY` is honored by the external url and inline iframe in notebooks.
+- [#3938](https://github.com/plotly/dash/pull/3938) Fix `dcc.Patch()` re-running the initial callbacks of components that were already on the page, including every matching (`MATCH`/`ALL`) element, and wiping their user-edited persisted values. Fixes [#3681](https://github.com/plotly/dash/issues/3681) and [#3937](https://github.com/plotly/dash/issues/3937)
 
 ## [4.4.1] - 2026-07-21
 

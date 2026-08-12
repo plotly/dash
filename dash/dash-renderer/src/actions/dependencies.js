@@ -37,6 +37,7 @@ import {
     resolveDeps
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
+import {isCarriedOverByPatch, wasWrittenByPatch} from './patchAnalysis';
 
 import {crawlLayout} from './utils';
 
@@ -1262,13 +1263,26 @@ export function getWatchedKeys(id, newProps, graphs) {
  * opts.chunkPath: path to the new chunk - used to determine if any outputs are
  *   outside of this chunk, because this determines whether inputs inside the
  *   chunk count as having changed
+ * opts.patchAnalysis: what the `Patch()` operations that produced this chunk
+ *   changed. Only the components the patch created get their initial call
+ *   It also allows an input the patch wrote directly to bypass the chunkPath
+ *   dedup, when that input's own component was carried over (so
+ *   its own initial call stays suppressed) but downstream callbacks still
+ *   need to see the new value
+ *   Absent when the chunk is not the result of a patch
  *
  * Returns an array of objects:
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
 export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
+    const {
+        outputsOnly,
+        removedArrayInputsOnly,
+        newPaths,
+        chunkPath,
+        patchAnalysis
+    } = opts;
     const foundCbIds = {};
     const callbacks = [];
 
@@ -1316,6 +1330,18 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
 
     function handleOneId(id, outIdCallbacks, inIdCallbacks) {
         if (outIdCallbacks) {
+            // Suppress the initial call for components a Patch carried over
+            // The patch itself tells us which components it created, including
+            // components rebuilt with an id that was already in use,
+            // whose initial callbacks must run again even if their new defaults
+            // happen to match the values of the instance they replaced.
+            // It excludes the containers between the patched prop and the value
+            // that changed: ramda's assocPath has to rebuild those, but the
+            // patch did not create them, so they keep their initial call
+            // suppressed
+            const isCarryOver = patchAnalysis
+                ? isCarriedOverByPatch(patchAnalysis, stringifyId(id))
+                : false;
             for (const property in outIdCallbacks) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
                 if (cb) {
@@ -1323,7 +1349,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                     // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    if (!cb.callback.prevent_initial_call) {
+                    if (!cb.callback.prevent_initial_call && !isCarryOver) {
                         cb.initialCall = true;
                         addCallback(cb);
                     }
@@ -1331,23 +1357,36 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             }
         }
         if (!outputsOnly && inIdCallbacks) {
+            const idStr = stringifyId(id);
             const maybeAddCallback = removedArrayInputsOnly
-                ? addCallbackIfArray(stringifyId(id))
+                ? addCallbackIfArray(idStr)
                 : addCallback;
-            let handleThisCallback = maybeAddCallback;
-            if (chunkPath) {
-                handleThisCallback = cb => {
-                    if (
-                        !all(
-                            startsWith(chunkPath),
-                            pluck('path', flatten(cb.getOutputs(paths)))
-                        )
-                    ) {
-                        maybeAddCallback(cb);
-                    }
-                };
-            }
             for (const property in inIdCallbacks) {
+                // A callback, whose outputs are all inside the chunk, is
+                // normally dropped here on the assumption that the
+                // output handling above already covers it
+                // That assumption fails when the patch
+                // wrote a new value directly on this input without
+                // recreating the input's own component
+                // The output side stays suppressed because the output
+                // component was carried over, but this input's value
+                // genuinely changed, so the callback must still be added
+                let handleThisCallback = maybeAddCallback;
+                if (
+                    chunkPath &&
+                    !wasWrittenByPatch(patchAnalysis, idStr, property)
+                ) {
+                    handleThisCallback = cb => {
+                        if (
+                            !all(
+                                startsWith(chunkPath),
+                                pluck('path', flatten(cb.getOutputs(paths)))
+                            )
+                        ) {
+                            maybeAddCallback(cb);
+                        }
+                    };
+                }
                 getCallbacksByInput(
                     graphs,
                     paths,

@@ -1,6 +1,10 @@
 import {expect} from 'chai';
 import {beforeEach, describe, it} from 'mocha';
-import {computeGraphs, getAnyVals} from '../src/actions/dependencies';
+import {
+    computeGraphs,
+    getAnyVals,
+    getUnfilteredLayoutCallbacks
+} from '../src/actions/dependencies';
 import {getCallbacksByInput} from '../src/actions/dependencies_ts';
 import {EventEmitter} from '../src/actions/utils';
 
@@ -232,5 +236,100 @@ describe('dependencies — MATCH trigger resolvedId (#2462)', () => {
         expect(first[0].resolvedId).to.not.equal(second[0].resolvedId);
         expect(first[0].resolvedId).to.include('btn-1');
         expect(second[0].resolvedId).to.include('btn-2');
+    });
+});
+
+describe('dependencies: getUnfilteredLayoutCallbacks with a Patch (#3938)', () => {
+    // Create a layout with two elements
+    //      num: Input which patch writes to `value` directly
+    //      badge: Output which `children` are written to, but unchanged by the patch
+
+    // A callback listens to Input(num.value) and writes Output(badge.children)
+    // Both the input and the output live inside the same patched chunk
+    function makeGraphsAndPaths() {
+        const errors = [];
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'badge.children',
+                    inputs: [{id: 'num', property: 'value'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            (m, l) => errors.push({m, l}),
+            config
+        );
+        expect(errors).to.eql([]);
+        const paths = makePaths(['container', 'num', 'badge']);
+        const layoutChunk = {
+            props: {
+                id: 'container',
+                children: [
+                    {props: {id: 'num', value: 100}},
+                    {props: {id: 'badge', children: 'badge: stale'}}
+                ]
+            }
+        };
+        return {graphs, paths, layoutChunk};
+    }
+
+    it('keeps a callback alive when the patch wrote its Input directly, even though its Output was carried over', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {},
+            writtenProps: {num: {value: true}}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(1);
+        expect(callbacks[0].resolvedId).to.equal('badge.children');
+    });
+
+    it('still drops a carried over callback when neither its Input nor Output was touched by the patch', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {},
+            writtenProps: {}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(0);
+    });
+
+    it('still runs the callback via its Output when the Output component is fresh', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {badge: true},
+            writtenProps: {}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(1);
+        expect(callbacks[0].resolvedId).to.equal('badge.children');
     });
 });
