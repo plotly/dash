@@ -27,8 +27,9 @@ class TestDecompressPayload:
     def test_decompressed_payload_exceeds_size_limit(self):
         payload = {"value": "x" * 1_000}
 
+        large_compressed_payload = _gzip(payload)
         with pytest.raises(ValueError):
-            decompress_payload(_gzip(payload), max_size=100)
+            decompress_payload(large_compressed_payload, max_size=100)
 
     @pytest.mark.parametrize(
         "bad_data",
