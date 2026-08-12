@@ -585,9 +585,9 @@ class QuartDashServer(BaseDashServer[Quart]):
             )
             # Track pending callbacks: concurrent.futures.Future (sync/threadpool)
             # or asyncio.Task (async/event-loop).
-            pending_callbacks: Dict[str, concurrent.futures.Future | asyncio.Future] = (
-                {}
-            )
+            pending_callbacks: Dict[
+                str, concurrent.futures.Future | asyncio.Future
+            ] = {}
 
             # Start sender task to drain outbound queue (sends pre-serialized text)
             # pylint: disable=protected-access
