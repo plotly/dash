@@ -214,7 +214,9 @@ describe('patch analysis, pure tail-append detection (perf fast-path gate)', () 
                 children: patch({
                     operation: 'Extend',
                     location: [],
-                    params: {value: [component('a'), component('b'), component('c')]}
+                    params: {
+                        value: [component('a'), component('b'), component('c')]
+                    }
                 })
             },
             {children: [component('kept')]},
@@ -228,8 +230,16 @@ describe('patch analysis, pure tail-append detection (perf fast-path gate)', () 
         parsePatchProps(
             {
                 children: patch(
-                    {operation: 'Append', location: [], params: {value: component('a')}},
-                    {operation: 'Append', location: [], params: {value: component('b')}}
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('b')}
+                    }
                 )
             },
             {children: [component('kept')]},
@@ -243,8 +253,16 @@ describe('patch analysis, pure tail-append detection (perf fast-path gate)', () 
         parsePatchProps(
             {
                 children: patch(
-                    {operation: 'Append', location: [], params: {value: component('a')}},
-                    {operation: 'Prepend', location: [], params: {value: component('z')}}
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Prepend',
+                        location: [],
+                        params: {value: component('z')}
+                    }
                 )
             },
             {children: [component('kept')]},
@@ -259,8 +277,16 @@ describe('patch analysis, pure tail-append detection (perf fast-path gate)', () 
         parsePatchProps(
             {
                 children: patch(
-                    {operation: 'Append', location: [], params: {value: component('a')}},
-                    {operation: 'Insert', location: [], params: {index: 0, value: component('z')}}
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Insert',
+                        location: [],
+                        params: {index: 0, value: component('z')}
+                    }
                 )
             },
             {children: [component('kept')]},
@@ -274,7 +300,11 @@ describe('patch analysis, pure tail-append detection (perf fast-path gate)', () 
         parsePatchProps(
             {
                 children: patch(
-                    {operation: 'Append', location: [], params: {value: component('a')}},
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
                     {operation: 'Delete', location: [0], params: {}}
                 )
             },

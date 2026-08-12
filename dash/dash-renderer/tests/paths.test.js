@@ -66,9 +66,7 @@ describe('appendPaths — O(appended) path table update', () => {
 
     it('computes paths for nested children of appended items', () => {
         const before = [component('a')];
-        const added = [
-            component('parent', {children: [component('child')]})
-        ];
+        const added = [component('parent', {children: [component('child')]})];
         const reference = fullPaths([...before, ...added]);
         const incremental = appendPaths(
             added,
@@ -128,12 +126,10 @@ describe('appendPaths — O(appended) path table update', () => {
     it('preserves the events emitter from the old paths', () => {
         const start = fullPaths([component('a')]);
         const events = {emit: () => undefined};
-        const result = appendPaths(
-            [component('b')],
-            CHILDREN_PATH,
-            1,
-            {...start, events}
-        );
+        const result = appendPaths([component('b')], CHILDREN_PATH, 1, {
+            ...start,
+            events
+        });
         expect(result.events).to.equal(events);
     });
 });

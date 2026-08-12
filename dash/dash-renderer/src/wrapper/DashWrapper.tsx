@@ -96,8 +96,9 @@ function DashWrapper({
     // pre-existing item in a list a Patch only appended to), so they can
     // keep reconciling in place instead of being forced to re-hydrate their
     // whole subtree just because a sibling was added.
-    const prevChildrenArrays: MutableRefObject<{[key: string]: any[]}> =
-        useRef({});
+    const prevChildrenArrays: MutableRefObject<{[key: string]: any[]}> = useRef(
+        {}
+    );
     let renderComponent: any = null;
     let renderComponentProps: any = null;
     let renderH: any = null;
@@ -245,8 +246,7 @@ function DashWrapper({
                         // analysis might miss - so it doesn't need to be
                         // forced into a fresh hydrate just because this
                         // array as a whole did (eg. a sibling got added).
-                        const unchanged =
-                            allowRefSkip && prevArray?.[i] === n;
+                        const unchanged = allowRefSkip && prevArray?.[i] === n;
                         return createContainer(
                             n,
                             concat(componentPath, [
