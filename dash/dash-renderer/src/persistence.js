@@ -70,6 +70,7 @@ import {createAction} from 'redux-actions';
 
 import Registry from './registry';
 import {stringifyId} from './actions/dependencies';
+import {isUntouchedByPatch} from './actions/patchAnalysis';
 import {isDryComponent} from './wrapper/wrapping';
 
 export const storePrefix = '_dash_persistence.';
@@ -360,14 +361,19 @@ export function recordUiEdit(layout, newProps, dispatch) {
 /*
  * Used for entire layouts (on load) or partial layouts (from children
  * callbacks) to apply previously-stored UI edits to components
+ *
+ * `patchAnalysis` (optional) describes what the `Patch()` that produced this
+ * layout changed
  */
-export function applyPersistence(layout, dispatch) {
+export function applyPersistence(layout, dispatch, patchAnalysis) {
     if (Array.isArray(layout)) {
         return layout.map(lay =>
-            isDryComponent(lay) ? persistenceMods(lay, lay, [], dispatch) : lay
+            isDryComponent(lay)
+                ? persistenceMods(lay, lay, [], dispatch, patchAnalysis)
+                : lay
         );
     }
-    return persistenceMods(layout, layout, [], dispatch);
+    return persistenceMods(layout, layout, [], dispatch, patchAnalysis);
 }
 
 const UNDO = true;
@@ -392,7 +398,7 @@ function modProp(key, storage, element, props, persistedProp, update, undo) {
     }
 }
 
-function persistenceMods(layout, component, path, dispatch) {
+function persistenceMods(layout, component, treePath, dispatch, patchAnalysis) {
     const {
         canPersist,
         id,
@@ -404,7 +410,18 @@ function persistenceMods(layout, component, path, dispatch) {
     } = getProps(component);
 
     let layoutOut = layout;
-    if (canPersist && persistence) {
+
+    // Skip the components a Patch carried over from the previous layout
+    // untouched. The patch itself tells us which
+    // components it created and which props it wrote
+    // Note that a component rebuilt with an id that was already in use is
+    // not carried over. It comes with the server's default value, so its
+    // persisted edit must be restored
+    const carriedOver = patchAnalysis
+        ? isUntouchedByPatch(patchAnalysis, id && stringifyId(id))
+        : false;
+
+    if (canPersist && persistence && !carriedOver) {
         const storage = getStore(persistence_type, dispatch);
         const update = {};
         forEach(
@@ -422,7 +439,7 @@ function persistenceMods(layout, component, path, dispatch) {
 
         for (const propName in update) {
             layoutOut = set(
-                lensPath(path.concat('props', propName)),
+                lensPath(treePath.concat('props', propName)),
                 update[propName],
                 layoutOut
             );
@@ -437,8 +454,9 @@ function persistenceMods(layout, component, path, dispatch) {
                 layoutOut = persistenceMods(
                     layoutOut,
                     child,
-                    path.concat('props', 'children', i),
-                    dispatch
+                    treePath.concat('props', 'children', i),
+                    dispatch,
+                    patchAnalysis
                 );
             }
         });
@@ -446,8 +464,9 @@ function persistenceMods(layout, component, path, dispatch) {
         layoutOut = persistenceMods(
             layoutOut,
             children,
-            path.concat('props', 'children'),
-            dispatch
+            treePath.concat('props', 'children'),
+            dispatch,
+            patchAnalysis
         );
     }
     return layoutOut;
