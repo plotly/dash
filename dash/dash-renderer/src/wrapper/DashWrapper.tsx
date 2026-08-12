@@ -90,6 +90,14 @@ function DashWrapper({
     const renderedIdentity: MutableRefObject<string | null> = useRef(null);
     const hasFreshRendered = useRef(false);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
+    // Previous array value of each children-like prop this component
+    // hydrated, keyed by childrenPath. Lets wrapChildrenProp recognize
+    // items that are the exact same object as last time (eg. every
+    // pre-existing item in a list a Patch only appended to), so they can
+    // keep reconciling in place instead of being forced to re-hydrate their
+    // whole subtree just because a sibling was added.
+    const prevChildrenArrays: MutableRefObject<{[key: string]: any[]}> =
+        useRef({});
     let renderComponent: any = null;
     let renderComponentProps: any = null;
     let renderH: any = null;
@@ -218,10 +226,27 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenPath: DashLayoutPath, _childNewRender: any) => {
+        (
+            node: any,
+            childrenPath: DashLayoutPath,
+            _childNewRender: any,
+            allowRefSkip = false
+        ) => {
             if (Array.isArray(node)) {
+                const pathKey = stringifyPath(childrenPath);
+                const prevArray = allowRefSkip
+                    ? prevChildrenArrays.current[pathKey]
+                    : undefined;
+                prevChildrenArrays.current[pathKey] = node;
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
+                        // An item that's the exact same object as before
+                        // didn't change - not even props a shallow patch
+                        // analysis might miss - so it doesn't need to be
+                        // forced into a fresh hydrate just because this
+                        // array as a whole did (eg. a sibling got added).
+                        const unchanged =
+                            allowRefSkip && prevArray?.[i] === n;
                         return createContainer(
                             n,
                             concat(componentPath, [
@@ -229,7 +254,7 @@ function DashWrapper({
                                 ...childrenPath,
                                 i
                             ]),
-                            _childNewRender
+                            unchanged ? 0 : _childNewRender
                         );
                     }
                     return n;
@@ -516,7 +541,12 @@ function DashWrapper({
                 ['children'],
                 !renderH || newRender.current || 'children' in changedProps
                     ? {}
-                    : 0
+                    : 0,
+                // Only worth checking item-by-item when this component
+                // itself isn't already getting a fresh hydrate (first
+                // render / forced remount already means "treat everything
+                // below as new", so there's nothing to skip).
+                Boolean(renderH) && !newRender.current
             );
         }
         newRender.current = false;

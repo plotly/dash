@@ -31,10 +31,20 @@ export type PatchAnalysis = {
     freshIds: {[idStr: string]: true};
     /* Props the patch wrote on components that already existed. */
     writtenProps: {[idStr: string]: {[property: string]: true}};
+    /*
+     * For a property whose value is a list: how many items were added at the
+     * tail (Append/Extend, at the top level of that property's value) by this
+     * patch, if that's *all* this patch did to the list. `false` means the
+     * patch also did something else to it (Insert/Prepend/Delete/Remove/
+     * Clear/Reverse/Assign, or wrote into a nested location) - the old items
+     * can no longer be assumed to have kept their positions, so the property
+     * is not eligible for the append-only paths shortcut.
+     */
+    tailAppends: {[property: string]: number | false};
 };
 
 export function createPatchAnalysis(): PatchAnalysis {
-    return {patchedProps: {}, freshIds: {}, writtenProps: {}};
+    return {patchedProps: {}, freshIds: {}, writtenProps: {}, tailAppends: {}};
 }
 
 /*
@@ -110,4 +120,19 @@ export function wasWrittenByPatch(
         return false;
     }
     return Boolean(analysis.writtenProps[idStr]?.[property]);
+}
+
+/*
+ * How many items this patch appended to the tail of `property`'s list, if
+ * appending (Append/Extend) is *all* it did to that list - the shortcut
+ * paths.js needs to compute paths only for the new items instead of
+ * re-crawling every pre-existing one. 0 when the analysis doesn't cover this
+ * property, or when the patch touched the list in some other way.
+ */
+export function tailAppendCount(
+    analysis: PatchAnalysis | undefined,
+    property: string
+): number {
+    const count = analysis?.tailAppends[property];
+    return typeof count === 'number' ? count : 0;
 }

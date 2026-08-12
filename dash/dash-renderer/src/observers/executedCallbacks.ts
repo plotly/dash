@@ -36,11 +36,12 @@ import {
 import {ICallback, IStoredCallback} from '../types/callbacks';
 
 import {updateProps, setPaths, handleAsyncError} from '../actions';
-import {getPath, computePaths} from '../actions/paths';
+import {getPath, computePaths, appendPaths} from '../actions/paths';
 import {
     PatchAnalysis,
     analysisForAllProps,
-    analysisForProp
+    analysisForProp,
+    tailAppendCount
 } from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
@@ -175,14 +176,38 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             oldChildren: any,
                             oldChildrenPath: any[],
                             filterRoot: any = false,
-                            propAnalysis?: PatchAnalysis
+                            propAnalysis?: PatchAnalysis,
+                            appendedCount = 0
                         ) => {
                             const oPaths = getState().paths;
-                            const paths = computePaths(
-                                children,
-                                oldChildrenPath,
-                                oPaths
-                            );
+
+                            // If this patch's only structural change was
+                            // appending items to the tail (tracked by
+                            // patchAnalysis.tailAppends), the pre-existing
+                            // children kept their positions and identities.
+                            // Compute paths only for the new tail slice
+                            // instead of re-crawling the whole array - the
+                            // dominant cost of a repeated Patch().append()
+                            // into a large container.
+                            const isTailAppend =
+                                appendedCount > 0 &&
+                                Array.isArray(children) &&
+                                Array.isArray(oldChildren) &&
+                                children.length ===
+                                    oldChildren.length + appendedCount;
+
+                            const paths = isTailAppend
+                                ? appendPaths(
+                                      children.slice(oldChildren.length),
+                                      oldChildrenPath,
+                                      oldChildren.length,
+                                      oPaths
+                                  )
+                                : computePaths(
+                                      children,
+                                      oldChildrenPath,
+                                      oPaths
+                                  );
                             dispatch(setPaths(paths));
 
                             // Get callbacks for new layout (w/ execution group)
@@ -199,24 +224,29 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             );
 
                             // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                            // even due to the deletion of components
-                            requestedCallbacks = concat(
-                                requestedCallbacks,
-                                getLayoutCallbacks(
-                                    graphs,
-                                    oldPaths,
-                                    oldChildren,
-                                    {
-                                        removedArrayInputsOnly: true,
-                                        newPaths: paths,
-                                        chunkPath: oldChildrenPath,
-                                        filterRoot
-                                    }
-                                ).map(rcb => ({
-                                    ...rcb,
-                                    predecessors
-                                }))
-                            );
+                            // even due to the deletion of components.
+                            // A tail append never removes anything, so oldChildren
+                            // is unchanged and this pass can only find what it
+                            // found last time (nothing new) - skip the crawl.
+                            if (!isTailAppend) {
+                                requestedCallbacks = concat(
+                                    requestedCallbacks,
+                                    getLayoutCallbacks(
+                                        graphs,
+                                        oldPaths,
+                                        oldChildren,
+                                        {
+                                            removedArrayInputsOnly: true,
+                                            newPaths: paths,
+                                            chunkPath: oldChildrenPath,
+                                            filterRoot
+                                        }
+                                    ).map(rcb => ({
+                                        ...rcb,
+                                        predecessors
+                                    }))
+                                );
+                            }
                         };
 
                         let recomputed = false;
@@ -283,13 +313,20 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         oldLayout
                                     );
 
+                                    const childrenPropAnalysis =
+                                        analysisForProp(
+                                            patchAnalysis,
+                                            childrenPropPath[0]
+                                        );
+
                                     handlePaths(
                                         children,
                                         oldChildren,
                                         oldChildrenPath,
                                         false,
-                                        analysisForProp(
-                                            patchAnalysis,
+                                        childrenPropAnalysis,
+                                        tailAppendCount(
+                                            childrenPropAnalysis,
                                             childrenPropPath[0]
                                         )
                                     );
