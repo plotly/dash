@@ -29,9 +29,9 @@ from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._compression import decompress_payload
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
-
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
@@ -252,7 +252,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):
         def _dispatch():
-            body = request.get_json()
+            if "gzip" in request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(request.data)
+            else:
+                body = request.get_json()
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -271,7 +274,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
             return cb_ctx.dash_response.set_response(data=response_data)
 
         async def _dispatch_async():
-            body = request.get_json()
+            if "gzip" in request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(request.data)
+            else:
+                body = request.get_json()
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
