@@ -334,9 +334,9 @@ def insert_callback(
     }
     # Include output metadata if any output uses partial matching
     output_list = output if isinstance(output, (list, tuple)) else [output]
-    if any(getattr(o, "partial", False) for o in output_list):
+    if any(getattr(o, "partial_pattern", False) for o in output_list):
         callback_spec["outputs_meta"] = [
-            {"partial": True} if getattr(o, "partial", False) else {}
+            {"partial": True} if getattr(o, "partial_pattern", False) else {}
             for o in output_list
         ]
     if running:

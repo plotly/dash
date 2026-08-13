@@ -6,7 +6,6 @@ from ._validate import validate_callback
 from ._grouping import flatten_grouping, make_grouping_by_index
 from ._utils import stringify_id
 
-
 ComponentIdType = Union[str, Component, dict]
 
 
@@ -43,7 +42,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
     component_property: str
     allowed_wildcards: Sequence[Wildcard]
     allow_optional: bool
-    partial: bool
+    partial_pattern: bool
 
     def __init__(self, component_id: ComponentIdType, component_property: str):
 
@@ -55,7 +54,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         self.component_property = component_property
         self.allow_duplicate = False
         self.allow_optional = False
-        self.partial = False
+        self.partial_pattern = False
 
     def __str__(self):
         return f"{self.component_id_str()}.{self.component_property}"
@@ -73,7 +72,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
         }
         if self.allow_optional:
             specs["allow_optional"] = True
-        if self.partial:
+        if self.partial_pattern:
             specs["partial"] = True
         return specs
 
@@ -103,7 +102,7 @@ class DashDependency:  # pylint: disable=too-few-public-methods
 
         my_keys = set(my_id.keys())  # type: ignore
         other_keys = set(other_id.keys())  # type: ignore
-        partial = self.partial or getattr(other, "partial", False)
+        partial = self.partial_pattern or getattr(other, "partial_pattern", False)
 
         keys_ok = (
             (my_keys <= other_keys or other_keys <= my_keys)
@@ -151,11 +150,11 @@ class Output(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_duplicate: bool = False,
-        partial: bool = False,
+        partial_pattern: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_duplicate = allow_duplicate
-        self.partial = partial
+        self.partial_pattern = partial_pattern
 
 
 class Input(DashDependency):  # pylint: disable=too-few-public-methods
@@ -166,11 +165,11 @@ class Input(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_optional: bool = False,
-        partial: bool = False,
+        partial_pattern: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
-        self.partial = partial
+        self.partial_pattern = partial_pattern
 
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 
@@ -183,11 +182,11 @@ class State(DashDependency):  # pylint: disable=too-few-public-methods
         component_id: ComponentIdType,
         component_property: str,
         allow_optional: bool = False,
-        partial: bool = False,
+        partial_pattern: bool = False,
     ):
         super().__init__(component_id, component_property)
         self.allow_optional = allow_optional
-        self.partial = partial
+        self.partial_pattern = partial_pattern
 
     allowed_wildcards = (MATCH, ALL, ALLSMALLER)
 

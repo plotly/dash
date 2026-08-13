@@ -2,7 +2,7 @@ from dash import Dash, Input, Output, State, ALL, html, dcc
 
 
 def test_pmcb001_partial_match_basic(dash_duo):
-    """Partial=True on Input matches components with extra keys."""
+    """partial_pattern=True on Input matches components with extra keys."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -21,7 +21,7 @@ def test_pmcb001_partial_match_basic(dash_duo):
 
     @app.callback(
         Output("output", "children"),
-        Input({"type": "btn"}, "n_clicks", partial=True),
+        Input({"type": "btn"}, "n_clicks", partial_pattern=True),
         prevent_initial_call=True,
     )
     def on_click(n_clicks_list):
@@ -39,7 +39,7 @@ def test_pmcb001_partial_match_basic(dash_duo):
 
 
 def test_pmcb002_partial_match_all(dash_duo):
-    """Partial=True with ALL collects all matching components."""
+    """partial_pattern=True with ALL collects all matching components."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -62,7 +62,7 @@ def test_pmcb002_partial_match_all(dash_duo):
 
     @app.callback(
         Output("output", "children"),
-        Input({"type": ALL}, "n_clicks", partial=True),
+        Input({"type": ALL}, "n_clicks", partial_pattern=True),
     )
     def on_click(n_clicks_list):
         return f"clicks: {n_clicks_list}"
@@ -101,7 +101,7 @@ def test_pmcb003_partial_match_literal_filter(dash_duo):
 
     @app.callback(
         Output("output", "children"),
-        Input({"type": "btn"}, "n_clicks", partial=True),
+        Input({"type": "btn"}, "n_clicks", partial_pattern=True),
         prevent_initial_call=True,
     )
     def on_btn_click(n_clicks_list):
@@ -138,7 +138,7 @@ def test_pmcb004_partial_match_mixed_keys(dash_duo):
 
     @app.callback(
         Output("output", "children"),
-        Input({"type": "action"}, "n_clicks", partial=True),
+        Input({"type": "action"}, "n_clicks", partial_pattern=True),
         prevent_initial_call=True,
     )
     def on_action(n_clicks_list):
@@ -156,7 +156,7 @@ def test_pmcb004_partial_match_mixed_keys(dash_duo):
 
 
 def test_pmcb005_partial_state(dash_duo):
-    """Partial=True on State reads values from components with extra keys."""
+    """partial_pattern=True on State reads components with extra keys."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -177,7 +177,7 @@ def test_pmcb005_partial_state(dash_duo):
     @app.callback(
         Output("output", "children"),
         Input("btn", "n_clicks"),
-        State({"type": "field"}, "value", partial=True),
+        State({"type": "field"}, "value", partial_pattern=True),
         prevent_initial_call=True,
     )
     def on_submit(n, values):
@@ -193,7 +193,7 @@ def test_pmcb005_partial_state(dash_duo):
 
 
 def test_pmcb006_partial_output(dash_duo):
-    """Partial=True on Output writes to components with extra keys."""
+    """partial_pattern=True on Output writes to components with extra keys."""
     app = Dash(__name__, suppress_callback_exceptions=True)
 
     app.layout = html.Div(
@@ -211,7 +211,7 @@ def test_pmcb006_partial_output(dash_duo):
     )
 
     @app.callback(
-        Output({"type": "display"}, "children", partial=True),
+        Output({"type": "display"}, "children", partial_pattern=True),
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
