@@ -1,6 +1,7 @@
 import collections
 import hashlib
 import inspect
+import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
 
@@ -23,6 +24,7 @@ from .exceptions import (
     ImportedInsideCallbackError,
 )
 from ._get_app import get_app
+from . import _callback_signing
 from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
@@ -39,6 +41,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
 from . import _validate
 
@@ -85,6 +88,8 @@ def callback(
     hidden: Optional[bool] = None,
     websocket: Optional[bool] = False,
     persistent: Optional[bool] = False,
+    mcp_enabled: Optional[bool] = None,
+    mcp_expose_docstring: Optional[bool] = None,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -242,6 +247,8 @@ def callback(
         hidden=hidden,
         websocket=websocket,
         persistent=persistent,
+        mcp_enabled=mcp_enabled,
+        mcp_expose_docstring=mcp_expose_docstring,
     )
 
     return cast(
@@ -295,6 +302,8 @@ def insert_callback(
     hidden=None,
     websocket=False,
     persistent=False,
+    mcp_enabled=None,
+    mcp_expose_docstring=None,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -345,6 +354,8 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
+        "mcp_enabled": mcp_enabled,
+        "mcp_expose_docstring": mcp_expose_docstring,
     }
     callback_list.append(callback_spec)
 
@@ -384,6 +395,24 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
     )
 
 
+def get_request_end_id(secret: bytes):
+    """Return the verified end_id for the current request, or ``None``.
+
+    The renderer echoes the server-signed ``endId`` token on every callback
+    request; this verifies the signature and returns the underlying end_id so
+    background handles can be checked against it.
+    """
+    adapter = get_app().backend.request_adapter()
+    if not adapter:
+        return None
+    token = adapter.args.get("endId")
+    return _callback_signing.unsign(secret, _callback_signing.END_SCOPE, token)
+
+
+def _get_signing_secret() -> bytes:
+    return get_app()._get_signing_secret()  # pylint: disable=protected-access
+
+
 def _get_callback_manager(
     kwargs: dict, background: dict
 ) -> BaseBackgroundCallbackManager:
@@ -406,8 +435,14 @@ def _get_callback_manager(
     old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
-        for job in old_job:
-            callback_manager.terminate_job(job)
+        secret = _get_signing_secret()
+        scope = _callback_signing.job_scope(get_request_end_id(secret))
+        for signed_job in old_job:
+            # Only terminate jobs whose handle we actually signed for this page
+            # load; ignore forged or replayed pids.
+            job = _callback_signing.unsign(secret, scope, signed_job)
+            if job is not None:
+                callback_manager.terminate_job(job)
 
     return callback_manager
 
@@ -436,6 +471,10 @@ def _setup_background_callback(
     ctx_value.pop("background_callback_manager")
     ctx_value.pop("dash_response")
 
+    args_value = ctx_value.get("args")
+    if args_value is not None and not isinstance(args_value, dict):
+        ctx_value["args"] = dict(args_value)
+
     job = callback_manager.call_job_fn(
         cache_key,
         job_fn,
@@ -443,9 +482,18 @@ def _setup_background_callback(
         ctx_value,
     )
 
+    # Sign the handles before handing them to the browser so they cannot be
+    # forged (arbitrary pid kill / arbitrary cache read) or replayed from
+    # another page load. The renderer treats them as opaque strings.
+    secret = _get_signing_secret()
+    end_id = get_request_end_id(secret)
     data = {
-        "cacheKey": cache_key,
-        "job": job,
+        "cacheKey": _callback_signing.sign(
+            secret, _callback_signing.cache_scope(end_id), cache_key
+        ),
+        "job": _callback_signing.sign(
+            secret, _callback_signing.job_scope(end_id), str(job)
+        ),
     }
 
     cancel = background.get("cancel")
@@ -460,12 +508,38 @@ def _setup_background_callback(
     return to_json(data)
 
 
-def _progress_background_callback(response, callback_manager, background):
-    progress_outputs = background.get("progress")
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey")
+def _read_request_handles():
+    """Read and verify the signed cacheKey/job handles from the current request.
 
-    if progress_outputs:
+    Returns ``(cache_key, job_id)`` as the raw (unsigned) values, or ``None`` for
+    any handle that is missing or whose signature does not verify against this
+    page load's end_id. This is what prevents a client from supplying an
+    arbitrary cache key (read/delete) or an arbitrary pid (kill).
+    """
+    adapter = get_app().backend.request_adapter()
+    if not adapter:
+        return None, None
+    secret = _get_signing_secret()
+    end_id = get_request_end_id(secret)
+    cache_key = _callback_signing.unsign(
+        secret,
+        _callback_signing.cache_scope(end_id),
+        adapter.args.get("cacheKey"),
+    )
+    job_id = _callback_signing.unsign(
+        secret,
+        _callback_signing.job_scope(end_id),
+        adapter.args.get("job"),
+    )
+    return cache_key, job_id
+
+
+def _progress_background_callback(
+    response, callback_manager, background, cache_key=None
+):
+    progress_outputs = background.get("progress")
+
+    if progress_outputs and cache_key is not None:
         # Get the progress before the result as it would be erased after the results.
         progress = callback_manager.get_progress(cache_key)
         if progress:
@@ -475,21 +549,42 @@ def _progress_background_callback(response, callback_manager, background):
 
 
 def _update_background_callback(
-    error_handler, callback_ctx, response, kwargs, background, multi
+    error_handler,
+    callback_ctx,
+    response,
+    kwargs,
+    background,
+    multi,
+    cache_key=None,
+    job_id=None,
 ):
     """Set up the background callback and manage jobs."""
     callback_manager = _get_callback_manager(kwargs, background)
 
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
+    if cache_key is None or job_id is None:
+        req_cache_key, req_job_id = _read_request_handles()
+        cache_key = cache_key or req_cache_key
+        job_id = job_id or req_job_id
 
-    _progress_background_callback(response, callback_manager, background)
+    _progress_background_callback(
+        response, callback_manager, background, cache_key=cache_key
+    )
 
-    output_value = callback_manager.get_result(cache_key, job_id)
+    if cache_key is None:
+        # No valid handle for this page load -> read nothing, delete nothing.
+        output_value = callback_manager.UNDEFINED
+    else:
+        output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
-        output_value, callback_manager, response, error_handler, callback_ctx, multi
+        output_value,
+        callback_manager,
+        response,
+        error_handler,
+        callback_ctx,
+        multi,
+        cache_key=cache_key,
+        job_id=job_id,
     )
 
 
@@ -501,12 +596,11 @@ def _handle_rest_background_callback(
     callback_ctx,
     multi,
     has_update=False,
+    cache_key=None,
+    job_id=None,
 ):
-    adapter = get_app().backend.request_adapter()
-    cache_key = adapter.args.get("cacheKey") if adapter else None
-    job_id = adapter.args.get("job") if adapter else None
     # Must get job_running after get_result since get_results terminates it.
-    job_running = callback_manager.job_running(job_id)
+    job_running = callback_manager.job_running(job_id) if job_id is not None else False
     if not job_running and output_value is callback_manager.UNDEFINED:
         # Job canceled -> no output to close the loop.
         output_value = NoUpdate()
@@ -553,7 +647,7 @@ def _prepare_response(
     output_value,
     output_spec,
     multi,
-    response,
+    response: CallbackExecutionResponse,
     callback_ctx,
     app,
     original_packages,
@@ -565,7 +659,7 @@ def _prepare_response(
     allow_dynamic_callbacks,
 ):
     """Prepare the response object based on the callback output."""
-    component_ids = collections.defaultdict(dict)
+    component_ids: dict = collections.defaultdict(dict)
 
     if has_output:
         if not multi:
@@ -684,6 +778,8 @@ def register_callback(
         hidden=_kwargs.get("hidden", None),
         websocket=_kwargs.get("websocket", False),
         persistent=_kwargs.get("persistent", False),
+        mcp_enabled=_kwargs.get("mcp_enabled", None),
+        mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
     )
 
     # pylint: disable=too-many-locals
@@ -718,7 +814,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response: dict = {"multi": True}  # type: ignore
+            response: CallbackExecutionResponse = {"multi": True}
             jsonResponse: Optional[str] = None
             try:
                 if background is not None:
@@ -790,7 +886,7 @@ def register_callback(
                 args, kwargs, inputs_state_indices, has_output, insert_output
             )
 
-            response = {"multi": True}
+            response: CallbackExecutionResponse = {"multi": True}
 
             try:
                 if background is not None:
@@ -849,6 +945,19 @@ def register_callback(
         if inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
+            # A persistent, no-output callback streams via set_props and typically
+            # runs for the life of the connection. When synchronous it occupies a
+            # WebSocket worker thread the whole time and can exhaust the pool, so
+            # warn that it should be async (async callbacks run on the event loop).
+            if _kwargs.get("persistent") and not has_output:
+                warnings.warn(
+                    f"persistent=True callback '{callback_id}' is synchronous and "
+                    "has no Output; it will occupy a WebSocket worker thread for the "
+                    "life of the connection and can exhaust the pool. Define it with "
+                    "'async def' so it runs on the event loop instead.",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
             callback_map[callback_id]["callback"] = add_context
 
         return func

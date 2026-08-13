@@ -240,19 +240,23 @@ dash.get_app().backend.request_adapter()  # RequestAdapter instance
 
 Dash supports multiple React versions. Configured in `dash/_dash_renderer.py`.
 
-**Available versions:** 18.3.1 (default), 18.2.0, 16.14.0
+**Available versions:** 18.3.1 (default), 18.2.0, 19.2.4 (experimental)
+
+React 19 has no official UMD builds; Dash serves the `umd-react` package for it, plus a small shim (`dash-renderer/build/react-shim.min.js`, source `dash/dash-renderer/src/react-shim.js`) loaded right after react-dom and before any component package. The shim stubs the React <=18 secret internals (`ReactCurrentOwner`) some component libraries touch at load time, redirects the legacy `react.element` `$$typeof` symbol so libraries that pre-bundled a React <=18 jsx-runtime don't hit React error #525, and provides `window.ReactJSXRuntime`, the global that component bundles externalize `react/jsx-runtime` to.
+
+**Convention for component libraries:** externalize `react/jsx-runtime` and `react/jsx-dev-runtime` using the *defensive* external expression found in `components/dash-core-components/webpack.config.js` (`jsxRuntimeExternal`), not a bare `'ReactJSXRuntime'` string. The expression falls back to building the runtime from `window.React.createElement` when the global is missing, so the same bundle works on Dash versions that predate the shim. A bare `'ReactJSXRuntime'` external throws `ReactJSXRuntime is not defined` / `Cannot read properties of undefined (reading 'jsx')` at bundle load on older Dash.
 
 Set via environment variable (experimental):
 
 ```bash
-REACT_VERSION=16.14.0 python app.py
+REACT_VERSION=19.2.4 python app.py
 ```
 
 Or programmatically before creating the app:
 
 ```python
 from dash._dash_renderer import _set_react_version
-_set_react_version("16.14.0")
+_set_react_version("19.2.4")
 
 from dash import Dash
 app = Dash(__name__)
@@ -905,12 +909,14 @@ app = Dash(
     server=server,
     websocket_callbacks=True,
     websocket_inactivity_timeout=300000,  # 5 minutes (default)
+    websocket_heartbeat_interval=30000,   # 30 seconds (default)
     websocket_allowed_origins=['https://example.com'],
 )
 ```
 
 - **`websocket_callbacks`** - Enable WebSocket for all callbacks (default: `False`)
 - **`websocket_inactivity_timeout`** - Close WebSocket after period of inactivity in milliseconds (default: `300000` = 5 minutes). Heartbeats do not count as activity. Set to `0` to disable timeout. Connection automatically reconnects when needed.
+- **`websocket_heartbeat_interval`** - Interval for heartbeat/keep-alive checks in milliseconds (default: `30000` = 30 seconds). Also determines how frequently inactivity timeout is checked.
 - **`websocket_allowed_origins`** - List of allowed origins for WebSocket connections (security)
 
 ### Architecture
@@ -968,6 +974,7 @@ WebSocket callbacks can stream updates to the client during execution using `set
 ```python
 import asyncio
 from dash import callback, Output, Input, set_props, ctx
+from dash.exceptions import PreventUpdate
 
 @callback(
     Output('result', 'children'),
@@ -981,6 +988,9 @@ async def long_running_task(n_clicks):
 
     # Stream progress updates to the client
     for i in range(100):
+        # IMPORTANT: Check is_shutdown in loops to detect disconnections
+        if ws.is_shutdown:
+            raise PreventUpdate  # Exit gracefully on disconnect
         await asyncio.sleep(0.1)
         set_props('progress-bar', {'value': i + 1})
         set_props('status', {'children': f'Processing step {i + 1}/100...'})
@@ -991,9 +1001,19 @@ async def long_running_task(n_clicks):
     return f"Completed! Input was: {current_value}"
 ```
 
+**IMPORTANT - Checking `is_shutdown` in Loops:**
+
+Long-running callbacks that use loops **must** check `ws.is_shutdown` to detect when the WebSocket connection has closed. Without this check:
+- Callbacks continue running after the client disconnects, wasting server resources
+- `set_props` calls go to a closed connection and are lost
+- The callback result is never delivered to the client
+
+Only "persistent callbacks" (callbacks with no Output and no Input that use only `set_props`) are automatically restarted when the WebSocket reconnects. Regular callbacks with outputs are not restarted.
+
 **API:**
 - `set_props(component_id, props_dict)` - Stream prop updates immediately to client
 - `ctx.websocket` - Get WebSocket interface (returns `None` if not in WS context)
+- `ws.is_shutdown` - Check if the WebSocket connection has been closed
 - `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
 - `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
 - `await ws.close(code, reason)` - Close the WebSocket connection

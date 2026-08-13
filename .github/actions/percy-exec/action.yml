@@ -13,6 +13,10 @@ inputs:
     description: 'Working directory for the command'
     required: false
     default: '.'
+  browser-executable:
+    description: 'Path to a Chrome/Chromium binary for Percy to use. Defaults to the one found on PATH.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -23,7 +27,19 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       env:
         PERCY_TOKEN: ${{ inputs.percy-token }}
-      run: npx percy exec -- ${{ inputs.command }}
+        PERCY_BROWSER_EXECUTABLE: ${{ inputs.browser-executable }}
+      run: |
+        # Percy otherwise downloads its own Chromium from storage.googleapis.com
+        # on the first snapshot. That download stalls in CI, which blocks the
+        # synchronous percy_snapshot() calls (so pytest never finishes and writes
+        # no JUnit) and leaves an empty Percy build with no snapshots. Point Percy
+        # at the Chrome already installed in the job so it skips the download.
+        if [ -z "${PERCY_BROWSER_EXECUTABLE:-}" ]; then
+          PERCY_BROWSER_EXECUTABLE="$(command -v google-chrome || command -v google-chrome-stable || command -v chrome || command -v chromium || command -v chromium-browser || true)"
+          export PERCY_BROWSER_EXECUTABLE
+        fi
+        echo "PERCY_BROWSER_EXECUTABLE=${PERCY_BROWSER_EXECUTABLE:-<unset: Percy will download Chromium>}"
+        npx percy exec -- ${{ inputs.command }}
 
     - name: Run without Percy (fork PR)
       if: inputs.percy-token == ''

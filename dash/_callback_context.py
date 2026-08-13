@@ -1,4 +1,3 @@
-import asyncio
 import functools
 import warnings
 import json
@@ -367,20 +366,13 @@ def set_props(component_id: typing.Union[str, dict], props: dict):
     """
     ws = _get_from_context("dash_websocket", None)
     if ws is not None:
-        # Stream immediately via WebSocket
+        # Stream immediately via WebSocket. Queuing is synchronous and thread-safe
+        # (janus sync side), so we queue directly instead of scheduling a task. This
+        # avoids detached/orphaned tasks when the callback runs on the event loop and
+        # preserves ordering relative to the callback response.
         _id = stringify_id(component_id)
-
-        async def _send_props():
-            for prop_name, value in props.items():
-                await ws.set_prop(_id, prop_name, value)
-
-        # If we're in an async context, schedule the coroutine
-        try:
-            asyncio.get_running_loop()
-            asyncio.ensure_future(_send_props())
-        except RuntimeError:
-            # No running event loop - run synchronously
-            asyncio.run(_send_props())
+        for prop_name, value in props.items():
+            ws.set_prop_sync(_id, prop_name, value)
     else:
         # Batch for response (existing behavior)
         callback_context.set_props(component_id, props)

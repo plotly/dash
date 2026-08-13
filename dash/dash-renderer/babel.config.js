@@ -3,7 +3,7 @@ module.exports = {
         '@babel/preset-typescript',
         ['@babel/preset-env', {
             "targets": {
-                "browsers": ["last 10 years and not dead"]
+                "browsers": ["last 11 years and not dead"]
             }
         }],
         '@babel/preset-react'

@@ -18,6 +18,8 @@ import {
     GetPropsRequestPayload
 } from '../utils/workerClient';
 import {DashConfig} from '../config';
+import {addRequestedCallbacks} from '../actions/callbacks';
+import {makeResolvedCallback, resolveDeps} from '../actions/dependencies_ts';
 
 /**
  * Parse a component ID that may be a stringified JSON object.
@@ -52,9 +54,12 @@ export async function initializeWebSocket(
     store: Store<IStoreState>,
     config: DashConfig
 ): Promise<void> {
-    // Initialize WebSocket if:
-    // 1. Global websocket is enabled, OR
-    // 2. WebSocket config is available (for per-callback websocket=True)
+    // Register the observer whenever the backend exposes websocket
+    // infrastructure. The handlers below are set up in both cases, but the
+    // socket is only opened eagerly when websocket callbacks are enabled
+    // globally (see the end of this function). When only per-callback
+    // websocket=True is used, the connection is opened lazily on first dispatch
+    // (handleWebsocketCallback -> workerClient.ensureConnected).
     const wsAvailable = !!(
         config.websocket?.url && config.websocket?.worker_url
     );
@@ -175,18 +180,86 @@ export async function initializeWebSocket(
         workerClient.sendGetPropsResponse(requestId, result);
     };
 
+    // Track connection state for reconnection handling
+    let wasDisconnected = false;
+
     // Handle connection events
     workerClient.onConnected = () => {
         console.log('[Dash] WebSocket connected');
+
+        // On reconnect (not initial connect), re-trigger persistent callbacks
+        if (wasDisconnected) {
+            console.log(
+                '[Dash] Reconnected - re-triggering persistent callbacks'
+            );
+            const state = store.getState();
+            const {graphs} = state;
+
+            if (graphs?.callbacks) {
+                const persistentCallbacks = graphs.callbacks.reduce(
+                    (acc: any[], cb: any) => {
+                        // Only re-trigger no-output callbacks with no inputs
+                        // These are the "persistent" callbacks that should restart
+                        if (cb.noOutput && cb.inputs.length === 0) {
+                            const resolved = makeResolvedCallback(
+                                cb,
+                                resolveDeps(),
+                                ''
+                            );
+                            resolved.initialCall = true;
+                            acc.push(resolved);
+                        }
+                        return acc;
+                    },
+                    []
+                );
+
+                if (persistentCallbacks.length > 0) {
+                    console.log(
+                        `[Dash] Re-triggering ${persistentCallbacks.length} persistent callback(s)`
+                    );
+                    store.dispatch(addRequestedCallbacks(persistentCallbacks));
+                }
+            }
+        }
     };
 
     workerClient.onDisconnected = (reason?: string) => {
         console.log(`[Dash] WebSocket disconnected: ${reason}`);
+        wasDisconnected = true;
     };
 
     workerClient.onError = (message: string, code?: string) => {
         console.error(`[Dash] WebSocket error: ${message}`, code);
     };
+
+    // Handle tab visibility changes. Only reconnect a socket that was
+    // previously established (wasDisconnected); never open the first connection
+    // here, so apps without an active websocket callback stay socket-free.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            if (workerClient.connected) {
+                // Tab visible and connected - reset inactivity timer
+                workerClient.notifyTabVisible();
+            } else if (wasDisconnected) {
+                // Tab visible but dropped - reconnect
+                console.log('[Dash] Tab visible, reconnecting WebSocket...');
+                workerClient
+                    .ensureConnected(config)
+                    .catch(err =>
+                        console.error('[Dash] Failed to reconnect:', err)
+                    );
+            }
+        }
+    });
+
+    // Only open the socket eagerly when websocket callbacks are enabled
+    // globally. With only per-callback websocket=True, the handlers above stay
+    // registered but no socket is opened until a websocket callback actually
+    // runs and calls ensureConnected.
+    if (!config.websocket?.enabled) {
+        return;
+    }
 
     // Connect to the worker
     const wsUrl = buildWebSocketUrl(config);

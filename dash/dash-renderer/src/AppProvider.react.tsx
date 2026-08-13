@@ -22,14 +22,13 @@ const AppProvider = ({
 }: any) => {
     const [{store}] = useState(() => new Store());
 
-    // Initialize WebSocket connection if enabled or if websocket config is available
-    // (for per-callback websocket=True)
+    // Register the WebSocket observer whenever the backend exposes websocket
+    // infrastructure. initializeWebSocket only opens the socket eagerly when
+    // websocket callbacks are enabled globally; per-callback websocket=True
+    // opens it lazily on first dispatch.
     useEffect(() => {
         const config = getConfigFromDOM();
-        if (
-            config.websocket?.enabled ||
-            (config.websocket?.url && config.websocket?.worker_url)
-        ) {
+        if (config.websocket?.url && config.websocket?.worker_url) {
             // Add fetch config for consistency
             const fullConfig = {
                 ...config,

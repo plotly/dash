@@ -119,6 +119,28 @@ const filterEventData = (gd, eventData, event) => {
             points[i] = pointData;
         }
         filteredEventData = {points};
+
+        const includeXYVals =
+            (event === 'hover' && gd._fullLayout.hoveranywhere === true) ||
+            (event === 'click' && gd._fullLayout.clickanywhere === true);
+
+        if (includeXYVals) {
+            if (has('xvals', eventData)) {
+                filteredEventData.xvals = eventData.xvals;
+            }
+
+            if (has('yvals', eventData)) {
+                filteredEventData.yvals = eventData.yvals;
+            }
+
+            if (has('xaxes', eventData)) {
+                filteredEventData.xaxes_id = eventData.xaxes[0]._id;
+            }
+
+            if (has('yaxes', eventData)) {
+                filteredEventData.yaxes_id = eventData.yaxes[0]._id;
+            }
+        }
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
@@ -451,27 +473,38 @@ class PlotlyGraph extends Component {
             if (!isNil(relayout) && !equals(relayout, relayoutData)) {
                 setProps({relayoutData: relayout});
             }
-            // Sync shapes from gd.layout to figure when shapes are modified by user
-            // This is needed because getLayout() clones layout to prevent mutation issues
+            // Sync user-driven layout changes (pan/zoom ranges, edited
+            // shapes, annotations, ...) from gd.layout back to the figure
+            // prop. This is needed because getLayout() clones layout to
+            // prevent mutation issues, so plotly.js only updates its own
+            // copy and the figure prop (used as the base for Patch
+            // updates) would otherwise go stale.
             if (eventData && gd.layout) {
-                const hasShapeChanges = Object.keys(eventData).some(
-                    key => key === 'shapes' || key.startsWith('shapes[')
-                );
-                if (hasShapeChanges) {
-                    const {figure = {}} = this.props;
-                    const currentShapes = figure?.layout?.shapes;
-                    const newShapes = gd.layout.shapes;
-                    if (!equals(currentShapes, newShapes)) {
-                        setProps({
-                            figure: {
-                                ...figure,
-                                layout: {
-                                    ...figure?.layout,
-                                    shapes: newShapes,
-                                },
-                            },
-                        });
+                const {figure = {}} = this.props;
+                const updates = {};
+                for (const eventKey of Object.keys(eventData)) {
+                    // 'xaxis.range[0]' -> 'xaxis', 'shapes[1].x0' -> 'shapes'
+                    const key = eventKey.split('.')[0].split('[')[0];
+                    if (
+                        // autosize/width/height relayouts come from the
+                        // resize machinery, not from user interactions.
+                        !includes(key, ['autosize', 'width', 'height']) &&
+                        !(key in updates) &&
+                        !equals(figure?.layout?.[key], gd.layout[key])
+                    ) {
+                        updates[key] = clone(gd.layout[key]);
                     }
+                }
+                if (Object.keys(updates).length) {
+                    setProps({
+                        figure: {
+                            ...figure,
+                            layout: {
+                                ...figure?.layout,
+                                ...updates,
+                            },
+                        },
+                    });
                 }
             }
         });

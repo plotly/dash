@@ -53,8 +53,10 @@ from ._utils import (
     hooks_to_js_object,
     get_caller_name,
     get_root_path,
+    alias_main_module,
 )
 from . import _callback
+from . import _callback_signing
 from . import _get_paths
 from . import _dash_renderer
 from . import _validate
@@ -75,7 +77,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
-from .types import RendererHooks
+from .types import CallbackExecutionBody, RendererHooks
 
 RouteCallable = Callable[..., Any]
 
@@ -488,7 +490,11 @@ class Dash(ObsoleteChecker):
         websocket_callbacks: Optional[bool] = False,
         websocket_allowed_origins: Optional[List[str]] = None,
         websocket_inactivity_timeout: Optional[int] = 300000,
+        websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
+        websocket_max_workers: Optional[int] = 4,
+        enable_mcp: Optional[bool] = None,
+        mcp_path: Optional[str] = None,
         **obsolete,
     ):
 
@@ -501,6 +507,8 @@ class Dash(ObsoleteChecker):
             raise ValueError("csrf_header_name must be a non-empty string")
 
         caller_name: str = name if name is not None else get_caller_name()
+
+        alias_main_module(caller_name)
 
         # Determine backend
         if backend is None:
@@ -600,11 +608,20 @@ class Dash(ObsoleteChecker):
         # keep title as a class property for backwards compatibility
         self.title = title
 
+        # MCP (Model Context Protocol) configuration
+        self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, False)
+        _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
+        self._mcp_path = (
+            _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path
+        )
+
         # list of dependencies - this one is used by the back end for dispatching
         self.callback_map: dict = {}
         # same deps as a list to catch duplicate outputs, and to send to the front end
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
+        self.mcp_decorated_functions: dict = {}
+        self.mcp_callback_map: Any = None
 
         # list of inline scripts
         self._inline_scripts: list = []
@@ -648,7 +665,9 @@ class Dash(ObsoleteChecker):
         self._websocket_callbacks = websocket_callbacks
         self._websocket_allowed_origins = websocket_allowed_origins or []
         self._websocket_inactivity_timeout = websocket_inactivity_timeout
+        self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
+        self._websocket_max_workers = websocket_max_workers
 
         self.logger = logging.getLogger(__name__)
 
@@ -665,6 +684,11 @@ class Dash(ObsoleteChecker):
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
+
+        # Secret used to sign background-callback handles (see _callback_signing).
+        # Prefer the Flask/Quart secret_key (shared across workers when the
+        # operator sets one); otherwise fall back to a per-process random secret.
+        self._generated_signing_secret: Optional[bytes] = None
 
         if server:
             self.init_app()
@@ -824,6 +848,21 @@ class Dash(ObsoleteChecker):
                 hook.data["methods"],
             )
 
+        if self._enable_mcp:
+            from .mcp import (  # pylint: disable=import-outside-toplevel
+                enable_mcp_server,
+            )
+
+            try:
+                enable_mcp_server(self, self._mcp_path)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self._enable_mcp = False
+                self.logger.warning(
+                    "MCP server could not be started at '%s': %s",
+                    self._mcp_path,
+                    e,
+                )
+
     def setup_apis(self):
         """
         Register API endpoints for all callbacks defined using `dash.callback`.
@@ -913,17 +952,87 @@ class Dash(ObsoleteChecker):
         self._index_string = value
 
     @with_app_context
-    def serve_layout(self):
-        layout = self._layout_value()
+    def get_layout(self):
+        """Return the resolved layout with all hooks applied.
 
+        This is the canonical way to obtain the app's layout — it
+        calls the layout function (if callable), includes extra
+        components, and runs layout hooks.
+        """
+        layout = self._layout_value()
         for hook in self._hooks.get_hooks("layout"):
             layout = hook(layout)
+        return layout
 
+    def serve_layout(self):
         # TODO - Set browser cache limit - pass hash into frontend
         return self.backend.make_response(
-            to_json(layout),
+            to_json(self.get_layout()),
             mimetype="application/json",
         )
+
+    def _get_signing_secret(self) -> bytes:
+        """Return the secret used to sign background-callback handles.
+
+        Resolution order:
+
+        1. The server's ``secret_key`` if set (shared across workers when the
+           operator configures one, e.g. for Flask-Login).
+        2. Otherwise a random secret persisted in the background-callback result
+           store, so every worker reads back the same value. This is exactly as
+           shared as the callback results themselves, so it works cross-worker
+           whenever the deployment is set up for multi-worker background
+           callbacks (an explicitly shared cache / broker).
+        3. Finally, if no background manager is available, a per-process random
+           secret (there are no background handles to verify in that case).
+        """
+        key = getattr(self.server, "secret_key", None)
+        if key:
+            return key.encode("utf-8") if isinstance(key, str) else key
+        if self._generated_signing_secret is None:
+            self._generated_signing_secret = self._resolve_fallback_signing_secret()
+        return self._generated_signing_secret
+
+    def _background_managers(self):
+        """The background-callback managers this app uses, deterministically
+        ordered and de-duplicated by identity."""
+        managers = []
+        seen = set()
+        for candidate in [self._background_manager] + [
+            cb.get("manager") for cb in self.callback_map.values()
+        ]:
+            if candidate is not None and id(candidate) not in seen:
+                seen.add(id(candidate))
+                managers.append(candidate)
+        return managers
+
+    def _resolve_fallback_signing_secret(self) -> bytes:
+        def _generate() -> bytes:
+            return gen_salt(64).encode("utf-8")
+
+        def _coerce(value) -> bytes:
+            if isinstance(value, bytes):
+                return value
+            if isinstance(value, str):
+                return value.encode("utf-8")
+            return bytes(value)
+
+        # Persist the secret in the (shared) result store this app's manager
+        # uses so all workers read back the same value. Every worker runs the
+        # same code, so they resolve the same manager and the same store.
+        for manager in self._background_managers():
+            try:
+                secret = manager.get_or_create_signing_secret(_generate)
+            except NotImplementedError:
+                continue
+            except Exception:  # pylint: disable=broad-except
+                # A misbehaving/unreachable store must not break app startup;
+                # try the next manager, then fall back to a per-process secret.
+                continue
+            if secret:
+                return _coerce(secret)
+
+        return _generate()
 
     def _config(self):
         # pieces of config needed by the front end
@@ -947,6 +1056,17 @@ class Dash(ObsoleteChecker):
             "csrf_token_name": self.config.csrf_token_name,
             "csrf_header_name": self.config.csrf_header_name,
         }
+
+        # Server-issued, server-signed token for this page load. The renderer
+        # echoes it on every callback request; the server binds background
+        # callback handles (cacheKey/job) to it so they cannot be forged or
+        # replayed from another page load. See dash/_callback_signing.py.
+        end_id = gen_salt(24)
+        config["end_id"] = _callback_signing.sign(
+            self._get_signing_secret(),
+            _callback_signing.END_SCOPE,
+            end_id,
+        )
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
                 # Disable the placeholder button on workspace.
@@ -998,6 +1118,7 @@ class Dash(ObsoleteChecker):
                 "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
                 "worker_url": self._get_worker_url(),
                 "inactivity_timeout": self._websocket_inactivity_timeout,
+                "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
         return config
@@ -1477,7 +1598,7 @@ class Dash(ObsoleteChecker):
         return inputs_to_vals(inputs)
 
     # pylint: disable=R0915
-    def _initialize_context(self, body):
+    def _initialize_context(self, body: CallbackExecutionBody):
         """Initialize the global context for the request."""
         adapter = self.backend.request_adapter()
         g = AttributeDict({})
@@ -1500,7 +1621,7 @@ class Dash(ObsoleteChecker):
         g.updated_props = {}
         return g
 
-    def _prepare_callback(self, g, body):
+    def _prepare_callback(self, g, body: CallbackExecutionBody):
         """Prepare callback-related data."""
         output = body["output"]
         try:
@@ -1656,8 +1777,13 @@ class Dash(ObsoleteChecker):
                     job_ids = callback_context.args.getlist("cancelJob")
                     executor = _callback.context_value.get().background_callback_manager
                     if job_ids:
+                        secret = self._get_signing_secret()
+                        end_id = _callback.get_request_end_id(secret)
+                        scope = _callback_signing.job_scope(end_id)
                         for job_id in job_ids:
-                            executor.terminate_job(job_id)
+                            job = _callback_signing.unsign(secret, scope, job_id)
+                            if job is not None:
+                                executor.terminate_job(job)
                     return no_update
 
     def _add_assets_resource(self, url_path, file_path):
@@ -2460,6 +2586,13 @@ class Dash(ObsoleteChecker):
 
             if not jupyter_dash or not jupyter_dash.in_ipython:
                 self.logger.info("Dash is running on %s://%s%s%s\n", *display_url)
+                if self._enable_mcp:
+                    self.logger.info(
+                        " * MCP available at %s://%s%s%s%s\n",
+                        *display_url[:3],
+                        self.config.routes_pathname_prefix,
+                        self._mcp_path,
+                    )
 
         if self.config.extra_hot_reload_paths:
             extra_files = flask_run_options["extra_files"] = []
@@ -2472,6 +2605,14 @@ class Dash(ObsoleteChecker):
                     extra_files.append(path)
 
         if jupyter_dash.active:
+            if jupyter_server_url is None and proxy:
+                # The app is served on host:port but reached through the proxy,
+                # so the notebook must display the proxied url.
+                proxied_url = urlparse(proxy.split("::")[1])
+                jupyter_server_url = (
+                    f"{proxied_url.scheme}://{proxied_url.hostname}"
+                    + (f":{proxied_url.port}" if proxied_url.port else "")
+                )
             jupyter_dash.run_app(
                 self,
                 mode=jupyter_mode,

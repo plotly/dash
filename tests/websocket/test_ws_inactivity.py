@@ -19,6 +19,7 @@ def test_ws020_inactivity_timeout_closes(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=3000,  # 3 seconds for testing
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(
@@ -54,6 +55,7 @@ def test_ws021_activity_resets_timer(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=4000,  # 4 seconds
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(
@@ -88,6 +90,7 @@ def test_ws022_quick_successive_callbacks(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=5000,
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(
@@ -121,6 +124,7 @@ def test_ws023_auto_reconnect_after_timeout(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=2000,  # 2 seconds
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(
@@ -164,6 +168,7 @@ def test_ws024_long_callback_doesnt_timeout(dash_duo):
         backend="fastapi",
         websocket_callbacks=True,
         websocket_inactivity_timeout=3000,  # 3 seconds
+        websocket_heartbeat_interval=1000,  # 1 second - check inactivity frequently
     )
 
     app.layout = html.Div(

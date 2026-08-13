@@ -10,6 +10,7 @@ export enum WorkerMessageType {
     DISCONNECT = 'disconnect',
     CALLBACK_REQUEST = 'callback_request',
     GET_PROPS_RESPONSE = 'get_props_response',
+    TAB_VISIBLE = 'tab_visible',
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected',
     CALLBACK_RESPONSE = 'callback_response',
@@ -86,11 +87,13 @@ class WorkerClient {
      * @param workerUrl URL to the SharedWorker script
      * @param serverUrl WebSocket server URL
      * @param inactivityTimeout Optional inactivity timeout in ms
+     * @param heartbeatInterval Optional heartbeat interval in ms
      */
     public async connect(
         workerUrl: string,
         serverUrl: string,
-        inactivityTimeout?: number
+        inactivityTimeout?: number,
+        heartbeatInterval?: number
     ): Promise<void> {
         if (this.worker) {
             // Already connected
@@ -119,7 +122,8 @@ class WorkerClient {
             rendererId: this.rendererId,
             payload: {
                 serverUrl,
-                inactivityTimeout
+                inactivityTimeout,
+                heartbeatInterval
             }
         });
 
@@ -159,6 +163,7 @@ class WorkerClient {
             url?: string;
             worker_url?: string;
             inactivity_timeout?: number;
+            heartbeat_interval?: number;
         };
     }): Promise<void> {
         // Already connected
@@ -190,7 +195,8 @@ class WorkerClient {
         await this.connect(
             config.websocket.worker_url,
             wsUrl,
-            config.websocket.inactivity_timeout
+            config.websocket.inactivity_timeout,
+            config.websocket.heartbeat_interval
         );
     }
 
@@ -249,6 +255,19 @@ class WorkerClient {
      */
     public get connected(): boolean {
         return this.isConnected;
+    }
+
+    /**
+     * Notify the worker that the tab is now visible.
+     * This resets the inactivity timer to prevent timeout while user is viewing.
+     */
+    public notifyTabVisible(): void {
+        if (this.worker && this.isConnected) {
+            this.worker.port.postMessage({
+                type: WorkerMessageType.TAB_VISIBLE,
+                rendererId: this.rendererId
+            });
+        }
     }
 
     private handleMessage(event: MessageEvent): void {
