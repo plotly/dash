@@ -1,3 +1,5 @@
+import {PatchAnalysis} from '../actions/patchAnalysis';
+
 type CallbackId = string | {[key: string]: any};
 
 export interface ICallbackDefinition {
@@ -87,6 +89,11 @@ export type CallbackResult = {
     data?: CallbackResponse;
     error?: Error;
     payload: ICallbackPayload | null;
+    patchedOutputs?: PatchedOutputs;
+};
+
+export type PatchedOutputs = {
+    [idStr: string]: PatchAnalysis;
 };
 
 export type BackgroundCallbackInfo = {

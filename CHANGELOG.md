@@ -11,6 +11,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
+### Fixed
+- [#3941](https://github.com/plotly/dash/pull/3941) Fix the FastAPI and Quart backends opening a WebSocket connection on every page load, even for apps with no WebSocket callbacks. The renderer keyed the connection on the mere presence of WebSocket infrastructure (always advertised by these backends) rather than on whether it was needed. The socket now opens eagerly only when `websocket_callbacks=True`; with just per-callback `websocket=True` it opens lazily on the first such callback dispatch, and an app with no WebSocket callbacks never opens one. Fixes [#3939](https://github.com/plotly/dash/issues/3939).
+- [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
+- [#3922](https://github.com/plotly/dash/pull/3922) Fix `dcc.Input(type="number")` stepper behavior when only `min` is set.
+- [#3925](https://github.com/plotly/dash/pull/3925) Use the proxied url as the Jupyter server url so `DASH_PROXY` is honored by the external url and inline iframe in notebooks.
+- [#3938](https://github.com/plotly/dash/pull/3938) Fix `dcc.Patch()` re-running the initial callbacks of components that were already on the page, including every matching (`MATCH`/`ALL`) element, and wiping their user-edited persisted values. Fixes [#3681](https://github.com/plotly/dash/issues/3681) and [#3937](https://github.com/plotly/dash/issues/3937)
+
 ## [4.4.1] - 2026-07-21
 
 ## Fixed
