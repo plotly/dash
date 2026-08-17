@@ -332,7 +332,7 @@
                 "link",
                 "script"
             ],
-            "description": "Specifies a Subresource Integrity value that allows browsers to verify what they fetch."
+            "description": "This attribute contains one or more hashes of the resource, and is used to ensure that the content of the resource is what the developer expects it to be, and has not been replaced with a malicious copy in a supply chain attack. See Subresource Integrity."
         },
         "inputMode": {
             "elements": [
@@ -670,6 +670,12 @@
                 "Globalattribute"
             ],
             "description": "Defines CSS styles which will override styles previously set."
+        },
+        "summary": {
+            "elements": [
+                "table"
+            ],
+            "description": ""
         },
         "tabIndex": {
             "elements": [
@@ -1070,6 +1076,9 @@
         ],
         "colgroup": [
             "span"
+        ],
+        "table": [
+            "summary"
         ],
         "menu": [
             "type"
