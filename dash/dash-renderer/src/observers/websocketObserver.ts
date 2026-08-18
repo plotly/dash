@@ -54,9 +54,12 @@ export async function initializeWebSocket(
     store: Store<IStoreState>,
     config: DashConfig
 ): Promise<void> {
-    // Initialize WebSocket if:
-    // 1. Global websocket is enabled, OR
-    // 2. WebSocket config is available (for per-callback websocket=True)
+    // Register the observer whenever the backend exposes websocket
+    // infrastructure. The handlers below are set up in both cases, but the
+    // socket is only opened eagerly when websocket callbacks are enabled
+    // globally (see the end of this function). When only per-callback
+    // websocket=True is used, the connection is opened lazily on first dispatch
+    // (handleWebsocketCallback -> workerClient.ensureConnected).
     const wsAvailable = !!(
         config.websocket?.url && config.websocket?.worker_url
     );
@@ -230,6 +233,34 @@ export async function initializeWebSocket(
         console.error(`[Dash] WebSocket error: ${message}`, code);
     };
 
+    // Handle tab visibility changes. Only reconnect a socket that was
+    // previously established (wasDisconnected); never open the first connection
+    // here, so apps without an active websocket callback stay socket-free.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            if (workerClient.connected) {
+                // Tab visible and connected - reset inactivity timer
+                workerClient.notifyTabVisible();
+            } else if (wasDisconnected) {
+                // Tab visible but dropped - reconnect
+                console.log('[Dash] Tab visible, reconnecting WebSocket...');
+                workerClient
+                    .ensureConnected(config)
+                    .catch(err =>
+                        console.error('[Dash] Failed to reconnect:', err)
+                    );
+            }
+        }
+    });
+
+    // Only open the socket eagerly when websocket callbacks are enabled
+    // globally. With only per-callback websocket=True, the handlers above stay
+    // registered but no socket is opened until a websocket callback actually
+    // runs and calls ensureConnected.
+    if (!config.websocket?.enabled) {
+        return;
+    }
+
     // Connect to the worker
     const wsUrl = buildWebSocketUrl(config);
 
@@ -243,24 +274,6 @@ export async function initializeWebSocket(
     } catch (error) {
         console.error('[Dash] Failed to connect to WebSocket worker:', error);
     }
-
-    // Handle tab visibility changes
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            if (workerClient.connected) {
-                // Tab visible and connected - reset inactivity timer
-                workerClient.notifyTabVisible();
-            } else {
-                // Tab visible but disconnected - reconnect
-                console.log('[Dash] Tab visible, reconnecting WebSocket...');
-                workerClient
-                    .ensureConnected(config)
-                    .catch(err =>
-                        console.error('[Dash] Failed to reconnect:', err)
-                    );
-            }
-        }
-    });
 }
 
 /**

@@ -37,6 +37,7 @@ import janus
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
 from dash.exceptions import PreventUpdate
+from dash._compression import decompress_payload
 from .base_server import (
     BaseDashServer,
     RequestAdapter,
@@ -328,7 +329,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         and passed through the middleware, which is necessary for features like authentication
         and timing to work correctly on all routes. FastAPI will match this catch-all route
         for any path that isn't matched by a more specific route, allowing the middleware to
-        process the request and then return the appropriate response (e.g., 404 if no Dash route matches)."""
+        process the request and then return the appropriate response (e.g., 404 if no Dash route matches).
+        """
 
     def _setup_catchall(self):
         try:
@@ -549,7 +551,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
     def serve_callback(self, dash_app: Dash):
         async def _dispatch(request: Request):  # pylint: disable=unused-argument
             # pylint: disable=protected-access
-            body = self.request_adapter().get_json()
+            if "gzip" in request.headers.get("content-encoding", ""):
+                body = decompress_payload(await self.request_adapter()._request.body())
+            else:
+                body = self.request_adapter().get_json()
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access
