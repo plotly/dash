@@ -87,6 +87,10 @@ function DashWrapper({
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
     const freshRenders = useRef(0);
+    // Did *this* render remount the subtree (identity changed or an explicit
+    // dash.remount())? A remount rebuilds every descendant from scratch, so
+    // the item-by-item ref-skip below must not carry anything over across it.
+    const remountedThisRender = useRef(false);
     const renderedIdentity: MutableRefObject<string | null> = useRef(null);
     const hasFreshRendered = useRef(false);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
@@ -128,11 +132,13 @@ function DashWrapper({
             // a remount even when the identity is unchanged, letting a
             // callback explicitly reset a component's internal state.
             const identity = componentIdentity(_passedComponent);
-            if (
+            const isRemount = Boolean(
                 _passedComponent?._dashprivate_remount ||
-                (renderedIdentity.current !== null &&
-                    renderedIdentity.current !== identity)
-            ) {
+                    (renderedIdentity.current !== null &&
+                        renderedIdentity.current !== identity)
+            );
+            remountedThisRender.current = isRemount;
+            if (isRemount) {
                 freshRenders.current += 1;
             }
             renderedIdentity.current = identity;
@@ -141,6 +147,7 @@ function DashWrapper({
             }
         } else {
             newRender.current = false;
+            remountedThisRender.current = false;
         }
         renderedPath.current = componentPath;
     }, [_newRender]);
@@ -244,8 +251,12 @@ function DashWrapper({
                         // An item that's the exact same object as before
                         // didn't change - not even props a shallow patch
                         // analysis might miss - so it doesn't need to be
-                        // forced into a fresh hydrate just because this
-                        // array as a whole did (eg. a sibling got added).
+                        // forced into a fresh hydrate just because this array
+                        // as a whole did (eg. a sibling got appended, or a
+                        // deeper list this item sits above grew: ramda's
+                        // assocPath rebuilds the array and this item's parent
+                        // on the way to the change, but `concat` keeps the
+                        // pre-existing items themselves the same object).
                         const unchanged = allowRefSkip && prevArray?.[i] === n;
                         return createContainer(
                             n,
@@ -542,11 +553,16 @@ function DashWrapper({
                 !renderH || newRender.current || 'children' in changedProps
                     ? {}
                     : 0,
-                // Only worth checking item-by-item when this component
-                // itself isn't already getting a fresh hydrate (first
-                // render / forced remount already means "treat everything
-                // below as new", so there's nothing to skip).
-                Boolean(renderH) && !newRender.current
+                // Check items one by one against the previous render whenever
+                // we're not remounting. Even a component getting a fresh
+                // hydrate (eg. a Patch appended a deep sibling, so its parent
+                // was rebuilt on the path down) can keep the pre-existing
+                // items - the exact same objects - reconciling in place
+                // instead of re-hydrating the whole list every time. A first
+                // render simply has no previous array to match, and a remount
+                // must rebuild everything, so both fall through to a fresh
+                // hydrate.
+                !remountedThisRender.current
             );
         }
         newRender.current = false;

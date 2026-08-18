@@ -366,10 +366,10 @@ function recordWrittenProp(
 
 /*
  * Operations that only add items at the end of a list, and how many items
- * each one adds. Anything else that touches a list's top level (Insert,
- * Prepend, Delete, Remove, Clear, Reverse, Assign) invalidates the
- * append-only shortcut for that property, since old items can no longer be
- * assumed to have kept their indices.
+ * each one adds. `location` is the list they append to. Anything else that
+ * touches a list (Insert, Prepend, Delete, Remove, Clear, Reverse, Assign)
+ * invalidates the append-only shortcut for that property, since old items can
+ * no longer be assumed to have kept their indices.
  */
 const tailAppendCounts: {[operation: string]: (params: any) => number} = {
     Append: () => 1,
@@ -386,15 +386,26 @@ function recordTailAppend(
     if (property === undefined) {
         return;
     }
-    if (analysis.tailAppends[property] === false) {
+    const existing = analysis.tailAppends[property];
+    if (existing === false) {
         // Already invalidated for this property; nothing can undo that.
         return;
     }
-    if (location.length === 0 && operation in tailAppendCounts) {
-        analysis.tailAppends[property] =
-            (analysis.tailAppends[property] || 0) +
-            tailAppendCounts[operation](params);
-        return;
+    if (operation in tailAppendCounts) {
+        const count = tailAppendCounts[operation](params);
+        if (existing === undefined) {
+            // First append to this property: remember which list it grew.
+            analysis.tailAppends[property] = {location, count};
+            return;
+        }
+        if (equals(existing.location, location)) {
+            // Another append to the same list - still a pure single-list
+            // append, just more items.
+            existing.count += count;
+            return;
+        }
+        // Appended to a second, different list. We can only express one
+        // grown list per property, so fall back to a full recompute.
     }
     analysis.tailAppends[property] = false;
 }

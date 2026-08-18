@@ -123,6 +123,44 @@ describe('appendPaths — O(appended) path table update', () => {
         ]);
     });
 
+    it('matches computePaths for an append into a nested list', () => {
+        // Mirrors a nested `p[0]['props']['children'].extend(...)`: the grown
+        // list lives at container.children[0].props.children, so executedCallbacks
+        // roots appendPaths at CHILDREN_PATH + [0, 'props', 'children'].
+        const nestedList = kids => [component('inner', {children: kids})];
+        const before = nestedList([component('a'), component('b')]);
+        const added = [component('c'), component('d')];
+        const after = nestedList([component('a'), component('b'), ...added]);
+
+        const reference = fullPaths(after);
+
+        const nestedPath = [...CHILDREN_PATH, 0, 'props', 'children'];
+        const incremental = appendPaths(
+            added,
+            nestedPath,
+            2, // two pre-existing items in the nested list
+            fullPaths(before)
+        );
+
+        expect(incremental.strs).to.deep.equal(reference.strs);
+        expect(incremental.objs).to.deep.equal(reference.objs);
+        expect(getPath(incremental, 'c')).to.deep.equal([
+            'props',
+            'children',
+            0,
+            'props',
+            'children',
+            2
+        ]);
+        // pre-existing nested entries stay put
+        expect(getPath(incremental, 'a')).to.deep.equal(
+            getPath(reference, 'a')
+        );
+        expect(getPath(incremental, 'inner')).to.deep.equal(
+            getPath(reference, 'inner')
+        );
+    });
+
     it('preserves the events emitter from the old paths', () => {
         const start = fullPaths([component('a')]);
         const events = {emit: () => undefined};

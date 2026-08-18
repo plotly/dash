@@ -41,7 +41,7 @@ import {
     PatchAnalysis,
     analysisForAllProps,
     analysisForProp,
-    tailAppendCount
+    tailAppend
 } from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
@@ -177,37 +177,58 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             oldChildrenPath: any[],
                             filterRoot: any = false,
                             propAnalysis?: PatchAnalysis,
-                            appendedCount = 0
+                            append: {
+                                location: (string | number)[];
+                                count: number;
+                            } | null = null
                         ) => {
                             const oPaths = getState().paths;
 
                             // If this patch's only structural change was
-                            // appending items to the tail (tracked by
-                            // patchAnalysis.tailAppends), the pre-existing
+                            // appending items to the tail of one list (tracked
+                            // by patchAnalysis.tailAppends), the pre-existing
                             // children kept their positions and identities.
-                            // Compute paths only for the new tail slice
-                            // instead of re-crawling the whole array - the
-                            // dominant cost of a repeated Patch().append()
-                            // into a large container.
+                            // Compute paths only for the new tail slice instead
+                            // of re-crawling the whole array - the dominant cost
+                            // of a repeated Patch().append() into a large
+                            // container. `location` points at the grown list,
+                            // which may be nested (`[]` for a plain `children`,
+                            // `[0, 'props', 'children']` for a nested extend).
+                            const newList = append
+                                ? append.location.length
+                                    ? path(append.location, children)
+                                    : children
+                                : undefined;
+                            const oldList = append
+                                ? append.location.length
+                                    ? path(append.location, oldChildren)
+                                    : oldChildren
+                                : undefined;
                             const isTailAppend =
-                                appendedCount > 0 &&
-                                Array.isArray(children) &&
-                                Array.isArray(oldChildren) &&
-                                children.length ===
-                                    oldChildren.length + appendedCount;
+                                !!append &&
+                                append.count > 0 &&
+                                Array.isArray(newList) &&
+                                Array.isArray(oldList) &&
+                                newList.length ===
+                                    oldList.length + append.count;
 
-                            const paths = isTailAppend
-                                ? appendPaths(
-                                      children.slice(oldChildren.length),
-                                      oldChildrenPath,
-                                      oldChildren.length,
-                                      oPaths
-                                  )
-                                : computePaths(
-                                      children,
-                                      oldChildrenPath,
-                                      oPaths
-                                  );
+                            const paths =
+                                isTailAppend && append
+                                    ? appendPaths(
+                                          (newList as any[]).slice(
+                                              (oldList as any[]).length
+                                          ),
+                                          oldChildrenPath.concat(
+                                              append.location
+                                          ),
+                                          (oldList as any[]).length,
+                                          oPaths
+                                      )
+                                    : computePaths(
+                                          children,
+                                          oldChildrenPath,
+                                          oPaths
+                                      );
                             dispatch(setPaths(paths));
 
                             // Get callbacks for new layout (w/ execution group)
@@ -325,10 +346,18 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         oldChildrenPath,
                                         false,
                                         childrenPropAnalysis,
-                                        tailAppendCount(
-                                            childrenPropAnalysis,
-                                            childrenPropPath[0]
-                                        )
+                                        // `tailAppends` locations are relative
+                                        // to the top-level property's value, so
+                                        // the shortcut only applies when
+                                        // `children` *is* that value (a plain
+                                        // `children`), not a dotted sub-path
+                                        // (`figure.data`) into it.
+                                        childrenPropPath.length === 1
+                                            ? tailAppend(
+                                                  childrenPropAnalysis,
+                                                  childrenPropPath[0]
+                                              )
+                                            : null
                                     );
                                 }
                             });
