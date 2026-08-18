@@ -276,11 +276,14 @@ def profile_hot_functions(profile, top=25):
     loc_by_fn: dict = {}
     for node in profile["nodes"]:
         frame = node["callFrame"]
-        name = frame.get("functionName") or "(anonymous)"
+        short = frame.get("url", "").rsplit("/", 1)[-1]
+        loc = f"{short}:{frame.get('lineNumber', '')}" if short else ""
+        # Key anonymous frames by location so they don't all collapse into one
+        # opaque "(anonymous)" bucket - that is usually where the time is.
+        name = frame.get("functionName") or f"(anon) {loc or '?'}"
         hits_by_fn[name] += node.get("hitCount", 0)
         if name not in loc_by_fn:
-            short = frame.get("url", "").rsplit("/", 1)[-1]
-            loc_by_fn[name] = f"{short}:{frame.get('lineNumber', '')}" if short else ""
+            loc_by_fn[name] = loc
     total_hits = sum(hits_by_fn.values()) or 1
     ranked = sorted(hits_by_fn.items(), key=lambda kv: kv[1], reverse=True)
     lines = []

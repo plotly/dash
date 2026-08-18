@@ -4,7 +4,6 @@ import {
     find,
     forEachObjIndexed,
     insert,
-    path,
     propEq,
     props,
     indexOf
@@ -81,7 +80,7 @@ export function computePaths(subTree, startingPath, oldPaths, events) {
     }
 
     crawlLayout(subTree, (child, itempath) => {
-        const id = path(['props', 'id'], child);
+        const id = child.props && child.props.id;
         if (id) {
             if (typeof id === 'object') {
                 const keys = Object.keys(id).sort();
@@ -134,7 +133,7 @@ export function appendPaths(newItems, startingPath, appendOffset, oldPaths) {
 
     newItems.forEach((child, i) => {
         crawlLayout(child, (c, itempath) => {
-            const id = path(['props', 'id'], c);
+            const id = c.props && c.props.id;
             if (!id) {
                 return;
             }

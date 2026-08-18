@@ -143,13 +143,30 @@ walk + callback crawl + element mapping), not the O(total) *re-hydration* that
 the fix removed. There is no dominant frame to cut; flattening it further means
 making those three traversals skip byref-unchanged subtrees (a bigger change).
 
-### 3. Full children replacement is the O(total) baseline
+### 3. Ramda currying overhead in the per-node hot loops [fixed]
+
+Across every scenario the profiles showed ~10-15% in ramda's curry machinery -
+`f1`/`f2`/`f3` (the arity dispatchers), `_isPlaceholder`, and curried `path`/
+`pathOr`. It came from `crawlLayout` (utils.js), which runs the callback on
+*every* component on *every* path recompute and callback gather, calling
+curried `path(['props','children'], obj)` / `pathOr(...)` per node, plus the
+`path(['props','id'], child)` in each crawl callback (`paths.js`,
+`dependencies.js`). Replacing those with direct property access (`obj.props &&
+obj.props.children`, etc.) and native array `concat` on the hot common path -
+leaving the rare declared-`childrenProps` branch alone - cut `patch_append` by
+~16% and initial render / wildcard by ~3-4% in a same-machine A/B. Low risk:
+the crawled nodes are always plain component objects, so direct access is
+equivalent to the curried `path`, just without the dispatch and placeholder
+checks. When touching these traversals, prefer direct access over curried
+ramda - the per-node multiplier makes it matter.
+
+### 4. Full children replacement is the O(total) baseline
 
 `full_children_replace` grows ~18x across a run and is ~15x slower than the
 equivalent `Patch().extend()`. This is expected and is the reason `Patch`
 exists for growing containers; it is kept as a contrast with loose thresholds.
 
-### 4. Layouts deeper than ~250 nested components fail to serialize
+### 5. Layouts deeper than ~250 nested components fail to serialize
 
 `/_dash-layout` raises "Recursion limit reached" (the JSON encoder's recursion
 limit) for a component tree nested deeper than ~254. The `deep_nesting`
