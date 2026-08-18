@@ -539,8 +539,6 @@ class Browser(DashPageMixin):
     def _get_firefox(self):
         options = self._get_wd_options()
 
-        options.set_capability("marionette", True)
-
         options.set_preference("browser.download.dir", self.download_path)
         options.set_preference("browser.download.folderList", 2)
         options.set_preference(

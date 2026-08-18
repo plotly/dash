@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from selenium.webdriver.common.by import By
+
 from dash import Dash, Input, Output, dcc, html
 
 
@@ -71,11 +73,11 @@ def test_msmh003_update_md(dash_dcc):
 
     # a highlighted node will have <span> children which are what color the text
     code = dash_dcc.wait_for_element("code[data-highlighted='yes']")
-    assert len(code.find_elements_by_tag_name("span")) == 2
+    assert len(code.find_elements(By.TAG_NAME, "span")) == 2
 
     dash_dcc.find_element("#md-trigger").click()
 
     code = dash_dcc.wait_for_element("code[data-highlighted='yes']")
-    assert len(code.find_elements_by_tag_name("span")) == 3
+    assert len(code.find_elements(By.TAG_NAME, "span")) == 3
 
     assert dash_dcc.get_logs() == []
