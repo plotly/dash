@@ -16,6 +16,7 @@ Deeper reference lives in `.ai/`. Open the one that covers what you're touching,
 - `COMPONENTS.md` - component system, generation, resources
 - `TESTING.md` - test framework, fixtures, patterns
 - `TROUBLESHOOTING.md` - common errors and fixes
+- `PERFORMANCE.md` - benchmark harness, profiling, and performance findings
 
 To find code, grep. Don't rely on a hand-kept file map, it goes stale.
 

@@ -1,0 +1,150 @@
+# Performance: benchmarks, profiling, and findings
+
+Dash's user-visible speed lives almost entirely in the **renderer** (client-side
+hydration, callback dispatch, Patch application). This doc covers the benchmark
+harness that measures it, how to profile a slow scenario down to the hot
+function, and the findings so far.
+
+## The harness (`benchmarks/`)
+
+A standalone harness - **not** part of the pytest suite, on purpose: timing is
+noisy, so it uses generous thresholds and *reports* rather than flaking the test
+matrix (see "CI job" below).
+
+| file | role |
+|--|--|
+| `benchmarks/scenarios.py` | the scenarios: each has a `build(params) -> Dash` app and a `drive(b, params) -> {metric: ms}` interaction, plus warn/fail thresholds |
+| `benchmarks/bench_app.py` | serves one scenario as a real app in its own process (`debug=False`, i.e. the **production** `min.js` bundle) |
+| `benchmarks/run.py` | the runner + CPU profiler + threshold gating + markdown report |
+| `benchmarks/baseline.json` | committed reference numbers the CI job compares against |
+
+Each scenario runs in its own `bench_app` subprocess driven by a headless
+Chrome. Timings are taken with `performance.now()` **inside the page** (not
+Python-side), so they measure real client work - server round-trip + patch
+apply + React render - without selenium's per-poll latency. Per scenario we drop
+`warmup` runs then report **median / p90 / max** plus a **growth** ratio
+(late-third ÷ early-third per-op time): `~1` is flat, a large value means the
+per-op cost scales with accumulated state - an O(total) smell.
+
+### Running locally
+
+```bash
+# prerequisites: production renderer bundle must be current
+npm run build            # (or: cd dash/dash-renderer && renderer build)
+
+# all scenarios -> results.json + a printed markdown table
+python -m benchmarks.run --out benchmarks/results.json
+
+# a subset
+python -m benchmarks.run --scenario patch_append_nested wildcard_all_resolve
+
+# gate against the committed baseline (what CI runs); exit code 1 on a hard fail
+python -m benchmarks.run --baseline benchmarks/baseline.json --summary-md summary.md
+```
+
+### Updating the baseline
+
+The baseline is machine-sensitive (absolute ms). Regenerate it on the same
+class of machine the CI job uses (GitHub `ubuntu-latest`) when scenarios change
+or an intended optimization lands:
+
+```bash
+python -m benchmarks.run --out benchmarks/baseline.json
+```
+
+Commit the new `baseline.json` in the same PR, and say why in the message.
+
+## CI job (`.github/workflows/benchmarks.yml`)
+
+Runs on PRs that touch `dash/`, `benchmarks/`, or components. It builds the
+production bundle, runs the harness against `baseline.json`, and:
+
+- **hard-fails** the job only on an order-of-magnitude regression - a metric
+  over its absolute `fail_ms`, or `> 2x` the baseline p90;
+- **warns** (without failing) on a smaller drift - over `warn_ms`, or `> 1.3x`
+  baseline - and always upserts a single sticky **PR comment** with the table so
+  the numbers are visible on every run;
+- uploads `results.json` + `summary.md` as artifacts.
+
+Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by
+metric). Keep them generous: this is a smoke alarm, not a microbenchmark.
+
+## Profiling a slow scenario
+
+The runner can capture a **Chrome DevTools CPU profile** of a scenario and print
+the hottest functions:
+
+```bash
+python -m benchmarks.run --profile wildcard_all_resolve
+# -> benchmarks/profile.cpuprofile  (load in Chrome DevTools > Performance,
+#    or in VS Code) + a printed "hottest functions" table
+```
+
+Profile mode serves the **dev** bundle (`dev_tools_serve_dev_bundles`, without
+the rest of the dev tools) so the profile has **readable function names** -
+the production bundle is minified to one-letter names. It warms up, then samples
+`repeats` interactions at a 50µs sampling interval, aggregating self-time per
+function by hit count.
+
+Workflow: run the timing suite -> find a scenario with a high absolute time or
+high `growth` -> `--profile` it -> read the hot functions -> the frame's
+`file.dev.js:line` points straight into `dash/dash-renderer/src`.
+
+## Findings
+
+Numbers below are from `ubuntu-latest`-class hardware, production bundle, React
+18. They move with the machine; trust the **shape** (flat vs growing, and which
+function dominates), not the absolute ms.
+
+### Snapshot (median per-op)
+
+| scenario | median | growth | reading |
+|--|--:|--:|--|
+| initial_render_small (200 rows) | ~45 ms | 1.0x | fine |
+| initial_render_large (3000 rows) | ~240 ms | 1.0x | linear in node count, expected |
+| deep_nesting (120 deep) | ~27 ms | 1.0x | fine |
+| patch_append_toplevel | ~52 ms | ~2x | flat enough; residual is shared O(total) traversal |
+| patch_append_nested | ~54 ms | ~2.8x | same; the [[nested append fix]] keeps re-hydration O(appended) |
+| patch_scalar_update_large (3000) | ~80 ms | ~0.8x | flat - in-place value change |
+| callback_fanout (1 -> 300) | ~45 ms | 1.0x | fine |
+| callback_chain (100 deep) | ~440 ms | 1.0x | ~100 sequential dispatches; inherent |
+| **wildcard_all_resolve (ALL over 400)** | **~580 ms** | 1.0x | **O(n²), see below** |
+| full_children_replace (contrast) | ~850 ms | ~18x | O(total) every click *by design* - why Patch exists |
+
+### 1. Wildcard (ALL / MATCH) resolution is O(n²) — the top opportunity
+
+Profiling `wildcard_all_resolve` (one input change, `Output({...: ALL})` over
+400 components) puts ~45% of the time in ramda `_equals` + `_functionName` and
+another chunk in `keys` / `_assoc` / `type`. Root cause: `getPath` for a
+pattern-matching (dict) id does a **linear** `find(propEq(values, 'values'),
+keyPaths)` over every component sharing that id shape
+(`dash/dash-renderer/src/actions/paths.js`), and `propEq` is a **deep-equality**
+on the id-values array. During an `ALL` resolution `getPath` is called per
+component, so it is O(N) lookups × O(N) scan × O(k) equals ≈ **O(N²·k)**.
+
+Optimization not yet taken: index `paths.objs[keyStr]` by a hash of the values
+(e.g. a `JSON.stringify(values)` key) so `getPath` is O(1). That turns wildcard
+resolution from O(N²) into O(N). Left as a follow-up because it touches the
+paths table shape that several call sites read.
+
+### 2. Patch append (post-fix) has no single hotspot
+
+After the [[nested append fix]], profiling `patch_append_nested` shows the cost
+spread across ramda `_path`/curry internals, React reconciliation, and redux
+`useSelector` snapshots - the inherent O(total) *cheap* traversal (persistence
+walk + callback crawl + element mapping), not the O(total) *re-hydration* that
+the fix removed. There is no dominant frame to cut; flattening it further means
+making those three traversals skip byref-unchanged subtrees (a bigger change).
+
+### 3. Full children replacement is the O(total) baseline
+
+`full_children_replace` grows ~18x across a run and is ~15x slower than the
+equivalent `Patch().extend()`. This is expected and is the reason `Patch`
+exists for growing containers; it is kept as a contrast with loose thresholds.
+
+### 4. Layouts deeper than ~250 nested components fail to serialize
+
+`/_dash-layout` raises "Recursion limit reached" (the JSON encoder's recursion
+limit) for a component tree nested deeper than ~254. The `deep_nesting`
+scenario is capped at 120 to stay clear. Worth remembering before recommending
+deeply-recursive layouts.
