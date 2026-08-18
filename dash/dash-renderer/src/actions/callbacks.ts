@@ -511,7 +511,9 @@ function handleServerside(
     background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    running: any
+    running: any,
+    compressPayload?: boolean,
+    compressThreshold?: number
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -530,7 +532,7 @@ function handleServerside(
         runningOff = running.runningOff;
     }
 
-    const fetchCallback = () => {
+    const fetchCallback = async () => {
         const headers = getCSRFHeader(config) as any;
         let url = `${urlBase(config)}_dash-update-component`;
         let newBody = body;
@@ -567,12 +569,36 @@ function handleServerside(
             moreArgs = moreArgs.filter(([_, __, single]) => !single);
         }
 
+        let fetchBody: BodyInit = newBody;
+
+        // Compress payload if enabled and size threshold is met
+        if (
+            compressPayload &&
+            compressThreshold !== undefined &&
+            newBody.length > compressThreshold
+        ) {
+            try {
+                const stream = new Blob([newBody])
+                    .stream()
+                    .pipeThrough(new CompressionStream('gzip'));
+                fetchBody = await new Response(stream).blob();
+                headers['Content-Encoding'] = 'gzip';
+            } catch (error) {
+                // Fall through to send uncompressed
+                // eslint-disable-next-line no-console
+                console.warn(
+                    'Sending uncompressed payload, because compressing failed:',
+                    error
+                );
+            }
+        }
+
         return fetch(
             url,
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body: newBody
+                body: fetchBody
             })
         );
     };
@@ -1100,7 +1126,9 @@ export function executeCallback(
                                     ? additionalArgs
                                     : undefined,
                                 getState,
-                                cb.callback.running
+                                cb.callback.running,
+                                cb.callback.compress_payload,
+                                cb.callback.compress_threshold
                             );
                         }
 
