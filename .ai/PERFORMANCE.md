@@ -108,24 +108,31 @@ function dominates), not the absolute ms.
 | patch_scalar_update_large (3000) | ~80 ms | ~0.8x | flat - in-place value change |
 | callback_fanout (1 -> 300) | ~45 ms | 1.0x | fine |
 | callback_chain (100 deep) | ~440 ms | 1.0x | ~100 sequential dispatches; inherent |
-| **wildcard_all_resolve (ALL over 400)** | **~580 ms** | 1.0x | **O(n²), see below** |
+| wildcard_all_resolve (ALL over 400) | ~140 ms | 1.0x | was ~580 ms (O(n²)); now O(n), see below |
 | full_children_replace (contrast) | ~850 ms | ~18x | O(total) every click *by design* - why Patch exists |
 
-### 1. Wildcard (ALL / MATCH) resolution is O(n²) — the top opportunity
+### 1. Wildcard (ALL / MATCH) resolution — was O(n²), now O(n) [fixed]
 
 Profiling `wildcard_all_resolve` (one input change, `Output({...: ALL})` over
-400 components) puts ~45% of the time in ramda `_equals` + `_functionName` and
-another chunk in `keys` / `_assoc` / `type`. Root cause: `getPath` for a
-pattern-matching (dict) id does a **linear** `find(propEq(values, 'values'),
-keyPaths)` over every component sharing that id shape
-(`dash/dash-renderer/src/actions/paths.js`), and `propEq` is a **deep-equality**
-on the id-values array. During an `ALL` resolution `getPath` is called per
-component, so it is O(N) lookups × O(N) scan × O(k) equals ≈ **O(N²·k)**.
+400 components) originally put ~45% of the time in ramda `_equals` +
+`_functionName`. Root cause: `getPath` for a pattern-matching (dict) id did a
+**linear** `find(propEq(values, 'values'), keyPaths)` over every component
+sharing that id shape, and `propEq` is a **deep-equality** on the id-values
+array. During an `ALL` resolution `getPath` is called once per resolved
+component, so it was O(N) lookups × O(N) scan × O(k) equals ≈ **O(N²·k)**.
 
-Optimization not yet taken: index `paths.objs[keyStr]` by a hash of the values
-(e.g. a `JSON.stringify(values)` key) so `getPath` is O(1). That turns wildcard
-resolution from O(N²) into O(N). Left as a follow-up because it touches the
-paths table shape that several call sites read.
+**Fix (`dash/dash-renderer/src/actions/paths.js`):** the paths table now
+carries an `objIndex` - `{[keyStr]: {[valuesKey]: path}}`, where `valuesKey` is
+`JSON.stringify(values)` - so `getPath` is an O(1) map lookup. `objs` stays an
+ordered array because pattern matching (`resolveDeps`, `getAllPMCIds`) walks it
+in order; `objIndex` is only for exact lookups. It's maintained inline in
+`computePaths` (copy-on-write per keyStr, so re-resolving one chunk doesn't
+rebuild the index for unrelated components) and extended incrementally in
+`appendPaths`; a table without an index (empty initial state, test fixture)
+makes `getPath` fall back to the linear scan, so the two never disagree.
+Result: `wildcard_all_resolve` went **~580 ms → ~140 ms (≈4x)**, and the
+`_equals`/`_functionName` frames left the profile. What remains is O(N) - one
+`assocPath` per resolved output - which is inherent to writing N updates.
 
 ### 2. Patch append (post-fix) has no single hotspot
 

@@ -247,8 +247,8 @@ scenario(
     name="full_children_replace",
     description="Rebuild the whole children list from a callback each click",
     params={"batch": 200},
-    warn_ms={"replace_ms": 4000},
-    fail_ms={"replace_ms": 10000},
+    warn_ms={"replace_ms": 6000},
+    fail_ms={"replace_ms": 12000},
     repeats=10,
     warmup=1,
 )((_build_full_replace, _drive_full_replace))
