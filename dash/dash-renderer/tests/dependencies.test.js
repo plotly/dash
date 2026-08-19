@@ -3,7 +3,8 @@ import {beforeEach, describe, it} from 'mocha';
 import {
     computeGraphs,
     getAnyVals,
-    getUnfilteredLayoutCallbacks
+    getUnfilteredLayoutCallbacks,
+    getWatchedKeys
 } from '../src/actions/dependencies';
 import {getCallbacksByInput} from '../src/actions/dependencies_ts';
 import {EventEmitter} from '../src/actions/utils';
@@ -168,6 +169,89 @@ describe('dependencies — MATCH validation (#2462)', () => {
         expect(msgs).to.include(
             'Mismatched `MATCH` wildcards across `Output`s'
         );
+    });
+});
+
+describe('dependencies — partial pattern indexes', () => {
+    const dispatchError = () => {};
+
+    it('keeps partial indexes empty and skips property filtering when unused', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'out.children',
+                    inputs: [
+                        {
+                            id: '{"index":["ALL"],"type":"btn"}',
+                            property: 'n_clicks'
+                        }
+                    ],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+        let filterCalled = false;
+        const newProps = {
+            length: 1,
+            filter: () => {
+                filterCalled = true;
+                return [];
+            }
+        };
+
+        expect(graphs.hasPartialPatterns).to.equal(false);
+        expect(graphs.partialInputPatterns).to.eql({});
+        expect(graphs.partialOutputPatterns).to.eql({});
+        expect(
+            getWatchedKeys(
+                {index: 1, page: 'home', type: 'btn'},
+                newProps,
+                graphs
+            )
+        ).to.eql([]);
+        expect(filterCalled).to.equal(false);
+    });
+
+    it('indexes only partial input and output patterns', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'input-result.children',
+                    inputs: [
+                        {
+                            id: '{"type":"btn"}',
+                            property: 'n_clicks',
+                            partial: true
+                        },
+                        {
+                            id: '{"index":["ALL"],"type":"btn"}',
+                            property: 'n_clicks'
+                        }
+                    ],
+                    state: [],
+                    no_output: false
+                },
+                {
+                    output: '{"type":"display"}.children',
+                    outputs_meta: [{partial: true}],
+                    inputs: [{id: 'trigger', property: 'n_clicks'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+
+        expect(graphs.hasPartialPatterns).to.equal(true);
+        expect(Object.keys(graphs.partialInputPatterns)).to.eql(['type']);
+        expect(Object.keys(graphs.partialOutputPatterns)).to.eql(['type']);
+        expect(graphs.partialInputPatterns.type.n_clicks).to.have.lengthOf(1);
+        expect(graphs.partialOutputPatterns.type.children).to.have.lengthOf(1);
+        expect(graphs.partialInputPatterns['index,type']).to.equal(undefined);
     });
 });
 
