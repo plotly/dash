@@ -118,7 +118,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Run lint
@@ -675,7 +676,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Build/Setup test components
@@ -780,7 +782,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Install HTML components dependencies
@@ -977,7 +980,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Remove DCC Python package and run tests
@@ -1061,7 +1065,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
+          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Install Table test dependencies
