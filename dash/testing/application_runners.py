@@ -28,11 +28,17 @@ from dash.testing import wait
 logger = logging.getLogger(__name__)
 
 
+def _server_type(app):
+    return getattr(getattr(app, "backend", None), "server_type", "flask")
+
+
 def _run_app(app, options):
-    server_type = getattr(getattr(app, "backend", None), "server_type", "flask")
+    server_type = _server_type(app)
     if server_type in ("fastapi", "quart"):
         app.run(**options)
     else:
+        # Flask test servers need threaded=True so shutdown requests can be
+        # handled while the server is processing another request.
         app.run(threaded=True, **options)
 
 
@@ -218,9 +224,7 @@ class ThreadedRunner(BaseDashRunner):
 
     def stop(self):
         # pylint: disable=protected-access
-        server_type = getattr(
-            getattr(self._app, "backend", None), "server_type", "flask"
-        )
+        server_type = _server_type(self._app)
         # For FastAPI apps with uvicorn, use graceful shutdown
         if server_type == "fastapi":
             server = self._app._uvicorn_server  # type: ignore[reportOptionalMemberAccess]
