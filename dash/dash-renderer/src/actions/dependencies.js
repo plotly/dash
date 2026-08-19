@@ -1319,14 +1319,15 @@ function getCallbackByOutput(graphs, paths, id, prop) {
                             vals
                         )
                     ) {
+                        const patternRefVals = props(patterns[i].keys, id);
                         callback = patterns[i].callbacks[0];
                         resolve = resolvePartialDeps(
                             patterns[i].keys,
-                            vals,
+                            patternRefVals,
                             patternVals,
                             _keys
                         );
-                        anyVals = getAnyVals(patternVals, vals);
+                        anyVals = getAnyVals(patternVals, patternRefVals);
                         break;
                     }
                 } else if (idMatch(_keys, vals, patternVals)) {
@@ -1362,14 +1363,18 @@ function getCallbackByOutput(graphs, paths, id, prop) {
                             vals
                         )
                     ) {
+                        const patternRefVals = props(
+                            patPropPatterns[i].keys,
+                            id
+                        );
                         callback = patPropPatterns[i].callbacks[0];
                         resolve = resolvePartialDeps(
                             patPropPatterns[i].keys,
-                            vals,
+                            patternRefVals,
                             patternVals,
                             _keys
                         );
-                        anyVals = getAnyVals(patternVals, vals);
+                        anyVals = getAnyVals(patternVals, patternRefVals);
                         break;
                     }
                 }

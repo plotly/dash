@@ -1,4 +1,4 @@
-from dash import Dash, Input, Output, State, ALL, html, dcc
+from dash import Dash, Input, Output, State, ALL, MATCH, html, dcc
 
 
 def test_pmcb001_partial_match_basic(dash_duo):
@@ -225,6 +225,46 @@ def test_pmcb006_partial_output(dash_duo):
 
     dash_duo.wait_for_text_to_equal(sel1, "empty")
     dash_duo.wait_for_text_to_equal(sel2, "empty")
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal(sel1, "updated-1")
+    dash_duo.wait_for_text_to_equal(sel2, "updated-1")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_pmcb007_partial_match_output_with_extra_keys(dash_duo):
+    """Partial MATCH outputs resolve values in pattern-key order."""
+    app = Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div(
+        [
+            html.Button("Go", id="btn", n_clicks=0),
+            html.Div(
+                "empty",
+                id={"index": 1, "type": "alpha"},
+            ),
+            html.Div(
+                "empty",
+                id={"index": 2, "type": "beta"},
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output({"type": MATCH}, "children", partial_pattern=True),
+        Input("btn", "n_clicks"),
+    )
+    def on_click(n):
+        return f"updated-{n}"
+
+    dash_duo.start_server(app)
+
+    sel1 = '[id=\'{"index":1,"type":"alpha"}\']'
+    sel2 = '[id=\'{"index":2,"type":"beta"}\']'
+
+    dash_duo.wait_for_text_to_equal(sel1, "updated-0")
+    dash_duo.wait_for_text_to_equal(sel2, "updated-0")
 
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal(sel1, "updated-1")
