@@ -117,7 +117,7 @@ export function getCallbacksByInput(
 
         // Also check partial patterns whose keys are a subset of this
         // component's keys
-        if (graphs.hasPartialPatterns) {
+        if (graphs.hasPartialInputPatterns) {
             for (const patKeyStr in graphs.partialInputPatterns) {
                 if (patKeyStr === idKeyStr) {
                     continue; // already handled above
@@ -162,7 +162,7 @@ export function getCallbacksByInput(
                     }
                 });
             }
-        } // end hasPartialPatterns guard
+        } // end hasPartialInputPatterns guard
     }
     matches.forEach(match => {
         match.changedPropIds[idAndProp] = changeType || DIRECT;

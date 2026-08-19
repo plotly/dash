@@ -202,7 +202,8 @@ describe('dependencies — partial pattern indexes', () => {
             }
         };
 
-        expect(graphs.hasPartialPatterns).to.equal(false);
+        expect(graphs.hasPartialInputPatterns).to.equal(false);
+        expect(graphs.hasPartialOutputPatterns).to.equal(false);
         expect(graphs.partialInputPatterns).to.eql({});
         expect(graphs.partialOutputPatterns).to.eql({});
         expect(
@@ -246,12 +247,42 @@ describe('dependencies — partial pattern indexes', () => {
             config
         );
 
-        expect(graphs.hasPartialPatterns).to.equal(true);
+        expect(graphs.hasPartialInputPatterns).to.equal(true);
+        expect(graphs.hasPartialOutputPatterns).to.equal(true);
         expect(Object.keys(graphs.partialInputPatterns)).to.eql(['type']);
         expect(Object.keys(graphs.partialOutputPatterns)).to.eql(['type']);
         expect(graphs.partialInputPatterns.type.n_clicks).to.have.lengthOf(1);
         expect(graphs.partialOutputPatterns.type.children).to.have.lengthOf(1);
         expect(graphs.partialInputPatterns['index,type']).to.equal(undefined);
+    });
+
+    it('skips watched-key filtering for output-only partial patterns', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: '{"type":"display"}.children',
+                    outputs_meta: [{partial: true}],
+                    inputs: [{id: 'trigger', property: 'n_clicks'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+        let filterCalled = false;
+        const newProps = {
+            length: 1,
+            filter: () => {
+                filterCalled = true;
+                return [];
+            }
+        };
+
+        expect(graphs.hasPartialInputPatterns).to.equal(false);
+        expect(graphs.hasPartialOutputPatterns).to.equal(true);
+        expect(getWatchedKeys({index: 1}, newProps, graphs)).to.eql([]);
+        expect(filterCalled).to.equal(false);
     });
 });
 

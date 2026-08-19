@@ -782,7 +782,8 @@ export function computeGraphs(dependencies, dispatchError, config) {
     let partialOutputPatterns = {};
     let partialInputPatterns = {};
 
-    let hasPartialPatterns = false;
+    let hasPartialOutputPatterns = false;
+    let hasPartialInputPatterns = false;
 
     const finalGraphs = {
         MultiGraph: multiGraph,
@@ -792,7 +793,8 @@ export function computeGraphs(dependencies, dispatchError, config) {
         inputPatterns,
         partialOutputPatterns,
         partialInputPatterns,
-        hasPartialPatterns,
+        hasPartialOutputPatterns,
+        hasPartialInputPatterns,
         callbacks: parsedDependencies
     };
 
@@ -995,7 +997,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         property,
                         finalDependency
                     );
-                    hasPartialPatterns = true;
+                    hasPartialOutputPatterns = true;
                 } else {
                     addPattern(
                         outputPatternMap,
@@ -1038,7 +1040,7 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         inProp,
                         finalDependency
                     );
-                    hasPartialPatterns = true;
+                    hasPartialInputPatterns = true;
                 } else {
                     addPattern(inputPatternMap, inId, inProp, finalDependency);
                 }
@@ -1061,7 +1063,8 @@ export function computeGraphs(dependencies, dispatchError, config) {
     finalGraphs.inputPatterns = inputPatterns;
     finalGraphs.partialOutputPatterns = partialOutputPatterns;
     finalGraphs.partialInputPatterns = partialInputPatterns;
-    finalGraphs.hasPartialPatterns = hasPartialPatterns;
+    finalGraphs.hasPartialOutputPatterns = hasPartialOutputPatterns;
+    finalGraphs.hasPartialInputPatterns = hasPartialInputPatterns;
 
     // second pass for adding new output nodes as dependencies where needed
     duplicateOutputs.forEach(dupeOutIdProp => {
@@ -1339,7 +1342,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
             }
         }
         // If not found, also check partial patterns with fewer keys
-        if (!resolve && graphs.hasPartialPatterns) {
+        if (!resolve && graphs.hasPartialOutputPatterns) {
             for (const patKeyStr in graphs.partialOutputPatterns) {
                 if (patKeyStr === keyStr) {
                     continue;
@@ -1489,7 +1492,7 @@ export function getWatchedKeys(id, newProps, graphs) {
     const keyStr = keys.join(',');
     const keyPatterns = graphs.inputPatterns[keyStr];
 
-    if (!keyPatterns && !graphs.hasPartialPatterns) {
+    if (!keyPatterns && !graphs.hasPartialInputPatterns) {
         return [];
     }
 
@@ -1505,7 +1508,7 @@ export function getWatchedKeys(id, newProps, graphs) {
             }
         }
         // Check partial patterns whose keys are a subset of this component's keys
-        if (!graphs.hasPartialPatterns) {
+        if (!graphs.hasPartialInputPatterns) {
             return false;
         }
         for (const patKeyStr in graphs.partialInputPatterns) {
@@ -1697,7 +1700,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                 );
                 // Also check partial patterns whose keys are a subset of
                 // this component's keys
-                if (graphs.hasPartialPatterns) {
+                if (graphs.hasPartialInputPatterns) {
                     for (const patKeyStr in graphs.partialInputPatterns) {
                         if (patKeyStr === keyStr) {
                             continue;
@@ -1712,8 +1715,11 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                             graphs.partialInputPatterns[patKeyStr]
                         );
                     }
-                } // end hasPartialPatterns guard (input)
-                if (!removedArrayInputsOnly && graphs.hasPartialPatterns) {
+                } // end hasPartialInputPatterns guard
+                if (
+                    !removedArrayInputsOnly &&
+                    graphs.hasPartialOutputPatterns
+                ) {
                     for (const patKeyStr in graphs.partialOutputPatterns) {
                         if (patKeyStr === keyStr) {
                             continue;
