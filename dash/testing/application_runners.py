@@ -240,9 +240,12 @@ class ThreadedRunner(BaseDashRunner):
                 loop.call_soon_threadsafe(quart_shutdown_event.set)  # type: ignore[reportOptionalMemberAccess]
             self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         else:
-            # Fall back to killing threads for Flask/other backends
+            # Fall back to killing threads for Flask/other backends. Bound the
+            # join: if the injected SystemExit fails to unwind a worker stuck in
+            # a C call, an unbounded join() would block teardown forever and
+            # hang the whole test step.
             self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
-            self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
             wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         self._app = None
         self.started = False
