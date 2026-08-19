@@ -32,6 +32,7 @@ import {
     BackgroundCallbackInfo,
     CallbackResponse,
     CallbackResponseData,
+    PatchedOutputs,
     SideUpdateOutput
 } from '../types/callbacks';
 import {isMultiValued, stringifyId, isMultiOutputProp} from './dependencies';
@@ -41,7 +42,8 @@ import {createAction, Action} from 'redux-actions';
 import {addHttpHeaders} from '../actions';
 import {notifyObservers, updateProps} from './index';
 import {CallbackJobPayload} from '../reducers/callbackJobs';
-import {parsePatchProps} from './patch';
+import {isPatch, parsePatchProps} from './patch';
+import {createPatchAnalysis} from './patchAnalysis';
 import {computePaths, getPath} from './paths';
 
 import {requestDependencies} from './requestDependencies';
@@ -52,6 +54,11 @@ import {parsePMCId} from './patternMatching';
 import {replacePMC} from './patternMatching';
 import {loaded, loading} from './loading';
 import {getComponentLayout} from '../wrapper/wrapping';
+import {
+    getWorkerClient,
+    isWebSocketEnabled,
+    isWebSocketAvailable
+} from '../utils/workerClient';
 
 export const addBlockedCallbacks = createAction<IBlockedCallback[]>(
     CallbackActionType.AddBlocked
@@ -239,6 +246,47 @@ const zipIfArray = (a: any, b: any) => {
 
 function cleanOutputProp(property: string) {
     return property.split('@')[0];
+}
+
+function patchedResultFields(patchedOutputs: PatchedOutputs) {
+    return keys(patchedOutputs).length ? {patchedOutputs} : {};
+}
+
+// When the Layout may have changed, run each output through parsePatchProps against
+// the current layout, recording a PatchAnalysis for each output that
+// returned a Patch. Shared by the clientside and serverside result paths
+function applyPatchedOutputs(
+    outputs: any,
+    paths: any,
+    currentLayout: any,
+    data: any
+) {
+    const patchedOutputs: PatchedOutputs = {};
+    flatten(outputs).forEach((out: any) => {
+        const propName = cleanOutputProp(out.property);
+        const outputPath = getPath(paths, out.id);
+        const idStr = stringifyId(out.id);
+        const dataPath = [idStr, propName];
+        const outputValue = path(dataPath, data);
+        if (outputValue === undefined) {
+            return;
+        }
+        if (isPatch(outputValue)) {
+            // One analysis per output, shared by all of its
+            // patched props
+            patchedOutputs[idStr] =
+                patchedOutputs[idStr] || createPatchAnalysis();
+        }
+        const oldProps =
+            path(outputPath.concat(['props']), currentLayout) || {};
+        const newProps = parsePatchProps(
+            {[propName]: outputValue},
+            oldProps,
+            patchedOutputs[idStr]
+        );
+        data = assocPath(dataPath, newProps[propName], data);
+    });
+    return {data, patchedOutputs};
 }
 
 async function handleClientside(
@@ -463,7 +511,9 @@ function handleServerside(
     background: BackgroundCallbackInfo | undefined,
     additionalArgs: [string, string, boolean?][] | undefined,
     getState: any,
-    running: any
+    running: any,
+    compressPayload?: boolean,
+    compressThreshold?: number
 ): Promise<CallbackResponse> {
     if (hooks.request_pre) {
         hooks.request_pre(payload);
@@ -482,8 +532,8 @@ function handleServerside(
         runningOff = running.runningOff;
     }
 
-    const fetchCallback = () => {
-        const headers = getCSRFHeader() as any;
+    const fetchCallback = async () => {
+        const headers = getCSRFHeader(config) as any;
         let url = `${urlBase(config)}_dash-update-component`;
         let newBody = body;
 
@@ -494,6 +544,11 @@ function handleServerside(
             }
             url = `${url}${delim}${name}=${value}`;
         };
+        // Echo the server-issued token so the server can bind/verify the
+        // background-callback handles (cacheKey/job/oldJob/cancelJob) it signs.
+        if (config.end_id) {
+            addArg('endId', config.end_id);
+        }
         if (cacheKey || job) {
             if (cacheKey) addArg('cacheKey', cacheKey);
             if (job) addArg('job', job);
@@ -514,12 +569,36 @@ function handleServerside(
             moreArgs = moreArgs.filter(([_, __, single]) => !single);
         }
 
+        let fetchBody: BodyInit = newBody;
+
+        // Compress payload if enabled and size threshold is met
+        if (
+            compressPayload &&
+            compressThreshold !== undefined &&
+            newBody.length > compressThreshold
+        ) {
+            try {
+                const stream = new Blob([newBody])
+                    .stream()
+                    .pipeThrough(new CompressionStream('gzip'));
+                fetchBody = await new Response(stream).blob();
+                headers['Content-Encoding'] = 'gzip';
+            } catch (error) {
+                // Fall through to send uncompressed
+                // eslint-disable-next-line no-console
+                console.warn(
+                    'Sending uncompressed payload, because compressing failed:',
+                    error
+                );
+            }
+        }
+
         return fetch(
             url,
             mergeDeepRight(config.fetch, {
                 method: 'POST',
                 headers,
-                body: newBody
+                body: fetchBody
             })
         );
     };
@@ -685,6 +764,140 @@ function handleServerside(
     });
 }
 
+/**
+ * Handle serverside callback via WebSocket connection.
+ *
+ * Uses the SharedWorker to send the callback request through the persistent
+ * WebSocket connection instead of HTTP POST.
+ */
+async function handleWebsocketCallback(
+    dispatch: any,
+    hooks: any,
+    config: any,
+    payload: ICallbackPayload,
+    running: any
+): Promise<CallbackResponse> {
+    if (hooks.request_pre) {
+        hooks.request_pre(payload);
+    }
+
+    const requestTime = Date.now();
+    let runningOff: any;
+
+    if (running) {
+        dispatch(sideUpdate(running.running, payload));
+        runningOff = running.runningOff;
+    }
+
+    const workerClient = getWorkerClient();
+
+    try {
+        // Ensure WebSocket connection is established
+        await workerClient.ensureConnected(config);
+
+        const response = await workerClient.sendCallback(payload);
+
+        // Handle running off state
+        if (runningOff) {
+            dispatch(sideUpdate(runningOff, payload));
+        }
+
+        if (response.status === 'prevent_update') {
+            // Record timing for profiling
+            if (config.ui) {
+                const totalTime = Date.now() - requestTime;
+                dispatch(
+                    updateResourceUsage({
+                        id: payload.output,
+                        usage: {
+                            __dash_server: totalTime,
+                            __dash_client: totalTime,
+                            __dash_upload: 0,
+                            __dash_download: 0
+                        },
+                        status: STATUS.PREVENT_UPDATE,
+                        result: {},
+                        inputs: payload.inputs,
+                        state: payload.state
+                    })
+                );
+            }
+            return {};
+        }
+
+        if (response.status === 'error') {
+            throw new Error(response.message || 'Callback error');
+        }
+
+        // Extract the callback data - structure is {multi: boolean, response: {...}}
+        const callbackData = response.data as CallbackResponseData;
+
+        // Handle sideUpdate if present
+        if (callbackData?.sideUpdate) {
+            dispatch(sideUpdate(callbackData.sideUpdate, payload));
+        }
+
+        // Extract the actual outputs from the response
+        // Format is similar to HTTP path's finishLine function
+        let result: CallbackResponse;
+        const {multi, response: callbackResponse} = callbackData || {};
+
+        if (hooks.request_post) {
+            hooks.request_post(payload, callbackResponse);
+        }
+
+        if (multi) {
+            result = callbackResponse as CallbackResponse;
+        } else {
+            // Single output - convert to the expected format
+            const {output} = payload;
+            const id = output.substr(0, output.lastIndexOf('.'));
+            result = {[id]: (callbackResponse as CallbackResponse)?.props};
+        }
+
+        // Record timing for profiling
+        if (config.ui) {
+            const totalTime = Date.now() - requestTime;
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    usage: {
+                        __dash_server: totalTime,
+                        __dash_client: totalTime,
+                        __dash_upload: 0,
+                        __dash_download: 0
+                    },
+                    status: STATUS.OK,
+                    result: result || {},
+                    inputs: payload.inputs,
+                    state: payload.state
+                })
+            );
+        }
+
+        return result || {};
+    } catch (error) {
+        // Handle running off state on error
+        if (runningOff) {
+            dispatch(sideUpdate(runningOff, payload));
+        }
+
+        if (config.ui) {
+            dispatch(
+                updateResourceUsage({
+                    id: payload.output,
+                    status: STATUS.NO_RESPONSE,
+                    result: {},
+                    inputs: payload.inputs,
+                    state: payload.state
+                })
+            );
+        }
+
+        throw error;
+    }
+}
+
 function inputsToDict(inputs_list: any) {
     // Ported directly from _utils.py, inputs_to_dict
     // takes an array of inputs (some inputs may be an array)
@@ -791,7 +1004,7 @@ export function executeCallback(
         }
 
         const __execute = async (): Promise<CallbackResult> => {
-            const loadingOutputs = outputs.map(out => ({
+            const loadingOutputs = flatten(outputs).map(out => ({
                 path: getPath(paths, out.id),
                 property: out.property?.split('@')[0],
                 id: stringifyId(out.id)
@@ -818,38 +1031,26 @@ export function executeCallback(
 
                 if (clientside_function) {
                     try {
-                        let data = await handleClientside(
+                        const data = await handleClientside(
                             dispatch,
                             clientside_function,
                             config,
                             payload
                         );
-                        // Patch methodology: always run through parsePatchProps for each output
-                        const currentLayout = getState().layout;
-                        flatten(outputs).forEach((out: any) => {
-                            const propName = cleanOutputProp(out.property);
-                            const outputPath = getPath(paths, out.id);
-                            const dataPath = [stringifyId(out.id), propName];
-                            const outputValue = path(dataPath, data);
-                            if (outputValue === undefined) {
-                                return;
-                            }
-                            const oldProps =
-                                path(
-                                    outputPath.concat(['props']),
-                                    currentLayout
-                                ) || {};
-                            const newProps = parsePatchProps(
-                                {[propName]: outputValue},
-                                oldProps
-                            );
-                            data = assocPath(
-                                dataPath,
-                                newProps[propName],
+                        // Layout may have changed
+                        //  Run every output through parsePatchProps against the current layout
+                        const {data: patchedData, patchedOutputs} =
+                            applyPatchedOutputs(
+                                outputs,
+                                paths,
+                                getState().layout,
                                 data
                             );
-                        });
-                        return {data, payload};
+                        return {
+                            data: patchedData,
+                            payload,
+                            ...patchedResultFields(patchedOutputs)
+                        };
                     } catch (error: any) {
                         return {error, payload};
                     }
@@ -890,49 +1091,59 @@ export function executeCallback(
                     }
                 );
 
+                // Use WebSocket for callbacks when:
+                // 1. Global WebSocket is enabled, OR
+                // 2. Per-callback websocket flag is set (and WebSocket is available)
+                // (but never for background callbacks)
+                const useWebSocket =
+                    !background &&
+                    (isWebSocketEnabled(config) ||
+                        (cb.callback.websocket &&
+                            isWebSocketAvailable(config)));
+
                 for (let retry = 0; retry <= MAX_AUTH_RETRIES; retry++) {
                     try {
-                        let data = await handleServerside(
-                            dispatch,
-                            hooks,
-                            newConfig,
-                            payload,
-                            background,
-                            additionalArgs.length ? additionalArgs : undefined,
-                            getState,
-                            cb.callback.running
-                        );
+                        let data: CallbackResponse;
+
+                        if (useWebSocket) {
+                            // Use WebSocket path for real-time callbacks
+                            data = await handleWebsocketCallback(
+                                dispatch,
+                                hooks,
+                                newConfig,
+                                payload,
+                                cb.callback.running
+                            );
+                        } else {
+                            // Use traditional HTTP path
+                            data = await handleServerside(
+                                dispatch,
+                                hooks,
+                                newConfig,
+                                payload,
+                                background,
+                                additionalArgs.length
+                                    ? additionalArgs
+                                    : undefined,
+                                getState,
+                                cb.callback.running,
+                                cb.callback.compress_payload,
+                                cb.callback.compress_threshold
+                            );
+                        }
 
                         if (newHeaders) {
                             dispatch(addHttpHeaders(newHeaders));
                         }
                         // Layout may have changed.
-                        // DRY: Always run through parsePatchProps for each output
-                        const currentLayout = getState().layout;
-                        flatten(outputs).forEach((out: any) => {
-                            const propName = cleanOutputProp(out.property);
-                            const outputPath = getPath(paths, out.id);
-                            const dataPath = [stringifyId(out.id), propName];
-                            const outputValue = path(dataPath, data);
-                            if (outputValue === undefined) {
-                                return;
-                            }
-                            const oldProps =
-                                path(
-                                    outputPath.concat(['props']),
-                                    currentLayout
-                                ) || {};
-                            const newProps = parsePatchProps(
-                                {[propName]: outputValue},
-                                oldProps
-                            );
-
-                            data = assocPath(
-                                dataPath,
-                                newProps[propName],
+                        // Run parsePatchProps against the current layout
+                        const {data: patchedData, patchedOutputs} =
+                            applyPatchedOutputs(
+                                outputs,
+                                paths,
+                                getState().layout,
                                 data
                             );
-                        });
 
                         if (dynamic_creator) {
                             setTimeout(
@@ -941,7 +1152,11 @@ export function executeCallback(
                             );
                         }
 
-                        return {data, payload};
+                        return {
+                            data: patchedData,
+                            payload,
+                            ...patchedResultFields(patchedOutputs)
+                        };
                     } catch (res: any) {
                         lastError = res;
                         if (

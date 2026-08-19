@@ -74,6 +74,9 @@ def test_roc001_reorder_children(dash_duo):
 
         dash_duo.find_element(f".swap_button_{i}").click()
 
+    # Wait for the final swap to complete before accessing elements
+    dash_duo.wait_for_text_to_equal("h1", "I am section 0")
+
     value_items = dash_duo.find_elements(f".dropdown_{0} .dash-dropdown-value-item")
     assert [item.text for item in value_items] == ["A", "B", "C"]
 

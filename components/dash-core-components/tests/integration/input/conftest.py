@@ -2,7 +2,7 @@ import pytest
 from dash import Dash, Input, Output, dcc, html
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def ninput_app():
     app = Dash(__name__)
     app.layout = html.Div(
@@ -35,7 +35,7 @@ def ninput_app():
     yield app
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def input_range_app():
     app = Dash(__name__)
     app.layout = html.Div(
@@ -59,7 +59,7 @@ def input_range_app():
     yield app
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def debounce_text_app():
     app = Dash(__name__)
     app.layout = html.Div(
@@ -89,7 +89,7 @@ def debounce_text_app():
     yield app
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def debounce_number_app():
     app = Dash(__name__)
     app.layout = html.Div(

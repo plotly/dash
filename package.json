@@ -2,7 +2,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "private::format.black": "black dash tests --exclude metadata_test.py",
+    "private::format.black": "black dash tests --exclude 'metadata_test.py|node_modules'",
     "private::format.renderer": "cd dash/dash-renderer && npm run format",
     "private::format.dcc": "cd components/dash-core-components && npm run format",
     "private::format.table": "cd components/dash-table && npm run format",
@@ -12,9 +12,9 @@
     "private::cibuild.renderer": "cd dash/dash-renderer && rimraf build/dash_renderer.min.js && renderer build && sh renderer-test.sh",
     "private::build.renderer": "cd dash/dash-renderer && rimraf build/dash_renderer.min.js && renderer build && sh renderer-test.sh",
     "private::build.jupyterlab": "cd @plotly/dash-jupyterlab && jlpm install && jlpm build:pack",
-    "private::lint.black": "black dash tests --exclude metadata_test.py --check",
-    "private::lint.flake8": "flake8 --exclude=metadata_test.py dash tests",
-    "private::lint.pylint-dash": "pylint dash setup.py --rcfile=.pylintrc",
+    "private::lint.black": "black dash tests --exclude 'metadata_test.py|node_modules' --check",
+    "private::lint.flake8": "flake8 dash tests",
+    "private::lint.pylint-dash": "pylint dash setup.py --rcfile=.pylintrc ${PYLINT_EXTRA_ARGS:-}",
     "private::lint.pylint-tests": "pylint tests/unit tests/integration -d all -e C0410,C0413,W0109 --rcfile=.pylintrc",
     "private::lint.renderer": "cd dash/dash-renderer && npm run lint",
     "private::test.setup-components": "cd @plotly/dash-test-components && npm ci && npm run build",
@@ -44,19 +44,20 @@
     "setup-tests.R": "run-s private::test.R.deploy-*",
     "citest.integration": "run-s setup-tests.py private::test.integration-*",
     "citest.unit": "run-s private::test.unit-**",
-    "test": "pytest && cd dash/dash-renderer && npm run test",
+    "test": "pytest --ignore=tests/backend_tests && cd dash/dash-renderer && npm run test",
     "first-build": "cd dash/dash-renderer && npm i && cd ../../ && cd components/dash-html-components && npm i && npm run extract && cd ../../ && npm run build"
   },
   "devDependencies": {
     "@lerna/filter-options": "^6.4.1",
+    "@percy/cli": "^1.31.0",
     "@types/jest": "^30.0.0",
-    "husky": "8.0.3",
+    "husky": "9.1.7",
     "lerna": "^9.0.4",
-    "lint-staged": "^16.1.0"
+    "lint-staged": "^17.0.7"
   },
   "dependencies": {
     "npm-run-all": "4.1.5",
-    "rimraf": "^5.0.5"
+    "rimraf": "^6.1.3"
   },
   "name": "dash"
 }

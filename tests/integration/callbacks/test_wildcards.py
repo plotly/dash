@@ -1,12 +1,25 @@
 import pytest
 import re
+import threading
 from selenium.webdriver.common.keys import Keys
 import json
 from multiprocessing import Lock
 
 from dash.testing import wait
 import dash
-from dash import Dash, Input, Output, State, ALL, ALLSMALLER, MATCH, html, dcc
+from dash import (
+    Dash,
+    Input,
+    Output,
+    State,
+    ALL,
+    ALLSMALLER,
+    MATCH,
+    html,
+    dcc,
+    Patch,
+    set_props,
+)
 
 from tests.assets.todo_app import todo_app
 from tests.assets.grouping_app import grouping_app
@@ -619,3 +632,494 @@ def test_cbwc008_running_match(dash_duo):
         assert not dash_duo.find_element("#buttons button:nth-child(2)").get_attribute(
             "disabled"
         )
+
+
+def test_cbwc009_match_input_fixed_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with a fixed-id Output.
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "Alpha",
+                id={"type": "btn", "index": "alpha"},
+            ),
+            html.Button(
+                "Beta",
+                id={"type": "btn", "index": "beta"},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Output("out", "children"),
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def show_clicked(_, id_):
+        return f"clicked {id_['index']}"
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"alpha\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked alpha")
+
+    dash_duo.find_element(
+        '[id=\\{\\"index\\"\\:\\"beta\\"\\,\\"type\\"\\:\\"btn\\"\\}]'
+    ).click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked beta")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc010_match_input_no_output(dash_duo):
+    # Issue #2462: allow MATCH in Input with no Output (set_props).
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(
+                "One",
+                id={"type": "btn", "index": 1},
+            ),
+            html.Button(
+                "Two",
+                id={"type": "btn", "index": 2},
+            ),
+            html.Div("initial", id="out"),
+        ]
+    )
+
+    @app.callback(
+        Input({"type": "btn", "index": MATCH}, "n_clicks"),
+        State({"type": "btn", "index": MATCH}, "id"),
+        prevent_initial_call=True,
+    )
+    def announce(_, id_):
+        set_props("out", {"children": f"clicked index={id_['index']}"})
+
+    dash_duo.start_server(app)
+
+    dash_duo.wait_for_text_to_equal("#out", "initial")
+
+    dash_duo.find_element('[id=\\{\\"index\\"\\:1\\,\\"type\\"\\:\\"btn\\"\\}]').click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=1")
+
+    dash_duo.find_element('[id=\\{\\"index\\"\\:2\\,\\"type\\"\\:\\"btn\\"\\}]').click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked index=2")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc011_patch_no_spurious_match_callbacks(dash_duo):
+    """Test for the initial call suppression in getUnfilteredLayoutCallbacks
+
+    When Patch() appends a new MATCHpattern component, existing MATCH callbacks
+    must not refire for preexisting components. Previously, crawlLayout would
+    visit all children in the layout chunk and mark every matching output as
+    initial Call=true, causing all existing callbacks to spuriously reexecute
+
+    The fix uses what the patch operations recorded while they were applied
+    to only give an initial call to the components the patch actually created
+    """
+    lock = threading.Lock()
+    fire_counts = {}  # {index: count}, how many times each MATCH callback fired
+
+    def make_item(index):
+        return html.Div(
+            [
+                dcc.Input(
+                    id={"type": "item-input", "index": index},
+                    value=index,
+                    type="number",
+                    className="item-input",
+                ),
+                html.Div(
+                    "init",
+                    id={"type": "item-output", "index": index},
+                    className="item-output",
+                ),
+            ]
+        )
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Add", id="add-btn", n_clicks=0),
+            html.Div([make_item(0), make_item(1)], id="container"),
+        ]
+    )
+
+    @app.callback(
+        Output("container", "children"),
+        Input("add-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def add_item(n):
+        p = Patch()
+        p.append(make_item(n + 1))
+        return p
+
+    @app.callback(
+        Output({"type": "item-output", "index": MATCH}, "children"),
+        Input({"type": "item-input", "index": MATCH}, "value"),
+    )
+    def on_value_change(value):
+        from dash import ctx
+
+        idx = ctx.outputs_grouping["id"]["index"]
+        with lock:
+            fire_counts[idx] = fire_counts.get(idx, 0) + 1
+            count = fire_counts[idx]
+        return f"fired-{idx}-#{count}"
+
+    dash_duo.start_server(app)
+
+    # Wait for the initial callbacks to fire for both preexisting items
+    wait.until(lambda: fire_counts.get(0, 0) >= 1, 5)
+    wait.until(lambda: fire_counts.get(1, 0) >= 1, 5)
+
+    counts_before = {0: fire_counts[0], 1: fire_counts[1]}
+
+    # Add a new item via Patch, this should fire only for index 2
+    dash_duo.find_element("#add-btn").click()
+    wait.until(lambda: fire_counts.get(2, 0) >= 1, 5)
+
+    # Preexisting callbacks must not have refired
+    assert fire_counts[0] == counts_before[0], (
+        f"Item 0 callback fired spuriously after Patch: "
+        f"was {counts_before[0]}, now {fire_counts[0]}"
+    )
+    assert fire_counts[1] == counts_before[1], (
+        f"Item 1 callback fired spuriously after Patch: "
+        f"was {counts_before[1]}, now {fire_counts[1]}"
+    )
+    assert (
+        fire_counts[2] == 1
+    ), f"New item 2 callback should have fired exactly once, fired {fire_counts[2]}"
+
+
+def test_cbwc012_patch_no_spurious_match_callbacks_undefined_output_prop(dash_duo):
+    """Existing MATCH components whose output prop is undefined
+    must not have their callbacks refired when Patch() appends a new sibling
+
+    This covers components whose output prop has no value at all
+    (dcc.Slider without an explicit `value`): suppression must not depend on
+    comparing prop values, which cannot distinguish "unchanged" from "undefined
+    on both sides", but on whether the patch created the component
+    """
+    lock = threading.Lock()
+    fire_counts = {}  # {aio_id: count}
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Add Slider", id="add-btn", n_clicks=0),
+            html.Div(id="slider-container", children=[]),
+        ]
+    )
+
+    @app.callback(
+        Output("slider-container", "children"),
+        Input("add-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def add_slider(n_clicks):
+        p = Patch()
+        # dcc.Slider with no explicit `value`, value prop is undefined in layout
+        p.append(
+            dcc.Slider(
+                id={"type": "slider", "aio_id": str(n_clicks)},
+                step=0.1,
+                persistence=str(n_clicks),
+                persistence_type="local",
+            )
+        )
+        return p
+
+    @app.callback(
+        Output({"type": "slider", "aio_id": MATCH}, "value"),
+        Input({"type": "slider", "aio_id": MATCH}, "value"),
+        prevent_initial_call=False,
+    )
+    def on_slider_value(val):
+        from dash import ctx, no_update
+
+        aio_id = ctx.outputs_grouping["id"]["aio_id"]
+        with lock:
+            fire_counts[aio_id] = fire_counts.get(aio_id, 0) + 1
+        return no_update
+
+    dash_duo.start_server(app)
+
+    # Add first slider, should fire exactly once for slider "1"
+    dash_duo.find_element("#add-btn").click()
+    wait.until(lambda: fire_counts.get("1", 0) >= 1, 5)
+    assert (
+        fire_counts["1"] == 1
+    ), f"Slider 1 fired {fire_counts['1']} times after being added"
+
+    # Add second slider, should fire once for "2", not refire "1"
+    dash_duo.find_element("#add-btn").click()
+    wait.until(lambda: fire_counts.get("2", 0) >= 1, 5)
+    assert fire_counts.get("1", 0) == 1, (
+        f"Slider 1 spuriously refired after adding slider 2: "
+        f"count={fire_counts.get('1', 0)}"
+    )
+    assert (
+        fire_counts["2"] == 1
+    ), f"Slider 2 fired {fire_counts['2']} times after being added"
+
+    # Add third slider, should fire once for "3", not refire "1" or "2"
+    dash_duo.find_element("#add-btn").click()
+    wait.until(lambda: fire_counts.get("3", 0) >= 1, 5)
+    assert fire_counts.get("1", 0) == 1, (
+        f"Slider 1 spuriously refired after adding slider 3: "
+        f"count={fire_counts.get('1', 0)}"
+    )
+    assert fire_counts.get("2", 0) == 1, (
+        f"Slider 2 spuriously refired after adding slider 3: "
+        f"count={fire_counts.get('2', 0)}"
+    )
+    assert (
+        fire_counts["3"] == 1
+    ), f"Slider 3 fired {fire_counts['3']} times after being added"
+
+
+def test_cbwc013_patch_rebuild_match_initial_call_undefined_output_prop(dash_duo):
+    """Ensure that initial callbacks are running when they're meant to
+
+    When a Patch operation replaces an entire children list of a container with
+    fresh component instances that reuse the same MATCH ids as the prior
+    occupants, and the relevant output prop is undefined on both old and new
+    sides (a dcc.Slider with no explicit `value`), the per MATCH initial
+    callback should only fire once for each newly mounted slot
+
+    Bug behavior:
+        Suppression that goes by "was this id already on the page" or by
+        comparing old and new prop values considers each rebuilt slider
+        unchanged, both sides are undefined, so its initial call is dropped
+        from the queue and never fires. The Python fire_counts dict therefore
+        stays at the pre rebuild value
+
+    Expected behavior (after fix):
+        Every rebuilt slot fires the initial MATCH callback exactly once,
+        regardless of whether its output prop is defined: the patch created
+        these instances, so they are new whatever ids they reuse
+
+    The MATCH callback used here outputs to `slider.value` (undefined on both
+    sides) and is keyed by an Input on `slider.min`. The input value doesn't
+    change across the rebuild, so the *only* path by which this callback can
+    fire for newly mounted instances is the layout level initial call path
+    (handleOneId -> outIdCallbacks)
+    """
+    lock = threading.Lock()
+    fire_counts = {}  # {idx: count}
+    N = 5
+
+    def make_slider_row(i):
+        return html.Div(
+            [
+                dcc.Slider(
+                    id={"type": "slider", "idx": i},
+                    min=0,
+                    max=10,
+                    step=0.1,
+                    # NOTE: no `value` set, undefined in layout on both sides
+                ),
+            ]
+        )
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Rebuild", id="rebuild-btn", n_clicks=0),
+            html.Div(
+                id="container",
+                children=[make_slider_row(i) for i in range(N)],
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("container", "children"),
+        Input("rebuild-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def rebuild(_n):
+        # Children list replacement via Patch: clear + append rebuilds the
+        # entire list with fresh component instances. The MATCH ids match the
+        # prior occupants exactly, and so do the props, so nothing in the
+        # resulting layout tells the new instances apart from the ones they
+        # replaced, only the patch operations themselves know they are new
+        p = Patch()
+        p.clear()
+        for i in range(N):
+            p.append(make_slider_row(i))
+        return p
+
+    @app.callback(
+        Output({"type": "slider", "idx": MATCH}, "value"),
+        Input({"type": "slider", "idx": MATCH}, "min"),
+        prevent_initial_call=False,
+    )
+    def on_slider_mount(_min_val):
+        from dash import ctx, no_update
+
+        idx = ctx.outputs_grouping["id"]["idx"]
+        with lock:
+            fire_counts[idx] = fire_counts.get(idx, 0) + 1
+        # Don't actually update `value`, keep it undefined on both sides, so
+        # that suppressing the initial call by comparing the old and new value
+        # would drop it for every rebuilt slider
+        return no_update
+
+    dash_duo.start_server(app)
+
+    # Initial mount: every slider should fire its MATCH callback exactly once
+    for i in range(N):
+        wait.until(lambda i=i: fire_counts.get(i, 0) >= 1, 5)
+    initial = dict(fire_counts)
+    for i in range(N):
+        assert (
+            initial[i] == 1
+        ), f"Slider {i} fired {initial[i]} times on initial mount (expected 1)"
+
+    # Patch rebuilt the children list. Every slot is freshly mounted, so each
+    # MATCH callback should fire exactly once more
+    dash_duo.find_element("#rebuild-btn").click()
+
+    # Wait long enough for any queued/dispatched callbacks to complete
+    import time
+
+    time.sleep(3)
+
+    failures = []
+    for i in range(N):
+        expected = initial[i] + 1
+        actual = fire_counts.get(i, 0)
+        if actual != expected:
+            failures.append(f"  slot idx={i}: expected {expected} fires, got {actual}")
+
+    assert not failures, (
+        "After Patch driven children list rebuild, the following MATCH "
+        "callbacks did not refire as expected (initial call suppression bug):\n"
+        + "\n".join(failures)
+        + "\n\nThe renderer must only suppress the initial call for components "
+        "the Patch carried over, which it takes from the patch operations "
+        "themselves. Components rebuilt with a reused id are new instances and "
+        "must get their initial call, even when their output prop is undefined "
+        "on both sides"
+    )
+
+    assert dash_duo.get_logs() == []
+
+
+def test_cbwc014_patch_nested_change_does_not_refire_container_callbacks(dash_duo):
+    """A Patch that changes something deep inside a container
+    must not rerun the initial callbacks of the containers around it
+
+    Patch operations are applied with ramda's assocPath, which rebuilds every
+    object between the patched prop and the value that changed. Those
+    containers are not new, the patch only carried them over, so their
+    initial callbacks must stay suppressed. Reference identity cannot tell
+    them apart from a component the patch created, since assocPath gives them
+    a brand new props object either way. The renderer instead records what
+    each patch operation did while applying it
+
+    The same Patch also appends a genuinely new component, whose initial
+    callback must still fire, proving the suppression is not too broad
+    """
+    lock = threading.Lock()
+    fire_counts = {}
+
+    app = Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div(
+        [
+            html.Button("Patch", id="patch-btn", n_clicks=0),
+            # Never changes, so the counting callbacks below can only fire from
+            # the layout level initial call path
+            html.Div("static", id="static"),
+            html.Div(
+                [
+                    html.Div(
+                        [dcc.Input(id="deep-input", value="initial")],
+                        id="patched-group",
+                    ),
+                    html.Div(id="untouched-group"),
+                ],
+                id="container",
+            ),
+            html.Div("0", id="done"),
+        ]
+    )
+
+    def count_fire(name):
+        with lock:
+            fire_counts[name] = fire_counts.get(name, 0) + 1
+        return f"fired-{name}"
+
+    @app.callback(
+        Output("container", "children"),
+        Output("done", "children"),
+        Input("patch-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def do_patch(n):
+        p = Patch()
+        # Deep change: only `deep-input.value` is written, but assocPath has to
+        # rebuild the children list and `patched-group` on the way there
+        p[0]["props"]["children"][0]["props"]["value"] = f"patched-{n}"
+        # ... and one genuinely new component
+        p.append(html.Div(id="new-group"))
+        return p, str(n)
+
+    @app.callback(Output("patched-group", "className"), Input("static", "children"))
+    def on_patched_group(_):
+        return count_fire("patched-group")
+
+    @app.callback(Output("untouched-group", "className"), Input("static", "children"))
+    def on_untouched_group(_):
+        return count_fire("untouched-group")
+
+    @app.callback(Output("new-group", "className"), Input("static", "children"))
+    def on_new_group(_):
+        return count_fire("new-group")
+
+    dash_duo.start_server(app)
+
+    # Both containers get their initial call once, on page load. `new-group`
+    # does not exist yet, so its callback cannot run
+    wait.until(lambda: fire_counts.get("patched-group", 0) >= 1, 5)
+    wait.until(lambda: fire_counts.get("untouched-group", 0) >= 1, 5)
+    assert fire_counts.get("new-group", 0) == 0
+
+    dash_duo.find_element("#patch-btn").click()
+    dash_duo.wait_for_text_to_equal("#done", "1")
+
+    # The new component's initial call and any spurious refire of the existing
+    # ones are queued together, so waiting for it is a sync point for both
+    wait.until(lambda: fire_counts.get("new-group", 0) >= 1, 5)
+    wait.until(
+        lambda: dash_duo.find_element("#deep-input").get_attribute("value")
+        == "patched-1",
+        5,
+    )
+
+    assert fire_counts["patched-group"] == 1, (
+        "The container rebuilt by assocPath on the way to the patched value "
+        f"refired its initial callback: count={fire_counts['patched-group']}"
+    )
+    assert fire_counts["untouched-group"] == 1, (
+        "An untouched sibling container refired its initial callback: "
+        f"count={fire_counts['untouched-group']}"
+    )
+    assert (
+        fire_counts["new-group"] == 1
+    ), f"The appended component fired {fire_counts['new-group']} times (expected 1)"
+
+    assert dash_duo.get_logs() == []

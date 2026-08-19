@@ -4,11 +4,11 @@ import json
 import contextvars
 import typing
 
-import flask
+from dash.backends.ws import DashWebsocketCallback
 
 from . import exceptions
+from ._get_app import get_app
 from ._utils import AttributeDict, stringify_id
-
 
 context_value: contextvars.ContextVar[
     typing.Dict[str, typing.Any]
@@ -177,6 +177,7 @@ class CallbackContext:
             warnings.warn(
                 "outputs_list is deprecated, use outputs_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         return getattr(_get_context_value(), "outputs_list", [])
@@ -188,6 +189,7 @@ class CallbackContext:
             warnings.warn(
                 "inputs_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
 
         return getattr(_get_context_value(), "inputs_list", [])
@@ -199,6 +201,7 @@ class CallbackContext:
             warnings.warn(
                 "states_list is deprecated, use args_grouping instead",
                 DeprecationWarning,
+                stacklevel=2,
             )
         return getattr(_get_context_value(), "states_list", [])
 
@@ -222,14 +225,15 @@ class CallbackContext:
         :param description: A description of the resource.
         :type description: string or None
         """
-        timing_information = getattr(flask.g, "timing_information", {})
+        request = get_app().backend.request_adapter()
+        timing_information = getattr(request.context, "timing_information", {})
 
         if name in timing_information:
             raise KeyError(f'Duplicate resource name "{name}" found.')
 
         timing_information[name] = {"dur": round(duration * 1000), "desc": description}
 
-        setattr(flask.g, "timing_information", timing_information)
+        setattr(request.context, "timing_information", timing_information)
 
     @property
     @has_context
@@ -252,7 +256,8 @@ class CallbackContext:
     @property
     @has_context
     def timing_information(self):
-        return getattr(flask.g, "timing_information", {})
+        request = get_app().backend.request_adapter()
+        return getattr(request.context, "timing_information", {})
 
     @has_context
     def set_props(self, component_id: typing.Union[str, dict], props: dict):
@@ -292,6 +297,14 @@ class CallbackContext:
 
     @property
     @has_context
+    def args(self):
+        """
+        Query parameters of the callback request as a dictionary-like object.
+        """
+        return _get_from_context("args", "")
+
+    @property
+    @has_context
     def remote(self):
         """
         Remote addr of the callback request.
@@ -314,6 +327,32 @@ class CallbackContext:
         """
         return _get_from_context("custom_data", {})
 
+    @property
+    @has_context
+    def websocket(self) -> typing.Optional[DashWebsocketCallback]:
+        """Get WebSocket interface if running in WebSocket context.
+
+        Returns the DashWebsocketCallback instance if the callback is being
+        executed via WebSocket, otherwise returns None.
+
+        Raises:
+            RuntimeError: If websocket_callbacks is requested but the backend
+                doesn't support WebSocket.
+        """
+        ws = _get_from_context("dash_websocket", None)
+        if ws is None:
+            app = get_app()
+            if (
+                hasattr(app, "_websocket_callbacks")
+                and app._websocket_callbacks  # pylint: disable=protected-access
+                and not app.backend.websocket_capability
+            ):
+                raise RuntimeError(
+                    f"WebSocket callbacks requested but backend "
+                    f"'{app.backend.server_type}' doesn't support them."
+                )
+        return ws
+
 
 callback_context = CallbackContext()
 
@@ -321,5 +360,19 @@ callback_context = CallbackContext()
 def set_props(component_id: typing.Union[str, dict], props: dict):
     """
     Set the props for a component not included in the callback outputs.
+
+    If running in a WebSocket context, props are streamed immediately to the
+    client. Otherwise, props are batched and sent with the callback response.
     """
-    callback_context.set_props(component_id, props)
+    ws = _get_from_context("dash_websocket", None)
+    if ws is not None:
+        # Stream immediately via WebSocket. Queuing is synchronous and thread-safe
+        # (janus sync side), so we queue directly instead of scheduling a task. This
+        # avoids detached/orphaned tasks when the callback runs on the event loop and
+        # preserves ordering relative to the callback response.
+        _id = stringify_id(component_id)
+        for prop_name, value in props.items():
+            ws.set_prop_sync(_id, prop_name, value)
+    else:
+        # Batch for response (existing behavior)
+        callback_context.set_props(component_id, props)

@@ -653,6 +653,96 @@ def test_a11y012_typing_on_trigger_opens_dropdown_with_search(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+def test_a11y012b_tab_from_search_focuses_first_option(dash_duo):
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dropdown",
+                options=["Apple", "Banana", "Cherry"],
+                searchable=True,
+            ),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dropdown", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+
+    dropdown = dash_duo.find_element("#dropdown")
+    dropdown.send_keys("b")
+
+    dash_duo.wait_for_element(".dash-dropdown-search")
+
+    # Tab from search input should focus the first option
+    send_keys(Keys.TAB)
+    sleep(0.1)
+
+    # The dropdown should still be open
+    dash_duo.wait_for_element(".dash-dropdown-options")
+
+    # Enter selects the focused option
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Banana")
+
+    assert dash_duo.get_logs() == []
+
+
+def test_a11y012c_shift_tab_between_dropdowns(dash_duo):
+    """Shift+Tab should move between dropdowns in a single press,
+    just like forward Tab does."""
+    from dash.html import Button as HtmlButton
+
+    def shift_tab():
+        actions = ActionChains(dash_duo.driver)
+        actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            Dropdown(
+                id="dd1",
+                options=["Apple", "Banana"],
+            ),
+            Dropdown(
+                id="dd2",
+                options=["Cherry", "Date"],
+            ),
+            HtmlButton("after", id="after"),
+        ]
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#dd1")
+
+    # Focus the button at the end
+    dash_duo.find_element("#after").click()
+    sleep(0.1)
+
+    # Shift+Tab once should reach dd2
+    shift_tab()
+    sleep(0.1)
+    active = dash_duo.driver.execute_script("return document.activeElement.id;")
+    assert active == "dd2", f"Expected dd2 but got {active}"
+
+    # Shift+Tab once more should reach dd1
+    shift_tab()
+    sleep(0.1)
+    active = dash_duo.driver.execute_script("return document.activeElement.id;")
+    assert active == "dd1", f"Expected dd1 but got {active}"
+
+    assert dash_duo.get_logs() == []
+
+
 def test_a11y013_enter_on_search_after_reopen_selects_correctly(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)

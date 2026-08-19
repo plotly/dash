@@ -1,3 +1,5 @@
+import {PatchAnalysis} from '../actions/patchAnalysis';
+
 type CallbackId = string | {[key: string]: any};
 
 export interface ICallbackDefinition {
@@ -15,6 +17,10 @@ export interface ICallbackDefinition {
     dynamic_creator?: boolean;
     running: any;
     no_output?: boolean;
+    websocket?: boolean;
+    persistent?: boolean;
+    compress_payload?: boolean;
+    compress_threshold?: number;
 }
 
 export interface ICallbackProperty {
@@ -83,6 +89,11 @@ export type CallbackResult = {
     data?: CallbackResponse;
     error?: Error;
     payload: ICallbackPayload | null;
+    patchedOutputs?: PatchedOutputs;
+};
+
+export type PatchedOutputs = {
+    [idStr: string]: PatchAnalysis;
 };
 
 export type BackgroundCallbackInfo = {

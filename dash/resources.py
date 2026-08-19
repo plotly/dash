@@ -9,7 +9,6 @@ import typing_extensions as _tx
 from .development.base_component import ComponentRegistry
 from . import exceptions
 
-
 # ResourceType has `async` key, use the init form to be able to provide it.
 ResourceType = _tx.TypedDict(
     "ResourceType",
@@ -111,7 +110,8 @@ class Resources:
                         "or `app.css.append_css`, use `external_scripts` "
                         "or `external_stylesheets` instead.\n"
                         "See https://dash.plotly.com/external-resources"
-                    )
+                    ),
+                    stacklevel=2,
                 )
                 continue
             else:

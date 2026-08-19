@@ -55,6 +55,20 @@ class BaseBackgroundCallbackManager(ABC):
     def get_updated_props(self, key):
         raise NotImplementedError
 
+    # Key under which the shared background-callback signing secret is stored in
+    # the result store, so all workers agree on one secret without a configured
+    # server secret_key. See Dash._get_signing_secret.
+    SIGNING_SECRET_KEY = "__dash_background_signing_secret__"
+
+    def get_or_create_signing_secret(self, generate):
+        """Return a signing secret shared across workers via the result store.
+
+        ``generate`` is a zero-argument callable returning fresh ``bytes``. The
+        first worker to reach an empty store wins; every other worker reads back
+        the stored value, so all workers converge on a single secret.
+        """
+        raise NotImplementedError
+
     def build_cache_key(self, fn, args, cache_args_to_ignore, triggered):
         try:
             fn_source = inspect.getsource(fn)

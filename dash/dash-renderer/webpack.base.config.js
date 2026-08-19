@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const R = require('ramda');
 const path = require('path');
 const packagejson = require('./package.json');
+const {jsxRuntimeExternal} = require('./jsx-runtime-external');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 const defaults = {
@@ -67,9 +68,49 @@ const rendererOptions = {
     externals: {
         react: 'React',
         'react-dom': 'ReactDOM',
+        'react/jsx-runtime': jsxRuntimeExternal,
+        'react/jsx-dev-runtime': jsxRuntimeExternal,
         'prop-types': 'PropTypes'
     },
     ...defaults
+};
+
+// Standalone React compatibility shim, loaded right after react/react-dom
+// and before any component package (see _js_dist_dependencies).
+const shimOptions = {
+    mode: 'production',
+    entry: {
+        'react-shim': './src/react-shim.js',
+    },
+    output: {
+        path: path.resolve(__dirname, "build"),
+        filename: '[name].min.js',
+    }
+};
+
+// WebSocket Worker configuration
+const workerOptions = {
+    mode: 'production',
+    entry: {
+        'dash-ws-worker': '../../@plotly/dash-websocket-worker/src/worker.ts',
+    },
+    output: {
+        path: path.resolve(__dirname, "build"),
+        filename: '[name].js',
+    },
+    target: 'webworker',
+    module: {
+        rules: [
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: ['ts-loader'],
+            },
+        ]
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
+    }
 };
 
 module.exports = options => [
@@ -109,5 +150,9 @@ module.exports = options => [
                 ]
             ),
         }
-    ])
+    ]),
+    // WebSocket Worker build
+    workerOptions,
+    // React compatibility shim build
+    shimOptions
 ];

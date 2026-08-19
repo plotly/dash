@@ -37,6 +37,7 @@ import {
     resolveDeps
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
+import {isCarriedOverByPatch, wasWrittenByPatch} from './patchAnalysis';
 
 import {crawlLayout} from './utils';
 
@@ -224,14 +225,17 @@ function validateDependencies(parsedDependencies, dispatchError) {
             'In the callback for output(s):\n  ' +
             outputs.map(combineIdAndProp).join('\n  ');
 
-        if (!inputs.length) {
+        if (!inputs.length && dep.prevent_initial_call) {
             dispatchError('A callback is missing Inputs', [
                 head,
                 'there are no `Input` elements.',
                 'Without `Input` elements, it will never get called.',
                 '',
                 'Subscribing to `Input` components will cause the',
-                'callback to be called whenever their values change.'
+                'callback to be called whenever their values change.',
+                '',
+                'If you want a callback without inputs that fires on initial load,',
+                'set prevent_initial_call=False.'
             ]);
         }
 
@@ -434,24 +438,37 @@ function findMismatchedWildcards(outputs, inputs, state, head, dispatchError) {
             ]);
         }
     });
+    // When the Outputs don't carry any MATCH keys (fixed-id outputs, no
+    // outputs, or wildcard outputs with only ALL), the Inputs/State may use
+    // MATCH freely — each firing is identified by the triggering input's
+    // MATCH values. ALLSMALLER still requires a MATCH reference, so that
+    // case remains an error. See issue #2462.
+    const outputsHaveMatch = out0MatchKeys.length > 0;
     [
         [inputs, 'Input'],
         [state, 'State']
     ].forEach(([args, cls]) => {
         args.forEach((arg, i) => {
             const {matchKeys, allsmallerKeys} = findWildcardKeys(arg.id);
-            const allWildcardKeys = matchKeys.concat(allsmallerKeys);
-            const diff = difference(allWildcardKeys, out0MatchKeys);
+            const diffKeys = outputsHaveMatch
+                ? matchKeys.concat(allsmallerKeys)
+                : allsmallerKeys;
+            const diff = difference(diffKeys, out0MatchKeys);
             if (diff.length) {
                 diff.sort();
+                const outDesc = outputs.length
+                    ? `Output 0 (${combineIdAndProp(outputs[0])})`
+                    : 'the (absent) Output';
                 dispatchError('`Input` / `State` wildcards not in `Output`s', [
                     head,
                     `${cls} ${i} (${combineIdAndProp(arg)})`,
                     `has MATCH or ALLSMALLER on key(s) ${diff.join(', ')}`,
-                    `where Output 0 (${combineIdAndProp(outputs[0])})`,
+                    `where ${outDesc}`,
                     'does not have a MATCH wildcard. Inputs and State do not',
-                    'need every MATCH from the Output(s), but they cannot have',
-                    'extras beyond the Output(s).'
+                    'need every MATCH from the Output(s), but ALLSMALLER',
+                    'requires a matching MATCH in the Output(s), and when',
+                    'the Output(s) have any MATCH, Input/State MATCH keys',
+                    'must be a subset of them.'
                 ]);
             }
         });
@@ -1043,7 +1060,7 @@ export function idMatch(
     return true;
 }
 
-function getAnyVals(patternVals, vals) {
+export function getAnyVals(patternVals, vals) {
     const matches = [];
     for (let i = 0; i < patternVals.length; i++) {
         if (patternVals[i] === MATCH) {
@@ -1142,7 +1159,12 @@ function addResolvedFromOutputs(callback, outPattern, outs, matches) {
     });
 }
 
-export function addAllResolvedFromOutputs(resolve, paths, matches) {
+export function addAllResolvedFromOutputs(
+    resolve,
+    paths,
+    matches,
+    triggerAnyVals = ''
+) {
     return callback => {
         const {matchKeys, firstSingleOutput, outputs} = callback;
         if (matchKeys.length) {
@@ -1179,7 +1201,11 @@ export function addAllResolvedFromOutputs(resolve, paths, matches) {
                 });
             }
         } else {
-            const cb = makeResolvedCallback(callback, resolve, '');
+            // Outputs have no MATCH keys (fixed-id outputs or no output).
+            // Fall back to the triggering input's MATCH values so that
+            // separate MATCH triggers produce distinct resolvedIds and
+            // aren't deduplicated into a single firing. See issue #2462.
+            const cb = makeResolvedCallback(callback, resolve, triggerAnyVals);
             matches.push(cb);
         }
     };
@@ -1237,13 +1263,26 @@ export function getWatchedKeys(id, newProps, graphs) {
  * opts.chunkPath: path to the new chunk - used to determine if any outputs are
  *   outside of this chunk, because this determines whether inputs inside the
  *   chunk count as having changed
+ * opts.patchAnalysis: what the `Patch()` operations that produced this chunk
+ *   changed. Only the components the patch created get their initial call
+ *   It also allows an input the patch wrote directly to bypass the chunkPath
+ *   dedup, when that input's own component was carried over (so
+ *   its own initial call stays suppressed) but downstream callbacks still
+ *   need to see the new value
+ *   Absent when the chunk is not the result of a patch
  *
  * Returns an array of objects:
  *   {callback, resolvedId, getOutputs, getInputs, getState, ...etc}
  *   See getCallbackByOutput for details.
  */
 export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
-    const {outputsOnly, removedArrayInputsOnly, newPaths, chunkPath} = opts;
+    const {
+        outputsOnly,
+        removedArrayInputsOnly,
+        newPaths,
+        chunkPath,
+        patchAnalysis
+    } = opts;
     const foundCbIds = {};
     const callbacks = [];
 
@@ -1291,6 +1330,18 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
 
     function handleOneId(id, outIdCallbacks, inIdCallbacks) {
         if (outIdCallbacks) {
+            // Suppress the initial call for components a Patch carried over
+            // The patch itself tells us which components it created, including
+            // components rebuilt with an id that was already in use,
+            // whose initial callbacks must run again even if their new defaults
+            // happen to match the values of the instance they replaced.
+            // It excludes the containers between the patched prop and the value
+            // that changed: ramda's assocPath has to rebuild those, but the
+            // patch did not create them, so they keep their initial call
+            // suppressed
+            const isCarryOver = patchAnalysis
+                ? isCarriedOverByPatch(patchAnalysis, stringifyId(id))
+                : false;
             for (const property in outIdCallbacks) {
                 const cb = getCallbackByOutput(graphs, paths, id, property);
                 if (cb) {
@@ -1298,7 +1349,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                     // unless specifically requested not to.
                     // ie this is the initial call of this callback even if it's
                     // not the page initialization but just a new layout chunk
-                    if (!cb.callback.prevent_initial_call) {
+                    if (!cb.callback.prevent_initial_call && !isCarryOver) {
                         cb.initialCall = true;
                         addCallback(cb);
                     }
@@ -1306,23 +1357,36 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             }
         }
         if (!outputsOnly && inIdCallbacks) {
+            const idStr = stringifyId(id);
             const maybeAddCallback = removedArrayInputsOnly
-                ? addCallbackIfArray(stringifyId(id))
+                ? addCallbackIfArray(idStr)
                 : addCallback;
-            let handleThisCallback = maybeAddCallback;
-            if (chunkPath) {
-                handleThisCallback = cb => {
-                    if (
-                        !all(
-                            startsWith(chunkPath),
-                            pluck('path', flatten(cb.getOutputs(paths)))
-                        )
-                    ) {
-                        maybeAddCallback(cb);
-                    }
-                };
-            }
             for (const property in inIdCallbacks) {
+                // A callback, whose outputs are all inside the chunk, is
+                // normally dropped here on the assumption that the
+                // output handling above already covers it
+                // That assumption fails when the patch
+                // wrote a new value directly on this input without
+                // recreating the input's own component
+                // The output side stays suppressed because the output
+                // component was carried over, but this input's value
+                // genuinely changed, so the callback must still be added
+                let handleThisCallback = maybeAddCallback;
+                if (
+                    chunkPath &&
+                    !wasWrittenByPatch(patchAnalysis, idStr, property)
+                ) {
+                    handleThisCallback = cb => {
+                        if (
+                            !all(
+                                startsWith(chunkPath),
+                                pluck('path', flatten(cb.getOutputs(paths)))
+                            )
+                        ) {
+                            maybeAddCallback(cb);
+                        }
+                    };
+                }
                 getCallbacksByInput(
                     graphs,
                     paths,
