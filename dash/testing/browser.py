@@ -596,7 +596,7 @@ class Browser(DashPageMixin):
         w, h = elem.size["width"], elem.size["height"]
         try:
             ActionChains(self.driver).move_to_element_with_offset(
-                elem, w * start_fraction, h * start_fraction
+                elem, int(w * (start_fraction - 0.5)), int(h * (start_fraction - 0.5))
             ).drag_and_drop_by_offset(
                 elem, w * zoom_box_fraction, h * zoom_box_fraction
             ).perform()
@@ -611,7 +611,9 @@ class Browser(DashPageMixin):
         elem = self._get_element(elem_or_selector)
 
         ActionChains(self.driver).move_to_element_with_offset(
-            elem, elem.size["width"] * fx, elem.size["height"] * fy
+            elem,
+            int(elem.size["width"] * (fx - 0.5)),
+            int(elem.size["height"] * (fy - 0.5)),
         ).click().perform()
 
     def get_logs(self):
