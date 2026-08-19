@@ -116,8 +116,6 @@ jobs:
 
       - name: Setup virtual display
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
           disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
@@ -674,8 +672,6 @@ jobs:
 
       - name: Setup virtual display
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
           disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
@@ -780,8 +776,6 @@ jobs:
 
       - name: Setup virtual display
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
           disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
@@ -978,8 +972,6 @@ jobs:
 
       - name: Setup virtual display
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
           disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
@@ -1063,8 +1055,6 @@ jobs:
 
       - name: Setup virtual display
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
           disown
           echo "DISPLAY=:99" >> $GITHUB_ENV
