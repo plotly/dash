@@ -118,7 +118,7 @@ export function getCallbacksByInput(
         // Also check partial patterns whose keys are a subset of this
         // component's keys
         if (graphs.hasPartialPatterns) {
-            for (const patKeyStr in graphs.inputPatterns) {
+            for (const patKeyStr in graphs.partialInputPatterns) {
                 if (patKeyStr === idKeyStr) {
                     continue; // already handled above
                 }
@@ -128,14 +128,11 @@ export function getCallbacksByInput(
                     continue;
                 }
                 const patPropPatterns: any[] =
-                    graphs.inputPatterns[patKeyStr][prop];
+                    graphs.partialInputPatterns[patKeyStr][prop];
                 if (!patPropPatterns) {
                     continue;
                 }
                 patPropPatterns.forEach((pattern: any) => {
-                    if (!pattern.partial) {
-                        return;
-                    }
                     if (
                         partialIdMatch(
                             pattern.keys,

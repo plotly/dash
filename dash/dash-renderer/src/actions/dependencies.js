@@ -775,8 +775,12 @@ export function computeGraphs(dependencies, dispatchError, config) {
     const inputMap = {};
     const outputPatternMap = new Map();
     const inputPatternMap = new Map();
+    const partialOutputPatternMap = new Map();
+    const partialInputPatternMap = new Map();
     let outputPatterns = {};
     let inputPatterns = {};
+    let partialOutputPatterns = {};
+    let partialInputPatterns = {};
 
     let hasPartialPatterns = false;
 
@@ -786,6 +790,8 @@ export function computeGraphs(dependencies, dispatchError, config) {
         inputMap,
         outputPatterns,
         inputPatterns,
+        partialOutputPatterns,
+        partialInputPatterns,
         hasPartialPatterns,
         callbacks: parsedDependencies
     };
@@ -983,6 +989,13 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         property,
                         finalDependency
                     );
+                    addPartialPattern(
+                        partialOutputPatternMap,
+                        outId,
+                        property,
+                        finalDependency
+                    );
+                    hasPartialPatterns = true;
                 } else {
                     addPattern(
                         outputPatternMap,
@@ -1019,6 +1032,13 @@ export function computeGraphs(dependencies, dispatchError, config) {
                         inProp,
                         finalDependency
                     );
+                    addPartialPattern(
+                        partialInputPatternMap,
+                        inId,
+                        inProp,
+                        finalDependency
+                    );
+                    hasPartialPatterns = true;
                 } else {
                     addPattern(inputPatternMap, inId, inProp, finalDependency);
                 }
@@ -1029,12 +1049,18 @@ export function computeGraphs(dependencies, dispatchError, config) {
     });
     outputPatterns = offloadPatterns(outputPatternMap, outputPatterns);
     inputPatterns = offloadPatterns(inputPatternMap, inputPatterns);
-    hasPartialPatterns = parsedDependencies.some(
-        dep =>
-            dep.outputs.some(o => o.partial) || dep.inputs.some(i => i.partial)
+    partialOutputPatterns = offloadPatterns(
+        partialOutputPatternMap,
+        partialOutputPatterns
+    );
+    partialInputPatterns = offloadPatterns(
+        partialInputPatternMap,
+        partialInputPatterns
     );
     finalGraphs.outputPatterns = outputPatterns;
     finalGraphs.inputPatterns = inputPatterns;
+    finalGraphs.partialOutputPatterns = partialOutputPatterns;
+    finalGraphs.partialInputPatterns = partialInputPatterns;
     finalGraphs.hasPartialPatterns = hasPartialPatterns;
 
     // second pass for adding new output nodes as dependencies where needed
@@ -1313,7 +1339,7 @@ function getCallbackByOutput(graphs, paths, id, prop) {
         }
         // If not found, also check partial patterns with fewer keys
         if (!resolve && graphs.hasPartialPatterns) {
-            for (const patKeyStr in graphs.outputPatterns) {
+            for (const patKeyStr in graphs.partialOutputPatterns) {
                 if (patKeyStr === keyStr) {
                     continue;
                 }
@@ -1321,15 +1347,12 @@ function getCallbackByOutput(graphs, paths, id, prop) {
                 if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
                     continue;
                 }
-                const patPropPatterns = (graphs.outputPatterns[patKeyStr] ||
-                    {})[prop];
+                const patPropPatterns =
+                    graphs.partialOutputPatterns[patKeyStr][prop];
                 if (!patPropPatterns) {
                     continue;
                 }
                 for (let i = 0; i < patPropPatterns.length; i++) {
-                    if (!patPropPatterns[i].partial) {
-                        continue;
-                    }
                     const patternVals = patPropPatterns[i].values;
                     if (
                         partialIdMatch(
@@ -1461,6 +1484,10 @@ export function getWatchedKeys(id, newProps, graphs) {
     const keyStr = keys.join(',');
     const keyPatterns = graphs.inputPatterns[keyStr];
 
+    if (!keyPatterns && !graphs.hasPartialPatterns) {
+        return [];
+    }
+
     return newProps.filter(prop => {
         // Check exact keyStr patterns
         if (keyPatterns) {
@@ -1476,7 +1503,7 @@ export function getWatchedKeys(id, newProps, graphs) {
         if (!graphs.hasPartialPatterns) {
             return false;
         }
-        for (const patKeyStr in graphs.inputPatterns) {
+        for (const patKeyStr in graphs.partialInputPatterns) {
             if (patKeyStr === keyStr) {
                 continue;
             }
@@ -1484,15 +1511,14 @@ export function getWatchedKeys(id, newProps, graphs) {
             if (!patKeys.every(k => keys.indexOf(k) !== -1)) {
                 continue;
             }
-            const patPropPatterns = graphs.inputPatterns[patKeyStr][prop];
+            const patPropPatterns =
+                graphs.partialInputPatterns[patKeyStr][prop];
             if (!patPropPatterns) {
                 continue;
             }
             if (
-                patPropPatterns.some(
-                    pattern =>
-                        pattern.partial &&
-                        partialIdMatch(patKeys, pattern.values, keys, vals)
+                patPropPatterns.some(pattern =>
+                    partialIdMatch(patKeys, pattern.values, keys, vals)
                 )
             ) {
                 return true;
@@ -1657,8 +1683,8 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
             } else {
-                const keyStr = Object.keys(id).sort().join(',');
                 const _keys = Object.keys(id).sort();
+                const keyStr = _keys.join(',');
                 handleOneId(
                     id,
                     !removedArrayInputsOnly && graphs.outputPatterns[keyStr],
@@ -1667,7 +1693,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                 // Also check partial patterns whose keys are a subset of
                 // this component's keys
                 if (graphs.hasPartialPatterns) {
-                    for (const patKeyStr in graphs.inputPatterns) {
+                    for (const patKeyStr in graphs.partialInputPatterns) {
                         if (patKeyStr === keyStr) {
                             continue;
                         }
@@ -1675,24 +1701,15 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                         if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
                             continue;
                         }
-                        // Check if any patterns under this keyStr are partial
-                        const patProps = graphs.inputPatterns[patKeyStr];
-                        const partialProps = {};
-                        for (const prop in patProps) {
-                            const partialPats = patProps[prop].filter(
-                                p => p.partial
-                            );
-                            if (partialPats.length) {
-                                partialProps[prop] = partialPats;
-                            }
-                        }
-                        if (Object.keys(partialProps).length) {
-                            handleOneId(id, null, partialProps);
-                        }
+                        handleOneId(
+                            id,
+                            null,
+                            graphs.partialInputPatterns[patKeyStr]
+                        );
                     }
                 } // end hasPartialPatterns guard (input)
                 if (!removedArrayInputsOnly && graphs.hasPartialPatterns) {
-                    for (const patKeyStr in graphs.outputPatterns) {
+                    for (const patKeyStr in graphs.partialOutputPatterns) {
                         if (patKeyStr === keyStr) {
                             continue;
                         }
@@ -1700,19 +1717,11 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
                         if (!patKeys.every(k => _keys.indexOf(k) !== -1)) {
                             continue;
                         }
-                        const patProps = graphs.outputPatterns[patKeyStr];
-                        const partialProps = {};
-                        for (const prop in patProps) {
-                            const partialPats = patProps[prop].filter(
-                                p => p.partial
-                            );
-                            if (partialPats.length) {
-                                partialProps[prop] = partialPats;
-                            }
-                        }
-                        if (Object.keys(partialProps).length) {
-                            handleOneId(id, partialProps, null);
-                        }
+                        handleOneId(
+                            id,
+                            graphs.partialOutputPatterns[patKeyStr],
+                            null
+                        );
                     }
                 }
             }
