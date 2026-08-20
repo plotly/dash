@@ -131,7 +131,14 @@ def test_msps001_basic_persistence(dash_dcc):
 
     dash_dcc.find_element("#dropdownsingle").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
-        "one" + Keys.ENTER
+        "one"
+    )
+    # Wait for the option list to filter before pressing Enter; otherwise Enter
+    # can fire before "one" narrows the list and nothing gets selected, leaving
+    # this field null after reload.
+    dash_dcc.wait_for_element(".dash-dropdown-content .dash-dropdown-option")
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
+        Keys.ENTER
     )
 
     dash_dcc.find_element("#dropdownmulti").click()
