@@ -115,10 +115,7 @@ jobs:
         run: npm ci
 
       - name: Setup virtual display
-        run: |
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
-          disown
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Run lint
         env:
@@ -671,10 +668,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
-          disown
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Build/Setup test components
         run: npm run setup-tests.py
@@ -775,10 +769,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
-          disown
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install HTML components dependencies
         working-directory: components/dash-html-components
@@ -971,10 +962,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
-          disown
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Remove DCC Python package and run tests
         run: |
@@ -1054,10 +1042,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
-          disown
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install Table test dependencies
         working-directory: components/dash-table
