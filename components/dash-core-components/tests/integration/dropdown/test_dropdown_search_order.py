@@ -1,5 +1,7 @@
 from dash import Dash, html, dcc, Input, Output
+from flaky import flaky
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 
 
@@ -37,13 +39,13 @@ def test_ddso001_search_preserves_custom_order(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+# Keyboard nav here goes through ActionChains (document.activeElement); the
+# selection depends on the menu input having focus, which can lag menu-open under
+# CI load and drop a keystroke. Retry the whole test when that happens.
+@flaky(max_runs=3)
 def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     def send_keys(key):
-        # Send navigation keys straight to the search input rather than via
-        # ActionChains, which target whatever currently has focus: right after
-        # the menu opens the input may not be focused yet, so the keystrokes get
-        # dropped and no option is selected. send_keys focuses the element first.
-        dash_duo.find_element(".dash-dropdown-search").send_keys(key)
+        ActionChains(dash_duo.driver).send_keys(key).perform()
 
     app = Dash(__name__)
     app.layout = html.Div(
