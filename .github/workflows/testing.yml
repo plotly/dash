@@ -267,6 +267,10 @@ jobs:
       # Set REDIS_URL for your application/tests
       # The service 'redis' will be available on localhost (or redis) at port 6379
       REDIS_URL: redis://localhost:6379
+      # These suites can leave non-daemon workers alive after pytest finishes,
+      # hanging the step at interpreter shutdown; hard-exit once the session is
+      # done (see pytest_sessionfinish in tests/conftest.py).
+      DASH_TEST_FORCE_EXIT: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
