@@ -3,6 +3,7 @@ import os
 import time
 import uuid
 import shlex
+import socket
 import threading
 import shutil
 import subprocess
@@ -75,6 +76,32 @@ class BaseDashRunner:
 
     def stop(self):
         raise NotImplementedError  # pragma: no cover
+
+    @classmethod
+    def _reserve_free_port(cls, host):
+        """Return the next free TCP port at/above the shared counter.
+
+        Ports are handed out from a monotonic counter, but a previous test's
+        server can linger on its port for a moment after teardown; reusing that
+        number then fails with "address already in use" and wedges the test
+        (it hangs until the per-test timeout). Probe each candidate and skip any
+        still occupied so we only return a port we can actually bind.
+        """
+        # Bound the search so a pathological environment can't loop forever.
+        for _ in range(200):
+            port = cls._next_port
+            cls._next_port += 1
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                # Match the servers (werkzeug/uvicorn set SO_REUSEADDR): a port
+                # in TIME_WAIT is fine to reuse, only an actively-bound one is
+                # skipped.
+                probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                try:
+                    probe.bind((host, port))
+                except OSError:
+                    continue
+            return port
+        raise TestingTimeoutError("could not find a free port for the test server")
 
     @staticmethod
     def accessible(url):
@@ -167,8 +194,9 @@ class ThreadedRunner(BaseDashRunner):
             options["dev_tools_disable_version_check"] = True
 
             if "port" not in kwargs:
-                options["port"] = self.port = BaseDashRunner._next_port
-                BaseDashRunner._next_port += 1
+                options["port"] = self.port = BaseDashRunner._reserve_free_port(
+                    self.host
+                )
             else:
                 self.port = options["port"]
 
@@ -240,9 +268,12 @@ class ThreadedRunner(BaseDashRunner):
                 loop.call_soon_threadsafe(quart_shutdown_event.set)  # type: ignore[reportOptionalMemberAccess]
             self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         else:
-            # Fall back to killing threads for Flask/other backends
+            # Fall back to killing threads for Flask/other backends. Bound the
+            # join: if the injected SystemExit fails to unwind a worker stuck in
+            # a C call, an unbounded join() would block teardown forever and
+            # hang the whole test step.
             self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
-            self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
             wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         self._app = None
         self.started = False

@@ -2,6 +2,9 @@ import time
 from multiprocessing import Value
 
 from flaky import flaky
+from selenium.common.exceptions import StaleElementReferenceException
+
+import dash.testing.wait as wait
 
 from dash import (
     Dash,
@@ -273,6 +276,17 @@ def test_arb008_set_props_chain_cb(dash_duo):
     dash_duo.start_server(app)
 
     dash_duo.wait_for_element("#origin-button").click()
+
+    def click_generated_button():
+        # The generated button re-renders as its n_clicks updates, so the handle
+        # from wait_for_element can go stale between find and click; re-find and
+        # retry until the click lands.
+        try:
+            dash_duo.wait_for_element("#generated-button").click()
+            return True
+        except StaleElementReferenceException:
+            return False
+
     for i in range(1, 5):
-        dash_duo.wait_for_element("#generated-button").click()
+        wait.until(click_generated_button, timeout=4)
         dash_duo.wait_for_text_to_equal("#generated-button-output", f"n_clicks: {i}")
