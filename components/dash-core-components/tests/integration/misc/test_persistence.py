@@ -140,6 +140,9 @@ def test_msps001_basic_persistence(dash_dcc):
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
         Keys.ENTER
     )
+    # Wait for the single dropdown's menu to close before clicking the next
+    # dropdown; otherwise its lingering overlay intercepts the click.
+    dash_dcc.wait_for_no_elements(".dash-dropdown-content")
 
     dash_dcc.find_element("#dropdownmulti").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
