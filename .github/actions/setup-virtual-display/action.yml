@@ -1,0 +1,12 @@
+name: 'Setup virtual display'
+description: 'Start an Xvfb virtual display and export DISPLAY for headed browser tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup virtual display
+      shell: bash
+      run: |
+        sudo Xvfb :99 -ac -screen 0 1280x1024x24 >/dev/null 2>&1 &
+        disown
+        echo "DISPLAY=:99" >> $GITHUB_ENV
