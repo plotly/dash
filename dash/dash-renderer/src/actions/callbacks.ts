@@ -443,15 +443,24 @@ function sideUpdate(outputs: SideUpdateOutput, cb: ICallbackPayload) {
                 let componentId = id,
                     propName,
                     replacedIds = [];
+                let isPatternMatching = false;
 
                 if (id.startsWith('{')) {
                     [componentId, propName] = parsePMCId(id);
                     replacedIds = replacePMC(componentId, cb, i, getState);
+                    isPatternMatching = true;
                 } else if (id.includes('.')) {
                     [componentId, propName] = id.split('.');
                 }
 
                 const props = propName ? {[propName]: value} : value;
+
+                if (isPatternMatching && replacedIds.length === 0) {
+                    // A wildcard that matches nothing currently rendered.
+                    // There is no component to update, and `componentId` still
+                    // holds the unresolved pattern, so it must not be used.
+                    return acc;
+                }
 
                 if (replacedIds.length === 0) {
                     acc.push([componentId, props]);
