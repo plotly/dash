@@ -365,7 +365,16 @@ def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
 
     dash_dcc.find_elements("g .xy")[0].click()
 
-    data = dash_dcc.wait_for_element("#test-text-area").get_attribute("value")
+    # The clickData callback also fires once on load with clickData=None (value
+    # "null"); wait for the click's real payload before parsing, otherwise we
+    # race that initial value and json.loads returns None.
+    wait.until(
+        lambda: (dash_dcc.find_element("#test-text-area").get_attribute("value") or "")
+        not in ("", "null"),
+        timeout=3,
+    )
+
+    data = dash_dcc.find_element("#test-text-area").get_attribute("value")
     assert data != "", "graph clickData must contain data"
 
     data = json.loads(data)

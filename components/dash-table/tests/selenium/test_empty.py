@@ -2,6 +2,7 @@ import dash
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
+import dash.testing.wait as wait
 from dash.dash_table import DataTable
 from dash.html import Button, Div
 
@@ -43,5 +44,7 @@ def test_empt001_clear_(test):
     assert len(test.find_elements("tr")) == 3
     test.find_element("#clear-table").click()
     assert target.is_ready()
-    assert len(test.find_elements("tr")) == 0
+    # The clear is applied by a callback; poll for the rows to drop instead of
+    # counting them synchronously right after the click.
+    wait.until(lambda: len(test.find_elements("tr")) == 0, timeout=4)
     assert test.get_log_errors() == []

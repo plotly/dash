@@ -24,12 +24,11 @@ from dash import (
     callback_context,
 )
 from dash.exceptions import PreventUpdate
+from dash.testing.wait import until
 from tests.integration.utils import json_engine
 
 
 def test_cbsc001_simple_callback(dash_duo):
-    lock = Lock()
-
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -41,9 +40,8 @@ def test_cbsc001_simple_callback(dash_duo):
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     def update_output(value):
-        with lock:
-            call_count.value = call_count.value + 1
-            return value
+        call_count.value = call_count.value + 1
+        return value
 
     dash_duo.start_server(app)
 
@@ -52,10 +50,16 @@ def test_cbsc001_simple_callback(dash_duo):
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
 
-    for key in "hello world":
-        with lock:
-            input_.send_keys(key)
-        time.sleep(0.05)  # Small delay to prevent callback debouncing
+    # Gate each keystroke on the previous callback having executed. If two
+    # keystroke callbacks are in the renderer's `requested` queue at once it
+    # coalesces them into a single request (see requestedCallbacks.ts), which
+    # undercounts invocations. Waiting for each keystroke to be processed
+    # keeps the one-callback-per-keystroke invariant the assertion relies on.
+    until(lambda: call_count.value == 2, timeout=3)
+
+    for i, key in enumerate("hello world"):
+        input_.send_keys(key)
+        until(lambda i=i: call_count.value == 3 + i, timeout=3)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
 
