@@ -29,6 +29,20 @@ from dash.testing import wait
 logger = logging.getLogger(__name__)
 
 
+def _server_type(app):
+    return getattr(getattr(app, "backend", None), "server_type", "flask")
+
+
+def _run_app(app, options):
+    server_type = _server_type(app)
+    if server_type in ("fastapi", "quart"):
+        app.run(**options)
+    else:
+        # Flask test servers need threaded=True so shutdown requests can be
+        # handled while the server is processing another request.
+        app.run(threaded=True, **options)
+
+
 def import_app(app_file, application_name="app"):
     """Import a dash application from a module. The import path is in dot
     notation to the module. The variable named app will be returned.
@@ -201,16 +215,7 @@ class ThreadedRunner(BaseDashRunner):
                 self.port = options["port"]
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
             except Exception as error:
@@ -247,9 +252,7 @@ class ThreadedRunner(BaseDashRunner):
 
     def stop(self):
         # pylint: disable=protected-access
-        server_type = getattr(
-            getattr(self._app, "backend", None), "server_type", "flask"
-        )
+        server_type = _server_type(self._app)
         # For FastAPI apps with uvicorn, use graceful shutdown
         if server_type == "fastapi":
             server = self._app._uvicorn_server  # type: ignore[reportOptionalMemberAccess]
@@ -295,16 +298,7 @@ class MultiProcessRunner(BaseDashRunner):
             options = kwargs.copy()
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
                 raise
