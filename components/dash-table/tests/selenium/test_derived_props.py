@@ -5,10 +5,36 @@ from dash import html
 from dash.dash_table import DataTable
 
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 
 import json
 import time
 import pandas as pd
+
+
+def wait_prop(test, selector, *allowed):
+    """Wait until the derived-prop cell ``selector`` shows one of ``allowed``.
+
+    ``props_container`` is re-rendered wholesale whenever any table prop
+    changes, so reading a cell with a bare ``find_element().get_attribute()``
+    races the callbacks still settling after a click or keystroke and raises a
+    stale element reference. Re-find the element on every poll and wait for the
+    text to settle to an expected value instead.
+    """
+
+    def _ready(driver):
+        try:
+            return driver.find_element(By.CSS_SELECTOR, selector).text in allowed
+        except WebDriverException:
+            return False
+
+    WebDriverWait(test.driver, test.wait_timeout).until(
+        _ready,
+        f"{selector} text not in {list(allowed)} within {test.wait_timeout}s",
+    )
+
 
 url = "https://github.com/plotly/datasets/raw/master/" "26k-consumer-complaints.csv"
 rawDf = pd.read_csv(url, nrows=100)
@@ -349,59 +375,31 @@ def test_tdrp004_navigate_selected_cells(test):
                 )
             )
 
-    for row in range(3):
-        for col in range(3):
-            # active = dict(
-            #     row=row, column=col, column_id=rawDf.columns[col], row_id=row + 3000
-            # )
+    # Tab walks the active cell through the 9 selected cells; the selection
+    # itself must stay put on every step. props_container re-renders on each
+    # keystroke, so poll each cell (wait_prop) rather than reading it once - a
+    # bare find_element().get_attribute() races the re-render and raises a
+    # stale element reference.
+    for _ in range(9):
+        wait_prop(test, "#start_cell", json.dumps(selected[0]))
+        wait_prop(test, "#end_cell", json.dumps(selected[-1]))
+        wait_prop(test, "#selected_cells", json.dumps(selected))
+        wait_prop(test, "#selected_rows", "None", json.dumps([]))
+        wait_prop(test, "#selected_row_ids", "None", json.dumps([]))
 
-            # assert test.find_element("#active_cell").get_attribute(
-            #     "innerHTML"
-            # ) == json.dumps(active)
-            assert test.find_element("#start_cell").get_attribute(
-                "innerHTML"
-            ) == json.dumps(selected[0])
-            assert test.find_element("#end_cell").get_attribute(
-                "innerHTML"
-            ) == json.dumps(selected[-1])
-            assert test.find_element("#selected_cells").get_attribute(
-                "innerHTML"
-            ) == json.dumps(selected)
-            assert test.find_element("#selected_rows").get_attribute("innerHTML") in [
-                "None",
-                json.dumps([]),
-            ]
-            assert test.find_element("#selected_row_ids").get_attribute(
-                "innerHTML"
-            ) in ["None", json.dumps([])]
+        wait_prop(test, "#derived_viewport_selected_rows", "None", json.dumps([]))
+        wait_prop(test, "#derived_viewport_selected_row_ids", "None", json.dumps([]))
+        wait_prop(test, "#derived_viewport_indices", json.dumps(list(range(10))))
+        wait_prop(
+            test, "#derived_viewport_row_ids", json.dumps(list(range(3000, 3010)))
+        )
 
-            assert test.find_element("#derived_viewport_selected_rows").get_attribute(
-                "innerHTML"
-            ) in ["None", json.dumps([])]
-            assert test.find_element(
-                "#derived_viewport_selected_row_ids"
-            ).get_attribute("innerHTML") in ["None", json.dumps([])]
-            assert test.find_element("#derived_viewport_indices").get_attribute(
-                "innerHTML"
-            ) == json.dumps(list(range(10)))
-            assert test.find_element("#derived_viewport_row_ids").get_attribute(
-                "innerHTML"
-            ) == json.dumps(list(range(3000, 3010)))
+        wait_prop(test, "#derived_virtual_selected_rows", "None", json.dumps([]))
+        wait_prop(test, "#derived_virtual_selected_row_ids", "None", json.dumps([]))
+        wait_prop(test, "#derived_virtual_indices", json.dumps(list(range(100))))
+        wait_prop(test, "#derived_virtual_row_ids", json.dumps(list(range(3000, 3100))))
 
-            assert test.find_element("#derived_virtual_selected_rows").get_attribute(
-                "innerHTML"
-            ) in ["None", json.dumps([])]
-            assert test.find_element("#derived_virtual_selected_row_ids").get_attribute(
-                "innerHTML"
-            ) in ["None", json.dumps([])]
-            assert test.find_element("#derived_virtual_indices").get_attribute(
-                "innerHTML"
-            ) == json.dumps(list(range(100)))
-            assert test.find_element("#derived_virtual_row_ids").get_attribute(
-                "innerHTML"
-            ) == json.dumps(list(range(3000, 3100)))
-
-            test.send_keys(Keys.TAB)
+        test.send_keys(Keys.TAB)
 
     assert test.get_log_errors() == []
 
