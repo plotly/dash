@@ -1,4 +1,4 @@
-import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
+import lazyLoadMathJax from '../utils/LazyLoader/third-party/mathjax';
 import React, {Component} from 'react';
 import {
     equals,
