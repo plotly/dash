@@ -4,14 +4,6 @@ import lazyLoadHljs from '../../LazyLoader/third-party/hljs';
 import {reactNodeToText} from '../text';
 import type {ReactMarkdownCodeProps} from './types';
 
-/*
- * highlight.js mutates the DOM in place (replacing the code text with coloured
- * <span>s), which conflicts with React's ownership of that subtree and left
- * updated code blocks stale under react-markdown v8. This component sidesteps
- * the conflict: React only owns the empty <code> element, while the source text
- * and highlighting are applied imperatively and re-run whenever the code or the
- * language changes - so content updates always re-highlight correctly.
- */
 function HighlightedCode({className, children}: ReactMarkdownCodeProps) {
     const ref = useRef<HTMLElement>(null);
     const code = reactNodeToText(children);
@@ -38,9 +30,8 @@ export default function CodeRenderer({
     className,
     children,
 }: ReactMarkdownCodeProps) {
-    return inline ? (
-        <code className={className}>{children}</code>
-    ) : (
-        <HighlightedCode className={className}>{children}</HighlightedCode>
-    );
+    if (inline) {
+        return <code className={className}>{children}</code>;
+    }
+    return <HighlightedCode className={className}>{children}</HighlightedCode>;
 }
