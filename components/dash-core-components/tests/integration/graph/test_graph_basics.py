@@ -365,7 +365,16 @@ def test_grbs007_graph_scatter_lines_customdata(dash_dcc):
 
     dash_dcc.find_elements("g .xy")[0].click()
 
-    data = dash_dcc.wait_for_element("#test-text-area").get_attribute("value")
+    # The clickData callback also fires once on load with clickData=None (value
+    # "null"); wait for the click's real payload before parsing, otherwise we
+    # race that initial value and json.loads returns None.
+    wait.until(
+        lambda: (dash_dcc.find_element("#test-text-area").get_attribute("value") or "")
+        not in ("", "null"),
+        timeout=3,
+    )
+
+    data = dash_dcc.find_element("#test-text-area").get_attribute("value")
     assert data != "", "graph clickData must contain data"
 
     data = json.loads(data)
@@ -596,3 +605,93 @@ def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
     assert out["click_y"] is not None
     assert out["hover_x"] is not None
     assert out["hover_y"] is not None
+
+
+def test_grbs012_graph_patch_keeps_relayout_ranges(dash_dcc):
+    """Panning/zooming then applying a Patch should keep the new axis range.
+
+    Regression test for https://github.com/plotly/dash/issues/3810 - since
+    getLayout() clones the layout, user relayout changes must be synced back
+    to the figure prop or a subsequent Patch reverts them.
+    """
+    from dash import Patch
+    from dash.exceptions import PreventUpdate
+
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={
+                    "data": [
+                        {
+                            "x": list(range(10)),
+                            "y": list(range(10)),
+                            "type": "scatter",
+                            "mode": "lines+markers",
+                        }
+                    ],
+                    "layout": {"xaxis": {"range": [2, 8], "autorange": False}},
+                },
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="range-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("graph", "relayoutData"),
+        prevent_initial_call=True,
+    )
+    def on_relayout(relayout_data):
+        if not relayout_data or "xaxis.range[0]" not in relayout_data:
+            raise PreventUpdate
+        # Data-only patch: the axis range must survive from the figure prop
+        p = Patch()
+        p.data[0].y = [i * 2 for i in range(10)]
+        return p
+
+    @app.callback(
+        Output("range-output", "children"),
+        Input("graph", "figure"),
+    )
+    def show_range(figure):
+        xrange = figure.get("layout", {}).get("xaxis", {}).get("range", "none")
+        return json.dumps(xrange)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+    dash_dcc.wait_for_text_to_equal("#range-output", "[2, 8]")
+
+    # Simulate a user pan - Plotly.relayout fires the same plotly_relayout
+    # event as a drag interaction
+    dash_dcc.driver.execute_script(
+        "Plotly.relayout("
+        "document.querySelector('#graph .js-plotly-plot'),"
+        "{'xaxis.range[0]': 3, 'xaxis.range[1]': 5})"
+    )
+
+    # The relayout triggers the data-only Patch; the panned range must
+    # survive in both the figure prop and the rendered graph
+    dash_dcc.wait_for_text_to_equal("#range-output", "[3, 5]")
+
+    def rendered_range():
+        return dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot')"
+            ".layout.xaxis.range"
+        )
+
+    wait.until(lambda: rendered_range() == [3, 5], timeout=3)
+    # Verify the patch was applied on top of the panned figure
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[9]"
+        )
+        == 18,
+        timeout=3,
+    )
+    assert rendered_range() == [3, 5]
+
+    assert dash_dcc.get_logs() == []

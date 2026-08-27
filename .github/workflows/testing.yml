@@ -115,11 +115,7 @@ jobs:
         run: npm ci
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Run lint
         env:
@@ -271,6 +267,10 @@ jobs:
       # Set REDIS_URL for your application/tests
       # The service 'redis' will be available on localhost (or redis) at port 6379
       REDIS_URL: redis://localhost:6379
+      # These suites can leave non-daemon workers alive after pytest finishes,
+      # hanging the step at interpreter shutdown; hard-exit once the session is
+      # done (see pytest_sessionfinish in tests/conftest.py).
+      DASH_TEST_FORCE_EXIT: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -608,7 +608,7 @@ jobs:
           pytest --headless --nopercyfinalize tests/websocket -v -s
 
   test-main:
-    name: Main Dash Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    name: Main Dash Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -616,11 +616,13 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.12"]
+        react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -670,21 +672,17 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Build/Setup test components
         run: npm run setup-tests.py
 
       - name: Run main integration tests
-        if: matrix.python-version != '3.12'
+        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
 
       - name: Run main integration tests with Percy
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
@@ -695,7 +693,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-main-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: test-main-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: test-reports/
           retention-days: 7
 
@@ -703,13 +701,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-main-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: test-main-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
 
   html-test:
-    name: HTML Components Tests (Python ${{ matrix.python-version }})
+    name: HTML Components Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }})
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
@@ -720,10 +718,12 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.12"]
+        react-version: ["18.3.1", "19.2.4"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -773,23 +773,19 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install HTML components dependencies
         working-directory: components/dash-html-components
         run: npm ci
 
       - name: Run HTML components tests
-        if: matrix.python-version != '3.12'
+        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
         working-directory: components/dash-html-components
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
 
       - name: Run HTML components tests with Percy
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
@@ -801,7 +797,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-test-results-py${{ matrix.python-version }}
+          name: html-test-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}
           path: components/dash-html-components/test-reports/
           retention-days: 7
 
@@ -809,7 +805,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-test-dash-artifacts-py${{ matrix.python-version }}
+          name: html-test-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
@@ -904,7 +900,7 @@ jobs:
           npm run lint
 
   dcc-test:
-    name: DCC Integration Tests (Python ${{ matrix.python-version }}, Group ${{ matrix.test-group }})
+    name: DCC Integration Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})
     needs: [build, changes_filter]
     if: |
       (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
@@ -915,11 +911,13 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.12"]
+        react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && '1' || '0' }}
+      REACT_VERSION: ${{ matrix.react-version }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -968,11 +966,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Remove DCC Python package and run tests
         run: |
@@ -986,7 +980,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dcc-test-results-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: dcc-test-results-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: components/dash-core-components/test-reports/
           retention-days: 7
 
@@ -994,7 +988,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dcc-dash-artifacts-py${{ matrix.python-version }}-group${{ matrix.test-group }}
+          name: dcc-dash-artifacts-py${{ matrix.python-version }}-react${{ matrix.react-version }}-group${{ matrix.test-group }}
           path: /tmp/dash_artifacts
           retention-days: 7
           if-no-files-found: ignore
@@ -1052,11 +1046,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install Table test dependencies
         working-directory: components/dash-table

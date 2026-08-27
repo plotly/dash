@@ -37,6 +37,11 @@ import {ICallback, IStoredCallback} from '../types/callbacks';
 
 import {updateProps, setPaths, handleAsyncError} from '../actions';
 import {getPath, computePaths} from '../actions/paths';
+import {
+    PatchAnalysis,
+    analysisForAllProps,
+    analysisForProp
+} from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
 import {applyReloadState} from '../reloadState';
@@ -48,7 +53,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {executed}
         } = getState();
 
-        function applyProps(id: any, updatedProps: any) {
+        function applyProps(
+            id: any,
+            updatedProps: any,
+            patchAnalysis?: PatchAnalysis
+        ) {
             const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
@@ -66,7 +75,20 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
-            let {props} = applyPersistence({props: updatedProps}, dispatch);
+            // A Patch resolves by carrying pre-existing children over from
+            // Redux, user edits included, so applyPersistence must leave those
+            // alone. It would otherwise see a "server override" and clear the
+            // stored edit. The analysis says which components the patch really
+            // created. Everything else came from a full replacement, where the
+            // server returns fresh default values and persisted edits must be
+            // restored (e.g. after a component moves on page).
+            // Only the `children` prop matters here, that is the one
+            // applyPersistence recurses through
+            let {props} = applyPersistence(
+                {props: updatedProps},
+                dispatch,
+                analysisForProp(patchAnalysis, 'children')
+            );
             if (
                 pathOr(
                     false,
@@ -105,7 +127,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return;
             }
 
-            const {data, error, payload} = executionResult;
+            const {data, error, payload, patchedOutputs} = executionResult;
 
             if (data !== undefined) {
                 Object.entries(data).forEach(
@@ -117,8 +139,15 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             paths: oldPaths
                         } = getState();
 
+                        // What the Patch operations of this output changed
+                        const patchAnalysis = patchedOutputs?.[id];
+
                         // Components will trigger callbacks on their own as required (eg. derived)
-                        const appliedProps = applyProps(parsedId, props);
+                        const appliedProps = applyProps(
+                            parsedId,
+                            props,
+                            patchAnalysis
+                        );
 
                         // Add callbacks for modified inputs
                         requestedCallbacks = concat(
@@ -157,7 +186,8 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             children: any,
                             oldChildren: any,
                             oldChildrenPath: any[],
-                            filterRoot: any = false
+                            filterRoot: any = false,
+                            propAnalysis?: PatchAnalysis
                         ) => {
                             const oPaths = getState().paths;
                             const paths = computePaths(
@@ -172,6 +202,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 requestedCallbacks,
                                 getLayoutCallbacks(graphs, paths, children, {
                                     chunkPath: oldChildrenPath,
+                                    patchAnalysis: propAnalysis,
                                     filterRoot
                                 }).map(rcb => ({
                                     ...rcb,
@@ -223,6 +254,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     }
 
                                     // Crawl layout needs the ns/type
+                                    // This crawls every prop of the component at
+                                    // once, so the analysis only applies if all
+                                    // of them came from a Patch
                                     handlePaths(
                                         {
                                             ...oldObj,
@@ -233,7 +267,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         },
                                         oldObj,
                                         basePath,
-                                        keys(appliedProps)
+                                        keys(appliedProps),
+                                        analysisForAllProps(
+                                            patchAnalysis,
+                                            keys(props)
+                                        )
                                     );
                                     // Only do it once for the component.
                                     recomputed = true;
@@ -260,7 +298,12 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     handlePaths(
                                         children,
                                         oldChildren,
-                                        oldChildrenPath
+                                        oldChildrenPath,
+                                        false,
+                                        analysisForProp(
+                                            patchAnalysis,
+                                            childrenPropPath[0]
+                                        )
                                     );
                                 }
                             });

@@ -8,6 +8,15 @@ _available_reactdom_versions = {"$reactdom", $extra_reactdom_versions}
 _js_dist_dependencies: List[Dict[str, Any]] = []  # to be set by _set_react_version
 
 
+def _react_cdn_urls(name, version):
+    # React 19+ has no official UMD builds, use the umd-react package instead
+    if version.startswith("19."):
+        base = f"https://unpkg.com/umd-react@{version}/dist/{name}"
+    else:
+        base = f"https://unpkg.com/{name}@{version}/umd/{name}"
+    return {"prod": f"{base}.production.min.js", "dev": f"{base}.development.js"}
+
+
 def _set_react_version(v_react, v_reactdom=None):
     if not v_reactdom:
         v_reactdom = v_react
@@ -19,19 +28,28 @@ def _set_react_version(v_react, v_reactdom=None):
     assert v_react in _available_react_versions, react_err
     assert v_reactdom in _available_reactdom_versions, reactdom_err
 
+    react_urls = _react_cdn_urls("react", v_react)
+    reactdom_urls = _react_cdn_urls("react-dom", v_reactdom)
+    # The shim must load right after react-dom, before any component package:
+    # component bundles may touch React internals at load time.
+    shim_url = f"https://unpkg.com/dash-renderer@{__version__}/build/react-shim.min.js"
+    shim_path = "dash-renderer/build/react-shim.min.js"
+
     _js_dist_dependencies[:] = [
         {
             "external_url": {
                 "prod": [
                     "https://unpkg.com/@babel/polyfill@$polyfill/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.production.min.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.production.min.js",
+                    react_urls["prod"],
+                    reactdom_urls["prod"],
+                    shim_url,
                     "https://unpkg.com/prop-types@$proptypes/prop-types.min.js",
                 ],
                 "dev": [
                     "https://unpkg.com/@babel/polyfill@$polyfill/dist/polyfill.min.js",
-                    f"https://unpkg.com/react@{v_react}/umd/react.development.js",
-                    f"https://unpkg.com/react-dom@{v_reactdom}/umd/react-dom.development.js",
+                    react_urls["dev"],
+                    reactdom_urls["dev"],
+                    shim_url,
                     "https://unpkg.com/prop-types@$proptypes/prop-types.js",
                 ],
             },
@@ -40,12 +58,14 @@ def _set_react_version(v_react, v_reactdom=None):
                     "deps/polyfill@$polyfill.min.js",
                     f"deps/react@{v_react}.min.js",
                     f"deps/react-dom@{v_reactdom}.min.js",
+                    shim_path,
                     "deps/prop-types@$proptypes.min.js",
                 ],
                 "dev": [
                     "deps/polyfill@$polyfill.min.js",
                     f"deps/react@{v_react}.js",
                     f"deps/react-dom@{v_reactdom}.js",
+                    shim_path,
                     "deps/prop-types@$proptypes.js",
                 ],
             },

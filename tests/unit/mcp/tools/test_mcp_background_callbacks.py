@@ -12,11 +12,30 @@ import json
 import time
 
 import diskcache
-from dash import Dash, Input, Output, html
+from dash import Dash, Input, Output, html, _callback_signing
 from dash.background_callback.managers.diskcache_manager import DiskcacheManager
 from dash.mcp._server import _process_mcp_message
 
 from tests.unit.mcp.conftest import _setup_mcp
+
+
+def _unwrap_handles(app, task_id):
+    """Return the raw (unsigned) ``(job_id, cache_key)`` from a signed taskId.
+
+    The handles embedded in a taskId are HMAC-signed (see ``_callback_signing``);
+    tests that poke the manager directly must unwrap them first. MCP dispatch has
+    no end_id, so the ``None`` end_id scope is used.
+    """
+    secret = app._get_signing_secret()
+    _tool, signed_job, rest = task_id.split(":", 2)
+    signed_cache, _epoch = rest.rsplit(":", 1)
+    job_id = _callback_signing.unsign(
+        secret, _callback_signing.job_scope(None), signed_job
+    )
+    cache_key = _callback_signing.unsign(
+        secret, _callback_signing.cache_scope(None), signed_cache
+    )
+    return job_id, cache_key
 
 
 # ---------------------------------------------------------------------------
@@ -74,7 +93,7 @@ def _trigger_task(app):
 
 def _wait_for_completion(app, task_id, timeout=3):
     """Block until the callback manager reports the job is no longer running."""
-    _, job_id, _ = task_id.split(":", 2)
+    job_id, _ = _unwrap_handles(app, task_id)
     manager = app.callback_map["output.children"]["manager"]
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -102,7 +121,7 @@ def test_mcpbg001_cancel_via_tool():
     )
     assert cancel["result"].get("isError") is not True
 
-    _, job_id, _ = task_id.split(":", 2)
+    job_id, _ = _unwrap_handles(app, task_id)
     manager = app.callback_map["output.children"]["manager"]
     assert not manager.job_running(job_id)
 
@@ -233,7 +252,7 @@ def test_mcpbg009_tasks_cancel_terminates_job():
     cancel_result = _mcp(app, "tasks/cancel", {"taskId": task_id})
     assert "error" not in cancel_result
 
-    _, job_id, _ = task_id.split(":", 2)
+    job_id, _ = _unwrap_handles(app, task_id)
     manager = app.callback_map["output.children"]["manager"]
     assert not manager.job_running(job_id)
 
@@ -272,7 +291,10 @@ def test_mcpbg011_task_id_encodes_tool_name_job_id_cache_key():
         },
     )
     task_id = result["result"]["task"]["taskId"]
-    tool_name, _job_id, cache_key, created_epoch = task_id.split(":")
+    tool_name, _signed_job, _signed_cache, created_epoch = task_id.split(":")
     assert tool_name == "slow_callback"
+    # Handles are signed; unwrapping recovers the raw job id and SHA256 cache key.
+    job_id, cache_key = _unwrap_handles(app, task_id)
+    assert job_id.isdigit()
     assert len(cache_key) == 64  # SHA256 hex
     assert created_epoch.isdigit()

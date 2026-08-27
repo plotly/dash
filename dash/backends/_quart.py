@@ -42,6 +42,7 @@ from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
 from dash._utils import parse_version
 from dash import _validate
+from dash._compression import decompress_payload
 from .base_server import (
     BaseDashServer,
     RequestAdapter,
@@ -385,7 +386,10 @@ class QuartDashServer(BaseDashServer[Quart]):
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
         async def _dispatch():
             adapter = QuartRequestAdapter()
-            body = await adapter.get_json()
+            if "gzip" in adapter.request.headers.get("Content-Encoding", ""):
+                body = decompress_payload(await adapter.request.get_data())
+            else:
+                body = await adapter.get_json()
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access
@@ -401,6 +405,15 @@ class QuartDashServer(BaseDashServer[Quart]):
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
             return cb_ctx.dash_response.set_response(data=response_data)  # type: ignore[arg-type]
+
+        # Preserve the view function's identity as `dash.dash.dispatch` so that
+        # integrations keying on the fully-qualified view name keep working after
+        # the backend refactor moved dispatching out of `dash.dash.Dash.dispatch`.
+        # e.g. (Quart-)WTF CSRFProtect exemptions:
+        #   csrf._exempt_views.add("dash.dash.dispatch")
+        _dispatch.__name__ = "dispatch"
+        _dispatch.__qualname__ = "dispatch"
+        _dispatch.__module__ = "dash.dash"
 
         return _dispatch
 

@@ -131,8 +131,14 @@ def test_msps001_basic_persistence(dash_dcc):
 
     dash_dcc.find_element("#dropdownsingle").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
-        "one" + Keys.ENTER
+        "one"
     )
+    # Wait for the list to filter, then click the option to select it and close
+    # the menu. Pressing Enter did not reliably close the menu under load, and
+    # the lingering overlay then intercepted the next dropdown's click.
+    dash_dcc.wait_for_element(".dash-dropdown-content .dash-dropdown-option")
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-option").click()
+    dash_dcc.wait_for_no_elements(".dash-dropdown-content")
 
     dash_dcc.find_element("#dropdownmulti").click()
     dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
