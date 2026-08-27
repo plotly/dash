@@ -57,6 +57,7 @@ from ._utils import (
 )
 from . import _callback
 from . import _callback_signing
+from . import _hot_reload as _hot_reload_state
 from . import _get_paths
 from . import _dash_renderer
 from . import _validate
@@ -1061,12 +1062,30 @@ class Dash(ObsoleteChecker):
         # echoes it on every callback request; the server binds background
         # callback handles (cacheKey/job) to it so they cannot be forged or
         # replayed from another page load. See dash/_callback_signing.py.
-        end_id = gen_salt(24)
-        config["end_id"] = _callback_signing.sign(
-            self._get_signing_secret(),
-            _callback_signing.END_SCOPE,
-            end_id,
-        )
+        def _mint_end_id():
+            return _callback_signing.sign(
+                self._get_signing_secret(),
+                _callback_signing.END_SCOPE,
+                gen_salt(24),
+            )
+
+        if self._dev_tools.hot_reload and self._dev_tools.hot_reload_preserve_state:
+            # Hot-reload state preservation scopes its sessionStorage snapshot
+            # by end_id, so the token has to stay stable across the reload
+            # (which restarts the process) and unique to this app. Persist it
+            # to disk keyed by the app path so a different app served on the
+            # same URL can't consume this one's preserved state.
+            app_key = "|".join(
+                (
+                    os.path.abspath(sys.argv[0]) if sys.argv and sys.argv[0] else "",
+                    getattr(self.server, "root_path", "") or "",
+                    self.config.name or "",
+                    self.config.requests_pathname_prefix or "",
+                )
+            )
+            config["end_id"] = _hot_reload_state.stable_end_id(app_key, _mint_end_id)
+        else:
+            config["end_id"] = _mint_end_id()
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
                 # Disable the placeholder button on workspace.

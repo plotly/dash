@@ -150,14 +150,14 @@ class Reloader extends React.Component {
                     // or a component lib has been added/removed -
                     // Must do a hard reload
                     if (this.props.config.hot_reload.preserve_state) {
-                        snapshotReloadState();
+                        snapshotReloadState(this.props.config.end_id);
                     }
                     window.location.reload();
                 }
             } else {
                 // Backend code changed - can do a soft reload in place
                 if (this.props.config.hot_reload.preserve_state) {
-                    snapshotReloadState();
+                    snapshotReloadState(this.props.config.end_id);
                 }
                 dispatch({type: 'RELOAD'});
             }

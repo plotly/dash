@@ -165,7 +165,7 @@ function storeEffect(props, events, setErrorLoading) {
                 );
                 if (config.hot_reload && config.hot_reload.preserve_state) {
                     // Restore UI state saved just before a hot reload.
-                    finalLayout = applyReloadState(finalLayout);
+                    finalLayout = applyReloadState(finalLayout, config.end_id);
                 }
                 dispatch(
                     setPaths(

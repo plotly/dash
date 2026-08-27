@@ -98,7 +98,10 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             ) {
                 // Restore UI state saved just before a hot reload to
                 // components inserted by callbacks (e.g. pages content).
-                ({props} = applyReloadState({props}));
+                ({props} = applyReloadState(
+                    {props},
+                    pathOr(undefined, ['config', 'end_id'], getState())
+                ));
             }
             (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({

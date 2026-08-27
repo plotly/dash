@@ -128,6 +128,31 @@ describe('state preservation across hot reloads', () => {
         expect(childValue(out, 0)).to.equal('A1');
     });
 
+    it('scopes the snapshot by end_id so another app cannot consume it', () => {
+        recordReloadEdit(component('a', {value: 'A0'}), {value: 'A1'});
+        snapshotReloadState('app-A');
+
+        // hard reload into a *different* app served on the same URL
+        resetReloadState();
+        const other = applyReloadState(layout('A0', 'B0'), 'app-B');
+        // the foreign app's matching component is left untouched
+        expect(childValue(other, 0)).to.equal('A0');
+
+        // the snapshot is still there for the app that wrote it
+        resetReloadState();
+        const same = applyReloadState(layout('A0', 'B0'), 'app-A');
+        expect(childValue(same, 0)).to.equal('A1');
+    });
+
+    it('restores across a hard reload of the same app (matching end_id)', () => {
+        recordReloadEdit(component('a', {value: 'A0'}), {value: 'A1'});
+        snapshotReloadState('app-A');
+
+        resetReloadState();
+        const out = applyReloadState(layout('A0', 'B0'), 'app-A');
+        expect(childValue(out, 0)).to.equal('A1');
+    });
+
     it('ignores components without an id', () => {
         recordReloadEdit(
             {...component('a', {value: 'A0'}), props: {value: 'A0'}},

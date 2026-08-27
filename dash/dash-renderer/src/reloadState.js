@@ -24,7 +24,13 @@ import {equals, isEmpty, lensPath, set} from 'ramda';
 import {crawlLayout} from './actions/utils';
 import {stringifyId} from './actions/dependencies';
 
-const storeKey = () => `_dash_reload_state.${window.location.pathname}`;
+// Scope the snapshot by the page's end_id, not just its path. When
+// `preserve_state` is on the server persists a per-app end_id (stable across
+// the reload, unique to the app - see dash/_hot_reload.py), so a different app
+// served on the same URL gets a different key and can never restore this app's
+// preserved state into itself.
+const storeKey = endId =>
+    `_dash_reload_state.${window.location.pathname}.${endId || ''}`;
 
 // Values are stored stringified so `undefined` (prop not present) survives
 // the sessionStorage round-trip distinctly from `null`.
@@ -91,7 +97,7 @@ export function recordReloadEdit(component, newProps) {
  * hard reloads, where it doesn't). Called by the Reloader just before it
  * triggers a reload.
  */
-export function snapshotReloadState() {
+export function snapshotReloadState(endId) {
     // Entries not yet re-applied since the last reload stay pending, so
     // state isn't lost when reloads happen in quick succession.
     pending = pending || {};
@@ -113,7 +119,7 @@ export function snapshotReloadState() {
     }
     uiEdits = {};
     try {
-        window.sessionStorage.setItem(storeKey(), JSON.stringify(pending));
+        window.sessionStorage.setItem(storeKey(endId), JSON.stringify(pending));
     } catch (e) {
         // Quota exceeded or sessionStorage unavailable - a hard reload
         // will lose state, but don't block the reload over it.
@@ -126,13 +132,13 @@ export function snapshotReloadState() {
  * Merge pending recorded edits into an incoming layout (or sub-layout
  * inserted by a callback). Returns the possibly-modified layout.
  */
-export function applyReloadState(layout) {
+export function applyReloadState(layout, endId) {
     if (pending === null) {
         // Fresh js context: recover the snapshot a hard reload left in
         // sessionStorage, if any.
         pending = {};
         try {
-            const stored = window.sessionStorage.getItem(storeKey());
+            const stored = window.sessionStorage.getItem(storeKey(endId));
             if (stored) {
                 pending = JSON.parse(stored) || {};
             }
@@ -143,7 +149,7 @@ export function applyReloadState(layout) {
     // Always consume the stored snapshot so a manual browser refresh
     // (which never writes one) starts from a clean slate.
     try {
-        window.sessionStorage.removeItem(storeKey());
+        window.sessionStorage.removeItem(storeKey(endId));
     } catch (e) {
         // sessionStorage unavailable - nothing to consume.
     }
