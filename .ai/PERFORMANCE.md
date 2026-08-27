@@ -44,9 +44,11 @@ python -m benchmarks.run --baseline benchmarks/baseline.json --summary-md summar
 
 ### Updating the baseline
 
-The baseline is machine-sensitive (absolute ms). Regenerate it on the same
-class of machine the CI job uses (GitHub `ubuntu-latest`) when scenarios change
-or an intended optimization lands:
+`baseline.json` holds absolute ms, but you do **not** need to regenerate it on a
+CI-class machine: the baseline-ratio gate divides out a per-run *machine scale*
+(see "Machine-independent gating" below), so a baseline captured on your laptop
+compares correctly against numbers measured on a slower CI runner. Regenerate it
+when scenarios change or an intended optimization lands:
 
 ```bash
 python -m benchmarks.run --out benchmarks/baseline.json
@@ -54,16 +56,34 @@ python -m benchmarks.run --out benchmarks/baseline.json
 
 Commit the new `baseline.json` in the same PR, and say why in the message.
 
+### Machine-independent gating
+
+The same code runs ~2-4x slower on a shared CI runner than on a dev machine, and
+even two `ubuntu-latest` runners vary run-to-run - so comparing raw ms against a
+committed baseline flakes. To avoid that, the runner measures a fixed
+**calibration scenario** (`initial_render_small`) in the same run and computes a
+**machine scale** = `this-run calibration median ÷ baseline calibration median`.
+The baseline-ratio check then divides each scenario's raw ratio by that scale,
+so a uniformly N× slower machine reports ~1.0× (no regression) while a *genuine*
+regression still shows through. The scale is printed in the summary/PR comment.
+
+The absolute `warn_ms` / `fail_ms` ceilings in `scenarios.py` are **not** scaled
+- they stay generous order-of-magnitude guards and double as the backstop for a
+global slowdown that would also drag the calibration workload (and so hide
+inside the scale). If a run doesn't include `initial_render_small` (e.g. a
+`--scenario` subset), gating falls back to a raw-ms comparison and says so.
+
 ## CI job (`.github/workflows/benchmarks.yml`)
 
 Runs on PRs that touch `dash/`, `benchmarks/`, or components. It builds the
 production bundle, runs the harness against `baseline.json`, and:
 
 - **hard-fails** the job only on an order-of-magnitude regression - a metric
-  over its absolute `fail_ms`, or `> 2x` the baseline p90;
+  over its absolute `fail_ms`, or `> 2x` the baseline p90 *after normalizing out
+  machine speed* (see "Machine-independent gating" above);
 - **warns** (without failing) on a smaller drift - over `warn_ms`, or `> 1.3x`
-  baseline - and always upserts a single sticky **PR comment** with the table so
-  the numbers are visible on every run;
+  the normalized baseline - and always upserts a single sticky **PR comment**
+  with the table (and the machine scale) so the numbers are visible on every run;
 - uploads `results.json` + `summary.md` as artifacts.
 
 Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by

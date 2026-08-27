@@ -13,6 +13,12 @@ Compare against a saved baseline and gate on thresholds (this is what CI does)::
     python -m benchmarks.run --baseline benchmarks/baseline.json \
         --summary-md summary.md
 
+The baseline holds absolute ms, but the baseline *ratio* gate divides out a
+per-run "machine scale" (this run's time for a fixed calibration scenario over
+the baseline's), so the comparison is machine-independent - the baseline can be
+generated on any machine and does not flake across CI runners. See ``gate`` /
+``machine_scale``.
+
 CPU-profile a single scenario (saves a .cpuprofile loadable in Chrome DevTools
 / VS Code, and prints the hottest functions)::
 
@@ -299,13 +305,47 @@ def profile_hot_functions(profile, top=25):
 # ---------------------------------------------------------------------------
 
 
-def gate(results, scenarios, baseline=None):
-    """Return (rows, worst) where worst is 'ok' | 'warn' | 'fail'.
+# The baseline stores absolute milliseconds, which are machine-specific: the
+# identical code runs ~2-4x slower on a shared CI runner than on a dev laptop,
+# and even two "same class" runners vary run-to-run. Comparing raw ms against
+# the baseline therefore flakes. So before the baseline comparison we divide out
+# a per-run "machine scale" - this run's time for a fixed calibration workload
+# over the baseline's time for the same workload - which makes the ratio
+# machine-independent. The baseline can then be regenerated on ANY machine and
+# committed as-is. The absolute warn_ms/fail_ms ceilings are left UN-scaled on
+# purpose: they are generous order-of-magnitude guards, and staying absolute
+# lets them still catch a global slowdown that would also drag the calibration
+# workload (and so would otherwise hide inside the scale).
+CALIBRATION_SCENARIO = "initial_render_small"
+CALIBRATION_METRIC = "render_ms"
 
-    A metric fails on the absolute fail_ms ceiling, or (if a baseline exists)
-    on a >2x regression vs baseline p90. It warns on warn_ms, or a >1.3x
-    baseline regression."""
+
+def machine_scale(results, baseline):
+    """This run's speed relative to the baseline machine (1.0 == same speed),
+    from the calibration scenario measured in the same run. None when either
+    side lacks it (e.g. a subset run that excludes it) - gating then falls back
+    to a raw-ms comparison."""
+
+    def anchor(src):
+        m = (src or {}).get(CALIBRATION_SCENARIO, {}).get(CALIBRATION_METRIC, {})
+        return m.get("median")
+
+    now, base = anchor(results), anchor(baseline)
+    if not now or not base:
+        return None
+    return now / base
+
+
+def gate(results, scenarios, baseline=None):
+    """Return (rows, worst, scale) where worst is 'ok' | 'warn' | 'fail'.
+
+    A metric fails on the absolute fail_ms ceiling, or (if a baseline exists) on
+    a >2x regression vs baseline p90 after normalizing out machine speed (see
+    ``machine_scale``). It warns on warn_ms, or a >1.3x normalized baseline
+    regression. ``scale`` is the machine factor that was divided out (None if no
+    calibration was available)."""
     severity = {"ok": 0, "warn": 1, "fail": 2}
+    scale = machine_scale(results, baseline) if baseline else None
     rows = []
     worst = "ok"
     for name, res in results.items():
@@ -325,13 +365,19 @@ def gate(results, scenarios, baseline=None):
                 reasons.append(f"p90 {p90}ms > warn {warn_ms}ms")
             base_p90 = base.get(metric, {}).get("p90")
             if base_p90:
+                # On a 3x-slower runner every raw p90 is ~3x its baseline, so
+                # divide the raw ratio by the machine scale to compare like for
+                # like. Falls back to the raw ratio when no scale is available.
                 ratio = p90 / base_p90
+                if scale:
+                    ratio /= scale
+                tag = "x baseline" + (" (norm)" if scale else "")
                 if ratio > 2.0:
                     level = "fail"
-                    reasons.append(f"{ratio:.1f}x baseline")
+                    reasons.append(f"{ratio:.1f}{tag}")
                 elif ratio > 1.3 and level != "fail":
                     level = "warn" if level == "ok" else level
-                    reasons.append(f"{ratio:.1f}x baseline")
+                    reasons.append(f"{ratio:.1f}{tag}")
             if severity[level] > severity[worst]:
                 worst = level
             rows.append(
@@ -346,10 +392,10 @@ def gate(results, scenarios, baseline=None):
                     "reasons": "; ".join(reasons),
                 }
             )
-    return rows, worst
+    return rows, worst, scale
 
 
-def markdown(rows, worst, errors=None):
+def markdown(rows, worst, errors=None, norm_note=None):
     icon = {"ok": "✅", "warn": "⚠️", "fail": "❌"}
     head = {
         "ok": "✅ all within thresholds",
@@ -377,6 +423,9 @@ def markdown(rows, worst, errors=None):
         "_growth = late-third / early-third per-op time; ~1 is flat, a large "
         "value means the per-op cost scales with accumulated state._"
     )
+    if norm_note:
+        out.append("")
+        out.append(f"_{norm_note}_")
     return "\n".join(out)
 
 
@@ -440,10 +489,24 @@ def main():
         with open(args.baseline) as f:
             baseline = json.load(f)
 
-    rows, worst = gate(results, SCENARIOS, baseline)
+    rows, worst, scale = gate(results, SCENARIOS, baseline)
+    if baseline is None:
+        norm_note = None
+    elif scale:
+        norm_note = (
+            f"machine scale vs baseline: {scale:.2f}x - divided out of the "
+            "baseline ratios so they compare like for like (the absolute "
+            "warn/fail ceilings are left un-scaled); calibrated on "
+            f"`{CALIBRATION_SCENARIO}`."
+        )
+    else:
+        norm_note = (
+            f"baseline ratios NOT machine-normalized - `{CALIBRATION_SCENARIO}` "
+            "was not in this run, so ratios below compare raw ms."
+        )
     if errors:
         worst = "fail"
-    md = markdown(rows, worst, errors)
+    md = markdown(rows, worst, errors, norm_note)
     if args.summary_md:
         with open(args.summary_md, "w") as f:
             f.write(md + "\n")
