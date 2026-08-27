@@ -559,7 +559,10 @@ def test_grbs010_graph_patch_deeply_nested_figure(dash_dcc):
 
 
 def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
-    """When clickanywhere and hoveranywhere are enabled, clickData and hoverData include xvals and yvals"""
+    """
+    When clickanywhere and hoveranywhere are enabled, clickData and hoverData include xvals and yvals
+    Note - xPixel and yPixel requires Plotly>=7
+    """
     app = Dash(__name__)
 
     app.layout = html.Div(
@@ -587,6 +590,10 @@ def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
             "click_y": (click_data or {}).get("yvals", [None])[0],
             "hover_x": (hover_data or {}).get("xvals", [None])[0],
             "hover_y": (hover_data or {}).get("yvals", [None])[0],
+            "click_xPixel": (click_data or {}).get("xPixel", [None])[0],
+            "click_yPixel": (click_data or {}).get("yPixel", [None])[0],
+            "hover_xPixel": (hover_data or {}).get("xPixel", [None])[0],
+            "hover_yPixel": (hover_data or {}).get("yPixel", [None])[0],
         }
         return json.dumps(result)
 
@@ -600,11 +607,18 @@ def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
 
     out = json.loads(dash_dcc.find_element("#output").text)
 
-    # click anywhere should produce coordinates
-    assert out["click_x"] is not None
-    assert out["click_y"] is not None
-    assert out["hover_x"] is not None
-    assert out["hover_y"] is not None
+    # click/hover anywhere should produce coordinates
+    for key in (
+        "click_x",
+        "click_y",
+        "hover_x",
+        "hover_y",
+        "click_xPixel",
+        "click_yPixel",
+        "hover_xPixel",
+        "hover_yPixel",
+    ):
+        assert out[key] is not None
 
 
 def test_grbs012_graph_patch_keeps_relayout_ranges(dash_dcc):

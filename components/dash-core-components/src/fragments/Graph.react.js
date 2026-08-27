@@ -125,13 +125,11 @@ const filterEventData = (gd, eventData, event) => {
             (event === 'click' && gd._fullLayout.clickanywhere === true);
 
         if (includeXYVals) {
-            if (has('xvals', eventData)) {
-                filteredEventData.xvals = eventData.xvals;
-            }
-
-            if (has('yvals', eventData)) {
-                filteredEventData.yvals = eventData.yvals;
-            }
+            ['xvals', 'yvals', 'xPixel', 'yPixel'].forEach(key => {
+                if (has(key, eventData)) {
+                    filteredEventData[key] = eventData[key];
+                }
+            });
 
             if (has('xaxes', eventData)) {
                 filteredEventData.xaxes_id = eventData.xaxes[0]._id;
