@@ -13,6 +13,14 @@ on:
       - 'components/**'
       - '@plotly/**'
   workflow_dispatch:
+    inputs:
+      regenerate_baseline:
+        description: >-
+          Measure a fresh baseline on the CI runner and open a PR updating
+          benchmarks/baseline.json (run on the default branch after a merge so
+          the machine scale is ~1.0x for the next PR).
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,6 +33,9 @@ concurrency:
 jobs:
   benchmarks:
     name: Run performance benchmarks
+    # Skip the gating run when a dispatch asked to regenerate the baseline;
+    # the regenerate-baseline job handles that instead.
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.regenerate_baseline) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -119,3 +130,93 @@ jobs:
             echo "Benchmarks exceeded a hard (fail) threshold. See the PR comment."
             exit 1
           fi
+
+  regenerate-baseline:
+    name: Regenerate benchmark baseline
+    # Manual only: dispatch with regenerate_baseline=true, on the branch whose
+    # baseline you want to refresh (usually the default branch, post-merge).
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.regenerate_baseline }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Dash (editable)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing]
+
+      - name: Build the production renderer bundle
+        run: npm run build
+
+      - name: Set up Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Set up virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1400x1000x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Measure fresh baseline
+        # No --baseline: nothing to gate against, so this just writes the
+        # measured numbers straight into baseline.json (exit 0).
+        run: |
+          python -m benchmarks.run \
+            --out benchmarks/baseline.json \
+            --summary-md benchmarks/summary.md
+
+      - name: Open baseline update PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- benchmarks/baseline.json; then
+            echo "Baseline unchanged; nothing to commit."
+            exit 0
+          fi
+          branch="benchmarks/regenerate-baseline-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add benchmarks/baseline.json
+          git commit -m "Regenerate benchmark baseline on CI hardware"
+          git push origin "$branch"
+          {
+            echo "Automated baseline refresh measured on the \`ubuntu-latest\` runner"
+            echo "via the \`regenerate_baseline\` dispatch. Merging makes the machine"
+            echo "scale ~1.0x for subsequent PRs on the same runner class."
+            echo
+            echo "<details><summary>Measured summary</summary>"
+            echo
+            cat benchmarks/summary.md
+            echo
+            echo "</details>"
+          } > "$RUNNER_TEMP/pr-body.md"
+          gh pr create \
+            --base "${{ github.ref_name }}" \
+            --head "$branch" \
+            --title "Regenerate benchmark baseline on CI hardware" \
+            --body-file "$RUNNER_TEMP/pr-body.md"

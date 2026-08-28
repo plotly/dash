@@ -56,6 +56,12 @@ python -m benchmarks.run --out benchmarks/baseline.json
 
 Commit the new `baseline.json` in the same PR, and say why in the message.
 
+To capture the baseline on CI hardware instead (so the machine scale is ~1.0x
+for subsequent PRs), run the **Performance Benchmarks** workflow via
+`workflow_dispatch` with `regenerate_baseline` checked, on the branch you want
+to refresh (usually the default branch, right after a merge). It measures a
+fresh baseline on the runner and opens a PR updating `benchmarks/baseline.json`.
+
 ### Machine-independent gating
 
 The same code runs ~2-4x slower on a shared CI runner than on a dev machine, and
