@@ -319,6 +319,13 @@ def profile_hot_functions(profile, top=25):
 CALIBRATION_SCENARIO = "initial_render_small"
 CALIBRATION_METRIC = "render_ms"
 
+# Below this baseline p90 the metric is at the floor of browser timer resolution
+# (e.g. graph_ms baselines are sub-millisecond), so the baseline *ratio* is
+# dominated by jitter and a single slow sample reads as a 3x "regression". Skip
+# the ratio gate for such metrics - the absolute warn_ms/fail_ms ceilings still
+# guard them. Metrics that actually matter here are tens-to-thousands of ms.
+MIN_BASELINE_MS = 5.0
+
 
 def machine_scale(results, baseline):
     """This run's speed relative to the baseline machine (1.0 == same speed),
@@ -342,8 +349,10 @@ def gate(results, scenarios, baseline=None):
     A metric fails on the absolute fail_ms ceiling, or (if a baseline exists) on
     a >2x regression vs baseline p90 after normalizing out machine speed (see
     ``machine_scale``). It warns on warn_ms, or a >1.3x normalized baseline
-    regression. ``scale`` is the machine factor that was divided out (None if no
-    calibration was available)."""
+    regression. The baseline-ratio check is skipped for metrics whose baseline
+    p90 is below ``MIN_BASELINE_MS`` (sub-ms metrics are pure timer jitter; the
+    absolute ceilings still guard them). ``scale`` is the machine factor that
+    was divided out (None if no calibration was available)."""
     severity = {"ok": 0, "warn": 1, "fail": 2}
     scale = machine_scale(results, baseline) if baseline else None
     rows = []
@@ -364,7 +373,7 @@ def gate(results, scenarios, baseline=None):
                 level = "warn"
                 reasons.append(f"p90 {p90}ms > warn {warn_ms}ms")
             base_p90 = base.get(metric, {}).get("p90")
-            if base_p90:
+            if base_p90 and base_p90 >= MIN_BASELINE_MS:
                 # On a 3x-slower runner every raw p90 is ~3x its baseline, so
                 # divide the raw ratio by the machine scale to compare like for
                 # like. Falls back to the raw ratio when no scale is available.
