@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useMemo} from 'react';
 import ReactMarkdown from 'react-markdown';
 import type {PluggableList} from 'unified';
 
@@ -63,16 +63,21 @@ function MarkdownContainer({
     ].filter(Boolean);
 
     // provides a recursive method to render nested markdown elements
-    const renderMarkdown = (text: string) => (
-        <MarkdownContent
-            dedent={dedent}
-            dangerously_allow_html={dangerously_allow_html}
-            mathjax={mathjax}
-            link_target={link_target}
-        >
-            {text}
-        </MarkdownContent>
+    const renderMarkdown = useCallback(
+        (text: string) => (
+            <MarkdownContent
+                dedent={dedent}
+                dangerously_allow_html={dangerously_allow_html}
+                mathjax={mathjax}
+                link_target={link_target}
+            >
+                {text}
+            </MarkdownContent>
+        ),
+        [dedent, dangerously_allow_html, mathjax, link_target]
     );
+
+    const markdownContext = useMemo(() => ({renderMarkdown}), [renderMarkdown]);
 
     return (
         <LoadingElement>
@@ -83,7 +88,7 @@ function MarkdownContainer({
                     className={classNames.join(' ')}
                     {...loadingProps}
                 >
-                    <MarkdownContext.Provider value={{renderMarkdown}}>
+                    <MarkdownContext.Provider value={markdownContext}>
                         {renderMarkdown(textProp ?? '')}
                     </MarkdownContext.Provider>
                 </div>

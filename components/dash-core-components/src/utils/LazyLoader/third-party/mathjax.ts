@@ -9,8 +9,10 @@ declare global {
     }
 }
 
-export default (mathjax?: boolean): Promise<MathJaxObject | undefined> =>
-    Promise.resolve(
+export default function lazyLoadMathJax(
+    mathjax?: boolean
+): Promise<MathJaxObject | undefined> {
+    return Promise.resolve(
         window.MathJax ||
             (mathjax === false
                 ? undefined
@@ -18,3 +20,4 @@ export default (mathjax?: boolean): Promise<MathJaxObject | undefined> =>
                       () => window.MathJax
                   ))
     );
+}
