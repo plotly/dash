@@ -94,12 +94,6 @@ function DashWrapper({
     const renderedIdentity: MutableRefObject<string | null> = useRef(null);
     const hasFreshRendered = useRef(false);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
-    // Previous array value of each children-like prop this component
-    // hydrated, keyed by childrenPath. Lets wrapChildrenProp recognize
-    // items that are the exact same object as last time (eg. every
-    // pre-existing item in a list a Patch only appended to), so they can
-    // keep reconciling in place instead of being forced to re-hydrate their
-    // whole subtree just because a sibling was added.
     const prevChildrenArrays: MutableRefObject<{[key: string]: any[]}> = useRef(
         {}
     );
@@ -248,15 +242,6 @@ function DashWrapper({
                 prevChildrenArrays.current[pathKey] = node;
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
-                        // An item that's the exact same object as before
-                        // didn't change - not even props a shallow patch
-                        // analysis might miss - so it doesn't need to be
-                        // forced into a fresh hydrate just because this array
-                        // as a whole did (eg. a sibling got appended, or a
-                        // deeper list this item sits above grew: ramda's
-                        // assocPath rebuilds the array and this item's parent
-                        // on the way to the change, but `concat` keeps the
-                        // pre-existing items themselves the same object).
                         const unchanged = allowRefSkip && prevArray?.[i] === n;
                         return createContainer(
                             n,
@@ -553,15 +538,6 @@ function DashWrapper({
                 !renderH || newRender.current || 'children' in changedProps
                     ? {}
                     : 0,
-                // Check items one by one against the previous render whenever
-                // we're not remounting. Even a component getting a fresh
-                // hydrate (eg. a Patch appended a deep sibling, so its parent
-                // was rebuilt on the path down) can keep the pre-existing
-                // items - the exact same objects - reconciling in place
-                // instead of re-hydrating the whole list every time. A first
-                // render simply has no previous array to match, and a remount
-                // must rebuild everything, so both fall through to a fresh
-                // hydrate.
                 !remountedThisRender.current
             );
         }
