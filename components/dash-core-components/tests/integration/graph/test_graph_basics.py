@@ -590,10 +590,10 @@ def test_grbs011_clickanywhere_hoveranywhere(dash_dcc):
             "click_y": (click_data or {}).get("yvals", [None])[0],
             "hover_x": (hover_data or {}).get("xvals", [None])[0],
             "hover_y": (hover_data or {}).get("yvals", [None])[0],
-            "click_xPixel": (click_data or {}).get("xPixel", [None])[0],
-            "click_yPixel": (click_data or {}).get("yPixel", [None])[0],
-            "hover_xPixel": (hover_data or {}).get("xPixel", [None])[0],
-            "hover_yPixel": (hover_data or {}).get("yPixel", [None])[0],
+            "click_xPixel": (click_data or {}).get("xPixel"),
+            "click_yPixel": (click_data or {}).get("yPixel"),
+            "hover_xPixel": (hover_data or {}).get("xPixel"),
+            "hover_yPixel": (hover_data or {}).get("yPixel"),
         }
         return json.dumps(result)
 
