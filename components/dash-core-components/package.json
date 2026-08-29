@@ -65,6 +65,7 @@
     "react-window": "^1.8.11",
     "rehype-raw": "^6.1.1",
     "remark-math": "^5.1.1",
+    "remark-gfm":  "^3.0.1",
     "uniqid": "^5.4.0",
     "unist-util-visit": "^4.1.2"
   },
