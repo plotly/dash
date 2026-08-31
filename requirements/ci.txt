@@ -1,5 +1,5 @@
 # Dependencies used by CI on github.com/plotly/dash
-black==25.11.0
+black==22.3.0
 flake8==7.3.0
 flaky==3.8.1
 flask-talisman==1.1.0
@@ -11,7 +11,7 @@ orjson>=3.10.11
 openpyxl
 pandas>=1.4.0
 pyarrow
-pylint==3.3.7
+pylint==3.0.3
 pytest-mock
 pytest-split
 pytest-sugar==1.1.1
