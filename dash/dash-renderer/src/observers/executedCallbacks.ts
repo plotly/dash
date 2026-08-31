@@ -44,6 +44,7 @@ import {
 } from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
+import {applyReloadState} from '../reloadState';
 import {IStoreObserverDefinition} from '../StoreObserver';
 
 const observer: IStoreObserverDefinition<IStoreState> = {
@@ -83,11 +84,25 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             // restored (e.g. after a component moves on page).
             // Only the `children` prop matters here, that is the one
             // applyPersistence recurses through
-            const {props} = applyPersistence(
+            let {props} = applyPersistence(
                 {props: updatedProps},
                 dispatch,
                 analysisForProp(patchAnalysis, 'children')
             );
+            if (
+                pathOr(
+                    false,
+                    ['config', 'hot_reload', 'preserve_state'],
+                    getState()
+                )
+            ) {
+                // Restore UI state saved just before a hot reload to
+                // components inserted by callbacks (e.g. pages content).
+                ({props} = applyReloadState(
+                    {props},
+                    pathOr(undefined, ['config', 'end_id'], getState())
+                ));
+            }
             (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
