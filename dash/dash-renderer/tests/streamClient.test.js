@@ -29,13 +29,14 @@ function makeFetch() {
         if (body.streamDownlink) {
             const dl = makeDownlink();
             downlinks.push({
+                url,
                 from: body.streamDownlink.from,
                 signal: init.signal,
                 dl
             });
             return Promise.resolve(new Response(dl.stream, {status: 200}));
         }
-        uplinks.push(body);
+        uplinks.push({url, ...body});
         return Promise.resolve(
             new Response(JSON.stringify({multi: true, stream: true}), {
                 status: 200
@@ -66,18 +67,26 @@ describe('StreamClient', () => {
         });
     });
 
-    it('sends an uplink tagging the callback with a connection + request id', async () => {
-        client.run('/cb', {}, {output: 'a.b'}, () => {});
+    it('tags the uplink with a request id and the signed endId, not a client topic id', async () => {
+        client.run('/cb', {}, 'e1', {output: 'a.b'}, () => {});
         await waitFor(() => mock.uplinks.length === 1);
         const conn = mock.uplinks[0].streamConnection;
-        expect(conn.connectionId).to.be.a('string');
         expect(conn.requestId).to.be.a('string');
+        // The client never names the topic: only the server-signed endId keys it.
+        expect(conn.connectionId).to.equal(undefined);
+        expect(mock.uplinks[0].url).to.contain('endId=e1');
         expect(mock.uplinks[0].output).to.equal('a.b'); // original payload preserved
+    });
+
+    it('carries the endId on the downlink too', async () => {
+        client.run('/cb', {}, 'e1', {output: 'a.b'}, () => {});
+        await waitFor(() => mock.downlinks.length === 1);
+        expect(mock.downlinks[0].url).to.contain('endId=e1');
     });
 
     it('routes frames to onFrame and resolves on the done frame', async () => {
         const frames = [];
-        const settled = client.run('/cb', {}, {output: 'a.b'}, f =>
+        const settled = client.run('/cb', {}, 'e1', {output: 'a.b'}, f =>
             frames.push(f)
         );
         await waitFor(() => mock.downlinks.length === 1);
@@ -95,7 +104,7 @@ describe('StreamClient', () => {
     });
 
     it('rejects on an error done frame', async () => {
-        const settled = client.run('/cb', {}, {output: 'a.b'}, () => {});
+        const settled = client.run('/cb', {}, 'e1', {output: 'a.b'}, () => {});
         await waitFor(() => mock.downlinks.length === 1);
         const {requestId} = mock.uplinks[0].streamConnection;
         mock.downlinks[0].dl.push({
@@ -112,8 +121,12 @@ describe('StreamClient', () => {
     it('multiplexes two callbacks over one downlink, routed by request id', async () => {
         const aFrames = [];
         const bFrames = [];
-        const a = client.run('/cb', {}, {output: 'a'}, f => aFrames.push(f));
-        const b = client.run('/cb', {}, {output: 'b'}, f => bFrames.push(f));
+        const a = client.run('/cb', {}, 'e1', {output: 'a'}, f =>
+            aFrames.push(f)
+        );
+        const b = client.run('/cb', {}, 'e1', {output: 'b'}, f =>
+            bFrames.push(f)
+        );
         await waitFor(() => mock.uplinks.length === 2);
         // Both share a single downlink connection.
         expect(mock.downlinks.length).to.equal(1);
@@ -133,7 +146,7 @@ describe('StreamClient', () => {
 
     it('reconnects from the last seen sequence when the downlink drops', async () => {
         const frames = [];
-        const settled = client.run('/cb', {}, {output: 'a'}, f =>
+        const settled = client.run('/cb', {}, 'e1', {output: 'a'}, f =>
             frames.push(f)
         );
         await waitFor(() => mock.downlinks.length === 1);
@@ -159,9 +172,55 @@ describe('StreamClient', () => {
         expect(frames).to.deep.equal([{response: {a: 1}}]);
     });
 
+    it('resets its cursor to the head on a reset envelope (server restart)', async () => {
+        const frames = [];
+        const settled = client.run('/cb', {}, 'e1', {output: 'a'}, f =>
+            frames.push(f)
+        );
+        await waitFor(() => mock.downlinks.length === 1);
+        const {requestId} = mock.uplinks[0].streamConnection;
+
+        // Advance the cursor, then the server signals its buffer was lost.
+        mock.downlinks[0].dl.push({
+            rid: requestId,
+            frame: {response: {a: 1}},
+            seq: 5
+        });
+        await waitFor(() => frames.length === 1);
+        mock.downlinks[0].dl.push({reset: true});
+        mock.downlinks[0].dl.close();
+
+        // The reconnect resumes from the head (0), not the stale cursor (5).
+        await waitFor(() => mock.downlinks.length === 2);
+        expect(mock.downlinks[1].from).to.equal(0);
+        mock.downlinks[1].dl.push({
+            rid: requestId,
+            frame: {done: true},
+            seq: 1
+        });
+        await settled;
+    });
+
+    it('fails the callback loudly when the uplink is rejected (unverified connection)', async () => {
+        // The server refuses an unverified multiplexed connection with a 403; no
+        // frames will arrive on the downlink, so the request must reject rather
+        // than hang.
+        const fetchImpl = () =>
+            Promise.resolve(new Response('', {status: 403}));
+        const c = new StreamClient({fetchImpl, reconnectDelay: 10});
+        let err;
+        await c
+            .run('/cb', {}, 'e1', {output: 'a'}, () => {})
+            .catch(e => {
+                err = e;
+            });
+        expect(err).to.be.an('error');
+        expect(err.message).to.contain('403');
+    });
+
     it('skips keepalive blank lines', async () => {
         const frames = [];
-        const settled = client.run('/cb', {}, {output: 'a'}, f =>
+        const settled = client.run('/cb', {}, 'e1', {output: 'a'}, f =>
             frames.push(f)
         );
         await waitFor(() => mock.downlinks.length === 1);

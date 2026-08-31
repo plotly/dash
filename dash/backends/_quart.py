@@ -48,7 +48,13 @@ from dash._streaming import (
     marker_ndjson_aiter,
     to_json,
 )
-from dash._stream_hub import STREAM_ACK, async_downlink_marker, spawn_async_pump
+from dash._callback import get_stream_connection_id
+from dash._stream_hub import (
+    STREAM_ACK,
+    async_downlink_marker,
+    shutdown_active_streams,
+    spawn_async_pump,
+)
 from dash._utils import parse_version
 from dash import _validate
 from dash._compression import decompress_payload
@@ -394,6 +400,12 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
+        # Close open downlink subscriptions and cancel stream pumps on shutdown,
+        # so a long-polling downlink can't block a graceful exit.
+        @self.server.after_serving
+        async def _shutdown_streams():  # pylint: disable=unused-variable
+            shutdown_active_streams()
+
         def _ndjson_response(marker):
             # pylint: disable=protected-access
             return Response(  # type: ignore[return-value]
@@ -413,9 +425,12 @@ class QuartDashServer(BaseDashServer[Quart]):
                 body = await adapter.get_json()
             downlink = body.get("streamDownlink")
             if downlink is not None:
+                connection_id = get_stream_connection_id()
+                if connection_id is None:
+                    return Response(status=403)  # type: ignore[return-value]
                 marker = async_downlink_marker(
                     dash_app.shared_storage,
-                    downlink["connectionId"],
+                    connection_id,
                     downlink.get("from"),
                 )
                 return _ndjson_response(marker)
@@ -435,12 +450,22 @@ class QuartDashServer(BaseDashServer[Quart]):
                 response_data = await response_data
             if isinstance(response_data, StreamedCallbackResponse):
                 stream_conn = body.get("streamConnection")
-                if stream_conn and dash_app.shared_storage_enabled:
-                    # Multiplexed uplink: pump frames onto the connection's topic
-                    # and return immediately instead of holding this connection.
+                if stream_conn is not None:
+                    # A streamConnection asserts "multiplex me": the connection
+                    # id is derived from the signed end_id (never from the
+                    # client), so a page can only publish to its own topic. An
+                    # unverified connection is refused, never run some other way,
+                    # so no frame reaches a topic without a valid token.
+                    connection_id = (
+                        get_stream_connection_id()
+                        if dash_app.shared_storage_enabled
+                        else None
+                    )
+                    if connection_id is None:
+                        return Response(status=403)  # type: ignore[return-value]
                     spawn_async_pump(
                         dash_app.shared_storage,
-                        stream_conn["connectionId"],
+                        connection_id,
                         stream_conn["requestId"],
                         response_data,
                     )

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import atexit
 import pkgutil
 import sys
 import mimetypes
@@ -30,7 +31,11 @@ from werkzeug.debug import tbtools
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
-from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._callback import (
+    _invoke_callback,
+    _async_invoke_callback,
+    get_stream_connection_id,
+)
 from dash._compression import decompress_payload
 from dash._streaming import (
     STREAM_HEADERS,
@@ -42,12 +47,21 @@ from dash._streaming import (
     sync_iter_asyncgen,
     to_json,
 )
-from dash._stream_hub import pump_to_storage, subscribe_envelopes
+from dash._stream_hub import (
+    pump_to_storage,
+    shutdown_active_streams,
+    subscribe_envelopes,
+)
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
+
+
+# WSGI has no shutdown lifecycle hook, so lean on process exit to close open
+# downlink subscriptions and stop stream pumps (a no-op when none are open).
+atexit.register(shutdown_active_streams)
 
 
 class FlaskResponseAdapter(ResponseAdapter):
@@ -295,28 +309,41 @@ class FlaskDashServer(BaseDashServer[Flask]):
             # The client's single multiplexed streaming connection: relay this
             # connection's frames (published by streaming callbacks, possibly on
             # other workers, via shared storage) as an ordinary NDJSON stream.
+            # The connection id is derived from the signed end_id, never taken
+            # from the client, so a page can only ever read its own topic.
+            connection_id = get_stream_connection_id()
+            if connection_id is None:
+                return Response(status=403)
             storage = dash_app.shared_storage
-            frames = subscribe_envelopes(
-                storage, downlink["connectionId"], downlink.get("from")
-            )
+            frames = subscribe_envelopes(storage, connection_id, downlink.get("from"))
             marker = StreamedCallbackResponse(
                 frames, is_async=False, ctx=copy_context()
             )
             return _stream_response(marker, with_request_ctx=with_request_ctx)
 
         def _serve_uplink(marker, body, cb_ctx):
-            # Multiplexed uplink: if the streaming callback carries a connection,
-            # pump its frames onto that connection's topic on a background thread
-            # and return immediately, so this request does not hold a connection
-            # for the stream's life. Returns None to fall back to inline NDJSON.
+            # Multiplexed uplink: a streamConnection asserts "multiplex me". Pump
+            # the frames onto that connection's topic on a background thread and
+            # return immediately, so this request does not hold a connection for
+            # the stream's life. The connection id is derived from the signed
+            # end_id, never from the client, so a page can only publish to its
+            # own topic; an unverified connection is refused (403), never run
+            # some other way, so no frame can reach a topic without a valid
+            # token. Returns None only when there is no multiplex intent (no
+            # streamConnection), to fall back to inline NDJSON.
             stream_conn = body.get("streamConnection")
-            if not (stream_conn and dash_app.shared_storage_enabled):
+            if stream_conn is None:
                 return None
+            connection_id = (
+                get_stream_connection_id() if dash_app.shared_storage_enabled else None
+            )
+            if connection_id is None:
+                return Response(status=403)
             threading.Thread(
                 target=pump_to_storage,
                 args=(
                     dash_app.shared_storage,
-                    stream_conn["connectionId"],
+                    connection_id,
                     stream_conn["requestId"],
                     marker,
                 ),

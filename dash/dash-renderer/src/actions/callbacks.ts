@@ -556,12 +556,18 @@ async function handleStreamCallback(
         headers: getCSRFHeader(config) as any
     });
     try {
-        await getStreamClient().run(url, init, payload, (frame: any) => {
-            if (frame.dist) {
-                Promise.all(frame.dist.map(loadLibrary));
+        await getStreamClient().run(
+            url,
+            init,
+            config.end_id,
+            payload,
+            (frame: any) => {
+                if (frame.dist) {
+                    Promise.all(frame.dist.map(loadLibrary));
+                }
+                applyStreamFrame(dispatch, frame, payload);
             }
-            applyStreamFrame(dispatch, frame, payload);
-        });
+        );
     } finally {
         if (runningOff) {
             dispatch(sideUpdate(runningOff, payload));

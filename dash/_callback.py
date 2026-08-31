@@ -471,6 +471,24 @@ def get_request_end_id(secret: bytes):
     return _callback_signing.unsign(secret, _callback_signing.END_SCOPE, token)
 
 
+def get_stream_connection_id() -> "str | None":
+    """Return the verified streaming connection id for the request, or ``None``.
+
+    The multiplexed streaming transport keys each page's downlink topic on this
+    id, so it must be unforgeable: a client that could name an arbitrary topic
+    could read another page's stream or inject frames into it. It is derived from
+    the server-signed ``end_id`` (the same per-page-load token background-callback
+    handles are bound to), never from anything the client picks. A missing or
+    forged token yields ``None``, and the backend refuses the request (403).
+
+    ``end_id`` is signed with the server secret, so across worker processes every
+    worker must resolve the same secret: set a ``secret_key`` on the server, or
+    cross-worker stream requests will not verify. Single-process apps are fine
+    with no configuration.
+    """
+    return get_request_end_id(_get_signing_secret())
+
+
 def _get_signing_secret() -> bytes:
     return get_app()._get_signing_secret()  # pylint: disable=protected-access
 

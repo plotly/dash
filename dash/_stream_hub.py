@@ -23,9 +23,10 @@ terminal, exactly as the single-callback NDJSON transport emits today.
 
 import asyncio
 import json
+import threading
 from typing import Any, AsyncIterator, Iterator, Optional
 
-from ._shared_storage.base import BaseSharedStorage
+from ._shared_storage.base import BaseSharedStorage, SharedStorageGap, Subscription
 from ._streaming import StreamedCallbackResponse, sync_iter_asyncgen, to_json
 
 _TOPIC_PREFIX = "_dash_stream:"
@@ -33,6 +34,11 @@ _TOPIC_PREFIX = "_dash_stream:"
 # The uplink's fast acknowledgement -- the streaming callback's POST returns this
 # immediately; its outputs arrive on the downlink, not this response.
 STREAM_ACK = {"multi": True, "stream": True}
+
+# Control envelope telling the client its cursor is stale (its frames were lost
+# to an owner re-election or a server restart) and it must reset to the head and
+# resubscribe, rather than stall waiting for the fresh sequence to pass it.
+RESET_ENVELOPE = {"reset": True}
 
 
 def stream_topic(connection_id: str) -> str:
@@ -57,6 +63,14 @@ def publish_frame(
     storage.publish(stream_topic(connection_id), {"rid": request_id, "frame": plain})
 
 
+# Open downlink subscriptions, so a server shutdown can close them (each one
+# otherwise blocks its worker in a long poll, stalling a graceful shutdown).
+# Guarded by a lock: subscriptions open/close on worker threads while a shutdown
+# hook iterates the set, and a plain set is not safe against that.
+_active_subscriptions: "set[Subscription]" = set()
+_registry_lock = threading.Lock()
+
+
 def subscribe_envelopes(
     storage: BaseSharedStorage,
     connection_id: str,
@@ -69,11 +83,22 @@ def subscribe_envelopes(
     long-lived: it carries frames for every callback on the connection, not one
     stream, and ends when the client hangs up. ``replay_from`` resumes a
     reconnecting downlink from its last cursor. Each envelope carries its ``seq``
-    so the client can resume from it after a reconnect without losing frames.
+    so the client can resume from it after a reconnect without losing frames. A
+    lost buffer (owner re-election, server restart) surfaces as a single reset
+    envelope so the client resets its cursor instead of stalling.
     """
-    with storage.subscribe(stream_topic(connection_id), replay_from) as sub:
+    sub = storage.subscribe(stream_topic(connection_id), replay_from)
+    with _registry_lock:
+        _active_subscriptions.add(sub)
+    try:
         for seq, message in sub.iter_with_seq():
             yield {**message, "seq": seq}
+    except SharedStorageGap:
+        yield dict(RESET_ENVELOPE)
+    finally:
+        with _registry_lock:
+            _active_subscriptions.discard(sub)
+        sub.close()
 
 
 async def asubscribe_envelopes(
@@ -83,10 +108,16 @@ async def asubscribe_envelopes(
 ) -> AsyncIterator[Any]:
     """Async counterpart of :func:`subscribe_envelopes` for ASGI backends."""
     sub = storage.subscribe(stream_topic(connection_id), replay_from)
+    with _registry_lock:
+        _active_subscriptions.add(sub)
     try:
         async for seq, message in sub.aiter_with_seq():
             yield {**message, "seq": seq}
+    except SharedStorageGap:
+        yield dict(RESET_ENVELOPE)
     finally:
+        with _registry_lock:
+            _active_subscriptions.discard(sub)
         sub.close()
 
 
@@ -149,3 +180,21 @@ def spawn_async_pump(
     )
     _pending_pumps.add(task)
     task.add_done_callback(_pending_pumps.discard)
+
+
+def shutdown_active_streams() -> None:
+    """Stop every in-flight stream so the server can shut down.
+
+    Cancels the background pump tasks that drive streaming callbacks and closes
+    the open downlink subscriptions. Each downlink otherwise sits in a long poll
+    that a graceful shutdown would wait on forever (the reason a streaming app
+    can ignore Ctrl+C). Backends call this from their shutdown hook, mirroring
+    how ``ws.py`` tears down WebSocket connections. Idempotent and safe to call
+    when nothing is streaming.
+    """
+    for task in list(_pending_pumps):
+        task.cancel()
+    with _registry_lock:
+        subscriptions = list(_active_subscriptions)
+    for sub in subscriptions:
+        sub.close()

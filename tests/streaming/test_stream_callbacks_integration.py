@@ -202,3 +202,51 @@ def test_stst006_stream_loading_state(dash_duo):
     until(lambda: dash_duo.driver.title != "Updating...", timeout=3)
     assert not dash_duo.redux_state_is_loading
     assert dash_duo.get_logs() == []
+
+
+def test_stst020_multiplexed_transport_over_shared_storage(dash_duo):
+    """Streaming over the multiplexed transport (shared storage enabled).
+
+    Exercises the whole multiplexed path in a real browser: the renderer echoes
+    the signed endId, the server derives the connection id from it, pumps frames
+    onto that topic, and the single downlink relays them back. If the endId did
+    not verify end to end, the uplink would fall back to inline NDJSON (which the
+    stream client rejects) and the downlink would 403, so nothing would render.
+    Two callbacks share the one downlink, so this also covers multiplexing.
+    """
+    from dash._shared_storage import LocalSharedStorage
+
+    app = Dash(__name__, shared_storage=LocalSharedStorage())
+    app.layout = html.Div(
+        [
+            html.Button("Start", id="btn", n_clicks=0),
+            html.Div(id="a", children="idle"),
+            html.Div(id="b", children="idle"),
+        ]
+    )
+
+    @app.callback(
+        Output("a", "children"),
+        Input("btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    async def stream_a(n):
+        yield "a1"
+        await asyncio.sleep(0.4)
+        yield "a2"
+
+    @app.callback(
+        Output("b", "children"),
+        Input("btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    async def stream_b(n):
+        yield "b1"
+        await asyncio.sleep(0.4)
+        yield "b2"
+
+    dash_duo.start_server(app)
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#a", "a2")
+    dash_duo.wait_for_text_to_equal("#b", "b2")
+    assert dash_duo.get_logs() == []

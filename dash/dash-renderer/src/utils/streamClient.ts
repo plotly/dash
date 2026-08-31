@@ -26,9 +26,13 @@ interface PendingStream {
 }
 
 interface DownlinkEnvelope {
-    rid: string;
-    frame: Frame;
+    rid?: string;
+    frame?: Frame;
     seq?: number;
+    // Set by the server when this connection's buffered frames were lost (its
+    // owner was re-elected, or the server restarted): the client must reset its
+    // cursor to the head rather than keep asking to resume from a stale one.
+    reset?: boolean;
 }
 
 type FetchImpl = typeof fetch;
@@ -40,7 +44,11 @@ const sleep = (ms: number): Promise<void> =>
     new Promise(resolve => setTimeout(resolve, ms));
 
 export class StreamClient {
-    private connectionId = genId();
+    // Local id, used only to make request ids unique on this page. The server
+    // does NOT key the topic on it: the connection is keyed on the signed endId
+    // instead, so a client can't name another page's topic. See streamUrl.
+    private localId = genId();
+    private endId = '';
     private pending = new Map<string, PendingStream>();
     private counter = 0;
     // Last sequence applied; the downlink resumes from here on reconnect. Starts
@@ -64,6 +72,16 @@ export class StreamClient {
         return this.pending.size;
     }
 
+    /** Append the signed endId so the server can derive (and authorize) the
+     * connection topic. The server never trusts a client-supplied topic id. */
+    private streamUrl(url: string): string {
+        if (!this.endId) {
+            return url;
+        }
+        const delim = url.includes('?') ? '&' : '?';
+        return `${url}${delim}endId=${encodeURIComponent(this.endId)}`;
+    }
+
     /**
      * Run one streaming callback over the multiplexed transport. Resolves when
      * the callback's terminal `done` frame arrives (its output frames having
@@ -72,30 +90,60 @@ export class StreamClient {
     run(
         url: string,
         init: RequestInit,
+        endId: string,
         payload: Record<string, any>,
         onFrame: (frame: Frame) => void
     ): Promise<void> {
-        const requestId = `${this.connectionId}-${++this.counter}`;
+        this.endId = endId || '';
+        const requestId = `${this.localId}-${++this.counter}`;
         const settled = new Promise<void>((resolve, reject) => {
             this.pending.set(requestId, {onFrame, resolve, reject});
         });
         this.ensureDownlink(url, init);
         // Uplink POST: returns a fast ack; the outputs arrive on the downlink.
-        this.fetchImpl(url, {
+        this.fetchImpl(this.streamUrl(url), {
             ...init,
             method: 'POST',
             body: JSON.stringify({
                 ...payload,
-                streamConnection: {connectionId: this.connectionId, requestId}
+                streamConnection: {requestId}
             })
-        }).catch(err => this.fail(requestId, err));
+        })
+            .then(res => this.checkUplink(requestId, res))
+            .catch(err => this.fail(requestId, err));
         return settled;
+    }
+
+    /**
+     * The uplink returns a fast ack (200); the frames then arrive on the
+     * downlink. Any non-ok status (e.g. 403 when the connection did not verify)
+     * means no frames are coming, so fail the request loudly rather than leave
+     * the callback pending forever.
+     */
+    private checkUplink(requestId: string, res: Response): void {
+        if (!res.ok) {
+            this.fail(
+                requestId,
+                new Error(`stream uplink responded ${res.status}`)
+            );
+        }
     }
 
     /** Route one downlink envelope to its callback. Public for testing. */
     dispatchEnvelope(envelope: DownlinkEnvelope): void {
+        if (envelope.reset) {
+            // Our cursor points into a server incarnation that lost our frames.
+            // Reset to the head so the reconnect resumes from what the fresh
+            // topic actually has, instead of stalling until its sequence climbs
+            // back past our stale cursor.
+            this.cursor = 0;
+            return;
+        }
         if (typeof envelope.seq === 'number') {
             this.cursor = envelope.seq;
+        }
+        if (envelope.rid === undefined || envelope.frame === undefined) {
+            return;
         }
         const pending = this.pending.get(envelope.rid);
         if (!pending) {
@@ -150,15 +198,12 @@ export class StreamClient {
         while (this.pending.size > 0) {
             this.abort = new AbortController();
             try {
-                const res = await this.fetchImpl(url, {
+                const res = await this.fetchImpl(this.streamUrl(url), {
                     ...init,
                     method: 'POST',
                     signal: this.abort.signal,
                     body: JSON.stringify({
-                        streamDownlink: {
-                            connectionId: this.connectionId,
-                            from: this.cursor
-                        }
+                        streamDownlink: {from: this.cursor}
                     })
                 });
                 if (!res.ok || !res.body) {

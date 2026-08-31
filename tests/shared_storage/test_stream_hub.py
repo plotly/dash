@@ -9,9 +9,12 @@ import pytest
 from dash._shared_storage import LocalSharedStorage
 from dash._streaming import StreamedCallbackResponse
 from dash._stream_hub import (
+    _pending_pumps,
     apump_to_storage,
     publish_frame,
     pump_to_storage,
+    shutdown_active_streams,
+    spawn_async_pump,
     stream_topic,
     subscribe_envelopes,
 )
@@ -142,3 +145,55 @@ def test_sync_pump_drives_async_frames(storage):
     pump_to_storage(storage, "cs", "r10", marker)  # sync driver over async gen
     th.join(timeout=5)
     assert [e["frame"] for e in out] == [{"response": {"b": 2}}, {"done": True}]
+
+
+def test_downlink_resets_when_cursor_is_ahead_of_head(storage):
+    # A stale cursor -- from a page whose server restarted, or whose storage
+    # owner was re-elected -- points past everything the fresh topic has
+    # produced. The downlink must surface a single reset envelope so the client
+    # resets its cursor, instead of stalling until the fresh sequence climbs
+    # back past the stale cursor.
+    envelopes = list(subscribe_envelopes(storage, "c-reset", replay_from=5))
+    assert envelopes == [{"reset": True}]
+
+
+def test_shutdown_active_streams_closes_open_downlink(storage):
+    # An idle downlink sits in a long poll; a graceful shutdown must be able to
+    # close it (otherwise the server can't exit -- the reported Ctrl+C hang).
+    done = threading.Event()
+
+    def drain():
+        for _envelope in subscribe_envelopes(storage, "c-shutdown"):
+            pass
+        done.set()
+
+    th = threading.Thread(target=drain, daemon=True)
+    th.start()
+    time.sleep(0.3)  # subscription established, now blocked in the poll
+    assert not done.is_set()
+
+    shutdown_active_streams()
+
+    th.join(timeout=5)
+    assert done.is_set()
+
+
+def test_shutdown_active_streams_cancels_pump(storage):
+    # A running stream pump (driving a long-lived callback generator) must be
+    # cancelled on shutdown so the callback stops producing frames.
+    async def run():
+        async def gen():
+            for i in range(1000):
+                await asyncio.sleep(0.05)
+                yield {"response": {"n": i}}
+
+        marker = StreamedCallbackResponse(gen(), is_async=True)
+        spawn_async_pump(storage, "c-pump", "r1", marker)
+        await asyncio.sleep(0.15)
+        assert _pending_pumps  # the pump is running
+
+        shutdown_active_streams()
+        await asyncio.sleep(0.15)  # let the cancellation propagate
+        assert not _pending_pumps  # cancelled and cleaned up
+
+    asyncio.run(run())
