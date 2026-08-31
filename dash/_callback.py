@@ -90,6 +90,8 @@ def callback(
     persistent: Optional[bool] = False,
     mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -188,6 +190,15 @@ def callback(
             If True, this callback will not show the "Updating..." title while
             running. Useful for persistent WebSocket callbacks that stay active
             for long periods without requiring a loading indicator.
+        :param compress_payload:
+            If True, the callback request payload will be compressed using gzip
+            compression before being sent to the server. This can significantly
+            reduce network transmission size for large payloads.
+            Defaults to False.
+        :param compress_threshold:
+            The size threshold in bytes above which the payload will be compressed
+            when `compress_payload` is True. Set to 0 to always compress regardless
+            of size. Defaults to 5,000 bytes (5 kB).
     """
 
     background_spec: Any = None
@@ -249,6 +260,8 @@ def callback(
         persistent=persistent,
         mcp_enabled=mcp_enabled,
         mcp_expose_docstring=mcp_expose_docstring,
+        compress_payload=compress_payload,
+        compress_threshold=compress_threshold,
     )
 
     return cast(
@@ -304,6 +317,8 @@ def insert_callback(
     persistent=False,
     mcp_enabled=None,
     mcp_expose_docstring=None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -331,7 +346,16 @@ def insert_callback(
         "hidden": hidden,
         "websocket": websocket,
         "persistent": persistent,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
+    # Include output metadata if any output uses partial matching
+    output_list = output if isinstance(output, (list, tuple)) else [output]
+    if any(getattr(o, "partial_pattern", False) for o in output_list):
+        callback_spec["outputs_meta"] = [
+            {"partial": True} if getattr(o, "partial_pattern", False) else {}
+            for o in output_list
+        ]
     if running:
         callback_spec["running"] = running
 
@@ -349,6 +373,8 @@ def insert_callback(
         "websocket": websocket,
         "mcp_enabled": mcp_enabled,
         "mcp_expose_docstring": mcp_expose_docstring,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
     callback_list.append(callback_spec)
 
@@ -773,6 +799,8 @@ def register_callback(
         persistent=_kwargs.get("persistent", False),
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
+        compress_payload=_kwargs.get("compress_payload", False),
+        compress_threshold=_kwargs.get("compress_threshold", 5_000),
     )
 
     # pylint: disable=too-many-locals

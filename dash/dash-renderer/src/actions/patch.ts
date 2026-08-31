@@ -13,6 +13,10 @@ import {
     reverse
 } from 'ramda';
 
+import {stringifyId} from './dependencies';
+import {isDryComponent} from '../wrapper/wrapping';
+import {PatchAnalysis} from './patchAnalysis';
+
 type PatchOperation = {
     operation: string;
     location: LocationIndex[];
@@ -288,7 +292,158 @@ const patchHandlers: {[k: string]: PatchHandler} = {
     }
 };
 
-export function handlePatch<T>(previousValue: T, patchValue: any): T {
+/*
+ * Operations that put a value into the tree, which add/remove ids,
+ * and need to be handled during a patch
+ */
+const insertingOperations: {[operation: string]: true} = {
+    Assign: true,
+    Merge: true,
+    Extend: true,
+    Insert: true,
+    Append: true,
+    Prepend: true
+};
+
+function collectComponentIds(
+    value: any,
+    freshIds: PatchAnalysis['freshIds'],
+    visited: Set<any>
+) {
+    if (!value || typeof value !== 'object' || visited.has(value)) {
+        return;
+    }
+    visited.add(value);
+
+    if (Array.isArray(value)) {
+        value.forEach(item => collectComponentIds(item, freshIds, visited));
+        return;
+    }
+
+    if (isDryComponent(value)) {
+        const {id} = value.props;
+        if (id !== undefined && id !== null) {
+            freshIds[stringifyId(id)] = true;
+        }
+        collectComponentIds(value.props, freshIds, visited);
+        return;
+    }
+
+    for (const key in value) {
+        collectComponentIds(value[key], freshIds, visited);
+    }
+}
+
+function recordWrittenProp(
+    previous: any,
+    location: LocationIndex[],
+    writtenProps: PatchAnalysis['writtenProps']
+) {
+    let current = previous;
+    let idStr: string | null = null;
+    let property: string | null = null;
+
+    for (let i = 0; i < location.length && current; i++) {
+        const key = location[i];
+        if (
+            key === 'props' &&
+            i + 1 < location.length &&
+            isDryComponent(current) &&
+            current.props.id !== undefined &&
+            current.props.id !== null
+        ) {
+            idStr = stringifyId(current.props.id);
+            property = String(location[i + 1]);
+        }
+        current = current[key];
+    }
+
+    if (idStr !== null && property !== null) {
+        const props = writtenProps[idStr] || (writtenProps[idStr] = {});
+        props[property] = true;
+    }
+}
+
+/*
+ * Operations that only add items at the end of a list, and how many items
+ * each one adds. `location` is the list they append to. Anything else that
+ * touches a list (Insert, Prepend, Delete, Remove, Clear, Reverse, Assign)
+ * invalidates the append-only shortcut for that property, since old items can
+ * no longer be assumed to have kept their indices.
+ */
+const tailAppendCounts: {[operation: string]: (params: any) => number} = {
+    Append: () => 1,
+    Extend: params => (Array.isArray(params.value) ? params.value.length : 0)
+};
+
+function recordTailAppend(
+    property: string | undefined,
+    location: LocationIndex[],
+    operation: string,
+    params: any,
+    analysis: PatchAnalysis
+) {
+    if (property === undefined) {
+        return;
+    }
+    const existing = analysis.tailAppends[property];
+    if (existing === false) {
+        // Already invalidated for this property; nothing can undo that.
+        return;
+    }
+    if (operation in tailAppendCounts) {
+        const count = tailAppendCounts[operation](params);
+        if (existing === undefined) {
+            // First append to this property: remember which list it grew.
+            analysis.tailAppends[property] = {location, count};
+            return;
+        }
+        if (equals(existing.location, location)) {
+            // Another append to the same list - still a pure single-list
+            // append, just more items.
+            existing.count += count;
+            return;
+        }
+        // Appended to a second, different list. We can only express one
+        // grown list per property, so fall back to a full recompute.
+    }
+    analysis.tailAppends[property] = false;
+}
+
+function recordPatchOperation(
+    previous: any,
+    patchOperation: PatchOperation,
+    analysis: PatchAnalysis,
+    property?: string
+) {
+    const {operation, location, params} = patchOperation;
+
+    if (insertingOperations[operation]) {
+        collectComponentIds(params.value, analysis.freshIds, new Set());
+    }
+
+    recordTailAppend(property, location, operation, params, analysis);
+
+    if (operation === 'Merge' && params.value && is(Object, params.value)) {
+        Object.keys(params.value).forEach(key =>
+            recordWrittenProp(
+                previous,
+                location.concat(key),
+                analysis.writtenProps
+            )
+        );
+        return;
+    }
+
+    recordWrittenProp(previous, location, analysis.writtenProps);
+}
+
+export function handlePatch<T>(
+    previousValue: T,
+    patchValue: any,
+    analysis?: PatchAnalysis,
+    property?: string
+): T {
     let reducedValue = previousValue;
 
     for (let i = 0; i < patchValue.operations.length; i++) {
@@ -298,15 +453,24 @@ export function handlePatch<T>(previousValue: T, patchValue: any): T {
         if (!handler) {
             throw new Error(`Invalid Operation ${patch.operation}`);
         }
+        if (analysis) {
+            recordPatchOperation(reducedValue, patch, analysis, property);
+        }
         reducedValue = handler(reducedValue, patch);
     }
 
     return reducedValue;
 }
 
+/*
+ * `analysis`, when provided, is filled in with what the patches did.
+ * Props that are not patches are left out of it, so callers
+ * can tell a patched prop from a fully replaced one
+ */
 export function parsePatchProps(
     props: any,
-    previousProps: any
+    previousProps: any,
+    analysis?: PatchAnalysis
 ): Record<string, any> {
     if (!is(Object, props)) {
         return props;
@@ -321,7 +485,10 @@ export function parsePatchProps(
             if (previousValue === undefined) {
                 throw new Error('Cannot patch undefined');
             }
-            patchedProps[key] = handlePatch(previousValue, val);
+            if (analysis) {
+                analysis.patchedProps[key] = true;
+            }
+            patchedProps[key] = handlePatch(previousValue, val, analysis, key);
         } else {
             patchedProps[key] = val;
         }

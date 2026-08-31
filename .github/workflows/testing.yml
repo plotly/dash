@@ -115,11 +115,7 @@ jobs:
         run: npm ci
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Run lint
         env:
@@ -342,6 +338,10 @@ jobs:
       # Set REDIS_URL for your application/tests
       # The service 'redis' will be available on localhost (or redis) at port 6379
       REDIS_URL: redis://localhost:6379
+      # These suites can leave non-daemon workers alive after pytest finishes,
+      # hanging the step at interpreter shutdown; hard-exit once the session is
+      # done (see pytest_sessionfinish in tests/conftest.py).
+      DASH_TEST_FORCE_EXIT: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -743,11 +743,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Build/Setup test components
         run: npm run setup-tests.py
@@ -848,11 +844,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install HTML components dependencies
         working-directory: components/dash-html-components
@@ -1045,11 +1037,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Remove DCC Python package and run tests
         run: |
@@ -1129,11 +1117,7 @@ jobs:
           chrome-version: stable
 
       - name: Setup virtual display
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          sudo Xvfb :99 -ac -screen 0 1280x1024x24 &
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+        uses: ./.github/actions/setup-virtual-display
 
       - name: Install Table test dependencies
         working-directory: components/dash-table
