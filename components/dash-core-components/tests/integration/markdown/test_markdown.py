@@ -619,3 +619,27 @@ def test_mkdw017_literal_dollar_is_not_math(dash_dcc, markdown):
     dash_dcc.wait_for_no_elements("#md .MathJax")
 
     assert dash_dcc.get_logs() == []
+
+
+# Test that the remark-gfm plugin for rendering markdown tables works.
+def test_mkdw018_markdown_table(dash_dcc):
+    app = Dash()
+
+    app.layout = dcc.Markdown(
+        """
+        | Name | Value |
+        | --- | --- |
+        | Apple | $2 |
+        """,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element("#md table")
+    dash_dcc.wait_for_text_to_equal("#md th:nth-child(1)", "Name")
+    dash_dcc.wait_for_text_to_equal("#md th:nth-child(2)", "Value")
+    dash_dcc.wait_for_text_to_equal("#md td:nth-child(1)", "Apple")
+    dash_dcc.wait_for_text_to_equal("#md td:nth-child(2)", "$2")
+
+    assert dash_dcc.get_logs() == []
