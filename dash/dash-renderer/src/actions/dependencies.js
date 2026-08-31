@@ -1686,7 +1686,7 @@ export function getUnfilteredLayoutCallbacks(graphs, paths, layoutChunk, opts) {
     }
 
     crawlLayout(layoutChunk, child => {
-        const id = path(['props', 'id'], child);
+        const id = child.props && child.props.id;
         if (id) {
             if (typeof id === 'string' && !removedArrayInputsOnly) {
                 handleOneId(id, graphs.outputMap[id], graphs.inputMap[id]);
