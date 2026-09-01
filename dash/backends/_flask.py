@@ -354,11 +354,15 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 data=to_json({"multi": True, "stream": True})
             )
 
+        def _read_body():
+            return (
+                decompress_payload(request.data)
+                if "gzip" in request.headers.get("Content-Encoding", "")
+                else request.get_json()
+            )
+
         def _dispatch():
-            if "gzip" in request.headers.get("Content-Encoding", ""):
-                body = decompress_payload(request.data)
-            else:
-                body = request.get_json()
+            body = _read_body()
             downlink = body.get("streamDownlink")
             if downlink is not None:
                 return _serve_downlink(downlink, with_request_ctx=True)
@@ -385,10 +389,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             return cb_ctx.dash_response.set_response(data=response_data)
 
         async def _dispatch_async():
-            if "gzip" in request.headers.get("Content-Encoding", ""):
-                body = decompress_payload(request.data)
-            else:
-                body = request.get_json()
+            body = _read_body()
             downlink = body.get("streamDownlink")
             if downlink is not None:
                 return _serve_downlink(downlink, with_request_ctx=False)

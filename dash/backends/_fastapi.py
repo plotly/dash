@@ -232,7 +232,14 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             except Exception:  # pylint: disable=broad-exception-caught
                 traceback.print_exc()
             await self._initialize_dev_tools()
-            await self.app(scope, receive, send)
+
+            async def _receive_shutdown_wrapper():
+                msg = await receive()
+                if msg.get("type") == "lifespan.shutdown":
+                    shutdown_active_streams()
+                return msg
+
+            await self.app(scope, _receive_shutdown_wrapper, send)
             return
 
         # Non-HTTP/WebSocket scopes pass through
@@ -565,10 +572,6 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         )
 
     def serve_callback(self, dash_app: Dash):
-        # Close open downlink subscriptions and cancel stream pumps on shutdown,
-        # so a long-polling downlink can't block a graceful exit.
-        self.server.add_event_handler("shutdown", shutdown_active_streams)
-
         def _ndjson_response(marker):
             # pylint: disable=protected-access
             return StreamingResponse(
