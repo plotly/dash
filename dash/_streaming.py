@@ -200,16 +200,22 @@ async def _akeepalive_frames(frames, keepalive):
     ``asyncio.wait_for``, which would cancel the user generator mid-step every
     time a keepalive was due.
     """
+    poll = min(keepalive, 0.5) if keepalive else 0.5
     iterator = frames.__aiter__()
     pending = None
     try:
-        while True:
+        while not _shutdown.is_set():
             pending = asyncio.ensure_future(iterator.__anext__())
-            while True:
-                done, _ = await asyncio.wait({pending}, timeout=keepalive)
+            last_activity = time.monotonic()
+            while not _shutdown.is_set():
+                done, _ = await asyncio.wait({pending}, timeout=poll)
                 if done:
                     break
-                yield _KEEPALIVE
+                if keepalive and time.monotonic() - last_activity >= keepalive:
+                    yield _KEEPALIVE
+                    last_activity = time.monotonic()
+            if _shutdown.is_set():
+                return
             try:
                 frame = pending.result()
             except StopAsyncIteration:
@@ -218,8 +224,6 @@ async def _akeepalive_frames(frames, keepalive):
                 pending = None
             yield frame
     finally:
-        # Reached on client disconnect too: cancel the in-flight step so the
-        # user generator sees CancelledError at its current await.
         if pending is not None and not pending.done():
             pending.cancel()
 

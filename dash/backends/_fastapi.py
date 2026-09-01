@@ -233,13 +233,13 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
                 traceback.print_exc()
             await self._initialize_dev_tools()
 
-            async def _receive_shutdown_wrapper():
+            async def _receive_with_shutdown():
                 msg = await receive()
                 if msg.get("type") == "lifespan.shutdown":
                     shutdown_active_streams()
                 return msg
 
-            await self.app(scope, _receive_shutdown_wrapper, send)
+            await self.app(scope, _receive_with_shutdown, send)
             return
 
         # Non-HTTP/WebSocket scopes pass through
