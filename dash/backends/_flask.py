@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import atexit
 import pkgutil
 import sys
 import mimetypes
@@ -59,9 +58,37 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
 
-# WSGI has no shutdown lifecycle hook, so lean on process exit to close open
-# downlink subscriptions and stop stream pumps (a no-op when none are open).
-atexit.register(shutdown_active_streams)
+def _install_stream_shutdown_handler():
+    """Close streaming subscriptions on SIGINT/SIGTERM so the process exits.
+
+    WSGI has no shutdown lifecycle hook. ``atexit`` is too late: it runs only
+    after all non-daemon threads have stopped, but a downlink subscription
+    blocks its worker thread in a long poll, so atexit deadlocks and the
+    process ignores Ctrl+C. Instead we install a signal handler that tears
+    down streams first, then re-raises so the normal shutdown path continues.
+    """
+    import signal  # pylint: disable=import-outside-toplevel
+
+    if threading.current_thread() is not threading.main_thread():
+        return
+
+    original_sigint = signal.getsignal(signal.SIGINT)
+    original_sigterm = signal.getsignal(signal.SIGTERM)
+
+    def _handler(signum, frame):
+        shutdown_active_streams()
+        original = original_sigint if signum == signal.SIGINT else original_sigterm
+        if callable(original):
+            original(signum, frame)
+        elif original == signal.SIG_DFL:
+            signal.signal(signum, signal.SIG_DFL)
+            signal.raise_signal(signum)
+
+    signal.signal(signal.SIGINT, _handler)
+    signal.signal(signal.SIGTERM, _handler)
+
+
+_install_stream_shutdown_handler()
 
 
 class FlaskResponseAdapter(ResponseAdapter):
