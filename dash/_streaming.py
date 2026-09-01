@@ -36,6 +36,8 @@ from ._utils import to_json as _to_json
 
 logger = logging.getLogger(__name__)
 
+_shutdown = threading.Event()
+
 STREAM_MIMETYPE = "application/x-ndjson"
 # Disable proxy/server buffering so frames reach the browser as they are
 # produced (X-Accel-Buffering covers nginx).
@@ -166,15 +168,22 @@ def _keepalive_frames(marker, keepalive):
             with contextlib.suppress(Exception):
                 marker.ctx.run(marker.frames.close)
 
+    import time as _time  # pylint: disable=import-outside-toplevel
+
     thread = threading.Thread(target=pump, daemon=True, name="dash-stream-pump")
     thread.start()
+    poll = min(keepalive, 0.5) if keepalive else 0.5
     try:
-        while True:
+        last_activity = _time.monotonic()
+        while not _shutdown.is_set():
             try:
-                kind, value = frames.get(timeout=keepalive)
+                kind, value = frames.get(timeout=poll)
             except queue.Empty:
-                yield _KEEPALIVE
+                if keepalive and _time.monotonic() - last_activity >= keepalive:
+                    yield _KEEPALIVE
+                    last_activity = _time.monotonic()
                 continue
+            last_activity = _time.monotonic()
             if kind == "item":
                 yield value
             elif kind == "error":

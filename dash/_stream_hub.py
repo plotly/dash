@@ -185,13 +185,15 @@ def spawn_async_pump(
 def shutdown_active_streams() -> None:
     """Stop every in-flight stream so the server can shut down.
 
-    Cancels the background pump tasks that drive streaming callbacks and closes
-    the open downlink subscriptions. Each downlink otherwise sits in a long poll
-    that a graceful shutdown would wait on forever (the reason a streaming app
-    can ignore Ctrl+C). Backends call this from their shutdown hook, mirroring
-    how ``ws.py`` tears down WebSocket connections. Idempotent and safe to call
-    when nothing is streaming.
+    Sets the module-level shutdown flag so keepalive generators exit on their
+    next timeout, cancels background pump tasks, and closes open downlink
+    subscriptions. Each downlink otherwise sits in a long poll that a graceful
+    shutdown would wait on forever. Backends call this from their shutdown
+    hook. Idempotent and safe to call when nothing is streaming.
     """
+    from ._streaming import _shutdown  # pylint: disable=import-outside-toplevel
+
+    _shutdown.set()
     for task in list(_pending_pumps):
         task.cancel()
     with _registry_lock:
