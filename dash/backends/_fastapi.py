@@ -497,7 +497,11 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             # pylint: disable=R1732
             proc = subprocess.Popen(uvicorn_args, env=env)
-            proc.wait()
+            try:
+                proc.wait()
+            except KeyboardInterrupt:
+                proc.terminate()
+                proc.wait()
 
     def make_response(
         self,
