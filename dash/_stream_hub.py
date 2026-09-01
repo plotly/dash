@@ -23,6 +23,7 @@ terminal, exactly as the single-callback NDJSON transport emits today.
 
 import asyncio
 import json
+import signal
 import threading
 from typing import Any, AsyncIterator, Iterator, Optional
 
@@ -203,3 +204,37 @@ def shutdown_active_streams() -> None:
         subscriptions = list(_active_subscriptions)
     for sub in subscriptions:
         sub.close()
+
+
+def _install_stream_shutdown_handler():
+    """Install SIGINT/SIGTERM handlers that tear down active streams.
+
+    Without this, a streaming response generator blocks the server's
+    worker thread/task, and the process ignores Ctrl+C: the server's
+    graceful shutdown waits for connections to drain, connections wait
+    for the response to finish, and the response waits for the next
+    frame that will never come. The handler breaks the cycle by setting
+    the shutdown flag and closing subscriptions before the server even
+    begins its shutdown sequence, then re-raises so the server's own
+    shutdown runs normally.
+    """
+    if threading.current_thread() is not threading.main_thread():
+        return
+
+    original_sigint = signal.getsignal(signal.SIGINT)
+    original_sigterm = signal.getsignal(signal.SIGTERM)
+
+    def _handler(signum, frame):
+        shutdown_active_streams()
+        original = original_sigint if signum == signal.SIGINT else original_sigterm
+        if callable(original):
+            original(signum, frame)
+        elif original == signal.SIG_DFL:
+            signal.signal(signum, signal.SIG_DFL)
+            signal.raise_signal(signum)
+
+    signal.signal(signal.SIGINT, _handler)
+    signal.signal(signal.SIGTERM, _handler)
+
+
+_install_stream_shutdown_handler()

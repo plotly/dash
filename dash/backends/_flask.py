@@ -4,7 +4,6 @@ import asyncio
 import inspect
 import mimetypes
 import pkgutil
-import signal
 import sys
 import threading
 import time
@@ -47,47 +46,12 @@ from dash._streaming import (
     sync_iter_asyncgen,
     to_json,
 )
-from dash._stream_hub import (
-    pump_to_storage,
-    shutdown_active_streams,
-    subscribe_envelopes,
-)
+from dash._stream_hub import pump_to_storage, subscribe_envelopes
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
-
-
-def _install_stream_shutdown_handler():
-    """Close streaming subscriptions on SIGINT/SIGTERM so the process exits.
-
-    WSGI has no shutdown lifecycle hook. ``atexit`` is too late: it runs only
-    after all non-daemon threads have stopped, but a downlink subscription
-    blocks its worker thread in a long poll, so atexit deadlocks and the
-    process ignores Ctrl+C. Instead we install a signal handler that tears
-    down streams first, then re-raises so the normal shutdown path continues.
-    """
-    if threading.current_thread() is not threading.main_thread():
-        return
-
-    original_sigint = signal.getsignal(signal.SIGINT)
-    original_sigterm = signal.getsignal(signal.SIGTERM)
-
-    def _handler(signum, frame):
-        shutdown_active_streams()
-        original = original_sigint if signum == signal.SIGINT else original_sigterm
-        if callable(original):
-            original(signum, frame)
-        elif original == signal.SIG_DFL:
-            signal.signal(signum, signal.SIG_DFL)
-            signal.raise_signal(signum)
-
-    signal.signal(signal.SIGINT, _handler)
-    signal.signal(signal.SIGTERM, _handler)
-
-
-_install_stream_shutdown_handler()
 
 
 class FlaskResponseAdapter(ResponseAdapter):
