@@ -30,6 +30,7 @@ import functools
 import logging
 import queue
 import threading
+import time
 from typing import cast
 
 from ._utils import to_json as _to_json
@@ -168,22 +169,20 @@ def _keepalive_frames(marker, keepalive):
             with contextlib.suppress(Exception):
                 marker.ctx.run(marker.frames.close)
 
-    import time as _time  # pylint: disable=import-outside-toplevel
-
     thread = threading.Thread(target=pump, daemon=True, name="dash-stream-pump")
     thread.start()
     poll = min(keepalive, 0.5) if keepalive else 0.5
     try:
-        last_activity = _time.monotonic()
+        last_activity = time.monotonic()
         while not _shutdown.is_set():
             try:
                 kind, value = frames.get(timeout=poll)
             except queue.Empty:
-                if keepalive and _time.monotonic() - last_activity >= keepalive:
+                if keepalive and time.monotonic() - last_activity >= keepalive:
                     yield _KEEPALIVE
-                    last_activity = _time.monotonic()
+                    last_activity = time.monotonic()
                 continue
-            last_activity = _time.monotonic()
+            last_activity = time.monotonic()
             if kind == "item":
                 yield value
             elif kind == "error":

@@ -380,3 +380,62 @@ def test_stcb019_keepalive_frames_closes_generator_when_consumer_leaves():
             break
         time.sleep(0.01)
     assert closed == [True]
+
+
+def test_stcb021_shutdown_flag_stops_keepalive_generator():
+    """_shutdown event makes _keepalive_frames exit within one poll cycle."""
+    from dash._streaming import _shutdown
+
+    _shutdown.clear()
+
+    def frames():
+        while True:
+            yield {"multi": True}
+            time.sleep(0.05)
+
+    marker = StreamedCallbackResponse(
+        frames(), is_async=False, ctx=contextvars.copy_context()
+    )
+    gen = _keepalive_frames(marker, keepalive=60)
+    assert next(gen) == {"multi": True}
+
+    _shutdown.set()
+    t0 = time.monotonic()
+    remaining = list(gen)
+    elapsed = time.monotonic() - t0
+    _shutdown.clear()
+
+    assert elapsed < 2, f"generator took {elapsed:.1f}s to stop (expected <2s)"
+    assert len(remaining) <= 2
+
+
+def test_stcb022_shutdown_active_streams_sets_flag_and_closes_subs():
+    """shutdown_active_streams sets the _shutdown flag and closes subs."""
+    from dash._streaming import _shutdown
+    from dash._stream_hub import (
+        _active_subscriptions,
+        _registry_lock,
+        shutdown_active_streams,
+    )
+
+    _shutdown.clear()
+
+    class FakeSub:
+        def __init__(self):
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    sub = FakeSub()
+    with _registry_lock:
+        _active_subscriptions.add(sub)
+
+    try:
+        shutdown_active_streams()
+        assert _shutdown.is_set()
+        assert sub.closed
+    finally:
+        _shutdown.clear()
+        with _registry_lock:
+            _active_subscriptions.discard(sub)

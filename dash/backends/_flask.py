@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import pkgutil
-import sys
+import inspect
 import mimetypes
+import pkgutil
+import signal
+import sys
 import threading
 import time
-import inspect
 import traceback
 
 from contextvars import copy_context
@@ -67,8 +68,6 @@ def _install_stream_shutdown_handler():
     process ignores Ctrl+C. Instead we install a signal handler that tears
     down streams first, then re-raises so the normal shutdown path continues.
     """
-    import signal  # pylint: disable=import-outside-toplevel
-
     if threading.current_thread() is not threading.main_thread():
         return
 

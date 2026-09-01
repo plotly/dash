@@ -27,7 +27,12 @@ import threading
 from typing import Any, AsyncIterator, Iterator, Optional
 
 from ._shared_storage.base import BaseSharedStorage, SharedStorageGap, Subscription
-from ._streaming import StreamedCallbackResponse, sync_iter_asyncgen, to_json
+from ._streaming import (
+    StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
+    sync_iter_asyncgen,
+    to_json,
+)
 
 _TOPIC_PREFIX = "_dash_stream:"
 
@@ -191,9 +196,7 @@ def shutdown_active_streams() -> None:
     shutdown would wait on forever. Backends call this from their shutdown
     hook. Idempotent and safe to call when nothing is streaming.
     """
-    from ._streaming import _shutdown  # pylint: disable=import-outside-toplevel
-
-    _shutdown.set()
+    _streaming_shutdown.set()
     for task in list(_pending_pumps):
         task.cancel()
     with _registry_lock:
