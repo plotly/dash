@@ -6,7 +6,9 @@ import {
     analysisForProp,
     createPatchAnalysis,
     isCarriedOverByPatch,
-    isUntouchedByPatch
+    isUntouchedByPatch,
+    tailAppend,
+    tailAppendCount
 } from '../src/actions/patchAnalysis';
 import {stringifyId} from '../src/actions/dependencies';
 
@@ -182,5 +184,263 @@ describe('patch analysis, what a Patch changed', () => {
     it('treats every component as new without an analysis', () => {
         expect(isCarriedOverByPatch(undefined, 'anything')).to.equal(false);
         expect(isUntouchedByPatch(undefined, 'anything')).to.equal(false);
+    });
+});
+
+describe('patch analysis, pure tail-append detection (perf fast-path gate)', () => {
+    // These guard the O(appended) append fast-path: it may ONLY be taken when a
+    // patch is exclusively tail Append/Extend ops on a given property, so that
+    // pre-existing items are provably untouched. Any other op must disqualify it,
+    // or the fast-path would skip work a real change needed.
+    it('counts a single Append as one tail-append', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch({
+                    operation: 'Append',
+                    location: [],
+                    params: {value: component('added')}
+                })
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(1);
+    });
+
+    it('counts Extend by the number of items added', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch({
+                    operation: 'Extend',
+                    location: [],
+                    params: {
+                        value: [component('a'), component('b'), component('c')]
+                    }
+                })
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(3);
+    });
+
+    it('accumulates multiple appends in one patch', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('b')}
+                    }
+                )
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(2);
+    });
+
+    it('disqualifies the property when a Prepend is mixed in', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Prepend',
+                        location: [],
+                        params: {value: component('z')}
+                    }
+                )
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        // Prepend shifts existing indices -> NOT a pure tail append.
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+    });
+
+    it('disqualifies the property when an Insert is mixed in', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Insert',
+                        location: [],
+                        params: {index: 0, value: component('z')}
+                    }
+                )
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+    });
+
+    it('disqualifies the property when a Delete is mixed in', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [],
+                        params: {value: component('a')}
+                    },
+                    {operation: 'Delete', location: [0], params: {}}
+                )
+            },
+            {children: [component('kept'), component('kept2')]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+    });
+
+    it('reports the grown list location for a top-level append', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch({
+                    operation: 'Append',
+                    location: [],
+                    params: {value: component('added')}
+                })
+            },
+            {children: [component('kept')]},
+            analysis
+        );
+        expect(tailAppend(analysis, 'children')).to.deep.equal({
+            location: [],
+            count: 1
+        });
+    });
+
+    it("counts an append into a child's children as a nested tail append", () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch({
+                    operation: 'Append',
+                    location: [0, 'props', 'children'],
+                    params: {value: component('a')}
+                })
+            },
+            {children: [component('kept', {children: []})]},
+            analysis
+        );
+        // Appending into a child's children is still a pure single-list
+        // append - just a nested one - so the fast-path stays eligible and
+        // remembers which nested list grew.
+        expect(tailAppend(analysis, 'children')).to.deep.equal({
+            location: [0, 'props', 'children'],
+            count: 1
+        });
+        expect(tailAppendCount(analysis, 'children')).to.equal(1);
+    });
+
+    it('accumulates repeated appends into the same nested list', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Extend',
+                        location: [0, 'props', 'children'],
+                        params: {value: [component('a'), component('b')]}
+                    },
+                    {
+                        operation: 'Append',
+                        location: [0, 'props', 'children'],
+                        params: {value: component('c')}
+                    }
+                )
+            },
+            {children: [component('kept', {children: []})]},
+            analysis
+        );
+        expect(tailAppend(analysis, 'children')).to.deep.equal({
+            location: [0, 'props', 'children'],
+            count: 3
+        });
+    });
+
+    it('disqualifies when appends target two different lists', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [0, 'props', 'children'],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Append',
+                        location: [1, 'props', 'children'],
+                        params: {value: component('b')}
+                    }
+                )
+            },
+            {
+                children: [
+                    component('kept0', {children: []}),
+                    component('kept1', {children: []})
+                ]
+            },
+            analysis
+        );
+        // Only one grown list can be expressed per property; two distinct
+        // targets fall back to a full recompute.
+        expect(tailAppend(analysis, 'children')).to.equal(null);
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+    });
+
+    it('disqualifies a nested append when a disruptive op is mixed in', () => {
+        const analysis = createPatchAnalysis();
+        parsePatchProps(
+            {
+                children: patch(
+                    {
+                        operation: 'Append',
+                        location: [0, 'props', 'children'],
+                        params: {value: component('a')}
+                    },
+                    {
+                        operation: 'Prepend',
+                        location: [0, 'props', 'children'],
+                        params: {value: component('z')}
+                    }
+                )
+            },
+            {children: [component('kept', {children: []})]},
+            analysis
+        );
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+    });
+
+    it('reports 0 for a property that saw no patch and without an analysis', () => {
+        const analysis = createPatchAnalysis();
+        expect(tailAppend(analysis, 'children')).to.equal(null);
+        expect(tailAppendCount(analysis, 'children')).to.equal(0);
+        expect(tailAppendCount(undefined, 'children')).to.equal(0);
     });
 });

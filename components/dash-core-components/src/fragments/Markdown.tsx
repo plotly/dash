@@ -10,6 +10,7 @@ import {
     rawHtmlPlugins,
     rehypeMathPlugins,
     remarkMathPlugins,
+    remarkGfmPlugins,
 } from '../utils/markdown/plugins';
 import {dedentText} from '../utils/markdown/text';
 
@@ -22,7 +23,7 @@ const MarkdownContent = React.memo(function MarkdownContent({
 }: MarkdownContentProps & {children: string}) {
     const displayText = dedent && children ? dedentText(children) : children;
 
-    const remarkPlugins: PluggableList = [];
+    const remarkPlugins: PluggableList = [...remarkGfmPlugins];
     const rehypePlugins: PluggableList = [];
     if (mathjax) {
         remarkPlugins.push(...remarkMathPlugins);
