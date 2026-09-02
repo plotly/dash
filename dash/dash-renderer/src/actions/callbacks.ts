@@ -823,8 +823,13 @@ function handleServerside(
                     if (!finished) {
                         finished = true;
                         completeJob();
-                        recordProfile({});
-                        reject(err);
+                        if (lastResponse) {
+                            recordProfile(lastResponse);
+                            resolve({});
+                        } else {
+                            recordProfile({});
+                            reject(err);
+                        }
                         return;
                     }
                 }
