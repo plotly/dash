@@ -2,15 +2,18 @@
 import asyncio
 import contextvars
 import json
+import signal
 import time
 
 import pytest
 
 from dash import Dash, Input, Output, Patch, callback, html, no_update, set_props
 from dash._callback import GLOBAL_CALLBACK_LIST, GLOBAL_CALLBACK_MAP
+from dash._stream_hub import apump_to_storage, install_stream_shutdown_handler
 from dash._streaming import (
     StreamedCallbackResponse,
     _keepalive_frames,
+    _shutdown,
     andjson_lines,
     keepalive_seconds,
     marker_ndjson_aiter,
@@ -439,3 +442,72 @@ def test_stcb022_shutdown_active_streams_sets_flag_and_closes_subs():
         _shutdown.clear()
         with _registry_lock:
             _active_subscriptions.discard(sub)
+
+
+def test_stcb023_install_shutdown_handler_wraps_current_handler():
+    """Installing over a foreign handler sets the flag, then chains to it."""
+    saved = {sig: signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}
+    calls = []
+
+    def foreign(sig, _frame):
+        calls.append((sig, _shutdown.is_set()))
+
+    try:
+        signal.signal(signal.SIGINT, foreign)
+        signal.signal(signal.SIGTERM, foreign)
+        _shutdown.clear()
+
+        install_stream_shutdown_handler()
+        installed = signal.getsignal(signal.SIGINT)
+        assert installed is not foreign
+
+        installed(signal.SIGINT, None)
+        assert _shutdown.is_set()
+        assert calls == [(signal.SIGINT, True)]
+
+        install_stream_shutdown_handler()
+        assert signal.getsignal(signal.SIGINT) is installed
+        assert signal.getsignal(signal.SIGTERM) is not foreign
+    finally:
+        _shutdown.clear()
+        for sig, handler in saved.items():
+            signal.signal(sig, handler)
+
+
+def test_stcb024_cancelled_pump_publishes_terminal_error():
+    """A pump cancelled by shutdown leaves a terminal error frame in the store."""
+    published = []
+
+    class FakeStorage:
+        def publish(self, topic, message):
+            published.append((topic, message))
+
+    async def frames():
+        yield {"multi": True, "response": {"out": {"children": 1}}}
+        await asyncio.sleep(10)
+        yield {"done": True}
+
+    async def scenario():
+        marker = StreamedCallbackResponse(
+            frames(), is_async=True, ctx=contextvars.copy_context()
+        )
+        task = asyncio.ensure_future(
+            apump_to_storage(FakeStorage(), "conn", "rid", marker)
+        )
+        await asyncio.sleep(0.05)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    asyncio.run(scenario())
+    assert [m["frame"] for _, m in published] == [
+        {"multi": True, "response": {"out": {"children": 1}}},
+        {
+            "done": True,
+            "error": {
+                "message": "Streaming callback interrupted: "
+                "the server shut down while it was running"
+            },
+        },
+    ]
+    assert all(m["rid"] == "rid" for _, m in published)

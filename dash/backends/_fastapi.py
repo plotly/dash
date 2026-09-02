@@ -50,6 +50,7 @@ from dash._stream_hub import (
     STREAM_ACK,
     async_downlink_marker,
     shutdown_active_streams,
+    install_stream_shutdown_handler,
     spawn_async_pump,
 )
 from dash.exceptions import PreventUpdate
@@ -107,7 +108,8 @@ class FastAPIResponseAdapter(ResponseAdapter):
         """
         data = kwargs.get("data")
         if isinstance(data, (str, bytes, bytearray)):
-            resp = Response(content=data)
+            # Already-serialized JSON, like the Flask adapter's default content type.
+            resp = Response(content=data, media_type="application/json")
         else:
             resp = JSONResponse(content=data)
         if self._headers:
@@ -251,6 +253,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
                 msg = await receive()
                 if msg.get("type") == "lifespan.startup":
                     _streaming_shutdown.clear()
+                    install_stream_shutdown_handler()
                 elif msg.get("type") == "lifespan.shutdown":
                     shutdown_active_streams()
                 return msg

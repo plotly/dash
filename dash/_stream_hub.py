@@ -22,6 +22,7 @@ terminal, exactly as the single-callback NDJSON transport emits today.
 """
 
 import asyncio
+import contextlib
 import json
 import signal
 import threading
@@ -138,9 +139,30 @@ async def apump_to_storage(
     Runs as a background task on the uplink worker so the callback's POST can
     return immediately. The frame generator already emits the terminal
     ``{"done": True}``; publishing it lets the client resolve that request.
+
+    A shutdown cancels the task mid-stream. Publish a terminal error frame
+    then, best effort: with an external store (Redis) it outlives the process,
+    so a downlink reconnecting after the restart replays it and the client
+    settles that callback instead of waiting on a pump that no longer exists.
     """
-    async for frame in marker.frames:
-        publish_frame(storage, connection_id, request_id, frame)
+    try:
+        async for frame in marker.frames:
+            publish_frame(storage, connection_id, request_id, frame)
+    except asyncio.CancelledError:
+        with contextlib.suppress(Exception):
+            publish_frame(
+                storage,
+                connection_id,
+                request_id,
+                {
+                    "done": True,
+                    "error": {
+                        "message": "Streaming callback interrupted: "
+                        "the server shut down while it was running"
+                    },
+                },
+            )
+        raise
 
 
 def pump_to_storage(
@@ -206,7 +228,7 @@ def shutdown_active_streams() -> None:
         sub.close()
 
 
-def _install_stream_shutdown_handler():
+def install_stream_shutdown_handler():
     """Install SIGINT/SIGTERM handlers that tear down active streams.
 
     Without this, a streaming response generator blocks the server's
@@ -215,26 +237,33 @@ def _install_stream_shutdown_handler():
     for the response to finish, and the response waits for the next
     frame that will never come. The handler breaks the cycle by setting
     the shutdown flag and closing subscriptions before the server even
-    begins its shutdown sequence, then re-raises so the server's own
-    shutdown runs normally.
+    begins its shutdown sequence, then chains to the handler that was
+    installed before it so the server's own shutdown runs normally.
+
+    Runs at import, and again from backend startup hooks: uvicorn imports
+    the app before it installs its own handlers, which replace whatever
+    was there, so the import-time install is lost and must be redone once
+    the server is listening. Safe to call repeatedly; a signal whose
+    handler is already ours is left alone.
     """
     if threading.current_thread() is not threading.main_thread():
         return
 
-    original_sigint = signal.getsignal(signal.SIGINT)
-    original_sigterm = signal.getsignal(signal.SIGTERM)
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        original = signal.getsignal(signum)
+        if getattr(original, "_dash_stream_shutdown", False):
+            continue
 
-    def _handler(signum, frame):
-        shutdown_active_streams()
-        original = original_sigint if signum == signal.SIGINT else original_sigterm
-        if callable(original):
-            original(signum, frame)
-        elif original == signal.SIG_DFL:
-            signal.signal(signum, signal.SIG_DFL)
-            signal.raise_signal(signum)
+        def _handler(sig, frame, original=original):
+            shutdown_active_streams()
+            if callable(original):
+                original(sig, frame)
+            elif original == signal.SIG_DFL:
+                signal.signal(sig, signal.SIG_DFL)
+                signal.raise_signal(sig)
 
-    signal.signal(signal.SIGINT, _handler)
-    signal.signal(signal.SIGTERM, _handler)
+        _handler._dash_stream_shutdown = True  # pylint: disable=protected-access
+        signal.signal(signum, _handler)
 
 
-_install_stream_shutdown_handler()
+install_stream_shutdown_handler()

@@ -23,6 +23,11 @@ interface PendingStream {
     onFrame: (frame: Frame) => void;
     resolve: () => void;
     reject: (err: Error) => void;
+    // Whether any output frame reached this callback. Decides how a lost
+    // connection settles it: frames applied -> resolve and keep them (like the
+    // single-connection NDJSON path does on a drop); nothing applied -> reject,
+    // so the caller can report it or fall back.
+    gotFrame: boolean;
 }
 
 interface DownlinkEnvelope {
@@ -57,15 +62,34 @@ export class StreamClient {
     private cursor = 0;
     private downlinkOpen = false;
     private abort: AbortController | null = null;
+    // Bumped whenever a read loop starts or the downlink is closed, so a
+    // retired loop (closed while it was mid-await) notices and exits instead
+    // of fighting a newer loop for the connection.
+    private loopGen = 0;
     private reconnectDelay: number;
+    private maxReconnectDelay: number;
+    private reconnectWindow: number;
     private fetchImpl: FetchImpl;
 
-    constructor(opts: {fetchImpl?: FetchImpl; reconnectDelay?: number} = {}) {
+    constructor(
+        opts: {
+            fetchImpl?: FetchImpl;
+            // First retry delay after a downlink drop; doubles up to
+            // maxReconnectDelay on each further failure.
+            reconnectDelay?: number;
+            maxReconnectDelay?: number;
+            // How long the downlink may stay unreachable before the callbacks
+            // waiting on it are settled as lost instead of retrying forever.
+            reconnectWindow?: number;
+        } = {}
+    ) {
         // Native fetch must be invoked with `this === window`; calling it as a
         // method of this object throws "Illegal invocation", so bind it.
         // globalThis is window on a page and self in a worker.
         this.fetchImpl = opts.fetchImpl ?? fetch.bind(globalThis);
         this.reconnectDelay = opts.reconnectDelay ?? 1000;
+        this.maxReconnectDelay = opts.maxReconnectDelay ?? 5000;
+        this.reconnectWindow = opts.reconnectWindow ?? 30000;
     }
 
     get activeCount(): number {
@@ -97,7 +121,12 @@ export class StreamClient {
         this.endId = endId || '';
         const requestId = `${this.localId}-${++this.counter}`;
         const settled = new Promise<void>((resolve, reject) => {
-            this.pending.set(requestId, {onFrame, resolve, reject});
+            this.pending.set(requestId, {
+                onFrame,
+                resolve,
+                reject,
+                gotFrame: false
+            });
         });
         this.ensureDownlink(url, init);
         // Uplink POST: returns a fast ack; the outputs arrive on the downlink.
@@ -132,11 +161,17 @@ export class StreamClient {
     /** Route one downlink envelope to its callback. Public for testing. */
     dispatchEnvelope(envelope: DownlinkEnvelope): void {
         if (envelope.reset) {
-            // Our cursor points into a server incarnation that lost our frames.
-            // Reset to the head so the reconnect resumes from what the fresh
-            // topic actually has, instead of stalling until its sequence climbs
-            // back past our stale cursor.
+            // Our cursor points into a server incarnation that lost our frames
+            // (it restarted, or the storage owner changed). Reset to the head so
+            // a later downlink starts from what the fresh topic actually has,
+            // and settle the callbacks in flight: the frames they were waiting
+            // on are gone, and after a restart nothing will ever finish them.
             this.cursor = 0;
+            this.settleAll(
+                new Error(
+                    'stream reset: the server lost this connection (restart or owner change)'
+                )
+            );
             return;
         }
         if (typeof envelope.seq === 'number') {
@@ -163,8 +198,26 @@ export class StreamClient {
             }
             this.stopDownlinkIfIdle();
         } else {
+            pending.gotFrame = true;
             pending.onFrame(frame);
         }
+    }
+
+    /**
+     * The downlink is gone for good (refused by the server, reset, or
+     * unreachable past the reconnect window). Callbacks that already applied
+     * frames resolve so those frames stay on the page; ones that never got a
+     * frame reject with `err`, and the read loop winds down since nothing is
+     * pending any more.
+     */
+    private settleAll(err: Error): void {
+        const pending = Array.from(this.pending.values());
+        this.pending.clear();
+        // Close before settling: a continuation of a settled promise may start
+        // a new stream right away, and it must get a fresh downlink rather
+        // than find this one still marked open.
+        this.closeDownlink();
+        pending.forEach(p => (p.gotFrame ? p.resolve() : p.reject(err)));
     }
 
     private fail(requestId: string, err: Error): void {
@@ -177,8 +230,19 @@ export class StreamClient {
     }
 
     private stopDownlinkIfIdle(): void {
-        if (this.pending.size === 0 && this.abort) {
-            this.abort.abort(); // ends the read loop; downlink closes
+        if (this.pending.size === 0 && this.downlinkOpen) {
+            this.closeDownlink();
+        }
+    }
+
+    /** Retire the current read loop and end its connection. */
+    private closeDownlink(): void {
+        const abort = this.abort;
+        this.abort = null;
+        this.downlinkOpen = false;
+        this.loopGen++;
+        if (abort) {
+            abort.abort();
         }
     }
 
@@ -188,14 +252,17 @@ export class StreamClient {
         }
         this.downlinkOpen = true;
         // Fire-and-forget read loop; it exits when no callbacks remain.
-        this.readLoop(url, init).finally(() => {
-            this.downlinkOpen = false;
-            this.abort = null;
-        });
+        this.readLoop(url, init, ++this.loopGen);
     }
 
-    private async readLoop(url: string, init: RequestInit): Promise<void> {
-        while (this.pending.size > 0) {
+    private async readLoop(
+        url: string,
+        init: RequestInit,
+        gen: number
+    ): Promise<void> {
+        let unreachableSince: number | null = null;
+        let delay = this.reconnectDelay;
+        while (this.pending.size > 0 && this.loopGen === gen) {
             this.abort = new AbortController();
             try {
                 const res = await this.fetchImpl(this.streamUrl(url), {
@@ -206,28 +273,66 @@ export class StreamClient {
                         streamDownlink: {from: this.cursor}
                     })
                 });
+                if (res.status >= 400 && res.status < 500) {
+                    // The server refuses this connection outright, typically
+                    // 403 after a restart minted a new signing secret so our
+                    // endId no longer verifies. Retrying cannot fix that.
+                    this.settleAll(
+                        new Error(`stream downlink responded ${res.status}`)
+                    );
+                    break;
+                }
                 if (!res.ok || !res.body) {
                     throw new Error(`downlink responded ${res.status}`);
                 }
-                await this.consume(res.body);
-            } catch (err) {
-                if (this.pending.size === 0) {
-                    break; // deliberately aborted because we went idle
+                const received = await this.consume(res.body);
+                if (received === 0) {
+                    // Accepted then closed without a single envelope (a server
+                    // mid-shutdown, a proxy dropping idle connections): back
+                    // off like a failure instead of reconnecting in a burst.
+                    throw new Error('downlink closed without data');
                 }
-                // Genuine drop with work outstanding: reconnect from the cursor.
-                await sleep(this.reconnectDelay);
+                // A productive connection ended (proxy timeout, worker
+                // recycle): reconnect right away with a fresh backoff.
+                unreachableSince = null;
+                delay = this.reconnectDelay;
+            } catch (err) {
+                if (this.pending.size === 0 || this.loopGen !== gen) {
+                    break; // closed on purpose: idle, or settled and retired
+                }
+                // Genuine drop with work outstanding: reconnect from the
+                // cursor, backing off, until the server has been unreachable
+                // for the whole window. Past that the callbacks are lost.
+                const now = Date.now();
+                unreachableSince = unreachableSince ?? now;
+                if (now - unreachableSince >= this.reconnectWindow) {
+                    this.settleAll(
+                        new Error(
+                            'stream downlink lost: could not reconnect to the server'
+                        )
+                    );
+                    break;
+                }
+                await sleep(delay);
+                delay = Math.min(delay * 2, this.maxReconnectDelay);
             }
+        }
+        if (this.loopGen === gen) {
+            this.downlinkOpen = false;
+            this.abort = null;
         }
     }
 
-    private async consume(body: ReadableStream<Uint8Array>): Promise<void> {
+    /** Relay envelopes until the connection ends; returns how many arrived. */
+    private async consume(body: ReadableStream<Uint8Array>): Promise<number> {
         const reader = body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let received = 0;
         for (;;) {
             const {done, value} = await reader.read();
             if (done) {
-                return; // connection ended -> reconnect via the read loop
+                return received; // connection ended -> the read loop decides
             }
             buffer += decoder.decode(value, {stream: true});
             let nl: number;
@@ -237,6 +342,7 @@ export class StreamClient {
                 if (!line.trim()) {
                     continue; // keepalive blank line
                 }
+                received++;
                 this.dispatchEnvelope(JSON.parse(line));
             }
         }
