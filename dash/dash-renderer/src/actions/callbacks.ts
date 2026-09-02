@@ -1320,13 +1320,33 @@ export function executeCallback(
                                 cb.callback.running
                             );
                         } else if (useStream) {
-                            // Multiplexed HTTP streaming (single downlink)
-                            data = await handleStreamCallback(
-                                dispatch,
-                                newConfig,
-                                payload,
-                                cb.callback.running
-                            );
+                            try {
+                                data = await handleStreamCallback(
+                                    dispatch,
+                                    newConfig,
+                                    payload,
+                                    cb.callback.running
+                                );
+                            } catch (streamErr: any) {
+                                if (streamErr?.message?.includes('403')) {
+                                    data = await handleServerside(
+                                        dispatch,
+                                        hooks,
+                                        newConfig,
+                                        payload,
+                                        background,
+                                        additionalArgs.length
+                                            ? additionalArgs
+                                            : undefined,
+                                        getState,
+                                        cb.callback.running,
+                                        cb.callback.compress_payload,
+                                        cb.callback.compress_threshold
+                                    );
+                                } else {
+                                    throw streamErr;
+                                }
+                            }
                         } else {
                             // Use traditional HTTP path
                             data = await handleServerside(
