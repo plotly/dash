@@ -303,7 +303,8 @@ class QuartDashServer(BaseDashServer[Quart]):
         self._ws_shutdown_event = asyncio.Event()
 
         def signal_handler():
-            """Handle shutdown signal by setting the WebSocket shutdown event."""
+            """Handle shutdown signal by tearing down streams and WebSockets."""
+            shutdown_active_streams()
             if self._ws_shutdown_event is not None:
                 self._ws_shutdown_event.set()
 
