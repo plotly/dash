@@ -40,6 +40,7 @@ from dash._streaming import (
     STREAM_HEADERS,
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
     keepalive_seconds,
     marker_ndjson_aiter,
     to_json,
@@ -248,7 +249,9 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
             async def _receive_with_shutdown():
                 msg = await receive()
-                if msg.get("type") == "lifespan.shutdown":
+                if msg.get("type") == "lifespan.startup":
+                    _streaming_shutdown.clear()
+                elif msg.get("type") == "lifespan.shutdown":
                     shutdown_active_streams()
                 return msg
 

@@ -44,6 +44,7 @@ from dash._streaming import (
     STREAM_HEADERS,
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
     keepalive_seconds,
     marker_ndjson_aiter,
     to_json,
@@ -298,6 +299,7 @@ class QuartDashServer(BaseDashServer[Quart]):
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        _streaming_shutdown.clear()
 
         # Initialize shutdown event for WebSocket handlers
         self._ws_shutdown_event = asyncio.Event()

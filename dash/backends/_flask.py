@@ -40,6 +40,7 @@ from dash._streaming import (
     STREAM_HEADERS,
     STREAM_MIMETYPE,
     StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
     andjson_lines,
     keepalive_seconds,
     ndjson_lines,
@@ -184,6 +185,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
         return has_request_context()
 
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: Any):
+        _streaming_shutdown.clear()
         self.server.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(
