@@ -73,6 +73,19 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
 
 
+def _run_subprocess(args, env):
+    proc = subprocess.Popen(args, env=env)  # pylint: disable=R1732
+    try:
+        proc.wait()
+    except KeyboardInterrupt:
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except (KeyboardInterrupt, subprocess.TimeoutExpired):
+            proc.kill()
+            proc.wait()
+
+
 class FastAPIResponseAdapter(ResponseAdapter):
     """
     A custom Response class that wraps FastAPI's JSONResponse
@@ -495,13 +508,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             # Add any other kwargs as CLI args if needed
 
-            # pylint: disable=R1732
-            proc = subprocess.Popen(uvicorn_args, env=env)
-            try:
-                proc.wait()
-            except KeyboardInterrupt:
-                proc.terminate()
-                proc.wait()
+            _run_subprocess(uvicorn_args, env)
 
     def make_response(
         self,
