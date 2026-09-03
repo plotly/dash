@@ -39,20 +39,24 @@ class CeleryManager(BaseBackgroundCallbackManager):
             import celery  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
             from celery.backends.base import (  # type: ignore[import-not-found] # pylint: disable=import-outside-toplevel,import-error
                 DisabledBackend,
+                BaseKeyValueStoreBackend,
             )
         except ImportError as missing_imports:
-            raise ImportError(
-                """\
+            raise ImportError("""\
 CeleryManager requires extra dependencies which can be installed doing
 
-    $ pip install "dash[celery]"\n"""
-            ) from missing_imports
+    $ pip install "dash[celery]"\n""") from missing_imports
 
         if not isinstance(celery_app, celery.Celery):
             raise ValueError("First argument must be a celery.Celery object")
 
         if isinstance(celery_app.backend, DisabledBackend):
             raise ValueError("Celery instance must be configured with a result backend")
+
+        if not isinstance(celery_app.backend, BaseKeyValueStoreBackend):
+            raise ValueError(
+                "Celery must be configured with a key-value store backend (e.g. Redis or Filesystem)"
+            )
 
         self.handle = celery_app
         self.expire = expire
@@ -89,8 +93,17 @@ CeleryManager requires extra dependencies which can be installed doing
 
         return None
 
+    @staticmethod
+    def _ensure_bytes(o) -> bytes:
+        if isinstance(o, bytes):
+            return o
+        return str(o).encode()
+
     def clear_cache_entry(self, key):
-        self.handle.backend.delete(key)
+        # delete should not be called when the entry is not present
+        value = self.handle.backend.get(self._ensure_bytes(key))
+        if value is not None:
+            self.handle.backend.delete(self._ensure_bytes(key))
 
     def get_or_create_signing_secret(self, generate):
         backend = self.handle.backend
@@ -103,24 +116,30 @@ CeleryManager requires extra dependencies which can be installed doing
         return backend.get(self.SIGNING_SECRET_KEY) or secret
 
     def call_job_fn(self, key, job_fn, args, context):
-        task = job_fn.delay(key, self._make_progress_key(key), args, context)
+        result_key = self._ensure_bytes(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
+        set_props_key = self._ensure_bytes(self._make_set_props_key(key))
+        task = job_fn.delay(result_key, progress_key, set_props_key, args, context)
         return task.task_id
 
     def get_progress(self, key):
-        progress_key = self._make_progress_key(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
         progress_data = self.handle.backend.get(progress_key)
         if progress_data:
-            self.handle.backend.delete(progress_key)
+            self.clear_cache_entry(progress_key)
             return json.loads(progress_data)
 
         return None
 
     def result_ready(self, key):
-        return self.handle.backend.get(key) is not None
+        result_key = self._ensure_bytes(key)
+        return self.handle.backend.get(result_key) is not None
 
     def get_result(self, key, job):
+        result_key = self._ensure_bytes(key)
+        progress_key = self._ensure_bytes(self._make_progress_key(key))
         # Get result value
-        result = self.handle.backend.get(key)
+        result = self.handle.backend.get(result_key)
         if result is None:
             return self.UNDEFINED
 
@@ -128,22 +147,23 @@ CeleryManager requires extra dependencies which can be installed doing
 
         # Clear result if not caching
         if self.cache_by is None:
-            self.clear_cache_entry(key)
+            self.clear_cache_entry(result_key)
         else:
             if self.expire:
                 # Set/update expiration time
-                self.handle.backend.expire(key, self.expire)
-        self.clear_cache_entry(self._make_progress_key(key))
+                self.handle.backend.expire(result_key, self.expire)
+        self.clear_cache_entry(progress_key)
 
         self.terminate_job(job)
         return result
 
     def get_updated_props(self, key):
-        updated_props = self.handle.backend.get(self._make_set_props_key(key))
+        set_props_key = self._ensure_bytes(self._make_set_props_key(key))
+        updated_props = self.handle.backend.get(set_props_key)
         if updated_props is None:
             return {}
 
-        self.clear_cache_entry(key)
+        self.clear_cache_entry(set_props_key)
 
         return json.loads(updated_props)
 
@@ -153,7 +173,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
 
     @celery_app.task(name=f"background_callback_{key}")
     def job_fn(
-        result_key, progress_key, user_callback_args, context=None
+        result_key, progress_key, set_props_key, user_callback_args, context=None
     ):  # pylint: disable=too-many-statements
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
@@ -165,7 +185,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
 
         def _set_props(_id, props):
             cache.set(
-                f"{result_key}-set_props",
+                set_props_key,
                 json.dumps({_id: props}, cls=PlotlyJSONEncoder),
             )
 

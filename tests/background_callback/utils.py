@@ -35,7 +35,7 @@ def get_background_callback_manager():
     """
     Get the long callback mangaer configured by environment variables
     """
-    if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery":
+    if os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery-redis":
         from dash.background_callback import CeleryManager
         from celery import Celery
         import redis
@@ -44,10 +44,36 @@ def get_background_callback_manager():
             __name__,
             broker=os.environ.get("CELERY_BROKER"),
             backend=os.environ.get("CELERY_BACKEND"),
+            broker_connection_retry_on_startup=True,
         )
         background_callback_manager = CeleryManager(celery_app)
         redis_conn = redis.Redis(host="localhost", port=6379, db=1)
         background_callback_manager.test_lock = redis_conn.lock("test-lock")
+    elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "celery-filesystem":
+        from dash.background_callback import CeleryManager
+        from celery import Celery
+        from filelock import FileLock
+
+        celery_broker_path = os.environ.get("CELERY_BROKER_FILESYSTEM_DIRECTORY")
+        assert (
+            celery_broker_path is not None
+        ), "CELERY_BROKER_FILESYSTEM_DIRECTORY must be set"
+
+        celery_app = Celery(
+            __name__,
+            broker=os.environ.get("CELERY_BROKER"),
+            backend=os.environ.get("CELERY_BACKEND"),
+            broker_transport_options={
+                "data_folder_in": celery_broker_path,
+                "data_folder_out": celery_broker_path,
+                "control_folder": celery_broker_path,
+            },
+        )
+        background_callback_manager = CeleryManager(celery_app)
+
+        background_callback_manager.test_lock = FileLock(
+            os.path.join(celery_broker_path, "test-lock")
+        )
     elif os.environ.get("LONG_CALLBACK_MANAGER", None) == "diskcache":
         import diskcache
 
@@ -77,17 +103,27 @@ def kill(proc_pid):
 def setup_background_callback_app(manager_name, app_name):
     from dash.testing.application_runners import import_app
 
-    if manager_name == "celery":
-        os.environ["LONG_CALLBACK_MANAGER"] = "celery"
-        redis_url = os.environ["REDIS_URL"].rstrip("/")
-        os.environ["CELERY_BROKER"] = f"{redis_url}/0"
-        os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
+    if manager_name in ["celery-redis", "celery-filesystem"]:
+        os.environ["LONG_CALLBACK_MANAGER"] = manager_name
 
-        # Clear redis of cached values
-        redis_conn = redis.Redis(host="localhost", port=6379, db=1)
-        cache_keys = redis_conn.keys()
-        if cache_keys:
-            redis_conn.delete(*cache_keys)
+        if manager_name == "celery-redis":
+            redis_url = os.environ["REDIS_URL"].rstrip("/")
+            os.environ["CELERY_BROKER"] = f"{redis_url}/0"
+            os.environ["CELERY_BACKEND"] = f"{redis_url}/1"
+
+            # Clear redis of cached values
+            redis_conn = redis.Redis(host="localhost", port=6379, db=1)
+            cache_keys = redis_conn.keys()
+            if cache_keys:
+                redis_conn.delete(*cache_keys)
+        elif manager_name == "celery-filesystem":
+            celery_filesystem_directory = tempfile.mkdtemp(prefix="lc-celery-")
+            os.environ["CELERY_BROKER"] = "filesystem://"
+            os.environ[
+                "CELERY_BROKER_FILESYSTEM_DIRECTORY"
+            ] = celery_filesystem_directory
+            print(f"{celery_filesystem_directory=}")
+            os.environ["CELERY_BACKEND"] = f"file://{celery_filesystem_directory}"
 
         worker = subprocess.Popen(
             [
