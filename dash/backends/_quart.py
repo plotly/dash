@@ -40,6 +40,23 @@ import janus
 
 from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash.fingerprint import check_fingerprint
+from dash._streaming import (
+    STREAM_HEADERS,
+    STREAM_MIMETYPE,
+    StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
+    keepalive_seconds,
+    marker_ndjson_aiter,
+    to_json,
+)
+from dash._callback import get_stream_connection_id
+from dash._stream_hub import (
+    STREAM_ACK,
+    async_downlink_marker,
+    install_stream_shutdown_handler,
+    shutdown_active_streams,
+    spawn_async_pump,
+)
 from dash._utils import parse_version
 from dash import _validate
 from dash._compression import decompress_payload
@@ -54,6 +71,7 @@ from .ws import (
     run_callback_in_executor,
     run_callback_on_loop,
     make_callback_done_handler,
+    make_stream_frame_emitter,
     shutdown_ws_connection,
 )
 from ._utils import format_traceback_html
@@ -282,12 +300,14 @@ class QuartDashServer(BaseDashServer[Quart]):
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        _streaming_shutdown.clear()
 
         # Initialize shutdown event for WebSocket handlers
         self._ws_shutdown_event = asyncio.Event()
 
         def signal_handler():
-            """Handle shutdown signal by setting the WebSocket shutdown event."""
+            """Handle shutdown signal by tearing down streams and WebSockets."""
+            shutdown_active_streams()
             if self._ws_shutdown_event is not None:
                 self._ws_shutdown_event.set()
 
@@ -384,12 +404,50 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
+        # Under a bare ASGI server (uvicorn) the app is imported before the
+        # server installs its signal handlers, which drop the one Dash set at
+        # import; put it back once serving starts so Ctrl+C still ends active
+        # streams. Under Quart's own run() the loop handler covers it and this
+        # wraps a no-op.
+        @self.server.before_serving
+        async def _arm_stream_shutdown():  # pylint: disable=unused-variable
+            _streaming_shutdown.clear()
+            install_stream_shutdown_handler()
+
+        # Close open downlink subscriptions and cancel stream pumps on shutdown,
+        # so a long-polling downlink can't block a graceful exit.
+        @self.server.after_serving
+        async def _shutdown_streams():  # pylint: disable=unused-variable
+            shutdown_active_streams()
+
+        def _ndjson_response(marker):
+            # pylint: disable=protected-access
+            return Response(  # type: ignore[return-value]
+                marker_ndjson_aiter(
+                    marker,
+                    keepalive_seconds(dash_app._stream_keepalive_interval),
+                ),
+                content_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
         async def _dispatch():
             adapter = QuartRequestAdapter()
             if "gzip" in adapter.request.headers.get("Content-Encoding", ""):
                 body = decompress_payload(await adapter.request.get_data())
             else:
                 body = await adapter.get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                connection_id = get_stream_connection_id()
+                if connection_id is None:
+                    return Response(status=403)  # type: ignore[return-value]
+                marker = async_downlink_marker(
+                    dash_app.shared_storage,
+                    connection_id,
+                    downlink.get("from"),
+                )
+                return _ndjson_response(marker)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access
@@ -404,6 +462,29 @@ class QuartDashServer(BaseDashServer[Quart]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):  # if user callback is async
                 response_data = await response_data
+            if isinstance(response_data, StreamedCallbackResponse):
+                stream_conn = body.get("streamConnection")
+                if stream_conn is not None:
+                    # A streamConnection asserts "multiplex me": the connection
+                    # id is derived from the signed end_id (never from the
+                    # client), so a page can only publish to its own topic. An
+                    # unverified connection is refused, never run some other way,
+                    # so no frame reaches a topic without a valid token.
+                    connection_id = (
+                        get_stream_connection_id()
+                        if dash_app.shared_storage_enabled
+                        else None
+                    )
+                    if connection_id is None:
+                        return Response(status=403)  # type: ignore[return-value]
+                    spawn_async_pump(
+                        dash_app.shared_storage,
+                        connection_id,
+                        stream_conn["requestId"],
+                        response_data,
+                    )
+                    return cb_ctx.dash_response.set_response(data=to_json(STREAM_ACK))
+                return _ndjson_response(response_data)
             return cb_ctx.dash_response.set_response(data=response_data)  # type: ignore[arg-type]
 
         # Preserve the view function's identity as `dash.dash.dispatch` so that
@@ -656,6 +737,12 @@ class QuartDashServer(BaseDashServer[Quart]):
                             renderer_id,
                             connection_shutdown_event,
                         )
+                        stream_emitter = make_stream_frame_emitter(
+                            outbound_queue,
+                            request_id,
+                            renderer_id,
+                            connection_shutdown_event,
+                        )
 
                         if is_async:
                             task = asyncio.create_task(
@@ -664,6 +751,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                                     payload,
                                     ws_cb,
                                     QuartResponseAdapter(),
+                                    stream_emitter,
                                 )
                             )
                             task.add_done_callback(done_handler)
@@ -676,6 +764,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                                 payload,
                                 ws_cb,
                                 QuartResponseAdapter(),
+                                stream_emitter,
                             )
                             # Set up done callback to send response
                             future.add_done_callback(done_handler)

@@ -3,6 +3,7 @@ black==22.3.0
 flake8==7.3.0
 flaky==3.8.1
 flask-talisman==1.1.0
+httpx  # fastapi.testclient (tests/websocket/test_ws_stream.py)
 ipython<9.0.0
 mimesis<=21.0.0
 mock==5.2.0

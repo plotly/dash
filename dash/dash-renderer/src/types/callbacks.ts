@@ -21,6 +21,7 @@ export interface ICallbackDefinition {
     persistent?: boolean;
     compress_payload?: boolean;
     compress_threshold?: number;
+    stream?: boolean;
 }
 
 export interface ICallbackProperty {
@@ -118,6 +119,9 @@ export type CallbackResponseData = {
     cancel?: ICallbackProperty[];
     dist?: any;
     sideUpdate?: any;
+    // Streaming callbacks: terminal frame marker and mid-stream error.
+    done?: boolean;
+    error?: {message?: string};
 };
 
 export type SideUpdateOutput = {

@@ -448,6 +448,13 @@ class Dash(ObsoleteChecker):
     :param csrf_header_name: Name of the HTTP header to send the CSRF token in.
         Default ``'X-CSRFToken'``.
     :type csrf_header_name: string
+
+    :param stream_keepalive_interval: How long a streaming callback may
+        go without yielding, in milliseconds, before the response emits a
+        blank keepalive line. Default 15000. Keeps proxy idle timeouts
+        (nginx ``proxy_read_timeout`` defaults to 60s) from closing a stream
+        while the callback is still working. Set to None or 0 to disable.
+    :type stream_keepalive_interval: int or None
     """
 
     _plotlyjs_url: str
@@ -508,6 +515,7 @@ class Dash(ObsoleteChecker):
         websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
         websocket_max_workers: Optional[int] = 4,
+        stream_keepalive_interval: Optional[int] = 15000,
         shared_storage: Optional[
             Union[Type[BaseSharedStorage], BaseSharedStorage]
         ] = LocalSharedStorage,
@@ -686,6 +694,7 @@ class Dash(ObsoleteChecker):
         self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
         self._websocket_max_workers = websocket_max_workers
+        self._stream_keepalive_interval = stream_keepalive_interval
 
         # Shared storage (state manager + pub/sub). Started lazily on first
         # access so it costs nothing until used and never binds in a gunicorn
@@ -956,6 +965,14 @@ class Dash(ObsoleteChecker):
             self.validation_layout = layout_value
 
     @property
+    def shared_storage_enabled(self) -> bool:
+        """Whether this app has a shared-storage backend (not ``None``).
+
+        Cheap to read and does not start the backend, unlike ``shared_storage``.
+        """
+        return self._shared_storage_arg is not None
+
+    @property
     def shared_storage(self) -> BaseSharedStorage:
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
@@ -1169,6 +1186,11 @@ class Dash(ObsoleteChecker):
                 "inactivity_timeout": self._websocket_inactivity_timeout,
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
+
+        # Streaming callbacks use the single multiplexed downlink only when a
+        # shared-storage backend is available to broker frames across workers;
+        # otherwise the client streams each callback on its own connection.
+        config["stream"] = {"enabled": self.shared_storage_enabled}
 
         return config
 
