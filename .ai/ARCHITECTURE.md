@@ -726,6 +726,7 @@ Special handling for Colab:
 - `prevent_initial_callbacks` - Skip callbacks on load (default: `False`)
 - `background_callback_manager` - DiskcacheManager or CeleryManager
 - `on_error` - Global callback error handler
+- `shared_storage` - Cross-process state + pub/sub backend (default: `LocalSharedStorage`). Pass `None` to disable, or a `BaseSharedStorage` subclass/instance to swap. See [Shared Storage](#shared-storage).
 
 **WebSocket Callbacks:**
 - `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
@@ -807,6 +808,213 @@ Supported components: Input, Dropdown, Checklist, RadioItems, Slider, RangeSlide
 | Remember user selections | Component `persistence=True` |
 | Share state across tabs | `dcc.Store` with `storage_type='local'` |
 | Session-only state | `persistence_type='session'` |
+
+## Shared Storage
+
+Backend-agnostic **server-side** state shared across worker processes: a
+cross-process key/value store plus an ordered, replayable publish/subscribe
+channel. Unlike `dcc.Store` (which lives in the browser), shared storage lives
+on the server and lets callbacks running in different workers see the same keys
+and topics without standing up an external service like Redis.
+
+Enabled by default on every app. It starts lazily on first use, so it costs
+nothing until touched.
+
+### Accessing It
+
+```python
+import dash
+from dash import Input, Output, callback
+
+@callback(Output("out", "children"), Input("btn", "n_clicks"))
+def handler(n):
+    store = dash.ctx.shared_storage      # inside a callback
+    store.set("clicks", n)
+    return store.get("clicks", 0)
+
+# Or off the app directly:
+app = dash.Dash()
+app.shared_storage.set("key", {"any": "json-compatible value"})
+```
+
+Values (and published messages) must be **JSON-compatible** — dict / list / str
+/ int / float / bool / None — the same constraint as `dcc.Store` and callback
+outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
+
+### API
+
+`app.shared_storage` (and `dash.ctx.shared_storage`) is a `BaseSharedStorage`:
+
+| Method | Purpose |
+|--------|---------|
+| `get(key, default=None)` | Read a value |
+| `set(key, value, ttl=None)` | Write a value; `ttl` = optional lifetime in seconds |
+| `delete(key)` | Remove a key |
+| `publish(topic, message)` | Append a message to a topic |
+| `subscribe(topic, replay_from=None)` | Return a `Subscription` |
+
+**Key expiry (TTL).** `set(key, value, ttl=<seconds>)` gives a key a bounded
+lifetime; once it elapses, reads return the `default` again. `ttl=None` (the
+default) never expires. Expiry is lazy/best-effort — an expired key is dropped
+on its next read, not at a guaranteed instant. Each backend uses its native
+mechanism: a monotonic deadline on the in-memory owner, diskcache `expire`,
+Redis `PX`. Use it for session-scoped or cache-like state you don't want to
+accumulate unboundedly.
+
+**Ordered pub/sub.** Each `publish` to a topic gets a monotonically increasing
+sequence number (per topic, starting at 1; `0` means "before the first
+message"). A subscriber receives every message published after it subscribed,
+in order:
+
+```python
+# Producer (one worker):
+store.publish("progress", {"pct": 50})
+
+# Consumer (another worker/callback):
+with store.subscribe("progress") as sub:
+    for message in sub:          # or: async for message in sub
+        print(message["pct"])
+```
+
+**Replay on reconnect.** Pass `replay_from=<last-seen-seq>` to resume after a
+drop; buffered messages since that cursor replay first, so a reconnecting
+consumer doesn't miss messages. If the consumer fell farther behind than the
+bounded buffer holds, the subscription raises `SharedStorageGap` (an explicit
+gap rather than a silent hole). A `Subscription` is iterable synchronously
+(`for`) or asynchronously (`async for`), is a context manager, and has
+`close()`.
+
+### Backends
+
+Three backends ship, differing only in **how far state reaches**. Pick by the
+deployment topology — critically, whether the app runs behind a load balancer as
+more than one container/pod (see [Deployment Topology](#deployment-topology-and-shared-storage) below).
+
+| Backend | Backing store | Reaches | Extra |
+|---------|---------------|---------|-------|
+| `LocalSharedStorage` *(default)* | in-memory, owner-elected socket | one **container** (all its workers) | none |
+| `DiskcacheSharedStorage` | a `diskcache.Cache` | one **host** (all processes sharing the dir) | `dash[diskcache]` |
+| `RedisSharedStorage` | Redis (Streams for pub/sub) | **any** process/container/pod | `dash[redis]` |
+
+All three implement the same `BaseSharedStorage` contract (KV + ordered,
+replayable pub/sub with `SharedStorageGap` on buffer overrun), so app code is
+identical across them — only the constructor differs.
+
+```python
+from dash import Dash
+from dash._shared_storage import (
+    LocalSharedStorage, DiskcacheSharedStorage, RedisSharedStorage,
+)
+
+Dash(shared_storage=LocalSharedStorage)                       # default
+Dash(shared_storage=DiskcacheSharedStorage(directory="/tmp/ss"))
+Dash(shared_storage=RedisSharedStorage(url="redis://host:6379"))
+Dash(shared_storage=None)                                     # disabled
+```
+
+When disabled, accessing `app.shared_storage` / `dash.ctx.shared_storage`
+raises `SharedStorageError`.
+
+**`LocalSharedStorage`** — in-memory, no external service. On first use every
+worker races to become the single **owner** for the machine by binding a stable
+address (`AF_UNIX` on POSIX, `127.0.0.1` loopback on Windows); the winner hosts
+the engine, losers proxy over the socket. The bind *is* the lease — when the
+owner dies the address frees and a survivor re-elects. A single-process
+deployment is its own owner and pays no socket overhead. Knobs: `namespace`
+(defaults to a hash of cwd + argv[0]), `buffer_size` (default 32 — small on
+purpose, since each topic retains that many arbitrary payloads; raise it for a
+wider reconnect window).
+
+*Durability* is controlled by `mode` (the key/value store only — pub/sub is
+always transient):
+
+| `mode` | Writes | On owner death / restart |
+|--------|--------|--------------------------|
+| `"memory"` *(default)* | none | re-elects **cold** (state lost) |
+| `"persist"` | write-through on every set/delete | re-elected/fresh owner **recovers** from disk |
+| `"persist-reset"` | flushed every `flush_interval`s (default 60) + on clean exit | recovers to the last snapshot (up to one interval may be lost on an unclean crash) |
+
+Only the owner persists. The on-disk store is *chunked* (keys sharded across
+msgpack chunk files via a key→chunk index, so a mutation rewrites only the
+affected chunk — adapted from raposa's `BinaryStorage`); each chunk write is
+atomic (temp file + `os.replace`). TTLs survive restarts (stored as wall-clock
+deadlines; expired keys are dropped on load). `path` sets the store directory
+(default: a per-namespace folder under the user cache dir). Recovery runs on
+every election, so persisted data also survives owner re-election:
+
+```python
+Dash(shared_storage=LocalSharedStorage(mode="persist"))
+Dash(shared_storage=LocalSharedStorage(mode="persist-reset", flush_interval=30))
+```
+
+**`DiskcacheSharedStorage`** — KV + an append-log pub/sub on a `diskcache.Cache`,
+the same store `DiskcacheManager` uses; pass an existing `cache` to share one.
+Every process on one host that opens the same directory shares state, so it
+gives multi-worker parity with the local backend without a socket. **Not for
+pods** — each pod has its own ephemeral disk.
+
+**`RedisSharedStorage`** — KV on Redis strings, pub/sub on a Redis Stream per
+topic (an atomic `INCR`+`XADD` script keeps sequences ordered; `MAXLEN` bounds
+the replay window; a subscriber past the trimmed floor gets `SharedStorageGap`).
+Redis is the single source of truth, so no owner election. Pass a `url`
+(defaults to `$REDIS_URL`) or an existing `client` to reuse a connection pool.
+This is the only backend correct for **horizontally-scaled, multi-pod**
+deployments.
+
+### Deployment Topology and Shared Storage
+
+The default `LocalSharedStorage` is **per-container**: its socket/loopback
+election only reaches processes in the same network + filesystem namespace.
+
+- **Single process / single pod** (e.g. Plotly Cloud apps): fine — one owner,
+  nothing to fragment.
+- **Multiple gunicorn workers in one container**: fine — they share the pod's
+  loopback/socket and elect one owner.
+- **Multiple pods behind a load balancer** (e.g. Dash Enterprise apps scaled by
+  an HPA, routed round-robin with no session affinity): **each pod elects its own
+  isolated owner**, so `set()`/`publish()` on one pod are invisible on another.
+  This works at 1 pod and fragments silently once it scales — use
+  `RedisSharedStorage` (one Redis shared by all pods) instead.
+
+### Custom and Out-of-Tree Backends
+
+`BaseSharedStorage` is the stable, public extension point. A backend — shipped
+in-tree or as a **separate package** — implements:
+
+- `get(key, default)` / `set(key, value)` / `delete(key)` — JSON-compatible values
+- `publish(topic, message)` and `subscribe(topic, replay_from=None) -> Subscription`
+- optional `start()` / `close()` (idempotent, called once per worker)
+
+and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises
+`SharedStorageGap` when the replay buffer overran. That trio —
+`BaseSharedStorage`, `Subscription`, `SharedStorageGap` — is exported from
+top-level `dash`; the poll-loop helpers (`PollResult`, the polling subscription)
+are private and not part of the contract.
+
+Core only ships backends whose dependency is already a Dash extra (`msgspec`
+base; `dash[diskcache]`; `dash[redis]`). Anything needing a heavier dependency
+belongs **out of tree** behind this same interface — e.g. a Postgres backend
+(`LISTEN`/`NOTIFY` for push pub/sub + a table for KV and replay) lives in its own
+package so a `psycopg` connection is never pulled into Dash core. It plugs in the
+same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
+
+### Module Layout
+
+| File | Responsibility |
+|------|----------------|
+| `_shared_storage/base.py` | Abstract interface: `BaseSharedStorage`, `Subscription`, `SharedStorageError`, `SharedStorageGap` |
+| `_shared_storage/_engine.py` | `StoreEngine`: authoritative in-memory kv map + per-topic ordered log with bounded replay buffer (thread-safe, transport-agnostic) |
+| `_shared_storage/local.py` | `LocalSharedStorage`: owner election; owner hosts the engine, clients proxy |
+| `_shared_storage/diskcache.py` | `DiskcacheSharedStorage`: KV + append-log pub/sub on a `diskcache.Cache` |
+| `_shared_storage/redis.py` | `RedisSharedStorage`: KV + Redis Streams pub/sub (atomic `INCR`+`XADD`) |
+| `_shared_storage/_polling.py` | `PollingSubscription`: shared poll-loop subscription for the diskcache/Redis backends |
+| `_shared_storage/_transport.py` | Length-prefixed, token-gated socket transport (local backend) |
+| `_shared_storage/_codec.py` | msgspec msgpack codec (data-only) |
+| `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
+| `_callback_context.py` | `dash.ctx.shared_storage` accessor |
+
+Requires `msgspec` (in `requirements/install.txt`); `DiskcacheSharedStorage`
+needs the `diskcache` extra and `RedisSharedStorage` the `redis` extra.
 
 ## Async Callbacks
 
