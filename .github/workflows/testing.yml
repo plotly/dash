@@ -28,28 +28,47 @@ jobs:
         id: filter # Give an ID to this step to reference its outputs
         uses: dorny/paths-filter@v3
         with:
+          # Every job installs from requirements/ and setup.py and runs under
+          # the shared lint and pytest config, so a change there must run every
+          # job. A dependency bump once skipped the table and dcc jobs and only
+          # failed after merging to dev.
           filters: |
+            shared_paths: &shared_paths
+              - 'requirements/**'
+              - 'setup.py'
+              - 'pytest.ini'
+              - '.flake8'
+              - '.pylintrc'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'dash/testing/**'
+              - '.github/workflows/testing.yml'
             table_related_paths:
+              - *shared_paths
               - 'components/dash-table/**'
               - 'dash/dash-renderer/**'
             dcc_related_paths:
+              - *shared_paths
               - 'components/dash-core-components/**'
               - 'dash/dash-renderer/**'
             html_related_paths:
+              - *shared_paths
               - 'components/dash-html-components/**'
               - 'dash/dash-renderer/**'
             background_paths:
+              - *shared_paths
               - 'dash/background_callback/**'
               - 'dash/dash-renderer/**'
               - 'dash/_callback.py'
               - 'dash/_callback_context.py'
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
-              - 'requirements/**'
             backend_paths:
+              - *shared_paths
               - 'dash/backends/**'
               - 'tests/backend_tests/**'
             websocket_paths:
+              - *shared_paths
               - 'dash/backends/_fastapi.py'
               - 'dash/backends/_quart.py'
               - 'dash/backends/base_server.py'
@@ -60,7 +79,6 @@ jobs:
               - '@dash-websocket-worker/**'
               - 'dash/dash-renderer/src/**'
               - 'tests/websocket/**'
-              - 'requirements/**'
 
   lint-unit:
     name: Lint & Unit Tests (Python ${{ matrix.python-version }})
