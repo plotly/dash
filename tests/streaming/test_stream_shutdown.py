@@ -28,7 +28,7 @@ APP = textwrap.dedent(
     import asyncio
     from dash import Dash, Input, Output, html
 
-    app = Dash(__name__, backend="fastapi")
+    app = Dash(__name__, backend="{backend}")
     server = app.server
     app.layout = html.Div([html.Button("go", id="btn", n_clicks=0), html.Div(id="out")])
 
@@ -36,7 +36,7 @@ APP = textwrap.dedent(
                   prevent_initial_call=True)
     async def stream(n):
         for i in range(10000):
-            yield f"token {i}"
+            yield f"token {{i}}"
             await asyncio.sleep(0.2)
     """
 )
@@ -69,8 +69,10 @@ def _wait_ready(url, proc, timeout=30):
     raise AssertionError("server never came up")
 
 
-def test_stsd001_sigint_stops_server_mid_stream(tmp_path):
-    (tmp_path / "shutdown_app.py").write_text(APP)
+@pytest.mark.parametrize("backend", ["fastapi", "quart"])
+def test_stsd001_sigint_stops_server_mid_stream(tmp_path, backend):
+    pytest.importorskip(backend)
+    (tmp_path / "shutdown_app.py").write_text(APP.format(backend=backend))
     port = _free_port()
     proc = subprocess.Popen(  # pylint: disable=consider-using-with
         [sys.executable, "-m", "uvicorn", "shutdown_app:server", "--port", str(port)],

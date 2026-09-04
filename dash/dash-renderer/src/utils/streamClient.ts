@@ -8,10 +8,15 @@
  * onto the connection's shared-storage topic; the single downlink relays them and
  * this client routes each frame back to the right callback by request id.
  *
- * Lifecycle: the downlink opens on the first streaming callback and closes once no
- * callbacks remain in flight ("collect the dones to match the runnings"). If it
- * drops while callbacks are still running it reconnects, resuming from the last
- * sequence it saw so buffered frames are replayed rather than lost.
+ * Lifecycle: the downlink opens once the first uplink is acknowledged and closes
+ * when no acknowledged callback remains in flight ("collect the dones to match
+ * the runnings"). Waiting for the ack matters on a single-threaded WSGI worker
+ * (gunicorn's default sync worker): a downlink opened first would hold the only
+ * worker, the uplink behind it could never be served, and the stream would only
+ * start once the server killed the stuck worker. Opening after the ack lets one
+ * worker serve the two in turn; frames published before the downlink subscribes
+ * are replayed from the cursor. If the downlink drops while callbacks are still
+ * running it reconnects, resuming from the last sequence it saw.
  *
  * This currently runs on the page; it is written to be host-agnostic so it can
  * move into a SharedWorker (one connection per browser, shared across tabs) later.
@@ -23,6 +28,9 @@ interface PendingStream {
     onFrame: (frame: Frame) => void;
     resolve: () => void;
     reject: (err: Error) => void;
+    // Whether the uplink POST was acknowledged; only acknowledged callbacks
+    // keep the downlink open (see the lifecycle note above).
+    acked: boolean;
     // Whether any output frame reached this callback. Decides how a lost
     // connection settles it: frames applied -> resolve and keep them (like the
     // single-connection NDJSON path does on a drop); nothing applied -> reject,
@@ -125,11 +133,12 @@ export class StreamClient {
                 onFrame,
                 resolve,
                 reject,
+                acked: false,
                 gotFrame: false
             });
         });
-        this.ensureDownlink(url, init);
-        // Uplink POST: returns a fast ack; the outputs arrive on the downlink.
+        // Uplink POST: returns a fast ack; the outputs arrive on the downlink,
+        // which opens once the ack is in.
         this.fetchImpl(this.streamUrl(url), {
             ...init,
             method: 'POST',
@@ -138,24 +147,45 @@ export class StreamClient {
                 streamConnection: {requestId}
             })
         })
-            .then(res => this.checkUplink(requestId, res))
+            .then(res => this.checkUplink(requestId, res, url, init))
             .catch(err => this.fail(requestId, err));
         return settled;
     }
 
     /**
      * The uplink returns a fast ack (200); the frames then arrive on the
-     * downlink. Any non-ok status (e.g. 403 when the connection did not verify)
-     * means no frames are coming, so fail the request loudly rather than leave
-     * the callback pending forever.
+     * downlink, so make sure one is open. Any non-ok status (e.g. 403 when the
+     * connection did not verify) means no frames are coming, so fail the
+     * request loudly rather than leave the callback pending forever.
      */
-    private checkUplink(requestId: string, res: Response): void {
+    private checkUplink(
+        requestId: string,
+        res: Response,
+        url: string,
+        init: RequestInit
+    ): void {
         if (!res.ok) {
             this.fail(
                 requestId,
                 new Error(`stream uplink responded ${res.status}`)
             );
+            return;
         }
+        const pending = this.pending.get(requestId);
+        if (pending) {
+            pending.acked = true;
+            this.ensureDownlink(url, init);
+        }
+    }
+
+    /** Whether any acknowledged callback is still waiting on the downlink. */
+    private hasAcked(): boolean {
+        for (const p of this.pending.values()) {
+            if (p.acked) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Route one downlink envelope to its callback. Public for testing. */
@@ -230,7 +260,7 @@ export class StreamClient {
     }
 
     private stopDownlinkIfIdle(): void {
-        if (this.pending.size === 0 && this.downlinkOpen) {
+        if (this.downlinkOpen && !this.hasAcked()) {
             this.closeDownlink();
         }
     }
@@ -262,7 +292,7 @@ export class StreamClient {
     ): Promise<void> {
         let unreachableSince: number | null = null;
         let delay = this.reconnectDelay;
-        while (this.pending.size > 0 && this.loopGen === gen) {
+        while (this.hasAcked() && this.loopGen === gen) {
             this.abort = new AbortController();
             try {
                 const res = await this.fetchImpl(this.streamUrl(url), {
@@ -297,7 +327,7 @@ export class StreamClient {
                 unreachableSince = null;
                 delay = this.reconnectDelay;
             } catch (err) {
-                if (this.pending.size === 0 || this.loopGen !== gen) {
+                if (!this.hasAcked() || this.loopGen !== gen) {
                     break; // closed on purpose: idle, or settled and retired
                 }
                 // Genuine drop with work outstanding: reconnect from the

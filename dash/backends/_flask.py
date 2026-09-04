@@ -268,14 +268,18 @@ class FlaskDashServer(BaseDashServer[Flask]):
             self._create_redirect_function(app.get_relative_path(path)),
         )
 
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument,too-many-statements
     def serve_callback(self, dash_app: Dash):
         def _stream_response(
-            marker: StreamedCallbackResponse, with_request_ctx: bool
+            marker: StreamedCallbackResponse,
+            with_request_ctx: bool,
+            max_keepalive: float | None = None,
         ) -> Response:
             keepalive = keepalive_seconds(
                 dash_app._stream_keepalive_interval  # pylint: disable=protected-access
             )
+            if max_keepalive is not None:
+                keepalive = min(keepalive or max_keepalive, max_keepalive)
             if marker.is_async:
                 # Drive the async frame generator on a private event-loop
                 # thread; the response iterator drains it synchronously.
@@ -311,7 +315,15 @@ class FlaskDashServer(BaseDashServer[Flask]):
             marker = StreamedCallbackResponse(
                 frames, is_async=False, ctx=copy_context()
             )
-            return _stream_response(marker, with_request_ctx=with_request_ctx)
+            # A WSGI server only notices the client hung up when it next
+            # writes. The client closes the downlink as soon as its streams are
+            # done, and on a single sync worker the next uplink waits behind
+            # this response, so keep the write cadence short. This applies even
+            # when keepalives are disabled for callback streams: without a
+            # write the hang-up is never noticed.
+            return _stream_response(
+                marker, with_request_ctx=with_request_ctx, max_keepalive=1.0
+            )
 
         def _serve_uplink(marker, body, cb_ctx):
             # Multiplexed uplink: a streamConnection asserts "multiplex me". Pump

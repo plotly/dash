@@ -53,6 +53,7 @@ from dash._callback import get_stream_connection_id
 from dash._stream_hub import (
     STREAM_ACK,
     async_downlink_marker,
+    install_stream_shutdown_handler,
     shutdown_active_streams,
     spawn_async_pump,
 )
@@ -403,6 +404,16 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     # pylint: disable=unused-argument
     def serve_callback(self, dash_app: Dash):  # type: ignore[override]  # Quart always async
+        # Under a bare ASGI server (uvicorn) the app is imported before the
+        # server installs its signal handlers, which drop the one Dash set at
+        # import; put it back once serving starts so Ctrl+C still ends active
+        # streams. Under Quart's own run() the loop handler covers it and this
+        # wraps a no-op.
+        @self.server.before_serving
+        async def _arm_stream_shutdown():  # pylint: disable=unused-variable
+            _streaming_shutdown.clear()
+            install_stream_shutdown_handler()
+
         # Close open downlink subscriptions and cancel stream pumps on shutdown,
         # so a long-polling downlink can't block a graceful exit.
         @self.server.after_serving

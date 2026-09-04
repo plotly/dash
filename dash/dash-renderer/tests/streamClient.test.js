@@ -355,4 +355,76 @@ describe('StreamClient', () => {
         expect(Date.now() - t0).to.be.at.least(55);
         expect(client.activeCount).to.equal(1);
     });
+    it('opens the downlink only after the uplink is acknowledged', async () => {
+        // A single-threaded WSGI worker can serve one request at a time: the
+        // downlink must not be opened while the uplink is still in flight.
+        let ackUplink;
+        const gated = (url, init) => {
+            const body = JSON.parse(init.body);
+            if (body.streamConnection) {
+                return new Promise(resolve => {
+                    ackUplink = () =>
+                        resolve(
+                            new Response(JSON.stringify({stream: true}), {
+                                status: 200
+                            })
+                        );
+                });
+            }
+            return mock.fetchImpl(url, init);
+        };
+        client = new StreamClient({fetchImpl: gated, reconnectDelay: 10});
+        client.run('/cb', {}, 'e1', {output: 'a.b'}, () => {});
+        await waitFor(() => !!ackUplink);
+        await tick(20);
+        expect(mock.downlinks.length).to.equal(0);
+
+        ackUplink();
+        await waitFor(() => mock.downlinks.length === 1);
+    });
+
+    it('closes the downlink between acknowledged streams and reopens on the next ack', async () => {
+        const acks = [];
+        const gated = (url, init) => {
+            const body = JSON.parse(init.body);
+            if (body.streamConnection) {
+                return new Promise(resolve => {
+                    acks.push({
+                        rid: body.streamConnection.requestId,
+                        ack: () => resolve(new Response('{}', {status: 200}))
+                    });
+                });
+            }
+            return mock.fetchImpl(url, init);
+        };
+        client = new StreamClient({fetchImpl: gated, reconnectDelay: 10});
+        const first = client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
+        const second = client.run('/cb', {}, 'e1', {output: 'b'}, () => {});
+        await waitFor(() => acks.length === 2);
+        acks[0].ack();
+        await waitFor(() => mock.downlinks.length === 1);
+
+        // The first stream finishes while the second is still waiting for its
+        // ack (queued behind the downlink on a sync worker): the downlink must
+        // close so that uplink can be served.
+        mock.downlinks[0].dl.push({
+            rid: acks[0].rid,
+            frame: {done: true},
+            seq: 1
+        });
+        await first;
+        expect(mock.downlinks[0].signal.aborted).to.equal(true);
+        expect(client.activeCount).to.equal(1);
+
+        acks[1].ack();
+        await waitFor(() => mock.downlinks.length === 2);
+        expect(mock.downlinks[1].from).to.equal(1);
+        mock.downlinks[1].dl.push({
+            rid: acks[1].rid,
+            frame: {done: true},
+            seq: 2
+        });
+        await second;
+        expect(client.activeCount).to.equal(0);
+    });
 });
