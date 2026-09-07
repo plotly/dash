@@ -37,6 +37,8 @@ export interface SetPropsPayload {
 export interface GetPropsRequestPayload {
     componentId: string;
     properties: string[];
+    /** Optional location within each requested property. */
+    path?: (string | number)[];
 }
 
 /** Pending callback request */

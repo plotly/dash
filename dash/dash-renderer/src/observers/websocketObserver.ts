@@ -10,6 +10,7 @@ import {path} from 'ramda';
 import {IStoreState} from '../store';
 import {updateProps, notifyObservers, setPaths} from '../actions';
 import {parsePatchProps} from '../actions/patch';
+import {resolvePropPath} from '../utils/propPath';
 import {computePaths, getPath} from '../actions/paths';
 import {batch} from 'react-redux';
 import {
@@ -152,12 +153,13 @@ export async function initializeWebSocket(
         requestId: string,
         payload: GetPropsRequestPayload
     ) => {
-        const {componentId, properties} = payload;
+        const {componentId, properties, path: propPath} = payload;
         const parsedId = parseComponentId(componentId);
         const state = store.getState();
         const componentPath = getPath(state.paths, parsedId);
 
-        const result: Record<string, unknown> = {};
+        const result: Record<string, unknown> =
+            propPath === undefined ? {} : Object.create(null);
 
         if (componentPath) {
             const componentProps = path(
@@ -167,7 +169,18 @@ export async function initializeWebSocket(
 
             if (componentProps) {
                 for (const propName of properties) {
-                    result[propName] = componentProps[propName];
+                    if (propPath === undefined) {
+                        result[propName] = componentProps[propName];
+                    } else {
+                        const value = Object.prototype.hasOwnProperty.call(
+                            componentProps,
+                            propName
+                        )
+                            ? componentProps[propName]
+                            : undefined;
+                        result[propName] =
+                            resolvePropPath(value, propPath) ?? null;
+                    }
                 }
             }
         } else {
