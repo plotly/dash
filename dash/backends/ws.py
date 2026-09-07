@@ -31,6 +31,23 @@ if TYPE_CHECKING:
 SHUTDOWN_SIGNAL = "__shutdown__"
 DISCONNECTED = "__disconnected__"
 FLUSH_SIGNAL = "__flush__"
+_JS_MAX_SAFE_INTEGER = 2**53 - 1
+
+
+def _validate_prop_path(path: Any) -> None:
+    """Validate a client-side partial-read path before sending a request."""
+    if path is None:
+        return
+    if not isinstance(path, list):
+        raise TypeError("path must be a list of string keys and integer indices")
+    for index, key in enumerate(path):
+        if isinstance(key, bool) or not isinstance(key, (str, int)):
+            raise TypeError(f"path[{index}] must be a string or an integer")
+        if (
+            isinstance(key, int)
+            and not -_JS_MAX_SAFE_INTEGER <= key <= _JS_MAX_SAFE_INTEGER
+        ):
+            raise ValueError(f"path[{index}] must be a JavaScript safe integer")
 
 
 class DashWebsocketCallback:
@@ -185,26 +202,22 @@ class DashWebsocketCallback:
         if pending_get_props is None:
             raise WebsocketDisconnected()
 
-        if path is not None:
-            if not isinstance(path, list):
-                raise TypeError(
-                    "path must be a list of string keys and integer indices"
-                )
-            for index, key in enumerate(path):
-                if isinstance(key, bool) or not isinstance(key, (str, int)):
-                    raise TypeError(f"path[{index}] must be a string or an integer")
-                if isinstance(key, int) and not -(2**53 - 1) <= key <= 2**53 - 1:
-                    raise ValueError(f"path[{index}] must be a JavaScript safe integer")
+        _validate_prop_path(path)
 
         request_id = str(uuid.uuid4())
+        payload: dict[str, Any] = {
+            "componentId": component_id,
+            "properties": [prop_name],
+        }
+        if path is not None:
+            payload["path"] = path
+
         msg = {
             "type": "get_props_request",
             "rendererId": self._renderer_id,
             "requestId": request_id,
-            "payload": {"componentId": component_id, "properties": [prop_name]},
+            "payload": payload,
         }
-        if path is not None:
-            msg["payload"]["path"] = path
 
         if self._loop is not None:
             result = await self._get_prop_async(request_id, msg, timeout)

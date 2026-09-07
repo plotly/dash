@@ -8,7 +8,11 @@ from contextlib import asynccontextmanager
 import janus
 import pytest
 
-from dash.backends.ws import DashWebsocketCallback
+from dash.backends.ws import (
+    _JS_MAX_SAFE_INTEGER,
+    DashWebsocketCallback,
+    _validate_prop_path,
+)
 
 
 @asynccontextmanager
@@ -46,6 +50,20 @@ def respond(pending, message, payload):
         waiter.set_result(payload)
     else:
         waiter.put_nowait(payload)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        None,
+        [],
+        ["records", 0, -1],
+        [_JS_MAX_SAFE_INTEGER],
+        [-_JS_MAX_SAFE_INTEGER],
+    ],
+)
+def test_validate_prop_path_accepts_supported_values(path):
+    _validate_prop_path(path)
 
 
 @pytest.mark.parametrize("threaded", [False, True])
