@@ -63,6 +63,28 @@ describe('partial prop reads', () => {
         ).to.equal(undefined);
     });
 
+    it('reads objects without a prototype', () => {
+        const value = Object.assign(Object.create(null), {
+            selected: {value: 42}
+        });
+        expect(resolvePropPath(value, ['selected', 'value'])).to.equal(42);
+        expect(resolvePropPath(value, ['missing'])).to.equal(undefined);
+    });
+
+    it('does not read inherited sparse array entries', () => {
+        const value = new Array(1);
+        const prototype = Object.create(Array.prototype, {
+            0: {
+                get() {
+                    throw new Error('Inherited array entry was accessed');
+                }
+            }
+        });
+        Object.setPrototypeOf(value, prototype);
+
+        expect(resolvePropPath(value, [0])).to.equal(undefined);
+    });
+
     it('matches Patch for an existing negative-index location', () => {
         const location = ['records', -1, 'values', -1];
         const updated = handlePatch(data, {

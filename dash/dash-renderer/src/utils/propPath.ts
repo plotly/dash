@@ -1,3 +1,28 @@
+import {has} from 'ramda';
+
+type PropPathKey = string | number;
+
+function resolveArrayKey(value: unknown[], key: PropPathKey): unknown {
+    if (typeof key !== 'number' || !Number.isSafeInteger(key)) {
+        return undefined;
+    }
+
+    const index = key < 0 ? value.length + key : key;
+    if (index < 0 || index >= value.length || !has(String(index), value)) {
+        return undefined;
+    }
+
+    return value[index];
+}
+
+function resolveObjectKey(value: object, key: PropPathKey): unknown {
+    if (typeof key !== 'string' || !has(key, value)) {
+        return undefined;
+    }
+
+    return (value as Record<string, unknown>)[key];
+}
+
 /**
  * Read a dictionary/list location without copying or changing the source value.
  * Like Patch locations, negative indices are relative to the current list.
@@ -6,10 +31,7 @@
  * entire value. Iteration takes O(path.length) time and O(1) extra space; it
  * never traverses siblings or clones the selected subtree.
  */
-export function resolvePropPath(
-    value: unknown,
-    path: (string | number)[]
-): unknown {
+export function resolvePropPath(value: unknown, path: PropPathKey[]): unknown {
     if (!Array.isArray(path)) {
         return undefined;
     }
@@ -17,28 +39,13 @@ export function resolvePropPath(
     let current = value;
     for (const key of path) {
         if (Array.isArray(current)) {
-            if (typeof key !== 'number' || !Number.isSafeInteger(key)) {
-                return undefined;
-            }
-            const index = key < 0 ? current.length + key : key;
-            if (
-                index < 0 ||
-                index >= current.length ||
-                !Object.prototype.hasOwnProperty.call(current, index)
-            ) {
-                return undefined;
-            }
-            current = current[index];
-        } else if (
-            current !== null &&
-            typeof current === 'object' &&
-            typeof key === 'string' &&
-            Object.prototype.hasOwnProperty.call(current, key)
-        ) {
-            current = (current as Record<string, unknown>)[key];
-        } else {
+            current = resolveArrayKey(current, key);
+            continue;
+        }
+        if (current === null || typeof current !== 'object') {
             return undefined;
         }
+        current = resolveObjectKey(current, key);
     }
     return current;
 }

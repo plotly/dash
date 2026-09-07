@@ -5,7 +5,7 @@
 /* eslint-disable no-console */
 
 import {Store} from 'redux';
-import {path} from 'ramda';
+import {has, path} from 'ramda';
 
 import {IStoreState} from '../store';
 import {updateProps, notifyObservers, setPaths} from '../actions';
@@ -39,6 +39,33 @@ function parseComponentId(
         }
     }
     return componentId;
+}
+
+function readRequestedProps(
+    componentProps: Record<string, unknown> | undefined,
+    properties: string[],
+    propPath: (string | number)[] | undefined
+): Record<string, unknown> {
+    const result: Record<string, unknown> =
+        propPath === undefined ? {} : Object.create(null);
+
+    if (!componentProps) {
+        return result;
+    }
+
+    for (const propName of properties) {
+        if (propPath === undefined) {
+            result[propName] = componentProps[propName];
+            continue;
+        }
+
+        const value = has(propName, componentProps)
+            ? componentProps[propName]
+            : undefined;
+        result[propName] = resolvePropPath(value, propPath) ?? null;
+    }
+
+    return result;
 }
 
 /**
@@ -158,31 +185,12 @@ export async function initializeWebSocket(
         const state = store.getState();
         const componentPath = getPath(state.paths, parsedId);
 
-        const result: Record<string, unknown> =
-            propPath === undefined ? {} : Object.create(null);
+        let componentProps: Record<string, unknown> | undefined;
 
         if (componentPath) {
-            const componentProps = path(
-                [...componentPath, 'props'],
-                state.layout
-            ) as Record<string, unknown> | undefined;
-
-            if (componentProps) {
-                for (const propName of properties) {
-                    if (propPath === undefined) {
-                        result[propName] = componentProps[propName];
-                    } else {
-                        const value = Object.prototype.hasOwnProperty.call(
-                            componentProps,
-                            propName
-                        )
-                            ? componentProps[propName]
-                            : undefined;
-                        result[propName] =
-                            resolvePropPath(value, propPath) ?? null;
-                    }
-                }
-            }
+            componentProps = path([...componentPath, 'props'], state.layout) as
+                | Record<string, unknown>
+                | undefined;
         } else {
             console.warn(
                 `GET_PROPS_REQUEST: Component ${componentId} not found in layout`
@@ -190,6 +198,7 @@ export async function initializeWebSocket(
         }
 
         // Send the response
+        const result = readRequestedProps(componentProps, properties, propPath);
         workerClient.sendGetPropsResponse(requestId, result);
     };
 
