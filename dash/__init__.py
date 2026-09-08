@@ -44,6 +44,16 @@ from ._patch import Patch  # noqa: F401,E402
 from ._remount import remount  # noqa: F401,E402
 from ._jupyter import jupyter_dash  # noqa: F401,E402
 
+from ._shared_storage import (  # noqa: F401,E402
+    BaseSharedStorage,
+    DiskcacheSharedStorage,
+    LocalSharedStorage,
+    RedisSharedStorage,
+    SharedStorageError,
+    SharedStorageGap,
+    Subscription,
+)
+
 from ._hooks import hooks  # noqa: F401,E402
 
 ctx = callback_context
@@ -96,4 +106,11 @@ __all__ = [
     "ctx",
     "hooks",
     "stringify_id",
+    "BaseSharedStorage",
+    "DiskcacheSharedStorage",
+    "LocalSharedStorage",
+    "RedisSharedStorage",
+    "SharedStorageError",
+    "SharedStorageGap",
+    "Subscription",
 ]

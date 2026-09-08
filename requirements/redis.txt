@@ -1,0 +1,4 @@
+# Dependency used by RedisSharedStorage.
+# Kept in sync with the redis pin in celery.txt; in Dash 5.0 redis will be
+# removed from the celery extra and live here only.
+redis>=3.5.3,<=5.0.4
