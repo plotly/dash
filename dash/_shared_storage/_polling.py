@@ -35,21 +35,29 @@ class PollingSubscription(Subscription):
     def _gap(self) -> SharedStorageGap:
         return SharedStorageGap(f"replay buffer overran on topic {self._topic!r}")
 
-    def __iter__(self):
+    @staticmethod
+    def _with_seq(res: PollResult):
+        # Poll batches are contiguous, ending at last_seq, so each message's
+        # sequence follows from its position.
+        first = res.last_seq - len(res.messages) + 1
+        for offset, message in enumerate(res.messages):
+            yield first + offset, message
+
+    def iter_with_seq(self):
         try:
             while not self._closed.is_set():
                 res = self._poll_fn(self._topic, self._cursor, self._poll_timeout)
                 if res.gap:
                     raise self._gap()
-                yield from res.messages
+                yield from self._with_seq(res)
                 self._cursor = res.last_seq
         finally:
             self.close()
 
-    def __aiter__(self):
-        return self._aiter()
+    def aiter_with_seq(self):
+        return self._aiter_with_seq()
 
-    async def _aiter(self):
+    async def _aiter_with_seq(self):
         loop = asyncio.get_running_loop()
         try:
             while not self._closed.is_set():
@@ -66,8 +74,8 @@ class PollingSubscription(Subscription):
                     break
                 if res.gap:
                     raise self._gap()
-                for message in res.messages:
-                    yield message
+                for pair in self._with_seq(res):
+                    yield pair
                 self._cursor = res.last_seq
         finally:
             self.close()

@@ -113,6 +113,12 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         deadline = time.monotonic() + timeout
         while True:
             head = self._head(topic)
+            # Cursor past the head: it was minted before the store was reset
+            # (the cache was cleared, or the counter evicted under the cache's
+            # size limit). Gap so the consumer resets rather than blocking until
+            # the sequence climbs back past the cursor.
+            if after_seq > head:
+                return PollResult([], after_seq, True)
             if head > after_seq:
                 floor = max(1, head - self._buffer_size + 1)
                 if after_seq + 1 < floor:

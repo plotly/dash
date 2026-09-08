@@ -203,6 +203,46 @@ def test_reelection_recovers_persisted_data(tmp_path):
         o.stop()
 
 
+def test_patch_frame_published_over_socket(owner):
+    # Reproduces the multi-process failure: a client publishes a streaming frame
+    # carrying a dash.Patch to the owner over the socket. The frame must arrive
+    # reduced to plain JSON (the wire codec can't encode a Patch).
+    from dash import Patch
+    from dash._stream_hub import publish_frame, subscribe_envelopes
+
+    ns, _ = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    assert not client._coord.is_owner()  # publishing over the socket
+
+    out = []
+
+    def drain():
+        gen = subscribe_envelopes(client, "cp", replay_from=0)
+        for env in gen:
+            out.append(env)
+            if env["frame"].get("done"):
+                break
+        gen.close()
+
+    th = threading.Thread(target=drain, daemon=True)
+    th.start()
+    time.sleep(0.4)
+
+    patch = Patch()
+    patch["a"] = 1
+    publish_frame(client, "cp", "r1", {"response": {"o": {"children": patch}}})
+    publish_frame(client, "cp", "r1", {"done": True})
+
+    th.join(timeout=8)
+    assert (
+        out[0]["frame"]["response"]["o"]["children"]["__dash_patch_update"]
+        == "__dash_patch_update"
+    )
+    assert out[-1]["frame"] == {"done": True}
+    client.close()
+
+
 def _wait_until(pred, timeout):
     end = time.monotonic() + timeout
     while time.monotonic() < end:

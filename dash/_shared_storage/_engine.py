@@ -59,6 +59,10 @@ class StoreEngine:
         populates the store first does not re-mark every restored key dirty)."""
         self._persistence = persistence
 
+    @property
+    def closed(self) -> bool:
+        return self._closed
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         with self._data_lock:
@@ -159,6 +163,14 @@ class StoreEngine:
             while True:
                 if self._closed:
                     return PollResult([], after_seq, False)
+                # The cursor points past every sequence this topic has ever
+                # produced. That can only happen when the cursor was minted by a
+                # previous incarnation of the topic (the owner was re-elected, or
+                # the server restarted with an empty store) -- treat it as a gap
+                # so the consumer resets instead of stalling until the fresh
+                # sequence climbs back past the stale cursor.
+                if after_seq > t.seq:
+                    return PollResult([], after_seq, True)
                 # The next message we want is after_seq + 1; if the buffer's
                 # oldest is newer than that, it was evicted -> gap.
                 if t.buf and after_seq + 1 < t.buf[0][0]:
