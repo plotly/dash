@@ -1515,6 +1515,12 @@ export interface LinkProps {
     refresh?: boolean;
 
     /**
+     * Controls whether or not the page will scroll to the top when the link is
+     * clicked. Defaults to true.
+     */
+    scrollToTop?: boolean;
+
+    /**
      * Adds the title attribute to your link, which can contain supplementary
      * information.
      */
