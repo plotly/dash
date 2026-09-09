@@ -28,8 +28,6 @@ def get_app():
         if n_clicks is None:
             raise PreventUpdate
 
-        nonlocal columns, data
-
         return (data, columns) if n_clicks % 2 == 0 else (None, None)
 
     return app
