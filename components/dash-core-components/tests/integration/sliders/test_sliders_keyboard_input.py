@@ -61,6 +61,7 @@ def test_slkb002_range_input_constrained_by_min_max(dash_dcc):
                 min=1,
                 max=20,
                 value=[5, 7],
+                allowCross=False,
             ),
             html.Div(id="value"),
             html.Div(id="drag_value"),
@@ -104,10 +105,10 @@ def test_slkb002_range_input_constrained_by_min_max(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#value", "value is [1, 5]")
     dash_dcc.wait_for_text_to_equal("#drag_value", "drag_value is [1, 5]")
 
-    # cannot enter a value less than `min`
+    # cannot cross the max handle
     min_inpt.send_keys(Keys.BACKSPACE, 7, Keys.TAB)
     dash_dcc.wait_for_text_to_equal("#value", "value is [5, 5]")
-    dash_dcc.wait_for_text_to_equal("#drag_value", "drag_value is [7, 5]")
+    dash_dcc.wait_for_text_to_equal("#drag_value", "drag_value is [5, 5]")
 
     assert dash_dcc.get_logs() == []
 
