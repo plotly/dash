@@ -1,8 +1,10 @@
 """Unit tests for callback decorator behavior - no browser required."""
 import inspect
+import json
 
 import dash
 from dash import Input, Output, State, callback
+from dash._utils import create_callback_id
 
 
 def test_callback_returns_callable():
@@ -126,3 +128,38 @@ def test_callback_module_export():
     """Test that callback is properly exported from dash module."""
     assert hasattr(dash, "callback")
     assert dash.callback is callback
+
+
+def test_create_callback_id_escapes_dots_in_string_id():
+    """A dot in a plain string component id is escaped with a backslash."""
+    output = Output("my.component", "children")
+    callback_id = create_callback_id(output, [])
+
+    assert callback_id == "my\\.component.children"
+
+
+def test_create_callback_id_escapes_dots_in_dict_id_as_json_unicode():
+    """A dot in a dict id must use the JSON \\u002e escape, not \\.,
+    otherwise the frontend's JSON.parse throws a SyntaxError when it
+    un-escapes the id portion of the callback id string (see #3480)."""
+    output = Output({"type": "my.type", "index": 1}, "children")
+    callback_id = create_callback_id(output, [])
+
+    id_part, prop_part = callback_id.rsplit(".", 1)
+    assert prop_part == "children"
+    # The escaped id must not contain a raw backslash-dot sequence...
+    assert "\\." not in id_part
+    # ...and must be valid JSON once the . escape is present verbatim.
+    assert "\\u002e" in id_part
+    parsed = json.loads(id_part)
+    assert parsed == {"type": "my.type", "index": 1}
+
+
+def test_create_callback_id_dict_id_without_dots_unaffected():
+    """Dict ids with no dots in their values still round-trip through JSON."""
+    output = Output({"type": "widget", "index": 2}, "value")
+    callback_id = create_callback_id(output, [])
+
+    id_part, prop_part = callback_id.rsplit(".", 1)
+    assert prop_part == "value"
+    assert json.loads(id_part) == {"type": "widget", "index": 2}
