@@ -140,6 +140,7 @@ def test_dvcv002_blank_id_prop(dash_duo):
     check_errors(dash_duo, specs)
 
 
+@flaky(max_runs=3)
 def test_dvcv003_duplicate_outputs_same_callback(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b")])

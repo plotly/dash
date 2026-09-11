@@ -36,11 +36,12 @@ import {
 import {ICallback, IStoredCallback} from '../types/callbacks';
 
 import {updateProps, setPaths, handleAsyncError} from '../actions';
-import {getPath, computePaths} from '../actions/paths';
+import {getPath, computePaths, appendPaths} from '../actions/paths';
 import {
     PatchAnalysis,
     analysisForAllProps,
-    analysisForProp
+    analysisForProp,
+    tailAppend
 } from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
@@ -175,14 +176,59 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             oldChildren: any,
                             oldChildrenPath: any[],
                             filterRoot: any = false,
-                            propAnalysis?: PatchAnalysis
+                            propAnalysis?: PatchAnalysis,
+                            append: {
+                                location: (string | number)[];
+                                count: number;
+                            } | null = null
                         ) => {
                             const oPaths = getState().paths;
-                            const paths = computePaths(
-                                children,
-                                oldChildrenPath,
-                                oPaths
-                            );
+
+                            // If this patch's only structural change was
+                            // appending items to the tail of one list (tracked
+                            // by patchAnalysis.tailAppends), the pre-existing
+                            // children kept their positions and identities.
+                            // Compute paths only for the new tail slice instead
+                            // of re-crawling the whole array - the dominant cost
+                            // of a repeated Patch().append() into a large
+                            // container. `location` points at the grown list,
+                            // which may be nested (`[]` for a plain `children`,
+                            // `[0, 'props', 'children']` for a nested extend).
+                            const newList = append
+                                ? append.location.length
+                                    ? path(append.location, children)
+                                    : children
+                                : undefined;
+                            const oldList = append
+                                ? append.location.length
+                                    ? path(append.location, oldChildren)
+                                    : oldChildren
+                                : undefined;
+                            const isTailAppend =
+                                !!append &&
+                                append.count > 0 &&
+                                Array.isArray(newList) &&
+                                Array.isArray(oldList) &&
+                                newList.length ===
+                                    oldList.length + append.count;
+
+                            const paths =
+                                isTailAppend && append
+                                    ? appendPaths(
+                                          (newList as any[]).slice(
+                                              (oldList as any[]).length
+                                          ),
+                                          oldChildrenPath.concat(
+                                              append.location
+                                          ),
+                                          (oldList as any[]).length,
+                                          oPaths
+                                      )
+                                    : computePaths(
+                                          children,
+                                          oldChildrenPath,
+                                          oPaths
+                                      );
                             dispatch(setPaths(paths));
 
                             // Get callbacks for new layout (w/ execution group)
@@ -199,24 +245,29 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             );
 
                             // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                            // even due to the deletion of components
-                            requestedCallbacks = concat(
-                                requestedCallbacks,
-                                getLayoutCallbacks(
-                                    graphs,
-                                    oldPaths,
-                                    oldChildren,
-                                    {
-                                        removedArrayInputsOnly: true,
-                                        newPaths: paths,
-                                        chunkPath: oldChildrenPath,
-                                        filterRoot
-                                    }
-                                ).map(rcb => ({
-                                    ...rcb,
-                                    predecessors
-                                }))
-                            );
+                            // even due to the deletion of components.
+                            // A tail append never removes anything, so oldChildren
+                            // is unchanged and this pass can only find what it
+                            // found last time (nothing new) - skip the crawl.
+                            if (!isTailAppend) {
+                                requestedCallbacks = concat(
+                                    requestedCallbacks,
+                                    getLayoutCallbacks(
+                                        graphs,
+                                        oldPaths,
+                                        oldChildren,
+                                        {
+                                            removedArrayInputsOnly: true,
+                                            newPaths: paths,
+                                            chunkPath: oldChildrenPath,
+                                            filterRoot
+                                        }
+                                    ).map(rcb => ({
+                                        ...rcb,
+                                        predecessors
+                                    }))
+                                );
+                            }
                         };
 
                         let recomputed = false;
@@ -283,15 +334,30 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         oldLayout
                                     );
 
+                                    const childrenPropAnalysis =
+                                        analysisForProp(
+                                            patchAnalysis,
+                                            childrenPropPath[0]
+                                        );
+
                                     handlePaths(
                                         children,
                                         oldChildren,
                                         oldChildrenPath,
                                         false,
-                                        analysisForProp(
-                                            patchAnalysis,
-                                            childrenPropPath[0]
-                                        )
+                                        childrenPropAnalysis,
+                                        // `tailAppends` locations are relative
+                                        // to the top-level property's value, so
+                                        // the shortcut only applies when
+                                        // `children` *is* that value (a plain
+                                        // `children`), not a dotted sub-path
+                                        // (`figure.data`) into it.
+                                        childrenPropPath.length === 1
+                                            ? tailAppend(
+                                                  childrenPropAnalysis,
+                                                  childrenPropPath[0]
+                                              )
+                                            : null
                                     );
                                 }
                             });

@@ -152,9 +152,10 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     for _ in range(3):
         dash_duo.find_element("#python").click()
 
-    assert (
-        dash_duo.find_element("#output").text == "button clicks: 3"
-    ), "the click counts correctly in output"
+    # The output only reaches "button clicks: 3" once the third click's callback
+    # runs; poll for it instead of reading synchronously, which races the
+    # callback and sees the initial "button clicks: 0".
+    dash_duo.wait_for_text_to_equal("#output", "button clicks: 3", timeout=4)
 
     # two exceptions fired, but only a single exception appeared in the UI:
     # the prevent default was not displayed

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from selenium.webdriver.common.by import By
+
+import dash.testing.wait as wait
 from dash import Dash, Input, Output, dcc, html
 
 
@@ -71,11 +74,21 @@ def test_msmh003_update_md(dash_dcc):
 
     # a highlighted node will have <span> children which are what color the text
     code = dash_dcc.wait_for_element("code[data-highlighted='yes']")
-    assert len(code.find_elements_by_tag_name("span")) == 2
+    assert len(code.find_elements(By.TAG_NAME, "span")) == 2
 
     dash_dcc.find_element("#md-trigger").click()
 
-    code = dash_dcc.wait_for_element("code[data-highlighted='yes']")
-    assert len(code.find_elements_by_tag_name("span")) == 3
+    # The click swaps the markdown via a callback and the block is re-highlighted
+    # asynchronously; poll for the new span count instead of reading it right
+    # after the click, which races the re-render and sees the old content.
+    wait.until(
+        lambda: len(
+            dash_dcc.find_element("code[data-highlighted='yes']").find_elements(
+                By.TAG_NAME, "span"
+            )
+        )
+        == 3,
+        timeout=4,
+    )
 
     assert dash_dcc.get_logs() == []

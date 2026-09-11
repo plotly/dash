@@ -2,6 +2,7 @@ import time
 from multiprocessing import Value, Lock
 
 import pytest
+from selenium.webdriver.common.by import By
 
 from dash import Dash, Input, Output, State, callback_context, html, dcc, dash_table
 from dash.exceptions import PreventUpdate
@@ -648,9 +649,9 @@ def test_cbmt013_chained_callback_should_be_blocked(dash_duo):
     assert out_call_count.value == 1
 
     all_labels = dash_duo.find_elements("label")
-    canada_opt = next(
-        i for i in all_labels if i.text == "Canada"
-    ).find_element_by_tag_name("input")
+    canada_opt = next(i for i in all_labels if i.text == "Canada").find_element(
+        By.TAG_NAME, "input"
+    )
 
     with out_lock:
         canada_opt.click()

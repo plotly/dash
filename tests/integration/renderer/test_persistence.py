@@ -326,17 +326,20 @@ def test_rdps008_unsaved_part_changed(dash_duo):
 
     rename_and_hide(dash_duo)
     check_table_names(dash_duo, [NEW_NAME])
-    assert len(dash_duo.find_elements(".column-header--delete")) == 0
+    # The deletable toggle is applied by a callback that re-renders the table;
+    # poll for the delete-header count instead of reading it synchronously right
+    # after the click, which races that re-render.
+    wait.until(lambda: len(dash_duo.find_elements(".column-header--delete")) == 0, 4)
 
     dash_duo.find_element("#deletable").click()
     # column names still persisted when columns.deletable changed
     # because extracted name list didn't change
     check_table_names(dash_duo, [NEW_NAME])
-    assert len(dash_duo.find_elements(".column-header--delete")) == 1
+    wait.until(lambda: len(dash_duo.find_elements(".column-header--delete")) == 1, 4)
 
     dash_duo.find_element("#deletable").click()
     check_table_names(dash_duo, [NEW_NAME])
-    assert len(dash_duo.find_elements(".column-header--delete")) == 0
+    wait.until(lambda: len(dash_duo.find_elements(".column-header--delete")) == 0, 4)
 
 
 def test_rdps009_clear_prop_callback(dash_duo):
