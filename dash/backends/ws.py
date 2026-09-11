@@ -31,6 +31,23 @@ if TYPE_CHECKING:
 SHUTDOWN_SIGNAL = "__shutdown__"
 DISCONNECTED = "__disconnected__"
 FLUSH_SIGNAL = "__flush__"
+_JS_MAX_SAFE_INTEGER = 2**53 - 1
+
+
+def _validate_prop_path(path: Any) -> None:
+    """Validate a client-side partial-read path before sending a request."""
+    if path is None:
+        return
+    if not isinstance(path, list):
+        raise TypeError("path must be a list of string keys and integer indices")
+    for index, key in enumerate(path):
+        if isinstance(key, bool) or not isinstance(key, (str, int)):
+            raise TypeError(f"path[{index}] must be a string or an integer")
+        if (
+            isinstance(key, int)
+            and not -_JS_MAX_SAFE_INTEGER <= key <= _JS_MAX_SAFE_INTEGER
+        ):
+            raise ValueError(f"path[{index}] must be a JavaScript safe integer")
 
 
 class DashWebsocketCallback:
@@ -147,9 +164,14 @@ class DashWebsocketCallback:
         self.set_prop_sync(component_id, prop_name, value)
 
     async def get_prop(
-        self, component_id: str, prop_name: str, timeout: float = 30.0
+        self,
+        component_id: str,
+        prop_name: str,
+        timeout: float = 30.0,
+        *,
+        path: list[str | int] | None = None,
     ) -> Any:
-        """Request current prop value from the client.
+        """Request a current prop value or a nested part of it from the client.
 
         On the event-loop path (``self._loop`` set, async callbacks) the wait uses an
         awaitable ``asyncio.Future`` so the connection loop is never blocked. On the
@@ -160,11 +182,16 @@ class DashWebsocketCallback:
             component_id: The component ID (string or stringified dict)
             prop_name: The property name to retrieve
             timeout: Timeout in seconds for waiting for response
+            path: Optional Patch-style list of string keys and integer list indices.
+                Negative indices count from the end of a list. Omit, pass None, or
+                use [] to read the complete property.
 
         Returns:
-            The current value of the property from the client's state
+            The complete property or selected value. Missing locations return None.
 
         Raises:
+            TypeError: If path is not a list of string keys and integer indices.
+            ValueError: If an index is outside the JavaScript safe integer range.
             WebsocketDisconnected: If the websocket connection has been closed.
             TimeoutError: If the response doesn't arrive within the timeout.
         """
@@ -175,12 +202,21 @@ class DashWebsocketCallback:
         if pending_get_props is None:
             raise WebsocketDisconnected()
 
+        _validate_prop_path(path)
+
         request_id = str(uuid.uuid4())
+        payload: dict[str, Any] = {
+            "componentId": component_id,
+            "properties": [prop_name],
+        }
+        if path is not None:
+            payload["path"] = path
+
         msg = {
             "type": "get_props_request",
             "rendererId": self._renderer_id,
             "requestId": request_id,
-            "payload": {"componentId": component_id, "properties": [prop_name]},
+            "payload": payload,
         }
 
         if self._loop is not None:

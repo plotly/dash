@@ -114,6 +114,8 @@ export interface GetPropsRequestMessage extends WorkerMessage {
     payload: {
         componentId: string;
         properties: string[];
+        /** Optional location within each requested property. */
+        path?: (string | number)[];
     };
 }
 
