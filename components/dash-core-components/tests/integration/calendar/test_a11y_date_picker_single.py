@@ -2,6 +2,7 @@ from datetime import datetime
 from dash import Dash, Input, Output
 from dash.dcc import DatePickerSingle
 from dash.html import Div, Label, P
+from dash.testing.wait import until
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
@@ -17,6 +18,21 @@ def send_keys(driver, key):
 def get_focused_text(driver):
     """Get the text content of the currently focused element"""
     return driver.execute_script("return document.activeElement.textContent;")
+
+
+def wait_for_focused_text(dash_dcc, expected, timeout=4):
+    """Wait until the focused element's text matches expected.
+
+    Focus is moved inside a requestAnimationFrame callback, so reading it
+    synchronously right after a keypress races the re-render (flaky on React
+    19). Poll instead of asserting immediately.
+    """
+    until(
+        lambda: get_focused_text(dash_dcc.driver) == expected,
+        timeout=timeout,
+        msg=f"expected focused text to be {expected!r}, "
+        f"got {get_focused_text(dash_dcc.driver)!r}",
+    )
 
 
 def create_date_picker_app(date_picker_props):
@@ -114,31 +130,31 @@ def test_a11y003_keyboard_navigation_arrows(dash_dcc):
     open_calendar(dash_dcc, date_picker)
 
     # Get the focused date element (should be Jan 15, 2021)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test ArrowRight - should move to Jan 16
     send_keys(dash_dcc.driver, Keys.ARROW_RIGHT)
-    assert get_focused_text(dash_dcc.driver) == "16"
+    wait_for_focused_text(dash_dcc, "16")
 
     # Test ArrowLeft - should move back to Jan 15
     send_keys(dash_dcc.driver, Keys.ARROW_LEFT)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test ArrowDown - should move to Jan 22 (one week down)
     send_keys(dash_dcc.driver, Keys.ARROW_DOWN)
-    assert get_focused_text(dash_dcc.driver) == "22"
+    wait_for_focused_text(dash_dcc, "22")
 
     # Test ArrowUp - should move back to Jan 15 (one week up)
     send_keys(dash_dcc.driver, Keys.ARROW_UP)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test PageDown - should move to Feb 15 (one month forward)
     send_keys(dash_dcc.driver, Keys.PAGE_DOWN)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test PageUp - should move back to Jan 15 (one month back)
     send_keys(dash_dcc.driver, Keys.PAGE_UP)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test Enter - should select the date and close calendar
     send_keys(dash_dcc.driver, Keys.ENTER)
@@ -161,19 +177,19 @@ def test_a11y004_keyboard_navigation_home_end(dash_dcc):
     open_calendar(dash_dcc, date_picker)
 
     # Get the focused date element (should be Jan 15, 2021 - Friday)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test Home key - should move to week start (Sunday, Jan 10)
     send_keys(dash_dcc.driver, Keys.HOME)
-    assert get_focused_text(dash_dcc.driver) == "10"
+    wait_for_focused_text(dash_dcc, "10")
 
     # Test End key - should move to week end (Saturday, Jan 16)
     send_keys(dash_dcc.driver, Keys.END)
-    assert get_focused_text(dash_dcc.driver) == "16"
+    wait_for_focused_text(dash_dcc, "16")
 
     # Test Home key again - should move to week start (Sunday, Jan 10)
     send_keys(dash_dcc.driver, Keys.HOME)
-    assert get_focused_text(dash_dcc.driver) == "10"
+    wait_for_focused_text(dash_dcc, "10")
 
     assert dash_dcc.get_logs() == []
 
@@ -192,15 +208,15 @@ def test_a11y005_keyboard_navigation_home_end_monday_start(dash_dcc):
     open_calendar(dash_dcc, date_picker)
 
     # Get the focused date element (should be Jan 15, 2021 - Friday)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Test Home key - should move to week start (Monday, Jan 11)
     send_keys(dash_dcc.driver, Keys.HOME)
-    assert get_focused_text(dash_dcc.driver) == "11"
+    wait_for_focused_text(dash_dcc, "11")
 
     # Test End key - should move to week end (Sunday, Jan 17)
     send_keys(dash_dcc.driver, Keys.END)
-    assert get_focused_text(dash_dcc.driver) == "17"
+    wait_for_focused_text(dash_dcc, "17")
 
     assert dash_dcc.get_logs() == []
 
@@ -218,23 +234,23 @@ def test_a11y006_keyboard_navigation_rtl(dash_dcc):
     date_picker = dash_dcc.find_element("#date-picker")
     open_calendar(dash_dcc, date_picker)
 
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Moves to Jan 14 (reversed)
     send_keys(dash_dcc.driver, Keys.ARROW_RIGHT)
-    assert get_focused_text(dash_dcc.driver) == "14"
+    wait_for_focused_text(dash_dcc, "14")
 
     # Moves to Jan 15 (reversed)
     send_keys(dash_dcc.driver, Keys.ARROW_LEFT)
-    assert get_focused_text(dash_dcc.driver) == "15"
+    wait_for_focused_text(dash_dcc, "15")
 
     # Moves to week start
     send_keys(dash_dcc.driver, Keys.HOME)
-    assert get_focused_text(dash_dcc.driver) == "10"
+    wait_for_focused_text(dash_dcc, "10")
 
     # Moves to week end
     send_keys(dash_dcc.driver, Keys.END)
-    assert get_focused_text(dash_dcc.driver) == "16"
+    wait_for_focused_text(dash_dcc, "16")
 
     assert dash_dcc.get_logs() == []
 
@@ -382,7 +398,7 @@ def test_a11y009_keyboard_space_selects_date(dash_dcc):
     open_calendar(dash_dcc, date_picker)
 
     send_keys(dash_dcc.driver, Keys.ARROW_RIGHT)
-    assert get_focused_text(dash_dcc.driver) == "16"
+    wait_for_focused_text(dash_dcc, "16")
 
     send_keys(dash_dcc.driver, Keys.SPACE)
     dash_dcc.wait_for_no_elements(".dash-datepicker-calendar-container", timeout=0.25)

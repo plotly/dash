@@ -375,9 +375,6 @@ def test_cbwc004_layout_chunk_changed_props(dash_duo):
 
 
 def test_cbwc005_callbacks_count(dash_duo):
-    global fibonacci_count
-    global fibonacci_sum_count
-
     app = fibonacci_app(False)
     dash_duo.start_server(app)
 

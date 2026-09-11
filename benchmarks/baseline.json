@@ -1,0 +1,118 @@
+{
+  "initial_render_small": {
+    "render_ms": {
+      "n": 8,
+      "min": 78.7,
+      "median": 96.1,
+      "p90": 104.0,
+      "max": 105.7,
+      "growth": 0.97
+    }
+  },
+  "initial_render_large": {
+    "render_ms": {
+      "n": 6,
+      "min": 529.3,
+      "median": 619.0,
+      "p90": 694.4,
+      "max": 800.4,
+      "growth": 0.97
+    }
+  },
+  "deep_nesting": {
+    "render_ms": {
+      "n": 8,
+      "min": 48.5,
+      "median": 53.5,
+      "p90": 56.8,
+      "max": 56.9,
+      "growth": 0.99
+    }
+  },
+  "patch_append_toplevel": {
+    "append_ms": {
+      "n": 14,
+      "min": 50.9,
+      "median": 115.2,
+      "p90": 140.2,
+      "max": 174.9,
+      "growth": 2.2
+    }
+  },
+  "patch_append_nested": {
+    "append_ms": {
+      "n": 14,
+      "min": 43.9,
+      "median": 141.0,
+      "p90": 192.3,
+      "max": 211.8,
+      "growth": 3.34
+    }
+  },
+  "full_children_replace": {
+    "replace_ms": {
+      "n": 10,
+      "min": 153.5,
+      "median": 1822.9,
+      "p90": 4697.1,
+      "max": 5768.9,
+      "growth": 15.93
+    }
+  },
+  "patch_scalar_update_large": {
+    "update_ms": {
+      "n": 12,
+      "min": 160.7,
+      "median": 179.5,
+      "p90": 202.9,
+      "max": 206.6,
+      "growth": 0.83
+    }
+  },
+  "callback_fanout": {
+    "fanout_ms": {
+      "n": 12,
+      "min": 79.2,
+      "median": 87.1,
+      "p90": 92.5,
+      "max": 96.4,
+      "growth": 0.9
+    }
+  },
+  "wildcard_all_resolve": {
+    "wildcard_ms": {
+      "n": 12,
+      "min": 285.5,
+      "median": 301.2,
+      "p90": 313.6,
+      "max": 323.7,
+      "growth": 0.99
+    },
+    "graph_ms": {
+      "n": 12,
+      "min": 1.3,
+      "median": 1.3,
+      "p90": 1.3,
+      "max": 1.3,
+      "growth": 1.0
+    }
+  },
+  "callback_chain": {
+    "chain_ms": {
+      "n": 8,
+      "min": 439.7,
+      "median": 468.6,
+      "p90": 499.1,
+      "max": 501.0,
+      "growth": 0.89
+    },
+    "graph_ms": {
+      "n": 8,
+      "min": 2.4,
+      "median": 2.4,
+      "p90": 2.4,
+      "max": 2.4,
+      "growth": 1.0
+    }
+  }
+}

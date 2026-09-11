@@ -1492,3 +1492,130 @@ export interface DatePickerRangeProps
 
     setProps: (props: Partial<DatePickerRangeProps>) => void;
 }
+
+export interface LinkProps {
+    /**
+     * The children of this component
+     */
+    children?: React.ReactNode;
+
+    /**
+     * The URL of a linked resource.
+     */
+    href: string;
+
+    /**
+     * Specifies where to open the link reference.
+     */
+    target?: string;
+
+    /**
+     * Controls whether or not the page will refresh when the link is clicked
+     */
+    refresh?: boolean;
+
+    /**
+     * Adds the title attribute to your link, which can contain supplementary
+     * information.
+     */
+    title?: string;
+
+    /**
+     * Often used with CSS to style elements with common properties.
+     */
+    className?: string;
+
+    /**
+     * Defines CSS styles which will override styles previously set.
+     */
+    style?: React.CSSProperties;
+
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * Object that holds the loading state object coming from dash-renderer
+     */
+    loading_state?: {
+        /**
+         * Determines if the component is loading or not
+         */
+        is_loading?: boolean;
+        /**
+         * Holds which property is loading
+         */
+        prop_name?: string;
+        /**
+         * Holds the name of the component that is loading
+         */
+        component_name?: string;
+    };
+}
+
+export interface MarkdownContentProps {
+    /**
+     * If true, loads mathjax v3 (tex-svg) into the page and use it in the markdown
+     */
+    mathjax?: boolean;
+
+    /**
+     * A boolean to control raw HTML escaping.
+     * Setting HTML from code is risky because it's easy to
+     * inadvertently expose your users to a cross-site scripting (XSS)
+     * (https://en.wikipedia.org/wiki/Cross-site_scripting) attack.
+     */
+    dangerously_allow_html?: boolean;
+
+    /**
+     * A string for the target attribute to use on links (such as "_blank")
+     */
+    link_target?: string;
+
+    /**
+     * Remove matching leading whitespace from all lines.
+     * Lines that are empty, or contain *only* whitespace, are ignored.
+     * Both spaces and tab characters are removed, but only if they match;
+     * we will not convert tabs to spaces or vice versa.
+     */
+    dedent?: boolean;
+}
+
+// Markdown is a display-only component: it has no persistence and does not
+// call `setProps`, so it deliberately does not extend `BaseDccProps`.
+export interface MarkdownProps extends MarkdownContentProps {
+    /**
+     * The ID of this component, used to identify dash components
+     * in callbacks. The ID needs to be unique across all of the
+     * components in an app.
+     */
+    id?: string;
+
+    /**
+     * Class name of the container element
+     */
+    className?: string;
+
+    /**
+     * A markdown string (or array of strings) that adheres to the CommonMark spec
+     */
+    children?: string | string[];
+
+    /**
+     * Config options for syntax highlighting.
+     */
+    highlight_config?: {
+        /**
+         * Color scheme; default 'light'
+         */
+        theme?: 'dark' | 'light';
+    };
+
+    /**
+     * User-defined inline styles for the rendered Markdown
+     */
+    style?: React.CSSProperties;
+}

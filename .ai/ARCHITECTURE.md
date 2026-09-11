@@ -1014,9 +1014,28 @@ Only "persistent callbacks" (callbacks with no Output and no Input that use only
 - `set_props(component_id, props_dict)` - Stream prop updates immediately to client
 - `ctx.websocket` - Get WebSocket interface (returns `None` if not in WS context)
 - `ws.is_shutdown` - Check if the WebSocket connection has been closed
-- `await ws.get_prop(component_id, prop_name)` - Read current prop value from client
+- `await ws.get_prop(component_id, prop_name, timeout=30.0, *, path=None)` - Read a full or nested prop value
 - `await ws.set_prop(component_id, prop_name, value)` - Set single prop (async version)
 - `await ws.close(code, reason)` - Close the WebSocket connection
+
+### Partial Reads with get_prop
+
+Use the keyword-only `path` argument with the same string keys and integer list
+indices supported by `Patch`:
+
+```python
+event = await ws.get_prop(
+    'store', 'data', path=['event', 'target', 'value']
+)
+last = await ws.get_prop('store', 'data', path=['records', -1, 'value'])
+```
+
+- Omit `path`, or use `None` or `[]`, to read the complete property.
+- Negative indices count from the end of a list.
+- Missing locations return `None`; invalid paths raise before sending a request.
+- Falsy values and empty containers are preserved.
+- The renderer resolves the path before WebSocket serialization, so only the
+  selected value is returned and component props are never modified.
 
 ### Connection Hooks
 

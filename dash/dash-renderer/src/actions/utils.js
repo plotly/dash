@@ -1,14 +1,4 @@
-import {
-    append,
-    concat,
-    has,
-    path,
-    pathOr,
-    type,
-    findIndex,
-    includes,
-    slice
-} from 'ramda';
+import {concat, has, path, type, findIndex, includes, slice} from 'ramda';
 
 /*
  * requests_pathname_prefix is the new config parameter introduced in
@@ -86,23 +76,25 @@ export const crawlLayout = (
                     );
                 }
             } else {
-                crawlLayout(child, func, append(i, currentPath));
+                crawlLayout(child, func, currentPath.concat(i));
             }
         });
     } else if (type(object) === 'Object') {
         func(object, currentPath);
 
-        const children = path(propsChildren, object);
+        // Hot path: every component hits this on every crawl (path recompute,
+        // callback gather). Direct access avoids ramda's curried `path`/
+        // `pathOr` dispatch (and the `_isPlaceholder` checks they do) per node.
+        const children = object.props && object.props.children;
         if (children) {
-            const newPath = concat(currentPath, propsChildren);
+            const newPath = currentPath.concat(propsChildren);
             crawlLayout(children, func, newPath);
         }
 
-        const childrenProps = pathOr(
-            [],
-            [object.namespace, object.type],
-            window.__dashprivate_childrenProps
-        );
+        const cp = window.__dashprivate_childrenProps;
+        const childrenProps =
+            (cp && cp[object.namespace] && cp[object.namespace][object.type]) ||
+            [];
         childrenProps.forEach(childrenProp => {
             if (childrenProp.includes('[]')) {
                 let [frontPath, backPath] = childrenProp
