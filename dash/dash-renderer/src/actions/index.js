@@ -13,6 +13,7 @@ import {
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 import {recordUiEdit} from '../persistence';
+import {recordReloadEdit, shouldRecordReloadEdit} from '../reloadState';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -33,6 +34,7 @@ export const resetComponentState = createAction(
 
 export function updateProps(payload) {
     return (dispatch, getState) => {
+        const {layout, config} = getState();
         const component = path(payload.itempath, getState().layout);
         // The component may no longer exist at this path - eg. an
         // `ExternalWrapper` (components as props) whose host subtree was
@@ -42,6 +44,12 @@ export function updateProps(payload) {
             return;
         }
         recordUiEdit(component, payload.props, dispatch);
+        if (
+            path(['hot_reload', 'preserve_state'], config) &&
+            shouldRecordReloadEdit(component, payload)
+        ) {
+            recordReloadEdit(component, payload.props);
+        }
         dispatch(onPropChange(payload));
     };
 }

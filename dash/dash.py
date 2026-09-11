@@ -57,6 +57,7 @@ from ._utils import (
 )
 from . import _callback
 from . import _callback_signing
+from . import _hot_reload as _hot_reload_state
 from . import _get_paths
 from . import _dash_renderer
 from . import _validate
@@ -1061,12 +1062,30 @@ class Dash(ObsoleteChecker):
         # echoes it on every callback request; the server binds background
         # callback handles (cacheKey/job) to it so they cannot be forged or
         # replayed from another page load. See dash/_callback_signing.py.
-        end_id = gen_salt(24)
-        config["end_id"] = _callback_signing.sign(
-            self._get_signing_secret(),
-            _callback_signing.END_SCOPE,
-            end_id,
-        )
+        def _mint_end_id():
+            return _callback_signing.sign(
+                self._get_signing_secret(),
+                _callback_signing.END_SCOPE,
+                gen_salt(24),
+            )
+
+        if self._dev_tools.hot_reload and self._dev_tools.hot_reload_preserve_state:
+            # Hot-reload state preservation scopes its sessionStorage snapshot
+            # by end_id, so the token has to stay stable across the reload
+            # (which restarts the process) and unique to this app. Persist it
+            # to disk keyed by the app path so a different app served on the
+            # same URL can't consume this one's preserved state.
+            app_key = "|".join(
+                (
+                    os.path.abspath(sys.argv[0]) if sys.argv and sys.argv[0] else "",
+                    getattr(self.server, "root_path", "") or "",
+                    self.config.name or "",
+                    self.config.requests_pathname_prefix or "",
+                )
+            )
+            config["end_id"] = _hot_reload_state.stable_end_id(app_key, _mint_end_id)
+        else:
+            config["end_id"] = _mint_end_id()
         if self._plotly_cloud is None:
             if os.getenv("DASH_ENTERPRISE_ENV") == "WORKSPACE":
                 # Disable the placeholder button on workspace.
@@ -1088,6 +1107,7 @@ class Dash(ObsoleteChecker):
                 # convert from seconds to msec as used by js `setInterval`
                 "interval": int(self._dev_tools.hot_reload_interval * 1000),
                 "max_retry": self._dev_tools.hot_reload_max_retry,
+                "preserve_state": self._dev_tools.hot_reload_preserve_state,
             }
         if self.validation_layout and not self.config.suppress_callback_exceptions:
             validation_layout = self.validation_layout
@@ -2074,6 +2094,12 @@ class Dash(ObsoleteChecker):
                 get_combined_config(attr, kwargs.get(attr, None), default=default)
             )
 
+        dev_tools["hot_reload_preserve_state"] = get_combined_config(
+            "hot_reload_preserve_state",
+            kwargs.get("hot_reload_preserve_state", None),
+            default=False,
+        )
+
         dev_tools["disable_version_check"] = get_combined_config(
             "disable_version_check",
             kwargs.get("disable_version_check", None),
@@ -2096,6 +2122,7 @@ class Dash(ObsoleteChecker):
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
         dev_tools_validate_callbacks: Optional[bool] = None,
+        dev_tools_hot_reload_preserve_state: Optional[bool] = None,
         first_run: bool = True,
     ) -> bool:
         """Activate the dev tools, called by `run`. If your application
@@ -2115,6 +2142,7 @@ class Dash(ObsoleteChecker):
             - DASH_HOT_RELOAD_INTERVAL
             - DASH_HOT_RELOAD_WATCH_INTERVAL
             - DASH_HOT_RELOAD_MAX_RETRY
+            - DASH_HOT_RELOAD_PRESERVE_STATE
             - DASH_SILENCE_ROUTES_LOGGING
             - DASH_DISABLE_VERSION_CHECK
             - DASH_PRUNE_ERRORS
@@ -2157,6 +2185,15 @@ class Dash(ObsoleteChecker):
             env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
 
+        :param dev_tools_hot_reload_preserve_state: Preserve UI state across
+            hot reloads: prop values edited in the browser (dropdown
+            selections, input values, active tab...), props set through
+            ``set_props`` and memory-type ``dcc.Store`` data are saved before
+            the reload and restored afterward, unless their initial value
+            changed in the reloaded code. Default False.
+            env: ``DASH_HOT_RELOAD_PRESERVE_STATE``
+        :type dev_tools_hot_reload_preserve_state: bool
+
         :param dev_tools_silence_routes_logging: Silence the route logging for the
             web server (werkzeug for Flask, hypercorn for Quart, uvicorn for FastAPI).
             Enabled with debugging by default because hot reload hash checks generate
@@ -2193,6 +2230,7 @@ class Dash(ObsoleteChecker):
             hot_reload_interval=dev_tools_hot_reload_interval,
             hot_reload_watch_interval=dev_tools_hot_reload_watch_interval,
             hot_reload_max_retry=dev_tools_hot_reload_max_retry,
+            hot_reload_preserve_state=dev_tools_hot_reload_preserve_state,
             silence_routes_logging=dev_tools_silence_routes_logging,
             disable_version_check=dev_tools_disable_version_check,
             prune_errors=dev_tools_prune_errors,
@@ -2394,6 +2432,7 @@ class Dash(ObsoleteChecker):
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
         dev_tools_validate_callbacks: Optional[bool] = None,
+        dev_tools_hot_reload_preserve_state: Optional[bool] = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -2467,6 +2506,15 @@ class Dash(ObsoleteChecker):
             env: ``DASH_HOT_RELOAD_MAX_RETRY``
         :type dev_tools_hot_reload_max_retry: int
 
+        :param dev_tools_hot_reload_preserve_state: Preserve UI state across
+            hot reloads: prop values edited in the browser (dropdown
+            selections, input values, active tab...), props set through
+            ``set_props`` and memory-type ``dcc.Store`` data are saved before
+            the reload and restored afterward, unless their initial value
+            changed in the reloaded code. Default False.
+            env: ``DASH_HOT_RELOAD_PRESERVE_STATE``
+        :type dev_tools_hot_reload_preserve_state: bool
+
         :param dev_tools_silence_routes_logging: Silence the route logging for the
             web server (werkzeug for Flask, hypercorn for Quart, uvicorn for FastAPI).
             Enabled with debugging by default because hot reload hash checks generate
@@ -2527,6 +2575,7 @@ class Dash(ObsoleteChecker):
             dev_tools_disable_version_check,
             dev_tools_prune_errors,
             dev_tools_validate_callbacks,
+            dev_tools_hot_reload_preserve_state=dev_tools_hot_reload_preserve_state,
         )
 
         # Evaluate the env variables at runtime
