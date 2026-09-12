@@ -684,6 +684,10 @@ class Dash(ObsoleteChecker):
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
+        # Serializes _setup_server so a concurrent worker thread cannot
+        # observe the guard flag while the setup work behind it is still
+        # in flight (see gh-3971).
+        self._setup_server_lock = threading.Lock()
 
         # Secret used to sign background-callback handles (see _callback_signing).
         # Prefer the Flask/Quart secret_key (shared across workers when the
@@ -1703,88 +1707,104 @@ class Dash(ObsoleteChecker):
         if self._got_first_request["setup_server"]:
             return
 
-        self._got_first_request["setup_server"] = True
+        # Double-checked locking: previously the guard flag was set before the
+        # work it protects, which let a second thread (e.g. under gunicorn
+        # ``-k gthread``) skip setup while ``registered_paths`` and
+        # ``callback_map`` were still being populated by the first thread and
+        # then fail validation on component bundle requests. See gh-3971.
+        with self._setup_server_lock:
+            if self._got_first_request["setup_server"]:
+                return
 
-        # Apply _force_eager_loading overrides from modules
-        eager_loading = self.config.eager_loading
-        for module_name in ComponentRegistry.registry:
-            module = sys.modules[module_name]
-            eager = getattr(module, "_force_eager_loading", False)
-            eager_loading = eager_loading or eager
+            # Apply _force_eager_loading overrides from modules
+            eager_loading = self.config.eager_loading
+            for module_name in ComponentRegistry.registry:
+                module = sys.modules[module_name]
+                eager = getattr(module, "_force_eager_loading", False)
+                eager_loading = eager_loading or eager
 
-        # Update eager_loading settings
-        self.scripts.config.eager_loading = eager_loading
+            # Update eager_loading settings
+            self.scripts.config.eager_loading = eager_loading
 
-        if self.config.include_assets_files:
-            self._walk_assets_directory()
+            if self.config.include_assets_files:
+                self._walk_assets_directory()
 
-        if not self.layout and self.use_pages:
-            self.layout = page_container
+            if not self.layout and self.use_pages:
+                self.layout = page_container
 
-        _validate.validate_layout(self.layout, self._layout_value())
+            _validate.validate_layout(self.layout, self._layout_value())
 
-        self._generate_scripts_html()
-        self._generate_css_dist_html()
+            self._generate_scripts_html()
+            self._generate_css_dist_html()
 
-        # Copy over global callback data structures assigned with `dash.callback`
-        for k in list(_callback.GLOBAL_CALLBACK_MAP):
-            if k in self.callback_map:
-                raise DuplicateCallback(
-                    f"The callback `{k}` provided with `dash.callback` was already "
-                    "assigned with `app.callback`."
+            # Copy over global callback data structures assigned with `dash.callback`
+            for k in list(_callback.GLOBAL_CALLBACK_MAP):
+                if k in self.callback_map:
+                    raise DuplicateCallback(
+                        f"The callback `{k}` provided with `dash.callback` was already "
+                        "assigned with `app.callback`."
+                    )
+
+                self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+
+            self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+
+            # For each callback function, if the hidden parameter uses the default value None,
+            # replace it with the actual value of the self.config.hide_all_callbacks.
+            self._callback_list = [
+                (
+                    {
+                        **_callback,
+                        "hidden": self.config.get("hide_all_callbacks", False),
+                    }
+                    if _callback.get("hidden") is None
+                    else _callback
                 )
+                for _callback in self._callback_list
+            ]
 
-            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+            _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+            _validate.validate_background_callbacks(self.callback_map)
 
-        # For each callback function, if the hidden parameter uses the default value None,
-        # replace it with the actual value of the self.config.hide_all_callbacks.
-        self._callback_list = [
-            (
-                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-                if _callback.get("hidden") is None
-                else _callback
-            )
-            for _callback in self._callback_list
-        ]
+            cancels = {}
 
-        _callback.GLOBAL_CALLBACK_LIST.clear()
+            for callback in self.callback_map.values():
+                background = callback.get("background")
+                if not background:
+                    continue
+                if "cancel_inputs" in background:
+                    cancel = background.pop("cancel_inputs")
+                    for c in cancel:
+                        cancels[c] = background.get("manager")
 
-        _validate.validate_background_callbacks(self.callback_map)
+            if cancels:
+                for cancel_input, manager in cancels.items():
+                    # pylint: disable=cell-var-from-loop
+                    @self.callback(
+                        Output(cancel_input.component_id, "id"),
+                        cancel_input,
+                        prevent_initial_call=True,
+                        manager=manager,
+                    )
+                    def cancel_call(*_):
+                        job_ids = callback_context.args.getlist("cancelJob")
+                        executor = (
+                            _callback.context_value.get().background_callback_manager
+                        )
+                        if job_ids:
+                            secret = self._get_signing_secret()
+                            end_id = _callback.get_request_end_id(secret)
+                            scope = _callback_signing.job_scope(end_id)
+                            for job_id in job_ids:
+                                job = _callback_signing.unsign(secret, scope, job_id)
+                                if job is not None:
+                                    executor.terminate_job(job)
+                        return no_update
 
-        cancels = {}
-
-        for callback in self.callback_map.values():
-            background = callback.get("background")
-            if not background:
-                continue
-            if "cancel_inputs" in background:
-                cancel = background.pop("cancel_inputs")
-                for c in cancel:
-                    cancels[c] = background.get("manager")
-
-        if cancels:
-            for cancel_input, manager in cancels.items():
-                # pylint: disable=cell-var-from-loop
-                @self.callback(
-                    Output(cancel_input.component_id, "id"),
-                    cancel_input,
-                    prevent_initial_call=True,
-                    manager=manager,
-                )
-                def cancel_call(*_):
-                    job_ids = callback_context.args.getlist("cancelJob")
-                    executor = _callback.context_value.get().background_callback_manager
-                    if job_ids:
-                        secret = self._get_signing_secret()
-                        end_id = _callback.get_request_end_id(secret)
-                        scope = _callback_signing.job_scope(end_id)
-                        for job_id in job_ids:
-                            job = _callback_signing.unsign(secret, scope, job_id)
-                            if job is not None:
-                                executor.terminate_job(job)
-                    return no_update
+            # Publish the flag last, so a raced-in thread cannot see it set
+            # while the setup work above is still in flight.
+            self._got_first_request["setup_server"] = True
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
