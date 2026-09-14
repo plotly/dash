@@ -40,8 +40,9 @@ from dash._streaming import (
     ndjson_lines,
     sync_iter_asyncgen,
     to_json,
+    warn_if_sync_wsgi_worker,
 )
-from dash._stream_hub import pump_to_storage, subscribe_envelopes
+from dash._stream_hub import pump_to_storage, sync_downlink_marker
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -270,6 +271,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             keepalive = keepalive_seconds(
                 dash_app._stream_keepalive_interval  # pylint: disable=protected-access
             )
+            warn_if_sync_wsgi_worker()
             if marker.is_async:
                 # Drive the async frame generator on a private event-loop
                 # thread; the response iterator drains it synchronously.
@@ -295,12 +297,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
             # The client's single multiplexed streaming connection: relay this
             # connection's frames (published by streaming callbacks, possibly on
             # other workers, via shared storage) as an ordinary NDJSON stream.
-            storage = dash_app.shared_storage
-            frames = subscribe_envelopes(
-                storage, downlink["connectionId"], downlink.get("from")
-            )
-            marker = StreamedCallbackResponse(
-                frames, is_async=False, ctx=copy_context()
+            marker = sync_downlink_marker(
+                dash_app.shared_storage, downlink["connectionId"], downlink.get("from")
             )
             return _stream_response(marker, with_request_ctx=with_request_ctx)
 

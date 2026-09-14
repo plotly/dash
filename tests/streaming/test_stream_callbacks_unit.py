@@ -380,3 +380,48 @@ def test_stcb019_keepalive_frames_closes_generator_when_consumer_leaves():
             break
         time.sleep(0.01)
     assert closed == [True]
+
+
+def test_stcb021_sync_iter_asyncgen_should_stop():
+    """A truthy should_stop ends iteration (cancelling the source) even while
+    the generator is quiet, and is also polled while frames flow."""
+    closed = []
+    stop = {"now": False}
+
+    async def quiet():
+        try:
+            yield 0
+            await asyncio.sleep(30)
+            yield 1
+        finally:
+            closed.append(True)
+
+    gen = sync_iter_asyncgen(
+        quiet(), should_stop=lambda: stop["now"], check_interval=0.05
+    )
+    assert next(gen) == 0
+    stop["now"] = True
+    with pytest.raises(StopIteration):
+        next(gen)
+    for _ in range(200):
+        if closed:
+            break
+        time.sleep(0.01)
+    assert closed == [True]
+
+    calls = []
+
+    async def busy():
+        for i in range(10_000):
+            yield i
+            await asyncio.sleep(0.002)  # frames keep flowing; never quiet
+
+    def should_stop():
+        calls.append(True)
+        return len(calls) >= 2
+
+    seen = list(
+        sync_iter_asyncgen(busy(), should_stop=should_stop, check_interval=0.02)
+    )
+    assert len(calls) == 2
+    assert 0 < len(seen) < 10_000
