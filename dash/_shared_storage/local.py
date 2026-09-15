@@ -23,7 +23,7 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 from ._engine import DEFAULT_BUFFER, PollResult, StoreEngine
 from ._persistence import _Persistence, default_store_dir
@@ -248,7 +248,7 @@ class _LocalSubscription(Subscription):
         self._conn: Optional[socket.socket] = None
         # Async (ASGI) client-role connection: reader/writer + its loop, so
         # close() from another thread can shut it via the loop.
-        self._aconn = None
+        self._aconn: Optional[Tuple[asyncio.StreamReader, asyncio.StreamWriter]] = None
         self._aloop: Optional[asyncio.AbstractEventLoop] = None
         self._closed = threading.Event()
 
@@ -376,10 +376,11 @@ class _LocalSubscription(Subscription):
         for attempt in range(4):
             if self._closed.is_set():
                 return PollResult([], self._cursor, False)
-            if self._aconn is None:
+            aconn = self._aconn
+            if aconn is None:
                 prev_token = self._coord.token
                 try:
-                    self._aconn = await self._coord.aconnect()
+                    aconn = await self._coord.aconnect()
                 except (OSError, asyncio.TimeoutError) as exc:
                     if attempt >= 2:
                         self._coord.on_owner_lost()
@@ -390,7 +391,8 @@ class _LocalSubscription(Subscription):
                             ) from exc
                     await asyncio.sleep(0.1 * (attempt + 1))
                     continue
-            reader, writer = self._aconn
+                self._aconn = aconn
+            reader, writer = aconn
             try:
                 await asend_frame(writer, ["poll", self._topic, self._cursor, timeout])
                 resp = await arecv_frame(reader)

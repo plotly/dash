@@ -22,7 +22,7 @@ import asyncio
 import socket
 import struct
 import threading
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 from ._codec import decode, encode
 
@@ -146,7 +146,9 @@ class OwnerServer:
         self._engine.close()
 
 
-async def aconnect_to_owner(family: int, address, token: str, timeout: float = 5.0):
+async def aconnect_to_owner(
+    family: int, address, token: str, timeout: float = 5.0
+) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     """Async counterpart of :func:`connect_to_owner` (asyncio streams)."""
     if family == socket.AF_INET:
         host, port = address
