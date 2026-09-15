@@ -16,7 +16,17 @@ import mimetypes
 import hashlib
 import base64
 from urllib.parse import urlparse
-from typing import Any, Callable, Dict, Optional, Union, Sequence, Literal, List
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Optional,
+    Type,
+    Union,
+    Sequence,
+    Literal,
+    List,
+)
 
 import traceback
 
@@ -65,6 +75,11 @@ from . import _get_app
 from . import backends
 
 from ._get_app import with_app_context, with_app_context_factory
+from ._shared_storage import (
+    BaseSharedStorage,
+    LocalSharedStorage,
+    SharedStorageError,
+)
 from ._grouping import map_grouping, grouping_len, update_args_group
 from ._obsolete import ObsoleteChecker
 from ._callback_context import callback_context
@@ -493,6 +508,9 @@ class Dash(ObsoleteChecker):
         websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
         websocket_max_workers: Optional[int] = 4,
+        shared_storage: Optional[
+            Union[Type[BaseSharedStorage], BaseSharedStorage]
+        ] = LocalSharedStorage,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         **obsolete,
@@ -668,6 +686,14 @@ class Dash(ObsoleteChecker):
         self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
         self._websocket_max_workers = websocket_max_workers
+
+        # Shared storage (state manager + pub/sub). Started lazily on first
+        # access so it costs nothing until used and never binds in a gunicorn
+        # preload master or the Flask reloader parent -- only in the worker that
+        # actually touches it.
+        self._shared_storage_arg = shared_storage
+        self._shared_storage_instance: Optional[BaseSharedStorage] = None
+        self._shared_storage_lock = threading.Lock()
 
         self.logger = logging.getLogger(__name__)
 
@@ -928,6 +954,29 @@ class Dash(ObsoleteChecker):
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
             self.validation_layout = layout_value
+
+    @property
+    def shared_storage(self) -> BaseSharedStorage:
+        """The app's shared storage (state manager + pub/sub), backend-agnostic.
+
+        Started on first access in the worker that uses it. Access it from a
+        callback via ``dash.ctx.shared_storage``. Raises if the app was created
+        with ``shared_storage=None``.
+        """
+        if self._shared_storage_arg is None:
+            raise SharedStorageError(
+                "Shared storage is disabled for this app; construct it with "
+                "Dash(shared_storage=...) to use dash.ctx.shared_storage."
+            )
+        if self._shared_storage_instance is None:
+            with self._shared_storage_lock:
+                if self._shared_storage_instance is None:
+                    storage = self._shared_storage_arg
+                    if isinstance(storage, type):
+                        storage = storage()
+                    storage.start()
+                    self._shared_storage_instance = storage
+        return self._shared_storage_instance
 
     def _layout_value(self):
         if self._layout_is_function:
