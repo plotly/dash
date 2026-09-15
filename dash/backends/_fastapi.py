@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 
 try:
     from fastapi import FastAPI, Request, Response, Body
-    from fastapi.responses import JSONResponse, RedirectResponse
+    from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
     from starlette.datastructures import MutableHeaders
@@ -36,6 +36,25 @@ import janus
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate, get_app
+from dash._streaming import (
+    STREAM_HEADERS,
+    STREAM_MIMETYPE,
+    StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
+    keepalive_seconds,
+    marker_ndjson_aiter,
+    to_json,
+)
+from dash._callback import get_stream_connection_id
+from dash._stream_hub import (
+    STREAM_ACK,
+    STREAM_CANCEL_ACK,
+    async_downlink_marker,
+    cancel_stream,
+    install_stream_shutdown_handler,
+    shutdown_active_streams,
+    spawn_async_pump,
+)
 from dash.exceptions import PreventUpdate
 from dash._compression import decompress_payload
 from .base_server import (
@@ -49,12 +68,26 @@ from .ws import (
     run_callback_in_executor,
     run_callback_on_loop,
     make_callback_done_handler,
+    make_stream_frame_emitter,
     shutdown_ws_connection,
 )
 from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
+
+
+def _run_subprocess(args, env):
+    proc = subprocess.Popen(args, env=env)  # pylint: disable=R1732
+    try:
+        proc.wait()
+    except KeyboardInterrupt:
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except (KeyboardInterrupt, subprocess.TimeoutExpired):
+            proc.kill()
+            proc.wait()
 
 
 class FastAPIResponseAdapter(ResponseAdapter):
@@ -77,7 +110,8 @@ class FastAPIResponseAdapter(ResponseAdapter):
         """
         data = kwargs.get("data")
         if isinstance(data, (str, bytes, bytearray)):
-            resp = Response(content=data)
+            # Already-serialized JSON, like the Flask adapter's default content type.
+            resp = Response(content=data, media_type="application/json")
         else:
             resp = JSONResponse(content=data)
         if self._headers:
@@ -216,7 +250,17 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             except Exception:  # pylint: disable=broad-exception-caught
                 traceback.print_exc()
             await self._initialize_dev_tools()
-            await self.app(scope, receive, send)
+
+            async def _receive_with_shutdown():
+                msg = await receive()
+                if msg.get("type") == "lifespan.startup":
+                    _streaming_shutdown.clear()
+                    install_stream_shutdown_handler()
+                elif msg.get("type") == "lifespan.shutdown":
+                    shutdown_active_streams()
+                return msg
+
+            await self.app(scope, _receive_with_shutdown, send)
             return
 
         # Non-HTTP/WebSocket scopes pass through
@@ -257,6 +301,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
     websocket_capability: bool = True
+    downlink_mode: str = "stream"
 
     def __init__(self, server: FastAPI):
         super().__init__(server)
@@ -472,9 +517,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
 
             # Add any other kwargs as CLI args if needed
 
-            # pylint: disable=R1732
-            proc = subprocess.Popen(uvicorn_args, env=env)
-            proc.wait()
+            _run_subprocess(uvicorn_args, env)
 
     def make_response(
         self,
@@ -549,12 +592,53 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         )
 
     def serve_callback(self, dash_app: Dash):
-        async def _dispatch(request: Request):  # pylint: disable=unused-argument
+        def _ndjson_response(marker):
+            # pylint: disable=protected-access
+            return StreamingResponse(
+                marker_ndjson_aiter(
+                    marker,
+                    keepalive_seconds(dash_app._stream_keepalive_interval),
+                ),
+                media_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
+        async def _dispatch(
+            request: Request,
+        ):  # pylint: disable=unused-argument,too-many-return-statements
             # pylint: disable=protected-access
             if "gzip" in request.headers.get("content-encoding", ""):
                 body = decompress_payload(await self.request_adapter()._request.body())
             else:
                 body = self.request_adapter().get_json()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                connection_id = get_stream_connection_id()
+                if connection_id is None:
+                    return Response(status_code=403)
+                return _ndjson_response(
+                    async_downlink_marker(
+                        dash_app.shared_storage,
+                        connection_id,
+                        downlink.get("from"),
+                    )
+                )
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                # A tab closed while the shared downlink stays open for others:
+                # stop its pump. Same connection-id rule as the downlink: a page
+                # can only cancel its own streams.
+                connection_id = (
+                    get_stream_connection_id()
+                    if dash_app.shared_storage_enabled
+                    else None
+                )
+                if connection_id is None:
+                    return Response(status_code=403)
+                cancel_stream(
+                    dash_app.shared_storage, connection_id, cancel["requestId"]
+                )
+                return JSONResponse(content=STREAM_CANCEL_ACK)
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access
@@ -571,6 +655,29 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             response_data = ctx.run(partial_func)
             if inspect.iscoroutine(response_data):
                 response_data = await response_data
+            if isinstance(response_data, StreamedCallbackResponse):
+                stream_conn = body.get("streamConnection")
+                if stream_conn is not None:
+                    # A streamConnection asserts "multiplex me": the connection
+                    # id is derived from the signed end_id (never from the
+                    # client), so a page can only publish to its own topic. An
+                    # unverified connection is refused, never run some other way,
+                    # so no frame reaches a topic without a valid token.
+                    connection_id = (
+                        get_stream_connection_id()
+                        if dash_app.shared_storage_enabled
+                        else None
+                    )
+                    if connection_id is None:
+                        return Response(status_code=403)
+                    spawn_async_pump(
+                        dash_app.shared_storage,
+                        connection_id,
+                        stream_conn["requestId"],
+                        response_data,
+                    )
+                    return cb_ctx.dash_response.set_response(data=to_json(STREAM_ACK))
+                return _ndjson_response(response_data)
             return cb_ctx.dash_response.set_response(data=response_data)
 
         return _dispatch
@@ -817,6 +924,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                             renderer_id,
                             shutdown_event,
                         )
+                        stream_emitter = make_stream_frame_emitter(
+                            outbound_queue,
+                            request_id,
+                            renderer_id,
+                            shutdown_event,
+                        )
 
                         if is_async:
                             task = asyncio.create_task(
@@ -825,6 +938,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                                     payload,
                                     ws_cb,
                                     FastAPIResponseAdapter(),
+                                    stream_emitter,
                                 )
                             )
                             task.add_done_callback(done_handler)
@@ -837,6 +951,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                                 payload,
                                 ws_cb,
                                 FastAPIResponseAdapter(),
+                                stream_emitter,
                             )
                             # Set up done callback to send response
                             future.add_done_callback(done_handler)

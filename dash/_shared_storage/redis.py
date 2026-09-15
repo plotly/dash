@@ -137,6 +137,12 @@ class RedisSharedStorage(BaseSharedStorage):
 
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
         stream = self._stream(topic)
+        # Cursor past the head: it was minted before the stream was reset (the
+        # key was flushed, or evicted under a maxmemory policy). Gap so the
+        # consumer resets rather than blocking on XREAD until the sequence climbs
+        # back past the cursor.
+        if after_seq > self._head(topic):
+            return PollResult([], after_seq, True)
         # Gap: the next wanted sequence sits below the trimmed floor. Checked
         # before XREAD, which would otherwise silently resume at the floor.
         first = self._redis.xrange(stream, count=1)

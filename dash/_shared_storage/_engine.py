@@ -9,8 +9,12 @@ farther behind than the buffer holds gets an explicit gap signal instead of a
 silent hole.
 
 The engine is thread-safe and transport-agnostic; sockets live one layer up.
+``poll`` blocks a thread; ``apoll`` parks an asyncio task on a future that
+``publish`` resolves from whichever thread it runs on, so an ASGI server can
+hold thousands of subscriptions without an executor thread each.
 """
 
+import asyncio
 import threading
 import time
 from collections import deque
@@ -31,13 +35,23 @@ class PollResult(NamedTuple):
     gap: bool
 
 
+_Waiter = Tuple[asyncio.AbstractEventLoop, "asyncio.Future[None]"]
+
+
 class _Topic:  # pylint: disable=too-few-public-methods
-    __slots__ = ("seq", "buf", "cond")
+    __slots__ = ("seq", "buf", "cond", "waiters")
 
     def __init__(self, maxlen: int):
         self.seq = 0
         self.buf: Deque[Tuple[int, Any]] = deque(maxlen=maxlen)
         self.cond = threading.Condition()
+        # asyncio tasks parked in apoll(), woken by the next publish/close.
+        self.waiters: List[_Waiter] = []
+
+
+def _wake(fut: "asyncio.Future[None]") -> None:
+    if not fut.done():
+        fut.set_result(None)
 
 
 class StoreEngine:
@@ -58,6 +72,10 @@ class StoreEngine:
         """Wire persistence in after construction (so a recover() run that
         populates the store first does not re-mark every restored key dirty)."""
         self._persistence = persistence
+
+    @property
+    def closed(self) -> bool:
+        return self._closed
 
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
@@ -139,13 +157,38 @@ class StoreEngine:
             t.seq += 1
             t.buf.append((t.seq, message))
             t.cond.notify_all()
-            return t.seq
+            waiters, t.waiters = t.waiters, []
+            seq = t.seq
+        for loop, fut in waiters:
+            loop.call_soon_threadsafe(_wake, fut)
+        return seq
 
     def head_seq(self, topic: str) -> int:
         """Current highest sequence -- where a fresh subscription starts."""
         t = self._topic(topic)
         with t.cond:
             return t.seq
+
+    def _ready(self, t: _Topic, after_seq: int) -> Optional[PollResult]:
+        """Under ``t.cond``: the result available right now, or None to wait."""
+        if self._closed:
+            return PollResult([], after_seq, False)
+        # The cursor points past every sequence this topic has ever produced.
+        # That can only happen when the cursor was minted by a previous
+        # incarnation of the topic (the owner was re-elected, or the server
+        # restarted with an empty store) -- treat it as a gap so the consumer
+        # resets instead of stalling until the fresh sequence climbs back past
+        # the stale cursor.
+        if after_seq > t.seq:
+            return PollResult([], after_seq, True)
+        # The next message we want is after_seq + 1; if the buffer's oldest is
+        # newer than that, it was evicted -> gap.
+        if t.buf and after_seq + 1 < t.buf[0][0]:
+            return PollResult([], after_seq, True)
+        fresh = [m for (s, m) in t.buf if s > after_seq]
+        if fresh:
+            return PollResult(fresh, t.buf[-1][0], False)
+        return None
 
     def poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
         """Return messages with sequence > ``after_seq``, waiting up to
@@ -157,20 +200,40 @@ class StoreEngine:
         deadline = time.monotonic() + timeout
         with t.cond:
             while True:
-                if self._closed:
-                    return PollResult([], after_seq, False)
-                # The next message we want is after_seq + 1; if the buffer's
-                # oldest is newer than that, it was evicted -> gap.
-                if t.buf and after_seq + 1 < t.buf[0][0]:
-                    return PollResult([], after_seq, True)
-                fresh = [m for (s, m) in t.buf if s > after_seq]
-                if fresh:
-                    last = t.buf[-1][0]
-                    return PollResult(fresh, last, False)
+                res = self._ready(t, after_seq)
+                if res is not None:
+                    return res
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
                     return PollResult([], after_seq, False)
                 t.cond.wait(remaining)
+
+    async def apoll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
+        """:meth:`poll` for asyncio: parks the task on a future instead of
+        blocking a thread; ``publish`` (from any thread) or ``close`` wakes it."""
+        t = self._topic(topic)
+        loop = asyncio.get_running_loop()
+        deadline = time.monotonic() + timeout
+        while True:
+            with t.cond:
+                res = self._ready(t, after_seq)
+                if res is not None:
+                    return res
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    return PollResult([], after_seq, False)
+                fut: "asyncio.Future[None]" = loop.create_future()
+                waiter = (loop, fut)
+                t.waiters.append(waiter)
+            try:
+                await asyncio.wait_for(asyncio.shield(fut), remaining)
+            except asyncio.TimeoutError:
+                return PollResult([], after_seq, False)
+            finally:
+                if not fut.done():
+                    with t.cond:
+                        if waiter in t.waiters:
+                            t.waiters.remove(waiter)
 
     def close(self) -> None:
         self._closed = True
@@ -182,3 +245,6 @@ class StoreEngine:
         for t in topics:
             with t.cond:
                 t.cond.notify_all()
+                waiters, t.waiters = t.waiters, []
+            for loop, fut in waiters:
+                loop.call_soon_threadsafe(_wake, fut)

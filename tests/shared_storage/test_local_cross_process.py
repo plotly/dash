@@ -203,6 +203,46 @@ def test_reelection_recovers_persisted_data(tmp_path):
         o.stop()
 
 
+def test_patch_frame_published_over_socket(owner):
+    # Reproduces the multi-process failure: a client publishes a streaming frame
+    # carrying a dash.Patch to the owner over the socket. The frame must arrive
+    # reduced to plain JSON (the wire codec can't encode a Patch).
+    from dash import Patch
+    from dash._stream_hub import publish_frame, subscribe_envelopes
+
+    ns, _ = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    assert not client._coord.is_owner()  # publishing over the socket
+
+    out = []
+
+    def drain():
+        gen = subscribe_envelopes(client, "cp", replay_from=0)
+        for env in gen:
+            out.append(env)
+            if env["frame"].get("done"):
+                break
+        gen.close()
+
+    th = threading.Thread(target=drain, daemon=True)
+    th.start()
+    time.sleep(0.4)
+
+    patch = Patch()
+    patch["a"] = 1
+    publish_frame(client, "cp", "r1", {"response": {"o": {"children": patch}}})
+    publish_frame(client, "cp", "r1", {"done": True})
+
+    th.join(timeout=8)
+    assert (
+        out[0]["frame"]["response"]["o"]["children"]["__dash_patch_update"]
+        == "__dash_patch_update"
+    )
+    assert out[-1]["frame"] == {"done": True}
+    client.close()
+
+
 def _wait_until(pred, timeout):
     end = time.monotonic() + timeout
     while time.monotonic() < end:
@@ -210,3 +250,64 @@ def _wait_until(pred, timeout):
             return
         time.sleep(0.02)
     raise AssertionError("condition not met in time")
+
+
+def test_async_client_subscription_across_processes(owner):
+    """The asyncio subscription path (ASGI servers) long-polls the owner over an
+    asyncio-streams connection -- no executor thread -- and resumes after a
+    reconnect from its cursor."""
+    import asyncio
+
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    assert not client._coord.is_owner()
+    sub = client.subscribe("atopic")
+
+    async def consume():
+        got = []
+        async for msg in sub:
+            got.append(msg)
+            if len(got) == 3:
+                break
+        return got
+
+    async def scenario():
+        task = asyncio.ensure_future(consume())
+        await asyncio.sleep(0.3)  # the long-poll is established
+        for i in range(3):
+            o.do("publish", "atopic", f"a{i}")
+        return await asyncio.wait_for(task, 10)
+
+    assert asyncio.run(scenario()) == ["a0", "a1", "a2"]
+    sub.close()
+    client.close()
+
+
+def test_async_ops_across_processes(owner):
+    """aget/aset/apublish from a client worker's event loop go over an
+    asyncio-streams connection of their own: no executor, no blocking."""
+    import asyncio
+
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+
+    async def scenario():
+        await client.aset("k", {"v": 1})
+        assert await client.aget("k") == {"v": 1}
+        assert await client.aget("missing", "dflt") == "dflt"
+        sub = client.subscribe("apub", replay_from=0)
+        await client.apublish("apub", "m1")
+        await client.apublish("apub", "m2")
+        assert sub.poll(0.0) == [(1, "m1"), (2, "m2")]
+        sub.close()
+        await client.adelete("k")
+        assert await client.aget("k") is None
+        # Many concurrent calls share the one connection safely.
+        await asyncio.gather(*(client.aset(f"k{i}", i) for i in range(50)))
+        assert await client.aget("k49") == 49
+
+    asyncio.run(scenario())
+    assert client.get("k7") == 7  # landed in the owner, visible over the sync path
+    client.close()

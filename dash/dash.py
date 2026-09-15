@@ -448,6 +448,24 @@ class Dash(ObsoleteChecker):
     :param csrf_header_name: Name of the HTTP header to send the CSRF token in.
         Default ``'X-CSRFToken'``.
     :type csrf_header_name: string
+
+    :param stream_keepalive_interval: How long a streaming callback may
+        go without yielding, in milliseconds, before the response emits a
+        blank keepalive line. Default 15000. Keeps proxy idle timeouts
+        (nginx ``proxy_read_timeout`` defaults to 60s) from closing a stream
+        while the callback is still working. Set to None or 0 to disable.
+    :type stream_keepalive_interval: int or None
+
+    :param stream_poll_interval: On WSGI (Flask), how often the browser polls
+        for streamed frames while it has streams running, in milliseconds.
+        Default 100. It re-polls at this interval while frames are arriving
+        and backs off to five times it while quiet, so frame latency stays
+        within a few hundred milliseconds. A WSGI worker thread is held for the life of a
+        response, so instead of one open connection per browser (which pins a
+        thread each and exhausts a pool at a few dozen browsers) each poll
+        takes a thread for milliseconds. ASGI backends (Quart, FastAPI) keep
+        one open connection per browser instead and ignore this.
+    :type stream_poll_interval: int
     """
 
     _plotlyjs_url: str
@@ -508,6 +526,8 @@ class Dash(ObsoleteChecker):
         websocket_heartbeat_interval: Optional[int] = 30000,
         websocket_batch_delay: Optional[float] = 0.005,
         websocket_max_workers: Optional[int] = 4,
+        stream_keepalive_interval: Optional[int] = 15000,
+        stream_poll_interval: int = 100,
         shared_storage: Optional[
             Union[Type[BaseSharedStorage], BaseSharedStorage]
         ] = LocalSharedStorage,
@@ -686,6 +706,8 @@ class Dash(ObsoleteChecker):
         self._websocket_heartbeat_interval = websocket_heartbeat_interval
         self._websocket_batch_delay = websocket_batch_delay
         self._websocket_max_workers = websocket_max_workers
+        self._stream_keepalive_interval = stream_keepalive_interval
+        self._stream_poll_interval = stream_poll_interval
 
         # Shared storage (state manager + pub/sub). Started lazily on first
         # access so it costs nothing until used and never binds in a gunicorn
@@ -956,6 +978,14 @@ class Dash(ObsoleteChecker):
             self.validation_layout = layout_value
 
     @property
+    def shared_storage_enabled(self) -> bool:
+        """Whether this app has a shared-storage backend (not ``None``).
+
+        Cheap to read and does not start the backend, unlike ``shared_storage``.
+        """
+        return self._shared_storage_arg is not None
+
+    @property
     def shared_storage(self) -> BaseSharedStorage:
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
@@ -1170,6 +1200,24 @@ class Dash(ObsoleteChecker):
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
+        # Streaming callbacks use the single multiplexed downlink only when a
+        # shared-storage backend is available to broker frames across workers;
+        # otherwise the client streams each callback on its own connection.
+        # The worker script hosts that downlink in a SharedWorker so every tab
+        # of the browser shares one connection (browsers cap connections per
+        # host); the renderer falls back to a per-tab downlink without it.
+        # "mode" is how the downlink is served: one open connection (ASGI) or
+        # polling (WSGI, where an open response would pin a worker thread).
+        config["stream"] = {"enabled": self.shared_storage_enabled}
+        if self.shared_storage_enabled:
+            config["stream"].update(
+                worker_url=self._get_worker_url(
+                    "dash-renderer/build/dash-stream-worker.js"
+                ),
+                mode=self.backend.downlink_mode,
+                poll_interval=self._stream_poll_interval,
+            )
+
         return config
 
     def serve_reload_hash(self):
@@ -1197,13 +1245,14 @@ class Dash(ObsoleteChecker):
         """
         return self.backend.make_response("OK", status=200, mimetype="text/plain")
 
-    def _get_worker_url(self) -> str:
-        """Get the URL for the WebSocket worker script.
+    def _get_worker_url(
+        self, relative_path: str = "dash-renderer/build/dash-ws-worker.js"
+    ) -> str:
+        """Get the URL for a renderer worker script (WebSocket or streaming).
 
         Returns:
             The fingerprinted URL for the worker script served via component suites.
         """
-        relative_path = "dash-renderer/build/dash-ws-worker.js"
         namespace = "dash"
 
         # Register the path so it can be served
