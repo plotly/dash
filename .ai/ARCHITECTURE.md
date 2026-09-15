@@ -1100,9 +1100,14 @@ async def run(n):
 - `on_error` applies per-stream: its return value becomes a final frame.
   Without it, an exception mid-stream sends an error frame shown in devtools;
   frames already applied stay applied.
-- Works with sync generators (Flask/Quart/FastAPI) and async generators.
-  Sync generators warn at registration: they occupy a server worker (or WS
-  executor thread) for the whole stream — prefer `async def`.
+- The callback must be an `async def` generator on every backend; a
+  synchronous generator is rejected at registration, since it would occupy
+  a server worker (or WS executor thread) for the whole stream.
+- HTTP streams emit a blank keepalive line every `stream_keepalive_interval`
+  ms (`Dash(stream_keepalive_interval=15000)`) that the callback spends
+  between yields, so proxy idle timeouts (nginx `proxy_read_timeout`, 60s by
+  default) don't close a stream mid-thought; `None` disables it. The
+  renderer skips blank lines.
 - Incompatible with `background=True`, `mcp_enabled` and `api_endpoint`
   (validated at registration, when the function is inspected). Clientside
   callbacks cannot stream at all.
@@ -1129,6 +1134,81 @@ The renderer applies each frame on arrival (via the `sideUpdate` path, so
 `Patch` applies exactly once) and resolves the callback's execution promise
 with an empty result on the terminal frame.
 
+### Multiplexed downlink and the stream SharedWorker
+
+When the app has a shared-storage backend (the default `LocalSharedStorage`),
+HTTP streams do not each hold their own response. The callback's POST carries
+`streamConnection: {connectionId, requestId}` and returns a fast ack; a *pump*
+(`dash/_stream_hub.py`) drives the generator as an asyncio task and publishes
+each frame, tagged with the request id, to the connection's shared-storage
+topic. The browser's *downlink* (`streamDownlink: {connectionId, from}`) reads
+that topic and the client routes `{rid, frame, seq}` envelopes back by request
+id. Callback and downlink can be on different workers -- the store is the
+broker -- and a downlink always resumes from its last `seq`, replaying from the
+store's buffer, so nothing is lost across reconnects.
+
+The downlink is hosted in a SharedWorker (`dash-stream-worker.js`, served like
+the WebSocket worker; `config.stream.worker_url`) so **one connection per
+browser** serves every tab: browsers cap HTTP/1.1 connections per host at
+about six, and a downlink per tab stalls the sixth tab. The page talks to the
+worker through `SharedStreamClient` (`utils/streamClient.ts`); the worker runs
+the real `StreamClient` behind `attachStreamWorkerHost`
+(`utils/streamWorkerHost.ts`). Without SharedWorker support the page falls
+back to a downlink of its own.
+
+**Two downlink modes** (`config.stream.mode`, from `backend.downlink_mode`):
+
+- `stream` (ASGI: Quart, FastAPI): one long-lived NDJSON response per
+  browser. It costs no thread -- the subscription parks the task on a future
+  the store resolves (`StoreEngine.apoll`; asyncio streams to the owner from
+  other workers) -- so a single uvicorn worker holds thousands.
+- `poll` (WSGI: Flask): a WSGI response holds a worker thread for its whole
+  life, so an open downlink per browser exhausts a thread pool at a few dozen
+  browsers (gunicorn `--threads 2`: the second browser hung everything).
+  Instead each downlink request returns the frames queued since the cursor
+  and ends at once (`poll_downlink`, `Subscription.poll(0)`), taking a thread
+  for milliseconds. The worker re-polls every `stream_poll_interval` ms
+  (default 100) while frames flow, backs off to ten times that after two
+  empty polls, and polls immediately when a new stream starts. Pumps are
+  tasks on one event-loop thread per WSGI process (`pump_to_storage`), using
+  the store's loop-native `aget`/`apublish`, not a thread per stream.
+
+**Lifecycle.** Each downlink records its state under the connection's key in
+shared storage: open/closed for a long-lived downlink, a heartbeat (at most
+once a second per worker) for a polling one. Every pump checks it about every
+2s and cancels its callback at its current `await` once the browser is gone:
+a downlink closed for `DOWNLINK_GRACE` (10s), or no poll for `POLL_GRACE`
+(30s -- wide, because an overloaded pool delays polls and overload must cost
+latency, never the stream). A tab closing while other tabs keep the shared
+downlink sends `streamCancel: {connectionId, requestId}` per stream instead;
+the same pump check picks up the per-request key. A pump that stops publishes
+a terminal `{"done": true}` so a late-reconnecting client resolves.
+
+**Shutdown.** ASGI servers drain in-flight responses before stopping and a
+long-lived downlink never ends by itself, so the first downlink served
+installs a SIGINT/SIGTERM hook (`install_shutdown_hook`) that ends every live
+downlink and cancels every pump, then runs the server's own handler. WSGI
+pumps stop from an `atexit` hook. The pump loop thread also shrugs off
+exceptions raised into it (dash.testing's runner stops every thread an app
+started) and is recreated if it ever dies.
+
+**Scale** (this dev box, 8 cores shared with the load clients; a streaming
+callback per browser yielding every 0.5s; delivery = server yield to client
+receipt):
+
+| server | browsers | frame delay p50 / p95 |
+|---|---|---|
+| uvicorn, 1 worker (FastAPI) | 1000 | 3 ms / 22 ms |
+| uvicorn, 4 workers | 1000 | 1 ms / 3 ms |
+| gunicorn `-w 4 --threads 8` (Flask, poll) | 300 | 105 ms / 200 ms |
+| gunicorn `-w 8 --threads 8` | 1000 | 180 ms / 3.6 s (CPU-bound) |
+| gunicorn `-w 1` (sync worker) | 50 | 50 ms / 100 ms |
+
+Flask works and degrades gracefully -- the cost is a poll per browser per
+interval, so plan roughly one gunicorn worker per 150 concurrently streaming
+browsers -- but for thousands of concurrent streams the ASGI backends are
+the right tool: constant latency and a fraction of the CPU.
+
 ### Caveats
 
 - Streaming is inferred from the decorated function, so another decorator
@@ -1154,11 +1234,15 @@ with an empty result on the terminal frame.
 ### Key Files
 
 - `dash/_callback.py` - `add_context_stream`/`async_add_context_stream` wrappers, frame builders
-- `dash/_streaming.py` - `StreamedCallbackResponse` marker, context-safe iteration, NDJSON helpers
+- `dash/_streaming.py` - `StreamedCallbackResponse` marker, context-safe iteration, NDJSON helpers, sync-worker warning
+- `dash/_stream_hub.py` - multiplexed transport: `Downlink` record, `poll_downlink`, pumps (`pump_to_storage`/`apump_to_storage`), `cancel_stream`, shutdown hooks
+- `dash/_shared_storage/_engine.py`, `local.py` - `poll`/`apoll`, loop-native `aget`/`aset`/`apublish`, async client connection
 - `dash/backends/_flask.py`, `_quart.py`, `_fastapi.py` - streaming dispatch branches
 - `dash/backends/ws.py` - `make_stream_frame_emitter`, `consume_stream_frames`/`aconsume_stream_frames`
 - `dash/dash-renderer/src/actions/callbacks.ts` - `applyStreamFrame`, NDJSON reader, WS frame handling
 - `dash/dash-renderer/src/utils/workerClient.ts` - stream-aware `callback_response` handling
+- `dash/dash-renderer/src/utils/streamClient.ts` - `StreamClient` (downlink + uplinks), `SharedStreamClient` (page side of the worker), `getStreamClient`
+- `dash/dash-renderer/src/utils/streamWorkerHost.ts`, `src/workers/streamWorker.ts` - the stream SharedWorker
 
 ## Security
 

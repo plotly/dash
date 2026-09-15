@@ -455,6 +455,17 @@ class Dash(ObsoleteChecker):
         (nginx ``proxy_read_timeout`` defaults to 60s) from closing a stream
         while the callback is still working. Set to None or 0 to disable.
     :type stream_keepalive_interval: int or None
+
+    :param stream_poll_interval: On WSGI (Flask), how often the browser polls
+        for streamed frames while it has streams running, in milliseconds.
+        Default 100. It re-polls at this interval while frames are arriving
+        and backs off to ten times it while quiet, so frame latency stays
+        around the interval. A WSGI worker thread is held for the life of a
+        response, so instead of one open connection per browser (which pins a
+        thread each and exhausts a pool at a few dozen browsers) each poll
+        takes a thread for milliseconds. ASGI backends (Quart, FastAPI) keep
+        one open connection per browser instead and ignore this.
+    :type stream_poll_interval: int
     """
 
     _plotlyjs_url: str
@@ -516,6 +527,7 @@ class Dash(ObsoleteChecker):
         websocket_batch_delay: Optional[float] = 0.005,
         websocket_max_workers: Optional[int] = 4,
         stream_keepalive_interval: Optional[int] = 15000,
+        stream_poll_interval: int = 100,
         shared_storage: Optional[
             Union[Type[BaseSharedStorage], BaseSharedStorage]
         ] = LocalSharedStorage,
@@ -695,6 +707,7 @@ class Dash(ObsoleteChecker):
         self._websocket_batch_delay = websocket_batch_delay
         self._websocket_max_workers = websocket_max_workers
         self._stream_keepalive_interval = stream_keepalive_interval
+        self._stream_poll_interval = stream_poll_interval
 
         # Shared storage (state manager + pub/sub). Started lazily on first
         # access so it costs nothing until used and never binds in a gunicorn
@@ -1181,6 +1194,11 @@ class Dash(ObsoleteChecker):
         if self.backend.websocket_capability:
             config["websocket"] = {
                 "enabled": bool(self._websocket_callbacks),
+                # Whether any callback opts into the WebSocket transport
+                # (websocket=True). The renderer only opens the connection on
+                # page load when this or `enabled` is set; an app with no
+                # WebSocket callbacks gets no WebSocket.
+                "used": any(cb.get("websocket") for cb in self.callback_map.values()),
                 "url": self.config.requests_pathname_prefix + "_dash-ws-callback",
                 "worker_url": self._get_worker_url(),
                 "inactivity_timeout": self._websocket_inactivity_timeout,
@@ -1190,7 +1208,20 @@ class Dash(ObsoleteChecker):
         # Streaming callbacks use the single multiplexed downlink only when a
         # shared-storage backend is available to broker frames across workers;
         # otherwise the client streams each callback on its own connection.
+        # The worker script hosts that downlink in a SharedWorker so every tab
+        # of the browser shares one connection (browsers cap connections per
+        # host); the renderer falls back to a per-tab downlink without it.
+        # "mode" is how the downlink is served: one open connection (ASGI) or
+        # polling (WSGI, where an open response would pin a worker thread).
         config["stream"] = {"enabled": self.shared_storage_enabled}
+        if self.shared_storage_enabled:
+            config["stream"].update(
+                worker_url=self._get_worker_url(
+                    "dash-renderer/build/dash-stream-worker.js"
+                ),
+                mode=self.backend.downlink_mode,
+                poll_interval=self._stream_poll_interval,
+            )
 
         return config
 
@@ -1219,13 +1250,14 @@ class Dash(ObsoleteChecker):
         """
         return self.backend.make_response("OK", status=200, mimetype="text/plain")
 
-    def _get_worker_url(self) -> str:
-        """Get the URL for the WebSocket worker script.
+    def _get_worker_url(
+        self, relative_path: str = "dash-renderer/build/dash-ws-worker.js"
+    ) -> str:
+        """Get the URL for a renderer worker script (WebSocket or streaming).
 
         Returns:
             The fingerprinted URL for the worker script served via component suites.
         """
-        relative_path = "dash-renderer/build/dash-ws-worker.js"
         namespace = "dash"
 
         # Register the path so it can be served

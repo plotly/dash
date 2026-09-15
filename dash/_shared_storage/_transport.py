@@ -18,6 +18,7 @@ to the engine. ``poll`` blocks server-side up to its timeout (one thread per
 connection), which is what makes long-poll subscriptions cheap.
 """
 
+import asyncio
 import socket
 import struct
 import threading
@@ -53,6 +54,22 @@ def recv_frame(sock: socket.socket) -> Any:
     (length,) = struct.unpack("!I", header)
     body = _recv_exactly(sock, length)
     if body is None:
+        return EOF
+    return decode(body)
+
+
+async def asend_frame(writer: asyncio.StreamWriter, obj: Any) -> None:
+    data = encode(obj)
+    writer.write(struct.pack("!I", len(data)) + data)
+    await writer.drain()
+
+
+async def arecv_frame(reader: asyncio.StreamReader) -> Any:
+    try:
+        header = await reader.readexactly(4)
+        (length,) = struct.unpack("!I", header)
+        body = await reader.readexactly(length)
+    except asyncio.IncompleteReadError:
         return EOF
     return decode(body)
 
@@ -127,6 +144,21 @@ class OwnerServer:
         except OSError:
             pass
         self._engine.close()
+
+
+async def aconnect_to_owner(family: int, address, token: str, timeout: float = 5.0):
+    """Async counterpart of :func:`connect_to_owner` (asyncio streams)."""
+    if family == socket.AF_INET:
+        host, port = address
+        opener = asyncio.open_connection(host, port)
+    else:
+        opener = asyncio.open_unix_connection(address)
+    reader, writer = await asyncio.wait_for(opener, timeout)
+    await asend_frame(writer, token)
+    if await arecv_frame(reader) != OK:
+        writer.close()
+        raise ConnectionError("shared-storage owner rejected the handshake")
+    return reader, writer
 
 
 def connect_to_owner(family: int, address, token: str, timeout: float = 5.0):

@@ -2,58 +2,7 @@ import {expect} from 'chai';
 import {beforeEach, describe, it} from 'mocha';
 
 import {StreamClient} from '../src/utils/streamClient';
-
-// A controllable downlink body: push NDJSON lines and close it on demand.
-function makeDownlink() {
-    let controller;
-    const stream = new ReadableStream({
-        start(c) {
-            controller = c;
-        }
-    });
-    const enc = new TextEncoder();
-    return {
-        stream,
-        push: obj => controller.enqueue(enc.encode(JSON.stringify(obj) + '\n')),
-        pushRaw: text => controller.enqueue(enc.encode(text)),
-        close: () => controller.close()
-    };
-}
-
-// A fetch double that separates uplink POSTs from downlink POSTs.
-function makeFetch() {
-    const uplinks = [];
-    const downlinks = [];
-    const fetchImpl = (url, init) => {
-        const body = JSON.parse(init.body);
-        if (body.streamDownlink) {
-            const dl = makeDownlink();
-            downlinks.push({
-                from: body.streamDownlink.from,
-                signal: init.signal,
-                dl
-            });
-            return Promise.resolve(new Response(dl.stream, {status: 200}));
-        }
-        uplinks.push(body);
-        return Promise.resolve(
-            new Response(JSON.stringify({multi: true, stream: true}), {
-                status: 200
-            })
-        );
-    };
-    return {fetchImpl, uplinks, downlinks};
-}
-
-const tick = (ms = 5) => new Promise(r => setTimeout(r, ms));
-async function waitFor(pred, timeout = 1000) {
-    const end = Date.now() + timeout;
-    while (Date.now() < end) {
-        if (pred()) return;
-        await tick(5);
-    }
-    throw new Error('condition not met in time');
-}
+import {makeFetch, makePollFetch, tick, waitFor} from './helpers/streamMocks';
 
 describe('StreamClient', () => {
     let mock;
@@ -173,5 +122,98 @@ describe('StreamClient', () => {
         dl.push({rid: requestId, frame: {done: true}, seq: 2});
         await settled;
         expect(frames).to.deep.equal([{response: {a: 1}}]);
+    });
+
+    it('cancel drops the request, tells the server, and closes an idle downlink', async () => {
+        const frames = [];
+        const {requestId, settled} = client.start('/cb', {}, {output: 'a'}, f =>
+            frames.push(f)
+        );
+        await waitFor(() => mock.downlinks.length === 1);
+        expect(mock.uplinks[0].streamConnection.requestId).to.equal(requestId);
+
+        client.cancel(requestId, '/cb', {});
+        let err;
+        await settled.catch(e => (err = e));
+        expect(err.message).to.contain('cancelled');
+        expect(mock.cancels).to.deep.equal([
+            {connectionId: client.connectionId, requestId}
+        ]);
+        // No consumer remains, so the downlink is released.
+        expect(mock.downlinks[0].signal.aborted).to.equal(true);
+        // A late frame for the cancelled request is dropped, not delivered.
+        client.dispatchEnvelope({
+            rid: requestId,
+            frame: {response: {a: 1}},
+            seq: 1
+        });
+        expect(frames).to.deep.equal([]);
+    });
+});
+
+describe('StreamClient in poll mode', () => {
+    // A frame for whatever request id the first uplink carried.
+    const frameFor = rid => ({rid, frame: {response: {a: 1}}, seq: 1});
+    const doneFor = rid => ({rid, frame: {done: true}, seq: 2});
+
+    it('re-polls promptly while frames flow and resolves on done', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            mode: 'poll',
+            pollInterval: 20
+        });
+        const frames = [];
+        const settled = client.run('/cb', {}, {output: 'a'}, f =>
+            frames.push(f)
+        );
+        await waitFor(() => mock.uplinks.length === 1);
+        const rid = mock.uplinks[0].streamConnection.requestId;
+        mock.queue.push([frameFor(rid)], [doneFor(rid)]);
+        await settled;
+        expect(frames).to.deep.equal([{response: {a: 1}}]);
+        // The second poll resumed from the first frame's sequence.
+        const withFrames = mock.polls.filter(p => p.n > 0);
+        expect(withFrames.length).to.equal(2);
+        expect(mock.polls[mock.polls.length - 1].from).to.equal(1);
+        // Every response ended at once: nothing is left holding a connection.
+        expect(client.activeCount).to.equal(0);
+    });
+
+    it('backs off while quiet, bounded, and polls at once for a new stream', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            mode: 'poll',
+            pollInterval: 30
+        });
+        client.run('/cb', {}, {output: 'a'}, () => {});
+        await waitFor(() => mock.uplinks.length === 1);
+        // Idle polls hold the 30ms pace for two polls, then back off
+        // geometrically (60, 120, 240, 300 capped at 10x).
+        await waitFor(() => mock.polls.length >= 6, 4000);
+        const gaps = mock.polls.slice(1).map((p, i) => p.at - mock.polls[i].at);
+        expect(Math.max(gaps[0], gaps[1])).to.be.lessThan(90);
+        expect(gaps[3]).to.be.greaterThan(gaps[2] * 1.3);
+        expect(gaps[4]).to.be.greaterThan(gaps[3] * 1.3);
+        // A new stream wakes the pause: the next poll comes right away.
+        const before = mock.polls.length;
+        client.run('/cb', {}, {output: 'b'}, () => {});
+        await tick(15);
+        expect(mock.polls.length).to.be.greaterThan(before);
+    });
+
+    it('in stream mode, an empty clean end waits the reconnect delay (no hot loop)', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            reconnectDelay: 30
+        });
+        client.run('/cb', {}, {output: 'a'}, () => {});
+        await waitFor(() => mock.polls.length >= 4, 2000);
+        const span = mock.polls[3].at - mock.polls[0].at;
+        expect(span).to.be.at.least(80);
+        expect(span).to.be.lessThan(600);
+        expect(client.transport.mode).to.equal(undefined);
     });
 });

@@ -54,15 +54,20 @@ export async function initializeWebSocket(
     store: Store<IStoreState>,
     config: DashConfig
 ): Promise<void> {
-    // Initialize WebSocket if:
-    // 1. Global websocket is enabled, OR
-    // 2. WebSocket config is available (for per-callback websocket=True)
+    // Set up the WebSocket handlers whenever the server offers the transport,
+    // so a per-callback websocket=True can connect lazily when it first runs
+    // (workerClient.ensureConnected). Connect on page load only when the app
+    // actually uses the transport: globally, or by at least one callback. An
+    // app with no WebSocket callbacks must not open a WebSocket at all.
     const wsAvailable = !!(
         config.websocket?.url && config.websocket?.worker_url
     );
     if (!wsAvailable) {
         return;
     }
+    const connectEagerly = !!(
+        config.websocket?.enabled || config.websocket?.used
+    );
 
     // Check if SharedWorker is supported
     if (typeof SharedWorker === 'undefined') {
@@ -229,6 +234,10 @@ export async function initializeWebSocket(
     workerClient.onError = (message: string, code?: string) => {
         console.error(`[Dash] WebSocket error: ${message}`, code);
     };
+
+    if (!connectEagerly) {
+        return;
+    }
 
     // Connect to the worker
     const wsUrl = buildWebSocketUrl(config);

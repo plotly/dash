@@ -29,9 +29,7 @@ import contextlib
 import functools
 import logging
 import queue
-import sys
 import threading
-import time
 from typing import cast
 
 from ._utils import to_json as _to_json
@@ -70,24 +68,13 @@ class StreamedCallbackResponse:  # pylint: disable=too-few-public-methods
     of frame dicts. ``ctx`` is the ``contextvars`` snapshot captured when the
     callback was invoked; sync frame generators must be driven through it
     (``iter_stream_frames``) so ``dash.ctx``/``set_props`` keep working after
-    the dispatch function has returned. ``cancel``, when given, is a
-    thread-safe, idempotent callable that makes ``frames`` end promptly; the
-    transports call it when the client hangs up, because the generator itself
-    may be blocked in a step on another thread at that moment (the keepalive
-    driver) and cannot be closed from outside until that step returns.
+    the dispatch function has returned.
     """
 
-    def __init__(self, frames, is_async, ctx=None, cancel=None):
+    def __init__(self, frames, is_async, ctx=None):
         self.frames = frames
         self.is_async = is_async
         self.ctx = ctx
-        self.cancel = cancel
-
-    def cancel_source(self):
-        """Ask the frame source to stop, if it supports that; never raises."""
-        if self.cancel is not None:
-            with contextlib.suppress(Exception):
-                self.cancel()
 
 
 def iter_stream_frames(marker):
@@ -204,11 +191,6 @@ def _keepalive_frames(marker, keepalive):
                 return
     finally:
         stop.set()
-        # The pump only notices `stop` once it has a frame to hand over; a
-        # source that can be told to end (the multiplexed downlink relay,
-        # blocked in a store poll) is told now so the thread does not linger
-        # until the next frame arrives.
-        marker.cancel_source()
 
 
 async def _akeepalive_frames(frames, keepalive):
@@ -265,7 +247,6 @@ def ndjson_lines(marker, keepalive=None):
         # Reached on client disconnect too (the WSGI server closes the body
         # iterator): end the frame source rather than leave it to the GC.
         frames.close()
-        marker.cancel_source()
 
 
 async def andjson_lines(frames, keepalive=None):
@@ -286,18 +267,15 @@ def marker_ndjson_aiter(marker, keepalive=None):
     return andjson_lines(aiter_stream_frames(marker), keepalive)
 
 
-def sync_iter_asyncgen(agen, should_stop=None, check_interval=1.0):
+def sync_iter_asyncgen(agen):
     """Iterate an async generator from sync code (Flask + async gen).
 
     Runs the whole consumption on one task on a private event-loop thread so
     contextvars set inside the generator persist across steps. Closing this
     generator (client disconnect) cancels the task, which raises into the
-    user generator at its current yield.
-
-    ``should_stop``, when given, is consulted about every ``check_interval``
-    seconds -- whether frames are flowing or the generator is quiet -- and a
-    truthy answer ends iteration the same way closing it does. The pump that
-    feeds the multiplexed downlink uses it to notice the browser has gone.
+    user generator at its current yield, and waits briefly for the loop
+    thread to wind down so the generator's cleanup has run -- and so nothing
+    is left for interpreter shutdown to finalize noisily.
     """
     frame_queue: queue.Queue = queue.Queue()
     loop = asyncio.new_event_loop()
@@ -330,21 +308,9 @@ def sync_iter_asyncgen(agen, should_stop=None, check_interval=1.0):
 
     thread = threading.Thread(target=run, daemon=True, name="dash-stream-bridge")
     thread.start()
-    next_check = time.monotonic() + check_interval
     try:
         while True:
-            if should_stop is None:
-                kind, value = frame_queue.get()
-            else:
-                now = time.monotonic()
-                if now >= next_check:
-                    next_check = now + check_interval
-                    if should_stop():
-                        return
-                try:
-                    kind, value = frame_queue.get(timeout=next_check - now)
-                except queue.Empty:
-                    continue
+            kind, value = frame_queue.get()
             if kind == "item":
                 yield value
             elif kind == "error":
@@ -358,30 +324,6 @@ def sync_iter_asyncgen(agen, should_stop=None, check_interval=1.0):
         if task is not None and not task.done():
             with contextlib.suppress(RuntimeError):
                 loop.call_soon_threadsafe(task.cancel)
-
-
-_warned_sync_worker = False
-
-
-def warn_if_sync_wsgi_worker():
-    """Log once when a streaming response is served by a gunicorn sync worker.
-
-    A streaming response holds its worker for as long as the client stays
-    connected -- for the multiplexed downlink, the life of the browser tab.
-    A gunicorn ``sync`` worker serves exactly one request at a time, so the
-    first open tab stalls every other request that lands on that worker, and
-    the app appears to hang with no error anywhere. Worker classes are only
-    imported when selected, so the loaded module is a reliable tell.
-    """
-    global _warned_sync_worker  # pylint: disable=global-statement
-    if _warned_sync_worker or "gunicorn.workers.sync" not in sys.modules:
-        return
-    _warned_sync_worker = True
-    logger.warning(
-        "Streaming callbacks keep a response open for as long as the browser "
-        "tab streams, and a gunicorn 'sync' worker serves one request at a "
-        "time: with one open tab per worker, every other request will hang. "
-        "Run gunicorn with --threads N (N > the number of concurrently open "
-        "tabs per worker) or -k gevent, or use an ASGI backend "
-        "(Dash(backend='quart'|'fastapi'))."
-    )
+        # Bounded: a generator that ignores cancellation must not hang the
+        # request thread that is closing us.
+        thread.join(timeout=2.0)

@@ -44,7 +44,13 @@ from dash._streaming import (
     marker_ndjson_aiter,
     to_json,
 )
-from dash._stream_hub import STREAM_ACK, async_downlink_marker, spawn_async_pump
+from dash._stream_hub import (
+    STREAM_ACK,
+    STREAM_CANCEL_ACK,
+    async_downlink_marker,
+    cancel_stream,
+    spawn_async_pump,
+)
 from dash.exceptions import PreventUpdate
 from .base_server import (
     BaseDashServer,
@@ -266,6 +272,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
     websocket_capability: bool = True
+    downlink_mode: str = "stream"
 
     def __init__(self, server: FastAPI):
         super().__init__(server)
@@ -581,6 +588,16 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                         downlink.get("from"),
                     )
                 )
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                # A tab closed while the shared downlink stays open for others.
+                if dash_app.shared_storage_enabled:
+                    cancel_stream(
+                        dash_app.shared_storage,
+                        cancel["connectionId"],
+                        cancel["requestId"],
+                    )
+                return JSONResponse(content=STREAM_CANCEL_ACK)
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access

@@ -117,3 +117,40 @@ def test_multiple_subscribers_each_get_every_message():
     b = e.poll("t", cursor, timeout=1)
     assert a.messages == ["a", "b"]
     assert b.messages == ["a", "b"]  # independent cursors, both see all
+
+
+def test_apoll_wakes_on_publish_from_another_thread():
+    import asyncio
+
+    e = StoreEngine()
+
+    async def scenario():
+        loop = asyncio.get_running_loop()
+        threading.Timer(0.1, lambda: e.publish("t", "hello")).start()
+        started = loop.time()
+        res = await e.apoll("t", 0, timeout=5.0)
+        assert res.messages == ["hello"] and res.last_seq == 1 and not res.gap
+        assert loop.time() - started < 2.0  # woken, not timed out
+        # Nothing new: times out empty without blocking a thread.
+        res = await e.apoll("t", 1, timeout=0.05)
+        assert res.messages == [] and res.last_seq == 1
+        # A waiter that timed out was removed from the topic.
+        assert e._topic("t").waiters == []
+
+    asyncio.run(scenario())
+
+
+def test_apoll_wakes_on_close_and_serves_many_waiters():
+    import asyncio
+
+    e = StoreEngine()
+
+    async def scenario():
+        waits = [asyncio.ensure_future(e.apoll(f"t{i}", 0, 5.0)) for i in range(200)]
+        await asyncio.sleep(0.05)
+        assert sum(len(e._topic(f"t{i}").waiters) for i in range(200)) == 200
+        threading.Timer(0.05, e.close).start()
+        results = await asyncio.wait_for(asyncio.gather(*waits), 5.0)
+        assert all(r.messages == [] for r in results)
+
+    asyncio.run(scenario())

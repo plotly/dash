@@ -18,7 +18,8 @@ Semantics every backend must honor:
 """
 
 import abc
-from typing import Any, AsyncIterator, Iterator, Optional
+import asyncio
+from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
 
 
 class SharedStorageError(Exception):
@@ -47,7 +48,18 @@ class Subscription(abc.ABC):
     a consumer can record its position and resume a later subscription from it
     (via ``replay_from``) -- how the streaming downlink survives a reconnect
     without losing frames. The plain message iterators are built on these.
+
+    ``poll`` is the one-shot primitive underneath: everything published since
+    the cursor, waiting at most ``timeout`` seconds for something to arrive.
+    With ``timeout=0`` it never blocks, which is what lets a WSGI request serve
+    a downlink without holding its worker thread.
     """
+
+    @abc.abstractmethod
+    def poll(self, timeout: float = 0.0) -> List[Tuple[int, Any]]:
+        """Return the ``(sequence, message)`` pairs published since the cursor
+        and advance the cursor past them, waiting up to ``timeout`` seconds for
+        at least one. Raises ``SharedStorageGap`` if the buffer overran."""
 
     @abc.abstractmethod
     def iter_with_seq(self) -> Iterator[Any]:
@@ -117,6 +129,28 @@ class BaseSharedStorage(abc.ABC):
     @abc.abstractmethod
     def publish(self, topic: str, message: Any) -> None:
         """Append ``message`` to ``topic``; delivered to every current subscriber."""
+
+    # --- asyncio variants --------------------------------------------------
+    # Code running on an event loop (ASGI request handlers, the streaming
+    # pumps) must not block the loop on a round trip to the store. Backends
+    # should override these with loop-native I/O; the defaults run the sync
+    # operation on the loop's default executor.
+
+    async def aget(self, key: str, default: Any = None) -> Any:
+        return await asyncio.get_running_loop().run_in_executor(
+            None, self.get, key, default
+        )
+
+    async def aset(self, key: str, value: Any) -> None:
+        await asyncio.get_running_loop().run_in_executor(None, self.set, key, value)
+
+    async def adelete(self, key: str) -> None:
+        await asyncio.get_running_loop().run_in_executor(None, self.delete, key)
+
+    async def apublish(self, topic: str, message: Any) -> None:
+        await asyncio.get_running_loop().run_in_executor(
+            None, self.publish, topic, message
+        )
 
     @abc.abstractmethod
     def subscribe(self, topic: str, replay_from: Optional[int] = None) -> Subscription:

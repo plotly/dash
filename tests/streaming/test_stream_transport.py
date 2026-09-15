@@ -155,14 +155,6 @@ def _wait_for(pred, timeout=5.0):
     return pred()
 
 
-def _stream_threads():
-    return [
-        t.name
-        for t in threading.enumerate()
-        if t.name in ("dash-stream-pump", "dash-stream-bridge")
-    ]
-
-
 def test_downlink_gone_semantics(monkeypatch):
     from dash import _stream_hub as hub
 
@@ -194,24 +186,6 @@ def test_replaced_downlink_does_not_mark_the_new_one_closed():
     old.close()  # the stale relay winds down late
     assert storage.get(hub.connection_key(cid))["open"] is True
     new.close()
-    assert storage.get(hub.connection_key(cid))["open"] is False
-
-
-def test_sync_downlink_cancel_ends_quiet_relay_thread():
-    """Closing the NDJSON body (tab closed) ends the relay even when no frame
-    ever arrives to wake the keepalive pump thread."""
-    from dash import _stream_hub as hub
-    from dash._streaming import ndjson_lines
-
-    storage = _storage("cancel")
-    cid = "c3"
-    marker = hub.sync_downlink_marker(storage, cid)
-    body = ndjson_lines(marker, keepalive=0.05)
-    assert next(body) == "\n"  # keepalive: the topic is quiet
-    before = len(_stream_threads())
-    assert before >= 1
-    body.close()
-    assert _wait_for(lambda: len(_stream_threads()) < before, timeout=3.0)
     assert storage.get(hub.connection_key(cid))["open"] is False
 
 
@@ -254,16 +228,12 @@ def test_sync_pump_cancels_callback_when_downlink_gone(monkeypatch):
 
     state, frames = _cancellation_probe()
     marker = StreamedCallbackResponse(frames, is_async=True)
-    pump_th = threading.Thread(
-        target=hub.pump_to_storage, args=(storage, cid, "r1", marker), daemon=True
-    )
-    pump_th.start()
+    pump = hub.pump_to_storage(storage, cid, "r1", marker)
     assert _wait_for(lambda: len(out) >= 3)
     assert not state["cancelled"]
 
     downlink.close()  # the tab closed
-    pump_th.join(timeout=5)
-    assert not pump_th.is_alive()
+    pump.result(timeout=5)
     assert state["cancelled"]
     # Once the frames stop, the pump published a terminal frame so a client
     # that reconnects late resolves the request instead of waiting forever.
@@ -309,25 +279,302 @@ def test_async_pump_cancels_callback_when_downlink_gone(monkeypatch):
     assert got[-1] == {"done": True}
 
 
-def test_flask_downlink_close_over_http_releases_relay(monkeypatch):
-    """Over real Flask dispatch: the client dropping its downlink response
-    ends the relay thread and records the connection closed."""
+# --- explicit cancellation (a tab closed while the downlink stays shared) -----
+
+
+def test_stream_cancel_stops_sync_pump_while_downlink_stays_open(monkeypatch):
+    from dash import _stream_hub as hub
+    from dash._streaming import StreamedCallbackResponse
+
+    monkeypatch.setattr(hub, "DOWNLINK_CHECK_INTERVAL", 0.1)
+    storage = _storage("cancel-pump")
+    cid = "c6"
+    downlink = hub.Downlink(storage, cid)  # stays open: other tabs still stream
+    state, frames = _cancellation_probe()
+    marker = StreamedCallbackResponse(frames, is_async=True)
+    pump = hub.pump_to_storage(storage, cid, "r1", marker)
+    assert _wait_for(lambda: state["frames"] >= 2)
+
+    hub.cancel_stream(storage, cid, "r1")
+    pump.result(timeout=5)
+    assert state["cancelled"]
+    assert storage.get(hub.connection_key(cid))["open"] is True
+    # The pump cleans up its cancel record once it has acted on it.
+    assert storage.get(hub.cancel_key(cid, "r1")) is None
+    downlink.close()
+
+
+_CANCEL_BODY = {"streamCancel": {"connectionId": "c7", "requestId": "r9"}}
+
+
+def _assert_cancel_recorded(storage, status, data):
+    from dash import _stream_hub as hub
+
+    assert status == 200
+    assert data == hub.STREAM_CANCEL_ACK
+    assert hub.stream_cancelled(storage, "c7", "r9")
+
+
+def test_flask_stream_cancel_endpoint_records_the_request():
+    app, storage = _streaming_app()
+    response = app.server.test_client().post(
+        "/_dash-update-component", json=_CANCEL_BODY
+    )
+    _assert_cancel_recorded(storage, response.status_code, response.get_json())
+    storage.close()
+
+
+def test_fastapi_stream_cancel_endpoint_records_the_request():
+    pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    server = FastAPI()
+    app, storage = _streaming_app(server=server)
+    app._setup_server()  # pylint: disable=protected-access
+    with TestClient(server) as client:
+        response = client.post("/_dash-update-component", json=_CANCEL_BODY)
+    _assert_cancel_recorded(storage, response.status_code, response.json())
+    storage.close()
+
+
+def test_quart_stream_cancel_endpoint_records_the_request():
+    quart = pytest.importorskip("quart")
+
+    server = quart.Quart(__name__)
+    app, storage = _streaming_app(server=server)
+    app._setup_server()  # pylint: disable=protected-access
+
+    async def run():
+        resp = await server.test_client().post(
+            "/_dash-update-component", json=_CANCEL_BODY
+        )
+        return resp.status_code, await resp.get_json()
+
+    status, data = asyncio.run(run())
+    _assert_cancel_recorded(storage, status, data)
+    storage.close()
+
+
+# --- process shutdown: Ctrl+C ends live downlinks and pumps -------------------
+
+
+def test_shutdown_streams_ends_live_downlinks_and_pumps():
+    from dash import _stream_hub as hub
+    from dash._streaming import StreamedCallbackResponse
+
+    storage = _storage("shutdown")
+    downlink = hub.Downlink(storage, "c8")
+    relayed = []
+
+    def relay():
+        for env in downlink.envelopes():
+            relayed.append(env)
+
+    relay_th = threading.Thread(target=relay, daemon=True)
+    relay_th.start()
+
+    async def scenario():
+        state, frames = _cancellation_probe()
+        marker = StreamedCallbackResponse(frames, is_async=True)
+        hub.spawn_async_pump(storage, "c8", "r1", marker)
+        while state["frames"] < 2:
+            await asyncio.sleep(0.02)
+        hub.shutdown_streams()  # what the SIGINT hook does
+        await asyncio.sleep(0.3)
+        return state
+
+    state = asyncio.run(scenario())
+    assert state["cancelled"]
+    relay_th.join(timeout=3)
+    assert not relay_th.is_alive()  # the downlink response ended
+    assert storage.get(hub.connection_key("c8"))["open"] is False
+
+
+def test_install_shutdown_hook_chains_the_previous_handler(monkeypatch):
+    import signal
+
+    from dash import _stream_hub as hub
+
+    monkeypatch.setattr(hub, "_shutdown_hook_installed", False)
+    calls = []
+    monkeypatch.setattr(hub, "shutdown_streams", lambda: calls.append("streams"))
+    previous_int = signal.getsignal(signal.SIGINT)
+    previous_term = signal.getsignal(signal.SIGTERM)
+    try:
+        signal.signal(signal.SIGINT, lambda s, f: calls.append(("server", s)))
+        hub.install_shutdown_hook()
+        handler = signal.getsignal(signal.SIGINT)
+        assert handler is not previous_int
+        handler(signal.SIGINT, None)
+        # Dash's cleanup first, then the server's own handler, unchanged.
+        assert calls == ["streams", ("server", signal.SIGINT)]
+        # Installing again is a no-op.
+        hub.install_shutdown_hook()
+        assert signal.getsignal(signal.SIGINT) is handler
+    finally:
+        signal.signal(signal.SIGINT, previous_int)
+        signal.signal(signal.SIGTERM, previous_term)
+
+
+# --- polling downlink (WSGI) --------------------------------------------------
+
+
+def test_subscription_poll_is_non_blocking_and_advances_the_cursor():
+    storage = _storage("poll")
+    sub = storage.subscribe("t", replay_from=0)
+    started = time.monotonic()
+    assert sub.poll(0.0) == []
+    assert time.monotonic() - started < 0.2
+    storage.publish("t", {"n": 1})
+    storage.publish("t", {"n": 2})
+    assert sub.poll(0.0) == [(1, {"n": 1}), (2, {"n": 2})]
+    assert sub.poll(0.0) == []  # cursor advanced past what was delivered
+    sub.close()
+
+
+def test_poll_downlink_returns_queued_frames_and_heartbeats(monkeypatch):
+    from dash import _stream_hub as hub
+
+    storage = _storage("polldl")
+    cid = "c9"
+    assert hub.poll_downlink(storage, cid, 0) == []
+    record = storage.get(hub.connection_key(cid))
+    assert record["mode"] == "poll" and record["open"] is True
+    first_beat = record["at"]
+
+    hub.publish_frame(storage, cid, "r1", {"multi": True, "response": {"a": 1}})
+    hub.publish_frame(storage, cid, "r1", {"multi": True, "response": {"a": 2}})
+    envelopes = hub.poll_downlink(storage, cid, 0)
+    assert [e["frame"]["response"] for e in envelopes] == [{"a": 1}, {"a": 2}]
+    assert [e["seq"] for e in envelopes] == [1, 2]
+    # Resuming from the cursor yields only what came after it.
+    hub.publish_frame(storage, cid, "r1", {"multi": True, "response": {"a": 3}})
+    assert [e["seq"] for e in hub.poll_downlink(storage, cid, 2)] == [3]
+    # Heartbeats are throttled: many polls a second, one record write.
+    assert storage.get(hub.connection_key(cid))["at"] == first_beat
+    monkeypatch.setattr(hub.time, "time", lambda: first_beat + 2.0)
+    hub.poll_downlink(storage, cid, 3)
+    assert storage.get(hub.connection_key(cid))["at"] == first_beat + 2.0
+    monkeypatch.undo()
+
+    # A polling browser counts as present while its heartbeat is fresh, and as
+    # gone once it stops polling for longer than POLL_GRACE -- wider than the
+    # closed-downlink grace, since a loaded pool can delay polls for seconds.
+    beat = storage.get(hub.connection_key(cid))["at"]
+    assert not hub.downlink_gone(storage, cid, beat - 100)
+    monkeypatch.setattr(hub.time, "time", lambda: beat + hub.DOWNLINK_GRACE + 5.0)
+    assert not hub.downlink_gone(storage, cid, beat - 100)
+    monkeypatch.setattr(hub.time, "time", lambda: beat + hub.POLL_GRACE + 1.0)
+    assert hub.downlink_gone(storage, cid, beat - 100)
+    # ...but a pump that just started gives it the grace to resume polling.
+    assert not hub.downlink_gone(storage, cid, beat + hub.POLL_GRACE)
+
+
+def test_flask_downlink_poll_returns_at_once_with_the_queued_frames():
     from dash import _stream_hub as hub
 
     app, storage = _streaming_app()
-    app._stream_keepalive_interval = 50  # pylint: disable=protected-access
     client = app.server.test_client()
     cid = f"c-{uuid.uuid4().hex[:6]}"
-    before = len(_stream_threads())
+    hub.publish_frame(storage, cid, "r1", {"multi": True, "response": {"a": 1}})
+
+    started = time.monotonic()
     response = client.post(
         "/_dash-update-component",
         json={"streamDownlink": {"connectionId": cid, "from": 0}},
-        buffered=False,
     )
+    assert time.monotonic() - started < 1.0  # no waiting: a poll, not a stream
     assert response.status_code == 200
-    lines = response.iter_encoded()
-    assert next(lines) == b"\n"  # keepalive: nothing published yet
-    assert storage.get(hub.connection_key(cid))["open"] is True
-    response.close()  # the tab closed
-    assert _wait_for(lambda: len(_stream_threads()) <= before, timeout=3.0)
-    assert storage.get(hub.connection_key(cid))["open"] is False
+    assert response.content_type.startswith("application/x-ndjson")
+    lines = [line for line in response.get_data(as_text=True).split("\n") if line]
+    envelopes = [json.loads(line) for line in lines]
+    assert [e["frame"]["response"] for e in envelopes] == [{"a": 1}]
+    cursor = envelopes[-1]["seq"]
+
+    # Nothing new: an empty body, still at once.
+    response = client.post(
+        "/_dash-update-component",
+        json={"streamDownlink": {"connectionId": cid, "from": cursor}},
+    )
+    assert response.get_data(as_text=True) == ""
+    assert storage.get(hub.connection_key(cid))["mode"] == "poll"
+
+
+def test_wsgi_pumps_share_one_loop_thread():
+    """Many streams on a WSGI worker cost one pump thread, not one each."""
+    from dash import _stream_hub as hub
+    from dash._streaming import StreamedCallbackResponse
+
+    storage = _storage("pumploop")
+    hub.Downlink(storage, "c10")  # a browser is present
+    pumps = []
+    for i in range(25):
+        _state, frames = _cancellation_probe()
+        marker = StreamedCallbackResponse(frames, is_async=True)
+        pumps.append(hub.pump_to_storage(storage, "c10", f"r{i}", marker))
+    assert _wait_for(
+        lambda: storage.subscribe(hub.stream_topic("c10"), 0).poll(0.0) != []
+    )
+    names = [t.name for t in threading.enumerate() if t.name.startswith("dash-stream")]
+    assert names.count("dash-stream-pumps") == 1
+    assert "dash-stream-bridge" not in names and "dash-stream-pump" not in names
+    for i in range(25):
+        hub.cancel_stream(storage, "c10", f"r{i}")
+    for pump in pumps:
+        pump.result(timeout=5)
+
+
+def test_wsgi_pump_loop_survives_an_exception_raised_into_it():
+    """The pump loop carries every stream in the process: an exception raised
+    into its thread (a harness that stops every thread an app started) must
+    not end it -- and if the thread is gone anyway, the next pump gets a
+    fresh loop instead of being scheduled onto a dead one."""
+    import ctypes
+
+    from dash import _stream_hub as hub
+    from dash._streaming import StreamedCallbackResponse
+
+    storage = _storage("pumprestart")
+    hub.Downlink(storage, "c11")
+    hub._shared_pump_loop()  # pylint: disable=protected-access
+    thread = hub._pump_thread  # pylint: disable=protected-access
+    _state, frames = _cancellation_probe()
+    pump = hub.pump_to_storage(
+        storage, "c11", "r1", StreamedCallbackResponse(frames, is_async=True)
+    )
+    assert _wait_for(
+        lambda: storage.subscribe(hub.stream_topic("c11"), 0).poll(0.0) != []
+    )
+    # What dash.testing's KillerThread does to "new" threads at teardown.
+    assert (
+        ctypes.pythonapi.PyThreadState_SetAsyncExc(
+            ctypes.c_long(thread.ident), ctypes.py_object(SystemExit)
+        )
+        == 1
+    )
+    time.sleep(0.3)
+    assert thread.is_alive()  # shrugged it off
+    _state2, frames2 = _cancellation_probe()
+    pump2 = hub.pump_to_storage(
+        storage, "c11", "r2", StreamedCallbackResponse(frames2, is_async=True)
+    )
+    assert _wait_for(lambda: _state2["frames"] >= 2)
+    for rid in ("r1", "r2"):
+        hub.cancel_stream(storage, "c11", rid)
+    pump2.result(timeout=5)
+    pump.result(timeout=5)
+
+    # And if the thread is truly gone, the loop is replaced.
+    loop = hub._pump_loop  # pylint: disable=protected-access
+    loop.call_soon_threadsafe(loop.stop)
+    thread.join(timeout=5)
+    assert not thread.is_alive()
+    _state3, frames3 = _cancellation_probe()
+    pump3 = hub.pump_to_storage(
+        storage, "c11", "r3", StreamedCallbackResponse(frames3, is_async=True)
+    )
+    assert _wait_for(lambda: _state3["frames"] >= 1)
+    assert hub._pump_thread is not thread  # pylint: disable=protected-access
+    hub.cancel_stream(storage, "c11", "r3")
+    pump3.result(timeout=5)

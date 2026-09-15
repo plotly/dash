@@ -564,3 +564,30 @@ def test_init_app_server_false_pattern():
     # Verify both the app and backend use the external server
     assert app.server is external_server
     assert app.backend.server is external_server
+
+
+def test_websocket_config_used_flag_reflects_callbacks():
+    """An ASGI app advertises the WebSocket transport, but the renderer only
+    connects on page load when some callback uses it."""
+    pytest.importorskip("fastapi")
+    from dash import Dash, Input, Output, html
+
+    app = Dash(__name__, backend="fastapi")
+    app.layout = html.Div([html.Div(id="a"), html.Div(id="b")])
+
+    @app.callback(Output("a", "children"), Input("b", "children"))
+    def plain(_):
+        return ""
+
+    app._setup_server()  # pylint: disable=protected-access
+    ws = app._config()["websocket"]  # pylint: disable=protected-access
+    assert ws["enabled"] is False
+    assert ws["used"] is False
+
+    @app.callback(Output("b", "children"), Input("a", "children"), websocket=True)
+    def over_ws(_):
+        return ""
+
+    assert (
+        app._config()["websocket"]["used"] is True
+    )  # pylint: disable=protected-access

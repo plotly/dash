@@ -4,7 +4,6 @@ import asyncio
 import pkgutil
 import sys
 import mimetypes
-import threading
 import time
 import inspect
 import traceback
@@ -40,9 +39,13 @@ from dash._streaming import (
     ndjson_lines,
     sync_iter_asyncgen,
     to_json,
-    warn_if_sync_wsgi_worker,
 )
-from dash._stream_hub import pump_to_storage, sync_downlink_marker
+from dash._stream_hub import (
+    STREAM_CANCEL_ACK,
+    cancel_stream,
+    poll_downlink,
+    pump_to_storage,
+)
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -263,7 +266,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             self._create_redirect_function(app.get_relative_path(path)),
         )
 
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument,too-many-statements
     def serve_callback(self, dash_app: Dash):
         def _stream_response(
             marker: StreamedCallbackResponse, with_request_ctx: bool
@@ -271,7 +274,6 @@ class FlaskDashServer(BaseDashServer[Flask]):
             keepalive = keepalive_seconds(
                 dash_app._stream_keepalive_interval  # pylint: disable=protected-access
             )
-            warn_if_sync_wsgi_worker()
             if marker.is_async:
                 # Drive the async frame generator on a private event-loop
                 # thread; the response iterator drains it synchronously.
@@ -293,34 +295,46 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 headers=dict(STREAM_HEADERS),
             )
 
-        def _serve_downlink(downlink, with_request_ctx):
-            # The client's single multiplexed streaming connection: relay this
-            # connection's frames (published by streaming callbacks, possibly on
-            # other workers, via shared storage) as an ordinary NDJSON stream.
-            marker = sync_downlink_marker(
+        def _serve_downlink(downlink):
+            # One poll of the browser's multiplexed downlink: the frames queued
+            # since its cursor (published by streaming callbacks, possibly on
+            # other workers, via shared storage), as an NDJSON body that ends at
+            # once. A WSGI response holds a worker thread for its whole life,
+            # so the browser polls rather than keeping a connection open.
+            envelopes = poll_downlink(
                 dash_app.shared_storage, downlink["connectionId"], downlink.get("from")
             )
-            return _stream_response(marker, with_request_ctx=with_request_ctx)
+            body = "".join(to_json(envelope) + "\n" for envelope in envelopes)
+            return Response(
+                body, content_type=STREAM_MIMETYPE, headers=dict(STREAM_HEADERS)
+            )
+
+        def _serve_cancel(cancel):
+            # A tab closed while the shared downlink stays open for others:
+            # stop the pump driving this request, wherever it runs.
+            if dash_app.shared_storage_enabled:
+                cancel_stream(
+                    dash_app.shared_storage,
+                    cancel["connectionId"],
+                    cancel["requestId"],
+                )
+            return Response(to_json(STREAM_CANCEL_ACK), content_type="application/json")
 
         def _serve_uplink(marker, body, cb_ctx):
             # Multiplexed uplink: if the streaming callback carries a connection,
-            # pump its frames onto that connection's topic on a background thread
-            # and return immediately, so this request does not hold a connection
-            # for the stream's life. Returns None to fall back to inline NDJSON.
+            # pump its frames onto that connection's topic (a task on the
+            # process's pump loop) and return immediately, so this request does
+            # not hold a connection for the stream's life. Returns None to fall
+            # back to inline NDJSON.
             stream_conn = body.get("streamConnection")
             if not (stream_conn and dash_app.shared_storage_enabled):
                 return None
-            threading.Thread(
-                target=pump_to_storage,
-                args=(
-                    dash_app.shared_storage,
-                    stream_conn["connectionId"],
-                    stream_conn["requestId"],
-                    marker,
-                ),
-                daemon=True,
-                name="dash-stream-pump",
-            ).start()
+            pump_to_storage(
+                dash_app.shared_storage,
+                stream_conn["connectionId"],
+                stream_conn["requestId"],
+                marker,
+            )
             return cb_ctx.dash_response.set_response(
                 data=to_json({"multi": True, "stream": True})
             )
@@ -329,7 +343,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = request.get_json()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                return _serve_downlink(downlink, with_request_ctx=True)
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -356,9 +373,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = request.get_json()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                # Async view: request context lives in a different contextvars
-                # context, so stream_with_context must not wrap the body.
-                return _serve_downlink(downlink, with_request_ctx=False)
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
