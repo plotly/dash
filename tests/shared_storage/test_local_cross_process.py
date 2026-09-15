@@ -250,3 +250,64 @@ def _wait_until(pred, timeout):
             return
         time.sleep(0.02)
     raise AssertionError("condition not met in time")
+
+
+def test_async_client_subscription_across_processes(owner):
+    """The asyncio subscription path (ASGI servers) long-polls the owner over an
+    asyncio-streams connection -- no executor thread -- and resumes after a
+    reconnect from its cursor."""
+    import asyncio
+
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    assert not client._coord.is_owner()
+    sub = client.subscribe("atopic")
+
+    async def consume():
+        got = []
+        async for msg in sub:
+            got.append(msg)
+            if len(got) == 3:
+                break
+        return got
+
+    async def scenario():
+        task = asyncio.ensure_future(consume())
+        await asyncio.sleep(0.3)  # the long-poll is established
+        for i in range(3):
+            o.do("publish", "atopic", f"a{i}")
+        return await asyncio.wait_for(task, 10)
+
+    assert asyncio.run(scenario()) == ["a0", "a1", "a2"]
+    sub.close()
+    client.close()
+
+
+def test_async_ops_across_processes(owner):
+    """aget/aset/apublish from a client worker's event loop go over an
+    asyncio-streams connection of their own: no executor, no blocking."""
+    import asyncio
+
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+
+    async def scenario():
+        await client.aset("k", {"v": 1})
+        assert await client.aget("k") == {"v": 1}
+        assert await client.aget("missing", "dflt") == "dflt"
+        sub = client.subscribe("apub", replay_from=0)
+        await client.apublish("apub", "m1")
+        await client.apublish("apub", "m2")
+        assert sub.poll(0.0) == [(1, "m1"), (2, "m2")]
+        sub.close()
+        await client.adelete("k")
+        assert await client.aget("k") is None
+        # Many concurrent calls share the one connection safely.
+        await asyncio.gather(*(client.aset(f"k{i}", i) for i in range(50)))
+        assert await client.aget("k49") == 49
+
+    asyncio.run(scenario())
+    assert client.get("k7") == 7  # landed in the owner, visible over the sync path
+    client.close()

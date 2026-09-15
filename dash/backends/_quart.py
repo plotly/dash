@@ -52,7 +52,9 @@ from dash._streaming import (
 from dash._callback import get_stream_connection_id
 from dash._stream_hub import (
     STREAM_ACK,
+    STREAM_CANCEL_ACK,
     async_downlink_marker,
+    cancel_stream,
     install_stream_shutdown_handler,
     shutdown_active_streams,
     spawn_async_pump,
@@ -110,6 +112,7 @@ class QuartResponseAdapter(ResponseAdapter):
 
 class QuartDashServer(BaseDashServer[Quart]):
     websocket_capability: bool = True
+    downlink_mode: str = "stream"
 
     def __init__(self, server: Quart) -> None:
         super().__init__(server)
@@ -431,7 +434,7 @@ class QuartDashServer(BaseDashServer[Quart]):
                 headers=dict(STREAM_HEADERS),
             )
 
-        async def _dispatch():
+        async def _dispatch():  # pylint: disable=too-many-return-statements
             adapter = QuartRequestAdapter()
             if "gzip" in adapter.request.headers.get("Content-Encoding", ""):
                 body = decompress_payload(await adapter.request.get_data())
@@ -448,6 +451,22 @@ class QuartDashServer(BaseDashServer[Quart]):
                     downlink.get("from"),
                 )
                 return _ndjson_response(marker)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                # A tab closed while the shared downlink stays open for others:
+                # stop its pump. Same connection-id rule as the downlink: a page
+                # can only cancel its own streams.
+                connection_id = (
+                    get_stream_connection_id()
+                    if dash_app.shared_storage_enabled
+                    else None
+                )
+                if connection_id is None:
+                    return Response(status=403)  # type: ignore[return-value]
+                cancel_stream(
+                    dash_app.shared_storage, connection_id, cancel["requestId"]
+                )
+                return jsonify(STREAM_CANCEL_ACK)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             # pylint: disable=protected-access

@@ -43,6 +43,14 @@ class PollingSubscription(Subscription):
         for offset, message in enumerate(res.messages):
             yield first + offset, message
 
+    def poll(self, timeout: float = 0.0):
+        res = self._poll_fn(self._topic, self._cursor, timeout)
+        if res.gap:
+            raise self._gap()
+        pairs = list(self._with_seq(res))
+        self._cursor = res.last_seq
+        return pairs
+
     def iter_with_seq(self):
         try:
             while not self._closed.is_set():

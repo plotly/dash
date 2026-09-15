@@ -5,7 +5,6 @@ import inspect
 import mimetypes
 import pkgutil
 import sys
-import threading
 import time
 import traceback
 
@@ -47,7 +46,12 @@ from dash._streaming import (
     sync_iter_asyncgen,
     to_json,
 )
-from dash._stream_hub import pump_to_storage, subscribe_envelopes
+from dash._stream_hub import (
+    STREAM_CANCEL_ACK,
+    cancel_stream,
+    poll_downlink,
+    pump_to_storage,
+)
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
 
@@ -271,15 +275,11 @@ class FlaskDashServer(BaseDashServer[Flask]):
     # pylint: disable=unused-argument,too-many-statements
     def serve_callback(self, dash_app: Dash):
         def _stream_response(
-            marker: StreamedCallbackResponse,
-            with_request_ctx: bool,
-            max_keepalive: float | None = None,
+            marker: StreamedCallbackResponse, with_request_ctx: bool
         ) -> Response:
             keepalive = keepalive_seconds(
                 dash_app._stream_keepalive_interval  # pylint: disable=protected-access
             )
-            if max_keepalive is not None:
-                keepalive = min(keepalive or max_keepalive, max_keepalive)
             if marker.is_async:
                 # Drive the async frame generator on a private event-loop
                 # thread; the response iterator drains it synchronously.
@@ -301,40 +301,48 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 headers=dict(STREAM_HEADERS),
             )
 
-        def _serve_downlink(downlink, with_request_ctx):
-            # The client's single multiplexed streaming connection: relay this
-            # connection's frames (published by streaming callbacks, possibly on
-            # other workers, via shared storage) as an ordinary NDJSON stream.
+        def _serve_downlink(downlink):
+            # One poll of the browser's multiplexed downlink: the frames queued
+            # since its cursor (published by streaming callbacks, possibly on
+            # other workers, via shared storage), as an NDJSON body that ends at
+            # once. A WSGI response holds a worker thread for its whole life,
+            # so the browser polls rather than keeping a connection open.
             # The connection id is derived from the signed end_id, never taken
             # from the client, so a page can only ever read its own topic.
             connection_id = get_stream_connection_id()
             if connection_id is None:
                 return Response(status=403)
-            storage = dash_app.shared_storage
-            frames = subscribe_envelopes(storage, connection_id, downlink.get("from"))
-            marker = StreamedCallbackResponse(
-                frames, is_async=False, ctx=copy_context()
+            envelopes = poll_downlink(
+                dash_app.shared_storage, connection_id, downlink.get("from")
             )
-            # A WSGI server only notices the client hung up when it next
-            # writes. The client closes the downlink as soon as its streams are
-            # done, and on a single sync worker the next uplink waits behind
-            # this response, so keep the write cadence short. This applies even
-            # when keepalives are disabled for callback streams: without a
-            # write the hang-up is never noticed.
-            return _stream_response(
-                marker, with_request_ctx=with_request_ctx, max_keepalive=1.0
+            body = "".join(to_json(envelope) + "\n" for envelope in envelopes)
+            return Response(
+                body, content_type=STREAM_MIMETYPE, headers=dict(STREAM_HEADERS)
             )
+
+        def _serve_cancel(cancel):
+            # A tab closed while the shared downlink stays open for others:
+            # stop the pump driving this request, wherever it runs. Same
+            # connection-id rule as the downlink: a page can only cancel its own.
+            connection_id = (
+                get_stream_connection_id() if dash_app.shared_storage_enabled else None
+            )
+            if connection_id is None:
+                return Response(status=403)
+            cancel_stream(dash_app.shared_storage, connection_id, cancel["requestId"])
+            return Response(to_json(STREAM_CANCEL_ACK), content_type="application/json")
 
         def _serve_uplink(marker, body, cb_ctx):
             # Multiplexed uplink: a streamConnection asserts "multiplex me". Pump
-            # the frames onto that connection's topic on a background thread and
-            # return immediately, so this request does not hold a connection for
-            # the stream's life. The connection id is derived from the signed
-            # end_id, never from the client, so a page can only publish to its
-            # own topic; an unverified connection is refused (403), never run
-            # some other way, so no frame can reach a topic without a valid
-            # token. Returns None only when there is no multiplex intent (no
-            # streamConnection), to fall back to inline NDJSON.
+            # the frames onto that connection's topic (a task on the process's
+            # pump loop) and return immediately, so this request does not hold a
+            # connection for the stream's life. The connection id is derived
+            # from the signed end_id, never from the client, so a page can only
+            # publish to its own topic; an unverified connection is refused
+            # (403), never run some other way, so no frame can reach a topic
+            # without a valid token. Returns None only when there is no
+            # multiplex intent (no streamConnection), to fall back to inline
+            # NDJSON.
             stream_conn = body.get("streamConnection")
             if stream_conn is None:
                 return None
@@ -343,17 +351,12 @@ class FlaskDashServer(BaseDashServer[Flask]):
             )
             if connection_id is None:
                 return Response(status=403)
-            threading.Thread(
-                target=pump_to_storage,
-                args=(
-                    dash_app.shared_storage,
-                    connection_id,
-                    stream_conn["requestId"],
-                    marker,
-                ),
-                daemon=True,
-                name="dash-stream-pump",
-            ).start()
+            pump_to_storage(
+                dash_app.shared_storage,
+                connection_id,
+                stream_conn["requestId"],
+                marker,
+            )
             return cb_ctx.dash_response.set_response(
                 data=to_json({"multi": True, "stream": True})
             )
@@ -369,7 +372,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = _read_body()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                return _serve_downlink(downlink, with_request_ctx=True)
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -396,7 +402,10 @@ class FlaskDashServer(BaseDashServer[Flask]):
             body = _read_body()
             downlink = body.get("streamDownlink")
             if downlink is not None:
-                return _serve_downlink(downlink, with_request_ctx=False)
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)

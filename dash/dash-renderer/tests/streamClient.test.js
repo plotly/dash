@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import {beforeEach, describe, it} from 'mocha';
 
 import {StreamClient} from '../src/utils/streamClient';
+import {makePollFetch} from './helpers/streamMocks';
 
 // A controllable downlink body: push NDJSON lines and close it on demand.
 function makeDownlink() {
@@ -426,5 +427,118 @@ describe('StreamClient', () => {
         });
         await second;
         expect(client.activeCount).to.equal(0);
+    });
+});
+
+describe('StreamClient cancellation', () => {
+    it('cancel drops the request, tells the server (same endId), and closes an idle downlink', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({fetchImpl: mock.fetchImpl});
+        const frames = [];
+        const {requestId, settled} = client.start(
+            '/cb',
+            {},
+            'e1',
+            {output: 'a'},
+            f => frames.push(f)
+        );
+        await waitFor(() => mock.polls.length >= 1);
+        expect(mock.uplinks[0].streamConnection.requestId).to.equal(requestId);
+
+        client.cancel(requestId, '/cb', {});
+        let err;
+        await settled.catch(e => (err = e));
+        expect(err.message).to.contain('cancelled');
+        expect(mock.cancels).to.deep.equal([{url: '/cb?endId=e1', requestId}]);
+        // A late frame for the cancelled request is dropped, not delivered.
+        client.dispatchEnvelope({
+            rid: requestId,
+            frame: {response: {a: 1}},
+            seq: 1
+        });
+        expect(frames).to.deep.equal([]);
+        expect(client.activeCount).to.equal(0);
+    });
+
+    it("pins the first stream's endId for the connection while streams are in flight", async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({fetchImpl: mock.fetchImpl});
+        client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
+        client.run('/cb', {}, 'e2', {output: 'b'}, () => {});
+        await waitFor(() => mock.uplinks.length === 2);
+        expect(mock.uplinks.map(u => u.url)).to.deep.equal([
+            '/cb?endId=e1',
+            '/cb?endId=e1'
+        ]);
+        expect(client.connectionEndId).to.equal('e1');
+    });
+});
+
+describe('StreamClient in poll mode', () => {
+    const frameFor = rid => ({rid, frame: {response: {a: 1}}, seq: 1});
+    const doneFor = rid => ({rid, frame: {done: true}, seq: 2});
+
+    it('re-polls promptly while frames flow and resolves on done', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            mode: 'poll',
+            pollInterval: 20
+        });
+        const frames = [];
+        const settled = client.run('/cb', {}, 'e1', {output: 'a'}, f =>
+            frames.push(f)
+        );
+        await waitFor(() => mock.uplinks.length === 1);
+        const rid = mock.uplinks[0].streamConnection.requestId;
+        mock.queue.push([frameFor(rid)], [doneFor(rid)]);
+        await settled;
+        expect(frames).to.deep.equal([{response: {a: 1}}]);
+        const withFrames = mock.polls.filter(p => p.n > 0);
+        expect(withFrames.length).to.equal(2);
+        expect(mock.polls[mock.polls.length - 1].from).to.equal(1);
+        expect(mock.polls[0].url).to.equal('/cb?endId=e1');
+        expect(client.activeCount).to.equal(0);
+    });
+
+    it('backs off while quiet, bounded, and polls at once for a new stream', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            mode: 'poll',
+            pollInterval: 30
+        });
+        client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
+        await waitFor(() => mock.uplinks.length === 1);
+        // Idle polls hold the 30ms pace for two polls, then back off
+        // geometrically (60, 120, 150 capped at 5x).
+        await waitFor(() => mock.polls.length >= 7, 4000);
+        const gaps = mock.polls.slice(1).map((p, i) => p.at - mock.polls[i].at);
+        expect(Math.max(gaps[0], gaps[1])).to.be.lessThan(90);
+        expect(gaps[3]).to.be.greaterThan(gaps[2] * 1.3);
+        expect(gaps[4]).to.be.greaterThan(gaps[2]);
+        // The cap holds: no pause grows past five intervals.
+        expect(Math.max(gaps[4], gaps[5])).to.be.lessThan(30 * 5 + 70);
+        // A new stream wakes the pause: the next poll comes right away.
+        const before = mock.polls.length;
+        client.run('/cb', {}, 'e1', {output: 'b'}, () => {});
+        await waitFor(() => mock.uplinks.length === 2);
+        await tick(15);
+        expect(mock.polls.length).to.be.greaterThan(before);
+    });
+
+    it('in stream mode, an empty clean end backs off like a drop (no hot loop)', async () => {
+        const mock = makePollFetch();
+        const client = new StreamClient({
+            fetchImpl: mock.fetchImpl,
+            reconnectDelay: 30,
+            maxReconnectDelay: 30
+        });
+        client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
+        await waitFor(() => mock.polls.length >= 4, 2000);
+        const span = mock.polls[3].at - mock.polls[0].at;
+        expect(span).to.be.at.least(80);
+        expect(span).to.be.lessThan(600);
+        expect(client.transport.mode).to.equal(undefined);
     });
 });

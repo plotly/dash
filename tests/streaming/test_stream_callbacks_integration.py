@@ -30,10 +30,12 @@ def test_stst001_stream_progressive_render(dash_duo):
         prevent_initial_call=True,
     )
     async def stream_cb(n):
+        # Each step stays up well past the driver's 0.5s poll interval, so
+        # the wait below cannot miss it.
         yield "step-1"
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1.0)
         yield "step-2"
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1.0)
         yield "done"
 
     dash_duo.start_server(app)
@@ -249,4 +251,82 @@ def test_stst020_multiplexed_transport_over_shared_storage(dash_duo):
     dash_duo.find_element("#btn").click()
     dash_duo.wait_for_text_to_equal("#a", "a2")
     dash_duo.wait_for_text_to_equal("#b", "b2")
+
+
+def _downlink_connections(app):
+    """Record the endIds the downlink is polled with: the SharedWorker gives one
+    browser one connection (keyed on the first tab's endId), however many tabs
+    it has."""
+    from flask import request
+
+    seen = set()
+
+    @app.server.before_request
+    def _record():
+        if request.path.endswith("_dash-update-component"):
+            body = request.get_json(silent=True) or {}
+            if "streamDownlink" in body:
+                seen.add(request.args.get("endId"))
+
+    return seen
+
+
+def _open_tab(dash_duo):
+    dash_duo.driver.switch_to.new_window("tab")
+    dash_duo.driver.get(dash_duo.server_url)
+
+
+def test_stst010_many_tabs_share_one_downlink(dash_duo):
+    """Browsers cap connections per host (~6); with the downlink hosted in a
+    SharedWorker, eight streaming tabs share one and all keep streaming."""
+    app = Dash(__name__)
+    app.layout = html.Div([html.Div(id="out", children="idle")])
+
+    @app.callback(Output("out", "children"), Input("out", "id"))
+    async def stream_cb(_):
+        for i in range(120):
+            yield f"tick {i}"
+            await asyncio.sleep(0.5)
+
+    connections = _downlink_connections(app)
+    dash_duo.start_server(app)
+    dash_duo.wait_for_contains_text("#out", "tick")
+    for _ in range(7):
+        _open_tab(dash_duo)
+        # Every new tab streams -- the sixth and later would stall with a
+        # downlink per tab.
+        dash_duo.wait_for_contains_text("#out", "tick")
+    assert len(connections) == 1  # one shared downlink for the whole browser
+    assert dash_duo.get_logs() == []
+
+
+def test_stst011_closing_a_tab_cancels_its_stream(dash_duo):
+    """A tab closing while others keep the shared downlink open cancels that
+    tab's callback server-side instead of running it to completion."""
+    app = Dash(__name__)
+    app.layout = html.Div([html.Div(id="out", children="idle")])
+    events = []
+
+    @app.callback(Output("out", "children"), Input("out", "id"))
+    async def stream_cb(_):
+        try:
+            for i in range(120):
+                yield f"tick {i}"
+                await asyncio.sleep(0.5)
+        except asyncio.CancelledError:
+            events.append("cancelled")
+            raise
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_contains_text("#out", "tick")
+    first = dash_duo.driver.current_window_handle
+    _open_tab(dash_duo)
+    dash_duo.wait_for_contains_text("#out", "tick")
+
+    dash_duo.driver.close()  # the second tab goes away
+    dash_duo.driver.switch_to.window(first)
+    until(lambda: events == ["cancelled"], timeout=10)
+    # The surviving tab keeps streaming on the shared downlink.
+    before = dash_duo.find_element("#out").text
+    until(lambda: dash_duo.find_element("#out").text != before, timeout=5)
     assert dash_duo.get_logs() == []

@@ -482,6 +482,16 @@ def test_stcb024_cancelled_pump_publishes_terminal_error():
         def publish(self, topic, message):
             published.append((topic, message))
 
+        # The pump talks to the store through its loop-native methods.
+        async def apublish(self, topic, message):
+            self.publish(topic, message)
+
+        async def aget(self, key, default=None):
+            return default
+
+        async def adelete(self, key):
+            pass
+
     async def frames():
         yield {"multi": True, "response": {"out": {"children": 1}}}
         await asyncio.sleep(10)

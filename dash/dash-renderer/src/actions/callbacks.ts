@@ -536,7 +536,8 @@ function applyStreamFrame(
 
 /**
  * Run a streaming callback over the multiplexed transport: a single downlink
- * shared by all of the page's streams (see utils/streamClient). Frames are
+ * shared by all of the page's streams -- and, hosted in a SharedWorker, by all
+ * of the browser's tabs (see utils/streamClient). Frames are
  * applied as they arrive, so the resolved value is empty like the WebSocket
  * streaming path.
  */
@@ -556,7 +557,7 @@ async function handleStreamCallback(
         headers: getCSRFHeader(config) as any
     });
     try {
-        await getStreamClient().run(
+        await getStreamClient(config).run(
             url,
             init,
             config.end_id,

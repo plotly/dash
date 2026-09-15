@@ -48,9 +48,11 @@ from dash._streaming import (
 from dash._callback import get_stream_connection_id
 from dash._stream_hub import (
     STREAM_ACK,
+    STREAM_CANCEL_ACK,
     async_downlink_marker,
-    shutdown_active_streams,
+    cancel_stream,
     install_stream_shutdown_handler,
+    shutdown_active_streams,
     spawn_async_pump,
 )
 from dash.exceptions import PreventUpdate
@@ -299,6 +301,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):
     websocket_capability: bool = True
+    downlink_mode: str = "stream"
 
     def __init__(self, server: FastAPI):
         super().__init__(server)
@@ -600,7 +603,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                 headers=dict(STREAM_HEADERS),
             )
 
-        async def _dispatch(request: Request):  # pylint: disable=unused-argument
+        async def _dispatch(
+            request: Request,
+        ):  # pylint: disable=unused-argument,too-many-return-statements
             # pylint: disable=protected-access
             if "gzip" in request.headers.get("content-encoding", ""):
                 body = decompress_payload(await self.request_adapter()._request.body())
@@ -618,6 +623,22 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                         downlink.get("from"),
                     )
                 )
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                # A tab closed while the shared downlink stays open for others:
+                # stop its pump. Same connection-id rule as the downlink: a page
+                # can only cancel its own streams.
+                connection_id = (
+                    get_stream_connection_id()
+                    if dash_app.shared_storage_enabled
+                    else None
+                )
+                if connection_id is None:
+                    return Response(status_code=403)
+                cancel_stream(
+                    dash_app.shared_storage, connection_id, cancel["requestId"]
+                )
+                return JSONResponse(content=STREAM_CANCEL_ACK)
             cb_ctx = dash_app._initialize_context(
                 body
             )  # pylint: disable=protected-access

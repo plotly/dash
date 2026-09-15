@@ -81,12 +81,20 @@ class StreamedCallbackResponse:  # pylint: disable=too-few-public-methods
 
 
 def iter_stream_frames(marker):
-    """Drive a sync frame generator inside its captured context snapshot."""
-    while True:
-        try:
-            yield marker.ctx.run(next, marker.frames)
-        except StopIteration:
-            return
+    """Drive a sync frame generator inside its captured context snapshot.
+
+    Closing this generator closes the frame generator too, inside the
+    callback context so ``dash.ctx`` resolves in its cleanup handlers.
+    """
+    try:
+        while True:
+            try:
+                yield marker.ctx.run(next, marker.frames)
+            except StopIteration:
+                return
+    finally:
+        with contextlib.suppress(Exception):
+            marker.ctx.run(marker.frames.close)
 
 
 async def aiter_stream_frames(marker):
@@ -241,11 +249,16 @@ def ndjson_lines(marker, keepalive=None):
         frames = _keepalive_frames(marker, keepalive)
     else:
         frames = iter_stream_frames(marker)
-    for frame in frames:
-        line, fatal = _line(frame)
-        yield line
-        if fatal:
-            return
+    try:
+        for frame in frames:
+            line, fatal = _line(frame)
+            yield line
+            if fatal:
+                return
+    finally:
+        # Reached on client disconnect too (the WSGI server closes the body
+        # iterator): end the frame source rather than leave it to the GC.
+        frames.close()
 
 
 async def andjson_lines(frames, keepalive=None):
@@ -272,7 +285,9 @@ def sync_iter_asyncgen(agen):
     Runs the whole consumption on one task on a private event-loop thread so
     contextvars set inside the generator persist across steps. Closing this
     generator (client disconnect) cancels the task, which raises into the
-    user generator at its current yield.
+    user generator at its current yield, and waits briefly for the loop
+    thread to wind down so the generator's cleanup has run -- and so nothing
+    is left for interpreter shutdown to finalize noisily.
     """
     frame_queue: queue.Queue = queue.Queue()
     loop = asyncio.new_event_loop()
@@ -321,3 +336,6 @@ def sync_iter_asyncgen(agen):
         if task is not None and not task.done():
             with contextlib.suppress(RuntimeError):
                 loop.call_soon_threadsafe(task.cancel)
+        # Bounded: a generator that ignores cancellation must not hang the
+        # request thread that is closing us.
+        thread.join(timeout=2.0)
