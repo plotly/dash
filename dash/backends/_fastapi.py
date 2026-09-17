@@ -163,9 +163,11 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         """Run all before-request hooks."""
         for func in self.before_request_funcs:
             if inspect.iscoroutinefunction(func):
-                await func()
+                result = await func()
             else:
-                func()
+                result = func()
+            if result is not None:
+                return result
 
     async def _run_after_hooks(self) -> None:
         """Run after-request hook if configured."""
