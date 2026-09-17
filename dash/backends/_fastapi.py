@@ -463,6 +463,12 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             ]
             if kwargs.get("reload"):
                 uvicorn_args.append("--reload")
+                for directory in kwargs.get("reload_dirs") or []:
+                    uvicorn_args.extend(["--reload-dir", str(directory)])
+                for pattern in kwargs.get("reload_excludes") or []:
+                    uvicorn_args.extend(["--reload-exclude", str(pattern)])
+                for pattern in kwargs.get("reload_includes") or []:
+                    uvicorn_args.extend(["--reload-include", str(pattern)])
 
             dev_tools = dash_app._dev_tools  # pylint: disable=W0212
             config = dict(
