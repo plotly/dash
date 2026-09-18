@@ -9,7 +9,8 @@ def cli():
     except ImportError:
         print(
             "Plotly cloud is not installed,"
-            " install it with `pip install dash[cloud]` to use the plotly command",
+            " install it with `pip install plotly-cloud` (or reinstall dash)"
+            " to use the plotly command",
             file=sys.stderr,
         )
         sys.exit(-1)

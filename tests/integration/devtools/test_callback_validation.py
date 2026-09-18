@@ -1,3 +1,5 @@
+import re
+
 import flask
 import pytest
 from flaky import flaky
@@ -31,6 +33,14 @@ def check_errors(dash_duo, specs):
     found = []
     for i in range(cnt):
         msg = dash_duo.find_elements(".dash-fe-error__title")[i].text
+        # plotly-cloud (a default install dep) injects a `_plotly-cloud-*`
+        # component into every layout via a dash_hooks entry point, so it
+        # shows up in the "string ids in the current layout" list. Strip it
+        # so these assertions hold whether or not plotly-cloud is installed.
+        msg = re.sub(r"_plotly-cloud[\w-]*", "", msg)
+        msg = re.sub(r",\s*,", ",", msg)
+        msg = re.sub(r",\s*\]", "]", msg)
+        msg = re.sub(r"\[\s*,\s*", "[", msg)
         dash_duo.find_elements(".test-devtools-error-toggle")[i].click()
         dash_duo.wait_for_element(".dash-backend-error,.dash-fe-error__info")
         has_BE = dash_duo.driver.execute_script(
