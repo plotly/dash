@@ -39,6 +39,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`, which selects its default active tab) not applying that state on first render - a component's descendant layout hashes were reset on its very first fresh render, discarding the mount-time update before it took effect. The reset now only runs from the second fresh render onward, so a component's initial state survives (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 
+### Changed
+- [#3986](https://github.com/plotly/dash/pull/3986) Adjusted the `_run_before_hooks` inf `fastapi` backend to allow for a return value in the event that a `before_request` function returns a response. This is more aligned with how the `before_request` hooks work in the `flask` backend.
+
 ## [4.4.1] - 2026-07-21
 
 ## Fixed
