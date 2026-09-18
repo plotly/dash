@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- [#3947](https://github.com/plotly/dash/pull/3947) Make `plotly-cloud` a default install dependency of Dash instead of an optional extra, so the `plotly` CLI and Dash's cloud integration are available out of the box. The `dash[cloud]` extra is kept for backward compatibility.
 - [#3930](https://github.com/plotly/dash/pull/3930) Shared storage: a backend-agnostic state manager available on every app via `dash.ctx.shared_storage` (and `app.shared_storage`), for sharing state between callbacks or across worker processes without an external service. Started lazily on first use, so it costs nothing until touched; pass `shared_storage=None` to `Dash(...)` to disable.
   - Cross-process key/value store (`get`/`set`/`delete`, with optional TTL) and ordered, replayable publish/subscribe (`publish`/`subscribe`). Subscriptions resume from the caller's last-seen sequence out of a bounded buffer, and a buffer overrun surfaces as an explicit gap rather than a silent loss. Values must be JSON-compatible (like `dcc.Store`).
   - Three backends ship, selected by passing a `BaseSharedStorage` instance to `shared_storage=`:
