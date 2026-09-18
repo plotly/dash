@@ -34,6 +34,13 @@ export const resetComponentState = createAction(
 export function updateProps(payload) {
     return (dispatch, getState) => {
         const component = path(payload.itempath, getState().layout);
+        // The component may no longer exist at this path - eg. an
+        // `ExternalWrapper` (components as props) whose host subtree was
+        // replaced by a callback. Updating props of a component that isn't
+        // in the layout is a no-op and would crash `recordUiEdit`.
+        if (!component) {
+            return;
+        }
         recordUiEdit(component, payload.props, dispatch);
         dispatch(onPropChange(payload));
     };

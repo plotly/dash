@@ -364,16 +364,65 @@ function recordWrittenProp(
     }
 }
 
+/*
+ * Operations that only add items at the end of a list, and how many items
+ * each one adds. `location` is the list they append to. Anything else that
+ * touches a list (Insert, Prepend, Delete, Remove, Clear, Reverse, Assign)
+ * invalidates the append-only shortcut for that property, since old items can
+ * no longer be assumed to have kept their indices.
+ */
+const tailAppendCounts: {[operation: string]: (params: any) => number} = {
+    Append: () => 1,
+    Extend: params => (Array.isArray(params.value) ? params.value.length : 0)
+};
+
+function recordTailAppend(
+    property: string | undefined,
+    location: LocationIndex[],
+    operation: string,
+    params: any,
+    analysis: PatchAnalysis
+) {
+    if (property === undefined) {
+        return;
+    }
+    const existing = analysis.tailAppends[property];
+    if (existing === false) {
+        // Already invalidated for this property; nothing can undo that.
+        return;
+    }
+    if (operation in tailAppendCounts) {
+        const count = tailAppendCounts[operation](params);
+        if (existing === undefined) {
+            // First append to this property: remember which list it grew.
+            analysis.tailAppends[property] = {location, count};
+            return;
+        }
+        if (equals(existing.location, location)) {
+            // Another append to the same list - still a pure single-list
+            // append, just more items.
+            existing.count += count;
+            return;
+        }
+        // Appended to a second, different list. We can only express one
+        // grown list per property, so fall back to a full recompute.
+    }
+    analysis.tailAppends[property] = false;
+}
+
 function recordPatchOperation(
     previous: any,
     patchOperation: PatchOperation,
-    analysis: PatchAnalysis
+    analysis: PatchAnalysis,
+    property?: string
 ) {
     const {operation, location, params} = patchOperation;
 
     if (insertingOperations[operation]) {
         collectComponentIds(params.value, analysis.freshIds, new Set());
     }
+
+    recordTailAppend(property, location, operation, params, analysis);
 
     if (operation === 'Merge' && params.value && is(Object, params.value)) {
         Object.keys(params.value).forEach(key =>
@@ -392,7 +441,8 @@ function recordPatchOperation(
 export function handlePatch<T>(
     previousValue: T,
     patchValue: any,
-    analysis?: PatchAnalysis
+    analysis?: PatchAnalysis,
+    property?: string
 ): T {
     let reducedValue = previousValue;
 
@@ -404,7 +454,7 @@ export function handlePatch<T>(
             throw new Error(`Invalid Operation ${patch.operation}`);
         }
         if (analysis) {
-            recordPatchOperation(reducedValue, patch, analysis);
+            recordPatchOperation(reducedValue, patch, analysis, property);
         }
         reducedValue = handler(reducedValue, patch);
     }
@@ -438,7 +488,7 @@ export function parsePatchProps(
             if (analysis) {
                 analysis.patchedProps[key] = true;
             }
-            patchedProps[key] = handlePatch(previousValue, val, analysis);
+            patchedProps[key] = handlePatch(previousValue, val, analysis, key);
         } else {
             patchedProps[key] = val;
         }

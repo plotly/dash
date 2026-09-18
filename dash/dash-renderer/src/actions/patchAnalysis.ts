@@ -31,10 +31,32 @@ export type PatchAnalysis = {
     freshIds: {[idStr: string]: true};
     /* Props the patch wrote on components that already existed. */
     writtenProps: {[idStr: string]: {[property: string]: true}};
+    /*
+     * For a property whose value is a list somewhere in its tree: where the
+     * patch appended and how many items it added, if appending to one single
+     * list is *all* this patch did.
+     *
+     * `location` is the path, within the property's value, of the list that
+     * grew (`[]` when the property's value is itself the list, e.g. a plain
+     * `children`; `[0, 'props', 'children']` for a nested
+     * `p[0]['props']['children'].extend(...)`). `count` is the total number of
+     * items appended to that list.
+     *
+     * `false` means the patch is not a pure single-list append - it did
+     * something else to a list (Insert/Prepend/Delete/Remove/Clear/Reverse/
+     * Assign), or appended to more than one distinct list. Either way the old
+     * items can no longer be assumed to have kept their positions, so the
+     * property is not eligible for the append-only paths shortcut.
+     */
+    tailAppends: {
+        [property: string]:
+            | {location: (string | number)[]; count: number}
+            | false;
+    };
 };
 
 export function createPatchAnalysis(): PatchAnalysis {
-    return {patchedProps: {}, freshIds: {}, writtenProps: {}};
+    return {patchedProps: {}, freshIds: {}, writtenProps: {}, tailAppends: {}};
 }
 
 /*
@@ -110,4 +132,29 @@ export function wasWrittenByPatch(
         return false;
     }
     return Boolean(analysis.writtenProps[idStr]?.[property]);
+}
+
+/*
+ * Where and how much this patch appended, if appending to one single list
+ * (possibly nested) is *all* it did to `property` - what paths.js needs to
+ * compute paths for only the new items instead of re-crawling every
+ * pre-existing one. `null` when the analysis doesn't cover this property, or
+ * when the patch touched a list in some other way (see `tailAppends`).
+ */
+export function tailAppend(
+    analysis: PatchAnalysis | undefined,
+    property: string
+): {location: (string | number)[]; count: number} | null {
+    const entry = analysis?.tailAppends[property];
+    return entry && typeof entry === 'object' ? entry : null;
+}
+
+/*
+ * How many items `tailAppend` reports for `property` (0 when it reports none).
+ */
+export function tailAppendCount(
+    analysis: PatchAnalysis | undefined,
+    property: string
+): number {
+    return tailAppend(analysis, property)?.count ?? 0;
 }

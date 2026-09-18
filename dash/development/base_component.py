@@ -291,6 +291,12 @@ class Component(metaclass=ComponentMeta):
             "namespace": self._namespace,  # pylint: disable=no-member
         }
 
+        # Set by `dash.remount()`. A top-level marker (not a prop) that tells
+        # the renderer to remount this component instead of reconciling it in
+        # place, resetting its internal state.
+        if getattr(self, "_dashprivate_remount", False):
+            as_json["_dashprivate_remount"] = True
+
         return as_json
 
     # pylint: disable=too-many-branches, too-many-return-statements

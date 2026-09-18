@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import {path} from 'ramda';
 import {batch, useDispatch} from 'react-redux';
 
 import {DashComponent, DashLayoutPath} from '../types/component';
@@ -41,18 +42,35 @@ function ExternalWrapper({component, componentPath, temp = false}: Props) {
     }, []);
 
     useEffect(() => {
-        batch(() => {
-            dispatch(
-                updateProps({itempath: componentPath, props: component.props})
-            );
-            if (component.props.id) {
-                dispatch(
-                    notifyObservers({
-                        id: component.props.id,
-                        props: component.props
-                    })
-                );
-            }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        dispatch((_dispatch: any, getState: any) => {
+            // The host subtree may have been replaced (eg. a callback
+            // returned new children) while this wrapper reconciled in place
+            // rather than remounting. In that case the component is gone from
+            // the layout at `componentPath`, so re-insert it instead of
+            // updating a path that no longer exists.
+            const exists = path(componentPath, getState().layout);
+            batch(() => {
+                if (exists) {
+                    _dispatch(
+                        updateProps({
+                            itempath: componentPath,
+                            props: component.props
+                        })
+                    );
+                } else {
+                    _dispatch(addComponentToLayout({component, componentPath}));
+                }
+                if (component.props.id) {
+                    _dispatch(
+                        notifyObservers({
+                            id: component.props.id,
+                            props: component.props
+                        })
+                    );
+                }
+            });
         });
     }, [component.props]);
 

@@ -20,6 +20,7 @@ jobs:
       dcc_paths_changed: ${{ steps.filter.outputs.dcc_related_paths }}
       html_paths_changed: ${{ steps.filter.outputs.html_related_paths }}
       websocket_changed: ${{ steps.filter.outputs.websocket_paths }}
+      streaming_changed: ${{ steps.filter.outputs.streaming_paths }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,28 +29,47 @@ jobs:
         id: filter # Give an ID to this step to reference its outputs
         uses: dorny/paths-filter@v3
         with:
+          # Every job installs from requirements/ and setup.py and runs under
+          # the shared lint and pytest config, so a change there must run every
+          # job. A dependency bump once skipped the table and dcc jobs and only
+          # failed after merging to dev.
           filters: |
+            shared_paths: &shared_paths
+              - 'requirements/**'
+              - 'setup.py'
+              - 'pytest.ini'
+              - '.flake8'
+              - '.pylintrc'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'dash/testing/**'
+              - '.github/workflows/testing.yml'
             table_related_paths:
+              - *shared_paths
               - 'components/dash-table/**'
               - 'dash/dash-renderer/**'
             dcc_related_paths:
+              - *shared_paths
               - 'components/dash-core-components/**'
               - 'dash/dash-renderer/**'
             html_related_paths:
+              - *shared_paths
               - 'components/dash-html-components/**'
               - 'dash/dash-renderer/**'
             background_paths:
+              - *shared_paths
               - 'dash/background_callback/**'
               - 'dash/dash-renderer/**'
               - 'dash/_callback.py'
               - 'dash/_callback_context.py'
               - 'tests/background_callback/**'
               - 'tests/async_tests/**'
-              - 'requirements/**'
             backend_paths:
+              - *shared_paths
               - 'dash/backends/**'
               - 'tests/backend_tests/**'
             websocket_paths:
+              - *shared_paths
               - 'dash/backends/_fastapi.py'
               - 'dash/backends/_quart.py'
               - 'dash/backends/base_server.py'
@@ -60,7 +80,14 @@ jobs:
               - '@dash-websocket-worker/**'
               - 'dash/dash-renderer/src/**'
               - 'tests/websocket/**'
-              - 'requirements/**'
+            streaming_paths:
+              - *shared_paths
+              - 'dash/_callback.py'
+              - 'dash/_streaming.py'
+              - 'dash/_callback_context.py'
+              - 'dash/backends/**'
+              - 'dash/dash-renderer/src/**'
+              - 'tests/streaming/**'
 
   lint-unit:
     name: Lint & Unit Tests (Python ${{ matrix.python-version }})
@@ -237,6 +264,77 @@ jobs:
           pytest \
             tests/compliance/test_typing.py \
             tests/compliance/test_callback_typing.py
+
+  shared-storage:
+    name: Run Shared Storage Tests (Python ${{ matrix.python-version }})
+    needs: build
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    # Redis service for the RedisSharedStorage backend.
+    services:
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      REDIS_URL: redis://localhost:6379
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev,diskcache,redis]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Verify Redis connection
+        run: python -c "import redis; redis.Redis(host='localhost', port=6379).ping(); print('Redis OK')"
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run shared-storage tests
+        run: pytest --headless tests/shared_storage -v
 
   background-callbacks:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
@@ -606,6 +704,69 @@ jobs:
           cd wstests
           touch __init__.py
           pytest --headless --nopercyfinalize tests/websocket -v -s
+
+  streaming-tests:
+    name: Streaming Callback Tests (Python ${{ matrix.python-version }})
+    needs: [build, changes_filter]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      needs.changes_filter.outputs.streaming_changed == 'true'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: requirements/*.txt
+
+      - name: Download built Dash packages
+        uses: actions/download-artifact@v4
+        with:
+          name: dash-packages
+          path: packages/
+
+      - name: Install Dash packages
+        # Streaming callbacks are async generators; the async extra pulls in
+        # flask[async], which they require on the Flask backend.
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install "setuptools<80.0.0"
+          find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[async,ci,testing,dev,fastapi,quart]"' \;
+
+      - name: Setup Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Build/Setup test components
+        run: npm run setup-tests.py
+
+      - name: Run streaming tests
+        run: |
+          mkdir streamtests
+          cp -r tests streamtests/tests
+          cd streamtests
+          touch __init__.py
+          pytest --headless --nopercyfinalize tests/streaming -v -s
 
   test-main:
     name: Main Dash Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})

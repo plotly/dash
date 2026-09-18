@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {asyncDecorator} from '@plotly/dash-component-plugins';
 import graph from '../utils/LazyLoader/graph';
 import plotly from '../utils/LazyLoader/plotly';
-import lazyLoadMathJax from '../utils/LazyLoader/mathjax';
+import lazyLoadMathJax from '../utils/LazyLoader/third-party/mathjax';
 import {
     privatePropTypes,
     privateDefaultProps,
