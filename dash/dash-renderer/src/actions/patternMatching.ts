@@ -32,7 +32,13 @@ export function parsePMCId(id: string): [any, string | undefined] {
 export function getAllPMCIds(id: any, state: any, triggerKey: string) {
     const keysOfIds = keys(id);
     const idKey = keysOfIds.join(',');
-    return state.paths.objs[idKey]
+    // No component with this id shape is currently rendered, so nothing
+    // matches the wildcard.
+    const registered = state.paths.objs[idKey];
+    if (!registered) {
+        return [];
+    }
+    return registered
         .map((obj: any) =>
             keysOfIds.reduce((acc, key, i) => {
                 acc[key] = obj.values[i];
@@ -62,9 +68,14 @@ export function replacePMC(
     getState: any
 ): any[] {
     let extras: any = [];
+    // Whether an ALL/ALLSMALLER key was expanded. `extras` alone cannot tell
+    // us this, since a wildcard that matches no rendered component expands to
+    // an empty list -- in which case there is genuinely nothing to update, and
+    // `replaced` only holds the non-wildcard keys, so it is not a usable id.
+    let expanded = false;
     const replaced: any = {};
     toPairs(id).forEach(([key, value]) => {
-        if (extras.length) {
+        if (expanded) {
             // All done.
             return;
         }
@@ -75,16 +86,18 @@ export function replacePMC(
                 replaced[key] = triggerValue;
             } else if (value.includes('ALL')) {
                 extras = getAllPMCIds(id, getState(), key);
+                expanded = true;
             } else if (value.includes('ALLSMALLER')) {
                 extras = getAllPMCIds(id, getState(), key).filter(
                     (obj: any) => obj[key] < triggerValue
                 );
+                expanded = true;
             }
         } else {
             replaced[key] = value;
         }
     });
-    if (extras.length) {
+    if (expanded) {
         return extras;
     }
     return [replaced];
