@@ -80,8 +80,13 @@
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.104.1",
-    "webpack-cli": "^5.1.4",
+    "webpack-cli": "^7.0.3",
     "whatwg-fetch": "^3.6.20"
+  },
+  "overrides": {
+    "@types/ramda": {
+      "types-ramda": "0.29.2"
+    }
   },
   "files": [
     "build/*{.js,.map}",
