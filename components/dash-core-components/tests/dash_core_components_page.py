@@ -103,14 +103,18 @@ class DashCoreComponentsMixin(object):
         elem = self._get_element(elem_or_selector)
 
         ActionChains(self.driver).move_to_element_with_offset(
-            elem, elem.size["width"] * fx, elem.size["height"] * fy
+            elem,
+            int(elem.size["width"] * (fx - 0.5)),
+            int(elem.size["height"] * (fy - 0.5)),
         ).click_and_hold().perform()
 
     def move_to_coord_fractions(self, elem_or_selector, fx, fy):
         elem = self._get_element(elem_or_selector)
 
         ActionChains(self.driver).click_and_hold().move_to_element_with_offset(
-            elem, elem.size["width"] * fx, elem.size["height"] * fy
+            elem,
+            int(elem.size["width"] * (fx - 0.5)),
+            int(elem.size["height"] * (fy - 0.5)),
         ).perform()
 
     def release(self):
@@ -120,7 +124,11 @@ class DashCoreComponentsMixin(object):
         elem = self._get_element(elem_or_selector)
 
         ActionChains(self.driver).move_to_element_with_offset(
-            elem, elem.size["width"] * fx1, elem.size["height"] * fy1
+            elem,
+            int(elem.size["width"] * (fx1 - 0.5)),
+            int(elem.size["height"] * (fy1 - 0.5)),
         ).click_and_hold().move_to_element_with_offset(
-            elem, elem.size["width"] * fx2, elem.size["height"] * fy2
+            elem,
+            int(elem.size["width"] * (fx2 - 0.5)),
+            int(elem.size["height"] * (fy2 - 0.5)),
         ).release().perform()

@@ -66,6 +66,16 @@ type MemoizedKeysType = {
     [key: string]: React.ReactNode | null; // This includes React elements, strings, numbers, etc.
 };
 
+// Identity of a dash component: which component it is, not what its
+// current prop values are. Used to decide between remounting (identity
+// changed) and reconciling in place (same component, new props).
+const componentIdentity = (component: any) => {
+    const id = component?.props?.id;
+    return `${component?.namespace}.${component?.type}.${
+        id ? stringifyId(id) : ''
+    }`;
+};
+
 function DashWrapper({
     componentPath,
     _dashprivate_error,
@@ -77,7 +87,16 @@ function DashWrapper({
     const memoizedKeys: MutableRefObject<MemoizedKeysType> = useRef({});
     const newRender = useRef(false);
     const freshRenders = useRef(0);
+    // Did *this* render remount the subtree (identity changed or an explicit
+    // dash.remount())? A remount rebuilds every descendant from scratch, so
+    // the item-by-item ref-skip below must not carry anything over across it.
+    const remountedThisRender = useRef(false);
+    const renderedIdentity: MutableRefObject<string | null> = useRef(null);
+    const hasFreshRendered = useRef(false);
     const renderedPath = useRef<DashLayoutPath>(componentPath);
+    const prevChildrenArrays: MutableRefObject<{[key: string]: any[]}> = useRef(
+        {}
+    );
     let renderComponent: any = null;
     let renderComponentProps: any = null;
     let renderH: any = null;
@@ -97,12 +116,32 @@ function DashWrapper({
         if (_newRender) {
             newRender.current = true;
             renderH = 0;
-            freshRenders.current += 1;
+            // Only force a remount (via the `key` bump below) when the
+            // component identity at this path actually changed. When the
+            // same component is passed again (eg: a callback returning
+            // updated children with the same structure), reconcile in
+            // place instead of unmounting the whole subtree. (#3846)
+            //
+            // `_dashprivate_remount` is set by `dash.remount()` and forces
+            // a remount even when the identity is unchanged, letting a
+            // callback explicitly reset a component's internal state.
+            const identity = componentIdentity(_passedComponent);
+            const isRemount = Boolean(
+                _passedComponent?._dashprivate_remount ||
+                    (renderedIdentity.current !== null &&
+                        renderedIdentity.current !== identity)
+            );
+            remountedThisRender.current = isRemount;
+            if (isRemount) {
+                freshRenders.current += 1;
+            }
+            renderedIdentity.current = identity;
             if (renderH in memoizedKeys.current) {
                 delete memoizedKeys.current[renderH];
             }
         } else {
             newRender.current = false;
+            remountedThisRender.current = false;
         }
         renderedPath.current = componentPath;
     }, [_newRender]);
@@ -189,10 +228,21 @@ function DashWrapper({
     );
 
     const wrapChildrenProp = useCallback(
-        (node: any, childrenPath: DashLayoutPath, _childNewRender: any) => {
+        (
+            node: any,
+            childrenPath: DashLayoutPath,
+            _childNewRender: any,
+            allowRefSkip = false
+        ) => {
             if (Array.isArray(node)) {
+                const pathKey = stringifyPath(childrenPath);
+                const prevArray = allowRefSkip
+                    ? prevChildrenArrays.current[pathKey]
+                    : undefined;
+                prevChildrenArrays.current[pathKey] = node;
                 return node.map((n, i) => {
                     if (isDryComponent(n)) {
+                        const unchanged = allowRefSkip && prevArray?.[i] === n;
                         return createContainer(
                             n,
                             concat(componentPath, [
@@ -200,7 +250,7 @@ function DashWrapper({
                                 ...childrenPath,
                                 i
                             ]),
-                            _childNewRender
+                            unchanged ? 0 : _childNewRender
                         );
                     }
                     return n;
@@ -447,11 +497,21 @@ function DashWrapper({
 
     useEffect(() => {
         if (_newRender) {
-            dispatch(
-                resetComponentState({
-                    itempath: componentPath
-                })
-            );
+            // Don't reset descendant layout hashes on the component's very
+            // first fresh render: components that set their initial state on
+            // mount (eg. dbc Tabs picking the default active tab) would have
+            // that state wiped before it takes effect. Stale descendant
+            // hashes are only a concern once the subtree has rendered at
+            // least once, so reset from the second fresh render onward.
+            // (#3929, keeps #3330 fixed.)
+            if (hasFreshRendered.current) {
+                dispatch(
+                    resetComponentState({
+                        itempath: componentPath
+                    })
+                );
+            }
+            hasFreshRendered.current = true;
         }
     }, [_newRender]);
 
@@ -477,7 +537,8 @@ function DashWrapper({
                 ['children'],
                 !renderH || newRender.current || 'children' in changedProps
                     ? {}
-                    : 0
+                    : 0,
+                !remountedThisRender.current
             );
         }
         newRender.current = false;

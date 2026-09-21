@@ -222,6 +222,18 @@ def test_mcpr013_returns_empty_when_kaleido_unavailable():
     assert result == []
 
 
+def test_mcpr017_returns_empty_when_chrome_unavailable():
+    # https://github.com/plotly/dash/issues/3914
+    fig_dict = go.Figure(data=[go.Bar(x=["A", "B"], y=[1, 2])]).to_plotly_json()
+    with patch.object(
+        go.Figure,
+        "to_image",
+        side_effect=RuntimeError("Kaleido requires Google Chrome to be installed."),
+    ):
+        result = PlotlyFigureResult.format(GRAPH_FIGURE_OUTPUT, fig_dict)
+    assert result == []
+
+
 def test_mcpr014_ignores_non_graph_components():
     output = {
         **GRAPH_FIGURE_OUTPUT,

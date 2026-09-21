@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
+import mimetypes
 import pkgutil
 import sys
-import mimetypes
 import time
-import inspect
 import traceback
 
 from contextvars import copy_context
@@ -22,16 +22,38 @@ from flask import (
     g as flask_g,
     has_request_context,
     redirect,
+    stream_with_context,
 )
 from werkzeug.debug import tbtools
 
 from dash.fingerprint import check_fingerprint
 from dash import _validate
 from dash.exceptions import PreventUpdate, InvalidResourceError
-from dash._callback import _invoke_callback, _async_invoke_callback
+from dash._callback import (
+    _invoke_callback,
+    _async_invoke_callback,
+    get_stream_connection_id,
+)
+from dash._compression import decompress_payload
+from dash._streaming import (
+    STREAM_HEADERS,
+    STREAM_MIMETYPE,
+    StreamedCallbackResponse,
+    _shutdown as _streaming_shutdown,
+    andjson_lines,
+    keepalive_seconds,
+    ndjson_lines,
+    sync_iter_asyncgen,
+    to_json,
+)
+from dash._stream_hub import (
+    STREAM_CANCEL_ACK,
+    cancel_stream,
+    poll_downlink,
+    pump_to_storage,
+)
 from dash._utils import parse_version
 from .base_server import BaseDashServer, RequestAdapter, ResponseAdapter
-
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
@@ -167,6 +189,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
         return has_request_context()
 
     def run(self, dash_app: Dash, host: str, port: int, debug: bool, **kwargs: Any):
+        _streaming_shutdown.clear()
         self.server.run(host=host, port=port, debug=debug, **kwargs)
 
     def make_response(
@@ -249,10 +272,110 @@ class FlaskDashServer(BaseDashServer[Flask]):
             self._create_redirect_function(app.get_relative_path(path)),
         )
 
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument,too-many-statements
     def serve_callback(self, dash_app: Dash):
+        def _stream_response(
+            marker: StreamedCallbackResponse, with_request_ctx: bool
+        ) -> Response:
+            keepalive = keepalive_seconds(
+                dash_app._stream_keepalive_interval  # pylint: disable=protected-access
+            )
+            if marker.is_async:
+                # Drive the async frame generator on a private event-loop
+                # thread; the response iterator drains it synchronously.
+                body = sync_iter_asyncgen(andjson_lines(marker.frames, keepalive))
+            else:
+                body = ndjson_lines(marker, keepalive)
+            if with_request_ctx:
+                # Keep flask.request usable while the body is iterated (the
+                # generator runs after the view returns). Only valid on the
+                # sync dispatch path: under an async view (asgiref) the
+                # request context lives in a different contextvars context
+                # and stream_with_context would corrupt its teardown. Dash's
+                # own callback context always works — it travels in the
+                # marker's context snapshot.
+                body = stream_with_context(body)
+            return Response(
+                body,
+                content_type=STREAM_MIMETYPE,
+                headers=dict(STREAM_HEADERS),
+            )
+
+        def _serve_downlink(downlink):
+            # One poll of the browser's multiplexed downlink: the frames queued
+            # since its cursor (published by streaming callbacks, possibly on
+            # other workers, via shared storage), as an NDJSON body that ends at
+            # once. A WSGI response holds a worker thread for its whole life,
+            # so the browser polls rather than keeping a connection open.
+            # The connection id is derived from the signed end_id, never taken
+            # from the client, so a page can only ever read its own topic.
+            connection_id = get_stream_connection_id()
+            if connection_id is None:
+                return Response(status=403)
+            envelopes = poll_downlink(
+                dash_app.shared_storage, connection_id, downlink.get("from")
+            )
+            body = "".join(to_json(envelope) + "\n" for envelope in envelopes)
+            return Response(
+                body, content_type=STREAM_MIMETYPE, headers=dict(STREAM_HEADERS)
+            )
+
+        def _serve_cancel(cancel):
+            # A tab closed while the shared downlink stays open for others:
+            # stop the pump driving this request, wherever it runs. Same
+            # connection-id rule as the downlink: a page can only cancel its own.
+            connection_id = (
+                get_stream_connection_id() if dash_app.shared_storage_enabled else None
+            )
+            if connection_id is None:
+                return Response(status=403)
+            cancel_stream(dash_app.shared_storage, connection_id, cancel["requestId"])
+            return Response(to_json(STREAM_CANCEL_ACK), content_type="application/json")
+
+        def _serve_uplink(marker, body, cb_ctx):
+            # Multiplexed uplink: a streamConnection asserts "multiplex me". Pump
+            # the frames onto that connection's topic (a task on the process's
+            # pump loop) and return immediately, so this request does not hold a
+            # connection for the stream's life. The connection id is derived
+            # from the signed end_id, never from the client, so a page can only
+            # publish to its own topic; an unverified connection is refused
+            # (403), never run some other way, so no frame can reach a topic
+            # without a valid token. Returns None only when there is no
+            # multiplex intent (no streamConnection), to fall back to inline
+            # NDJSON.
+            stream_conn = body.get("streamConnection")
+            if stream_conn is None:
+                return None
+            connection_id = (
+                get_stream_connection_id() if dash_app.shared_storage_enabled else None
+            )
+            if connection_id is None:
+                return Response(status=403)
+            pump_to_storage(
+                dash_app.shared_storage,
+                connection_id,
+                stream_conn["requestId"],
+                marker,
+            )
+            return cb_ctx.dash_response.set_response(
+                data=to_json({"multi": True, "stream": True})
+            )
+
+        def _read_body():
+            return (
+                decompress_payload(request.data)
+                if "gzip" in request.headers.get("Content-Encoding", "")
+                else request.get_json()
+            )
+
         def _dispatch():
-            body = request.get_json()
+            body = _read_body()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -262,6 +385,11 @@ class FlaskDashServer(BaseDashServer[Flask]):
                 func, args, cb_ctx.outputs_list, cb_ctx
             )
             response_data = ctx.run(partial_func)
+            if isinstance(response_data, StreamedCallbackResponse):
+                uplink = _serve_uplink(response_data, body, cb_ctx)
+                if uplink is not None:
+                    return uplink
+                return _stream_response(response_data, with_request_ctx=True)
             if asyncio.iscoroutine(response_data):
                 raise Exception(
                     "You are trying to use a coroutine without dash[async]. "
@@ -271,7 +399,13 @@ class FlaskDashServer(BaseDashServer[Flask]):
             return cb_ctx.dash_response.set_response(data=response_data)
 
         async def _dispatch_async():
-            body = request.get_json()
+            body = _read_body()
+            downlink = body.get("streamDownlink")
+            if downlink is not None:
+                return _serve_downlink(downlink)
+            cancel = body.get("streamCancel")
+            if cancel is not None:
+                return _serve_cancel(cancel)
             # pylint: disable=protected-access
             cb_ctx = dash_app._initialize_context(body)
             func = dash_app._prepare_callback(cb_ctx, body)
@@ -283,6 +417,11 @@ class FlaskDashServer(BaseDashServer[Flask]):
             response_data = ctx.run(partial_func)
             if asyncio.iscoroutine(response_data):
                 response_data = await response_data
+            if isinstance(response_data, StreamedCallbackResponse):
+                uplink = _serve_uplink(response_data, body, cb_ctx)
+                if uplink is not None:
+                    return uplink
+                return _stream_response(response_data, with_request_ctx=False)
             return cb_ctx.dash_response.set_response(data=response_data)
 
         # Preserve the view function's identity as `dash.dash.dispatch` so that

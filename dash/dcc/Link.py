@@ -24,7 +24,7 @@ ComponentType = typing.Union[
 class Link(Component):
     """A Link component.
     Link allows you to create a clickable link within a multi-page app.
-
+    *
     For links with destinations outside the current app, `html.A` is a better
     component to use.
 
@@ -68,7 +68,9 @@ class Link(Component):
             Holds which property is loading.
 
         - component_name (string; optional):
-            Holds the name of the component that is loading."""
+            Holds the name of the component that is loading.
+
+    - setProps (optional)"""
 
     _children_props: typing.List[str] = []
     _base_nodes = ["children"]
@@ -77,9 +79,9 @@ class Link(Component):
     LoadingState = TypedDict(
         "LoadingState",
         {
-            "is_loading": NotRequired[bool],
-            "prop_name": NotRequired[str],
-            "component_name": NotRequired[str],
+            "is_loading": NotRequired[typing.Union[bool]],
+            "prop_name": NotRequired[typing.Union[str]],
+            "component_name": NotRequired[typing.Union[str]],
         },
     )
 
@@ -87,13 +89,13 @@ class Link(Component):
         self,
         children: typing.Optional[ComponentType] = None,
         href: typing.Optional[str] = None,
-        target: typing.Optional[str] = None,
-        refresh: typing.Optional[bool] = None,
-        title: typing.Optional[str] = None,
-        className: typing.Optional[str] = None,
+        target: typing.Optional[typing.Union[str]] = None,
+        refresh: typing.Optional[typing.Union[bool]] = None,
+        title: typing.Optional[typing.Union[str]] = None,
+        className: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        loading_state: typing.Optional["LoadingState"] = None,
+        loading_state: typing.Optional[typing.Union["LoadingState"]] = None,
         **kwargs
     ):
         self._prop_names = [
@@ -106,6 +108,7 @@ class Link(Component):
             "style",
             "id",
             "loading_state",
+            "setProps",
         ]
         self._valid_wildcard_attributes = []
         self.available_properties = [
@@ -118,6 +121,7 @@ class Link(Component):
             "style",
             "id",
             "loading_state",
+            "setProps",
         ]
         self.available_wildcard_properties = []
         _explicit_args = kwargs.pop("_explicit_args")

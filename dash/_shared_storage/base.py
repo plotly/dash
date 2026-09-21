@@ -1,0 +1,172 @@
+"""Backend-agnostic shared state + pub/sub for Dash.
+
+A ``BaseSharedStorage`` gives every worker process a common key/value store and
+an ordered publish/subscribe channel. Dash uses it internally, and apps can use
+it directly for cross-callback or session state without reaching for an external
+service.
+
+Semantics every backend must honor:
+
+- **Values are JSON-compatible.** They may cross a process boundary, the same
+  constraint as ``dcc.Store`` and callback outputs.
+- **Pub/sub is ordered and replayable.** Each ``publish`` to a topic gets a
+  monotonically increasing sequence number; a subscriber receives every message
+  published after it subscribed, in order. A consumer that drops and resubscribes
+  replays what it missed from a bounded buffer, so no message is silently lost
+  within that window -- a buffer overrun surfaces as an explicit gap error rather
+  than a missing message.
+"""
+
+import abc
+import asyncio
+from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
+
+
+class SharedStorageError(Exception):
+    """An operation failed on the shared-storage backend."""
+
+
+class SharedStorageGap(SharedStorageError):
+    """Raised by a subscription when messages were evicted before delivery.
+
+    Signals that the replay buffer overran (the consumer fell too far behind),
+    or that the owner was re-elected and its buffer was lost; the caller must
+    treat it as lost data rather than a clean end of the subscription.
+    """
+
+
+class Subscription(abc.ABC):
+    """A live, ordered view of a topic.
+
+    Iterate it synchronously (``for msg in sub``) or asynchronously
+    (``async for msg in sub``) to receive messages as they are published;
+    messages buffered since the subscription's cursor replay first. Iteration
+    ends when the subscription is closed. Raises ``SharedStorageGap`` if the
+    buffer overran while the consumer was behind.
+
+    ``iter_with_seq`` / ``aiter_with_seq`` yield ``(sequence, message)`` pairs so
+    a consumer can record its position and resume a later subscription from it
+    (via ``replay_from``) -- how the streaming downlink survives a reconnect
+    without losing frames. The plain message iterators are built on these.
+
+    ``poll`` is the one-shot primitive underneath: everything published since
+    the cursor, waiting at most ``timeout`` seconds for something to arrive.
+    With ``timeout=0`` it never blocks, which is what lets a WSGI request serve
+    a downlink without holding its worker thread.
+    """
+
+    @abc.abstractmethod
+    def poll(self, timeout: float = 0.0) -> List[Tuple[int, Any]]:
+        """Return the ``(sequence, message)`` pairs published since the cursor
+        and advance the cursor past them, waiting up to ``timeout`` seconds for
+        at least one. Raises ``SharedStorageGap`` if the buffer overran."""
+
+    @abc.abstractmethod
+    def iter_with_seq(self) -> Iterator[Any]:
+        ...
+
+    @abc.abstractmethod
+    def aiter_with_seq(self) -> AsyncIterator[Any]:
+        ...
+
+    @abc.abstractmethod
+    def close(self) -> None:
+        ...
+
+    def __iter__(self) -> Iterator[Any]:
+        for _seq, message in self.iter_with_seq():
+            yield message
+
+    def __aiter__(self) -> AsyncIterator[Any]:
+        return self._messages()
+
+    async def _messages(self) -> AsyncIterator[Any]:
+        async for _seq, message in self.aiter_with_seq():
+            yield message
+
+    def __enter__(self) -> "Subscription":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
+    async def __aenter__(self) -> "Subscription":
+        return self
+
+    async def __aexit__(self, *exc) -> None:
+        self.close()
+
+
+class BaseSharedStorage(abc.ABC):
+    """Shared key/value store + ordered pub/sub, usable across worker processes.
+
+    A backend must be safe to construct in every worker. However the authoritative
+    state is held (a single elected owner, an external service, ...), all workers
+    that share a backend see the same keys and topics.
+    """
+
+    def start(self) -> None:
+        """Prepare the backend for use (elect/attach to the owner, connect, ...).
+
+        Called once per worker before first use. Idempotent.
+        """
+
+    def close(self) -> None:
+        """Release this worker's handle on the backend. Idempotent."""
+
+    @abc.abstractmethod
+    def get(self, key: str, default: Any = None) -> Any:
+        ...
+
+    @abc.abstractmethod
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        """Write ``value`` under ``key``.
+
+        ``ttl`` is an optional lifetime in seconds; the key expires (reads
+        return the ``default``) once it elapses. ``None`` means it never
+        expires. Expiry is best-effort/lazy -- an expired key is dropped on the
+        next read of it, not at a guaranteed instant.
+        """
+
+    @abc.abstractmethod
+    def delete(self, key: str) -> None:
+        ...
+
+    @abc.abstractmethod
+    def publish(self, topic: str, message: Any) -> None:
+        """Append ``message`` to ``topic``; delivered to every current subscriber."""
+
+    # --- asyncio variants --------------------------------------------------
+    # Code running on an event loop (ASGI request handlers, the streaming
+    # pumps) must not block the loop on a round trip to the store. Backends
+    # should override these with loop-native I/O; the defaults run the sync
+    # operation on the loop's default executor.
+
+    async def aget(self, key: str, default: Any = None) -> Any:
+        return await asyncio.get_running_loop().run_in_executor(
+            None, self.get, key, default
+        )
+
+    async def aset(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        await asyncio.get_running_loop().run_in_executor(
+            None, self.set, key, value, ttl
+        )
+
+    async def adelete(self, key: str) -> None:
+        await asyncio.get_running_loop().run_in_executor(None, self.delete, key)
+
+    async def apublish(self, topic: str, message: Any) -> None:
+        await asyncio.get_running_loop().run_in_executor(
+            None, self.publish, topic, message
+        )
+
+    @abc.abstractmethod
+    def subscribe(self, topic: str, replay_from: Optional[int] = None) -> Subscription:
+        """Subscribe to ``topic``.
+
+        By default the subscription starts at the topic's current head, so it
+        only receives messages published from now on. ``replay_from`` (a sequence
+        number a previous subscription last saw) resumes after that point,
+        replaying buffered messages -- this is how a reconnecting consumer avoids
+        losing messages.
+        """

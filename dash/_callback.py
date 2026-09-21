@@ -1,6 +1,7 @@
 import collections
 import hashlib
 import inspect
+import logging
 import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
@@ -22,6 +23,7 @@ from .exceptions import (
     MissingLongCallbackManagerError,
     BackgroundCallbackError,
     ImportedInsideCallbackError,
+    StreamCallbackError,
 )
 from ._get_app import get_app
 from . import _callback_signing
@@ -41,6 +43,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from ._streaming import StreamedCallbackResponse
 from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
 from . import _validate
@@ -59,6 +62,8 @@ async def _async_invoke_callback(
 def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
     return func(*args, **kwargs)  # %% callback invoked %%
 
+
+logger = logging.getLogger(__name__)
 
 GLOBAL_CALLBACK_LIST: List[Any] = []
 GLOBAL_CALLBACK_MAP: Dict[str, Any] = {}
@@ -90,6 +95,8 @@ def callback(
     persistent: Optional[bool] = False,
     mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -108,6 +115,15 @@ def callback(
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
     `False` and unlike `app.callback` is not configurable at the app level.
+
+    Decorating an async generator function (`async def` with `yield`) registers
+    a streaming callback: each yielded value has the same shape as a regular
+    return value (one value per `Output`) and is pushed to the browser
+    immediately; yield `dash.Patch` objects for incremental updates. Streams
+    over the WebSocket callback transport when active, otherwise over the HTTP
+    response (NDJSON). Synchronous generators are not supported (they would
+    occupy a server worker for the whole stream). Streaming callbacks cannot be
+    combined with `background=True`, `mcp_enabled=True` or `api_endpoint`.
 
     :Keyword Arguments:
         :param background:
@@ -188,6 +204,15 @@ def callback(
             If True, this callback will not show the "Updating..." title while
             running. Useful for persistent WebSocket callbacks that stay active
             for long periods without requiring a loading indicator.
+        :param compress_payload:
+            If True, the callback request payload will be compressed using gzip
+            compression before being sent to the server. This can significantly
+            reduce network transmission size for large payloads.
+            Defaults to False.
+        :param compress_threshold:
+            The size threshold in bytes above which the payload will be compressed
+            when `compress_payload` is True. Set to 0 to always compress regardless
+            of size. Defaults to 5,000 bytes (5 kB).
     """
 
     background_spec: Any = None
@@ -249,11 +274,39 @@ def callback(
         persistent=persistent,
         mcp_enabled=mcp_enabled,
         mcp_expose_docstring=mcp_expose_docstring,
+        compress_payload=compress_payload,
+        compress_threshold=compress_threshold,
     )
 
     return cast(
         Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
+
+
+def _validate_stream_callback(callback_id, background, kwargs, is_sync_gen):
+    """Reject options a streaming (generator) callback cannot be combined with."""
+    if is_sync_gen:
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' is a synchronous generator, "
+            "which is not supported: a sync generator occupies a server worker "
+            "for the whole stream. Define it with 'async def' so it streams on "
+            "the event loop instead."
+        )
+    if background is not None:
+        raise BackgroundCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "background=True: background callbacks return a single result."
+        )
+    if kwargs.get("mcp_enabled"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "mcp_enabled=True: MCP tools expect a single JSON result."
+        )
+    if kwargs.get("api_endpoint"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "api_endpoint: API endpoints expect a single JSON result."
+        )
 
 
 def validate_background_inputs(deps):
@@ -304,6 +357,8 @@ def insert_callback(
     persistent=False,
     mcp_enabled=None,
     mcp_expose_docstring=None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -331,7 +386,16 @@ def insert_callback(
         "hidden": hidden,
         "websocket": websocket,
         "persistent": persistent,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
+    # Include output metadata if any output uses partial matching
+    output_list = output if isinstance(output, (list, tuple)) else [output]
+    if any(getattr(o, "partial_pattern", False) for o in output_list):
+        callback_spec["outputs_meta"] = [
+            {"partial": True} if getattr(o, "partial_pattern", False) else {}
+            for o in output_list
+        ]
     if running:
         callback_spec["running"] = running
 
@@ -347,8 +411,13 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
+        # Flipped to True by register_callback when the decorated function
+        # turns out to be a generator (streaming callback).
+        "stream": False,
         "mcp_enabled": mcp_enabled,
         "mcp_expose_docstring": mcp_expose_docstring,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
     callback_list.append(callback_spec)
 
@@ -400,6 +469,24 @@ def get_request_end_id(secret: bytes):
         return None
     token = adapter.args.get("endId")
     return _callback_signing.unsign(secret, _callback_signing.END_SCOPE, token)
+
+
+def get_stream_connection_id() -> "str | None":
+    """Return the verified streaming connection id for the request, or ``None``.
+
+    The multiplexed streaming transport keys each page's downlink topic on this
+    id, so it must be unforgeable: a client that could name an arbitrary topic
+    could read another page's stream or inject frames into it. It is derived from
+    the server-signed ``end_id`` (the same per-page-load token background-callback
+    handles are bound to), never from anything the client picks. A missing or
+    forged token yields ``None``, and the backend refuses the request (403).
+
+    ``end_id`` is signed with the server secret, so across worker processes every
+    worker must resolve the same secret: set a ``secret_key`` on the server, or
+    cross-worker stream requests will not verify. Single-process apps are fine
+    with no configuration.
+    """
+    return get_request_end_id(_get_signing_secret())
 
 
 def _get_signing_secret() -> bytes:
@@ -773,10 +860,26 @@ def register_callback(
         persistent=_kwargs.get("persistent", False),
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
+        compress_payload=_kwargs.get("compress_payload", False),
+        compress_threshold=_kwargs.get("compress_threshold", 5_000),
     )
+    # The client-facing spec insert_callback just appended. Streaming is flagged
+    # on it below (once the function is known to be a generator) so the renderer
+    # can keep streaming callbacks out of its concurrent-request budget.
+    client_spec = callback_list[-1]
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+        # A generator (or async generator) callback streams its yields; that is
+        # inferred from the function itself, there is no opt-in keyword.
+        is_gen_func = inspect.isgeneratorfunction(func)
+        is_async_gen_func = inspect.isasyncgenfunction(func)
+        is_stream = is_gen_func or is_async_gen_func
+        if is_stream:
+            _validate_stream_callback(
+                callback_id, background, _kwargs, is_sync_gen=is_gen_func
+            )
+
         if _kwargs.get("api_endpoint"):
             api_endpoint = _kwargs.get("api_endpoint")
             GLOBAL_API_PATHS[api_endpoint] = func
@@ -935,7 +1038,143 @@ def register_callback(
 
             return jsonResponse
 
-        if inspect.iscoroutinefunction(func):
+        def _build_stream_frame(
+            output_value, output_spec, callback_ctx, app, original_packages
+        ):
+            """Build one stream frame from a yielded value.
+
+            Returns None when the yield produced no update (PreventUpdate or
+            all no_update with no set_props).
+            """
+            response: CallbackExecutionResponse = {"multi": True}
+            try:
+                _prepare_response(
+                    output_value,
+                    output_spec,
+                    multi,
+                    response,
+                    callback_ctx,
+                    app,
+                    original_packages,
+                    None,
+                    False,
+                    has_output,
+                    output,
+                    callback_id,
+                    allow_dynamic_callbacks,
+                )
+            except PreventUpdate:
+                return None
+            finally:
+                # set_props between yields were folded into this frame's
+                # sideUpdate; don't resend them with later frames.
+                callback_ctx.updated_props.clear()
+            if not response.get("response") and not response.get("sideUpdate"):
+                return None
+            return response
+
+        def _stream_error_frame(err):
+            logger.exception("Exception raised in streamed callback")
+            return {"done": True, "error": {"message": str(err) or repr(err)}}
+
+        async def _astream_frames(
+            user_gen, error_handler, output_spec, callback_ctx, app, original_packages
+        ):
+            # Set the callback context var around each resumption of the user
+            # generator so dash.ctx/set_props resolve while its body runs. It is
+            # set per step rather than once for the whole stream because the
+            # keepalive drivers resume each __anext__ in a freshly copied
+            # context, where a token taken in an earlier step could not be reset.
+            async def _next():
+                token = context_value.set(callback_ctx)
+                try:
+                    return await user_gen.__anext__()
+                finally:
+                    context_value.reset(token)
+
+            def _handle_error(err):
+                # Run the on_error handler under the callback context too so
+                # dash.ctx/set_props resolve inside it, matching a step.
+                token = context_value.set(callback_ctx)
+                try:
+                    return error_handler(err)
+                finally:
+                    context_value.reset(token)
+
+            try:
+                while True:
+                    frame = None
+                    try:
+                        output_value = await _next()
+                        frame = _build_stream_frame(
+                            output_value,
+                            output_spec,
+                            callback_ctx,
+                            app,
+                            original_packages,
+                        )
+                    except (StopAsyncIteration, PreventUpdate):
+                        break
+                    except Exception as err:  # pylint: disable=broad-exception-caught
+                        if error_handler:
+                            output_value = _handle_error(err)
+                            if output_value is not None:
+                                frame = _build_stream_frame(
+                                    output_value,
+                                    output_spec,
+                                    callback_ctx,
+                                    app,
+                                    original_packages,
+                                )
+                                if frame is not None:
+                                    yield frame
+                            break
+                        yield _stream_error_frame(err)
+                        return
+                    if frame is not None:
+                        yield frame
+                yield {"done": True}
+            finally:
+                await user_gen.aclose()
+
+        @wraps(func)
+        async def async_add_context_stream(*args, **kwargs):
+            """Handles streaming callbacks defined as async generators."""
+            error_handler = on_error or kwargs.pop("app_on_error", None)
+
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                _,
+            ) = _initialize_context(
+                args, kwargs, inputs_state_indices, has_output, insert_output
+            )
+
+            user_gen = _invoke_callback(func, *func_args, **func_kwargs)
+            frames = _astream_frames(
+                user_gen,
+                error_handler,
+                output_spec,
+                callback_ctx,
+                app,
+                original_packages,
+            )
+            return StreamedCallbackResponse(frames, is_async=True)
+
+        if is_stream:
+            # Only async generators reach here; sync generators are rejected in
+            # _validate_stream_callback above.
+            callback_map[callback_id]["stream"] = True
+            # Server-inferred flag (not the removed stream=True keyword): the
+            # renderer reads it to exclude long-lived streams from its
+            # concurrent-request limit.
+            client_spec["stream"] = True
+            callback_map[callback_id]["callback"] = async_add_context_stream
+        elif inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
             # A persistent, no-output callback streams via set_props and typically

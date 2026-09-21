@@ -25,7 +25,7 @@ class Markdown(Component):
     """A Markdown component.
     A component that renders Markdown text as specified by the
     GitHub Markdown spec. These component uses
-    [react-markdown](https://rexxars.github.io/react-markdown/) under the hood.
+    [react-markdown](https://github.com/remarkjs/react-markdown) under the hood.
 
     Keyword arguments:
 
@@ -58,7 +58,7 @@ class Markdown(Component):
 
         `highlight_config` is a dict with keys:
 
-        - theme (a value equal to: 'dark', 'light'; optional):
+        - theme (a value equal to: None, 'dark', 'light'; optional):
             Color scheme; default 'light'.
 
     - link_target (string; optional):
@@ -74,20 +74,20 @@ class Markdown(Component):
     _namespace = "dash_core_components"
     _type = "Markdown"
     HighlightConfig = TypedDict(
-        "HighlightConfig", {"theme": NotRequired[Literal["dark", "light"]]}
+        "HighlightConfig", {"theme": NotRequired[Literal[None, "dark", "light"]]}
     )
 
     def __init__(
         self,
         children: typing.Optional[ComponentType] = None,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        className: typing.Optional[str] = None,
-        mathjax: typing.Optional[bool] = None,
-        dangerously_allow_html: typing.Optional[bool] = None,
-        link_target: typing.Optional[str] = None,
-        dedent: typing.Optional[bool] = None,
-        highlight_config: typing.Optional["HighlightConfig"] = None,
+        className: typing.Optional[typing.Union[str]] = None,
+        highlight_config: typing.Optional[typing.Union["HighlightConfig"]] = None,
         style: typing.Optional[typing.Any] = None,
+        mathjax: typing.Optional[typing.Union[bool]] = None,
+        dangerously_allow_html: typing.Optional[typing.Union[bool]] = None,
+        link_target: typing.Optional[typing.Union[str]] = None,
+        dedent: typing.Optional[typing.Union[bool]] = None,
         **kwargs
     ):
         self._prop_names = [

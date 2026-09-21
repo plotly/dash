@@ -128,7 +128,7 @@ function Input({
         setValue(value);
     }, []);
 
-    const onKeyPress: KeyboardEventHandler<HTMLInputElement> = useCallback(
+    const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
                 props.setProps({
@@ -194,7 +194,7 @@ function Input({
                     parseFloat(props.min as string)
                 );
             }
-            if (props.max !== null && props.min !== undefined) {
+            if (props.max !== null && props.max !== undefined) {
                 constrainedValue = Math.min(
                     constrainedValue,
                     parseFloat(props.max as string)
@@ -288,7 +288,7 @@ function Input({
                         className="dash-input-element"
                         onBlur={onBlur}
                         onChange={onChange}
-                        onKeyPress={onKeyPress}
+                        onKeyDown={onKeyDown}
                         {...valprops}
                         {...pickedInputs}
                         {...loadingProps}

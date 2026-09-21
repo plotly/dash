@@ -23,8 +23,6 @@ IMAGE_HEIGHT = 450
 def _render_image(figure: Any) -> ImageContent | None:
     """
     Render the figure as a base64 PNG ImageContent.
-
-    Returns None if kaleido is not installed.
     """
     try:
         img_bytes = figure.to_image(
@@ -32,8 +30,8 @@ def _render_image(figure: Any) -> ImageContent | None:
             width=IMAGE_WIDTH,
             height=IMAGE_HEIGHT,
         )
-    except (ValueError, ImportError):
-        logger.debug("MCP: kaleido not available, skipping image render")
+    except Exception:  # pylint: disable=broad-exception-caught
+        logger.debug("MCP: unable to render figure image, skipping", exc_info=True)
         return None
 
     b64 = base64.b64encode(img_bytes).decode("ascii")
