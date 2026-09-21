@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3925](https://github.com/plotly/dash/pull/3925) Add optional callback request payload compression via `compress_payload` and `compress_threshold` callback parameters (default threshold 5,000 bytes), sending gzip payloads that Dash decompresses on Flask, FastAPI, and Quart. Fixes [#3924](https://github.com/plotly/dash/issues/3924).
 - [#3961](https://github.com/plotly/dash/pull/3961) Added cursor position data (`xPixel`, `yPixel`) to `dcc.Graph` `hoverData` and `clickData` when `hoveranywhere` or `clickanywhere` is enabled in the figure.
 - [#3960](https://github.com/plotly/dash/pull/3960) Rewrite `dcc.Markdown` and `dcc.Link` as Typescript components
-- Added `dash.remount`, a wrapper for a callback-returned component that forces the renderer to remount it (resetting its internal state) instead of reconciling in place: the explicit way to reset a stateful component from a callback without changing its `id`.
+- [#3881](https://github.com/plotly/dash/pull/3881) Added `dash.remount`, a wrapper for a callback-returned component that forces the renderer to remount it (resetting its internal state) instead of reconciling in place: the explicit way to reset a stateful component from a callback without changing its `id`.
 
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
@@ -25,8 +25,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#3944](https://github.com/plotly/dash/pull/3944) Fix `dash.testing` runner backend detection for wrapped FastAPI/Quart servers so threaded Flask-only options are not passed to ASGI runners.
 - [#3955](https://github.com/plotly/dash/pull/3955) Unpin `selenium` in the testing requirements (was capped at `<=4.2.0` from 2022) and require `>=4.11.0`, so it can drive current stable Chrome via Selenium Manager and stop the widespread CI flakiness.
-- Speed up the renderer layout crawl (`crawlLayout` and its callers) by replacing curried-ramda `path`/`pathOr` lookups with direct property access on the hot path: ~16% faster `Patch().append()` into a large container, with no behavior change.
-- Fix pattern-matching (`MATCH`/`ALL`/`ALLSMALLER`) callbacks getting quadratically slower as matching components grow; a new O(1) id->path index cuts an `ALL` update over 400 components from ~580ms to ~140ms (~4x), with no app changes.
+- [#3881](https://github.com/plotly/dash/pull/3881) Speed up the renderer layout crawl (`crawlLayout` and its callers) by replacing curried-ramda `path`/`pathOr` lookups with direct property access on the hot path: ~16% faster `Patch().append()` into a large container, with no behavior change.
+- [#3881](https://github.com/plotly/dash/pull/3881) Fix pattern-matching (`MATCH`/`ALL`/`ALLSMALLER`) callbacks getting quadratically slower as matching components grow; a new O(1) id->path index cuts an `ALL` update over 400 components from ~580ms to ~140ms (~4x), with no app changes.
 - [#3941](https://github.com/plotly/dash/pull/3941) Fix the FastAPI and Quart backends opening a WebSocket connection on every page load even for apps with no WebSocket callbacks; the socket now opens only when actually needed. Fixes [#3939](https://github.com/plotly/dash/issues/3939).
 - [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
 - [#3922](https://github.com/plotly/dash/pull/3922) Fix `dcc.Input(type="number")` stepper behavior when only `min` is set.
@@ -34,7 +34,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3938](https://github.com/plotly/dash/pull/3938) Fix `dcc.Patch()` re-running the initial callbacks of components already on the page (including every `MATCH`/`ALL` element) and wiping their user-edited persisted values. Fixes [#3681](https://github.com/plotly/dash/issues/3681) and [#3937](https://github.com/plotly/dash/issues/3937)
 - [#3960](https://github.com/plotly/dash/pull/3960) Fix `dcc.Markdown` not rendering `<dccLink />` by using newer dependencies
 - [#3846](https://github.com/plotly/dash/issues/3846) Fix callback-returned children being unmounted and remounted on every update instead of reconciled in place, which reset component state and slowed large subtrees 3-4x (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)); use `dash.remount` to force a remount.
-- Fix components rendered as props (eg. `dcc.Dropdown` option labels, `dcc.Tab` labels) crashing or failing to update when the host subtree was replaced by a callback; out-of-tree `ExternalWrapper` components now re-insert themselves and update in place.
+- [#3881](https://github.com/plotly/dash/pull/3881) Fix components rendered as props (eg. `dcc.Dropdown` option labels, `dcc.Tab` labels) crashing or failing to update when the host subtree was replaced by a callback; out-of-tree `ExternalWrapper` components now re-insert themselves and update in place.
 - [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`) not applying it on first render, because descendant layout hashes were reset on the first fresh render (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 
