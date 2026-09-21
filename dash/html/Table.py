@@ -91,6 +91,8 @@ class Table(Component):
     - spellCheck (string; optional):
         Indicates whether spell checking is allowed for the element.
 
+    - summary (string; optional)
+
     - tabIndex (string | number; optional):
         Overrides the browser's default tab order and follows the one
         specified instead.
@@ -111,6 +113,7 @@ class Table(Component):
         n_clicks_timestamp: typing.Optional[NumberType] = None,
         disable_n_clicks: typing.Optional[bool] = None,
         key: typing.Optional[str] = None,
+        summary: typing.Optional[str] = None,
         accessKey: typing.Optional[str] = None,
         className: typing.Optional[str] = None,
         contentEditable: typing.Optional[str] = None,
@@ -144,6 +147,7 @@ class Table(Component):
             "role",
             "spellCheck",
             "style",
+            "summary",
             "tabIndex",
             "title",
         ]
@@ -167,6 +171,7 @@ class Table(Component):
             "role",
             "spellCheck",
             "style",
+            "summary",
             "tabIndex",
             "title",
         ]

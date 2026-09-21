@@ -5,9 +5,7 @@ from .Download import Download
 from .Geolocation import Geolocation
 from .Graph import Graph
 from .Interval import Interval
-from .Link import Link
 from .Location import Location
-from .Markdown import Markdown
 from .Store import Store
 from .Upload import Upload
 from .Button import Button
@@ -16,7 +14,9 @@ from .DatePickerRange import DatePickerRange
 from .DatePickerSingle import DatePickerSingle
 from .Dropdown import Dropdown
 from .Input import Input
+from .Link import Link
 from .Loading import Loading
+from .Markdown import Markdown
 from .RadioItems import RadioItems
 from .RangeSlider import RangeSlider
 from .Slider import Slider
@@ -33,9 +33,7 @@ __all__ = [
     "Geolocation",
     "Graph",
     "Interval",
-    "Link",
     "Location",
-    "Markdown",
     "Store",
     "Upload",
     "Button",
@@ -44,7 +42,9 @@ __all__ = [
     "DatePickerSingle",
     "Dropdown",
     "Input",
+    "Link",
     "Loading",
+    "Markdown",
     "RadioItems",
     "RangeSlider",
     "Slider",

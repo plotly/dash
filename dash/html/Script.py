@@ -83,8 +83,11 @@ class Script(Component):
         e.g. script elements, active.
 
     - integrity (string; optional):
-        Specifies a Subresource Integrity value that allows browsers to
-        verify what they fetch.
+        This attribute contains one or more hashes of the resource, and is
+        used to ensure that the content of the resource is what the
+        developer expects it to be, and has not been replaced with a
+        malicious copy in a supply chain attack. See Subresource
+        Integrity.
 
     - key (string; optional):
         A unique identifier for the component, used to improve performance
