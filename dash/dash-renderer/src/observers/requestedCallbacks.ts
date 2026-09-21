@@ -367,7 +367,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             const res =
                 isEmpty(intersection(inputs, updated)) &&
                 isEmpty(difference(inputs, allProps)) &&
-                !all(isMultiValued, cb.callback.inputs);
+                !all(dep => isMultiValued(dep), cb.callback.inputs);
 
             return res;
         }, readyCallbacks);

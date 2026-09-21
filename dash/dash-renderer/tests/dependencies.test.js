@@ -1,6 +1,11 @@
 import {expect} from 'chai';
 import {beforeEach, describe, it} from 'mocha';
-import {computeGraphs, getAnyVals} from '../src/actions/dependencies';
+import {
+    computeGraphs,
+    getAnyVals,
+    getUnfilteredLayoutCallbacks,
+    getWatchedKeys
+} from '../src/actions/dependencies';
 import {getCallbacksByInput} from '../src/actions/dependencies_ts';
 import {EventEmitter} from '../src/actions/utils';
 
@@ -167,6 +172,120 @@ describe('dependencies — MATCH validation (#2462)', () => {
     });
 });
 
+describe('dependencies — partial pattern indexes', () => {
+    const dispatchError = () => {};
+
+    it('keeps partial indexes empty and skips property filtering when unused', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'out.children',
+                    inputs: [
+                        {
+                            id: '{"index":["ALL"],"type":"btn"}',
+                            property: 'n_clicks'
+                        }
+                    ],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+        let filterCalled = false;
+        const newProps = {
+            length: 1,
+            filter: () => {
+                filterCalled = true;
+                return [];
+            }
+        };
+
+        expect(graphs.hasPartialInputPatterns).to.equal(false);
+        expect(graphs.hasPartialOutputPatterns).to.equal(false);
+        expect(graphs.partialInputPatterns).to.eql({});
+        expect(graphs.partialOutputPatterns).to.eql({});
+        expect(
+            getWatchedKeys(
+                {index: 1, page: 'home', type: 'btn'},
+                newProps,
+                graphs
+            )
+        ).to.eql([]);
+        expect(filterCalled).to.equal(false);
+    });
+
+    it('indexes only partial input and output patterns', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'input-result.children',
+                    inputs: [
+                        {
+                            id: '{"type":"btn"}',
+                            property: 'n_clicks',
+                            partial: true
+                        },
+                        {
+                            id: '{"index":["ALL"],"type":"btn"}',
+                            property: 'n_clicks'
+                        }
+                    ],
+                    state: [],
+                    no_output: false
+                },
+                {
+                    output: '{"type":"display"}.children',
+                    outputs_meta: [{partial: true}],
+                    inputs: [{id: 'trigger', property: 'n_clicks'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+
+        expect(graphs.hasPartialInputPatterns).to.equal(true);
+        expect(graphs.hasPartialOutputPatterns).to.equal(true);
+        expect(Object.keys(graphs.partialInputPatterns)).to.eql(['type']);
+        expect(Object.keys(graphs.partialOutputPatterns)).to.eql(['type']);
+        expect(graphs.partialInputPatterns.type.n_clicks).to.have.lengthOf(1);
+        expect(graphs.partialOutputPatterns.type.children).to.have.lengthOf(1);
+        expect(graphs.partialInputPatterns['index,type']).to.equal(undefined);
+    });
+
+    it('skips watched-key filtering for output-only partial patterns', () => {
+        const graphs = computeGraphs(
+            [
+                {
+                    output: '{"type":"display"}.children',
+                    outputs_meta: [{partial: true}],
+                    inputs: [{id: 'trigger', property: 'n_clicks'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            dispatchError,
+            config
+        );
+        let filterCalled = false;
+        const newProps = {
+            length: 1,
+            filter: () => {
+                filterCalled = true;
+                return [];
+            }
+        };
+
+        expect(graphs.hasPartialInputPatterns).to.equal(false);
+        expect(graphs.hasPartialOutputPatterns).to.equal(true);
+        expect(getWatchedKeys({index: 1}, newProps, graphs)).to.eql([]);
+        expect(filterCalled).to.equal(false);
+    });
+});
+
 describe('dependencies — MATCH trigger resolvedId (#2462)', () => {
     it('getAnyVals picks MATCH values from trigger id', () => {
         // Use the same object reference for MATCH that the module uses
@@ -232,5 +351,100 @@ describe('dependencies — MATCH trigger resolvedId (#2462)', () => {
         expect(first[0].resolvedId).to.not.equal(second[0].resolvedId);
         expect(first[0].resolvedId).to.include('btn-1');
         expect(second[0].resolvedId).to.include('btn-2');
+    });
+});
+
+describe('dependencies: getUnfilteredLayoutCallbacks with a Patch (#3938)', () => {
+    // Create a layout with two elements
+    //      num: Input which patch writes to `value` directly
+    //      badge: Output which `children` are written to, but unchanged by the patch
+
+    // A callback listens to Input(num.value) and writes Output(badge.children)
+    // Both the input and the output live inside the same patched chunk
+    function makeGraphsAndPaths() {
+        const errors = [];
+        const graphs = computeGraphs(
+            [
+                {
+                    output: 'badge.children',
+                    inputs: [{id: 'num', property: 'value'}],
+                    state: [],
+                    no_output: false
+                }
+            ],
+            (m, l) => errors.push({m, l}),
+            config
+        );
+        expect(errors).to.eql([]);
+        const paths = makePaths(['container', 'num', 'badge']);
+        const layoutChunk = {
+            props: {
+                id: 'container',
+                children: [
+                    {props: {id: 'num', value: 100}},
+                    {props: {id: 'badge', children: 'badge: stale'}}
+                ]
+            }
+        };
+        return {graphs, paths, layoutChunk};
+    }
+
+    it('keeps a callback alive when the patch wrote its Input directly, even though its Output was carried over', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {},
+            writtenProps: {num: {value: true}}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(1);
+        expect(callbacks[0].resolvedId).to.equal('badge.children');
+    });
+
+    it('still drops a carried over callback when neither its Input nor Output was touched by the patch', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {},
+            writtenProps: {}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(0);
+    });
+
+    it('still runs the callback via its Output when the Output component is fresh', () => {
+        const {graphs, paths, layoutChunk} = makeGraphsAndPaths();
+
+        const patchAnalysis = {
+            patchedProps: {children: true},
+            freshIds: {badge: true},
+            writtenProps: {}
+        };
+
+        const callbacks = getUnfilteredLayoutCallbacks(
+            graphs,
+            paths,
+            layoutChunk,
+            {chunkPath: ['props', 'children'], patchAnalysis}
+        );
+
+        expect(callbacks).to.have.lengthOf(1);
+        expect(callbacks[0].resolvedId).to.equal('badge.children');
     });
 });

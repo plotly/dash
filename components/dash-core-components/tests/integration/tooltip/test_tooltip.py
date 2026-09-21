@@ -68,9 +68,10 @@ def test_ttbs001_canonical_behavior(dash_dcc):
     elem = dash_dcc.find_element("#graph .nsewdrag")
 
     with lock:
-        # hover on the center of the graph
+        # hover on the center of the graph (offset is measured from the
+        # element center in selenium >= 4.3, so 0, 0 is the center)
         ActionChains(dash_dcc.driver).move_to_element_with_offset(
-            elem, elem.size["width"] / 2, elem.size["height"] / 2
+            elem, 0, 0
         ).click().perform()
         dash_dcc.wait_for_text_to_equal("#graph-tooltip", loading_text)
 
@@ -83,7 +84,7 @@ def test_ttbs001_canonical_behavior(dash_dcc):
     elem = dash_dcc.find_element("#graph .nsewdrag")
 
     ActionChains(dash_dcc.driver).move_to_element_with_offset(
-        elem, 5, elem.size["height"] - 5
+        elem, int(5 - elem.size["width"] / 2), int(elem.size["height"] / 2 - 5)
     ).perform()
 
     until(lambda: not dash_dcc.find_element("#graph-tooltip").is_displayed(), 3)

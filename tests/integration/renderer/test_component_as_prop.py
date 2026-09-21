@@ -7,6 +7,7 @@ from dash_test_components import ComponentAsProp
 from dash.dcc import Checklist, Dropdown
 from dash.html import Button, Div, Span
 
+import dash.testing.wait as wait
 from flaky import flaky
 
 
@@ -393,13 +394,24 @@ def test_rdcap003_side_effect_regression(dash_duo):
 
     dash_duo.wait_for_text_to_equal("#counter", "0")
     dash_duo.find_element("#a").click()
-    assert (
-        len(dash_duo.find_elements('#b label:not([data-option-index="-1"]) input')) == 2
+    # The options re-render is driven by the `opts` callback; poll for the new
+    # count instead of reading it synchronously right after the click, which
+    # races the callback and reads the previous count.
+    wait.until(
+        lambda: len(
+            dash_duo.find_elements('#b label:not([data-option-index="-1"]) input')
+        )
+        == 2,
+        timeout=4,
     )
     dash_duo.wait_for_text_to_equal("#counter", "0")
     dash_duo.find_element("#a").click()
-    assert (
-        len(dash_duo.find_elements('#b label:not([data-option-index="-1"]) input')) == 3
+    wait.until(
+        lambda: len(
+            dash_duo.find_elements('#b label:not([data-option-index="-1"]) input')
+        )
+        == 3,
+        timeout=4,
     )
     dash_duo.wait_for_text_to_equal("#counter", "0")
 

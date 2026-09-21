@@ -2,6 +2,42 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- [#3947](https://github.com/plotly/dash/pull/3947) Make `plotly-cloud` a default install dependency of Dash instead of an optional extra, so the `plotly` CLI and Dash's cloud integration work out of the box. The `dash[cloud]` extra is kept for backward compatibility.
+- [#3930](https://github.com/plotly/dash/pull/3930) Add shared storage: a backend-agnostic cross-process state manager (key/value with optional TTL, plus ordered replayable pub/sub) on every app via `dash.ctx.shared_storage`, started lazily and disabled with `shared_storage=None`. Ships `LocalSharedStorage` (default, in-memory with optional disk persistence), `DiskcacheSharedStorage`, and `RedisSharedStorage` for horizontally-scaled deployments; see `.ai/ARCHITECTURE.md`.
+- [#3931](https://github.com/plotly/dash/pull/3931) Add streaming callbacks: an `async def` generator callback streams its yields to the browser as they are produced (`dash.Patch` yields apply incrementally). A browser's streams share one SharedWorker-hosted connection so they do not count against the per-host connection limit; closing a tab cancels its streams.
+- [#3977](https://github.com/plotly/dash/pull/3977) Add partial WebSocket prop reads with `get_prop(..., path=...)`. Closes [#3975](https://github.com/plotly/dash/issues/3975).
+- [#3765](https://github.com/plotly/dash/pull/3765) Add opt-in partial pattern matching for callback `Input`, `Output`, and `State` via `partial_pattern=True`, so dictionary ID patterns can match component IDs with extra keys and combine with `ALL`/`MATCH` wildcards. Fixes [#3764](https://github.com/plotly/dash/issues/3764).
+- [#3646](https://github.com/plotly/dash/pull/3646) Add experimental support for React 19 (default stays React 18.3.1); opt in with `REACT_VERSION=19.2.4` or `dash._dash_renderer._set_react_version("19.2.4")`. Dash serves the [`umd-react`](https://www.npmjs.com/package/umd-react) package with a compatibility shim so component libraries built against React <=18 keep working; see `.ai/ARCHITECTURE.md`.
+- [#3925](https://github.com/plotly/dash/pull/3925) Add optional callback request payload compression via `compress_payload` and `compress_threshold` callback parameters (default threshold 5,000 bytes), sending gzip payloads that Dash decompresses on Flask, FastAPI, and Quart. Fixes [#3924](https://github.com/plotly/dash/issues/3924).
+- [#3961](https://github.com/plotly/dash/pull/3961) Added cursor position data (`xPixel`, `yPixel`) to `dcc.Graph` `hoverData` and `clickData` when `hoveranywhere` or `clickanywhere` is enabled in the figure.
+- [#3960](https://github.com/plotly/dash/pull/3960) Rewrite `dcc.Markdown` and `dcc.Link` as Typescript components
+- [#3881](https://github.com/plotly/dash/pull/3881) Added `dash.remount`, a wrapper for a callback-returned component that forces the renderer to remount it (resetting its internal state) instead of reconciling in place: the explicit way to reset a stateful component from a callback without changing its `id`.
+
+### Removed
+- [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
+
+### Changed
+- [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
+
+### Fixed
+- [#3944](https://github.com/plotly/dash/pull/3944) Fix `dash.testing` runner backend detection for wrapped FastAPI/Quart servers so threaded Flask-only options are not passed to ASGI runners.
+- [#3955](https://github.com/plotly/dash/pull/3955) Unpin `selenium` in the testing requirements (was capped at `<=4.2.0` from 2022) and require `>=4.11.0`, so it can drive current stable Chrome via Selenium Manager and stop the widespread CI flakiness.
+- [#3881](https://github.com/plotly/dash/pull/3881) Speed up the renderer layout crawl (`crawlLayout` and its callers) by replacing curried-ramda `path`/`pathOr` lookups with direct property access on the hot path: ~16% faster `Patch().append()` into a large container, with no behavior change.
+- [#3881](https://github.com/plotly/dash/pull/3881) Fix pattern-matching (`MATCH`/`ALL`/`ALLSMALLER`) callbacks getting quadratically slower as matching components grow; a new O(1) id->path index cuts an `ALL` update over 400 components from ~580ms to ~140ms (~4x), with no app changes.
+- [#3941](https://github.com/plotly/dash/pull/3941) Fix the FastAPI and Quart backends opening a WebSocket connection on every page load even for apps with no WebSocket callbacks; the socket now opens only when actually needed. Fixes [#3939](https://github.com/plotly/dash/issues/3939).
+- [#3916](https://github.com/plotly/dash/pull/3916) Fixed a regression where dragging multiple files into `dcc.Upload` would upload only the first file when `multiple=True`
+- [#3922](https://github.com/plotly/dash/pull/3922) Fix `dcc.Input(type="number")` stepper behavior when only `min` is set.
+- [#3925](https://github.com/plotly/dash/pull/3925) Use the proxied url as the Jupyter server url so `DASH_PROXY` is honored by the external url and inline iframe in notebooks.
+- [#3938](https://github.com/plotly/dash/pull/3938) Fix `dcc.Patch()` re-running the initial callbacks of components already on the page (including every `MATCH`/`ALL` element) and wiping their user-edited persisted values. Fixes [#3681](https://github.com/plotly/dash/issues/3681) and [#3937](https://github.com/plotly/dash/issues/3937)
+- [#3960](https://github.com/plotly/dash/pull/3960) Fix `dcc.Markdown` not rendering `<dccLink />` by using newer dependencies
+- [#3846](https://github.com/plotly/dash/issues/3846) Fix callback-returned children being unmounted and remounted on every update instead of reconciled in place, which reset component state and slowed large subtrees 3-4x (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)); use `dash.remount` to force a remount.
+- [#3881](https://github.com/plotly/dash/pull/3881) Fix components rendered as props (eg. `dcc.Dropdown` option labels, `dcc.Tab` labels) crashing or failing to update when the host subtree was replaced by a callback; out-of-tree `ExternalWrapper` components now re-insert themselves and update in place.
+- [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`) not applying it on first render, because descendant layout hashes were reset on the first fresh render (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
+- [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
+
 ## [4.4.1] - 2026-07-21
 
 ## Fixed

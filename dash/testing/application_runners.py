@@ -3,6 +3,7 @@ import os
 import time
 import uuid
 import shlex
+import socket
 import threading
 import shutil
 import subprocess
@@ -26,6 +27,20 @@ from dash.testing.errors import (
 from dash.testing import wait
 
 logger = logging.getLogger(__name__)
+
+
+def _server_type(app):
+    return getattr(getattr(app, "backend", None), "server_type", "flask")
+
+
+def _run_app(app, options):
+    server_type = _server_type(app)
+    if server_type in ("fastapi", "quart"):
+        app.run(**options)
+    else:
+        # Flask test servers need threaded=True so shutdown requests can be
+        # handled while the server is processing another request.
+        app.run(threaded=True, **options)
 
 
 def import_app(app_file, application_name="app"):
@@ -75,6 +90,32 @@ class BaseDashRunner:
 
     def stop(self):
         raise NotImplementedError  # pragma: no cover
+
+    @classmethod
+    def _reserve_free_port(cls, host):
+        """Return the next free TCP port at/above the shared counter.
+
+        Ports are handed out from a monotonic counter, but a previous test's
+        server can linger on its port for a moment after teardown; reusing that
+        number then fails with "address already in use" and wedges the test
+        (it hangs until the per-test timeout). Probe each candidate and skip any
+        still occupied so we only return a port we can actually bind.
+        """
+        # Bound the search so a pathological environment can't loop forever.
+        for _ in range(200):
+            port = cls._next_port
+            cls._next_port += 1
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                # Match the servers (werkzeug/uvicorn set SO_REUSEADDR): a port
+                # in TIME_WAIT is fine to reuse, only an actively-bound one is
+                # skipped.
+                probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                try:
+                    probe.bind((host, port))
+                except OSError:
+                    continue
+            return port
+        raise TestingTimeoutError("could not find a free port for the test server")
 
     @staticmethod
     def accessible(url):
@@ -167,22 +208,14 @@ class ThreadedRunner(BaseDashRunner):
             options["dev_tools_disable_version_check"] = True
 
             if "port" not in kwargs:
-                options["port"] = self.port = BaseDashRunner._next_port
-                BaseDashRunner._next_port += 1
+                options["port"] = self.port = BaseDashRunner._reserve_free_port(
+                    self.host
+                )
             else:
                 self.port = options["port"]
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
             except Exception as error:
@@ -219,9 +252,7 @@ class ThreadedRunner(BaseDashRunner):
 
     def stop(self):
         # pylint: disable=protected-access
-        server_type = getattr(
-            getattr(self._app, "backend", None), "server_type", "flask"
-        )
+        server_type = _server_type(self._app)
         # For FastAPI apps with uvicorn, use graceful shutdown
         if server_type == "fastapi":
             server = self._app._uvicorn_server  # type: ignore[reportOptionalMemberAccess]
@@ -240,9 +271,12 @@ class ThreadedRunner(BaseDashRunner):
                 loop.call_soon_threadsafe(quart_shutdown_event.set)  # type: ignore[reportOptionalMemberAccess]
             self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         else:
-            # Fall back to killing threads for Flask/other backends
+            # Fall back to killing threads for Flask/other backends. Bound the
+            # join: if the injected SystemExit fails to unwind a worker stuck in
+            # a C call, an unbounded join() would block teardown forever and
+            # hang the whole test step.
             self.thread.kill()  # type: ignore[reportOptionalMemberAccess]
-            self.thread.join()  # type: ignore[reportOptionalMemberAccess]
+            self.thread.join(timeout=self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
             wait.until_not(self.thread.is_alive, self.stop_timeout)  # type: ignore[reportOptionalMemberAccess]
         self._app = None
         self.started = False
@@ -264,16 +298,7 @@ class MultiProcessRunner(BaseDashRunner):
             options = kwargs.copy()
 
             try:
-                module = app.server.__class__.__module__
-                # FastAPI support
-                if module.startswith("fastapi"):
-                    app.run(**options)
-                # Quart support (ASGI - runs its own async event loop)
-                elif module.startswith("quart"):
-                    app.run(**options)
-                # Flask fallback (WSGI - needs threaded mode)
-                else:
-                    app.run(threaded=True, **options)
+                _run_app(app, options)
             except SystemExit:
                 logger.info("Server stopped")
                 raise
