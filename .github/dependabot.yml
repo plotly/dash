@@ -216,9 +216,9 @@ updates:
         applies-to: security-updates
         patterns:
           - "*"
-    # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
-    # the react-docgen 5 API) and must never be updated.
     ignore:
+      # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
+      # the react-docgen 5 API) and must never be updated.
       - dependency-name: "react-docgen"
       # The test/generator fixtures pin React 16 (react-jsx-parser peer-deps on
       # 16/17); a major bump breaks them. Stay on 16.x.
