@@ -4,12 +4,12 @@ updates:
   # NOTE: Dependabot's npm updater recurses from "/" into every nested
   # package.json, and neither the singular `directory` nor plural `directories`
   # with `!` exclusion globs stops that recursion. So the ONLY reliable way to
-  # keep this entry from bumping the components/renderer (which carry their own
-  # narrow allow/ignore lists, e.g. react-docgen is pinned) is the `allow` list
-  # below: it names only packages that exist SOLELY in the root package.json, so
-  # even while recursing, Dependabot opens root-only PRs. npm-run-all, rimraf and
-  # @types/jest are intentionally omitted — they also live in the components and
-  # would produce duplicate PRs.
+  # keep this entry from bumping the components/renderer/@plotly packages (which
+  # each carry their own narrow allow/ignore lists, e.g. react-docgen is pinned)
+  # is the `allow` list below: it names only packages that exist SOLELY in the
+  # root package.json, so even while recursing, Dependabot opens root-only PRs.
+  # npm-run-all, rimraf and @types/jest are intentionally omitted: they also live
+  # in the components and would produce duplicate PRs.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -184,6 +184,48 @@ updates:
     # the react-docgen 5 API) and must never be updated.
     ignore:
       - dependency-name: "react-docgen"
+      # typescript 6+ (and the native tsc 7) break the type-check. Stay on 5.x.
+      - dependency-name: "typescript"
+        versions: [">=6.0.0"]
+      # Babel 8 / babel-loader 10 break the build (the class-properties plugin
+      # peer-deps on @babel/core ^7). Stay on the 7.x / 9.x line.
+      - dependency-name: "@babel/*"
+        versions: [">=8.0.0"]
+      - dependency-name: "babel-loader"
+        versions: [">=10.0.0"]
+
+  # @plotly workspace packages (build helpers, jupyterlab, and the generator /
+  # test-component fixtures). These have no per-package config, so without this
+  # entry Dependabot's root "/" recursion opens an individual, ungrouped PR for
+  # each one. The `directories` glob claims every /@plotly/* manifest and folds
+  # them into a single grouped PR.
+  - package-ecosystem: "npm"
+    directories:
+      - "/@plotly/*"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    cooldown:
+      default-days: 14
+    groups:
+      npm-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      npm-dependencies-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
+    # the react-docgen 5 API) and must never be updated.
+    ignore:
+      - dependency-name: "react-docgen"
+      # The test/generator fixtures pin React 16 (react-jsx-parser peer-deps on
+      # 16/17); a major bump breaks them. Stay on 16.x.
+      - dependency-name: "react"
+        versions: [">=17.0.0"]
+      - dependency-name: "react-dom"
+        versions: [">=17.0.0"]
       # typescript 6+ (and the native tsc 7) break the type-check. Stay on 5.x.
       - dependency-name: "typescript"
         versions: [">=6.0.0"]
