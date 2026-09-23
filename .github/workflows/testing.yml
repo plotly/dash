@@ -1012,6 +1012,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Run Windows-specific unit tests
+        run: python -m pytest tests/unit/test_resources.py
+
   dcc-lint:
     name: DCC Lint Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
