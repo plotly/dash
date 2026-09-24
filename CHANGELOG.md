@@ -42,6 +42,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 
 ### Changed
+- [#3987](https://github.com/plotly/dash/pull/3987) Forward FastAPI reload scope options (`reload_dirs`, `reload_excludes`, and `reload_includes`) to Uvicorn when reloading.
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjusted the `_run_before_hooks` inf `fastapi` backend to allow for a return value in the event that a `before_request` function returns a response. This is more aligned with how the `before_request` hooks work in the `flask` backend.
 
 ## [4.4.1] - 2026-07-21
