@@ -1,4 +1,8 @@
+import os
+import sys
+
 import mock
+import pytest
 import dash
 from dash import dcc, html  # noqa: F401
 
@@ -253,3 +257,28 @@ def test_multiple_external_urls_with_attributes():
         {"src": "https://example.com/script1.js", "type": "module"},
         {"src": "https://example.com/script2.js", "type": "module"},
     ]
+
+
+@pytest.mark.skipif(
+    sys.platform != "win32", reason="extended-length paths only exist on Windows"
+)
+def test_index_with_windows_extended_length_paths(tmp_path, monkeypatch):
+    """Dash and the assets folder under extended-length paths (JupyterLab Desktop).
+
+    Windows uses these paths verbatim, so a "/" inside one is an invalid name.
+    """
+    monkeypatch.setattr(dash, "__file__", "\\\\?\\" + os.path.abspath(dash.__file__))
+    icons = tmp_path / "assets" / "icons"
+    icons.mkdir(parents=True)
+    (icons / "favicon.ico").write_bytes(b"")
+
+    app = dash.Dash(__name__, assets_folder="\\\\?\\" + str(tmp_path / "assets"))
+    app.layout = html.Div()
+
+    response = app.server.test_client().get("/")
+
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "/_dash-component-suites/dash/deps/polyfill@" in body
+    assert "dash-stream-worker.v" in body
+    assert "/assets/icons/favicon.ico?m=" in body
