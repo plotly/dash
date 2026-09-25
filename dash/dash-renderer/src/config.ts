@@ -29,6 +29,16 @@ export type DashConfig = {
         inactivity_timeout?: number;
         heartbeat_interval?: number;
     };
+    stream?: {
+        enabled: boolean;
+        // Served when enabled: the SharedWorker that hosts the browser's
+        // single streaming downlink, shared across tabs.
+        worker_url?: string;
+        // How the server serves the downlink: one open connection (ASGI) or
+        // polling (WSGI), and the poll interval in ms for the latter.
+        mode?: 'stream' | 'poll';
+        poll_interval?: number;
+    };
     csrf_token_name?: string;
     csrf_header_name?: string;
     // Server-issued, server-signed token for this page load. Echoed on every

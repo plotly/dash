@@ -1,7 +1,7 @@
 import os
 from typing import Any, List, Dict
 
-__version__ = "3.4.1"
+__version__ = "3.5.0"
 
 _available_react_versions = {"18.3.1", "18.2.0", "19.2.4"}
 _available_reactdom_versions = {"18.3.1", "18.2.0", "19.2.4"}
@@ -85,7 +85,7 @@ _js_dist = [
     {
         "relative_package_path": "dash-renderer/build/dash_renderer.min.js",
         "dev_package_path": "dash-renderer/build/dash_renderer.dev.js",
-        "external_url": "https://unpkg.com/dash-renderer@3.4.1"
+        "external_url": "https://unpkg.com/dash-renderer@3.5.0"
         "/build/dash_renderer.min.js",
         "namespace": "dash",
     },
@@ -97,6 +97,11 @@ _js_dist = [
     },
     {
         "relative_package_path": "dash-renderer/build/dash-ws-worker.js",
+        "namespace": "dash",
+        "dynamic": True,
+    },
+    {
+        "relative_package_path": "dash-renderer/build/dash-stream-worker.js",
         "namespace": "dash",
         "dynamic": True,
     },

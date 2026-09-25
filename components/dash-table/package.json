@@ -1,6 +1,6 @@
 {
   "name": "dash-table",
-  "version": "7.4.1",
+  "version": "7.5.0",
   "description": "Dash table",
   "repository": {
     "type": "git",
@@ -68,7 +68,7 @@
     "chai": "^6.2.2",
     "css-loader": "^7.1.4",
     "css.escape": "^1.5.1",
-    "d3-format": "^3.1.0",
+    "d3-format": "3.1.0",
     "es-check": "^9.6.4",
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",
@@ -101,7 +101,7 @@
     "typescript": "^5.8.3",
     "webpack": "^5.104.1",
     "webpack-cli": "^7.0.3",
-    "webpack-dev-server": "5.2.4",
+    "webpack-dev-server": "5.2.6",
     "webpack-preprocessor": "^0.1.12",
     "xlsx": "^0.18.5"
   },
