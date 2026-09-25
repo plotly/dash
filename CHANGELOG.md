@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
+- [#3957](https://github.com/plotly/dash/pull/3957) Fix a `running` argument using a pattern-matching `ALL`/`ALLSMALLER` id crashing the renderer with `state.paths.objs[idKey] is undefined` when none of the matching components are on the current page (for example after navigating to another page in a multi-page app). The wildcard now resolves to an empty set of components and the callback proceeds without any side updates. Fixes [#3297](https://github.com/plotly/dash/issues/3297).
 - [#3944](https://github.com/plotly/dash/pull/3944) Fix `dash.testing` runner backend detection for wrapped FastAPI/Quart servers so threaded Flask-only options are not passed to ASGI runners.
 - [#3955](https://github.com/plotly/dash/pull/3955) Unpin `selenium` in the testing requirements (was capped at `<=4.2.0` from 2022) and require `>=4.11.0`, so it can drive current stable Chrome via Selenium Manager and stop the widespread CI flakiness.
 - [#3881](https://github.com/plotly/dash/pull/3881) Speed up the renderer layout crawl (`crawlLayout` and its callers) by replacing curried-ramda `path`/`pathOr` lookups with direct property access on the hot path: ~16% faster `Patch().append()` into a large container, with no behavior change.
