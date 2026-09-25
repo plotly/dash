@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import os
 import sys
@@ -732,6 +733,15 @@ class Dash(ObsoleteChecker):
 
         # tracks internally if a function already handled at least one request.
         self._got_first_request = {"pages": False, "setup_server": False}
+        # Serialize the before_request hooks so a raced-in worker cannot see
+        # the guard flag while the work behind it is still in flight (gh-3971).
+        # The async lock is created inside router_async so it binds to the
+        # running event loop; on 3.9 asyncio.Lock captures the loop at
+        # construction, which for a Dash instance built in module scope is
+        # the wrong one.
+        self._setup_server_lock = threading.Lock()
+        self._pages_lock = threading.Lock()
+        self._pages_async_lock: Optional[asyncio.Lock] = None
 
         # Secret used to sign background-callback handles (see _callback_signing).
         # Prefer the Flask/Quart secret_key (shared across workers when the
@@ -1801,88 +1811,104 @@ class Dash(ObsoleteChecker):
         if self._got_first_request["setup_server"]:
             return
 
-        self._got_first_request["setup_server"] = True
+        # Double-checked locking: previously the guard flag was set before the
+        # work it protects, which let a second thread (e.g. under gunicorn
+        # ``-k gthread``) skip setup while ``registered_paths`` and
+        # ``callback_map`` were still being populated by the first thread and
+        # then fail validation on component bundle requests. See gh-3971.
+        with self._setup_server_lock:
+            if self._got_first_request["setup_server"]:
+                return
 
-        # Apply _force_eager_loading overrides from modules
-        eager_loading = self.config.eager_loading
-        for module_name in ComponentRegistry.registry:
-            module = sys.modules[module_name]
-            eager = getattr(module, "_force_eager_loading", False)
-            eager_loading = eager_loading or eager
+            # Apply _force_eager_loading overrides from modules
+            eager_loading = self.config.eager_loading
+            for module_name in ComponentRegistry.registry:
+                module = sys.modules[module_name]
+                eager = getattr(module, "_force_eager_loading", False)
+                eager_loading = eager_loading or eager
 
-        # Update eager_loading settings
-        self.scripts.config.eager_loading = eager_loading
+            # Update eager_loading settings
+            self.scripts.config.eager_loading = eager_loading
 
-        if self.config.include_assets_files:
-            self._walk_assets_directory()
+            if self.config.include_assets_files:
+                self._walk_assets_directory()
 
-        if not self.layout and self.use_pages:
-            self.layout = page_container
+            if not self.layout and self.use_pages:
+                self.layout = page_container
 
-        _validate.validate_layout(self.layout, self._layout_value())
+            _validate.validate_layout(self.layout, self._layout_value())
 
-        self._generate_scripts_html()
-        self._generate_css_dist_html()
+            self._generate_scripts_html()
+            self._generate_css_dist_html()
 
-        # Copy over global callback data structures assigned with `dash.callback`
-        for k in list(_callback.GLOBAL_CALLBACK_MAP):
-            if k in self.callback_map:
-                raise DuplicateCallback(
-                    f"The callback `{k}` provided with `dash.callback` was already "
-                    "assigned with `app.callback`."
+            # Copy over global callback data structures assigned with `dash.callback`
+            for k in list(_callback.GLOBAL_CALLBACK_MAP):
+                if k in self.callback_map:
+                    raise DuplicateCallback(
+                        f"The callback `{k}` provided with `dash.callback` was already "
+                        "assigned with `app.callback`."
+                    )
+
+                self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+
+            self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+
+            # For each callback function, if the hidden parameter uses the default value None,
+            # replace it with the actual value of the self.config.hide_all_callbacks.
+            self._callback_list = [
+                (
+                    {
+                        **_callback,
+                        "hidden": self.config.get("hide_all_callbacks", False),
+                    }
+                    if _callback.get("hidden") is None
+                    else _callback
                 )
+                for _callback in self._callback_list
+            ]
 
-            self.callback_map[k] = _callback.GLOBAL_CALLBACK_MAP.pop(k)
+            _callback.GLOBAL_CALLBACK_LIST.clear()
 
-        self._callback_list.extend(_callback.GLOBAL_CALLBACK_LIST)
+            _validate.validate_background_callbacks(self.callback_map)
 
-        # For each callback function, if the hidden parameter uses the default value None,
-        # replace it with the actual value of the self.config.hide_all_callbacks.
-        self._callback_list = [
-            (
-                {**_callback, "hidden": self.config.get("hide_all_callbacks", False)}
-                if _callback.get("hidden") is None
-                else _callback
-            )
-            for _callback in self._callback_list
-        ]
+            cancels = {}
 
-        _callback.GLOBAL_CALLBACK_LIST.clear()
+            for callback in self.callback_map.values():
+                background = callback.get("background")
+                if not background:
+                    continue
+                if "cancel_inputs" in background:
+                    cancel = background.pop("cancel_inputs")
+                    for c in cancel:
+                        cancels[c] = background.get("manager")
 
-        _validate.validate_background_callbacks(self.callback_map)
+            if cancels:
+                for cancel_input, manager in cancels.items():
+                    # pylint: disable=cell-var-from-loop
+                    @self.callback(
+                        Output(cancel_input.component_id, "id"),
+                        cancel_input,
+                        prevent_initial_call=True,
+                        manager=manager,
+                    )
+                    def cancel_call(*_):
+                        job_ids = callback_context.args.getlist("cancelJob")
+                        executor = (
+                            _callback.context_value.get().background_callback_manager
+                        )
+                        if job_ids:
+                            secret = self._get_signing_secret()
+                            end_id = _callback.get_request_end_id(secret)
+                            scope = _callback_signing.job_scope(end_id)
+                            for job_id in job_ids:
+                                job = _callback_signing.unsign(secret, scope, job_id)
+                                if job is not None:
+                                    executor.terminate_job(job)
+                        return no_update
 
-        cancels = {}
-
-        for callback in self.callback_map.values():
-            background = callback.get("background")
-            if not background:
-                continue
-            if "cancel_inputs" in background:
-                cancel = background.pop("cancel_inputs")
-                for c in cancel:
-                    cancels[c] = background.get("manager")
-
-        if cancels:
-            for cancel_input, manager in cancels.items():
-                # pylint: disable=cell-var-from-loop
-                @self.callback(
-                    Output(cancel_input.component_id, "id"),
-                    cancel_input,
-                    prevent_initial_call=True,
-                    manager=manager,
-                )
-                def cancel_call(*_):
-                    job_ids = callback_context.args.getlist("cancelJob")
-                    executor = _callback.context_value.get().background_callback_manager
-                    if job_ids:
-                        secret = self._get_signing_secret()
-                        end_id = _callback.get_request_end_id(secret)
-                        scope = _callback_signing.job_scope(end_id)
-                        for job_id in job_ids:
-                            job = _callback_signing.unsign(secret, scope, job_id)
-                            if job is not None:
-                                executor.terminate_job(job)
-                    return no_update
+            # Publish the flag last, so a raced-in thread cannot see it set
+            # while the setup work above is still in flight.
+            self._got_first_request["setup_server"] = True
 
     def _add_assets_resource(self, url_path, file_path):
         res = {"asset_path": url_path, "filepath": file_path}
@@ -2735,153 +2761,181 @@ class Dash(ObsoleteChecker):
         async def router_async():
             if self._got_first_request["pages"]:
                 return
-            self._got_first_request["pages"] = True
 
-            inputs = {
-                "pathname_": Input(_ID_LOCATION, "pathname"),
-                "search_": Input(_ID_LOCATION, "search"),
-            }
-            inputs.update(self.routing_callback_inputs)
+            # Lazily create the lock so it binds to the running event loop
+            # (see __init__). Check-and-assign is safe here: asyncio only
+            # yields at await points, so no other task can race between the
+            # two lines.
+            if self._pages_async_lock is None:
+                self._pages_async_lock = asyncio.Lock()
 
-            @self.callback(
-                Output(_ID_CONTENT, "children"),
-                Output(_ID_STORE, "data"),
-                inputs=inputs,
-                prevent_initial_call=True,
-                hidden=True,
-            )
-            async def update(pathname_, search_, **states):
-                query_parameters = _parse_query_string(search_)
-                page, path_variables = _path_to_page(
-                    self.strip_relative_path(pathname_)
-                )
-                if page == {}:
-                    for module, page in _pages.PAGE_REGISTRY.items():
-                        if module.split(".")[-1] == "not_found_404":
-                            layout = page["layout"]
-                            title = page["title"]
-                            break
-                    else:
-                        layout = html.H1("404 - Page not found")
-                        title = self.title
-                else:
-                    layout = page.get("layout", "")
-                    title = page["title"]
+            # Double-checked locking, same rationale as _setup_server
+            # (gh-3971). Without it a raced-in task can either serve requests
+            # against an unregistered _ID_CONTENT callback or hit
+            # DuplicateCallback registering the router callback twice.
+            async with self._pages_async_lock:
+                if self._got_first_request["pages"]:
+                    return
 
-                if callable(layout):
-                    layout = await execute_async_function(
-                        layout,
-                        **{**(path_variables or {}), **query_parameters, **states},
-                    )
-                if callable(title):
-                    title = await execute_async_function(
-                        title, **{**(path_variables or {})}
-                    )
-                return layout, {"title": title}
-
-            _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
-            _validate.validate_registry(_pages.PAGE_REGISTRY)
-
-            if not self.config.suppress_callback_exceptions:
-
-                async def get_layouts():
-                    return [
-                        await execute_async_function(page["layout"])
-                        if callable(page["layout"])
-                        else page["layout"]
-                        for page in _pages.PAGE_REGISTRY.values()
-                    ]
-
-                layouts = await get_layouts()
-                # pylint: disable=not-callable
-                layouts += [self.layout() if callable(self.layout) else self.layout]
-                self.validation_layout = html.Div(layouts)
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
-
-            self.clientside_callback(
-                """
-                function(data) {
-                    document.title = data.title
+                inputs = {
+                    "pathname_": Input(_ID_LOCATION, "pathname"),
+                    "search_": Input(_ID_LOCATION, "search"),
                 }
-                """,
-                Output(_ID_DUMMY, "children"),
-                Input(_ID_STORE, "data"),
-                hidden=True,
-            )
+                inputs.update(self.routing_callback_inputs)
+
+                @self.callback(
+                    Output(_ID_CONTENT, "children"),
+                    Output(_ID_STORE, "data"),
+                    inputs=inputs,
+                    prevent_initial_call=True,
+                    hidden=True,
+                )
+                async def update(pathname_, search_, **states):
+                    query_parameters = _parse_query_string(search_)
+                    page, path_variables = _path_to_page(
+                        self.strip_relative_path(pathname_)
+                    )
+                    if page == {}:
+                        for module, page in _pages.PAGE_REGISTRY.items():
+                            if module.split(".")[-1] == "not_found_404":
+                                layout = page["layout"]
+                                title = page["title"]
+                                break
+                        else:
+                            layout = html.H1("404 - Page not found")
+                            title = self.title
+                    else:
+                        layout = page.get("layout", "")
+                        title = page["title"]
+
+                    if callable(layout):
+                        layout = await execute_async_function(
+                            layout,
+                            **{**(path_variables or {}), **query_parameters, **states},
+                        )
+                    if callable(title):
+                        title = await execute_async_function(
+                            title, **{**(path_variables or {})}
+                        )
+                    return layout, {"title": title}
+
+                _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+                _validate.validate_registry(_pages.PAGE_REGISTRY)
+
+                if not self.config.suppress_callback_exceptions:
+
+                    async def get_layouts():
+                        return [
+                            await execute_async_function(page["layout"])
+                            if callable(page["layout"])
+                            else page["layout"]
+                            for page in _pages.PAGE_REGISTRY.values()
+                        ]
+
+                    layouts = await get_layouts()
+                    # pylint: disable=not-callable
+                    layouts += [self.layout() if callable(self.layout) else self.layout]
+                    self.validation_layout = html.Div(layouts)
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
+
+                self.clientside_callback(
+                    """
+                    function(data) {
+                        document.title = data.title
+                    }
+                    """,
+                    Output(_ID_DUMMY, "children"),
+                    Input(_ID_STORE, "data"),
+                    hidden=True,
+                )
+
+                # Publish the flag last so a raced-in task cannot observe it
+                # set while the callback registration above is still pending.
+                self._got_first_request["pages"] = True
 
         # Sync version
         def router_sync():
             if self._got_first_request["pages"]:
                 return
-            self._got_first_request["pages"] = True
 
-            inputs = {
-                "pathname_": Input(_ID_LOCATION, "pathname"),
-                "search_": Input(_ID_LOCATION, "search"),
-            }
-            inputs.update(self.routing_callback_inputs)
+            # Double-checked locking, same rationale as router_async and
+            # _setup_server (gh-3971).
+            with self._pages_lock:
+                if self._got_first_request["pages"]:
+                    return
 
-            @self.callback(
-                Output(_ID_CONTENT, "children"),
-                Output(_ID_STORE, "data"),
-                inputs=inputs,
-                prevent_initial_call=True,
-                hidden=True,
-            )
-            def update(pathname_, search_, **states):
-                query_parameters = _parse_query_string(search_)
-                page, path_variables = _path_to_page(
-                    self.strip_relative_path(pathname_)
-                )
-                if page == {}:
-                    for module, page in _pages.PAGE_REGISTRY.items():
-                        if module.split(".")[-1] == "not_found_404":
-                            layout = page["layout"]
-                            title = page["title"]
-                            break
-                    else:
-                        layout = html.H1("404 - Page not found")
-                        title = self.title
-                else:
-                    layout = page.get("layout", "")
-                    title = page["title"]
-
-                if callable(layout):
-                    layout = layout(
-                        **{**(path_variables or {}), **query_parameters, **states}
-                    )
-                if callable(title):
-                    title = title(**(path_variables or {}))
-                return layout, {"title": title}
-
-            _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
-            _validate.validate_registry(_pages.PAGE_REGISTRY)
-
-            if not self.config.suppress_callback_exceptions:
-                layout = self.layout
-                if not isinstance(layout, list):
-                    # pylint: disable=not-callable
-                    layout = [self.layout() if callable(self.layout) else self.layout]
-                self.validation_layout = html.Div(
-                    [
-                        page["layout"]() if callable(page["layout"]) else page["layout"]
-                        for page in _pages.PAGE_REGISTRY.values()
-                    ]
-                    + layout
-                )
-                if _ID_CONTENT not in self.validation_layout:
-                    raise Exception("`dash.page_container` not found in the layout")
-
-            self.clientside_callback(
-                """
-                function(data) {
-                    document.title = data.title
+                inputs = {
+                    "pathname_": Input(_ID_LOCATION, "pathname"),
+                    "search_": Input(_ID_LOCATION, "search"),
                 }
-                """,
-                Output(_ID_DUMMY, "children"),
-                Input(_ID_STORE, "data"),
-            )
+                inputs.update(self.routing_callback_inputs)
+
+                @self.callback(
+                    Output(_ID_CONTENT, "children"),
+                    Output(_ID_STORE, "data"),
+                    inputs=inputs,
+                    prevent_initial_call=True,
+                    hidden=True,
+                )
+                def update(pathname_, search_, **states):
+                    query_parameters = _parse_query_string(search_)
+                    page, path_variables = _path_to_page(
+                        self.strip_relative_path(pathname_)
+                    )
+                    if page == {}:
+                        for module, page in _pages.PAGE_REGISTRY.items():
+                            if module.split(".")[-1] == "not_found_404":
+                                layout = page["layout"]
+                                title = page["title"]
+                                break
+                        else:
+                            layout = html.H1("404 - Page not found")
+                            title = self.title
+                    else:
+                        layout = page.get("layout", "")
+                        title = page["title"]
+
+                    if callable(layout):
+                        layout = layout(
+                            **{**(path_variables or {}), **query_parameters, **states}
+                        )
+                    if callable(title):
+                        title = title(**(path_variables or {}))
+                    return layout, {"title": title}
+
+                _validate.check_for_duplicate_pathnames(_pages.PAGE_REGISTRY)
+                _validate.validate_registry(_pages.PAGE_REGISTRY)
+
+                if not self.config.suppress_callback_exceptions:
+                    layout = self.layout
+                    if not isinstance(layout, list):
+                        # pylint: disable=not-callable
+                        layout = [self.layout() if callable(self.layout) else self.layout]
+                    self.validation_layout = html.Div(
+                        [
+                            page["layout"]() if callable(page["layout"]) else page["layout"]
+                            for page in _pages.PAGE_REGISTRY.values()
+                        ]
+                        + layout
+                    )
+                    if _ID_CONTENT not in self.validation_layout:
+                        raise Exception("`dash.page_container` not found in the layout")
+
+                self.clientside_callback(
+                    """
+                    function(data) {
+                        document.title = data.title
+                    }
+                    """,
+                    Output(_ID_DUMMY, "children"),
+                    Input(_ID_STORE, "data"),
+                )
+
+                # Publish the flag last so a raced-in thread cannot observe
+                # it set while the callback registration above is still
+                # pending.
+                self._got_first_request["pages"] = True
 
         if self._use_async:
             self.backend.before_request(router_async)
