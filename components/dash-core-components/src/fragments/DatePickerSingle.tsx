@@ -204,6 +204,7 @@ const DatePickerSingle = ({
                             disabled={disabled}
                             dir={direction}
                             aria-label={placeholder}
+                            autoComplete="off"
                         />
                         {clearable && !disabled && !!date && (
                             <a
