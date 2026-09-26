@@ -425,7 +425,7 @@ class Dash(ObsoleteChecker):
     `routing_callback_inputs={"language": Input("language", "value")}`
     NOTE: the keys "pathname_" and "search_" are reserved for internal use.
 
-    :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
+    :param description:  Sets a default description for meta tags.
 
     :param on_error: Global callback error handler to call when
         an exception is raised. Receives the exception object as first argument.
@@ -491,7 +491,7 @@ class Dash(ObsoleteChecker):
         assets_external_path: Optional[str] = None,
         eager_loading: bool = False,
         include_assets_files: bool = True,
-        include_pages_meta: bool = True,
+        include_pages_meta: Optional[bool] = None,
         url_base_pathname: Optional[str] = None,
         requests_pathname_prefix: Optional[str] = None,
         routes_pathname_prefix: Optional[str] = None,
@@ -641,6 +641,9 @@ class Dash(ObsoleteChecker):
 
         self.pages_folder = str(pages_folder)
         self.use_pages = (pages_folder != "pages") if use_pages is None else use_pages
+        if self.include_pages_meta is None:
+            self.include_pages_meta = self.use_pages
+
         self.routing_callback_inputs = routing_callback_inputs or {}
 
         # keep title as a class property for backwards compatibility
