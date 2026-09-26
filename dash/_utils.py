@@ -144,9 +144,9 @@ class AttributeDict(dict):
 
 
 def create_callback_id(output, inputs, no_output=False):
-    # A single dot within a dict id key or value is OK
-    # but in case of multiple dots together escape each dot
-    # with `\` so we don't mistake it for multi-outputs
+    # Dots within a string ID are escaped with \. to distinguish them
+    # from the separator between component-id and property.
+    # For dict IDs (JSON strings) we use \u002e instead - see _concat.
     hashed_inputs = None
 
     def _hash_inputs():
@@ -156,7 +156,17 @@ def create_callback_id(output, inputs, no_output=False):
 
     def _concat(x):
         nonlocal hashed_inputs
-        _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        id_str = x.component_id_str()
+        if isinstance(x.component_id, dict):
+            # Dict IDs are serialized as JSON strings. Using \. to escape
+            # dots produces an invalid JSON escape sequence that causes
+            # JSON.parse to throw SyntaxError in the frontend (see #3480).
+            # \u002e is the valid JSON Unicode escape for "." and is
+            # transparently decoded back to "." by JSON.parse.
+            escaped = id_str.replace(".", "\\u002e")
+        else:
+            escaped = id_str.replace(".", "\\.")
+        _id = escaped + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
                 hashed_inputs = _hash_inputs()
