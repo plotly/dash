@@ -2911,10 +2911,14 @@ class Dash(ObsoleteChecker):
                     layout = self.layout
                     if not isinstance(layout, list):
                         # pylint: disable=not-callable
-                        layout = [self.layout() if callable(self.layout) else self.layout]
+                        layout = [
+                            self.layout() if callable(self.layout) else self.layout
+                        ]
                     self.validation_layout = html.Div(
                         [
-                            page["layout"]() if callable(page["layout"]) else page["layout"]
+                            page["layout"]()
+                            if callable(page["layout"])
+                            else page["layout"]
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + layout
