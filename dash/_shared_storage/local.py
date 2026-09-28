@@ -25,7 +25,7 @@ import threading
 import time
 from typing import Any, Optional, Tuple
 
-from ._engine import DEFAULT_BUFFER, PollResult, StoreEngine
+from ._engine import DEFAULT_BUFFER, DEFAULT_TOPIC_TTL, PollResult, StoreEngine
 from ._persistence import _Persistence, default_store_dir
 from ._transport import (
     EOF,
@@ -37,7 +37,13 @@ from ._transport import (
     recv_frame,
     send_frame,
 )
-from .base import BaseSharedStorage, SharedStorageError, SharedStorageGap, Subscription
+from .base import (
+    BaseSharedStorage,
+    SharedStorageError,
+    SharedStorageGap,
+    Subscription,
+    check_topic_ttl,
+)
 
 _HAS_AF_UNIX = hasattr(socket, "AF_UNIX")
 _CLIENT_POLL_TIMEOUT = 20.0  # long-poll cycle for remote subscribers
@@ -138,9 +144,11 @@ class _Coordinator:
         mode: str = "memory",
         path: Optional[str] = None,
         flush_interval: float = 60.0,
+        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
         self._namespace = namespace
         self._buffer_size = buffer_size
+        self._topic_ttl = topic_ttl
         self._mode = mode
         self._path = path
         self._flush_interval = flush_interval
@@ -177,7 +185,7 @@ class _Coordinator:
             listen_sock, family, address = bound
             token = secrets.token_hex(16)
             _write_advertisement(self._addr_path, family, address, token)
-            engine = StoreEngine(self._buffer_size)
+            engine = StoreEngine(self._buffer_size, topic_ttl=self._topic_ttl)
             if self._mode != "memory":
                 assert self._path is not None
                 persistence = _Persistence(
@@ -474,6 +482,9 @@ class LocalSharedStorage(BaseSharedStorage):
     ``path`` is the on-disk store directory for the persistent modes; it defaults
     to a per-namespace folder under the user cache directory. ``flush_interval``
     (seconds) only applies to ``"persist-reset"``.
+
+    ``topic_ttl`` (seconds) releases a topic nobody has published to or read
+    from for that long; ``None`` keeps topics for the life of the owner.
     """
 
     _MODES = ("memory", "persist", "persist-reset")
@@ -485,6 +496,7 @@ class LocalSharedStorage(BaseSharedStorage):
         mode: str = "memory",
         path: Optional[str] = None,
         flush_interval: float = 60.0,
+        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
         if mode not in self._MODES:
             raise SharedStorageError(
@@ -495,10 +507,13 @@ class LocalSharedStorage(BaseSharedStorage):
             raise SharedStorageError(
                 f"flush_interval must be positive, got {flush_interval!r}"
             )
+        check_topic_ttl(topic_ttl)
         ns = namespace or _default_namespace()
         if mode != "memory" and path is None:
             path = default_store_dir(ns)
-        self._coord = _Coordinator(ns, buffer_size, mode, path, flush_interval)
+        self._coord = _Coordinator(
+            ns, buffer_size, mode, path, flush_interval, topic_ttl
+        )
         self._conn: Optional[socket.socket] = None
         self._conn_lock = threading.Lock()
         # Client role, asyncio callers: one asyncio-streams connection per
