@@ -166,3 +166,42 @@ def test_no_alias_when_names_collide(tmp_path, monkeypatch):
             for spec in _callback.GLOBAL_CALLBACK_LIST
             if spec["output"] != "alias-out.children"
         ]
+
+
+SAME_NAME = "dash_test_alias_same"
+
+
+def test_no_reexecution_when_script_dir_shares_script_name(tmp_path, monkeypatch):
+    """``python app/app.py`` run from the parent directory gives the dotted
+    name ``app.app``, while only the script's own directory is on sys.path, so
+    the parent ``app`` resolves to the running script. Resolving the alias
+    must not execute the script a second time. See issue #4011."""
+    from dash import _callback
+
+    script_dir = tmp_path / SAME_NAME
+    script_dir.mkdir()
+    app_file = script_dir / f"{SAME_NAME}.py"
+    app_file.write_text(APP_SOURCE)
+
+    monkeypatch.syspath_prepend(str(script_dir))
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _run_as(app_file, "__mp_main__")
+
+        assert SAME_NAME not in sys.modules
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "alias-out.children"
+        ]
+        assert len(specs) == 1
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(SAME_NAME, None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "alias-out.children"
+        ]
