@@ -1261,7 +1261,7 @@ class Dash(ObsoleteChecker):
         # Build fingerprinted URL (same pattern as _collect_and_register_resources)
         module_path = os.path.join(
             os.path.dirname(sys.modules[namespace].__file__),  # type: ignore
-            relative_path,
+            *relative_path.split("/"),
         )
 
         # Use a fallback if the file doesn't exist yet (during development)
@@ -1302,9 +1302,11 @@ class Dash(ObsoleteChecker):
             else:
                 version = importlib.import_module(namespace).__version__
 
+            # Split on "/" so the file path uses the OS separator: Windows
+            # extended-length paths (\\?\ prefix) reject forward slashes.
             module_path = os.path.join(  # type: ignore[reportCallIssue]
                 os.path.dirname(sys.modules[namespace].__file__),  # type: ignore[reportCallIssue]
-                relative_package_path,
+                *relative_package_path.split("/"),
             )
 
             modified = int(os.stat(module_path).st_mtime)
@@ -1489,7 +1491,7 @@ class Dash(ObsoleteChecker):
 
         if self._favicon:
             favicon_mod_time = os.path.getmtime(
-                os.path.join(self.config.assets_folder, self._favicon)
+                os.path.join(self.config.assets_folder, *self._favicon.split("/"))
             )
             favicon_url = f"{self.get_asset_url(self._favicon)}?m={favicon_mod_time}"
         else:
