@@ -35,6 +35,7 @@ setup(
         "testing": read_req_file("testing"),
         "celery": read_req_file("celery"),
         "diskcache": read_req_file("diskcache"),
+        "redis": read_req_file("redis"),
         "compress": read_req_file("compress"),
         "fastapi": read_req_file("fastapi"),
         "quart": read_req_file("quart"),
