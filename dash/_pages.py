@@ -381,23 +381,40 @@ def _path_to_page(path_id):
 
 
 def _page_meta_tags(app, request):
-    request_path = request.path
-    start_page, path_variables = _path_to_page(request_path.strip("/"))
+    if not app.use_pages and not (app.description or app.image):
+        return []
 
-    image = start_page.get("image", "")
-    if image:
-        image = app.get_asset_url(image)
-    assets_image_url = "".join([request.root, image.lstrip("/")]) if image else None
-    supplied_image_url = start_page.get("image_url")
-    image_url = supplied_image_url if supplied_image_url else assets_image_url
+    title = app.title
+    description = app.description or ""
+    image = app.image
+    supplied_image_url = None
 
-    title = start_page.get("title", app.title)
-    if callable(title):
-        title = title(**path_variables) if path_variables else title()
+    if app.use_pages:
+        request_path = request.path
+        start_page, path_variables = _path_to_page(request_path.strip("/"))
 
-    description = start_page.get("description", "")
-    if callable(description):
-        description = description(**path_variables) if path_variables else description()
+        if start_page:
+            title = start_page.get("title", title)
+            description = start_page.get("description", description)
+            image = start_page.get("image") or image
+            supplied_image_url = start_page.get("image_url")
+
+        if callable(title):
+            title = title(**path_variables) if path_variables else title()
+
+        if callable(description):
+            description = description(**path_variables) if path_variables else description()
+
+    if supplied_image_url:
+        image_url = supplied_image_url
+    elif image:
+        if image.startswith(("http://", "https://")):
+            image_url = image
+        else:
+            image = app.get_asset_url(image)
+            image_url = "".join([request.root, image.lstrip("/")])
+    else:
+        image_url = None
 
     return [
         {"name": "description", "content": description},
