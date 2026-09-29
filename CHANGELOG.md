@@ -39,7 +39,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`) not applying it on first render, because descendant layout hashes were reset on the first fresh render (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 - [#3002](https://github.com/plotly/dash/issues/3002) Fix page loads failing with a 500 error on Windows when Dash is imported from an extended-length (`\\?\`) path, as in JupyterLab Desktop. Package resource paths are now joined with the OS separator instead of `/`.
-- [#4011](https://github.com/plotly/dash/issues/4011) Fix callbacks being registered twice when an app runs as `python app/app.py` from the parent directory, where the script shares its folder's name (regression introduced in 4.4.1 by [#3883](https://github.com/plotly/dash/pull/3883)).
+- [#4011](https://github.com/plotly/dash/issues/4011) Fix extra callback registrations when an app runs from the parent directory: `python app/app.py`, where the script shares its folder's name, registered its callbacks twice, and `python app/main.py` imported a sibling `app/app.py` as the parent package and registered its callbacks too (regression introduced in 4.4.1 by [#3883](https://github.com/plotly/dash/pull/3883)).
 
 ## [4.4.1] - 2026-07-21
 
