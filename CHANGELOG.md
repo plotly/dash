@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- [#3976](https://github.com/plotly/dash/pull/3976) Add a new `scrollToTop` prop to `dcc.Link` to control whether the page scrolls to the top after client-side navigation. It defaults to `True` to preserve the existing behavior. Fixes [#3974](https://github.com/plotly/dash/issues/3974).
 - [#3947](https://github.com/plotly/dash/pull/3947) Make `plotly-cloud` a default install dependency of Dash instead of an optional extra, so the `plotly` CLI and Dash's cloud integration work out of the box. The `dash[cloud]` extra is kept for backward compatibility.
 - [#3930](https://github.com/plotly/dash/pull/3930) Add shared storage: a backend-agnostic cross-process state manager (key/value with optional TTL, plus ordered replayable pub/sub) on every app via `dash.ctx.shared_storage`, started lazily and disabled with `shared_storage=None`. Ships `LocalSharedStorage` (default, in-memory with optional disk persistence), `DiskcacheSharedStorage`, and `RedisSharedStorage` for horizontally-scaled deployments; see `.ai/ARCHITECTURE.md`.
 - [#3931](https://github.com/plotly/dash/pull/3931) Add streaming callbacks: an `async def` generator callback streams its yields to the browser as they are produced (`dash.Patch` yields apply incrementally). A browser's streams share one SharedWorker-hosted connection so they do not count against the per-host connection limit; closing a tab cancels its streams.
