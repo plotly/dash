@@ -5,8 +5,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- Add `DASH_SECRET_KEY` so a hosting platform can give every worker and pod the same signing secret for page, background and stream tokens without editing the app (`server.secret_key` still wins and is not changed).
-- Add `DASH_SHARED_STORAGE` to pick the shared-storage backend when the app does not pass `shared_storage=`: `local`, `none`, `diskcache:///abs/path`, or a `redis://` / `rediss://` URL.
+- [#4026](https://github.com/plotly/dash/pull/4026) Add `DASH_SECRET_KEY` so a hosting platform can give every worker and pod the same signing secret for page, background and stream tokens without editing the app (`server.secret_key` still wins and is not changed).
+- [#4026](https://github.com/plotly/dash/pull/4026) Add `DASH_SHARED_STORAGE` to pick the shared-storage backend when the app does not pass `shared_storage=`: `local`, `none`, `diskcache:///abs/path`, or a `redis://` / `rediss://` URL.
 - [#3976](https://github.com/plotly/dash/pull/3976) Add a new `scrollToTop` prop to `dcc.Link` to control whether the page scrolls to the top after client-side navigation. It defaults to `True` to preserve the existing behavior. Fixes [#3974](https://github.com/plotly/dash/issues/3974).
 - [#3947](https://github.com/plotly/dash/pull/3947) Make `plotly-cloud` a default install dependency of Dash instead of an optional extra, so the `plotly` CLI and Dash's cloud integration work out of the box. The `dash[cloud]` extra is kept for backward compatibility.
 - [#3930](https://github.com/plotly/dash/pull/3930) Add shared storage: a backend-agnostic cross-process state manager (key/value with optional TTL, plus ordered replayable pub/sub) on every app via `dash.ctx.shared_storage`, started lazily and disabled with `shared_storage=None`. Ships `LocalSharedStorage` (default, in-memory with optional disk persistence), `DiskcacheSharedStorage`, and `RedisSharedStorage` for horizontally-scaled deployments; see `.ai/ARCHITECTURE.md`.
@@ -23,7 +23,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
 ### Changed
-- Log a warning, once per process, when a streaming request is refused because its stream token failed verification, which on multi-worker deployments usually means the workers do not share a signing secret.
+- [#4026](https://github.com/plotly/dash/pull/4026) Log a warning, once per process, when a streaming request is refused because its stream token failed verification, which on multi-worker deployments usually means the workers do not share a signing secret.
 - [#3987](https://github.com/plotly/dash/pull/3987) Forward FastAPI reload scope options (`reload_dirs`, `reload_excludes`, and `reload_includes`) to Uvicorn when reloading.
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
