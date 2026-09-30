@@ -312,10 +312,12 @@ def _validate_stream_callback(callback_id, background, kwargs, is_sync_gen):
 def validate_background_inputs(deps):
     for dep in deps:
         if dep.has_wildcard():
-            raise WildcardInLongCallback(f"""
+            raise WildcardInLongCallback(
+                f"""
                 background callbacks does not support dependencies with
                 pattern-matching ids
-                    Received: {repr(dep)}\n""")
+                    Received: {repr(dep)}\n"""
+            )
 
 
 ClientsideFuncType = Union[str, ClientsideFunction]
