@@ -2634,7 +2634,8 @@ class Dash(ObsoleteChecker):
 
         :param tunnel: Share the app on a public ``trycloudflare.com`` URL
             through a Cloudflare quick tunnel. No Cloudflare account needed.
-            Uses ``cloudflared`` from your PATH, or downloads it once if missing.
+            Uses ``cloudflared`` from your PATH. If it is missing, asks before
+            downloading a pinned release and checks it against its checksum.
             Anyone with the URL can reach the app. For development only.
             env: ``DASH_TUNNEL``
         :type tunnel: bool

@@ -1,11 +1,13 @@
 """Expose a locally running Dash app through a Cloudflare quick tunnel.
 
 Quick tunnels need no Cloudflare account. ``cloudflared`` is used from the
-PATH when present, otherwise the official release is downloaded once and
-cached.
+PATH when present, otherwise a pinned release is downloaded once, after the
+user agrees, and checked against its published checksum.
 """
 
 import atexit
+import hashlib
+import io
 import os
 import platform
 import re
@@ -18,7 +20,24 @@ import tempfile
 import threading
 import urllib.request
 
-RELEASE_URL = "https://github.com/cloudflare/cloudflared/releases/latest/download/"
+CLOUDFLARED_VERSION = "2026.9.3"
+RELEASE_URL = (
+    "https://github.com/cloudflare/cloudflared/releases/download/"
+    f"{CLOUDFLARED_VERSION}/"
+)
+# SHA-256 of the cloudflared binary (inside the .tgz on macOS), from the
+# release notes.
+CLOUDFLARED_SHA256 = {
+    "cloudflared-darwin-amd64.tgz": "ab588b3b4db9cdb4476c30a3db2a72635b1d8327d44741fee6799a0f37b0ec07",
+    "cloudflared-darwin-arm64.tgz": "5472c1a01c84bc31b3021056a73b4e5774ddddefc572124ea8fdf6c340639f32",
+    "cloudflared-linux-amd64": "77e26d8d900e0b8469f416239d14b5f296525fdf79fee6f511ef55609e3fbac2",
+    "cloudflared-linux-arm64": "aaeb2d7d0da3614634c7e03ab13487a1522c2e79165ed2929cfe23d5e95b326d",
+    "cloudflared-windows-amd64.exe": "f096265ec2fcbe9bb6e2d64268db167ced3fcbb83d894bdb9e2fcdb26f2ea7e2",
+}
+INSTALL_HINT = (
+    "Install cloudflared and make sure it is on your PATH: "
+    "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
+)
 # api.trycloudflare.com shows up in cloudflared's own error messages.
 TUNNEL_URL_RE = re.compile(r"https://(?!api\.)[-a-z0-9]+\.trycloudflare\.com")
 
@@ -34,35 +53,54 @@ def _release_asset():
         if name:
             return f"cloudflared-{name}-{arch[machine]}{suffix}"
     raise RuntimeError(
-        f"No cloudflared build for {sys.platform}/{machine}. Install cloudflared "
-        "yourself and make sure it is on your PATH: "
-        "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/"
+        f"No cloudflared build for {sys.platform}/{machine}. {INSTALL_HINT}"
     )
+
+
+def _confirm_download():
+    if not (sys.stdin and sys.stdin.isatty()):
+        raise RuntimeError(f"cloudflared was not found. {INSTALL_HINT}")
+    try:
+        answer = input(
+            f"cloudflared was not found. Download cloudflared {CLOUDFLARED_VERSION} "
+            "from github.com/cloudflare/cloudflared (about 40 MB)? [y/N] "
+        )
+    except EOFError:
+        answer = ""
+    if answer.strip().lower() not in ("y", "yes"):
+        raise RuntimeError(f"Download declined. {INSTALL_HINT}")
 
 
 def _download_cloudflared(logger):
     asset = _release_asset()
     exe_name = "cloudflared.exe" if sys.platform == "win32" else "cloudflared"
-    target_dir = os.path.expanduser(os.path.join("~", ".cache", "dash", "cloudflared"))
+    target_dir = os.path.expanduser(
+        os.path.join("~", ".cache", "dash", "cloudflared", CLOUDFLARED_VERSION)
+    )
     target = os.path.join(target_dir, exe_name)
     if os.path.isfile(target):
         return target
 
+    _confirm_download()
     os.makedirs(target_dir, exist_ok=True)
     logger.info("Downloading cloudflared from %s%s", RELEASE_URL, asset)
     with tempfile.TemporaryDirectory(dir=target_dir) as tmp:
-        download = os.path.join(tmp, asset)
-        with urllib.request.urlopen(RELEASE_URL + asset, timeout=60) as resp, open(
-            download, "wb"
-        ) as out:
-            shutil.copyfileobj(resp, out)
+        binary = os.path.join(tmp, exe_name)
+        with urllib.request.urlopen(RELEASE_URL + asset, timeout=60) as resp:
+            data = resp.read()
         if asset.endswith(".tgz"):
-            with tarfile.open(download) as tgz:
-                tgz.extract("cloudflared", tmp, filter="data")
-            download = os.path.join(tmp, exe_name)
-        os.chmod(download, 0o700)
+            with tarfile.open(fileobj=io.BytesIO(data)) as tgz:
+                member = tgz.extractfile("cloudflared")
+                data = member.read() if member else b""
+        if hashlib.sha256(data).hexdigest() != CLOUDFLARED_SHA256[asset]:
+            raise RuntimeError(
+                f"The downloaded {asset} does not match its published checksum."
+            )
+        with open(binary, "wb") as out:
+            out.write(data)
+        os.chmod(binary, 0o700)
         # Rename last so a failed download never leaves a broken binary behind.
-        os.replace(download, target)
+        os.replace(binary, target)
     return target
 
 
@@ -93,22 +131,25 @@ class Tunnel:
             self.process.kill()
 
 
-def _stop_on_sigterm(tunnel):
-    # atexit does not run on SIGTERM, which would leave cloudflared
-    # exposing the port after Dash is gone.
+def _stop_on_signals(tunnel):
+    # atexit does not run on SIGTERM, or on SIGHUP when the terminal closes,
+    # which would leave cloudflared exposing the port after Dash is gone.
     if threading.current_thread() is not threading.main_thread():
         return
-    original = signal.getsignal(signal.SIGTERM)
+    for signum in (signal.SIGTERM, getattr(signal, "SIGHUP", None)):
+        if signum is None:
+            continue
+        original = signal.getsignal(signum)
 
-    def handler(sig, frame):
-        tunnel.stop()
-        if callable(original):
-            original(sig, frame)
-        elif original == signal.SIG_DFL:
-            signal.signal(sig, signal.SIG_DFL)
-            signal.raise_signal(sig)
+        def handler(sig, frame, original=original):
+            tunnel.stop()
+            if callable(original):
+                original(sig, frame)
+            elif original == signal.SIG_DFL:
+                signal.signal(sig, signal.SIG_DFL)
+                signal.raise_signal(sig)
 
-    signal.signal(signal.SIGTERM, handler)
+        signal.signal(signum, handler)
 
 
 def start_tunnel(target_url, logger, path="/"):
@@ -133,7 +174,7 @@ def start_tunnel(target_url, logger, path="/"):
     )
     tunnel = Tunnel(process)
     atexit.register(tunnel.stop)
-    _stop_on_sigterm(tunnel)
+    _stop_on_signals(tunnel)
 
     def watch():
         output = []

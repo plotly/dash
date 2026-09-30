@@ -1,3 +1,9 @@
+import hashlib
+import io
+import logging
+import os
+import tarfile
+
 import pytest
 
 from dash import _tunnel
@@ -48,3 +54,94 @@ def test_url_regex():
 def test_url_regex_skips_api_host():
     line = 'ERR failed to request quick Tunnel: Post "https://api.trycloudflare.com/tunnel"'
     assert _tunnel.TUNNEL_URL_RE.search(line) is None
+
+
+class FakeStdin:
+    def __init__(self, tty):
+        self.tty = tty
+
+    def isatty(self):
+        return self.tty
+
+
+@pytest.fixture
+def fake_release(monkeypatch, tmp_path):
+    """Serve ``payload`` as the release asset and count the requests."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
+    monkeypatch.setattr(_tunnel.sys, "platform", "linux")
+    monkeypatch.setattr(_tunnel.platform, "machine", lambda: "x86_64")
+    release = {"payload": b"fake cloudflared binary", "requests": 0}
+
+    def urlopen(url, timeout):
+        release["requests"] += 1
+        return io.BytesIO(release["payload"])
+
+    monkeypatch.setattr(_tunnel.urllib.request, "urlopen", urlopen)
+    monkeypatch.setitem(
+        _tunnel.CLOUDFLARED_SHA256,
+        "cloudflared-linux-amd64",
+        hashlib.sha256(release["payload"]).hexdigest(),
+    )
+    return release
+
+
+def answer(monkeypatch, reply, tty=True):
+    def fake_input(_):
+        if reply is EOFError:
+            raise EOFError
+        return reply
+
+    monkeypatch.setattr(_tunnel.sys, "stdin", FakeStdin(tty))
+    monkeypatch.setattr("builtins.input", fake_input)
+
+
+def test_download_after_yes_then_cached(monkeypatch, fake_release):
+    answer(monkeypatch, "y")
+    path = _tunnel._download_cloudflared(logging.getLogger())
+    with open(path, "rb") as f:
+        assert f.read() == fake_release["payload"]
+    assert os.access(path, os.X_OK)
+    assert _tunnel.CLOUDFLARED_VERSION in path
+
+    answer(monkeypatch, "n")
+    assert _tunnel._download_cloudflared(logging.getLogger()) == path
+    assert fake_release["requests"] == 1
+
+
+@pytest.mark.parametrize(
+    "reply,tty", [("n", True), ("", True), (EOFError, True), ("y", False)]
+)
+def test_no_download_without_consent(monkeypatch, fake_release, reply, tty):
+    answer(monkeypatch, reply, tty)
+    with pytest.raises(RuntimeError, match="Install cloudflared"):
+        _tunnel._download_cloudflared(logging.getLogger())
+    assert fake_release["requests"] == 0
+
+
+def test_checksum_mismatch(monkeypatch, fake_release, tmp_path):
+    answer(monkeypatch, "y")
+    fake_release["payload"] = b"tampered"
+    with pytest.raises(RuntimeError, match="checksum"):
+        _tunnel._download_cloudflared(logging.getLogger())
+    assert not list(tmp_path.glob(".cache/dash/cloudflared/*/cloudflared"))
+
+
+def test_download_extracts_macos_archive(monkeypatch, fake_release):
+    binary = b"fake mac binary"
+    archive = io.BytesIO()
+    with tarfile.open(fileobj=archive, mode="w:gz") as tgz:
+        info = tarfile.TarInfo("cloudflared")
+        info.size = len(binary)
+        tgz.addfile(info, io.BytesIO(binary))
+    fake_release["payload"] = archive.getvalue()
+    monkeypatch.setattr(_tunnel.sys, "platform", "darwin")
+    monkeypatch.setattr(_tunnel.platform, "machine", lambda: "arm64")
+    monkeypatch.setitem(
+        _tunnel.CLOUDFLARED_SHA256,
+        "cloudflared-darwin-arm64.tgz",
+        hashlib.sha256(binary).hexdigest(),
+    )
+    answer(monkeypatch, "yes")
+    with open(_tunnel._download_cloudflared(logging.getLogger()), "rb") as f:
+        assert f.read() == binary

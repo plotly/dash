@@ -109,7 +109,8 @@ def test_tunn003_tunnel_failure_keeps_app_running(
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="no SIGTERM on Windows")
-def test_tunn004_sigterm_stops_tunnel(fake_cloudflared, tmp_path):
+@pytest.mark.parametrize("signum", ["SIGTERM", "SIGHUP"])
+def test_tunn004_signal_stops_tunnel(fake_cloudflared, tmp_path, signum):
     app_file = tmp_path / "app.py"
     app_file.write_text(
         textwrap.dedent(
@@ -127,7 +128,7 @@ def test_tunn004_sigterm_stops_tunnel(fake_cloudflared, tmp_path):
             wait_for(pid_file.exists)
             wait_for(lambda: pid_file.read_text().strip())
             tunnel_pid = int(pid_file.read_text())
-            proc.send_signal(signal.SIGTERM)
+            proc.send_signal(getattr(signal, signum))
             proc.wait(timeout=10)
         finally:
             proc.kill()
