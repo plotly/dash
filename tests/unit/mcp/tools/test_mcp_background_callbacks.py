@@ -10,6 +10,7 @@ Covers both layers:
 
 import json
 import time
+from types import SimpleNamespace
 
 import diskcache
 from dash import Dash, Input, Output, html, _callback_signing
@@ -298,3 +299,53 @@ def test_mcpbg011_task_id_encodes_tool_name_job_id_cache_key():
     assert job_id.isdigit()
     assert len(cache_key) == 64  # SHA256 hex
     assert created_epoch.isdigit()
+
+
+def test_mcpbg012_tasks_result_passes_output_spec(monkeypatch):
+    from dash.mcp.tasks import tasks
+
+    output_spec = [{"id": "output", "property": "children"}]
+    adapter = SimpleNamespace(
+        _cb_info={"background": object(), "no_output": False},
+        output_id="output.children",
+        as_callback_body=lambda _params: {"outputs": output_spec},
+    )
+    app = SimpleNamespace(
+        mcp_callback_map=SimpleNamespace(find_by_tool_name=lambda _name: adapter)
+    )
+    manager = object()
+    captured = {}
+
+    def update_background_callback(
+        error_handler,
+        callback_ctx,
+        response,
+        kwargs,
+        background,
+        multi,
+        output_spec,
+        cache_key=None,
+        job_id=None,
+    ):
+        captured["output_spec"] = output_spec
+        return None, False, False
+
+    monkeypatch.setattr(
+        tasks,
+        "parse_task_id",
+        lambda _task_id: ("tool", "job", "cache", None),
+    )
+    monkeypatch.setattr(tasks, "get_app", lambda: app)
+    monkeypatch.setattr(tasks, "_get_callback_manager", lambda _tool_name: manager)
+    monkeypatch.setattr(
+        tasks, "_update_background_callback", update_background_callback
+    )
+    monkeypatch.setattr(tasks, "_prepare_response", lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        tasks,
+        "format_callback_response",
+        lambda _response, _adapter: "formatted",
+    )
+
+    assert tasks.get_task_result("task-id") == "formatted"
+    assert captured["output_spec"] is output_spec
