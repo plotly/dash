@@ -380,6 +380,20 @@ def _path_to_page(path_id):
     return {}, None
 
 
+def _get_image_url(app, request, image, supplied_image_url):
+    if supplied_image_url:
+        return supplied_image_url
+
+    if image:
+        if image.startswith(("http://", "https://")):
+            return image
+
+        image = app.get_asset_url(image)
+        return "".join([request.root, image.lstrip("/")])
+
+    return None
+
+
 def _page_meta_tags(app, request):
     if not app.use_pages and not (app.description or app.image):
         return []
@@ -403,18 +417,11 @@ def _page_meta_tags(app, request):
             title = title(**path_variables) if path_variables else title()
 
         if callable(description):
-            description = description(**path_variables) if path_variables else description()
+            description = (
+                description(**path_variables) if path_variables else description()
+            )
 
-    if supplied_image_url:
-        image_url = supplied_image_url
-    elif image:
-        if image.startswith(("http://", "https://")):
-            image_url = image
-        else:
-            image = app.get_asset_url(image)
-            image_url = "".join([request.root, image.lstrip("/")])
-    else:
-        image_url = None
+    image_url = _get_image_url(app, request, image, supplied_image_url)
 
     return [
         {"name": "description", "content": description},
