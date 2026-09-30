@@ -60,7 +60,7 @@ def _download_cloudflared(logger):
             with tarfile.open(download) as tgz:
                 tgz.extract("cloudflared", tmp, filter="data")
             download = os.path.join(tmp, exe_name)
-        os.chmod(download, 0o755)
+        os.chmod(download, 0o700)
         # Rename last so a failed download never leaves a broken binary behind.
         os.replace(download, target)
     return target
