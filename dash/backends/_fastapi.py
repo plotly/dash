@@ -148,6 +148,20 @@ def get_current_request() -> Request:
 _ENV_CONFIG = "_DASH_FASTAPI_CONFIG"
 
 
+def _replay_body(body: bytes, receive: Receive) -> Receive:
+    """ASGI receive that sends an already read request body once."""
+    sent = False
+
+    async def replay():
+        nonlocal sent
+        if not sent:
+            sent = True
+            return {"type": "http.request", "body": body, "more_body": False}
+        return await receive()
+
+    return replay
+
+
 class DashMiddleware:  # pylint: disable=too-few-public-methods
     """Consolidated middleware for all Dash/FastAPI integration needs."""
 
@@ -176,22 +190,24 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
                 self.dash_app.enable_dev_tools(**config, first_run=False)
             self._dev_tools_initialized = True
 
-    async def _setup_timing(self, request: Request) -> None:
-        """Set up timing information for the request."""
+    async def _setup_timing(self, request: Request) -> bytes | None:
+        """Set up timing information for the request.
+
+        Returns the request body when it had to be read to parse the JSON.
+        """
+        body = None
+        request.state.json_body = None
         try:
-            request.state.json_body = (
-                await request.json()
-                if request.headers.get("content-type", "").startswith(
-                    "application/json"
-                )
-                else None
-            )
+            if request.headers.get("content-type", "").startswith("application/json"):
+                body = await request.body()
+                request.state.json_body = json.loads(body)
         except Exception:  # pylint: disable=broad-exception-caught
             request.state.json_body = None
         if self.enable_timing:
             request.state.timing_information = {
                 "__dash_server": {"dur": time.time(), "desc": None}
             }
+        return body
 
     async def _run_before_hooks(self) -> None:
         """Run all before-request hooks."""
@@ -270,7 +286,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             await self.app(scope, receive, send)
             return
 
-        # Non-Dash routes pass through to avoid consuming body stream
+        # Non-Dash routes pass through to avoid consuming body stream.
+        # Routes registered through Dash (hook routes, MCP) are Dash routes too.
         path = scope["path"]
         prefix = self.dash_app.config.routes_pathname_prefix
         dash_prefix = prefix.rstrip("/") + "/_dash-"
@@ -278,6 +295,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             not path.startswith(dash_prefix)
             and path != prefix
             and path != prefix.rstrip("/")
+            and path not in self.dash_app.routes
         ):
             await self.app(scope, receive, send)
             return
@@ -287,9 +305,12 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         token = set_current_request(request)
 
         try:
-            await self._setup_timing(request)
+            body = await self._setup_timing(request)
             await self._run_before_hooks()
 
+            if body is not None:
+                # The body stream is consumed, replay it for handlers reading it.
+                receive = _replay_body(body, receive)
             await self.app(scope, receive, send)
 
             await self._run_after_hooks()
