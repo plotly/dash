@@ -42,6 +42,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 - [#4009](https://github.com/plotly/dash/issues/4009) Disable autocomplete in DatePickerSingle and DatePickerRange inputs.
 - [#3002](https://github.com/plotly/dash/issues/3002) Fix page loads failing with a 500 error on Windows when Dash is imported from an extended-length (`\\?\`) path, as in JupyterLab Desktop. Package resource paths are now joined with the OS separator instead of `/`.
+- [#4011](https://github.com/plotly/dash/issues/4011) Fix extra callback registrations when an app runs from the parent directory: `python app/app.py`, where the script shares its folder's name, registered its callbacks twice, and `python app/main.py` imported a sibling `app/app.py` as the parent package and registered its callbacks too (regression introduced in 4.4.1 by [#3883](https://github.com/plotly/dash/pull/3883)).
 
 ## [4.4.1] - 2026-07-21
 
