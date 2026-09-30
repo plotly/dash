@@ -6,6 +6,7 @@ def test_lcbc019_background_callback_on_error_without_output(dash_duo, manager):
         dash_duo.start_server(app)
 
         dash_duo.find_element("#start-no-output-cb-onerror").click()
-        dash_duo.wait_for_text_to_equal(
-            "#no-output-cb-onerror-output", "callback: no output callback error"
+        dash_duo.wait_for_contains_text(
+            "#no-output-cb-onerror-output",
+            "callback: An error occurred inside a background callback: no output callback error",
         )
