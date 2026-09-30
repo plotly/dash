@@ -114,16 +114,18 @@ def test_download_after_yes_then_cached(monkeypatch, fake_release):
 )
 def test_no_download_without_consent(monkeypatch, fake_release, reply, tty):
     answer(monkeypatch, reply, tty)
+    logger = logging.getLogger()
     with pytest.raises(RuntimeError, match="Install cloudflared"):
-        _tunnel._download_cloudflared(logging.getLogger())
+        _tunnel._download_cloudflared(logger)
     assert fake_release["requests"] == 0
 
 
 def test_checksum_mismatch(monkeypatch, fake_release, tmp_path):
     answer(monkeypatch, "y")
     fake_release["payload"] = b"tampered"
+    logger = logging.getLogger()
     with pytest.raises(RuntimeError, match="checksum"):
-        _tunnel._download_cloudflared(logging.getLogger())
+        _tunnel._download_cloudflared(logger)
     assert not list(tmp_path.glob(".cache/dash/cloudflared/*/cloudflared"))
 
 
