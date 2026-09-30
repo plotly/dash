@@ -752,6 +752,8 @@ Special handling for Colab:
 | `DASH_PRUNE_ERRORS` | Simplify tracebacks |
 | `HOST` | Server host |
 | `PORT` | Server port |
+| `DASH_SECRET_KEY` | Signing secret for page, background and stream tokens when `server.secret_key` is unset |
+| `DASH_SHARED_STORAGE` | Shared-storage backend when `shared_storage=` is not passed (see Shared Storage) |
 
 ## Stores and Client-Side State
 
@@ -976,6 +978,16 @@ election only reaches processes in the same network + filesystem namespace.
   This works at 1 pod and fragments silently once it scales — use
   `RedisSharedStorage` (one Redis shared by all pods) instead.
 
+A hosting platform can switch the backend without editing the app through
+`DASH_SHARED_STORAGE` (`_shared_storage/_env.py`), read only when the app did
+not pass `shared_storage=` (the default is a sentinel, so an explicit argument,
+`None` included, always wins): `local`, `none`, `diskcache:///abs/path`, or a
+`redis://` / `rediss://` URL. `cluster://` is reserved and raises; anything
+else raises `InvalidConfig` at construction. The value becomes a zero-argument
+factory, so nothing is built or connected until `app.shared_storage` is first
+read, but a missing extra (`dash[redis]`, `dash[diskcache]`) fails at
+construction with the backend's own `ImportError`.
+
 ### Custom and Out-of-Tree Backends
 
 `BaseSharedStorage` is the stable, public extension point. A backend — shipped
@@ -1010,6 +1022,7 @@ same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
 | `_shared_storage/_polling.py` | `PollingSubscription`: shared poll-loop subscription for the diskcache/Redis backends |
 | `_shared_storage/_transport.py` | Length-prefixed, token-gated socket transport (local backend) |
 | `_shared_storage/_codec.py` | msgspec msgpack codec (data-only) |
+| `_shared_storage/_env.py` | `DASH_SHARED_STORAGE` parsing |
 | `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
 | `_callback_context.py` | `dash.ctx.shared_storage` accessor |
 
@@ -1380,8 +1393,15 @@ The connection id is never chosen by the client: every stream request rides on
 `?endId=`, the server-signed per-page-load token, and the backend derives the
 id from it (`get_stream_connection_id`), answering 403 when it is missing or
 forged -- otherwise a client could read or inject into another page's topic.
-Across worker processes every worker must resolve the same signing secret
-(`secret_key`).
+Across worker processes every worker must resolve the same signing secret.
+`_get_signing_secret` resolves, in order: `server.secret_key`, then
+`DASH_SECRET_KEY` (for Dash's signing only, never copied onto
+`server.secret_key`, so Flask sessions are untouched), then a secret persisted
+in the background-callback store, then a per-process random one. With the last,
+tokens only verify on the worker that issued them: stream requests 403 on the
+other workers, and the first failure in each process logs a warning pointing at
+`DASH_SECRET_KEY` (`_warn_unverified_stream_token`). A request with no token at
+all is not logged.
 
 The downlink is hosted in a SharedWorker (`dash-stream-worker.js`, served like
 the WebSocket worker; `config.stream.worker_url`) so **one connection per
