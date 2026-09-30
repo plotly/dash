@@ -353,3 +353,53 @@ def test_fastapi_catchall_request_context(dash_duo):
 
     resp = requests.get(f"{dash_duo.server_url}/some/non-dash/path", timeout=5)
     assert resp.status_code == 200
+
+
+def test_fastapi_run_forwards_reload_scope():
+    """Forward reload include, exclude, and directory options to uvicorn."""
+    import inspect
+    import os
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from fastapi import FastAPI
+    from dash.backends._fastapi import FastAPIDashServer
+
+    server = FastAPIDashServer(FastAPI())
+
+    class DashApp:
+        _dev_tools = {}
+
+    app = DashApp()
+    caller_frame = inspect.currentframe()
+    stack_frame = SimpleNamespace(
+        filename=os.path.join(os.getcwd(), "tests", "backend_tests", "test.py"),
+        frame=caller_frame,
+    )
+
+    with patch("dash.backends._fastapi.subprocess.Popen") as popen, patch(
+        "dash.backends._fastapi.inspect.stack", return_value=[None, None, stack_frame]
+    ):
+        server.run(
+            dash_app=app,
+            host="127.0.0.1",
+            port=8050,
+            debug=False,
+            reload=True,
+            reload_dirs=["app", "src"],
+            reload_excludes=["tests/*"],
+            reload_includes=["*.py"],
+        )
+
+    args = popen.call_args.args[0]
+    assert args[-9:] == [
+        "--reload",
+        "--reload-dir",
+        "app",
+        "--reload-dir",
+        "src",
+        "--reload-exclude",
+        "tests/*",
+        "--reload-include",
+        "*.py",
+    ]
+    popen.return_value.wait.assert_called_once_with()

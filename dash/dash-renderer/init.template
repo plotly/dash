@@ -100,4 +100,9 @@ _js_dist = [
         "namespace": "dash",
         "dynamic": True,
     },
+    {
+        "relative_package_path": "dash-renderer/build/dash-stream-worker.js",
+        "namespace": "dash",
+        "dynamic": True,
+    },
 ]

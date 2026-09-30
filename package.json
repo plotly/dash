@@ -52,7 +52,7 @@
     "@percy/cli": "^1.31.0",
     "@types/jest": "^30.0.0",
     "husky": "9.1.7",
-    "lerna": "^9.0.4",
+    "lerna": "^10.0.1",
     "lint-staged": "^17.0.7"
   },
   "dependencies": {

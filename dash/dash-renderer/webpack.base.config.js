@@ -88,12 +88,14 @@ const shimOptions = {
     }
 };
 
-// WebSocket Worker configuration
-const workerOptions = {
+// SharedWorker bundles. Each worker gets its own compilation with an explicit
+// tsconfig: ts-loader would otherwise type-check both entries against
+// whichever tsconfig it finds first, and the two need different libs
+// (WebWorker for the WebSocket worker package, the renderer's DOM lib for the
+// stream worker, which shares its transport code with the page).
+const workerConfig = (name, entry, configFile) => ({
     mode: 'production',
-    entry: {
-        'dash-ws-worker': '../../@plotly/dash-websocket-worker/src/worker.ts',
-    },
+    entry: {[name]: entry},
     output: {
         path: path.resolve(__dirname, "build"),
         filename: '[name].js',
@@ -104,14 +106,28 @@ const workerOptions = {
             {
                 test: /\.ts$/,
                 exclude: /node_modules/,
-                use: ['ts-loader'],
+                use: [{loader: 'ts-loader', options: {configFile}}],
             },
         ]
     },
     resolve: {
         extensions: ['.ts', '.js']
     }
-};
+});
+
+// WebSocket Worker configuration
+const workerOptions = workerConfig(
+    'dash-ws-worker',
+    '../../@plotly/dash-websocket-worker/src/worker.ts',
+    path.resolve(__dirname, '../../@plotly/dash-websocket-worker/tsconfig.json')
+);
+
+// Streaming downlink worker configuration
+const streamWorkerOptions = workerConfig(
+    'dash-stream-worker',
+    './src/workers/streamWorker.ts',
+    path.resolve(__dirname, 'tsconfig.json')
+);
 
 module.exports = options => [
     R.mergeAll([
@@ -151,8 +167,9 @@ module.exports = options => [
             ),
         }
     ]),
-    // WebSocket Worker build
+    // SharedWorker builds (WebSocket transport, streaming downlink)
     workerOptions,
+    streamWorkerOptions,
     // React compatibility shim build
     shimOptions
 ];

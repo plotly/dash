@@ -458,6 +458,15 @@ def alias_main_module(caller_name: str) -> None:
     if import_name is None or import_name in sys.modules:
         return
     try:
+        # find_spec imports the parent package of a dotted name. Skip the alias
+        # when that parent is not a package: the import can only fail, and for
+        # ``python app/app.py`` the parent ``app`` is the running script itself,
+        # which would execute a second time. See issue #4011.
+        top_level = import_name.partition(".")[0]
+        if top_level != import_name and top_level not in sys.modules:
+            top_spec = importlib.util.find_spec(top_level)
+            if top_spec is None or top_spec.submodule_search_locations is None:
+                return
         spec = importlib.util.find_spec(import_name)
         if (
             spec is not None

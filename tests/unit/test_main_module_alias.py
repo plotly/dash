@@ -166,3 +166,93 @@ def test_no_alias_when_names_collide(tmp_path, monkeypatch):
             for spec in _callback.GLOBAL_CALLBACK_LIST
             if spec["output"] != "alias-out.children"
         ]
+
+
+SAME_NAME = "dash_test_alias_same"
+
+
+def test_no_reexecution_when_script_dir_shares_script_name(tmp_path, monkeypatch):
+    """``python app/app.py`` run from the parent directory gives the dotted
+    name ``app.app``, while only the script's own directory is on sys.path, so
+    the parent ``app`` resolves to the running script. Resolving the alias
+    must not execute the script a second time. See issue #4011."""
+    from dash import _callback
+
+    script_dir = tmp_path / SAME_NAME
+    script_dir.mkdir()
+    app_file = script_dir / f"{SAME_NAME}.py"
+    app_file.write_text(APP_SOURCE)
+
+    monkeypatch.syspath_prepend(str(script_dir))
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _run_as(app_file, "__mp_main__")
+
+        assert SAME_NAME not in sys.modules
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "alias-out.children"
+        ]
+        assert len(specs) == 1
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(SAME_NAME, None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "alias-out.children"
+        ]
+
+
+SIBLING_SOURCE = """
+from dash import callback, Output, Input
+
+
+@callback(Output("sibling-out", "children"), Input("sibling-in", "value"))
+def sibling_update(value):
+    return value
+"""
+
+SIBLING_DIR = "dash_test_alias_sibling"
+
+
+def test_no_sibling_import_when_script_dir_has_same_name_module(tmp_path, monkeypatch):
+    """``python app/main.py`` run from the parent directory gives the dotted
+    name ``app.main``, while only the script's own directory is on sys.path, so
+    the parent ``app`` resolves to a separate ``app/app.py`` next to the
+    script. Resolving the alias must not import that file and register its
+    callbacks. See issue #4011."""
+    from dash import _callback
+
+    script_dir = tmp_path / SIBLING_DIR
+    script_dir.mkdir()
+    app_file = script_dir / "main.py"
+    app_file.write_text(APP_SOURCE)
+    (script_dir / f"{SIBLING_DIR}.py").write_text(SIBLING_SOURCE)
+
+    monkeypatch.syspath_prepend(str(script_dir))
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _run_as(app_file, "__mp_main__")
+
+        assert SIBLING_DIR not in sys.modules
+        assert f"{SIBLING_DIR}.main" not in sys.modules
+        assert not [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "sibling-out.children"
+        ]
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(SIBLING_DIR, None)
+        for output in ("alias-out.children", "sibling-out.children"):
+            _callback.GLOBAL_CALLBACK_MAP.pop(output, None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] not in ("alias-out.children", "sibling-out.children")
+        ]

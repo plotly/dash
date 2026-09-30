@@ -210,6 +210,16 @@ class CallbackContext:
     def response(self):
         return getattr(_get_context_value(), "dash_response")
 
+    @property
+    def shared_storage(self):
+        """The app's shared storage (state manager + pub/sub).
+
+        A backend-agnostic key/value + publish/subscribe store shared across
+        worker processes -- for cross-callback or session state without an
+        external service. Requires ``Dash(shared_storage=...)`` (on by default).
+        """
+        return get_app().shared_storage
+
     @staticmethod
     @has_context
     def record_timing(name, duration, description=None):

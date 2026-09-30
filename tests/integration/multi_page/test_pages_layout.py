@@ -268,8 +268,14 @@ def test_pala006_pages_external_library(dash_duo):
 
 
 def get_app_title_description():
+    # pages_folder="" so the neighbouring pages/ modules do not auto-register
+    # and clash with the "page1" registration below on the default path.
     app = Dash(
-        __name__, use_pages=True, title="App Title", description="App Description"
+        __name__,
+        use_pages=True,
+        pages_folder="",
+        title="App Title",
+        description="App Description",
     )
     dash.register_page("home", layout=html.Div("Home"), path="/")
     dash.register_page(
