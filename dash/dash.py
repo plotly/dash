@@ -93,6 +93,7 @@ from ._pages import (
     _import_layouts_from_pages,
 )
 from ._jupyter import jupyter_dash, JupyterDisplayMode
+from ._tunnel import local_url, start_tunnel
 from .types import CallbackExecutionBody, RendererHooks
 
 RouteCallable = Callable[..., Any]
@@ -649,6 +650,7 @@ class Dash(ObsoleteChecker):
 
         # MCP (Model Context Protocol) configuration
         self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, False)
+        self._tunnel = None
         _mcp_path = get_combined_config("mcp_path", mcp_path, "_mcp")
         self._mcp_path = (
             _mcp_path.lstrip("/") if isinstance(_mcp_path, str) else _mcp_path
@@ -2520,6 +2522,7 @@ class Dash(ObsoleteChecker):
         dev_tools_disable_version_check: Optional[bool] = None,
         dev_tools_prune_errors: Optional[bool] = None,
         dev_tools_validate_callbacks: Optional[bool] = None,
+        tunnel: Optional[bool] = None,
         **flask_run_options,
     ):
         """Start the flask server in local mode, you should not run this on a
@@ -2629,6 +2632,13 @@ class Dash(ObsoleteChecker):
         :param jupyter_server_url: Custom server url to display
             the app in jupyter notebook.
 
+        :param tunnel: Share the app on a public ``trycloudflare.com`` URL
+            through a Cloudflare quick tunnel. No Cloudflare account needed.
+            Uses ``cloudflared`` from your PATH, or downloads it once if missing.
+            Anyone with the URL can reach the app. For development only.
+            env: ``DASH_TUNNEL``
+        :type tunnel: bool
+
         :param flask_run_options: Given to `Flask.run`
 
         :return:
@@ -2667,6 +2677,12 @@ class Dash(ObsoleteChecker):
         assert host
         port = port or os.getenv("PORT", "8050")
         proxy = proxy or os.getenv("DASH_PROXY")
+        tunnel = get_combined_config("tunnel", tunnel, False) in (
+            True,
+            "1",
+            "yes",
+            "on",
+        )
 
         # Verify port value
         try:
@@ -2719,6 +2735,21 @@ class Dash(ObsoleteChecker):
                         self.config.routes_pathname_prefix,
                         self._mcp_path,
                     )
+
+            if tunnel:
+                if debug:
+                    self.logger.warning(
+                        "The tunnel is public and debug is on: anyone with the "
+                        "URL can see dev tools and error tracebacks.\n"
+                    )
+                if self._tunnel:
+                    self._tunnel.stop()
+                try:
+                    self._tunnel = start_tunnel(
+                        local_url(protocol, host, port), self.logger, path
+                    )
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    self.logger.error("Could not start the tunnel: %s\n", e)
 
         if self.config.extra_hot_reload_paths:
             extra_files = flask_run_options["extra_files"] = []
