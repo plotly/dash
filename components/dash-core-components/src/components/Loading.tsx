@@ -6,6 +6,7 @@ import DefaultSpinner from '../fragments/Loading/spinners/DefaultSpinner';
 import CubeSpinner from '../fragments/Loading/spinners/CubeSpinner';
 import CircleSpinner from '../fragments/Loading/spinners/CircleSpinner';
 import DotSpinner from '../fragments/Loading/spinners/DotSpinner';
+import ClipSpinner from '../fragments/Loading/spinners/ClipSpinner';
 import {LoadingProps} from 'src/types';
 import {DebugTitleProps} from '../fragments/Loading/types';
 import {DashLayoutPath} from '@dash-renderer/types/component';
@@ -15,6 +16,7 @@ const spinnerComponentOptions = {
     cube: CubeSpinner,
     circle: CircleSpinner,
     dot: DotSpinner,
+    clip: ClipSpinner,
     default: DefaultSpinner,
 } as const;
 
