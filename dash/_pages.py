@@ -220,14 +220,14 @@ def register_page(
        order `0`
 
     - `title`:
-      Specifies the page title displayed in the browser tab and used in social media meta tags.
-      If not supplied, the app's title is used if different from the default "Dash".
-      Otherwise, the title is inferred from the module name.
-      For example, `pages.weekly_analytics` is inferred as "Weekly Analytics".
+      (string or function) Specifies the page title displayed in the browser tab and used in social media meta tags.
+        If not supplied, the app's title is used if different from the default "Dash".
+        Otherwise, the title is the given `name` or inferred from the module name.
+        For example, `pages.weekly_analytics` is inferred as "Weekly Analytics"
 
     - `description`:
-      Specifies the page description used in the `<meta name="description">` tag and in social media meta tags.
-      If not supplied, the app's description is used if available.
+      (string or function) Specifies the page description used in the `<meta name="description">` tag and in social
+       media meta tags. If not supplied, the app's description is used if available.
 
     - `image`:
       Specifies the image used in social media meta tags. This can be an image filename in the `assets/` folder
