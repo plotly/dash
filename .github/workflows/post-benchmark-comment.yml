@@ -1,0 +1,69 @@
+name: Post Benchmark Comment
+
+# Posts the benchmark results comment in the base-repo context (with a
+# read/write token) after the Performance Benchmarks workflow finishes. Fork
+# PRs run that workflow with a read-only GITHUB_TOKEN, so its own comment step
+# would 403 ("Resource not accessible by integration"). Same pattern as
+# post-test-status.yml. The results and the PR number arrive via the
+# benchmark-results artifact.
+
+on:
+  workflow_run:
+    workflows: ["Performance Benchmarks"]
+    types:
+      - completed
+
+jobs:
+  comment:
+    name: Comment benchmark results
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Download benchmark results
+        id: download
+        # A cancelled or superseded benchmarks run (cancel-in-progress) still
+        # fires this workflow_run but never uploads the artifact. Don't fail the
+        # named download in that case; the comment step below just skips.
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Comment results on the PR
+        if: steps.download.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let issue_number;
+            try {
+              issue_number = parseInt(
+                fs.readFileSync('benchmark-results/pr-number.txt', 'utf8').trim(), 10);
+            } catch (e) {}
+            if (!issue_number) {
+              console.log('No PR number recorded; nothing to comment.');
+              return;
+            }
+            let body = '## Dash performance benchmarks\n\n_no summary produced_';
+            try {
+              body = fs.readFileSync('benchmark-results/summary.md', 'utf8');
+            } catch (e) {}
+            const marker = '<!-- dash-benchmarks -->';
+            body = `${marker}\n${body}`;
+            const {owner, repo} = context.repo;
+            const comments = await github.paginate(
+              github.rest.issues.listComments, {owner, repo, issue_number});
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment(
+                {owner, repo, comment_id: existing.id, body});
+            } else {
+              await github.rest.issues.createComment(
+                {owner, repo, issue_number, body});
+            }
