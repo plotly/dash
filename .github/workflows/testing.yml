@@ -97,7 +97,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -113,7 +113,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -174,9 +174,9 @@ jobs:
         run: npm ci
 
       - name: Set up Python for build
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
           cache: pip
 
       - name: Install build dependencies
@@ -237,10 +237,10 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
           cache: 'pip'
           cache-dependency-path: requirements/*.txt
       
@@ -273,7 +273,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     # Redis service for the RedisSharedStorage backend.
     services:
@@ -304,7 +304,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -347,7 +347,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     # Service container for Redis
     services:
@@ -383,7 +383,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -459,7 +459,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     services:
       redis:
@@ -488,7 +488,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -533,7 +533,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.14"]
 
     steps:
       - name: Checkout repository
@@ -549,7 +549,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -591,7 +591,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.14"]
         test-group: ["1", "2", "3"]
 
     steps:
@@ -608,7 +608,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -655,7 +655,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -671,7 +671,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -716,7 +716,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -732,7 +732,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -776,14 +776,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -808,7 +808,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -839,11 +839,11 @@ jobs:
         run: npm run setup-tests.py
 
       - name: Run main integration tests
-        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
+        if: matrix.python-version != '3.14' || matrix.react-version != '18.3.1'
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
 
       - name: Run main integration tests with Percy
-        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
+        if: matrix.python-version == '3.14' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
@@ -878,13 +878,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -909,7 +909,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -941,12 +941,12 @@ jobs:
         run: npm ci
 
       - name: Run HTML components tests
-        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
+        if: matrix.python-version != '3.14' || matrix.react-version != '18.3.1'
         working-directory: components/dash-html-components
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
 
       - name: Run HTML components tests with Percy
-        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
+        if: matrix.python-version == '3.14' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
@@ -987,10 +987,10 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
 
       - name: Install Node.js dependencies
         run: npm ci
@@ -1033,7 +1033,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -1046,7 +1046,7 @@ jobs:
           cache: 'npm'
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -1081,14 +1081,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.9", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -1113,7 +1113,7 @@ jobs:
         run: npm ci
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -1191,10 +1191,10 @@ jobs:
       - name: Install Node.js dependencies
         run: npm ci
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.14'
           cache: 'pip'
           cache-dependency-path: requirements/*.txt
 
