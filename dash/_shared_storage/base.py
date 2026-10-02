@@ -35,6 +35,13 @@ class SharedStorageGap(SharedStorageError):
     """
 
 
+def check_topic_ttl(topic_ttl: Optional[float]) -> None:
+    if topic_ttl is not None and topic_ttl <= 0:
+        raise SharedStorageError(
+            f"topic_ttl must be positive or None, got {topic_ttl!r}"
+        )
+
+
 class Subscription(abc.ABC):
     """A live, ordered view of a topic.
 

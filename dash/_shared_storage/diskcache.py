@@ -13,15 +13,17 @@ Pub/sub is an append log: an atomic per-topic counter assigns monotonic
 sequence numbers, each message is stored under its sequence and old sequences
 are trimmed to a bounded window, and subscribers poll for sequences past their
 cursor. A consumer that falls farther behind than the window gets a
-``SharedStorageGap``.
+``SharedStorageGap``. With ``topic_ttl``, each message expires that long after
+it was published and the counter that long after the topic's last publish or
+poll, so abandoned topics leave the cache.
 """
 import time
 from typing import Any, Optional
 
 from ._codec import decode, encode
-from ._engine import DEFAULT_BUFFER, PollResult
+from ._engine import DEFAULT_BUFFER, DEFAULT_TOPIC_TTL, PollResult
 from ._polling import PollingSubscription
-from .base import BaseSharedStorage, Subscription
+from .base import BaseSharedStorage, Subscription, check_topic_ttl
 
 # Poll cycle: short so a subscription's close() stays responsive; diskcache has
 # no server-side blocking wait, so this is a sleep-poll loop.
@@ -46,7 +48,9 @@ class DiskcacheSharedStorage(BaseSharedStorage):
 
     Pass an existing ``cache`` (e.g. the one a ``DiskcacheManager`` already
     holds) to share one store, or a ``directory`` to open/create one. Values and
-    published messages must be JSON-compatible.
+    published messages must be JSON-compatible. ``topic_ttl`` (seconds) releases
+    a topic nobody has published to or read from for that long; ``None`` keeps
+    topics until the cache evicts them.
     """
 
     def __init__(
@@ -54,7 +58,9 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         cache: Any = None,
         directory: Optional[str] = None,
         buffer_size: int = DEFAULT_BUFFER,
+        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
+        check_topic_ttl(topic_ttl)
         diskcache = _require_diskcache()
         if cache is not None:
             if not isinstance(cache, (diskcache.Cache, diskcache.FanoutCache)):
@@ -67,6 +73,7 @@ class DiskcacheSharedStorage(BaseSharedStorage):
             self._cache = diskcache.Cache(directory)
             self._owns_cache = True
         self._buffer_size = buffer_size
+        self._topic_ttl = topic_ttl
 
     def close(self) -> None:
         if self._owns_cache:
@@ -101,7 +108,9 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         payload = encode(message)
         with self._cache.transact():
             seq = int(self._cache.incr(self._seq(topic)))
-            self._cache.set(self._msg(topic, seq), payload)
+            if self._topic_ttl is not None:
+                self._cache.touch(self._seq(topic), expire=self._topic_ttl)
+            self._cache.set(self._msg(topic, seq), payload, expire=self._topic_ttl)
             evicted = seq - self._buffer_size
             if evicted >= 1:
                 self._cache.delete(self._msg(topic, evicted))
@@ -110,6 +119,9 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         return int(self._cache.get(self._seq(topic), 0))
 
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
+        if self._topic_ttl is not None:
+            # A reader keeps its topic alive; a missing key is left alone.
+            self._cache.touch(self._seq(topic), expire=self._topic_ttl)
         deadline = time.monotonic() + timeout
         while True:
             head = self._head(topic)

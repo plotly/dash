@@ -17,7 +17,10 @@ The connection id is the page's server-signed ``end_id`` (verified by the
 backend, never taken from the client), so a page can only ever read or write its
 own topic. The renderer hosts the downlink in a SharedWorker so every tab of the
 browser shares one connection: the worker pins the ``end_id`` of the first tab
-that streams and sends it with every request for that connection.
+that streams and sends it with every request for that connection. It also picks
+a fresh downlink id for each run of streams, so the connection id is
+``<end_id>:<downlink_id>`` and each run gets its own topic, which the store
+releases once it sits idle. The lifecycle record stays keyed on the page.
 
 Downlink line shape (one JSON object per NDJSON line)::
 
@@ -125,7 +128,8 @@ def stream_topic(connection_id: str) -> str:
 
 
 def connection_key(connection_id: str) -> str:
-    return f"{_CONN_PREFIX}{connection_id}"
+    page_id = connection_id.split(":", 1)[0]
+    return f"{_CONN_PREFIX}{page_id}"
 
 
 def cancel_key(connection_id: str, request_id: str) -> str:

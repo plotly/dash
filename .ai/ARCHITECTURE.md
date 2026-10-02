@@ -925,6 +925,16 @@ deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 purpose, since each topic retains that many arbitrary payloads; raise it for a
 wider reconnect window).
 
+**Topic lifetime.** Every backend takes `topic_ttl` (default 300s,
+`DEFAULT_TOPIC_TTL`; `None` keeps topics forever). A topic nobody publishes
+to or reads for that long is released, buffer and sequence both; a later
+publish starts it over at 1, so a consumer returning with an old cursor gets
+`SharedStorageGap`. Local: the engine sweeps idle topics (no publish, head or
+poll, and no call holding it) at most every quarter ttl, on the next pub/sub
+call. Redis: the publish script `PEXPIRE`s the counter and stream, and each
+poll renews both. Diskcache: each message expires `topic_ttl` after publish,
+the counter after the last publish or poll.
+
 *Durability* is controlled by `mode` (the key/value store only — pub/sub is
 always transient):
 
@@ -1382,6 +1392,15 @@ id from it (`get_stream_connection_id`), answering 403 when it is missing or
 forged -- otherwise a client could read or inject into another page's topic.
 Across worker processes every worker must resolve the same signing secret
 (`secret_key`).
+
+Each run of streams (from the first stream after idle until none is in flight)
+also carries `&downlinkId=`, picked fresh by the client, and the connection id
+is `<end_id>:<downlinkId>`: every run gets its own topic and the client's
+cursor restarts at 0. Without it a page that sat idle past `topic_ttl` would
+resume a cursor into a topic the store released, get `{reset: true}`, and fail
+its new stream. The id only partitions the page's own space, so it is not
+signed (just checked against `[A-Za-z0-9_-]{1,64}`). The downlink lifecycle
+record (`connection_key`) stays keyed on the `end_id` alone.
 
 The downlink is hosted in a SharedWorker (`dash-stream-worker.js`, served like
 the WebSocket worker; `config.stream.worker_url`) so **one connection per

@@ -330,3 +330,61 @@ def test_stst011_closing_a_tab_cancels_its_stream(dash_duo):
     before = dash_duo.find_element("#out").text
     until(lambda: dash_duo.find_element("#out").text != before, timeout=5)
     assert dash_duo.get_logs() == []
+
+
+def test_stst012_idle_stream_topics_are_released(dash_duo):
+    """Each run of streams gets its own topic, and the store drops it once it
+    sits idle past ``topic_ttl``: page loads do not leave their frames behind
+    for the life of the process. A page that streams again after its topic was
+    dropped still gets every frame of the new run."""
+    from dash._shared_storage import LocalSharedStorage
+
+    ttl = 1.0
+    app = Dash(__name__, shared_storage=LocalSharedStorage(topic_ttl=ttl))
+    app.layout = html.Div(
+        [html.Button("go", id="btn"), html.Div(id="out", children="idle")]
+    )
+
+    @app.callback(
+        Output("out", "children"),
+        Input("btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    async def stream_cb(n):
+        for i in range(5):
+            await asyncio.sleep(0.02)
+            yield f"{n}-{i}"
+        yield f"done-{n}"
+
+    def stream_topics():
+        engine = app.shared_storage._coord.engine
+        return {name for name in engine._topics if name.startswith("_dash_stream:")}
+
+    def go_idle():
+        # Past the ttl and one sweep interval, so the next publish sweeps.
+        time.sleep(ttl * 1.25 + 0.5)
+
+    dash_duo.start_server(app)
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#out", "done-1")
+    first_page = stream_topics()
+    assert len(first_page) == 1
+
+    go_idle()
+    dash_duo.driver.refresh()
+    dash_duo.wait_for_text_to_equal("#out", "idle")
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#out", "done-1")
+    second_page = stream_topics()
+    assert len(second_page) == 1
+    assert not second_page & first_page
+
+    # Same page, new run after its topic was dropped: a fresh topic, read from
+    # its start, rather than a stale cursor into the released one.
+    go_idle()
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#out", "done-2")
+    third_run = stream_topics()
+    assert len(third_run) == 1
+    assert not third_run & second_page
+    assert dash_duo.get_logs() == []

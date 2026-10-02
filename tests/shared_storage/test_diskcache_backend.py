@@ -94,6 +94,40 @@ def test_no_gap_at_buffer_edge(tmp_path):
     store.close()
 
 
+def test_idle_topic_leaves_the_cache(tmp_path):
+    store = DiskcacheSharedStorage(directory=str(tmp_path / "c"), topic_ttl=0.3)
+    for i in range(3):
+        store.publish("t", f"m{i}")
+    time.sleep(0.5)
+    assert store._cache.get(store._seq("t")) is None
+    assert all(store._cache.get(store._msg("t", n)) is None for n in (1, 2, 3))
+    store.publish("t", "again")
+    assert store._head("t") == 1  # starts over
+    store.close()
+
+
+def test_polling_keeps_the_topic_counter(tmp_path):
+    store = DiskcacheSharedStorage(directory=str(tmp_path / "c"), topic_ttl=0.4)
+    store.publish("t", "m")
+    sub = store.subscribe("t", replay_from=1)
+    for _ in range(5):
+        time.sleep(0.2)
+        assert sub.poll(0.0) == []
+    # Past the ttl since the publish, but read all along: the counter stays,
+    # so the next publish continues the sequence instead of restarting it.
+    store.publish("t", "m2")
+    assert sub.poll(0.0) == [(2, "m2")]
+    store.close()
+
+
+def test_topic_ttl_none_sets_no_expiry(tmp_path):
+    store = DiskcacheSharedStorage(directory=str(tmp_path / "c"), topic_ttl=None)
+    store.publish("t", "m")
+    _value, expire = store._cache.get(store._seq("t"), expire_time=True)
+    assert expire is None
+    store.close()
+
+
 # --- cross-process (shared cache directory) -------------------------------
 
 
