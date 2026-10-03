@@ -6,8 +6,16 @@ import dash
 from dash._configs import DASH_ENV_VARS
 
 
-@pytest.hookimpl(trylast=True)
+_session_exitstatus = 0
+
+
 def pytest_sessionfinish(session, exitstatus):
+    global _session_exitstatus  # pylint: disable=global-statement
+    _session_exitstatus = exitstatus
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_unconfigure(config):
     # CI safety net for the background/async suites. After pytest has finished
     # and written its reports, those suites can leave non-daemon threads or
     # workers (celery, diskcache, lingering test servers) that keep the
@@ -15,12 +23,13 @@ def pytest_sessionfinish(session, exitstatus):
     # timeout even though every test passed. pytest-timeout only bounds
     # individual tests, not this post-session shutdown. When DASH_TEST_FORCE_EXIT
     # is set we hard-exit once the session is done so the step can't hang.
-    # Gated by the env var so local runs and other jobs are unaffected; runs
-    # trylast so the junit report is already written.
+    # Gated by the env var so local runs and other jobs are unaffected. This
+    # runs in pytest_unconfigure, not pytest_sessionfinish, so the terminal
+    # summary with the failure tracebacks is printed before we exit.
     if os.environ.get("DASH_TEST_FORCE_EXIT"):
         sys.stdout.flush()
         sys.stderr.flush()
-        os._exit(int(exitstatus))
+        os._exit(int(_session_exitstatus))
 
 
 @pytest.fixture

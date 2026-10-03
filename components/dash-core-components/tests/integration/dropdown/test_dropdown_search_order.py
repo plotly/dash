@@ -1,5 +1,5 @@
 from dash import Dash, html, dcc, Input, Output
-from flaky import flaky
+from dash.testing import wait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
@@ -39,13 +39,22 @@ def test_ddso001_search_preserves_custom_order(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-# Keyboard nav here goes through ActionChains (document.activeElement); the
-# selection depends on the menu input having focus, which can lag menu-open under
-# CI load and drop a keystroke. Retry the whole test when that happens.
-@flaky(max_runs=3)
 def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     def send_keys(key):
         ActionChains(dash_duo.driver).send_keys(key).perform()
+
+    def wait_for_focus(target):
+        # The dropdown moves focus in a requestAnimationFrame, so a key sent
+        # before focus lands goes to the wrong element.
+        wait.until(
+            lambda: dash_duo.driver.execute_script(
+                "const el = document.activeElement;"
+                "const option = el.closest('.dash-options-list-option');"
+                "return option ? option.textContent.trim() : el.type;"
+            )
+            == target,
+            3,
+        )
 
     app = Dash(__name__)
     app.layout = html.Div(
@@ -70,12 +79,13 @@ def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
     dash_duo.wait_for_element(".dash-dropdown-options")
+    wait_for_focus("search")
 
     # Select '12' (second option)
     send_keys(Keys.ARROW_DOWN)
     sleep(0.2)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
+    wait_for_focus("12")
     send_keys(Keys.SPACE)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['12']")
     sleep(0.2)
@@ -84,7 +94,7 @@ def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     send_keys(Keys.ARROW_DOWN)
     sleep(0.2)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
+    wait_for_focus("111")
     send_keys(Keys.SPACE)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['12', '111']")
     sleep(0.2)
@@ -93,12 +103,13 @@ def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     send_keys(Keys.HOME)
     sleep(0.2)
     send_keys("1")
-    sleep(0.2)
 
     # Presents selected options first and rest in original order
-    options = dash_duo.find_elements(".dash-dropdown-option")
-    assert len(options) == 5
-    assert [opt.text for opt in options] == ["12", "111", "11 Text", "112", "110"]
+    wait.until(
+        lambda: [opt.text for opt in dash_duo.find_elements(".dash-dropdown-option")]
+        == ["12", "111", "11 Text", "112", "110"],
+        3,
+    )
 
     assert dash_duo.get_logs() == []
 

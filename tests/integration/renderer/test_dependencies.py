@@ -2,10 +2,7 @@ from multiprocessing import Value
 
 from dash import Dash, html, dcc, Input, Output
 
-from flaky import flaky
 
-
-@flaky(max_runs=3)
 def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
     app = Dash(__name__, suppress_callback_exceptions=True)
     app.layout = html.Div(
@@ -30,11 +27,11 @@ def test_rddp001_dependencies_on_components_that_dont_exist(dash_duo):
 
     dash_duo.start_server(app)
 
-    assert dash_duo.find_element("#output-1").text == "initial value"
+    dash_duo.wait_for_text_to_equal("#output-1", "initial value")
     assert output_1_call_count.value == 1 and output_2_call_count.value == 0
 
     dash_duo.find_element("#input").send_keys("a")
-    assert dash_duo.find_element("#output-1").text == "initial valuea"
+    dash_duo.wait_for_text_to_equal("#output-1", "initial valuea")
 
     assert output_1_call_count.value == 2 and output_2_call_count.value == 0
 
