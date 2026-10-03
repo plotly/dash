@@ -1,6 +1,6 @@
 import pytest
-from flaky import flaky
 from dash import Dash, Input, Output
+from dash.testing import wait
 from dash.dcc import Dropdown
 from dash.html import Div, Label, P, Span
 from selenium.common.exceptions import TimeoutException
@@ -261,9 +261,6 @@ def test_a11y005_selection_visibility_multi(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-# ActionChains keyboard nav depends on the menu input having focus, which can
-# lag menu-open under CI load and drop a keystroke; retry the test when it does.
-@flaky(max_runs=3)
 def test_a11y006_multi_select_keyboard_focus_retention(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)
@@ -296,20 +293,21 @@ def test_a11y006_multi_select_keyboard_focus_retention(dash_duo):
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
     dash_duo.wait_for_element(".dash-dropdown-options")
+    wait_for_focus(dash_duo, "search")
 
     # Select 3 items by alternating ArrowDown and Spacebar
     send_keys(Keys.ARROW_DOWN)  # Move to first option
-    sleep(0.05)
+    wait_for_focus(dash_duo, "Option 0")
     send_keys(Keys.SPACE)  # Select Option 0
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['Option 0']")
 
     send_keys(Keys.ARROW_DOWN)  # Move to second option
-    sleep(0.05)
+    wait_for_focus(dash_duo, "Option 1")
     send_keys(Keys.SPACE)  # Select Option 1
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['Option 0', 'Option 1']")
 
     send_keys(Keys.ARROW_DOWN)  # Move to third option
-    sleep(0.05)
+    wait_for_focus(dash_duo, "Option 2")
     send_keys(Keys.SPACE)  # Select Option 2
     dash_duo.wait_for_text_to_equal(
         "#output", "Selected: ['Option 0', 'Option 1', 'Option 2']"
@@ -400,23 +398,11 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-@flaky(max_runs=3)
 def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)
         actions.send_keys(key)
         actions.perform()
-
-    def get_focused_option_text():
-        return dash_duo.driver.execute_script(
-            """
-            const focused = document.activeElement;
-            if (focused && focused.closest('.dash-options-list-option')) {
-                return focused.closest('.dash-options-list-option').textContent.trim();
-            }
-            return null;
-            """
-        )
 
     app = Dash(__name__)
     app.layout = Div(
@@ -434,6 +420,7 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.send_keys(Keys.ENTER)  # Open with Enter key
     dash_duo.wait_for_element(".dash-dropdown-options")
+    wait_for_focus(dash_duo, "search")
 
     # Navigate from search input to options
     send_keys(Keys.ARROW_DOWN)  # Move from search to first option
@@ -443,8 +430,7 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
     send_keys(Keys.ARROW_DOWN)  # Move to third option
     sleep(0.05)
     send_keys(Keys.ARROW_DOWN)  # Move to fourth option
-    sleep(0.05)
-    assert get_focused_option_text() == "Option 3"
+    wait_for_focus(dash_duo, "Option 3")
 
     send_keys(Keys.HOME)  # Should go back to search input (index 0)
     # Verify we're back at search input
@@ -454,35 +440,29 @@ def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
 
     # Now arrow down to first option
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 0"
+    wait_for_focus(dash_duo, "Option 0")
 
     # Test End key - should go to last option
     send_keys(Keys.END)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 49"
+    wait_for_focus(dash_duo, "Option 49")
 
     # Test PageUp - should jump up by 10
     send_keys(Keys.PAGE_UP)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 39"
+    wait_for_focus(dash_duo, "Option 39")
 
     # Test PageDown - should jump down by 10
     send_keys(Keys.PAGE_DOWN)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 49"
+    wait_for_focus(dash_duo, "Option 49")
 
     # Test PageUp from middle
     send_keys(Keys.HOME)  # Back to search input (index 0)
     send_keys(Keys.PAGE_DOWN)  # Jump to index 10 (Option 9)
     sleep(0.1)
     send_keys(Keys.PAGE_DOWN)  # Jump to index 20 (Option 19)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 19"
+    wait_for_focus(dash_duo, "Option 19")
 
     send_keys(Keys.PAGE_UP)  # Jump to index 10 (Option 9)
-    sleep(0.1)
-    assert get_focused_option_text() == "Option 9"
+    wait_for_focus(dash_duo, "Option 9")
 
     assert dash_duo.get_logs() == []
 
@@ -515,10 +495,11 @@ def test_a11y009_enter_on_search_selects_first_option_multi(dash_duo):
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
     dash_duo.wait_for_element(".dash-dropdown-search")
+    wait_for_focus(dash_duo, "search")
 
     # Type to filter, then Enter selects the first visible option
     send_keys("a")
-    sleep(0.1)
+    wait_for_option_texts(dash_duo, ["Apple", "Banana"])
     send_keys(Keys.ENTER)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['Apple']")
     assert dash_duo.driver.execute_script(
@@ -535,7 +516,7 @@ def test_a11y009_enter_on_search_selects_first_option_multi(dash_duo):
     # Filtering to a different option selects that one
     send_keys(Keys.BACKSPACE)
     send_keys("b")
-    sleep(0.1)
+    wait_for_option_texts(dash_duo, ["Banana"])
     send_keys(Keys.ENTER)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['Banana']")
 
@@ -570,9 +551,10 @@ def test_a11y010_enter_on_search_selects_first_option_single(dash_duo):
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
     dash_duo.wait_for_element(".dash-dropdown-search")
+    wait_for_focus(dash_duo, "search")
 
     send_keys("a")
-    sleep(0.1)
+    wait_for_option_texts(dash_duo, ["Apple", "Banana"])
     send_keys(Keys.ENTER)
     dash_duo.wait_for_text_to_equal("#output", "Selected: Apple")
 
@@ -862,3 +844,31 @@ def test_a11y009_dropdown_component_labels_render_correctly(dash_duo):
     assert rendered_labels == ["red", "yellow", "blue"]
 
     assert dash_duo.get_logs() == []
+
+
+def wait_for_focus(dash_duo, target):
+    # The dropdown moves focus in a requestAnimationFrame, so a key sent before
+    # focus lands goes to the wrong element. target is "search" for the search
+    # input, or the text of an option.
+    wait.until(
+        lambda: dash_duo.driver.execute_script(
+            "const el = document.activeElement;"
+            "const option = el.closest('.dash-options-list-option');"
+            "return option ? option.textContent.trim() : el.type;"
+        )
+        == target,
+        3,
+    )
+
+
+def wait_for_option_texts(dash_duo, texts):
+    # Enter acts on the search value from the last render, so let the filter
+    # render first.
+    wait.until(
+        lambda: dash_duo.driver.execute_script(
+            "return [...document.querySelectorAll('.dash-dropdown-option')]"
+            ".map(o => o.textContent.trim());"
+        )
+        == texts,
+        3,
+    )

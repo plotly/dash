@@ -88,8 +88,11 @@ production bundle, runs the harness against `baseline.json`, and:
   over its absolute `fail_ms`, or `> 2x` the baseline p90 *after normalizing out
   machine speed* (see "Machine-independent gating" above);
 - **warns** (without failing) on a smaller drift - over `warn_ms`, or `> 1.3x`
-  the normalized baseline - and always upserts a single sticky **PR comment**
-  with the table (and the machine scale) so the numbers are visible on every run;
+  the normalized baseline - and always writes the table (and the machine
+  scale) to the **job summary** so the numbers are visible on every run;
+- upserts a single sticky **PR comment** with the same table, for PRs from
+  branches in this repo only. Fork PRs get a read-only `GITHUB_TOKEN`, so the
+  comment is skipped and the job summary is the place to look;
 - uploads `results.json` + `summary.md` as artifacts.
 
 Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by

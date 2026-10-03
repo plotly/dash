@@ -2,7 +2,6 @@ import re
 
 import flask
 import pytest
-from flaky import flaky
 
 from dash import (
     Dash,
@@ -32,7 +31,10 @@ def check_errors(dash_duo, specs):
 
     found = []
     for i in range(cnt):
-        msg = dash_duo.find_elements(".dash-fe-error__title")[i].text
+        title = dash_duo.find_elements(".dash-fe-error__title")[i]
+        # Error cards fade in from opacity 0 and Selenium reads the text of an
+        # invisible element as "", so wait for the title to become readable.
+        msg = wait.until(lambda: title.text, 3)
         # plotly-cloud (a default install dep) injects a `_plotly-cloud-*`
         # component into every layout via a dash_hooks entry point, so it
         # shows up in the "string ids in the current layout" list. Strip it
@@ -150,7 +152,6 @@ def test_dvcv002_blank_id_prop(dash_duo):
     check_errors(dash_duo, specs)
 
 
-@flaky(max_runs=3)
 def test_dvcv003_duplicate_outputs_same_callback(dash_duo):
     app = Dash(__name__)
     app.layout = html.Div([html.Div(id="a"), html.Div(id="b")])
@@ -667,7 +668,6 @@ def test_dvcv012_circular_2_step(dash_duo):
     check_errors(dash_duo, specs)
 
 
-@flaky(max_runs=3)
 def test_dvcv013_circular_3_step(dash_duo):
     app = Dash(__name__)
 

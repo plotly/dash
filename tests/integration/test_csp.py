@@ -55,4 +55,4 @@ def test_incs001_csp_hashes_inline_scripts(
         dash_duo.start_server(app)
 
         dash_duo.find_element("#input_element").send_keys("xyz")
-        assert dash_duo.wait_for_element("#output_element").text == "xyz"
+        dash_duo.wait_for_text_to_equal("#output_element", "xyz")

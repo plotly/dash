@@ -1,6 +1,5 @@
 import json
 import time
-from pytest import approx
 from dash import Dash, Input, State, Output, dcc, html
 from dash.exceptions import PreventUpdate
 import dash.testing.wait as wait
@@ -57,22 +56,22 @@ def test_stcp002_modified_ts(store_app, dash_dcc):
 
     dash_dcc.start_server(app)
 
+    before = int(time.time() * 1000)
     dash_dcc.find_element("#set-init-storage").click()
-    # the python ts ends at seconds while javascript one ends at ms
-    ts = float(time.time() * 1000)
 
     wait.until(
         lambda: "initialized" in dash_dcc.find_element("#init-output").text, timeout=3
     )
+    after = time.time() * 1000
 
     output_data = json.loads(dash_dcc.find_element("#init-output").text)
 
     assert (
         output_data.get("data") == "initialized"
     ), "the data should be the text set in on_init"
-    assert ts == approx(
-        output_data.get("ts"), abs=40
-    ), "the modified_timestamp should be updated right after the click action"
+    assert (
+        before <= output_data.get("ts") <= after
+    ), "the modified_timestamp should be updated by the click action"
 
     assert dash_dcc.get_logs() == []
 

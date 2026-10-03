@@ -54,9 +54,11 @@ def test_lcbc008_long_callbacks_error(dash_duo, manager):
         multi = dash_duo.wait_for_element("#multi-output")
 
         for i in range(1, 4):
-            with app.test_lock:
-                multi.click()
-                dash_duo.wait_for_element("#multi-output:disabled")
+            # No app.test_lock here: app_error never takes it, and a diskcache write
+            # from this thread while the server forks the job leaves the job unable
+            # to save its result.
+            multi.click()
+            dash_duo.wait_for_element("#multi-output:disabled")
             expect = make_expect(i)
             dash_duo.wait_for_text_to_equal("#output-status", f"Updated: {i}")
             for j, e in enumerate(expect):

@@ -1,6 +1,7 @@
 import dash
 from dash import Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
+from dash.testing import wait
 from dash.dash_table import DataTable
 
 import pytest
@@ -242,7 +243,7 @@ def test_tpag011_valid_page(test):
     target = test.table("table")
     test.find_element("#button").click()
 
-    assert target.paging.current.get_value() == "1"
+    wait.until(lambda: target.paging.current.get_value() == "1", 3)
     assert test.get_log_errors() == []
 
     test.table("table").is_ready()
