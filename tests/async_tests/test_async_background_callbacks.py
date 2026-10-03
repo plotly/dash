@@ -1,8 +1,6 @@
-import sys
 import time
 from multiprocessing import Lock
 
-import pytest
 from flaky import flaky
 
 from tests.utils import is_dash_async
@@ -34,9 +32,6 @@ def test_001ab_arbitrary(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#no-output", "completed")
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
-)
 @flaky(max_runs=3)
 def test_002ab_basic(dash_duo, manager):
     """
