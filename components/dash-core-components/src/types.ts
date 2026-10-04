@@ -618,6 +618,248 @@ export interface RangeSliderProps extends BaseDccProps<RangeSliderProps> {
     allow_direct_input?: boolean;
 }
 
+export type DateSliderMarks = {
+    [key: string]: string | {label: string; style?: React.CSSProperties};
+};
+
+export type DisableDatesFlag =
+    | 'weekends'
+    | 'weekdays'
+    | 'sundays'
+    | 'mondays'
+    | 'tuesdays'
+    | 'wednesdays'
+    | 'thursdays'
+    | 'fridays'
+    | 'saturdays';
+
+export type DateStepUnit = 'days' | 'months' | 'years';
+
+export interface DateSliderProps extends BaseDccProps<DateSliderProps> {
+    /**
+     * Minimum allowed date
+     */
+    min?: string;
+
+    /**
+     * Maximum allowed date
+     */
+    max?: string;
+
+    /**
+     * Value by which increments or decrements are made
+     */
+    step?: number | null;
+
+    /**
+     * Unit by which steps are made
+     */
+    step_unit?: DateStepUnit | null;
+
+    /**
+     * Marks on the slider.
+     * The key determines the position (a string for date),
+     * and the value determines what will show.
+     * If you want to set the style of a specific mark point,
+     * the value should be an object which
+     * contains style and label properties.
+     */
+    marks?: DateSliderMarks | null;
+
+    /**
+     * The date value of the input. Accepts datetime objects.
+     */
+    value?: `${string}-${string}-${string}` | null;
+
+    /**
+     * The date value of the input during a drag. Accepts datetime objects.
+     */
+    drag_value?: `${string}-${string}-${string}` | null;
+
+    /**
+     * If true, the handles can't be moved.
+     */
+    disabled?: boolean;
+
+    /**
+     * When the step value is greater than 1,
+     * you can set the dots to true if you want to
+     * render the slider with dots.
+     */
+    dots?: boolean;
+
+    /**
+     * If the value is true, it means a continuous
+     * value is included. Otherwise, it is an independent value.
+     */
+    included?: boolean;
+
+    /**
+     * If the value is true, the slider is rendered in reverse.
+     */
+    reverse?: boolean;
+
+    /**
+     * Configuration for tooltips describing the current slider value
+     */
+    tooltip?: SliderTooltip;
+
+    /**
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * If you want different actions during and after drag,
+     * leave `updatemode` as `mouseup` and use `drag_value`
+     * for the continuously updating value.
+     */
+    updatemode?: 'mouseup' | 'drag';
+
+    /**
+     * If true, the slider will be vertical
+     */
+    vertical?: boolean;
+
+    /**
+     * The height, in px, of the slider if it is vertical.
+     */
+    verticalHeight?: number;
+
+    /**
+     * If false, the input element for directly entering a value will be hidden.
+     * Only the slider will be visible and it will occupy 100% width of the container.
+     */
+    allow_direct_input?: boolean;
+
+    /**
+     * A string specifying the format in which the date should be displayed.
+     * (e.g. 'YYYY-MM-DD', 'MM/DD/YYYY', etc.)
+     */
+    display_format?: string;
+}
+
+export interface DateRangeSliderProps
+    extends BaseDccProps<DateRangeSliderProps> {
+    /**
+     * Minimum allowed date
+     */
+    min?: string;
+
+    /**
+     * Maximum allowed date
+     */
+    max?: string;
+
+    /**
+     * Value by which increments or decrements are made
+     */
+    step?: number | null;
+
+    /**
+     * Unit by which steps are made
+     */
+    step_unit?: DateStepUnit | null;
+
+    /**
+     * Marks on the slider.
+     * The key determines the position (a number),
+     * and the value determines what will show.
+     * If you want to set the style of a specific mark point,
+     * the value should be an object which
+     * contains style and label properties.
+     */
+    marks?: DateSliderMarks | null;
+
+    /**
+     * The date value of the input. Accepts datetime objects.
+     */
+    value?: `${string}-${string}-${string}`[] | null;
+
+    /**
+     * The date value of the input during a drag. Accepts datetime objects.
+     */
+    drag_value?: `${string}-${string}-${string}`[];
+
+    /**
+     * pushable could be set as true to allow pushing of
+     * surrounding handles when moving an handle.
+     * When set to a number, the number will be the
+     * minimum ensured distance between handles in days.
+     */
+    pushable?: boolean | number;
+
+    /**
+     * If true, the handles can't be moved.
+     */
+    disabled?: boolean;
+
+    /**
+     * When the step value is greater than 1,
+     * you can set the dots to true if you want to
+     * render the slider with dots.
+     */
+    dots?: boolean;
+
+    /**
+     * If the value is true, it means a continuous
+     * value is included. Otherwise, it is an independent value.
+     */
+    included?: boolean;
+
+    /**
+     * If the value is true, the slider is rendered in reverse.
+     */
+    reverse?: boolean;
+
+    /**
+     * Configuration for tooltips describing the current slider value
+     */
+    tooltip?: SliderTooltip;
+
+    /**
+     * Determines when the component should update its `value`
+     * property. If `mouseup` (the default) then the slider
+     * will only trigger its value when the user has finished
+     * dragging the slider. If `drag`, then the slider will
+     * update its value continuously as it is being dragged.
+     * If you want different actions during and after drag,
+     * leave `updatemode` as `mouseup` and use `drag_value`
+     * for the continuously updating value.
+     */
+    updatemode?: 'mouseup' | 'drag';
+
+    /**
+     * If true, the slider will be vertical
+     */
+    vertical?: boolean;
+
+    /**
+     * The height, in px, of the slider if it is vertical.
+     */
+    verticalHeight?: number;
+
+    /**
+     * If false, the input elements for directly entering values will be hidden.
+     * Only the slider will be visible and it will occupy 100% width of the container.
+     */
+    allow_direct_input?: boolean;
+
+    /**
+     * A string specifying the format in which the date should be displayed.
+     * (e.g. 'YYYY-MM-DD', 'MM/DD/YYYY', etc.)
+     */
+    display_format?: string;
+
+    /**
+     * If true, the selected range will automatically clamp to exclude any
+     * disabled dates when the range is expanded. The boundary closest to
+     * the disabled date will be adjusted to stop just before it.
+     * Requires `value` to have exactly two dates (a start and end).
+     */
+    no_disabled_in_between?: boolean;
+}
+
 export type OptionValue = string | number | boolean;
 
 export type DetailedOption = {
