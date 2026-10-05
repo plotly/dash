@@ -20,6 +20,8 @@ app.layout = [
     html.Div(id="cb-output"),
     html.Button("global on_error", id="start-global-onerror"),
     html.Div(id="global-output"),
+    html.Button("no-output callback on_error", id="start-no-output-cb-onerror"),
+    html.Div(id="no-output-cb-onerror-output"),
 ]
 
 
@@ -46,6 +48,20 @@ def on_click(_):
 )
 def on_click_global(_):
     raise Exception("global error")
+
+
+def no_output_callback_on_error(err):
+    set_props("no-output-cb-onerror-output", {"children": f"callback: {err}"})
+
+
+@app.callback(
+    Input("start-no-output-cb-onerror", "n_clicks"),
+    prevent_initial_call=True,
+    background=True,
+    on_error=no_output_callback_on_error,
+)
+def on_click_no_output(_):
+    raise Exception("no output callback error")
 
 
 if __name__ == "__main__":
