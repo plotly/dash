@@ -959,7 +959,13 @@ the replay window; a subscriber past the trimmed floor gets `SharedStorageGap`).
 Redis is the single source of truth, so no owner election. Pass a `url`
 (defaults to `$REDIS_URL`) or an existing `client` to reuse a connection pool.
 This is the only backend correct for **horizontally-scaled, multi-pod**
-deployments.
+deployments. On an event loop it uses `redis.asyncio` (one client per loop),
+and one reader task per loop serves every async subscription with a single
+multi-stream `XREAD`; a new subscription interrupts it through a private wake
+stream. Never park a blocking read in the executor per subscription: at a dozen
+open downlinks that starved every other store call in the worker (25-50% failed
+streams at 25 browsers on uvicorn `--workers 4`). Diskcache's async
+subscriptions likewise poll without blocking and sleep on the loop.
 
 ### Deployment Topology and Shared Storage
 
@@ -1399,7 +1405,10 @@ back to a downlink of its own.
 - `stream` (ASGI: Quart, FastAPI): one long-lived NDJSON response per
   browser. It costs no thread -- the subscription parks the task on a future
   the store resolves (`StoreEngine.apoll`; asyncio streams to the owner from
-  other workers) -- so a single uvicorn worker holds thousands.
+  other workers; the per-loop Redis reader) -- so a single uvicorn worker
+  holds thousands. The downlink's connection record is written with the
+  store's async calls, and its closed record from a task of its own, since a
+  client disconnect cancels the response.
 - `poll` (WSGI: Flask): a WSGI response holds a worker thread for its whole
   life, so an open downlink per browser exhausts a thread pool at a few dozen
   browsers (gunicorn `--threads 2`: the second browser hung everything).
@@ -1478,6 +1487,7 @@ the right tool: constant latency and a fraction of the CPU.
 - `dash/_streaming.py` - `StreamedCallbackResponse` marker, context-safe iteration, NDJSON helpers, keepalives, shutdown flag
 - `dash/_stream_hub.py` - multiplexed transport: `Downlink`, `poll_downlink`, pumps (`pump_to_storage`/`apump_to_storage`), `cancel_stream`, `shutdown_active_streams`/`install_stream_shutdown_handler`
 - `dash/_shared_storage/_engine.py`, `local.py` - `poll`/`apoll`, loop-native `aget`/`aset`/`apublish`, async client connection
+- `dash/_shared_storage/redis.py` - `redis.asyncio` path, `_StreamReader` (one multi-stream `XREAD` per loop)
 - `dash/backends/_flask.py`, `_quart.py`, `_fastapi.py` - streaming dispatch branches
 - `dash/backends/ws.py` - `make_stream_frame_emitter`, `consume_stream_frames`/`aconsume_stream_frames`
 - `dash/dash-renderer/src/actions/callbacks.ts` - `applyStreamFrame`, NDJSON reader, WS frame handling

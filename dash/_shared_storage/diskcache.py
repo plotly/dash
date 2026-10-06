@@ -138,4 +138,6 @@ class DiskcacheSharedStorage(BaseSharedStorage):
 
     def subscribe(self, topic: str, replay_from: Optional[int] = None) -> Subscription:
         start = replay_from if replay_from is not None else self._head(topic)
-        return PollingSubscription(topic, start, self._poll, _POLL_TIMEOUT)
+        return PollingSubscription(
+            topic, start, self._poll, _POLL_TIMEOUT, _POLL_INTERVAL
+        )
