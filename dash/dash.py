@@ -549,9 +549,12 @@ class Dash(ObsoleteChecker):
         if not csrf_header_name or not csrf_header_name.strip():
             raise ValueError("csrf_header_name must be a non-empty string")
 
-        caller_name: str = name if name is not None else get_caller_name()
+        module_name = get_caller_name()
+        caller_name: str = name if name is not None else module_name
 
-        alias_main_module(caller_name)
+        # Alias based on the module that is running, not the app name: an
+        # explicit ``name`` or an app factory still runs from the main module.
+        alias_main_module(module_name)
 
         # Determine backend
         if backend is None:
