@@ -321,7 +321,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         childrenPropPath,
                                         appliedProps
                                     );
-                                    if (!children) {
+                                    if (children === undefined) {
                                         return;
                                     }
 
