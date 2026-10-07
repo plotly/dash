@@ -95,6 +95,30 @@ production bundle, runs the harness against `baseline.json`, and:
 Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by
 metric). Keep them generous: this is a smoke alarm, not a microbenchmark.
 
+## Streaming load test and the public site
+
+`benchmarks/streaming/` measures streaming-callback capacity per server setup
+(see `benchmarks/README.md` for how to run it). Simulated browsers follow the
+renderer's `StreamClient`: one downlink per browser, a long NDJSON response on
+ASGI and polls with the same backoff on WSGI. Frames carry the server's
+`time.time()`, so latency is measured end to end on one clock.
+
+Pitfalls the harness guards against:
+
+- One Python client process tops out at a few hundred browsers and then
+  reports its own lag as server latency. Clients run 100 browsers per process,
+  on CPUs separate from the server, and a point is flagged `client_bound` when
+  a client hits 85% CPU.
+- Client output goes to temp files, not pipes: a full pipe blocks the client
+  forever because the runner only reads after the clients exit.
+- Multi-worker setups need shared storage (Redis); with a per-process secret
+  the workers also reject each other's stream tokens, so the runner sets
+  a shared secret (`LOAD_SECRET`). The server imports dash from the checkout
+  under test (`PYTHONPATH`), not whatever is installed.
+
+`benchmarks/publish.py` turns results into the site on `gh-pages`
+(`.github/workflows/benchmarks-publish.yml`).
+
 ## Profiling a slow scenario
 
 The runner can capture a **Chrome DevTools CPU profile** of a scenario and print

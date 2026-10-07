@@ -3,3 +3,5 @@ results.json
 summary.md
 *.cpuprofile
 __pycache__/
+streaming/results.json
+site/

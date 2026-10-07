@@ -39,3 +39,37 @@ scenario(
 `b` is the browser helper (`b.timed`, `b.render_time`, `b.reload`, `b.state`,
 `b.graph_time`). Every layout must end with the shared `READY` sentinel so the
 harness can detect "fully hydrated". Then regenerate `baseline.json`.
+
+## Streaming load test (`streaming/`)
+
+How many browsers a server setup can stream to. Each setup (Flask on
+gunicorn, FastAPI and Quart on uvicorn, 1 or 4 workers) serves
+`streaming/load_app.py`, and simulated browsers (`streaming/client.py`) stream
+from it while the count climbs until p95 frame latency passes 1 s or errors
+pass 1%.
+
+```bash
+ulimit -n 65536
+python -m benchmarks.streaming.load --redis-url redis://127.0.0.1:6379/0
+python -m benchmarks.streaming.load --setup fastapi-uvicorn-w1 --browsers 100 1000
+```
+
+Multi-worker setups share frames through Redis and are skipped without
+`--redis-url`. The server and the clients get separate CPUs (`--server-cpus`,
+half the machine by default); a point where a client process hit 85% CPU is
+flagged `client_bound` and ends that setup's sweep, since past that the numbers
+measure the load generator.
+
+## Publishing (`publish.py`)
+
+`.github/workflows/benchmarks-publish.yml` measures on `dev` and pushes a static
+site to the `gh-pages` branch: renderer timings on every push, the streaming
+sweep weekly and on demand. Each chart has its own page under `embed/` to drop
+into an `<iframe>` (`?theme=dark` or `?theme=light` to force a theme), the raw
+numbers and their history are under `data/`, and `badges/` holds shields.io
+endpoint badges. To build the site locally:
+
+```bash
+python -m benchmarks.publish --site /tmp/site \
+    --renderer benchmarks/results.json --streaming benchmarks/streaming/results.json
+```
