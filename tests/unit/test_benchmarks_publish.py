@@ -156,3 +156,99 @@ def test_site_has_embeds_data_badges_and_history(tmp_path):
     history = json.loads((site / "data" / "renderer-history.json").read_text())
     assert [h["date"][:10] for h in history] == ["2026-10-01", "2026-10-02"]
     assert (site / ".nojekyll").exists()
+
+
+def _cb_point(browsers, p95, calls_per_s=100.0, cores=0.2, client_bound=False):
+    return {
+        "browsers": browsers,
+        "rtt_p50_ms": p95 / 2,
+        "rtt_p95_ms": p95,
+        "rtt_p99_ms": p95,
+        "calls_per_s": calls_per_s,
+        "calls": int(calls_per_s * 20),
+        "errors": 0,
+        "failed_browsers": 0,
+        "error_rate": 0.0,
+        "server_cpu_cores": cores,
+        "server_rss_mb": 100,
+        "client_cpu_peak_pct": 99 if client_bound else 20,
+        "saturated": p95 > 1000,
+        "client_bound": client_bound,
+    }
+
+
+def _cb_run():
+    def setup(name, backend, workers, transport, points):
+        return {
+            "name": name,
+            "backend": backend,
+            "server": "uvicorn",
+            "workers": workers,
+            "label": name,
+            "transport": transport,
+            "points": points,
+        }
+
+    run = _run(
+        [
+            setup(
+                "fastapi-w1-http",
+                "fastapi",
+                1,
+                "http",
+                [_cb_point(100, 2), _cb_point(1000, 300, 900, 0.9)],
+            ),
+            setup(
+                "fastapi-w1-ws",
+                "fastapi",
+                1,
+                "ws",
+                [_cb_point(100, 1), _cb_point(1000, 5, 1000, 0.3)],
+            ),
+            setup("quart-w4-ws", "quart", 4, "ws", [_cb_point(100, 1)]),
+        ]
+    )
+    run["kind"] = "callback_load"
+    run["params"] = {
+        "kind": "sync",
+        "work_ms": 0.0,
+        "think": 1.0,
+        "ramp": 1,
+        "duration": 1,
+        "max_p95": 1000,
+    }
+    return run
+
+
+def test_callback_charts_split_by_transport_and_workers():
+    charts = {c["id"]: c for c in publish.callbacks_charts(_cb_run())}
+    assert set(charts) == {
+        "callbacks-capacity",
+        "callbacks-rtt-w1",
+        "callbacks-rtt-w4",
+        "callbacks-cpu",
+    }
+    bars = {b["label"]: b for b in charts["callbacks-capacity"]["bars"]}
+    assert bars["fastapi-w1-http"]["text"] == "100"
+    assert bars["fastapi-w1-ws"]["text"] == "1,000+"
+    assert bars["fastapi-w1-ws"]["hue"] != bars["fastapi-w1-http"]["hue"]
+    w1 = charts["callbacks-rtt-w1"]["traces"]
+    assert [t["dash"] for t in w1] == ["solid", "dash"]
+    cpu = {b["label"]: b["value"] for b in charts["callbacks-cpu"]["bars"]}
+    # Only setups measured at 1,000 browsers are compared.
+    assert cpu == {"fastapi-w1-ws": 0.3, "fastapi-w1-http": 1.0}
+
+
+def test_site_keeps_published_callbacks_when_not_given(tmp_path):
+    callbacks = tmp_path / "callbacks.json"
+    callbacks.write_text(json.dumps(_cb_run()))
+    site = tmp_path / "site"
+    publish.main(["--site", str(site), "--callbacks", str(callbacks)])
+    publish.main(["--site", str(site)])
+    index = (site / "index.html").read_text()
+    assert "HTTP vs websocket" in index
+    assert (site / "embed" / "callbacks-capacity.html").exists()
+    badge = json.loads((site / "badges" / "callbacks-fastapi-w1-ws.json").read_text())
+    assert badge["message"] == "1,000+ browsers"
+    history = json.loads((site / "data" / "callbacks-history.json").read_text())
+    assert history[0]["capacity"]["fastapi-w1-http"] == 100

@@ -2,7 +2,8 @@
 
     python -m benchmarks.publish --site site \\
         --renderer benchmarks/results.json \\
-        --streaming benchmarks/streaming/results.json
+        --streaming benchmarks/streaming/results.json \\
+        --callbacks benchmarks/callbacks/results.json
 
 ``--site`` is a checkout of the ``gh-pages`` branch (or any directory). Each
 run appends to ``data/*-history.json`` there, so the trend charts grow with
@@ -15,7 +16,7 @@ every publish, then rewrites the pages:
   wants to chart them their own way
 - ``badges/<name>.json``: shields.io endpoint badges for READMEs
 
-Either input may be omitted; the site keeps the last published numbers for it.
+Any input may be omitted; the site keeps the last published numbers for it.
 """
 from __future__ import annotations
 
@@ -30,11 +31,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(HERE, "web")
 HISTORY_LIMIT = 200
 
-# Interactive feel: p95 frame delivery under this counts as "served".
+# Interactive feel: a p95 frame delivery or callback round trip under this
+# counts as "served".
 CAPACITY_P95_MS = 250
 
 BACKEND_HUE = {"flask": 1, "fastapi": 2, "quart": 3}
 WORKER_DASH = {1: "solid", 4: "dash"}
+TRANSPORT_HUE = {"http": 1, "ws": 2}
+TRANSPORT_DASH = {"http": "solid", "ws": "dash"}
+TRANSPORT_NAME = {"http": "HTTP", "ws": "websocket"}
 
 
 def _load(path, default):
@@ -59,7 +64,7 @@ def _append(history, entry, key):
 # --- streaming --------------------------------------------------------------
 
 
-def capacity(setup):
+def capacity(setup, metric="latency_p95_ms"):
     """Highest measured browser count the setup served interactively, and
     whether the real limit is higher (the sweep ended, or the clients ran out
     of CPU, before the server fell behind)."""
@@ -67,20 +72,20 @@ def capacity(setup):
     for p in setup["points"]:
         if p["client_bound"]:
             return best, True
-        if p["error_rate"] > 0.01 or (p["latency_p95_ms"] or 1e9) > CAPACITY_P95_MS:
+        if p["error_rate"] > 0.01 or (p[metric] or 1e9) > CAPACITY_P95_MS:
             return best, False
         best = p["browsers"]
     return best, bool(setup["points"])
 
 
-def _setup_trace(setup, metric, unit):
+def _setup_trace(setup, metric, unit, dash=None):
     pts = [
         p for p in setup["points"] if not p["client_bound"] and p[metric] is not None
     ]
     return {
         "name": setup["label"],
         "hue": BACKEND_HUE.get(setup["backend"], 1),
-        "dash": WORKER_DASH.get(setup["workers"], "dot"),
+        "dash": dash or WORKER_DASH.get(setup["workers"], "dot"),
         "x": [p["browsers"] for p in pts],
         "y": [p[metric] for p in pts],
         "unit": unit,
@@ -94,10 +99,7 @@ def streaming_charts(run):
         f"each browser streams {params['frames']} frames {int(params['interval'] * 1000)} ms"
         f" apart, then waits ~{params['think']:g} s and streams again"
     )
-    where = (
-        f"Server on {meta['server_cpus']} of {meta['cores']} cores ({meta['cpu']}),"
-        f" Dash {meta['dash_version']} ({meta['commit']}), measured {meta['date'][:10]}"
-    )
+    where = _where(meta)
     setups = run["setups"]
     caps = [(s, *capacity(s)) for s in setups]
     caps.sort(key=lambda c: c[1])
@@ -200,6 +202,165 @@ def streaming_badges(run):
         badges[f"streaming-{s['name']}"] = {
             "schemaVersion": 1,
             "label": f"streaming {s['label']}",
+            "message": f"{cap:,}{'+' if capped else ''} browsers",
+            "color": "blue",
+        }
+    return badges
+
+
+# --- callbacks ------------------------------------------------------------------
+
+# Server CPU is compared where every setup still keeps up.
+CPU_AT_BROWSERS = 1000
+
+
+def _where(meta):
+    return (
+        f"Server on {meta['server_cpus']} of {meta['cores']} cores ({meta['cpu']}),"
+        f" Dash {meta['dash_version']} ({meta['commit']}), measured {meta['date'][:10]}"
+    )
+
+
+def _callback_load(params):
+    work = f", each doing {params['work_ms']:g} ms of work" if params["work_ms"] else ""
+    return (
+        f"each browser clicks, waits for the {params['kind']} callback{work},"
+        f" then waits ~{params['think']:g} s and clicks again"
+    )
+
+
+def callbacks_charts(run):
+    params, where = run["params"], _where(run["meta"])
+    load = _callback_load(params)
+    setups = run["setups"]
+    caps = sorted(((s, *capacity(s, "rtt_p95_ms")) for s in setups), key=lambda c: c[1])
+    cpu = []
+    for s in setups:
+        point = next(
+            (
+                p
+                for p in s["points"]
+                if p["browsers"] == CPU_AT_BROWSERS and not p["client_bound"]
+            ),
+            None,
+        )
+        if point and point["calls_per_s"] and point["server_cpu_cores"] is not None:
+            cpu.append((s, point["server_cpu_cores"] / point["calls_per_s"] * 1000))
+    cpu.sort(key=lambda c: c[1])
+    charts = [
+        {
+            "id": "callbacks-capacity",
+            "title": "Callbacks: browsers served, HTTP vs websocket",
+            "subtitle": (
+                f"Most concurrent browsers with p95 round trip under {CAPACITY_P95_MS} ms"
+                f" and under 1% errors; {load}. A + means the sweep stopped before the"
+                " server did."
+            ),
+            "source": where,
+            "kind": "hbar",
+            "bars": [
+                {
+                    "label": s["label"],
+                    "value": cap,
+                    "text": f"{cap:,}{'+' if capped else ''}",
+                    "hue": TRANSPORT_HUE.get(s["transport"], 1),
+                }
+                for s, cap, capped in caps
+            ],
+            "legend": [
+                {"label": TRANSPORT_NAME[t], "hue": hue}
+                for t, hue in TRANSPORT_HUE.items()
+            ],
+            "xaxis": {"title": "concurrent browsers"},
+        }
+    ]
+    for workers in sorted({s["workers"] for s in setups}):
+        plural = "s" if workers > 1 else ""
+        charts.append(
+            {
+                "id": f"callbacks-rtt-w{workers}",
+                "title": f"Callbacks: p95 round trip, {workers} worker{plural}",
+                "subtitle": (
+                    "From sending the callback to having its response, HTTP solid,"
+                    f" websocket dashed; {load}."
+                ),
+                "source": where,
+                "kind": "lines",
+                "traces": [
+                    _setup_trace(
+                        s,
+                        "rtt_p95_ms",
+                        "ms",
+                        dash=TRANSPORT_DASH.get(s["transport"], "dot"),
+                    )
+                    for s in setups
+                    if s["workers"] == workers
+                ],
+                "xaxis": {"title": "concurrent browsers", "type": "log"},
+                "yaxis": {"title": "p95 round trip (ms)", "type": "log"},
+                "threshold": CAPACITY_P95_MS,
+            }
+        )
+    if cpu:
+        charts.append(
+            {
+                "id": "callbacks-cpu",
+                "title": "Callbacks: server CPU per 1,000 calls a second",
+                "subtitle": (
+                    f"Server CPU at {CPU_AT_BROWSERS:,} browsers divided by the calls"
+                    f" it served; lower is cheaper; {load}."
+                ),
+                "source": where,
+                "kind": "hbar",
+                "bars": [
+                    {
+                        "label": s["label"],
+                        "value": round(cores, 2),
+                        "text": f"{cores:.2f} cores",
+                        "hue": TRANSPORT_HUE.get(s["transport"], 1),
+                    }
+                    for s, cores in cpu
+                ],
+                "legend": [
+                    {"label": TRANSPORT_NAME[t], "hue": hue}
+                    for t, hue in TRANSPORT_HUE.items()
+                ],
+                "xaxis": {"title": "cores per 1,000 calls/s", "rangemode": "tozero"},
+            }
+        )
+    return charts
+
+
+def callbacks_table(run):
+    cols = [
+        ("browsers", "browsers"),
+        ("rtt_p50_ms", "p50 ms"),
+        ("rtt_p95_ms", "p95 ms"),
+        ("rtt_p99_ms", "p99 ms"),
+        ("calls_per_s", "calls/s"),
+        ("error_rate", "errors"),
+        ("server_cpu_cores", "server cores"),
+        ("server_rss_mb", "server MB"),
+    ]
+    rows = []
+    for s in run["setups"]:
+        for p in s["points"]:
+            note = (
+                "client-bound"
+                if p["client_bound"]
+                else ("saturated" if p["saturated"] else "")
+            )
+            rows.append([s["label"]] + [_fmt(p.get(k), k) for k, _ in cols] + [note])
+    return ["setup"] + [c for _, c in cols] + ["note"], rows
+
+
+def callbacks_badges(run):
+    badges = {}
+    for s in run["setups"]:
+        cap, capped = capacity(s, "rtt_p95_ms")
+        badges[f"callbacks-{s['name']}"] = {
+            "schemaVersion": 1,
+            "label": f"callbacks {s['label']}",
             "message": f"{cap:,}{'+' if capped else ''} browsers",
             "color": "blue",
         }
@@ -368,10 +529,12 @@ def _figure(chart, embed_url=None, embed=False):
 </figure>"""
 
 
-def build(site, base_url, streaming, renderer, renderer_history):
+def build(site, base_url, streaming, renderer, renderer_history, callbacks=None):
     charts = []
     if streaming:
         charts += streaming_charts(streaming)
+    if callbacks:
+        charts += callbacks_charts(callbacks)
     if renderer:
         charts += renderer_charts(renderer, renderer_history)
 
@@ -410,6 +573,23 @@ def build(site, base_url, streaming, renderer, renderer_history):
             + _table(*streaming_table(streaming))
             + "</section>"
         )
+    if callbacks:
+        sections.append(
+            "<section><h2>Callbacks under load: HTTP vs websocket</h2>"
+            "<p>The same callback served two ways: a POST per call, or messages on one"
+            " websocket per browser (FastAPI and Quart; Flask has no websocket)."
+            " Simulated browsers speak each protocol as the renderer does, and the count"
+            " is raised until responses come back late or fail. Server and clients run"
+            " on separate cores of one machine.</p>"
+            + "".join(
+                _figure(c, embed_url(c))
+                for c in charts
+                if c["id"].startswith("callbacks")
+            )
+            + "<h3>All measurements</h3>"
+            + _table(*callbacks_table(callbacks))
+            + "</section>"
+        )
     if renderer:
         sections.append(
             "<section><h2>Renderer</h2>"
@@ -432,6 +612,8 @@ def build(site, base_url, streaming, renderer, renderer_history):
         "benchmarks/</a> and published from CI. Every chart can be embedded. Raw numbers:"
         ' <a href="data/streaming-latest.json">streaming</a>'
         ' (<a href="data/streaming-history.json">history</a>),'
+        ' <a href="data/callbacks-latest.json">callbacks</a>'
+        ' (<a href="data/callbacks-history.json">history</a>),'
         ' <a href="data/renderer-latest.json">renderer</a>'
         ' (<a href="data/renderer-history.json">history</a>).</p></header>'
         + "".join(sections)
@@ -448,6 +630,9 @@ def main(argv=None):
     parser.add_argument("--renderer", help="results.json from benchmarks.run")
     parser.add_argument(
         "--streaming", help="results.json from benchmarks.streaming.load"
+    )
+    parser.add_argument(
+        "--callbacks", help="results.json from benchmarks.callbacks.load"
     )
     parser.add_argument("--commit", default=os.environ.get("GITHUB_SHA", "")[:9])
     parser.add_argument("--date")
@@ -484,6 +669,27 @@ def main(argv=None):
     else:
         streaming = _load(os.path.join(data, "streaming-latest.json"), None)
 
+    callbacks = _load(args.callbacks, None)
+    if callbacks:
+        _dump(os.path.join(data, "callbacks-latest.json"), callbacks)
+        history = _load(os.path.join(data, "callbacks-history.json"), [])
+        summary = {
+            "date": callbacks["meta"]["date"],
+            "commit": callbacks["meta"]["commit"],
+            "runner": callbacks["meta"]["runner"],
+            "capacity": {
+                s["name"]: capacity(s, "rtt_p95_ms")[0] for s in callbacks["setups"]
+            },
+        }
+        _dump(
+            os.path.join(data, "callbacks-history.json"),
+            _append(history, summary, "date"),
+        )
+        for name, badge in callbacks_badges(callbacks).items():
+            _dump(os.path.join(site, "badges", f"{name}.json"), badge)
+    else:
+        callbacks = _load(os.path.join(data, "callbacks-latest.json"), None)
+
     renderer_history = _load(os.path.join(data, "renderer-history.json"), [])
     results = _load(args.renderer, None)
     if results:
@@ -500,7 +706,7 @@ def main(argv=None):
         _dump(os.path.join(data, "renderer-history.json"), renderer_history)
     renderer = _load(os.path.join(data, "renderer-latest.json"), None)
 
-    build(site, args.base_url, streaming, renderer, renderer_history)
+    build(site, args.base_url, streaming, renderer, renderer_history, callbacks)
     print(f"site written to {site}")
     return 0
 

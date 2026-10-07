@@ -90,24 +90,47 @@
 
   function hbar(spec, el) {
     const bars = spec.bars;
-    const traces = [{
-      type: 'bar',
-      orientation: 'h',
-      // Wrap long labels on narrow screens so they don't clip.
-      y: bars.map(b => (el.clientWidth < 600 ? wrap(b.label) : b.label)),
-      x: bars.map(b => b.value),
-      text: bars.map(b => b.text),
-      textposition: 'outside',
-      cliponaxis: false,
-      textfont: {size: 12, color: css('--ink-2')},
-      marker: {color: css('--series-1')},
-      hovertext: bars.map(b => b.hover || `${b.label}: ${b.text}`),
-      hoverinfo: 'text'
-    }];
+    // Wrap long labels on narrow screens so they don't clip.
+    const label = b => (el.clientWidth < 600 ? wrap(b.label) : b.label);
+    const names = {};
+    (spec.legend || []).forEach(l => { names[l.hue] = l.label; });
+    // One trace per colour, so a legend can name them; overlaid, each bar
+    // keeps its full width on its own row.
+    const hues = [...new Set(bars.map(b => b.hue || 1))].sort((a, b) => a - b);
+    const traces = hues.map(hue => {
+      const group = bars.filter(b => (b.hue || 1) === hue);
+      return {
+        type: 'bar',
+        orientation: 'h',
+        name: names[hue] || '',
+        y: group.map(label),
+        x: group.map(b => b.value),
+        text: group.map(b => b.text),
+        textposition: 'outside',
+        cliponaxis: false,
+        textfont: {size: 12, color: css('--ink-2')},
+        marker: {color: css('--series-' + hue)},
+        hovertext: group.map(b => b.hover || `${b.label}: ${b.text}`),
+        hoverinfo: 'text'
+      };
+    });
     const layout = baseLayout(spec);
     layout.bargap = 0.35;
-    layout.yaxis = axis({type: 'category'}, {gridcolor: 'rgba(0,0,0,0)', tickfont: {size: 12, color: css('--ink-2')}});
+    layout.barmode = 'overlay';
+    layout.yaxis = axis({type: 'category'}, {
+      gridcolor: 'rgba(0,0,0,0)',
+      tickfont: {size: 12, color: css('--ink-2')},
+      categoryorder: 'array',
+      categoryarray: bars.map(label)
+    });
     layout.margin.r = 64;
+    if (spec.legend) {
+      layout.showlegend = true;
+      layout.legend = {
+        orientation: 'h', x: 0, y: 1.02, xanchor: 'left', yanchor: 'bottom',
+        font: {size: 12, color: css('--ink-2')}
+      };
+    }
     return {traces, layout};
   }
 
