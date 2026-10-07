@@ -332,15 +332,17 @@ def test_stst011_closing_a_tab_cancels_its_stream(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_stst012_idle_stream_topics_are_released(dash_duo):
+def test_stst012_idle_stream_topics_are_released(dash_duo, monkeypatch):
     """Each run of streams gets its own topic, and the store drops it once it
-    sits idle past ``topic_ttl``: page loads do not leave their frames behind
-    for the life of the process. A page that streams again after its topic was
-    dropped still gets every frame of the new run."""
+    sits idle past ``STREAM_TOPIC_TTL``: page loads do not leave their frames
+    behind for the life of the process. A page that streams again after its
+    topic was dropped still gets every frame of the new run."""
+    from dash import _stream_hub
     from dash._shared_storage import LocalSharedStorage
 
     ttl = 1.0
-    app = Dash(__name__, shared_storage=LocalSharedStorage(topic_ttl=ttl))
+    monkeypatch.setattr(_stream_hub, "STREAM_TOPIC_TTL", ttl)
+    app = Dash(__name__, shared_storage=LocalSharedStorage())
     app.layout = html.Div(
         [html.Button("go", id="btn"), html.Div(id="out", children="idle")]
     )
@@ -362,7 +364,7 @@ def test_stst012_idle_stream_topics_are_released(dash_duo):
 
     def go_idle():
         # Past the ttl and one sweep interval, so the next publish sweeps.
-        time.sleep(ttl * 1.25 + 0.5)
+        time.sleep(ttl + 1.5)
 
     dash_duo.start_server(app)
     dash_duo.find_element("#btn").click()

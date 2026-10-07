@@ -10,14 +10,15 @@ there is no owner election.
 Sequence numbers are assigned by an atomic server-side script (``INCR`` +
 ``XADD``) so concurrent publishers stay strictly ordered; the stream is capped
 to a bounded window (``MAXLEN``), and a subscriber that falls past the trimmed
-floor gets a ``SharedStorageGap``. Both keys of a topic expire ``topic_ttl``
-seconds after its last publish or poll, so abandoned topics leave Redis.
+floor gets a ``SharedStorageGap``. A topic published with a ``ttl`` keeps it
+in a third key, and all three expire that long after the last publish or poll,
+so abandoned topics leave Redis.
 """
 import os
 from typing import Any, Optional
 
 from ._codec import decode, encode
-from ._engine import DEFAULT_BUFFER, DEFAULT_TOPIC_TTL, PollResult
+from ._engine import DEFAULT_BUFFER, PollResult
 from ._polling import PollingSubscription
 from .base import BaseSharedStorage, Subscription, check_topic_ttl
 
@@ -26,19 +27,40 @@ from .base import BaseSharedStorage, Subscription, check_topic_ttl
 _POLL_TIMEOUT = 5.0
 _DEFAULT_URL = "redis://localhost:6379"
 
+# A topic's keys live this many ttls past its last publish or poll. The slack
+# covers the gap between one poll's renewal and the next, up to _POLL_TIMEOUT.
+_TTL_SLACK = 1.25
+
 # Allocate the next sequence and append atomically, so concurrent publishers
 # never produce out-of-order stream IDs. Exact MAXLEN (not '~') keeps the replay
 # window at exactly buffer_size, so the gap boundary is deterministic.
-# KEYS: seq counter, stream key. ARGV: encoded payload, maxlen, ttl in ms
+# KEYS: seq counter, stream, ttl. ARGV: encoded payload, maxlen, lifetime in ms
 # (0 for none).
 _PUBLISH_LUA = """
 local seq = redis.call('INCR', KEYS[1])
 redis.call('XADD', KEYS[2], 'MAXLEN', ARGV[2], seq .. '-0', 'm', ARGV[1])
 if tonumber(ARGV[3]) > 0 then
+    redis.call('SET', KEYS[3], ARGV[3], 'PX', ARGV[3])
     redis.call('PEXPIRE', KEYS[1], ARGV[3])
     redis.call('PEXPIRE', KEYS[2], ARGV[3])
+else
+    redis.call('DEL', KEYS[3])
+    redis.call('PERSIST', KEYS[1])
+    redis.call('PERSIST', KEYS[2])
 end
 return seq
+"""
+
+# A poll renews the topic's ttl, if it has one, and reads the head and the
+# oldest buffered entry. KEYS: seq counter, stream, ttl.
+_POLL_HEAD_LUA = """
+local ttl = redis.call('GET', KEYS[3])
+if ttl then
+    redis.call('PEXPIRE', KEYS[1], ttl)
+    redis.call('PEXPIRE', KEYS[2], ttl)
+    redis.call('PEXPIRE', KEYS[3], ttl)
+end
+return {redis.call('GET', KEYS[1]), redis.call('XRANGE', KEYS[2], '-', '+', 'COUNT', 1)}
 """
 
 
@@ -72,9 +94,7 @@ class RedisSharedStorage(BaseSharedStorage):
     backend's) to reuse one connection pool, or a ``url`` (defaults to
     ``$REDIS_URL`` then ``redis://localhost:6379``). Values and published
     messages must be JSON-compatible. A passed client must return bytes
-    (``decode_responses=False``, the default). ``topic_ttl`` (seconds) releases
-    a topic nobody has published to or read from for that long; ``None`` keeps
-    topics forever.
+    (``decode_responses=False``, the default).
     """
 
     def __init__(
@@ -83,9 +103,7 @@ class RedisSharedStorage(BaseSharedStorage):
         client: Any = None,
         key_prefix: str = "dash:ss",
         buffer_size: int = DEFAULT_BUFFER,
-        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
-        check_topic_ttl(topic_ttl)
         redis = _require_redis()
         if client is not None:
             self._redis = client
@@ -96,12 +114,13 @@ class RedisSharedStorage(BaseSharedStorage):
             self._owns_client = True
         self._prefix = key_prefix
         self._buffer_size = buffer_size
-        self._ttl_ms = max(1, round(topic_ttl * 1000)) if topic_ttl is not None else 0
         self._publish_script: Any = None
+        self._poll_head_script: Any = None
 
     def start(self) -> None:
         if self._publish_script is None:
             self._publish_script = self._redis.register_script(_PUBLISH_LUA)
+            self._poll_head_script = self._redis.register_script(_POLL_HEAD_LUA)
 
     def close(self) -> None:
         if self._owns_client:
@@ -120,6 +139,12 @@ class RedisSharedStorage(BaseSharedStorage):
     def _stream(self, topic: str) -> str:
         return f"{self._prefix}:stream:{topic}"
 
+    def _ttl(self, topic: str) -> str:
+        return f"{self._prefix}:ttl:{topic}"
+
+    def _topic_keys(self, topic: str):
+        return [self._seq(topic), self._stream(topic), self._ttl(topic)]
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         raw = self._redis.get(self._kv(key))
@@ -135,11 +160,16 @@ class RedisSharedStorage(BaseSharedStorage):
         self._redis.delete(self._kv(key))
 
     # --- pub/sub -----------------------------------------------------------
-    def publish(self, topic: str, message: Any) -> None:
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        check_topic_ttl(ttl)
         self.start()
         self._publish_script(
-            keys=[self._seq(topic), self._stream(topic)],
-            args=[encode(message), self._buffer_size, self._ttl_ms],
+            keys=self._topic_keys(topic),
+            args=[
+                encode(message),
+                self._buffer_size,
+                round(ttl * _TTL_SLACK * 1000) if ttl is not None else 0,
+            ],
         )
 
     def _head(self, topic: str) -> int:
@@ -147,15 +177,9 @@ class RedisSharedStorage(BaseSharedStorage):
         return int(raw) if raw is not None else 0
 
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
-        seq_key, stream = self._seq(topic), self._stream(topic)
-        pipe = self._redis.pipeline(transaction=False)
-        pipe.get(seq_key)
-        pipe.xrange(stream, count=1)
-        if self._ttl_ms:
-            # A reader keeps its topic alive; PEXPIRE on a missing key is a no-op.
-            pipe.pexpire(seq_key, self._ttl_ms)
-            pipe.pexpire(stream, self._ttl_ms)
-        raw_head, first = pipe.execute()[:2]
+        self.start()
+        stream = self._stream(topic)
+        raw_head, first = self._poll_head_script(keys=self._topic_keys(topic))
         head = int(raw_head) if raw_head is not None else 0
         # Cursor past the head: it was minted before the stream was reset (the
         # key was flushed, expired, or evicted under a maxmemory policy). Gap so

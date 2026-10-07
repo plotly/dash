@@ -479,11 +479,11 @@ def test_stcb024_cancelled_pump_publishes_terminal_error():
     published = []
 
     class FakeStorage:
-        def publish(self, topic, message):
+        def publish(self, topic, message, ttl=None):
             published.append((topic, message))
 
         # The pump talks to the store through its loop-native methods.
-        async def apublish(self, topic, message):
+        async def apublish(self, topic, message, ttl=None):
             self.publish(topic, message)
 
         async def aget(self, key, default=None):

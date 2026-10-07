@@ -25,7 +25,7 @@ import threading
 import time
 from typing import Any, Optional, Tuple
 
-from ._engine import DEFAULT_BUFFER, DEFAULT_TOPIC_TTL, PollResult, StoreEngine
+from ._engine import DEFAULT_BUFFER, PollResult, StoreEngine
 from ._persistence import _Persistence, default_store_dir
 from ._transport import (
     EOF,
@@ -144,11 +144,9 @@ class _Coordinator:
         mode: str = "memory",
         path: Optional[str] = None,
         flush_interval: float = 60.0,
-        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
         self._namespace = namespace
         self._buffer_size = buffer_size
-        self._topic_ttl = topic_ttl
         self._mode = mode
         self._path = path
         self._flush_interval = flush_interval
@@ -185,7 +183,7 @@ class _Coordinator:
             listen_sock, family, address = bound
             token = secrets.token_hex(16)
             _write_advertisement(self._addr_path, family, address, token)
-            engine = StoreEngine(self._buffer_size, topic_ttl=self._topic_ttl)
+            engine = StoreEngine(self._buffer_size)
             if self._mode != "memory":
                 assert self._path is not None
                 persistence = _Persistence(
@@ -482,9 +480,6 @@ class LocalSharedStorage(BaseSharedStorage):
     ``path`` is the on-disk store directory for the persistent modes; it defaults
     to a per-namespace folder under the user cache directory. ``flush_interval``
     (seconds) only applies to ``"persist-reset"``.
-
-    ``topic_ttl`` (seconds) releases a topic nobody has published to or read
-    from for that long; ``None`` keeps topics for the life of the owner.
     """
 
     _MODES = ("memory", "persist", "persist-reset")
@@ -496,7 +491,6 @@ class LocalSharedStorage(BaseSharedStorage):
         mode: str = "memory",
         path: Optional[str] = None,
         flush_interval: float = 60.0,
-        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
         if mode not in self._MODES:
             raise SharedStorageError(
@@ -507,13 +501,10 @@ class LocalSharedStorage(BaseSharedStorage):
             raise SharedStorageError(
                 f"flush_interval must be positive, got {flush_interval!r}"
             )
-        check_topic_ttl(topic_ttl)
         ns = namespace or _default_namespace()
         if mode != "memory" and path is None:
             path = default_store_dir(ns)
-        self._coord = _Coordinator(
-            ns, buffer_size, mode, path, flush_interval, topic_ttl
-        )
+        self._coord = _Coordinator(ns, buffer_size, mode, path, flush_interval)
         self._conn: Optional[socket.socket] = None
         self._conn_lock = threading.Lock()
         # Client role, asyncio callers: one asyncio-streams connection per
@@ -558,7 +549,7 @@ class LocalSharedStorage(BaseSharedStorage):
         if op == "delete":
             return engine.delete(req[1])
         if op == "publish":
-            return engine.publish(req[1], req[2])
+            return engine.publish(req[1], req[2], req[3] if len(req) > 3 else None)
         if op == "head":
             return engine.head_seq(req[1])
         raise ValueError(f"unknown op {op!r}")
@@ -611,8 +602,11 @@ class LocalSharedStorage(BaseSharedStorage):
     async def adelete(self, key: str) -> None:
         await self._acall(["delete", key])
 
-    async def apublish(self, topic: str, message: Any) -> None:
-        await self._acall(["publish", topic, message])
+    async def apublish(
+        self, topic: str, message: Any, ttl: Optional[float] = None
+    ) -> None:
+        check_topic_ttl(ttl)
+        await self._acall(["publish", topic, message, ttl])
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._call(["get", key, default])
@@ -623,8 +617,9 @@ class LocalSharedStorage(BaseSharedStorage):
     def delete(self, key: str) -> None:
         self._call(["delete", key])
 
-    def publish(self, topic: str, message: Any) -> None:
-        self._call(["publish", topic, message])
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        check_topic_ttl(ttl)
+        self._call(["publish", topic, message, ttl])
 
     def _head(self, topic: str) -> int:
         return self._call(["head", topic])

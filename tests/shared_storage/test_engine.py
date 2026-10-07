@@ -2,8 +2,6 @@
 import threading
 import time
 
-import pytest
-
 from dash._shared_storage._engine import StoreEngine
 
 
@@ -196,29 +194,29 @@ def test_apoll_wakes_on_close_and_serves_many_waiters():
     asyncio.run(scenario())
 
 
-def _clocked_engine(monkeypatch, **kwargs):
+def _clocked_engine(monkeypatch):
     from dash._shared_storage import _engine
 
     clock = {"t": 1000.0}
     monkeypatch.setattr(_engine.time, "monotonic", lambda: clock["t"])
-    return _engine.StoreEngine(**kwargs), clock
+    return _engine.StoreEngine(), clock
 
 
 def test_idle_topic_is_released(monkeypatch):
-    e, clock = _clocked_engine(monkeypatch, topic_ttl=10)
+    e, clock = _clocked_engine(monkeypatch)
     for i in range(5):
-        e.publish("gone", i)
-    clock["t"] += 13  # past the ttl and a sweep interval
+        e.publish("gone", i, ttl=10)
+    e.publish("kept", "x")
+    clock["t"] += 12  # past the ttl and a sweep interval
     e.publish("other", "x")  # any pub/sub call sweeps
-    assert "gone" not in e._topics
-    assert list(e._topics) == ["other"]
+    assert sorted(e._topics) == ["kept", "other"]
     # A later publish starts the topic over.
     assert e.publish("gone", "again") == 1
 
 
 def test_polling_keeps_a_topic_alive(monkeypatch):
-    e, clock = _clocked_engine(monkeypatch, topic_ttl=10)
-    e.publish("t", "m")
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
     for _ in range(5):
         clock["t"] += 6  # each gap is under the ttl, the total is well past it
         e.poll("t", 1, timeout=0)
@@ -227,8 +225,8 @@ def test_polling_keeps_a_topic_alive(monkeypatch):
 
 
 def test_topic_held_by_a_blocked_poll_is_not_released(monkeypatch):
-    e, clock = _clocked_engine(monkeypatch, topic_ttl=10)
-    e.publish("t", "m1")
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m1", ttl=10)
     t = e._topics["t"]
     got = []
     poller = threading.Thread(target=lambda: got.append(e.poll("t", 1, timeout=100)))
@@ -244,37 +242,21 @@ def test_topic_held_by_a_blocked_poll_is_not_released(monkeypatch):
     assert got[0].messages == ["m2"]
 
 
-def test_topic_ttl_none_keeps_topics(monkeypatch):
-    e, clock = _clocked_engine(monkeypatch, topic_ttl=None)
+def test_latest_publish_sets_the_ttl(monkeypatch):
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
     e.publish("t", "m")
     clock["t"] += 10_000
     e.publish("other", "x")
-    assert e.head_seq("t") == 1
+    assert e.head_seq("t") == 2
 
 
 def test_released_topic_gaps_a_stale_cursor(monkeypatch):
     # A consumer that comes back after its topic was released gets the gap
     # signal, not a silent restart.
-    e, clock = _clocked_engine(monkeypatch, topic_ttl=10)
+    e, clock = _clocked_engine(monkeypatch)
     for i in range(3):
-        e.publish("t", i)
-    clock["t"] += 13
+        e.publish("t", i, ttl=10)
+    clock["t"] += 12
     e.publish("t", "fresh")
     assert e.poll("t", 3, timeout=0).gap is True
-
-
-@pytest.mark.parametrize("ttl", [0, -1])
-def test_every_backend_rejects_a_non_positive_topic_ttl(tmp_path, ttl):
-    from dash._shared_storage import (
-        DiskcacheSharedStorage,
-        LocalSharedStorage,
-        RedisSharedStorage,
-        SharedStorageError,
-    )
-
-    with pytest.raises(SharedStorageError):
-        LocalSharedStorage(topic_ttl=ttl)
-    with pytest.raises(SharedStorageError):
-        DiskcacheSharedStorage(directory=str(tmp_path), topic_ttl=ttl)
-    with pytest.raises(SharedStorageError):
-        RedisSharedStorage(topic_ttl=ttl)

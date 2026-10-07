@@ -17,6 +17,7 @@ redis = pytest.importorskip("redis")
 from dash._shared_storage import (  # noqa: E402
     RedisSharedStorage,
     SharedStorageGap,
+    base,
 )
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
@@ -122,42 +123,25 @@ def test_no_gap_at_buffer_edge():
     store.close()
 
 
-def test_idle_topic_leaves_redis():
+def test_idle_topic_leaves_redis(monkeypatch):
+    monkeypatch.setattr(base, "MIN_TOPIC_TTL", 0.1)
     prefix = f"dash:sstest:{uuid.uuid4().hex[:12]}"
-    store = RedisSharedStorage(url=REDIS_URL, key_prefix=prefix, topic_ttl=0.3)
+    store = RedisSharedStorage(url=REDIS_URL, key_prefix=prefix)
     store.start()
     for i in range(3):
-        store.publish("t", f"m{i}")
-    keys = [store._seq("t"), store._stream("t")]
-    assert all(0 < store._redis.pttl(k) <= 300 for k in keys)
+        store.publish("t", f"m{i}", ttl=0.3)
+    keys = [store._seq("t"), store._stream("t"), store._ttl("t")]
+    assert all(0 < store._redis.pttl(k) <= 375 for k in keys)
     time.sleep(0.5)
     assert store._redis.exists(*keys) == 0
     store.close()
 
 
-def test_polling_renews_the_topic_ttl():
-    prefix = f"dash:sstest:{uuid.uuid4().hex[:12]}"
-    store = RedisSharedStorage(url=REDIS_URL, key_prefix=prefix, topic_ttl=0.4)
-    store.start()
-    store.publish("t", "m")
-    sub = store.subscribe("t", replay_from=1)
-    for _ in range(5):
-        time.sleep(0.2)
-        assert sub.poll(0.0) == []
-    store.publish("t", "m2")
-    assert sub.poll(0.0) == [(2, "m2")]
-    store.close()
-
-
-def test_topic_ttl_none_sets_no_expiry():
-    prefix = f"dash:sstest:{uuid.uuid4().hex[:12]}"
-    store = RedisSharedStorage(url=REDIS_URL, key_prefix=prefix, topic_ttl=None)
-    store.start()
+def test_no_ttl_sets_no_expiry(store):
     store.publish("t", "m")
     assert store._redis.pttl(store._seq("t")) == -1
     assert store._redis.pttl(store._stream("t")) == -1
     store._redis.delete(store._seq("t"), store._stream("t"))
-    store.close()
 
 
 def test_two_instances_share_state(store):

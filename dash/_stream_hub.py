@@ -94,6 +94,10 @@ DOWNLINK_GRACE = 10.0
 POLL_GRACE = 30.0
 # How often a pump consults the connection record while a callback runs.
 DOWNLINK_CHECK_INTERVAL = 2.0
+# How long the store keeps a stream topic nobody publishes to or reads. Long
+# enough to outlast the grace windows above many times over, short enough that
+# a busy app does not hold every finished run's frames for hours.
+STREAM_TOPIC_TTL = 300.0
 
 # The uplink's fast acknowledgement -- the streaming callback's POST returns this
 # immediately; its outputs arrive on the downlink, not this response.
@@ -155,7 +159,11 @@ def publish_frame(
     frame: Any,
 ) -> None:
     """Publish one streaming frame onto a connection's downlink topic."""
-    storage.publish(stream_topic(connection_id), _envelope(request_id, frame))
+    storage.publish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 async def apublish_frame(
@@ -165,7 +173,11 @@ async def apublish_frame(
     frame: Any,
 ) -> None:
     """:func:`publish_frame` for the pumps: never blocks their event loop."""
-    await storage.apublish(stream_topic(connection_id), _envelope(request_id, frame))
+    await storage.apublish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 # --- downlink lifecycle record ---------------------------------------------

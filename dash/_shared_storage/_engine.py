@@ -13,9 +13,10 @@ The engine is thread-safe and transport-agnostic; sockets live one layer up.
 ``publish`` resolves from whichever thread it runs on, so an ASGI server can
 hold thousands of subscriptions without an executor thread each.
 
-A topic nobody publishes to, polls or subscribes to for ``topic_ttl`` seconds
-is dropped, buffer and sequence both, so per-session topics do not pile up for
-the life of the process. A later publish starts it over at sequence 1.
+A topic published with a ``ttl`` is dropped, buffer and sequence both, once
+nobody has published to, polled or subscribed to it for that long, so
+per-session topics do not pile up for the life of the process. A later publish
+starts it over at sequence 1.
 """
 
 import asyncio
@@ -33,10 +34,9 @@ from typing import Any, Deque, Dict, Iterator, List, NamedTuple, Optional, Tuple
 # Deployments that need a wider reconnect window set buffer_size explicitly.
 DEFAULT_BUFFER = 32
 
-# How long an untouched topic is kept. Long enough to outlast a streaming
-# downlink's reconnect and poll grace windows many times over, short enough that
-# a busy app does not hold every finished session's frames for hours.
-DEFAULT_TOPIC_TTL = 300.0
+# How often idle topics are looked for, so a topic outlives its ttl by at most
+# this much.
+_SWEEP_INTERVAL = 1.0
 
 
 class PollResult(NamedTuple):
@@ -49,7 +49,7 @@ _Waiter = Tuple[asyncio.AbstractEventLoop, "asyncio.Future[None]"]
 
 
 class _Topic:  # pylint: disable=too-few-public-methods
-    __slots__ = ("seq", "buf", "cond", "waiters", "users", "touched")
+    __slots__ = ("seq", "buf", "cond", "waiters", "users", "touched", "ttl")
 
     def __init__(self, maxlen: int, now: float):
         self.seq = 0
@@ -61,6 +61,7 @@ class _Topic:  # pylint: disable=too-few-public-methods
         # when the last one let go. Both guarded by the engine's _topics_lock.
         self.users = 0
         self.touched = now
+        self.ttl: Optional[float] = None
 
 
 def _wake(fut: "asyncio.Future[None]") -> None:
@@ -73,10 +74,8 @@ class StoreEngine:
         self,
         buffer_size: int = DEFAULT_BUFFER,
         persistence: Any = None,
-        topic_ttl: Optional[float] = DEFAULT_TOPIC_TTL,
     ):
         self._buffer_size = buffer_size
-        self._topic_ttl = topic_ttl
         self._next_sweep = 0.0
         # key -> (value, expiry). expiry is a monotonic deadline, or None for
         # no TTL. Expired entries are dropped lazily on the next read.
@@ -184,23 +183,22 @@ class StoreEngine:
                 topic.touched = time.monotonic()
 
     def _sweep(self, now: float) -> None:
-        """Under ``_topics_lock``: drop topics idle past the ttl. Runs at most
-        every quarter ttl, so a topic lives between 1 and 1.25 ttl idle."""
-        if self._topic_ttl is None or now < self._next_sweep:
+        """Under ``_topics_lock``: drop topics idle past their ttl."""
+        if now < self._next_sweep:
             return
-        self._next_sweep = now + self._topic_ttl / 4
-        cutoff = now - self._topic_ttl
+        self._next_sweep = now + _SWEEP_INTERVAL
         idle = [
             name
             for name, t in self._topics.items()
-            if t.users == 0 and t.touched < cutoff
+            if t.ttl is not None and t.users == 0 and t.touched < now - t.ttl
         ]
         for name in idle:
             del self._topics[name]
 
-    def publish(self, topic: str, message: Any) -> int:
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> int:
         with self._use(topic) as t:
             with t.cond:
+                t.ttl = ttl
                 t.seq += 1
                 t.buf.append((t.seq, message))
                 t.cond.notify_all()
