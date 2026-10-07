@@ -18,11 +18,9 @@ peak CPU so a client-bound point can be spotted.
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import sys
-from dataclasses import asdict
 
 from benchmarks import loadkit
 from benchmarks.loadkit import Setup, pct
@@ -106,6 +104,20 @@ def run_point(setup, browsers, args):
     return point
 
 
+def _entry_fields(setup, redis_url):
+    if setup.needs_redis and not redis_url:
+        print(f"skip {setup.name}: multi-worker needs --redis-url", flush=True)
+        return None
+    return {"storage": "redis" if setup.needs_redis else "local"}
+
+
+def _describe(point):
+    return (
+        f"p50 {point['latency_p50_ms']}ms  p95 {point['latency_p95_ms']}ms"
+        f"  first {point['first_frame_p50_ms']}ms"
+    )
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--setup", nargs="*", choices=list(SETUPS_BY_NAME))
@@ -128,39 +140,14 @@ def main(argv=None):
         },
         "setups": [],
     }
-    for setup in setups:
-        if setup.needs_redis and not args.redis_url:
-            print(f"skip {setup.name}: multi-worker needs --redis-url", flush=True)
-            continue
-        entry = {
-            **{k: v for k, v in asdict(setup).items() if k != "env"},
-            "storage": "redis" if setup.needs_redis else "local",
-            "points": [],
-        }
-        results["setups"].append(entry)
-        for browsers in sorted(args.browsers):
-            try:
-                point = run_point(setup, browsers, args)
-            except RuntimeError as err:
-                print(f"{setup.name} @ {browsers}: {err}", flush=True)
-                break
-            entry["points"].append(point)
-            print(
-                f"{setup.name:20} {browsers:5} browsers  p50 {point['latency_p50_ms']}ms"
-                f"  p95 {point['latency_p95_ms']}ms  first {point['first_frame_p50_ms']}ms"
-                f"  err {point['error_rate']:.2%}  server {point['server_cpu_cores']} cores"
-                f"  client peak {point['client_cpu_peak_pct']}%"
-                + ("  SATURATED" if point["saturated"] else "")
-                + ("  CLIENT-BOUND" if point["client_bound"] else ""),
-                flush=True,
-            )
-            with open(args.out, "w", encoding="utf-8") as f:
-                json.dump(results, f, indent=1)
-            # Past either limit the next counts measure nothing useful: a
-            # saturated server only gets worse, and client-bound numbers are
-            # the load generator's, not the server's.
-            if point["saturated"] or point["client_bound"]:
-                break
+    loadkit.sweep(
+        results,
+        setups,
+        args,
+        run_point,
+        _describe,
+        lambda setup: _entry_fields(setup, args.redis_url),
+    )
     return 0
 
 

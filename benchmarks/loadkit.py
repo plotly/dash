@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Callable, Dict, List
 
 import psutil
@@ -334,12 +334,11 @@ def run_clients(
 
 def machine_info(args):
     cpu = platform.processor()
-    with contextlib.suppress(OSError):
-        with open("/proc/cpuinfo", encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("model name"):
-                    cpu = line.split(":", 1)[1].strip()
-                    break
+    with contextlib.suppress(OSError), open("/proc/cpuinfo", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("model name"):
+                cpu = line.split(":", 1)[1].strip()
+                break
     sha = subprocess.run(
         ["git", "rev-parse", "--short", "HEAD"],
         cwd=REPO_ROOT,
@@ -361,6 +360,48 @@ def machine_info(args):
         "client_cpus": len(args.client_cpus),
         "runner": os.environ.get("BENCH_RUNNER", "local"),
     }
+
+
+def sweep(results, setups, args, run_point, describe, entry_fields):
+    """Climb each setup through ``args.browsers``, saving ``results`` to
+    ``args.out`` after every point.
+
+    ``entry_fields(setup)`` gives the setup's extra result fields, or None to
+    skip it; ``describe(point)`` gives the test's own numbers for the log line.
+    A setup stops climbing once a point saturates or is client-bound: a
+    saturated server only gets worse, and client-bound numbers are the load
+    generator's, not the server's.
+    """
+    for setup in setups:
+        fields = entry_fields(setup)
+        if fields is None:
+            continue
+        entry = {
+            **{k: v for k, v in asdict(setup).items() if k != "env"},
+            **fields,
+            "points": [],
+        }
+        results["setups"].append(entry)
+        for browsers in sorted(args.browsers):
+            try:
+                point = run_point(setup, browsers, args)
+            except RuntimeError as err:
+                print(f"{setup.name} @ {browsers}: {err}", flush=True)
+                break
+            entry["points"].append(point)
+            flags = ("  SATURATED" if point["saturated"] else "") + (
+                "  CLIENT-BOUND" if point["client_bound"] else ""
+            )
+            print(
+                f"{setup.name:24} {browsers:5} browsers  {describe(point)}"
+                f"  err {point['error_rate']:.2%}  server {point['server_cpu_cores']} cores"
+                f"  client peak {point['client_cpu_peak_pct']}%{flags}",
+                flush=True,
+            )
+            with open(args.out, "w", encoding="utf-8") as f:
+                json.dump(results, f, indent=1)
+            if point["saturated"] or point["client_bound"]:
+                break
 
 
 def add_common_args(parser, browsers):

@@ -27,8 +27,10 @@ app.layout = html.Div([html.Button("go", id="btn", n_clicks=0), html.Div(id="out
 
 def _burn(seconds):
     end = time.perf_counter() + seconds
+    spins = 0
     while time.perf_counter() < end:
-        pass
+        spins += 1
+    return spins
 
 
 if KIND == "async":

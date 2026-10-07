@@ -40,6 +40,7 @@ WORKER_DASH = {1: "solid", 4: "dash"}
 TRANSPORT_HUE = {"http": 1, "ws": 2}
 TRANSPORT_DASH = {"http": "solid", "ws": "dash"}
 TRANSPORT_NAME = {"http": "HTTP", "ws": "websocket"}
+BROWSERS_AXIS = "concurrent browsers"
 
 
 def _load(path, default):
@@ -123,7 +124,7 @@ def streaming_charts(run):
                 }
                 for s, cap, capped in caps
             ],
-            "xaxis": {"title": "concurrent browsers"},
+            "xaxis": {"title": BROWSERS_AXIS},
         },
         {
             "id": "streaming-latency",
@@ -132,7 +133,7 @@ def streaming_charts(run):
             "source": where,
             "kind": "lines",
             "traces": [_setup_trace(s, "latency_p95_ms", "ms") for s in setups],
-            "xaxis": {"title": "concurrent browsers", "type": "log"},
+            "xaxis": {"title": BROWSERS_AXIS, "type": "log"},
             "yaxis": {"title": "p95 latency (ms)", "type": "log"},
             "threshold": CAPACITY_P95_MS,
         },
@@ -143,7 +144,7 @@ def streaming_charts(run):
             "source": where,
             "kind": "lines",
             "traces": [_setup_trace(s, "first_frame_p95_ms", "ms") for s in setups],
-            "xaxis": {"title": "concurrent browsers", "type": "log"},
+            "xaxis": {"title": BROWSERS_AXIS, "type": "log"},
             "yaxis": {"title": "p95 time to first frame (ms)", "type": "log"},
         },
         {
@@ -153,7 +154,7 @@ def streaming_charts(run):
             "source": where,
             "kind": "lines",
             "traces": [_setup_trace(s, "server_cpu_cores", "cores") for s in setups],
-            "xaxis": {"title": "concurrent browsers", "type": "log"},
+            "xaxis": {"title": BROWSERS_AXIS, "type": "log"},
             "yaxis": {"title": "CPU (cores)"},
         },
     ]
@@ -174,13 +175,16 @@ def streaming_table(run):
     rows = []
     for s in run["setups"]:
         for p in s["points"]:
-            note = (
-                "client-bound"
-                if p["client_bound"]
-                else ("saturated" if p["saturated"] else "")
+            rows.append(
+                [s["label"]] + [_fmt(p.get(k), k) for k, _ in cols] + [_note(p)]
             )
-            rows.append([s["label"]] + [_fmt(p.get(k), k) for k, _ in cols] + [note])
     return ["setup"] + [c for _, c in cols] + ["note"], rows
+
+
+def _note(point):
+    if point["client_bound"]:
+        return "client-bound"
+    return "saturated" if point["saturated"] else ""
 
 
 def _fmt(v, key=""):
@@ -271,7 +275,7 @@ def callbacks_charts(run):
                 {"label": TRANSPORT_NAME[t], "hue": hue}
                 for t, hue in TRANSPORT_HUE.items()
             ],
-            "xaxis": {"title": "concurrent browsers"},
+            "xaxis": {"title": BROWSERS_AXIS},
         }
     ]
     for workers in sorted({s["workers"] for s in setups}):
@@ -296,7 +300,7 @@ def callbacks_charts(run):
                     for s in setups
                     if s["workers"] == workers
                 ],
-                "xaxis": {"title": "concurrent browsers", "type": "log"},
+                "xaxis": {"title": BROWSERS_AXIS, "type": "log"},
                 "yaxis": {"title": "p95 round trip (ms)", "type": "log"},
                 "threshold": CAPACITY_P95_MS,
             }
@@ -345,12 +349,9 @@ def callbacks_table(run):
     rows = []
     for s in run["setups"]:
         for p in s["points"]:
-            note = (
-                "client-bound"
-                if p["client_bound"]
-                else ("saturated" if p["saturated"] else "")
+            rows.append(
+                [s["label"]] + [_fmt(p.get(k), k) for k, _ in cols] + [_note(p)]
             )
-            rows.append([s["label"]] + [_fmt(p.get(k), k) for k, _ in cols] + [note])
     return ["setup"] + [c for _, c in cols] + ["note"], rows
 
 
@@ -556,54 +557,52 @@ def build(site, base_url, streaming, renderer, renderer_history, callbacks=None)
     def embed_url(chart):
         return f"{base_url.rstrip('/')}/embed/{chart['id']}.html"
 
+    def section(title, intro, prefix, table):
+        figures = "".join(
+            _figure(c, embed_url(c)) for c in charts if c["id"].startswith(prefix)
+        )
+        return (
+            f"<section><h2>{title}</h2><p>{intro}</p>{figures}"
+            f"<h3>All measurements</h3>{_table(*table)}</section>"
+        )
+
     sections = []
     if streaming:
         sections.append(
-            "<section><h2>Streaming callbacks under load</h2>"
-            "<p>Simulated browsers stream from one app, one setup at a time, with the"
-            " count raised until frames arrive late or fail. Each browser behaves like the"
-            " renderer: one shared downlink, a long NDJSON response on ASGI and short polls"
-            " on WSGI. Server and clients run on separate cores of one machine.</p>"
-            + "".join(
-                _figure(c, embed_url(c))
-                for c in charts
-                if c["id"].startswith("streaming")
+            section(
+                "Streaming callbacks under load",
+                "Simulated browsers stream from one app, one setup at a time, with the"
+                " count raised until frames arrive late or fail. Each browser behaves"
+                " like the renderer: one shared downlink, a long NDJSON response on ASGI"
+                " and short polls on WSGI. Server and clients run on separate cores of"
+                " one machine.",
+                "streaming",
+                streaming_table(streaming),
             )
-            + "<h3>All measurements</h3>"
-            + _table(*streaming_table(streaming))
-            + "</section>"
         )
     if callbacks:
         sections.append(
-            "<section><h2>Callbacks under load: HTTP vs websocket</h2>"
-            "<p>The same callback served two ways: a POST per call, or messages on one"
-            " websocket per browser (FastAPI and Quart; Flask has no websocket)."
-            " Simulated browsers speak each protocol as the renderer does, and the count"
-            " is raised until responses come back late or fail. Server and clients run"
-            " on separate cores of one machine.</p>"
-            + "".join(
-                _figure(c, embed_url(c))
-                for c in charts
-                if c["id"].startswith("callbacks")
+            section(
+                "Callbacks under load: HTTP vs websocket",
+                "The same callback served two ways: a POST per call, or messages on"
+                " one websocket per browser (FastAPI and Quart; Flask has no"
+                " websocket). Simulated browsers speak each protocol as the renderer"
+                " does, and the count is raised until responses come back late or"
+                " fail. Server and clients run on separate cores of one machine.",
+                "callbacks",
+                callbacks_table(callbacks),
             )
-            + "<h3>All measurements</h3>"
-            + _table(*callbacks_table(callbacks))
-            + "</section>"
         )
     if renderer:
         sections.append(
-            "<section><h2>Renderer</h2>"
-            "<p>Each scenario runs as a real app in headless Chrome. Lower is better."
-            " Growth compares late to early operations: near 1x is flat, higher means the"
-            " cost grows with the page.</p>"
-            + "".join(
-                _figure(c, embed_url(c))
-                for c in charts
-                if c["id"].startswith("renderer")
+            section(
+                "Renderer",
+                "Each scenario runs as a real app in headless Chrome. Lower is better."
+                " Growth compares late to early operations: near 1x is flat, higher"
+                " means the cost grows with the page.",
+                "renderer",
+                renderer_table(renderer),
             )
-            + "<h3>All measurements</h3>"
-            + _table(*renderer_table(renderer))
-            + "</section>"
         )
     body = (
         "<header><h1>Dash benchmarks</h1>"

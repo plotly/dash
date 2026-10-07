@@ -6,4 +6,6 @@ FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages "psutil>=7"
 COPY agent.py histogram.py /swarm/
+# The image's unprivileged user.
+USER pwuser
 ENTRYPOINT ["python3", "/swarm/agent.py"]

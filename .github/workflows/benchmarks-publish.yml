@@ -56,7 +56,7 @@ jobs:
           python -m pip install "setuptools<80.0.0"
           python -m pip install -e .[ci,dev,testing]
       - run: npm run build
-      - uses: browser-actions/setup-chrome@v1
+      - uses: browser-actions/setup-chrome@c785b87e244131f27c9f19c1a33e2ead956ab7ce # v1
         with:
           chrome-version: stable
       - name: Set up virtual display

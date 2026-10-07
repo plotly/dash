@@ -27,7 +27,7 @@ LATE_S = 1.0
 
 def aggregate(reports):
     hists = {}
-    counts = {k: 0 for k in COUNTS}
+    counts = dict.fromkeys(COUNTS, 0)
     errors_by_kind = {}
     for r in reports:
         for k in COUNTS:

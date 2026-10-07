@@ -17,11 +17,9 @@ no shared storage.
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import sys
-from dataclasses import asdict
 
 from benchmarks import loadkit
 from benchmarks.loadkit import Setup, pct
@@ -113,6 +111,17 @@ def run_point(setup, browsers, args):
     return point
 
 
+def _entry_fields(setup):
+    return {"transport": setup.env["LOAD_TRANSPORT"]}
+
+
+def _describe(point):
+    return (
+        f"p50 {point['rtt_p50_ms']}ms  p95 {point['rtt_p95_ms']}ms"
+        f"  {point['calls_per_s']} calls/s"
+    )
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--setup", nargs="*", choices=list(SETUPS_BY_NAME))
@@ -133,33 +142,7 @@ def main(argv=None):
         },
         "setups": [],
     }
-    for setup in setups:
-        entry = {
-            **{k: v for k, v in asdict(setup).items() if k != "env"},
-            "transport": setup.env["LOAD_TRANSPORT"],
-            "points": [],
-        }
-        results["setups"].append(entry)
-        for browsers in sorted(args.browsers):
-            try:
-                point = run_point(setup, browsers, args)
-            except RuntimeError as err:
-                print(f"{setup.name} @ {browsers}: {err}", flush=True)
-                break
-            entry["points"].append(point)
-            print(
-                f"{setup.name:24} {browsers:5} browsers  p50 {point['rtt_p50_ms']}ms"
-                f"  p95 {point['rtt_p95_ms']}ms  {point['calls_per_s']} calls/s"
-                f"  err {point['error_rate']:.2%}  server {point['server_cpu_cores']} cores"
-                f"  client peak {point['client_cpu_peak_pct']}%"
-                + ("  SATURATED" if point["saturated"] else "")
-                + ("  CLIENT-BOUND" if point["client_bound"] else ""),
-                flush=True,
-            )
-            with open(args.out, "w", encoding="utf-8") as f:
-                json.dump(results, f, indent=1)
-            if point["saturated"] or point["client_bound"]:
-                break
+    loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields)
     return 0
 
 

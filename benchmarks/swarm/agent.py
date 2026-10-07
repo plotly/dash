@@ -131,8 +131,10 @@ class User:
             self.page.evaluate(CLICK_AND_WAIT, [scenario, n]), ACTION_TIMEOUT
         )
 
-    async def run(self, start_at, stop_at):
-        await asyncio.sleep(max(0.0, start_at - time.time()))
+    async def _start(self):
+        """Open this user's context and load the page; None if it failed.
+        A user that never starts is counted whenever it happens: it takes its
+        share of the load away from the whole run."""
         context = None
         try:
             context = await self.browser.new_context()
@@ -146,51 +148,66 @@ class User:
             await self.load()
             # The first load happens during the ramp, so it is not windowed.
             self.report.add("page_load", (time.time() - started) * 1000)
+            return context
         except Exception:  # pylint: disable=broad-except
-            # Counted whenever it happens: a user that never starts takes its
-            # share of the load away from the whole run.
             self.report.counts["users_failed"] += 1
             self.report.error("page_load")
             if context is not None:
                 with contextlib.suppress(Exception):
                     await context.close()
+            return None
+
+    async def _reload(self):
+        """Start the page over after an error; False if that failed too."""
+        self.report.counts["reloads"] += 1
+        attempted = time.time()
+        try:
+            await self.load()
+            return True
+        except Exception:  # pylint: disable=broad-except
+            if self.report.in_window(attempted):
+                self.report.error("reload")
+            await asyncio.sleep(1)
+            return False
+
+    async def _click(self, scenario):
+        """One timed click; False if it failed and the page needs a reload."""
+        clicked = time.time()
+        counted = self.report.in_window
+        try:
+            result = await self.act(scenario)
+        except Exception as err:  # pylint: disable=broad-except
+            if counted(clicked):
+                kind = (
+                    "timeout"
+                    if isinstance(err, asyncio.TimeoutError)
+                    else type(err).__name__
+                )
+                self.report.error(f"{scenario}:{kind}")
+            return False
+        if counted(clicked):
+            self.report.counts["actions"] += 1
+            if scenario == "stream":
+                self.report.add("stream_first", result["first"])
+                self.report.add("stream_total", result["total"])
+            else:
+                self.report.add(scenario, result["total"])
+        return True
+
+    async def run(self, start_at, stop_at):
+        await asyncio.sleep(max(0.0, start_at - time.time()))
+        context = await self._start()
+        if context is None:
             return
         loaded = True
         try:
             while time.time() < stop_at:
-                if not loaded:
-                    # The page is in an unknown state after an error.
-                    self.report.counts["reloads"] += 1
-                    attempted = time.time()
-                    try:
-                        await self.load()
-                        loaded = True
-                    except Exception:  # pylint: disable=broad-except
-                        if self.report.in_window(attempted):
-                            self.report.error("reload")
-                        await asyncio.sleep(1)
-                        continue
-                scenario = random.choice(self.args.scenario)
-                clicked = time.time()
-                try:
-                    result = await self.act(scenario)
-                    if self.report.in_window(clicked):
-                        self.report.counts["actions"] += 1
-                        if scenario == "stream":
-                            self.report.add("stream_first", result["first"])
-                            self.report.add("stream_total", result["total"])
-                        else:
-                            self.report.add(scenario, result["total"])
-                except Exception as err:  # pylint: disable=broad-except
-                    if self.report.in_window(clicked):
-                        kind = (
-                            "timeout"
-                            if isinstance(err, asyncio.TimeoutError)
-                            else type(err).__name__
-                        )
-                        self.report.error(f"{scenario}:{kind}")
-                    loaded = False
-                await asyncio.sleep(random.uniform(0, 2 * self.args.think))
+                if not loaded and not await self._reload():
+                    continue
+                # Not a security use: just varies what users click.
+                scenario = random.choice(self.args.scenario)  # NOSONAR
+                loaded = await self._click(scenario)
+                await asyncio.sleep(random.uniform(0, 2 * self.args.think))  # NOSONAR
         finally:
             with contextlib.suppress(Exception):
                 await context.close()
@@ -259,13 +276,19 @@ async def main(args):
         "errors_by_kind": report.errors_by_kind,
         "histograms": {k: h.to_json() for k, h in report.hists.items()},
     }
+    return out
+
+
+def write_report(out, path):
     text = json.dumps(out)
-    if args.out == "-":
+    if path == "-":
         print(text)
     else:
-        with open(args.out, "w", encoding="utf-8") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(text)
-    summary = {k: h.summary() for k, h in report.hists.items()}
+    summary = {
+        k: Histogram.from_json(h).summary() for k, h in out["histograms"].items()
+    }
     print(
         json.dumps(
             {
@@ -312,4 +335,5 @@ def parse_args(argv=None):
 
 
 if __name__ == "__main__":
-    asyncio.run(main(parse_args()))
+    ARGS = parse_args()
+    write_report(asyncio.run(main(ARGS)), ARGS.out)

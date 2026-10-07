@@ -85,17 +85,21 @@ class Browser:
         self.readers.add(asyncio.ensure_future(self._ws_read(self.ws, self.pending)))
 
     @staticmethod
-    async def _ws_read(ws, pending):
+    def _resolve(pending, data):
+        for item in data if isinstance(data, list) else [data]:
+            if item.get("type") != "callback_response":
+                continue
+            fut = pending.pop(item.get("requestId"), None)
+            if fut is not None and not fut.done():
+                fut.set_result(item.get("payload"))
+
+    @classmethod
+    async def _ws_read(cls, ws, pending):
         try:
             async for msg in ws:
                 if msg.type != aiohttp.WSMsgType.TEXT:
                     break
-                data = json.loads(msg.data)
-                for item in data if isinstance(data, list) else [data]:
-                    if item.get("type") == "callback_response":
-                        fut = pending.pop(item.get("requestId"), None)
-                        if fut is not None and not fut.done():
-                            fut.set_result(item.get("payload"))
+                cls._resolve(pending, json.loads(msg.data))
         finally:
             for fut in pending.values():
                 if not fut.done():
@@ -118,6 +122,36 @@ class Browser:
         if not isinstance(payload, dict) or payload.get("status") == "error":
             raise ValueError(f"unexpected response {payload!r:.200}")
 
+    async def _ensure_ws(self):
+        """Connect before timing a click: the renderer connects once and
+        reuses the socket, so connecting is not part of a round trip.
+        Returns False (counted as an error) if it can't connect."""
+        if self.ws is not None and not self.ws.closed:
+            return True
+        try:
+            await asyncio.wait_for(self._ws_connect(), timeout=TIMEOUT)
+            return True
+        except (aiohttp.ClientError, asyncio.TimeoutError):
+            if self.stats.in_window(time.time()):
+                self.stats.errors += 1
+            await asyncio.sleep(1)
+            return False
+
+    async def _click(self, call, n):
+        clicked = time.time()
+        try:
+            await asyncio.wait_for(call(n), timeout=TIMEOUT)
+        except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError, ValueError):
+            if self.stats.in_window(clicked):
+                self.stats.errors += 1
+            if self.ws is not None:
+                await self.ws.close()
+            await asyncio.sleep(1)
+            return
+        if self.stats.in_window(clicked):
+            self.stats.calls += 1
+            self.stats.rtt_ms.append((time.time() - clicked) * 1000)
+
     async def run(self, start_at, stop_at):
         await asyncio.sleep(max(0.0, start_at - time.time()))
         call = self._ws_call if self.transport == "ws" else self._http_call
@@ -128,33 +162,9 @@ class Browser:
             n = 0
             while time.time() < stop_at:
                 n += 1
-                if self.transport == "ws" and (self.ws is None or self.ws.closed):
-                    # Connecting is not part of a click's round trip; the
-                    # renderer connects once and reuses the socket.
-                    try:
-                        await asyncio.wait_for(self._ws_connect(), timeout=TIMEOUT)
-                    except (aiohttp.ClientError, asyncio.TimeoutError):
-                        if self.stats.in_window(time.time()):
-                            self.stats.errors += 1
-                        await asyncio.sleep(1)
-                        continue
-                clicked = time.time()
-                try:
-                    await asyncio.wait_for(call(n), timeout=TIMEOUT)
-                    if self.stats.in_window(clicked):
-                        self.stats.calls += 1
-                        self.stats.rtt_ms.append((time.time() - clicked) * 1000)
-                except (
-                    aiohttp.ClientError,
-                    asyncio.TimeoutError,
-                    ConnectionError,
-                    ValueError,
-                ):
-                    if self.stats.in_window(clicked):
-                        self.stats.errors += 1
-                    if self.ws is not None:
-                        await self.ws.close()
-                    await asyncio.sleep(1)
+                if self.transport == "ws" and not await self._ensure_ws():
+                    continue
+                await self._click(call, n)
                 await asyncio.sleep(random.uniform(0, 2 * self.think))
         except (aiohttp.ClientError, asyncio.TimeoutError):
             # The page never loaded: this browser never got to click at all.
