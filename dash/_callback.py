@@ -686,7 +686,10 @@ def _handle_rest_background_callback(
     job_running = callback_manager.job_running(job_id) if job_id is not None else False
     if not job_running and output_value is callback_manager.UNDEFINED:
         # Job canceled -> no output to close the loop.
-        output_value = NoUpdate()
+        if output_spec:
+            output_value = NoUpdate()
+        else:
+            output_value = None
 
     elif isinstance(output_value, dict) and "background_callback_error" in output_value:
         error = output_value.get("background_callback_error", {})

@@ -38,6 +38,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3881](https://github.com/plotly/dash/pull/3881) Fix components rendered as props (eg. `dcc.Dropdown` option labels, `dcc.Tab` labels) crashing or failing to update when the host subtree was replaced by a callback; out-of-tree `ExternalWrapper` components now re-insert themselves and update in place.
 - [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`) not applying it on first render, because descendant layout hashes were reset on the first fresh render (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
+- [#4012](https://github.com/plotly/dash/pull/4012) Fix `InvalidCallbackReturnValue` raised when a no-output background callback's error handler returns `None` (or the job is cancelled), by treating `None` returns from error handlers and the cancelled-job branch the same way — as `NoUpdate()` only when there are outputs, `None` otherwise. Fixes [#3628](https://github.com/plotly/dash/issues/3628).
 
 ## [4.4.1] - 2026-07-21
 

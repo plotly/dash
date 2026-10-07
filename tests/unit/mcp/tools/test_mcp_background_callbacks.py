@@ -10,7 +10,6 @@ Covers both layers:
 
 import json
 import time
-from types import SimpleNamespace
 
 import diskcache
 from dash import Dash, Input, Output, html, _callback_signing
@@ -301,51 +300,62 @@ def test_mcpbg011_task_id_encodes_tool_name_job_id_cache_key():
     assert created_epoch.isdigit()
 
 
-def test_mcpbg012_tasks_result_passes_output_spec(monkeypatch):
-    from dash.mcp.tasks import tasks
+def _make_no_output_background_app():
+    cache = diskcache.Cache()
+    manager = DiskcacheManager(cache)
 
-    output_spec = [{"id": "output", "property": "children"}]
-    adapter = SimpleNamespace(
-        _cb_info={"background": object(), "no_output": False},
-        output_id="output.children",
-        as_callback_body=lambda _params: {"outputs": output_spec},
-    )
-    app = SimpleNamespace(
-        mcp_callback_map=SimpleNamespace(find_by_tool_name=lambda _name: adapter)
-    )
-    manager = object()
-    captured = {}
-
-    def update_background_callback(
-        error_handler,
-        callback_ctx,
-        response,
-        kwargs,
-        background,
-        multi,
-        output_spec,
-        cache_key=None,
-        job_id=None,
-    ):
-        captured["output_spec"] = output_spec
-        return None, False, False
-
-    monkeypatch.setattr(
-        tasks,
-        "parse_task_id",
-        lambda _task_id: ("tool", "job", "cache", None),
-    )
-    monkeypatch.setattr(tasks, "get_app", lambda: app)
-    monkeypatch.setattr(tasks, "_get_callback_manager", lambda _tool_name: manager)
-    monkeypatch.setattr(
-        tasks, "_update_background_callback", update_background_callback
-    )
-    monkeypatch.setattr(tasks, "_prepare_response", lambda *args, **kwargs: None)
-    monkeypatch.setattr(
-        tasks,
-        "format_callback_response",
-        lambda _response, _adapter: "formatted",
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(id="trigger-no-output"),
+            html.Div(id="side-effect-target"),
+        ]
     )
 
-    assert tasks.get_task_result("task-id") == "formatted"
-    assert captured["output_spec"] is output_spec
+    @app.callback(
+        Input("trigger-no-output", "children"),
+        background=True,
+        manager=manager,
+    )
+    def no_output_slow_callback(value):
+        time.sleep(0.5)
+
+    return app
+
+
+def test_mcpbg012_no_output_task_result_does_not_raise():
+    app = _make_no_output_background_app()
+    create_result = _mcp(
+        app,
+        "tools/call",
+        {
+            "name": "no_output_slow_callback",
+            "arguments": {"value": "hello"},
+            "task": {"ttl": 60000},
+        },
+    )
+    task_id = create_result["result"]["task"]["taskId"]
+    _wait_for_completion(app, task_id)
+
+    result = _mcp(app, "tasks/result", {"taskId": task_id})
+    assert "error" not in result
+
+
+def test_mcpbg013_cancel_no_output_task_does_not_raise():
+    app = _make_no_output_background_app()
+    create_result = _mcp(
+        app,
+        "tools/call",
+        {
+            "name": "no_output_slow_callback",
+            "arguments": {"value": "hello"},
+            "task": {"ttl": 60000},
+        },
+    )
+    task_id = create_result["result"]["task"]["taskId"]
+
+    cancel_result = _mcp(app, "tasks/cancel", {"taskId": task_id})
+    assert "error" not in cancel_result
+
+    result = _mcp(app, "tasks/result", {"taskId": task_id})
+    assert "error" not in result
