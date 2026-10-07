@@ -382,26 +382,34 @@ def sweep(results, setups, args, run_point, describe, entry_fields):
             "points": [],
         }
         results["setups"].append(entry)
-        for browsers in sorted(args.browsers):
-            try:
-                point = run_point(setup, browsers, args)
-            except RuntimeError as err:
-                print(f"{setup.name} @ {browsers}: {err}", flush=True)
-                break
-            entry["points"].append(point)
-            flags = ("  SATURATED" if point["saturated"] else "") + (
-                "  CLIENT-BOUND" if point["client_bound"] else ""
-            )
-            print(
-                f"{setup.name:24} {browsers:5} browsers  {describe(point)}"
-                f"  err {point['error_rate']:.2%}  server {point['server_cpu_cores']} cores"
-                f"  client peak {point['client_cpu_peak_pct']}%{flags}",
-                flush=True,
-            )
-            with open(args.out, "w", encoding="utf-8") as f:
-                json.dump(results, f, indent=1)
-            if point["saturated"] or point["client_bound"]:
-                break
+        _climb(setup, entry, results, args, run_point, describe)
+
+
+def _climb(setup, entry, results, args, run_point, describe):
+    for browsers in sorted(args.browsers):
+        try:
+            point = run_point(setup, browsers, args)
+        except RuntimeError as err:
+            print(f"{setup.name} @ {browsers}: {err}", flush=True)
+            return
+        entry["points"].append(point)
+        _log(setup, browsers, point, describe)
+        with open(args.out, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=1)
+        if point["saturated"] or point["client_bound"]:
+            return
+
+
+def _log(setup, browsers, point, describe):
+    flags = ("  SATURATED" if point["saturated"] else "") + (
+        "  CLIENT-BOUND" if point["client_bound"] else ""
+    )
+    print(
+        f"{setup.name:24} {browsers:5} browsers  {describe(point)}"
+        f"  err {point['error_rate']:.2%}  server {point['server_cpu_cores']} cores"
+        f"  client peak {point['client_cpu_peak_pct']}%{flags}",
+        flush=True,
+    )
 
 
 def add_common_args(parser, browsers):
