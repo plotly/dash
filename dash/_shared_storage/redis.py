@@ -221,8 +221,31 @@ class _StreamReader:
             heads = await pipe.execute()
         for key, raw in zip(keys, heads):
             if starts[key] > (int(raw) if raw is not None else 0):
-                for sub in list(self._subs.get(key, ())):
+                for sub in self._subs.get(key, ()):
                     sub.fail(sub._gap())
+
+    def _dispatch(self, result: Any, starts: Dict[str, int]) -> None:
+        for key, items in result:
+            key = _key_of(key)
+            if key == self._wake_key:
+                self._wake_id = items[-1][0]
+                continue
+            entries = [
+                (_seq_of(entry_id), decode(_payload_of(fields)))
+                for entry_id, fields in items
+            ]
+            for sub in self._subs.get(key, ()):
+                # Joined behind this read's start while it was in flight: the
+                # next read starts from its cursor.
+                if sub.cursor >= starts[key]:
+                    sub.deliver(entries)
+
+    def _fail_all(self, error: BaseException) -> None:
+        for subs in self._subs.values():
+            for sub in subs:
+                sub.fail(error)
+        self._subs.clear()
+        self._topics.clear()
 
     async def _run(self) -> None:
         error: Optional[BaseException] = None
@@ -234,24 +257,10 @@ class _StreamReader:
                 streams = {key: f"{start}-0" for key, start in starts.items()}
                 streams[self._wake_key] = self._wake_id
                 result = await self._client.xread(streams, block=_READER_BLOCK_MS)
-                if not result:
+                if result:
+                    self._dispatch(result, starts)
+                else:
                     await self._check_heads(starts)
-                    continue
-                for key, items in result:
-                    key = _key_of(key)
-                    if key == self._wake_key:
-                        self._wake_id = items[-1][0]
-                        continue
-                    entries = [
-                        (_seq_of(entry_id), decode(_payload_of(fields)))
-                        for entry_id, fields in items
-                    ]
-                    start = starts[key]
-                    for sub in list(self._subs.get(key, ())):
-                        # Joined behind this read's start while it was in
-                        # flight: the next read starts from its cursor.
-                        if sub.cursor >= start:
-                            sub.deliver(entries)
         except asyncio.CancelledError:
             error = SharedStorageError("the subscription reader stopped")
             raise
@@ -264,11 +273,7 @@ class _StreamReader:
             # reader and starts a fresh one.
             self._task = None
             if error is not None:
-                for subs in self._subs.values():
-                    for sub in subs:
-                        sub.fail(error)
-                self._subs.clear()
-                self._topics.clear()
+                self._fail_all(error)
 
 
 class RedisSharedStorage(BaseSharedStorage):
@@ -328,7 +333,7 @@ class RedisSharedStorage(BaseSharedStorage):
 
     def _new_async_client(self) -> Any:
         _require_redis()
-        from redis import asyncio as aredis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
+        from redis import asyncio as aredis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel,import-error
 
         if self._url is not None:
             return aredis.Redis.from_url(self._url)

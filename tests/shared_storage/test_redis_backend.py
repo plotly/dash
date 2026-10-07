@@ -232,8 +232,9 @@ def test_async_gap_when_buffer_overruns():
         store.publish("t", f"m{i}")  # stream trimmed to seqs 4,5
 
     async def scenario(replay_from):
+        sub = store.subscribe("t", replay_from=replay_from)
         with pytest.raises(SharedStorageGap):
-            await _first(store.subscribe("t", replay_from=replay_from))
+            await _first(sub)
 
     asyncio.run(scenario(1))  # wants seq 2, trimmed away
     asyncio.run(scenario(9))  # cursor past the head: the store was reset
