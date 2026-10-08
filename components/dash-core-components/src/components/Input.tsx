@@ -208,9 +208,9 @@ function Input({
 
             input.current.value = roundedValue.toString();
             setValue(roundedValue.toString());
-            onEvent();
+            setPropValue(props.value, roundedValue);
         },
-        [step, props.min, props.max, onEvent]
+        [step, props.min, props.max, props.value, setPropValue]
     );
 
     useEffect(() => {

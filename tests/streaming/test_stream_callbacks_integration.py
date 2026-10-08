@@ -1,5 +1,6 @@
 """Browser integration tests for streaming callbacks over HTTP (NDJSON)."""
 import asyncio
+import threading
 import time
 
 from dash import (
@@ -24,25 +25,29 @@ def test_stst001_stream_progressive_render(dash_duo):
         ]
     )
 
+    step_2 = threading.Event()
+    done = threading.Event()
+
     @app.callback(
         Output("out", "children"),
         Input("btn", "n_clicks"),
         prevent_initial_call=True,
     )
     async def stream_cb(n):
-        # Each step stays up well past the driver's 0.5s poll interval, so
-        # the wait below cannot miss it.
+        # Hold each step until the test has seen it.
         yield "step-1"
-        await asyncio.sleep(1.0)
+        await asyncio.to_thread(step_2.wait, 10)
         yield "step-2"
-        await asyncio.sleep(1.0)
+        await asyncio.to_thread(done.wait, 10)
         yield "done"
 
     dash_duo.start_server(app)
     dash_duo.find_element("#btn").click()
     # Each yield renders while the callback is still running.
     dash_duo.wait_for_text_to_equal("#out", "step-1")
+    step_2.set()
     dash_duo.wait_for_text_to_equal("#out", "step-2")
+    done.set()
     dash_duo.wait_for_text_to_equal("#out", "done")
     assert dash_duo.get_logs() == []
 

@@ -53,7 +53,7 @@ def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
 
     elem_range = dash_dcc.find_element("#range")
     elem_range.send_keys("1999")
-    assert dash_dcc.find_element("#out").text == "1999"
+    dash_dcc.wait_for_text_to_equal("#out", "1999")
 
     for invalid_number in ("0.0", "12", "10e10"):
         elem_range.send_keys(invalid_number)
@@ -281,5 +281,29 @@ def test_inni011_min_max_bug(dash_dcc, min):
     # Initial value is 17, should be able to decrement to 16
     decrement_btn.click()
     dash_dcc.wait_for_text_to_equal("#output", "16")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_inni012_stepper_clicks_during_debounce(dash_dcc, debounce_number_app):
+    dash_dcc.start_server(debounce_number_app)
+
+    input_elem = dash_dcc.find_element("#input-fast")
+    increment_btn = dash_dcc.find_element("#input-fast~.dash-stepper-increment")
+    decrement_btn = dash_dcc.find_element("#input-fast~.dash-stepper-decrement")
+
+    input_elem.send_keys("100")
+    dash_dcc.wait_for_text_to_equal("#div-fast", "100")
+
+    # Each click lands inside the 0.25s debounce started by the previous one.
+    for _ in range(5):
+        increment_btn.click()
+        dash_dcc.wait_for_text_to_equal("#div-fast", "103")
+        decrement_btn.click()
+        dash_dcc.wait_for_text_to_equal("#div-fast", "100")
+
+    time.sleep(0.5)
+    assert input_elem.get_attribute("value") == "100"
+    assert dash_dcc.find_element("#div-fast").text == "100"
 
     assert dash_dcc.get_logs() == []

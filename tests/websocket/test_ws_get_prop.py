@@ -135,6 +135,7 @@ def test_wsgp002_current_state_patch_and_dict_id(dash_duo, backend):
         return json.dumps([before, after, dynamic])
 
     dash_duo.start_server(app)
+    dash_duo.wait_for_element("#read")
     dash_duo.driver.execute_script(
         "window.dash_clientside.set_props(arguments[0], "
         "{data: {records: [{value: 'browser'}]}})",

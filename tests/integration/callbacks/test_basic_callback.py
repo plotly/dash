@@ -417,11 +417,16 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
+    dash_duo.wait_for_element('#output-1[data-cb=""]')
 
+    # Wait for each key's callback before the next key, or dcc.Input can merge
+    # quick keystrokes into one value change and one call.
+    typed = ""
     for key in "hello world":
         with lock:
             input1.send_keys(key)
-        time.sleep(0.05)  # Small delay to prevent callback debouncing
+        typed += key
+        dash_duo.wait_for_element(f'#output-1[data-cb="{typed}"]')
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
