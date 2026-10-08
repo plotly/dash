@@ -152,6 +152,8 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         if ttl is not None:
             with self._cache.transact():
                 self._keep_alive(topic, ttl)
+            # Come back to renew well before the topic could expire.
+            timeout = min(timeout, ttl / 2)
         deadline = time.monotonic() + timeout
         while True:
             head = self._head(topic)

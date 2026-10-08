@@ -2,6 +2,7 @@
 same way: a topic goes as a whole once nobody publishes to or reads it, never
 message by message while it is in use."""
 import os
+import threading
 import time
 import uuid
 
@@ -82,6 +83,34 @@ def test_a_read_topic_keeps_every_buffered_message(store):
         time.sleep(TTL / 5)
     # Older than the ttl, but the topic was in use all along.
     assert store.subscribe("t", replay_from=0).poll(0.0) == [(1, "m1")]
+
+
+@pytest.mark.parametrize("kind", BACKENDS)
+def test_a_waiting_reader_keeps_a_minimum_ttl_topic(kind, tmp_path):
+    # Real floor: a reader parked in one long poll must not outlast the topic.
+    s = _make(kind, tmp_path)
+    s.start()
+    s.publish("t", "m1", ttl=base.MIN_TOPIC_TTL)
+    reader = s.subscribe("t", replay_from=1)
+    errors = []
+
+    def read():
+        try:
+            for _ in reader:
+                pass
+        except Exception as err:  # pylint: disable=broad-except
+            errors.append(err)
+
+    thread = threading.Thread(target=read, daemon=True)
+    thread.start()
+    time.sleep(base.MIN_TOPIC_TTL * 3)
+    try:
+        assert s.subscribe("t", replay_from=0).poll(0.0) == [(1, "m1")]
+        assert errors == []
+    finally:
+        reader.close()
+        thread.join(timeout=10)
+        s.close()
 
 
 def test_without_ttl_a_topic_is_kept(store):

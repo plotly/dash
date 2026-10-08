@@ -850,7 +850,7 @@ outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
 | `get(key, default=None)` | Read a value |
 | `set(key, value, ttl=None)` | Write a value; `ttl` = optional lifetime in seconds |
 | `delete(key)` | Remove a key |
-| `publish(topic, message)` | Append a message to a topic |
+| `publish(topic, message, ttl=None)` | Append a message to a topic; `ttl` = release the topic after that long idle |
 | `subscribe(topic, replay_from=None)` | Return a `Subscription` |
 
 **Key expiry (TTL).** `set(key, value, ttl=<seconds>)` gives a key a bounded
@@ -936,11 +936,15 @@ to no ttl. Every backend expires a topic as a whole, never message by message
 while it is read (`tests/shared_storage/test_topic_ttl.py` runs the same cases
 on all three). Local: the engine records the ttl on the topic and sweeps idle
 ones (no publish, head or poll, and no call holding it) at most once a second,
-on the next pub/sub call. Redis: the ttl sits in a third key; the publish
-script `PEXPIRE`s all three to 1.25 ttl, and a poll script renews them. Diskcache: the ttl
+on the next pub/sub call. The sweep also drops empty, unheld topics, such as
+the one a returning reader's poll recreates after a release. Redis: the ttl sits in a third key; the publish
+script `PEXPIRE`s all three to 1.25 ttl, and a poll script renews them. A poll
+on such a topic blocks in `XREAD` for at most a third of that lifetime, not the
+usual 5s, so a waiting reader renews it in time. Diskcache: the ttl
 sits in a key; on publish or poll, once less than one ttl is left, every key of
 the topic (counter, ttl, buffered messages) is renewed to 1.25 ttl, and at
-once when a publish changes the ttl.
+once when a publish changes the ttl. A poll on such a topic waits at most half
+a ttl before it renews again.
 
 *Durability* is controlled by `mode` (the key/value store only — pub/sub is
 always transient):
@@ -999,7 +1003,11 @@ election only reaches processes in the same network + filesystem namespace.
 in-tree or as a **separate package** — implements:
 
 - `get(key, default)` / `set(key, value)` / `delete(key)` — JSON-compatible values
-- `publish(topic, message)` and `subscribe(topic, replay_from=None) -> Subscription`
+- `publish(topic, message, ttl=None)` and `subscribe(topic, replay_from=None) -> Subscription`
+- topic expiry: with a `ttl`, release the topic as a whole once nobody has
+  published to or read from it for that long, never message by message while
+  it is read; reject a ttl under `MIN_TOPIC_TTL` (run `test_topic_ttl.py`
+  against a new backend)
 - optional `start()` / `close()` (idempotent, called once per worker)
 
 and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises

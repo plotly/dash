@@ -260,3 +260,16 @@ def test_released_topic_gaps_a_stale_cursor(monkeypatch):
     clock["t"] += 12
     e.publish("t", "fresh")
     assert e.poll("t", 3, timeout=0).gap is True
+
+
+def test_empty_topic_left_by_a_read_is_released(monkeypatch):
+    # A browser back after its stream topic was released polls it again; the
+    # empty topic that poll creates has no ttl, but must not stay forever.
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
+    clock["t"] += 12
+    assert e.poll("t", 1, timeout=0).gap is True
+    e.head_seq("never-published")
+    clock["t"] += 2
+    e.publish("other", "x")
+    assert list(e._topics) == ["other"]

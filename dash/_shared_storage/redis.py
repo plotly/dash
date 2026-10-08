@@ -27,8 +27,9 @@ from .base import BaseSharedStorage, Subscription, check_topic_ttl
 _POLL_TIMEOUT = 5.0
 _DEFAULT_URL = "redis://localhost:6379"
 
-# A topic's keys live this many ttls past its last publish or poll. The slack
-# covers the gap between one poll's renewal and the next, up to _POLL_TIMEOUT.
+# A topic's keys live this many ttls past its last publish or poll. A poll on a
+# topic with a ttl blocks for at most a third of that lifetime, so a waiting
+# reader renews the keys long before they expire.
 _TTL_SLACK = 1.25
 
 # Allocate the next sequence and append atomically, so concurrent publishers
@@ -51,8 +52,8 @@ end
 return seq
 """
 
-# A poll renews the topic's ttl, if it has one, and reads the head and the
-# oldest buffered entry. KEYS: seq counter, stream, ttl.
+# A poll renews the topic's lifetime, if it has one, and reads the head, the
+# oldest buffered entry and the lifetime in ms. KEYS: seq counter, stream, ttl.
 _POLL_HEAD_LUA = """
 local ttl = redis.call('GET', KEYS[3])
 if ttl then
@@ -60,7 +61,11 @@ if ttl then
     redis.call('PEXPIRE', KEYS[2], ttl)
     redis.call('PEXPIRE', KEYS[3], ttl)
 end
-return {redis.call('GET', KEYS[1]), redis.call('XRANGE', KEYS[2], '-', '+', 'COUNT', 1)}
+return {
+    redis.call('GET', KEYS[1]),
+    redis.call('XRANGE', KEYS[2], '-', '+', 'COUNT', 1),
+    ttl,
+}
 """
 
 
@@ -179,7 +184,9 @@ class RedisSharedStorage(BaseSharedStorage):
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
         self.start()
         stream = self._stream(topic)
-        raw_head, first = self._poll_head_script(keys=self._topic_keys(topic))
+        raw_head, first, lifetime_ms = self._poll_head_script(
+            keys=self._topic_keys(topic)
+        )
         head = int(raw_head) if raw_head is not None else 0
         # Cursor past the head: it was minted before the stream was reset (the
         # key was flushed, expired, or evicted under a maxmemory policy). Gap so
@@ -191,9 +198,10 @@ class RedisSharedStorage(BaseSharedStorage):
         # before XREAD, which would otherwise silently resume at the floor.
         if first and after_seq + 1 < _seq_of(first[0][0]):
             return PollResult([], after_seq, True)
-        entries = self._redis.xread(
-            {stream: f"{after_seq}-0"}, block=max(1, int(timeout * 1000))
-        )
+        block_ms = int(timeout * 1000)
+        if lifetime_ms is not None:
+            block_ms = min(block_ms, int(lifetime_ms) // 3)
+        entries = self._redis.xread({stream: f"{after_seq}-0"}, block=max(1, block_ms))
         if not entries:
             return PollResult([], after_seq, False)
         items = entries[0][1]

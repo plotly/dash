@@ -183,14 +183,16 @@ class StoreEngine:
                 topic.touched = time.monotonic()
 
     def _sweep(self, now: float) -> None:
-        """Under ``_topics_lock``: drop topics idle past their ttl."""
+        """Under ``_topics_lock``: drop topics idle past their ttl, and empty
+        ones a read left behind, which are no different from a missing one."""
         if now < self._next_sweep:
             return
         self._next_sweep = now + _SWEEP_INTERVAL
         idle = [
             name
             for name, t in self._topics.items()
-            if t.ttl is not None and t.users == 0 and t.touched < now - t.ttl
+            if t.users == 0
+            and (t.seq == 0 or (t.ttl is not None and t.touched < now - t.ttl))
         ]
         for name in idle:
             del self._topics[name]
