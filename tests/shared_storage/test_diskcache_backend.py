@@ -4,9 +4,11 @@ Covers the contract semantics (future-only subscribe, replay, gap) in-process
 and cross-process visibility over a shared cache directory. Requires the
 diskcache extra, which the shared-storage CI job installs.
 """
+import asyncio
 import multiprocessing as mp
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
@@ -144,3 +146,37 @@ def test_pubsub_across_processes(tmp_path):
     sub.close()
     store.close()
     assert received == ["m0", "m1", "m2"]
+
+
+def test_async_subscriptions_hold_no_executor_threads(store):
+    """Waiting async subscriptions must leave the loop's executor free for the
+    other store calls on an ASGI worker."""
+
+    async def first(sub):
+        async for pair in sub.aiter_with_seq():
+            return pair
+        return None
+
+    async def scenario():
+        executor = ThreadPoolExecutor(max_workers=1)
+        asyncio.get_running_loop().set_default_executor(executor)
+        subs = [store.subscribe(f"t{i}", replay_from=0) for i in range(20)]
+        try:
+            await asyncio.wait_for(check(subs), timeout=5)
+        finally:
+            for sub in subs:
+                sub.close()
+            executor.shutdown(wait=False, cancel_futures=True)
+
+    async def check(subs):
+        readers = [asyncio.ensure_future(first(sub)) for sub in subs]
+        await asyncio.sleep(0.3)
+
+        started = time.monotonic()
+        for i in range(20):
+            await store.apublish(f"t{i}", f"m{i}")
+        got = await asyncio.wait_for(asyncio.gather(*readers), timeout=5)
+        assert got == [(1, f"m{i}") for i in range(20)]
+        assert time.monotonic() - started < 2.0
+
+    asyncio.run(scenario())

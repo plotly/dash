@@ -177,10 +177,11 @@ _registry_lock = threading.Lock()
 class Downlink:
     """One long-lived downlink: its topic subscription plus its lifecycle record.
 
-    ``close`` is thread-safe and idempotent. Closing only rewrites the connection
-    record if it still carries this downlink's token, so a downlink that was
-    replaced by a reconnect cannot mark the new one closed when it finally winds
-    down.
+    The relay (``envelopes`` / ``aenvelopes``) marks the record open when it
+    starts and closed when it ends. ``close`` is thread-safe and idempotent.
+    Closing only rewrites the connection record if it still carries this
+    downlink's token, so a downlink that was replaced by a reconnect cannot mark
+    the new one closed when it finally winds down.
     """
 
     def __init__(
@@ -192,45 +193,56 @@ class Downlink:
         self.storage = storage
         self.connection_id = connection_id
         self.subscription = storage.subscribe(stream_topic(connection_id), replay_from)
+        self._key = connection_key(connection_id)
         self._token = secrets.token_hex(8)
         self._closed = False
-        storage.set(
-            connection_key(connection_id),
-            {
-                "mode": "stream",
-                "open": True,
-                "at": time.time(),
-                "token": self._token,
-            },
-        )
         with _registry_lock:
             _active_subscriptions.add(self.subscription)
 
-    def close(self) -> None:
+    def _record(self, is_open: bool) -> Any:
+        return {
+            "mode": "stream",
+            "open": is_open,
+            "at": time.time(),
+            "token": self._token,
+        }
+
+    def _is_mine(self, record: Any) -> bool:
+        return isinstance(record, dict) and record.get("token") == self._token
+
+    def _release(self) -> bool:
+        """End the subscription; False if this downlink was already closed."""
         if self._closed:
-            return
+            return False
         self._closed = True
         with _registry_lock:
             _active_subscriptions.discard(self.subscription)
         self.subscription.close()
-        key = connection_key(self.connection_id)
+        return True
+
+    def open(self) -> None:
+        self.storage.set(self._key, self._record(True))
+
+    async def aopen(self) -> None:
+        await self.storage.aset(self._key, self._record(True))
+
+    def close(self) -> None:
+        if not self._release():
+            return
         with contextlib.suppress(Exception):
-            current = self.storage.get(key)
-            if isinstance(current, dict) and current.get("token") == self._token:
-                self.storage.set(
-                    key,
-                    {
-                        "mode": "stream",
-                        "open": False,
-                        "at": time.time(),
-                        "token": self._token,
-                    },
-                )
+            if self._is_mine(self.storage.get(self._key)):
+                self.storage.set(self._key, self._record(False))
+
+    async def _arecord_closed(self) -> None:
+        with contextlib.suppress(Exception):
+            if self._is_mine(await self.storage.aget(self._key)):
+                await self.storage.aset(self._key, self._record(False))
 
     def envelopes(self) -> Iterator[Any]:
         """Sync relay: yield envelopes until the subscription ends or is closed.
         A lost buffer surfaces as a single reset envelope."""
         try:
+            self.open()
             for seq, message in self.subscription.iter_with_seq():
                 yield {**message, "seq": seq}
         except SharedStorageGap:
@@ -241,12 +253,25 @@ class Downlink:
     async def aenvelopes(self) -> AsyncIterator[Any]:
         """Async counterpart of :meth:`envelopes` for ASGI backends."""
         try:
+            await self.aopen()
             async for seq, message in self.subscription.aiter_with_seq():
                 yield {**message, "seq": seq}
         except SharedStorageGap:
             yield dict(RESET_ENVELOPE)
         finally:
-            self.close()
+            if self._release():
+                # Its own task: when the client disconnects, the server cancels
+                # this response, and an await here would be cancelled with it,
+                # leaving the record open so the pumps never learn the browser
+                # left.
+                with contextlib.suppress(RuntimeError):  # the loop is gone
+                    task = asyncio.ensure_future(self._arecord_closed())
+                    _closing_downlinks.add(task)
+                    task.add_done_callback(_closing_downlinks.discard)
+
+
+# Downlinks writing their closed record (keeps the tasks referenced).
+_closing_downlinks: "set[asyncio.Task]" = set()
 
 
 def downlink_gone(
