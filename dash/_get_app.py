@@ -1,4 +1,5 @@
 import functools
+import inspect
 
 from contextvars import ContextVar, copy_context
 from textwrap import dedent
@@ -32,10 +33,25 @@ def with_app_context_async(func):
 
 
 def with_app_context_factory(func, app):
+    if inspect.iscoroutinefunction(func):
+
+        @functools.wraps(func)
+        async def async_wrap(*args, **kwargs):
+            # The coroutine runs in the awaiting task's context, so set the app
+            # there and restore it after, rather than in a copied context.
+            token = app_context.set(app)
+            try:
+                return await func(*args, **kwargs)
+            finally:
+                app_context.reset(token)
+
+        return async_wrap
+
     @functools.wraps(func)
     def wrap(*args, **kwargs):
-        app_context.set(app)
+        # Set the app in the copy only, so it doesn't leak to the caller.
         ctx = copy_context()
+        ctx.run(app_context.set, app)
         return ctx.run(func, *args, **kwargs)
 
     return wrap
