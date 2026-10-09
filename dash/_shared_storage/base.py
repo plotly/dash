@@ -19,6 +19,7 @@ Semantics every backend must honor:
 
 import abc
 import asyncio
+import math
 from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
 
 
@@ -33,6 +34,18 @@ class SharedStorageGap(SharedStorageError):
     or that the owner was re-elected and its buffer was lost; the caller must
     treat it as lost data rather than a clean end of the subscription.
     """
+
+
+# Shortest topic ttl a publish accepts. A reconnecting reader can easily be
+# gone for a second, and a shorter ttl would drop its topic before it is back.
+MIN_TOPIC_TTL = 1.0
+
+
+def check_topic_ttl(ttl: Optional[float]) -> None:
+    if ttl is not None and not (math.isfinite(ttl) and ttl >= MIN_TOPIC_TTL):
+        raise SharedStorageError(
+            f"topic ttl must be None or a finite {MIN_TOPIC_TTL}s or more, got {ttl!r}"
+        )
 
 
 class Subscription(abc.ABC):
@@ -133,8 +146,16 @@ class BaseSharedStorage(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def publish(self, topic: str, message: Any) -> None:
-        """Append ``message`` to ``topic``; delivered to every current subscriber."""
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        """Append ``message`` to ``topic``; delivered to every current subscriber.
+
+        ``ttl`` (seconds, at least ``MIN_TOPIC_TTL``) lets the store release the
+        topic, buffer and sequence both, once nobody has published to or read
+        from it for that long. A reader that keeps polling keeps it alive. A
+        later publish starts the topic over, so a consumer returning with an old
+        cursor gets ``SharedStorageGap``. ``None`` (the default) keeps the topic
+        for the life of the store. The latest publish's ``ttl`` applies.
+        """
 
     # --- asyncio variants --------------------------------------------------
     # Code running on an event loop (ASGI request handlers, the streaming
@@ -155,9 +176,11 @@ class BaseSharedStorage(abc.ABC):
     async def adelete(self, key: str) -> None:
         await asyncio.get_running_loop().run_in_executor(None, self.delete, key)
 
-    async def apublish(self, topic: str, message: Any) -> None:
+    async def apublish(
+        self, topic: str, message: Any, ttl: Optional[float] = None
+    ) -> None:
         await asyncio.get_running_loop().run_in_executor(
-            None, self.publish, topic, message
+            None, self.publish, topic, message, ttl
         )
 
     @abc.abstractmethod

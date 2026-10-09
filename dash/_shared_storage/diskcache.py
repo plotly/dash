@@ -13,7 +13,9 @@ Pub/sub is an append log: an atomic per-topic counter assigns monotonic
 sequence numbers, each message is stored under its sequence and old sequences
 are trimmed to a bounded window, and subscribers poll for sequences past their
 cursor. A consumer that falls farther behind than the window gets a
-``SharedStorageGap``.
+``SharedStorageGap``. A topic published with a ``ttl`` keeps it in a ttl key,
+and every key of the topic expires together once nobody has published to or
+polled it for that long, so abandoned topics leave the cache.
 """
 import time
 from typing import Any, Optional
@@ -21,12 +23,17 @@ from typing import Any, Optional
 from ._codec import decode, encode
 from ._engine import DEFAULT_BUFFER, PollResult
 from ._polling import PollingSubscription
-from .base import BaseSharedStorage, Subscription
+from .base import BaseSharedStorage, Subscription, check_topic_ttl
 
 # Poll cycle: short so a subscription's close() stays responsive; diskcache has
 # no server-side blocking wait, so this is a sleep-poll loop.
 _POLL_TIMEOUT = 1.0
 _POLL_INTERVAL = 0.05
+
+# Every key of a topic gets this many ttls of life when renewed, and is renewed
+# once less than one ttl is left: an idle topic goes between 1 and this many
+# ttls after its last use, without rewriting its keys on every call.
+_TTL_SLACK = 1.25
 
 
 def _require_diskcache():
@@ -85,6 +92,10 @@ class DiskcacheSharedStorage(BaseSharedStorage):
     def _msg(topic: str, seq: int) -> str:
         return f"ss:msg:{topic}:{seq}"
 
+    @staticmethod
+    def _ttl(topic: str) -> str:
+        return f"ss:ttl:{topic}"
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         raw = self._cache.get(self._kv(key))
@@ -97,19 +108,52 @@ class DiskcacheSharedStorage(BaseSharedStorage):
         self._cache.delete(self._kv(key))
 
     # --- pub/sub -----------------------------------------------------------
-    def publish(self, topic: str, message: Any) -> None:
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        check_topic_ttl(ttl)
         payload = encode(message)
         with self._cache.transact():
             seq = int(self._cache.incr(self._seq(topic)))
-            self._cache.set(self._msg(topic, seq), payload)
+            # Outlives the counter, so a live topic never misses a message.
+            expire = ttl * _TTL_SLACK if ttl is not None else None
+            self._cache.set(self._msg(topic, seq), payload, expire=expire)
             evicted = seq - self._buffer_size
             if evicted >= 1:
                 self._cache.delete(self._msg(topic, evicted))
+            if ttl is not None:
+                changed = self._cache.get(self._ttl(topic)) != ttl
+                self._cache.set(self._ttl(topic), ttl, expire=expire)
+                self._keep_alive(topic, ttl, changed)
+            elif self._cache.delete(self._ttl(topic)):
+                self._expire_topic(topic, None)
+
+    def _topic_keys(self, topic: str):
+        head = self._head(topic)
+        floor = max(1, head - self._buffer_size + 1)
+        yield self._seq(topic)
+        yield self._ttl(topic)
+        for seq in range(floor, head + 1):
+            yield self._msg(topic, seq)
+
+    def _expire_topic(self, topic: str, expire: Optional[float]) -> None:
+        for key in self._topic_keys(topic):
+            self._cache.touch(key, expire=expire)
+
+    def _keep_alive(self, topic: str, ttl: float, force: bool = False) -> None:
+        """Under ``transact``: renew the topic once less than ``ttl`` is left."""
+        _value, expire_at = self._cache.get(self._seq(topic), expire_time=True)
+        if force or expire_at is None or expire_at - time.time() < ttl:
+            self._expire_topic(topic, ttl * _TTL_SLACK)
 
     def _head(self, topic: str) -> int:
         return int(self._cache.get(self._seq(topic), 0))
 
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
+        ttl = self._cache.get(self._ttl(topic))
+        if ttl is not None:
+            with self._cache.transact():
+                self._keep_alive(topic, ttl)
+            # Come back to renew well before the topic could expire.
+            timeout = min(timeout, ttl / 2)
         deadline = time.monotonic() + timeout
         while True:
             head = self._head(topic)
