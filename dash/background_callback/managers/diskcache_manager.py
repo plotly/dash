@@ -228,7 +228,7 @@ def _make_job_fn(fn, cache, progress):
 
         def _set_props(_id, props):
             key = f"{result_key}-set_props"
-            old = cache.get(key,{})
+            old = cache.get(key, {})
             old_props = old.get(_id, {})
             old[_id] = {**old_props, **props}
             cache.set(key, old)

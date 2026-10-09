@@ -165,7 +165,7 @@ def _make_job_fn(fn, celery_app, progress, key):  # pylint: disable=too-many-sta
 
         def _set_props(_id, props):
             key = f"{result_key}-set_props"
-            old = json.loads(cache.get(key,"{}"))
+            old = json.loads(cache.get(key, "{}"))
             old_props = old.get(_id, {})
             old[_id] = {**old_props, **props}
             cache.set(
