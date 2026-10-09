@@ -14,7 +14,11 @@ type LinkComponentProps = LinkProps & {
  * For links with destinations outside the current app, `html.A` is a better
  * component to use.
  */
-const Link = ({refresh = false, ...props}: LinkComponentProps) => {
+const Link = ({
+    refresh = false,
+    scrollToTop = true,
+    ...props
+}: LinkComponentProps) => {
     const {className, style, id, href, children, title, target, setProps} =
         props;
     const cleanUrl = window.dash_clientside.clean_url;
@@ -39,8 +43,9 @@ const Link = ({refresh = false, ...props}: LinkComponentProps) => {
             window.history.pushState({}, '', sanitizedUrl);
             window.dispatchEvent(new CustomEvent('_dashprivate_pushstate'));
         }
-        // scroll back to top
-        window.scrollTo(0, 0);
+        if (scrollToTop) {
+            window.scrollTo(0, 0);
+        }
     };
 
     useEffect(() => {
