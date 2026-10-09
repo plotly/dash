@@ -13,6 +13,7 @@ app.layout = html.Div(
     [
         html.Button("start", id="start"),
         html.Div(id="secondary"),
+        html.Div(id="third"),
         html.Div(id="no-output"),
         html.Div("initial", id="output"),
         html.Button("start-no-output", id="start-no-output"),
@@ -29,9 +30,12 @@ app.layout = html.Div(
 )
 def on_click(_):
     set_props("secondary", {"children": "first"})
+    set_props("third", {"children": "first"})
     set_props("secondary", {"style": {"background": "red"}})
+    set_props("third", {"style": {"background": "red"}})
     time.sleep(2)
     set_props("secondary", {"children": "second"})
+    set_props("third", {"children": "second"})
     return "completed"
 
 
