@@ -128,7 +128,8 @@ class OwnerServer:
                 self._engine.delete(req[1])
                 return ("ok", None)
             if op == "publish":
-                return ("ok", self._engine.publish(req[1], req[2]))
+                ttl = req[3] if len(req) > 3 else None
+                return ("ok", self._engine.publish(req[1], req[2], ttl))
             if op == "head":
                 return ("ok", self._engine.head_seq(req[1]))
             if op == "poll":

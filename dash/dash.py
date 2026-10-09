@@ -290,8 +290,22 @@ class Dash(ObsoleteChecker):
         to be True. Default `None`.
     :type use_pages: boolean
 
-    :param include_pages_meta: Include the page meta tags for twitter cards.
+    :param include_pages_meta: Include the meta tags for social media cards.
     :type include_pages_meta: bool
+
+    :param title: Default ``Dash``. Configures the document.title
+        (the text that appears in a browser tab).
+
+    :param update_title: Default ``Updating...``. Configures the document.title
+        (the text that appears in a browser tab) text when a callback is being run.
+        Set to None or '' if you don't want the document.title to change or if you
+        want to control the document.title through a separate component or
+        clientside callback.
+
+    :param description:  Sets a default description for meta tags.
+
+    :param image: The default image used for social media cards. Can be the
+        name of an image in the assets folder or an image URL.
 
     :param assets_url_path: The local urls for assets will be:
         ``requests_pathname_prefix + assets_url_path + '/' + asset_path``
@@ -405,15 +419,6 @@ class Dash(ObsoleteChecker):
         be called after the Flask server is attached.
     :type plugins: list of objects
 
-    :param title: Default ``Dash``. Configures the document.title
-    (the text that appears in a browser tab).
-
-    :param update_title: Default ``Updating...``. Configures the document.title
-    (the text that appears in a browser tab) text when a callback is being run.
-    Set to None or '' if you don't want the document.title to change or if you
-    want to control the document.title through a separate component or
-    clientside callback.
-
     :param background_callback_manager: Background callback manager instance
         to support the ``@callback(..., background=True)`` decorator.
         One of ``DiskcacheManager`` or ``CeleryManager`` currently supported.
@@ -430,8 +435,6 @@ class Dash(ObsoleteChecker):
     functions. The syntax for this parameter is a dict of State objects:
     `routing_callback_inputs={"language": Input("language", "value")}`
     NOTE: the keys "pathname_" and "search_" are reserved for internal use.
-
-    :param description:  Sets a default description for meta tags on Dash pages (use_pages=True).
 
     :param on_error: Global callback error handler to call when
         an exception is raised. Receives the exception object as first argument.
@@ -512,6 +515,10 @@ class Dash(ObsoleteChecker):
         eager_loading: bool = False,
         include_assets_files: bool = True,
         include_pages_meta: bool = True,
+        title: str = "Dash",
+        update_title: str = "Updating...",
+        description: Optional[str] = None,
+        image: Optional[str] = None,
         url_base_pathname: Optional[str] = None,
         requests_pathname_prefix: Optional[str] = None,
         routes_pathname_prefix: Optional[str] = None,
@@ -526,15 +533,12 @@ class Dash(ObsoleteChecker):
         show_undo_redo: bool = False,
         extra_hot_reload_paths: Optional[Sequence[str]] = None,
         plugins: Optional[list] = None,
-        title: str = "Dash",
-        update_title: str = "Updating...",
         background_callback_manager: Optional[
             Any
         ] = None,  # Type should be specified if possible
         add_log_handler: bool = True,
         hooks: Optional[RendererHooks] = None,
         routing_callback_inputs: Optional[Dict[str, Union[Input, State]]] = None,
-        description: Optional[str] = None,
         on_error: Optional[Callable[[Exception], Any]] = None,
         use_async: Optional[bool] = None,
         health_endpoint: Optional[str] = None,
@@ -564,9 +568,12 @@ class Dash(ObsoleteChecker):
         if not csrf_header_name or not csrf_header_name.strip():
             raise ValueError("csrf_header_name must be a non-empty string")
 
-        caller_name: str = name if name is not None else get_caller_name()
+        module_name = get_caller_name()
+        caller_name: str = name if name is not None else module_name
 
-        alias_main_module(caller_name)
+        # Alias based on the module that is running, not the app name: an
+        # explicit ``name`` or an app factory still runs from the main module.
+        alias_main_module(module_name)
 
         # Determine backend
         if backend is None:
@@ -632,6 +639,7 @@ class Dash(ObsoleteChecker):
             update_title=update_title,
             include_pages_meta=include_pages_meta,
             description=description,
+            image=image,
             health_endpoint=health_endpoint,
             hide_all_callbacks=False,
             csrf_token_name=csrf_token_name,
@@ -665,6 +673,8 @@ class Dash(ObsoleteChecker):
 
         # keep title as a class property for backwards compatibility
         self.title = title
+        self.description = description
+        self.image = image
 
         # MCP (Model Context Protocol) configuration
         self._enable_mcp = get_combined_config("mcp_enabled", enable_mcp, False)
@@ -1526,7 +1536,8 @@ class Dash(ObsoleteChecker):
         # Refactored: direct access to global request adapter
         request = self.backend.request_adapter()
 
-        if self.use_pages and self.config.include_pages_meta and request:
+        # include social media meta tags
+        if self.config.include_pages_meta and request:
             metas = _page_meta_tags(self, request) + metas
 
         if self._favicon:

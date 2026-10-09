@@ -852,7 +852,7 @@ outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
 | `get(key, default=None)` | Read a value |
 | `set(key, value, ttl=None)` | Write a value; `ttl` = optional lifetime in seconds |
 | `delete(key)` | Remove a key |
-| `publish(topic, message)` | Append a message to a topic |
+| `publish(topic, message, ttl=None)` | Append a message to a topic; `ttl` = release the topic after that long idle |
 | `subscribe(topic, replay_from=None)` | Return a `Subscription` |
 
 **Key expiry (TTL).** `set(key, value, ttl=<seconds>)` gives a key a bounded
@@ -927,6 +927,27 @@ deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 purpose, since each topic retains that many arbitrary payloads; raise it for a
 wider reconnect window).
 
+**Topic lifetime.** `publish(topic, message, ttl=None)` takes an optional ttl
+(seconds, at least `MIN_TOPIC_TTL` = 1s, so a reconnecting reader is not
+outrun). A topic with a ttl is released, buffer and sequence both, once nobody
+has published to or read from it for that long; a later publish starts it over
+at 1, so a consumer returning with an old cursor gets `SharedStorageGap`.
+Without a ttl a topic lives as long as the store. The latest publish's ttl
+wins. Streaming publishes with `STREAM_TOPIC_TTL` (300s); user topics default
+to no ttl. Every backend expires a topic as a whole, never message by message
+while it is read (`tests/shared_storage/test_topic_ttl.py` runs the same cases
+on all three). Local: the engine records the ttl on the topic and sweeps idle
+ones (no publish, head or poll, and no call holding it) at most once a second,
+on the next pub/sub call. The sweep also drops empty, unheld topics, such as
+the one a returning reader's poll recreates after a release. Redis: the ttl sits in a third key; the publish
+script `PEXPIRE`s all three to 1.25 ttl, and a poll script renews them. A poll
+on such a topic blocks in `XREAD` for at most a third of that lifetime, not the
+usual 5s, so a waiting reader renews it in time. Diskcache: the ttl
+sits in a key; on publish or poll, once less than one ttl is left, every key of
+the topic (counter, ttl, buffered messages) is renewed to 1.25 ttl, and at
+once when a publish changes the ttl. A poll on such a topic waits at most half
+a ttl before it renews again.
+
 *Durability* is controlled by `mode` (the key/value store only — pub/sub is
 always transient):
 
@@ -994,7 +1015,11 @@ construction with the backend's own `ImportError`.
 in-tree or as a **separate package** — implements:
 
 - `get(key, default)` / `set(key, value)` / `delete(key)` — JSON-compatible values
-- `publish(topic, message)` and `subscribe(topic, replay_from=None) -> Subscription`
+- `publish(topic, message, ttl=None)` and `subscribe(topic, replay_from=None) -> Subscription`
+- topic expiry: with a `ttl`, release the topic as a whole once nobody has
+  published to or read from it for that long, never message by message while
+  it is read; reject a ttl under `MIN_TOPIC_TTL` (run `test_topic_ttl.py`
+  against a new backend)
 - optional `start()` / `close()` (idempotent, called once per worker)
 
 and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises
@@ -1402,6 +1427,15 @@ tokens only verify on the worker that issued them: stream requests 403 on the
 other workers, and the first failure in each process logs a warning pointing at
 `DASH_SECRET_KEY` (`_warn_unverified_stream_token`). A request with no token at
 all is not logged.
+
+Each run of streams (from the first stream after idle until none is in flight)
+also carries `&downlinkId=`, picked fresh by the client, and the connection id
+is `<end_id>:<downlinkId>`: every run gets its own topic and the client's
+cursor restarts at 0. Without it a page that sat idle past `STREAM_TOPIC_TTL` would
+resume a cursor into a topic the store released, get `{reset: true}`, and fail
+its new stream. The id only partitions the page's own space, so it is not
+signed (just checked against `[A-Za-z0-9_-]{1,64}`). The downlink lifecycle
+record (`connection_key`) stays keyed on the `end_id` alone.
 
 The downlink is hosted in a SharedWorker (`dash-stream-worker.js`, served like
 the WebSocket worker; `config.stream.worker_url`) so **one connection per

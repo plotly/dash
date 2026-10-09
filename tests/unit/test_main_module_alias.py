@@ -166,3 +166,212 @@ def test_no_alias_when_names_collide(tmp_path, monkeypatch):
             for spec in _callback.GLOBAL_CALLBACK_LIST
             if spec["output"] != "alias-out.children"
         ]
+
+
+SAME_NAME = "dash_test_alias_same"
+
+
+def test_no_reexecution_when_script_dir_shares_script_name(tmp_path, monkeypatch):
+    """``python app/app.py`` run from the parent directory gives the dotted
+    name ``app.app``, while only the script's own directory is on sys.path, so
+    the parent ``app`` resolves to the running script. Resolving the alias
+    must not execute the script a second time. See issue #4011."""
+    from dash import _callback
+
+    script_dir = tmp_path / SAME_NAME
+    script_dir.mkdir()
+    app_file = script_dir / f"{SAME_NAME}.py"
+    app_file.write_text(APP_SOURCE)
+
+    monkeypatch.syspath_prepend(str(script_dir))
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _run_as(app_file, "__mp_main__")
+
+        assert SAME_NAME not in sys.modules
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "alias-out.children"
+        ]
+        assert len(specs) == 1
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(SAME_NAME, None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "alias-out.children"
+        ]
+
+
+SIBLING_SOURCE = """
+from dash import callback, Output, Input
+
+
+@callback(Output("sibling-out", "children"), Input("sibling-in", "value"))
+def sibling_update(value):
+    return value
+"""
+
+SIBLING_DIR = "dash_test_alias_sibling"
+
+
+def test_no_sibling_import_when_script_dir_has_same_name_module(tmp_path, monkeypatch):
+    """``python app/main.py`` run from the parent directory gives the dotted
+    name ``app.main``, while only the script's own directory is on sys.path, so
+    the parent ``app`` resolves to a separate ``app/app.py`` next to the
+    script. Resolving the alias must not import that file and register its
+    callbacks. See issue #4011."""
+    from dash import _callback
+
+    script_dir = tmp_path / SIBLING_DIR
+    script_dir.mkdir()
+    app_file = script_dir / "main.py"
+    app_file.write_text(APP_SOURCE)
+    (script_dir / f"{SIBLING_DIR}.py").write_text(SIBLING_SOURCE)
+
+    monkeypatch.syspath_prepend(str(script_dir))
+    monkeypatch.chdir(tmp_path)
+
+    try:
+        _run_as(app_file, "__mp_main__")
+
+        assert SIBLING_DIR not in sys.modules
+        assert f"{SIBLING_DIR}.main" not in sys.modules
+        assert not [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "sibling-out.children"
+        ]
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(SIBLING_DIR, None)
+        for output in ("alias-out.children", "sibling-out.children"):
+            _callback.GLOBAL_CALLBACK_MAP.pop(output, None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] not in ("alias-out.children", "sibling-out.children")
+        ]
+
+
+NAMED_APP_SOURCE = """
+from dash import Dash, html, dcc, callback, Output, Input
+
+app = Dash("myapp")
+app.layout = html.Div([
+    dcc.Input(id="named-alias-in", value="hello"),
+    html.Div(id="named-alias-out"),
+])
+
+
+@callback(Output("named-alias-out", "children"), Input("named-alias-in", "value"))
+def update(value):
+    return value
+
+
+server = app.server
+"""
+
+NAMED_MODULE_NAME = "dash_test_alias_named"
+
+
+def test_main_module_alias_with_explicit_name(tmp_path, monkeypatch):
+    """Passing an explicit ``name`` to ``Dash()`` must not disable the alias:
+    the running main module is still re-imported by its import string. See
+    issue #3912."""
+    from dash import _callback
+
+    app_file = tmp_path / f"{NAMED_MODULE_NAME}.py"
+    app_file.write_text(NAMED_APP_SOURCE)
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    try:
+        main_module = _run_as(app_file, "__mp_main__")
+
+        imported = importlib.import_module(NAMED_MODULE_NAME)
+        assert imported is main_module
+
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "named-alias-out.children"
+        ]
+        assert len(specs) == 1
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(NAMED_MODULE_NAME, None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("named-alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "named-alias-out.children"
+        ]
+
+
+FACTORY_SOURCE = """
+from dash import Dash, html, dcc, callback, Output, Input
+
+
+def build():
+    app = Dash(__name__)
+    app.layout = html.Div([
+        dcc.Input(id="factory-alias-in", value="hello"),
+        html.Div(id="factory-alias-out"),
+    ])
+
+    @callback(
+        Output("factory-alias-out", "children"), Input("factory-alias-in", "value")
+    )
+    def update(value):
+        return value
+
+    return app.server
+"""
+
+FACTORY_MAIN_SOURCE = """
+from dash_test_alias_factory import build
+
+server = build()
+"""
+
+FACTORY_MAIN_NAME = "dash_test_alias_factory_main"
+
+
+def test_main_module_alias_with_app_factory(tmp_path, monkeypatch):
+    """An app built by a factory in another module, called from the top level
+    of the main module, gets that module's ``__name__``. The running main
+    module must still be aliased so the import string does not build the app
+    a second time. See issue #3912."""
+    from dash import _callback
+
+    (tmp_path / "dash_test_alias_factory.py").write_text(FACTORY_SOURCE)
+    app_file = tmp_path / f"{FACTORY_MAIN_NAME}.py"
+    app_file.write_text(FACTORY_MAIN_SOURCE)
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    try:
+        main_module = _run_as(app_file, "__mp_main__")
+
+        imported = importlib.import_module(FACTORY_MAIN_NAME)
+        assert imported is main_module
+
+        specs = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] == "factory-alias-out.children"
+        ]
+        assert len(specs) == 1
+    finally:
+        sys.modules.pop("__mp_main__", None)
+        sys.modules.pop(FACTORY_MAIN_NAME, None)
+        sys.modules.pop("dash_test_alias_factory", None)
+        _callback.GLOBAL_CALLBACK_MAP.pop("factory-alias-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "factory-alias-out.children"
+        ]

@@ -2,6 +2,7 @@ import collections
 import hashlib
 import inspect
 import logging
+import re
 import threading
 import warnings
 from functools import wraps
@@ -489,13 +490,26 @@ def get_stream_connection_id() -> "str | None":
     worker must resolve the same secret: set a ``secret_key`` on the server or
     the ``DASH_SECRET_KEY`` environment variable, or cross-worker stream requests
     will not verify. Single-process apps are fine with no configuration.
+
+    The renderer also sends a ``downlinkId`` it picks fresh for each run of
+    streams, giving every run its own topic (``<end_id>:<downlinkId>``). A run
+    then never resumes a cursor into a topic the store released while the page
+    sat idle. It only partitions the page's own space, so it needs no signing.
     """
-    connection_id = get_request_end_id(_get_signing_secret())
-    if connection_id is None and _request_end_token():
-        _warn_unverified_stream_token()
-    return connection_id
+    end_id = get_request_end_id(_get_signing_secret())
+    if end_id is None:
+        if _request_end_token():
+            _warn_unverified_stream_token()
+        return None
+    downlink_id = get_app().backend.request_adapter().args.get("downlinkId")
+    if not downlink_id:
+        return end_id
+    if not _DOWNLINK_ID_RE.fullmatch(downlink_id):
+        return None
+    return f"{end_id}:{downlink_id}"
 
 
+_DOWNLINK_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 _stream_token_warning_lock = threading.Lock()
 _stream_token_warned = False
 
