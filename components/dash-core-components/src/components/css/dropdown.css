@@ -57,6 +57,8 @@
 
 .dash-dropdown-focus-target {
     position: absolute;
+    box-sizing: border-box;
+    max-width: 100%;
     opacity: 0;
     pointer-events: none;
 }
