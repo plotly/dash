@@ -606,7 +606,8 @@ def _setup_background_callback(
                 str(o): x for o, x in zip(progress_outputs, progress_default)
             }
         return to_json(data)
-    except:
+    except Exception:  # pylint: disable=broad-exception-caught
+        logger.exception("Error setting up background callback")
         return to_json({"error": "Error setting up background callback"})
 
 
