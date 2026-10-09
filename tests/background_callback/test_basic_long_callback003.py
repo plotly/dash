@@ -1,15 +1,10 @@
-import sys
 from multiprocessing import Lock
 
-import pytest
 from flaky import flaky
 
 from tests.background_callback.utils import setup_background_callback_app
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
-)
 @flaky(max_runs=3)
 def test_lcbc003_long_callback_running_cancel(dash_duo, manager):
     lock = Lock()
