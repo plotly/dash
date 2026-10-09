@@ -95,6 +95,46 @@ production bundle, runs the harness against `baseline.json`, and:
 Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by
 metric). Keep them generous: this is a smoke alarm, not a microbenchmark.
 
+## Streaming load test and the public site
+
+`benchmarks/streaming/` measures streaming-callback capacity per server setup
+(see `benchmarks/README.md` for how to run it). Simulated browsers follow the
+renderer's `StreamClient`: one downlink per browser, a long NDJSON response on
+ASGI and polls with the same backoff on WSGI. Frames carry the server's
+`time.time()`, so latency is measured end to end on one clock.
+
+Pitfalls the harness guards against:
+
+- One Python client process tops out at a few hundred browsers and then
+  reports its own lag as server latency. Clients run 100 browsers per process,
+  on CPUs separate from the server, and a point is flagged `client_bound` when
+  a client hits 85% CPU.
+- Client output goes to temp files, not pipes: a full pipe blocks the client
+  forever because the runner only reads after the clients exit.
+- Multi-worker setups need shared storage (Redis); with a per-process secret
+  the workers also reject each other's stream tokens, so the runner sets
+  a shared secret (`LOAD_SECRET`). The server imports dash from the checkout
+  under test (`PYTHONPATH`), not whatever is installed.
+
+`benchmarks/callbacks/` runs the same way for plain callbacks, HTTP vs
+websocket per backend; both load tests share `benchmarks/loadkit.py`.
+
+`benchmarks/swarm/` drives real headless Chromium (Playwright) against a
+deployed app, on as many machines as needed. Pitfalls it guards against:
+
+- Timings are taken in the page (`performance.now()` from the click to the DOM
+  update), so machines never need agreeing clocks; only the start is shared,
+  and an agent that got its browsers up after it is flagged `late`.
+- A failed reload restarts the page's click counts; the expected output text
+  is derived from them, so a stale count would time out every later click.
+- Steps stop when the swarm stops delivering its load (failed agents, users
+  that never loaded, agents over 85% CPU), not only when the server slows.
+- `page.on("websocket")` does not see sockets opened by a SharedWorker; to
+  confirm a click went over the websocket, check that it made no HTTP POST.
+
+`benchmarks/publish.py` turns results into the site on `gh-pages`
+(`.github/workflows/benchmarks-publish.yml`).
+
 ## Profiling a slow scenario
 
 The runner can capture a **Chrome DevTools CPU profile** of a scenario and print

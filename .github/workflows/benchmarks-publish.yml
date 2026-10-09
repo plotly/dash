@@ -1,0 +1,200 @@
+name: Publish Benchmarks
+
+# Measures the benchmarks on the dev branch and publishes them to GitHub
+# Pages (the gh-pages branch): every chart as an embeddable page, the raw JSON
+# and its history. Renderer timings run on every push to dev; the streaming
+# and callback load sweeps take 30-60 minutes each, so they run weekly and on
+# demand.
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'dash/**'
+      - 'benchmarks/**'
+      - 'components/**'
+      - '@plotly/**'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      streaming:
+        description: Run the streaming load sweep too
+        type: boolean
+        default: true
+      callbacks:
+        description: Run the HTTP vs websocket callback sweep too
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-publish
+  cancel-in-progress: false
+
+jobs:
+  renderer:
+    name: Renderer benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing]
+      - run: npm run build
+      - uses: browser-actions/setup-chrome@c785b87e244131f27c9f19c1a33e2ead956ab7ce # v1
+        with:
+          chrome-version: stable
+      - name: Set up virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1400x1000x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      - run: python -m benchmarks.run --out benchmarks/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: renderer-results
+          path: benchmarks/results.json
+
+  streaming:
+    name: Streaming load sweep
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.streaming)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing,async,fastapi,quart,redis]
+          python -m pip install gunicorn uvicorn aiohttp psutil
+      - run: npm run build
+      - name: Run the sweep
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          ulimit -n 65536
+          python -m benchmarks.streaming.load \
+            --redis-url redis://127.0.0.1:6379/0 \
+            --out benchmarks/streaming/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streaming-results
+          path: benchmarks/streaming/results.json
+
+  callbacks:
+    name: Callback load sweep
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.callbacks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing,async,fastapi,quart]
+          python -m pip install gunicorn uvicorn aiohttp psutil
+      - run: npm run build
+      - name: Run the sweep
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          ulimit -n 65536
+          python -m benchmarks.callbacks.load --out benchmarks/callbacks/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: callbacks-results
+          path: benchmarks/callbacks/results.json
+
+  publish:
+    name: Publish to GitHub Pages
+    needs: [renderer, streaming, callbacks]
+    # Only dev's numbers go public, even when a dispatch runs elsewhere.
+    if: >-
+      always() && github.ref == 'refs/heads/dev' &&
+      (needs.renderer.result == 'success' || needs.streaming.result == 'success' ||
+       needs.callbacks.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check out gh-pages
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git worktree add site origin/gh-pages
+            git -C site switch -c gh-pages
+          else
+            git worktree add --detach site
+            git -C site switch --orphan gh-pages
+          fi
+      - uses: actions/download-artifact@v4
+        with:
+          path: results
+      - name: Build the site
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          args=""
+          [ -f results/renderer-results/results.json ] && args="$args --renderer results/renderer-results/results.json"
+          [ -f results/streaming-results/results.json ] && args="$args --streaming results/streaming-results/results.json"
+          [ -f results/callbacks-results/results.json ] && args="$args --callbacks results/callbacks-results/results.json"
+          python -m pip install -e .
+          python -m benchmarks.publish --site site --commit "${GITHUB_SHA::9}" \
+            --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" $args
+      - name: Push
+        run: |
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git commit -m "Publish benchmarks for ${GITHUB_SHA::9}"
+          git push origin gh-pages
