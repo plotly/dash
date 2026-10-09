@@ -2,6 +2,7 @@ import collections
 import hashlib
 import inspect
 import logging
+import re
 import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
@@ -485,8 +486,24 @@ def get_stream_connection_id() -> "str | None":
     worker must resolve the same secret: set a ``secret_key`` on the server, or
     cross-worker stream requests will not verify. Single-process apps are fine
     with no configuration.
+
+    The renderer also sends a ``downlinkId`` it picks fresh for each run of
+    streams, giving every run its own topic (``<end_id>:<downlinkId>``). A run
+    then never resumes a cursor into a topic the store released while the page
+    sat idle. It only partitions the page's own space, so it needs no signing.
     """
-    return get_request_end_id(_get_signing_secret())
+    end_id = get_request_end_id(_get_signing_secret())
+    if end_id is None:
+        return None
+    downlink_id = get_app().backend.request_adapter().args.get("downlinkId")
+    if not downlink_id:
+        return end_id
+    if not _DOWNLINK_ID_RE.fullmatch(downlink_id):
+        return None
+    return f"{end_id}:{downlink_id}"
+
+
+_DOWNLINK_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 
 def _get_signing_secret() -> bytes:

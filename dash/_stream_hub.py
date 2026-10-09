@@ -17,7 +17,10 @@ The connection id is the page's server-signed ``end_id`` (verified by the
 backend, never taken from the client), so a page can only ever read or write its
 own topic. The renderer hosts the downlink in a SharedWorker so every tab of the
 browser shares one connection: the worker pins the ``end_id`` of the first tab
-that streams and sends it with every request for that connection.
+that streams and sends it with every request for that connection. It also picks
+a fresh downlink id for each run of streams, so the connection id is
+``<end_id>:<downlink_id>`` and each run gets its own topic, which the store
+releases once it sits idle. The lifecycle record stays keyed on the page.
 
 Downlink line shape (one JSON object per NDJSON line)::
 
@@ -91,6 +94,10 @@ DOWNLINK_GRACE = 10.0
 POLL_GRACE = 30.0
 # How often a pump consults the connection record while a callback runs.
 DOWNLINK_CHECK_INTERVAL = 2.0
+# How long the store keeps a stream topic nobody publishes to or reads. Long
+# enough to outlast the grace windows above many times over, short enough that
+# a busy app does not hold every finished run's frames for hours.
+STREAM_TOPIC_TTL = 300.0
 
 # The uplink's fast acknowledgement -- the streaming callback's POST returns this
 # immediately; its outputs arrive on the downlink, not this response.
@@ -125,7 +132,8 @@ def stream_topic(connection_id: str) -> str:
 
 
 def connection_key(connection_id: str) -> str:
-    return f"{_CONN_PREFIX}{connection_id}"
+    page_id = connection_id.split(":", 1)[0]
+    return f"{_CONN_PREFIX}{page_id}"
 
 
 def cancel_key(connection_id: str, request_id: str) -> str:
@@ -151,7 +159,11 @@ def publish_frame(
     frame: Any,
 ) -> None:
     """Publish one streaming frame onto a connection's downlink topic."""
-    storage.publish(stream_topic(connection_id), _envelope(request_id, frame))
+    storage.publish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 async def apublish_frame(
@@ -161,7 +173,11 @@ async def apublish_frame(
     frame: Any,
 ) -> None:
     """:func:`publish_frame` for the pumps: never blocks their event loop."""
-    await storage.apublish(stream_topic(connection_id), _envelope(request_id, frame))
+    await storage.apublish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 # --- downlink lifecycle record ---------------------------------------------

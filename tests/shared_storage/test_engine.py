@@ -173,7 +173,7 @@ def test_apoll_wakes_on_publish_from_another_thread():
         res = await e.apoll("t", 1, timeout=0.05)
         assert res.messages == [] and res.last_seq == 1
         # A waiter that timed out was removed from the topic.
-        assert e._topic("t").waiters == []
+        assert e._topics["t"].waiters == []
 
     asyncio.run(scenario())
 
@@ -186,9 +186,90 @@ def test_apoll_wakes_on_close_and_serves_many_waiters():
     async def scenario():
         waits = [asyncio.ensure_future(e.apoll(f"t{i}", 0, 5.0)) for i in range(200)]
         await asyncio.sleep(0.05)
-        assert sum(len(e._topic(f"t{i}").waiters) for i in range(200)) == 200
+        assert sum(len(e._topics[f"t{i}"].waiters) for i in range(200)) == 200
         threading.Timer(0.05, e.close).start()
         results = await asyncio.wait_for(asyncio.gather(*waits), 5.0)
         assert all(r.messages == [] for r in results)
 
     asyncio.run(scenario())
+
+
+def _clocked_engine(monkeypatch):
+    from dash._shared_storage import _engine
+
+    clock = {"t": 1000.0}
+    monkeypatch.setattr(_engine.time, "monotonic", lambda: clock["t"])
+    return _engine.StoreEngine(), clock
+
+
+def test_idle_topic_is_released(monkeypatch):
+    e, clock = _clocked_engine(monkeypatch)
+    for i in range(5):
+        e.publish("gone", i, ttl=10)
+    e.publish("kept", "x")
+    clock["t"] += 12  # past the ttl and a sweep interval
+    e.publish("other", "x")  # any pub/sub call sweeps
+    assert sorted(e._topics) == ["kept", "other"]
+    # A later publish starts the topic over.
+    assert e.publish("gone", "again") == 1
+
+
+def test_polling_keeps_a_topic_alive(monkeypatch):
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
+    for _ in range(5):
+        clock["t"] += 6  # each gap is under the ttl, the total is well past it
+        e.poll("t", 1, timeout=0)
+    e.publish("other", "x")
+    assert e.head_seq("t") == 1
+
+
+def test_topic_held_by_a_blocked_poll_is_not_released(monkeypatch):
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m1", ttl=10)
+    t = e._topics["t"]
+    got = []
+    poller = threading.Thread(target=lambda: got.append(e.poll("t", 1, timeout=100)))
+    poller.start()
+    until_parked = time.time() + 2
+    while t.users == 0 and time.time() < until_parked:
+        time.sleep(0.01)
+    clock["t"] += 60
+    e.publish("other", "x")
+    assert e._topics["t"] is t
+    e.publish("t", "m2")  # still reaches the parked poll
+    poller.join(timeout=2)
+    assert got[0].messages == ["m2"]
+
+
+def test_latest_publish_sets_the_ttl(monkeypatch):
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
+    e.publish("t", "m")
+    clock["t"] += 10_000
+    e.publish("other", "x")
+    assert e.head_seq("t") == 2
+
+
+def test_released_topic_gaps_a_stale_cursor(monkeypatch):
+    # A consumer that comes back after its topic was released gets the gap
+    # signal, not a silent restart.
+    e, clock = _clocked_engine(monkeypatch)
+    for i in range(3):
+        e.publish("t", i, ttl=10)
+    clock["t"] += 12
+    e.publish("t", "fresh")
+    assert e.poll("t", 3, timeout=0).gap is True
+
+
+def test_empty_topic_left_by_a_read_is_released(monkeypatch):
+    # A browser back after its stream topic was released polls it again; the
+    # empty topic that poll creates has no ttl, but must not stay forever.
+    e, clock = _clocked_engine(monkeypatch)
+    e.publish("t", "m", ttl=10)
+    clock["t"] += 12
+    assert e.poll("t", 1, timeout=0).gap is True
+    e.head_seq("never-published")
+    clock["t"] += 2
+    e.publish("other", "x")
+    assert list(e._topics) == ["other"]
