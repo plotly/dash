@@ -92,6 +92,7 @@ def test_garbage_names_the_variable(monkeypatch, value):
         "valkey://default:Zx9/Qm+4kP@cache.internal:6379/0",
         "cluster://admin:hunter2@nodes",
         "diskcache://user:hunter2@host/path",
+        "redis://:hunter2@[::1/0",
     ],
 )
 def test_error_hides_the_value(monkeypatch, value):

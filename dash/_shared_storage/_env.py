@@ -54,7 +54,10 @@ def storage_from_env(value: Optional[str]) -> Any:
     if lowered == "none":
         return None
 
-    scheme = urlparse(raw).scheme.lower()
+    try:
+        scheme = urlparse(raw).scheme.lower()
+    except ValueError:
+        raise _invalid("malformed URL") from None
     if scheme in ("redis", "rediss"):
         _require_redis()
         return _redis_from_url(raw)
