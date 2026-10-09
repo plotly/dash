@@ -5,9 +5,8 @@ call. Only used when the app did not pass ``shared_storage=``.
 """
 
 import functools
-import re
 from typing import Any, Optional
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, unquote, urlencode, urlparse
 
 from ..exceptions import InvalidConfig
 from .diskcache import DiskcacheSharedStorage, _require_diskcache
@@ -17,16 +16,28 @@ from .redis import RedisSharedStorage, _require_redis
 ENV_VAR = "DASH_SHARED_STORAGE"
 
 
-def _redact(value: str) -> str:
-    # Keep credentials in a URL out of the error message.
-    return re.sub(r"(://)[^/@]*@", r"\1***@", value)
-
-
-def _invalid(value: str, reason: str) -> InvalidConfig:
+def _invalid(reason: str) -> InvalidConfig:
+    # The value can hold credentials, so it stays out of the message.
     return InvalidConfig(
-        f"{ENV_VAR}={_redact(value)!r} is not valid: {reason}. Use 'local', 'none', "
+        f"{ENV_VAR} is not valid: {reason}. Use 'local', 'none', "
         "'diskcache:///absolute/path', or a redis:// or rediss:// URL."
     )
+
+
+def _redis_from_url(raw: str) -> Any:
+    parsed = urlparse(raw)
+    query = parse_qsl(parsed.query, keep_blank_values=True)
+    kwargs = {}
+    rest = []
+    for key, value in query:
+        if key == "key_prefix":
+            if not value:
+                raise _invalid("key_prefix cannot be empty")
+            kwargs["key_prefix"] = value
+        else:
+            rest.append((key, value))
+    url = parsed._replace(query=urlencode(rest)).geturl()
+    return functools.partial(RedisSharedStorage, url=url, **kwargs)
 
 
 def storage_from_env(value: Optional[str]) -> Any:
@@ -46,16 +57,16 @@ def storage_from_env(value: Optional[str]) -> Any:
     scheme = urlparse(raw).scheme.lower()
     if scheme in ("redis", "rediss"):
         _require_redis()
-        return functools.partial(RedisSharedStorage, url=raw)
+        return _redis_from_url(raw)
     if scheme == "diskcache":
         parsed = urlparse(raw)
         if parsed.netloc or not parsed.path.startswith("/"):
-            raise _invalid(raw, "diskcache needs an absolute path (three slashes)")
+            raise _invalid("diskcache needs an absolute path (three slashes)")
         _require_diskcache()
-        return functools.partial(DiskcacheSharedStorage, directory=parsed.path)
+        return functools.partial(DiskcacheSharedStorage, directory=unquote(parsed.path))
     if scheme == "cluster":
         raise InvalidConfig(
-            f"{ENV_VAR}={_redact(raw)!r}: the cluster:// backend is not supported in this "
+            f"{ENV_VAR}: the cluster:// backend is not supported in this "
             "version of Dash."
         )
-    raise _invalid(raw, "unknown backend")
+    raise _invalid("unknown backend")

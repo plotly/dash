@@ -80,21 +80,67 @@ def test_cluster_is_reserved(monkeypatch):
 
 
 @pytest.mark.parametrize("value", ["memcached://x", "redis", "/tmp/cache", "true"])
-def test_garbage_names_the_variable_and_value(monkeypatch, value):
-    with pytest.raises(InvalidConfig) as err:
+def test_garbage_names_the_variable(monkeypatch, value):
+    with pytest.raises(InvalidConfig, match="DASH_SHARED_STORAGE"):
         _app(monkeypatch, value)
-    assert "DASH_SHARED_STORAGE" in str(err.value)
-    assert repr(value) in str(err.value)
 
 
 @pytest.mark.parametrize(
-    "value", ["valkey://:hunter2@host:6379", "cluster://admin:hunter2@nodes"]
+    "value",
+    [
+        "valkey://:hunter2@host:6379",
+        "valkey://default:Zx9/Qm+4kP@cache.internal:6379/0",
+        "cluster://admin:hunter2@nodes",
+        "diskcache://user:hunter2@host/path",
+    ],
 )
-def test_error_hides_url_credentials(monkeypatch, value):
+def test_error_hides_the_value(monkeypatch, value):
     with pytest.raises(InvalidConfig) as err:
         _app(monkeypatch, value)
-    assert "hunter2" not in str(err.value)
-    assert "***@" in str(err.value)
+    for secret in ("hunter2", "Zx9", "Qm+4kP"):
+        assert secret not in str(err.value)
+
+
+def test_redis_key_prefix_from_url(monkeypatch):
+    pytest.importorskip("redis")
+    storage = _built(
+        _app(monkeypatch, "redis://localhost:6399/3?key_prefix=myapp&socket_timeout=5")
+    )
+    assert storage._prefix == "myapp"
+    kwargs = storage._redis.connection_pool.connection_kwargs
+    assert kwargs["db"] == 3
+    assert kwargs["socket_timeout"] == 5
+    assert "key_prefix" not in kwargs
+    storage.close()
+
+
+def test_redis_default_key_prefix(monkeypatch):
+    pytest.importorskip("redis")
+    storage = _built(_app(monkeypatch, "redis://localhost:6399/3"))
+    assert storage._prefix == "dash:ss"
+    storage.close()
+
+
+def test_redis_empty_key_prefix(monkeypatch):
+    pytest.importorskip("redis")
+    with pytest.raises(InvalidConfig, match="key_prefix"):
+        _app(monkeypatch, "redis://localhost:6399/3?key_prefix=")
+
+
+def test_redis_password_is_percent_decoded(monkeypatch):
+    pytest.importorskip("redis")
+    storage = _built(_app(monkeypatch, "redis://:p%40ss%2Fw@localhost:6399/0"))
+    assert storage._redis.connection_pool.connection_kwargs["password"] == "p@ss/w"
+    storage.close()
+
+
+def test_diskcache_path_is_percent_decoded(monkeypatch, tmp_path):
+    pytest.importorskip("diskcache")
+    directory = tmp_path / "my cache"
+    url = "diskcache://" + str(directory).replace(" ", "%20")
+    storage = _built(_app(monkeypatch, url))
+    assert directory.is_dir()
+    storage.close()
 
 
 def test_explicit_argument_beats_env(monkeypatch):

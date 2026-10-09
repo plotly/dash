@@ -1003,8 +1003,12 @@ A hosting platform can switch the backend without editing the app through
 `DASH_SHARED_STORAGE` (`_shared_storage/_env.py`), read only when the app did
 not pass `shared_storage=` (the default is a sentinel, so an explicit argument,
 `None` included, always wins): `local`, `none`, `diskcache:///abs/path`, or a
-`redis://` / `rediss://` URL. `cluster://` is reserved and raises; anything
-else raises `InvalidConfig` at construction. The value becomes a zero-argument
+`redis://` / `rediss://` URL. A `key_prefix` query parameter on the Redis URL
+(`redis://host/0?key_prefix=myapp`) sets `RedisSharedStorage(key_prefix=)` and
+is stripped before the URL reaches redis-py; the diskcache path is
+percent-decoded. `cluster://` is reserved and raises; anything else raises
+`InvalidConfig` at construction, without echoing the value (it can hold
+credentials). The value becomes a zero-argument
 factory, so nothing is built or connected until `app.shared_storage` is first
 read, but a missing extra (`dash[redis]`, `dash[diskcache]`) fails at
 construction with the backend's own `ImportError`.
