@@ -26,7 +26,7 @@ def test_001ab_arbitrary(dash_duo, manager):
             "#secondary", "background-color", "rgba(255, 0, 0, 1)"
         )
         dash_duo.wait_for_style_to_equal(
-            "#third", "background-color", "rgba(0, 255 0, 1)"
+            "#third", "background-color", "rgba(0, 128 0, 1)"
         )
         dash_duo.wait_for_text_to_equal("#output", "initial")
         dash_duo.wait_for_text_to_equal("#secondary", "second")
