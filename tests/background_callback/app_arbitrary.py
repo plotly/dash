@@ -32,7 +32,7 @@ def on_click(_):
     set_props("secondary", {"children": "first"})
     set_props("third", {"children": "first"})
     set_props("secondary", {"style": {"background": "red"}})
-    set_props("third", {"style": {"background": "rgba(0, 128 0, 1)"}})
+    set_props("third", {"style": {"background": "red"}})
     time.sleep(2)
     set_props("secondary", {"children": "second"})
     set_props("third", {"children": "second"})
