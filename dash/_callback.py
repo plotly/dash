@@ -3,6 +3,7 @@ import hashlib
 import inspect
 import logging
 import re
+import threading
 import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
@@ -465,11 +466,14 @@ def get_request_end_id(secret: bytes):
     request; this verifies the signature and returns the underlying end_id so
     background handles can be checked against it.
     """
+    return _callback_signing.unsign(
+        secret, _callback_signing.END_SCOPE, _request_end_token()
+    )
+
+
+def _request_end_token():
     adapter = get_app().backend.request_adapter()
-    if not adapter:
-        return None
-    token = adapter.args.get("endId")
-    return _callback_signing.unsign(secret, _callback_signing.END_SCOPE, token)
+    return adapter.args.get("endId") if adapter else None
 
 
 def get_stream_connection_id() -> "str | None":
@@ -483,9 +487,9 @@ def get_stream_connection_id() -> "str | None":
     forged token yields ``None``, and the backend refuses the request (403).
 
     ``end_id`` is signed with the server secret, so across worker processes every
-    worker must resolve the same secret: set a ``secret_key`` on the server, or
-    cross-worker stream requests will not verify. Single-process apps are fine
-    with no configuration.
+    worker must resolve the same secret: set a ``secret_key`` on the server or
+    the ``DASH_SECRET_KEY`` environment variable, or cross-worker stream requests
+    will not verify. Single-process apps are fine with no configuration.
 
     The renderer also sends a ``downlinkId`` it picks fresh for each run of
     streams, giving every run its own topic (``<end_id>:<downlinkId>``). A run
@@ -494,6 +498,8 @@ def get_stream_connection_id() -> "str | None":
     """
     end_id = get_request_end_id(_get_signing_secret())
     if end_id is None:
+        if _request_end_token():
+            _warn_unverified_stream_token()
         return None
     downlink_id = get_app().backend.request_adapter().args.get("downlinkId")
     if not downlink_id:
@@ -504,6 +510,24 @@ def get_stream_connection_id() -> "str | None":
 
 
 _DOWNLINK_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
+_stream_token_warning_lock = threading.Lock()
+_stream_token_warned = False
+
+
+def _warn_unverified_stream_token():
+    # Once per process: a secret mismatch fails every cross-worker request.
+    global _stream_token_warned  # pylint: disable=global-statement
+    with _stream_token_warning_lock:
+        if _stream_token_warned:
+            return
+        _stream_token_warned = True
+    get_app().logger.warning(
+        "A streaming request was refused (403): its stream token failed "
+        "verification. On multi-worker or multi-pod deployments this usually "
+        "means the workers do not share a signing secret (or the server "
+        "restarted since the page loaded); set server.secret_key or the "
+        "DASH_SECRET_KEY environment variable."
+    )
 
 
 def _get_signing_secret() -> bytes:

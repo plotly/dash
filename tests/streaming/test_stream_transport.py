@@ -160,6 +160,40 @@ def test_flask_downlink_rejects_missing_end_id():
     storage.close()
 
 
+def test_flask_forged_stream_tokens_warn_once(monkeypatch, caplog):
+    # A token that fails verification is almost always a secret mismatch
+    # between workers, so say so, but once per process, not per poll.
+    from dash import _callback
+
+    monkeypatch.setattr(_callback, "_stream_token_warned", False)
+    app, storage = _streaming_app()
+    client = app.server.test_client()
+    forged = "/_dash-update-component?endId=forged~deadbeef"
+    with caplog.at_level("WARNING", logger="dash.dash"):
+        # A missing token is not a verification failure: no warning.
+        assert (
+            client.post(
+                "/_dash-update-component", json={"streamDownlink": {"from": 0}}
+            ).status_code
+            == 403
+        )
+        assert not caplog.records
+        for _ in range(3):
+            assert (
+                client.post(forged, json={"streamDownlink": {"from": 0}}).status_code
+                == 403
+            )
+        assert client.post(forged, json=_uplink_body("r1")).status_code == 403
+        assert (
+            client.post(forged, json={"streamCancel": {"requestId": "r1"}}).status_code
+            == 403
+        )
+    warnings = [r for r in caplog.records if "DASH_SECRET_KEY" in r.getMessage()]
+    assert len(warnings) == 1
+    assert "failed verification" in warnings[0].getMessage()
+    storage.close()
+
+
 def test_flask_downlink_resets_a_stale_cursor():
     # A downlink resuming from a cursor the fresh topic never reached (the page's
     # server restarted, so the topic is back at seq 0) gets a reset line, not a
