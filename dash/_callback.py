@@ -2,6 +2,7 @@ import collections
 import hashlib
 import inspect
 import logging
+import re
 import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
@@ -485,8 +486,24 @@ def get_stream_connection_id() -> "str | None":
     worker must resolve the same secret: set a ``secret_key`` on the server, or
     cross-worker stream requests will not verify. Single-process apps are fine
     with no configuration.
+
+    The renderer also sends a ``downlinkId`` it picks fresh for each run of
+    streams, giving every run its own topic (``<end_id>:<downlinkId>``). A run
+    then never resumes a cursor into a topic the store released while the page
+    sat idle. It only partitions the page's own space, so it needs no signing.
     """
-    return get_request_end_id(_get_signing_secret())
+    end_id = get_request_end_id(_get_signing_secret())
+    if end_id is None:
+        return None
+    downlink_id = get_app().backend.request_adapter().args.get("downlinkId")
+    if not downlink_id:
+        return end_id
+    if not _DOWNLINK_ID_RE.fullmatch(downlink_id):
+        return None
+    return f"{end_id}:{downlink_id}"
+
+
+_DOWNLINK_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 
 def _get_signing_secret() -> bytes:
@@ -535,57 +552,63 @@ def _setup_background_callback(
     if not callback_manager:
         return to_json({"error": "No background callback manager configured"})
 
-    progress_outputs = background.get("progress")
+    try:
+        progress_outputs = background.get("progress")
 
-    cache_ignore_triggered = background.get("cache_ignore_triggered", True)
+        cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
-    cache_key = callback_manager.build_cache_key(
-        func,
-        func_args if func_args else func_kwargs,
-        background.get("cache_args_to_ignore", []),
-        None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
-    )
-    job_fn = callback_manager.func_registry.get(background_key)
-    ctx_value = AttributeDict(**context_value.get())
-    ctx_value.ignore_register_page = True
-    ctx_value.pop("background_callback_manager")
-    ctx_value.pop("dash_response")
+        cache_key = callback_manager.build_cache_key(
+            func,
+            func_args if func_args else func_kwargs,
+            background.get("cache_args_to_ignore", []),
+            None
+            if cache_ignore_triggered
+            else callback_ctx.get("triggered_inputs", []),
+        )
+        job_fn = callback_manager.func_registry.get(background_key)
+        ctx_value = AttributeDict(**context_value.get())
+        ctx_value.ignore_register_page = True
+        ctx_value.pop("background_callback_manager")
+        ctx_value.pop("dash_response")
 
-    args_value = ctx_value.get("args")
-    if args_value is not None and not isinstance(args_value, dict):
-        ctx_value["args"] = dict(args_value)
+        args_value = ctx_value.get("args")
+        if args_value is not None and not isinstance(args_value, dict):
+            ctx_value["args"] = dict(args_value)
 
-    job = callback_manager.call_job_fn(
-        cache_key,
-        job_fn,
-        func_args if func_args else func_kwargs,
-        ctx_value,
-    )
+        job = callback_manager.call_job_fn(
+            cache_key,
+            job_fn,
+            func_args if func_args else func_kwargs,
+            ctx_value,
+        )
 
-    # Sign the handles before handing them to the browser so they cannot be
-    # forged (arbitrary pid kill / arbitrary cache read) or replayed from
-    # another page load. The renderer treats them as opaque strings.
-    secret = _get_signing_secret()
-    end_id = get_request_end_id(secret)
-    data = {
-        "cacheKey": _callback_signing.sign(
-            secret, _callback_signing.cache_scope(end_id), cache_key
-        ),
-        "job": _callback_signing.sign(
-            secret, _callback_signing.job_scope(end_id), str(job)
-        ),
-    }
-
-    cancel = background.get("cancel")
-    if cancel:
-        data["cancel"] = cancel
-
-    progress_default = background.get("progressDefault")
-    if progress_default:
-        data["progressDefault"] = {
-            str(o): x for o, x in zip(progress_outputs, progress_default)
+        # Sign the handles before handing them to the browser so they cannot be
+        # forged (arbitrary pid kill / arbitrary cache read) or replayed from
+        # another page load. The renderer treats them as opaque strings.
+        secret = _get_signing_secret()
+        end_id = get_request_end_id(secret)
+        data = {
+            "cacheKey": _callback_signing.sign(
+                secret, _callback_signing.cache_scope(end_id), cache_key
+            ),
+            "job": _callback_signing.sign(
+                secret, _callback_signing.job_scope(end_id), str(job)
+            ),
         }
-    return to_json(data)
+
+        cancel = background.get("cancel")
+        if cancel:
+            data["cancel"] = cancel
+
+        progress_default = background.get("progressDefault")
+        if progress_default:
+            data["progressDefault"] = {
+                str(o): x for o, x in zip(progress_outputs, progress_default)
+            }
+        return to_json(data)
+    except Exception:  # pylint: disable=broad-exception-caught
+        logger.exception("Error setting up background callback")
+        return to_json({"error": "Error setting up background callback"})
 
 
 def _read_request_handles():
@@ -941,6 +964,7 @@ def register_callback(
                     if output_value is None and output_spec:
                         output_value = NoUpdate()
                 else:
+                    print(err)
                     raise err
 
             _prepare_response(

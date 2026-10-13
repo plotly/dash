@@ -10,7 +10,9 @@ there is no owner election.
 Sequence numbers are assigned by an atomic server-side script (``INCR`` +
 ``XADD``) so concurrent publishers stay strictly ordered; the stream is capped
 to a bounded window (``MAXLEN``), and a subscriber that falls past the trimmed
-floor gets a ``SharedStorageGap``.
+floor gets a ``SharedStorageGap``. A topic published with a ``ttl`` keeps it
+in a third key, and all three expire that long after the last publish or poll,
+so abandoned topics leave Redis.
 """
 import os
 from typing import Any, Optional
@@ -18,21 +20,52 @@ from typing import Any, Optional
 from ._codec import decode, encode
 from ._engine import DEFAULT_BUFFER, PollResult
 from ._polling import PollingSubscription
-from .base import BaseSharedStorage, Subscription
+from .base import BaseSharedStorage, Subscription, check_topic_ttl
 
 # Redis Stream XREAD blocks server-side, so a longer cycle than the diskcache
 # sleep-poll is fine; close() latency is bounded by this.
 _POLL_TIMEOUT = 5.0
 _DEFAULT_URL = "redis://localhost:6379"
 
+# A topic's keys live this many ttls past its last publish or poll. A poll on a
+# topic with a ttl blocks for at most a third of that lifetime, so a waiting
+# reader renews the keys long before they expire.
+_TTL_SLACK = 1.25
+
 # Allocate the next sequence and append atomically, so concurrent publishers
 # never produce out-of-order stream IDs. Exact MAXLEN (not '~') keeps the replay
 # window at exactly buffer_size, so the gap boundary is deterministic.
-# KEYS: seq counter, stream key. ARGV: encoded payload, maxlen.
+# KEYS: seq counter, stream, ttl. ARGV: encoded payload, maxlen, lifetime in ms
+# (0 for none).
 _PUBLISH_LUA = """
 local seq = redis.call('INCR', KEYS[1])
 redis.call('XADD', KEYS[2], 'MAXLEN', ARGV[2], seq .. '-0', 'm', ARGV[1])
+if tonumber(ARGV[3]) > 0 then
+    redis.call('SET', KEYS[3], ARGV[3], 'PX', ARGV[3])
+    redis.call('PEXPIRE', KEYS[1], ARGV[3])
+    redis.call('PEXPIRE', KEYS[2], ARGV[3])
+else
+    redis.call('DEL', KEYS[3])
+    redis.call('PERSIST', KEYS[1])
+    redis.call('PERSIST', KEYS[2])
+end
 return seq
+"""
+
+# A poll renews the topic's lifetime, if it has one, and reads the head, the
+# oldest buffered entry and the lifetime in ms. KEYS: seq counter, stream, ttl.
+_POLL_HEAD_LUA = """
+local ttl = redis.call('GET', KEYS[3])
+if ttl then
+    redis.call('PEXPIRE', KEYS[1], ttl)
+    redis.call('PEXPIRE', KEYS[2], ttl)
+    redis.call('PEXPIRE', KEYS[3], ttl)
+end
+return {
+    redis.call('GET', KEYS[1]),
+    redis.call('XRANGE', KEYS[2], '-', '+', 'COUNT', 1),
+    ttl,
+}
 """
 
 
@@ -87,10 +120,12 @@ class RedisSharedStorage(BaseSharedStorage):
         self._prefix = key_prefix
         self._buffer_size = buffer_size
         self._publish_script: Any = None
+        self._poll_head_script: Any = None
 
     def start(self) -> None:
         if self._publish_script is None:
             self._publish_script = self._redis.register_script(_PUBLISH_LUA)
+            self._poll_head_script = self._redis.register_script(_POLL_HEAD_LUA)
 
     def close(self) -> None:
         if self._owns_client:
@@ -109,6 +144,12 @@ class RedisSharedStorage(BaseSharedStorage):
     def _stream(self, topic: str) -> str:
         return f"{self._prefix}:stream:{topic}"
 
+    def _ttl(self, topic: str) -> str:
+        return f"{self._prefix}:ttl:{topic}"
+
+    def _topic_keys(self, topic: str):
+        return [self._seq(topic), self._stream(topic), self._ttl(topic)]
+
     # --- key/value ---------------------------------------------------------
     def get(self, key: str, default: Any = None) -> Any:
         raw = self._redis.get(self._kv(key))
@@ -124,11 +165,16 @@ class RedisSharedStorage(BaseSharedStorage):
         self._redis.delete(self._kv(key))
 
     # --- pub/sub -----------------------------------------------------------
-    def publish(self, topic: str, message: Any) -> None:
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        check_topic_ttl(ttl)
         self.start()
         self._publish_script(
-            keys=[self._seq(topic), self._stream(topic)],
-            args=[encode(message), self._buffer_size],
+            keys=self._topic_keys(topic),
+            args=[
+                encode(message),
+                self._buffer_size,
+                round(ttl * _TTL_SLACK * 1000) if ttl is not None else 0,
+            ],
         )
 
     def _head(self, topic: str) -> int:
@@ -136,21 +182,26 @@ class RedisSharedStorage(BaseSharedStorage):
         return int(raw) if raw is not None else 0
 
     def _poll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
+        self.start()
         stream = self._stream(topic)
+        raw_head, first, lifetime_ms = self._poll_head_script(
+            keys=self._topic_keys(topic)
+        )
+        head = int(raw_head) if raw_head is not None else 0
         # Cursor past the head: it was minted before the stream was reset (the
-        # key was flushed, or evicted under a maxmemory policy). Gap so the
-        # consumer resets rather than blocking on XREAD until the sequence climbs
-        # back past the cursor.
-        if after_seq > self._head(topic):
+        # key was flushed, expired, or evicted under a maxmemory policy). Gap so
+        # the consumer resets rather than blocking on XREAD until the sequence
+        # climbs back past the cursor.
+        if after_seq > head:
             return PollResult([], after_seq, True)
         # Gap: the next wanted sequence sits below the trimmed floor. Checked
         # before XREAD, which would otherwise silently resume at the floor.
-        first = self._redis.xrange(stream, count=1)
         if first and after_seq + 1 < _seq_of(first[0][0]):
             return PollResult([], after_seq, True)
-        entries = self._redis.xread(
-            {stream: f"{after_seq}-0"}, block=max(1, int(timeout * 1000))
-        )
+        block_ms = int(timeout * 1000)
+        if lifetime_ms is not None:
+            block_ms = min(block_ms, int(lifetime_ms) // 3)
+        entries = self._redis.xread({stream: f"{after_seq}-0"}, block=max(1, block_ms))
         if not entries:
             return PollResult([], after_seq, False)
         items = entries[0][1]

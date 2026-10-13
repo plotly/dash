@@ -227,7 +227,11 @@ def _make_job_fn(fn, cache, progress):
         maybe_progress = [_set_progress] if progress else []
 
         def _set_props(_id, props):
-            cache.set(f"{result_key}-set_props", {_id: props})
+            key = f"{result_key}-set_props"
+            old = cache.get(key, {})
+            old_props = old.get(_id, {})
+            old[_id] = {**old_props, **props}
+            cache.set(key, old)
 
         ctx = copy_context()
 
