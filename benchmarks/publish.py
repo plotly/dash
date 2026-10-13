@@ -14,6 +14,9 @@ Writes to ``benchmarks/results/`` (``--dir``), which is committed:
 
 and rewrites the table between the ``benchmarks`` markers in ``README.md``
 (``--readme``). Any input may be omitted; the committed numbers for it stay.
+With ``--only-significant`` (CI), an input is committed only if it moves the
+published numbers (see ``load_changes`` and ``renderer_changes``), and nothing
+is written when none does.
 """
 from __future__ import annotations
 
@@ -805,6 +808,62 @@ def update_readme(path, streaming, callbacks):
         f.write(f"{head}{start}\n{table}\n{end}{tail}")
 
 
+# --- significance ---------------------------------------------------------------
+
+# With --only-significant, a run is committed only when it moves the numbers
+# people read. Load capacity is a step on the sweep's browser counts, so any
+# step counts; a renderer median must move by both of these.
+RENDERER_CHANGE = 0.25
+RENDERER_CHANGE_MS = 5.0
+
+
+def _cap_text(cap):
+    if cap is None:
+        return "not measured"
+    return f"{cap[0]:,}{'+' if cap[1] else ''}"
+
+
+def load_changes(name, old, new, metric):
+    """What a load run changes in the capacity table, one line per setup."""
+    if not old:
+        return [f"{name}: first published run"]
+    labels = {s["name"]: s["label"] for s in old["setups"] + new["setups"]}
+    before = {s["name"]: capacity(s, metric) for s in old["setups"]}
+    after = {s["name"]: capacity(s, metric) for s in new["setups"]}
+    changes = []
+    for key in labels:
+        was, now = before.get(key), after.get(key)
+        if was != now:
+            changes.append(
+                f"{name} {labels[key]}: {_cap_text(was)} -> {_cap_text(now)} browsers"
+            )
+    return changes
+
+
+def renderer_changes(old, new):
+    """Renderer medians that moved by more than the noise allows."""
+    if not old:
+        return ["renderer: first published run"]
+    changes = []
+    for scenario, metrics in new.items():
+        for metric, stats in metrics.items():
+            was = old["results"].get(scenario, {}).get(metric)
+            now = stats["median"]
+            if was is None:
+                changes.append(f"renderer {scenario} ({metric}): new, {now:,.1f} ms")
+                continue
+            delta = abs(now - was["median"])
+            if delta >= RENDERER_CHANGE_MS and delta > RENDERER_CHANGE * was["median"]:
+                changes.append(
+                    f"renderer {scenario} ({metric}):"
+                    f" {was['median']:,.1f} -> {now:,.1f} ms"
+                )
+    return changes
+
+
+# --- main ---------------------------------------------------------------------------
+
+
 def _publish_load(run, out, name, metric):
     """Commit a load run: its numbers, and a capacity summary in its history."""
     _dump(os.path.join(out, f"{name}-latest.json"), run)
@@ -816,6 +875,20 @@ def _publish_load(run, out, name, metric):
         "capacity": {s["name"]: capacity(s, metric)[0] for s in run["setups"]},
     }
     _dump(os.path.join(out, f"{name}-history.json"), _append(history, summary, "date"))
+
+
+def _publish_renderer(entry, out):
+    # The trend only charts medians; full stats stay in renderer-latest.
+    trend = {
+        **entry,
+        "results": {
+            scenario: {m: {"median": st["median"]} for m, st in metrics.items()}
+            for scenario, metrics in entry["results"].items()
+        },
+    }
+    history = _load(os.path.join(out, "renderer-history.json"), [])
+    _dump(os.path.join(out, "renderer-latest.json"), entry)
+    _dump(os.path.join(out, "renderer-history.json"), _append(history, trend, "date"))
 
 
 def main(argv=None):
@@ -834,40 +907,53 @@ def main(argv=None):
     parser.add_argument(
         "--runner", default=os.environ.get("BENCH_RUNNER", "local machine")
     )
+    parser.add_argument(
+        "--only-significant",
+        action="store_true",
+        help="commit a run only if it changes the published numbers enough",
+    )
+    parser.add_argument("--changes", help="write the list of changes here (Markdown)")
     args = parser.parse_args(argv)
     out = args.dir
     os.makedirs(out, exist_ok=True)
 
+    changes = []
     for name, path, metric in (
         ("streaming", args.streaming, "latency_p95_ms"),
         ("callbacks", args.callbacks, "rtt_p95_ms"),
     ):
         run = _read(path)
-        if run:
+        if not run:
+            continue
+        old = _load(os.path.join(out, f"{name}-latest.json"), None)
+        moved = load_changes(name, old, run, metric)
+        if moved or not args.only_significant:
+            changes += moved
             _publish_load(run, out, name, metric)
 
     results = _read(args.renderer)
     if results:
-        entry = {
-            "date": args.date or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "commit": args.commit,
-            "runner": args.runner,
-            "results": results,
-        }
-        # The trend only charts medians; full stats stay in renderer-latest.
-        trend = {
-            **entry,
-            "results": {
-                scenario: {m: {"median": st["median"]} for m, st in metrics.items()}
-                for scenario, metrics in results.items()
-            },
-        }
-        history = _load(os.path.join(out, "renderer-history.json"), [])
-        _dump(os.path.join(out, "renderer-latest.json"), entry)
-        _dump(
-            os.path.join(out, "renderer-history.json"),
-            _append(history, trend, "date"),
-        )
+        old = _load(os.path.join(out, "renderer-latest.json"), None)
+        moved = renderer_changes(old, results)
+        if moved or not args.only_significant:
+            changes += moved
+            _publish_renderer(
+                {
+                    "date": args.date
+                    or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "commit": args.commit,
+                    "runner": args.runner,
+                    "results": results,
+                },
+                out,
+            )
+
+    if args.changes:
+        with open(args.changes, "w", encoding="utf-8") as f:
+            f.write("".join(f"- {c}\n" for c in changes))
+    if args.only_significant and not changes:
+        print("no significant change; nothing written")
+        return 0
 
     streaming = _load(os.path.join(out, "streaming-latest.json"), None)
     callbacks = _load(os.path.join(out, "callbacks-latest.json"), None)
@@ -879,6 +965,8 @@ def main(argv=None):
     )
     update_readme(args.readme, streaming, callbacks)
     print(f"results written to {out}, README table to {args.readme}")
+    for change in changes:
+        print(f"  {change}")
     return 0
 
 

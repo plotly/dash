@@ -135,8 +135,10 @@ python -m benchmarks.swarm.aggregate reports/*.json --out swarm.json
 ## Publishing (`publish.py`)
 
 `.github/workflows/benchmarks-publish.yml` measures on `dev` weekly (and on
-demand) and opens a pull request that commits the numbers to `results/` and
-the table in the repo's `README.md`. `results/` holds the raw numbers
+demand). Only when the numbers moved enough to matter (a load test's capacity
+changes step, or a renderer median moves by over 25% and 5 ms) does it open a
+pull request that commits them to `results/` and the table in the repo's
+`README.md`; the pull request lists what moved. `results/` holds the raw numbers
 (`*-latest.json`), one summary per run (`*-history.json`), and `report.json`:
 every chart as a Plotly figure and the numbers as tables, which the docs page
 renders. To update them locally:

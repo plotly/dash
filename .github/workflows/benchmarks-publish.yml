@@ -1,9 +1,10 @@
 name: Publish Benchmarks
 
-# Measures the benchmarks on the dev branch and opens a pull request that
-# commits the numbers (benchmarks/results/, read by the docs) and the table in
-# README.md. The streaming and callback load sweeps take 30-60 minutes each,
-# so everything runs weekly and on demand.
+# Measures the benchmarks on the dev branch weekly (and on demand). Only when
+# the numbers moved enough to matter (a capacity step in the load tests, or a
+# renderer median by over 25% and 5 ms) does it open a pull request that
+# commits them to benchmarks/results/ (read by the docs) and the README table.
+# Per-PR renderer regressions are benchmarks.yml's job, not this one.
 #
 # Needs "Allow GitHub Actions to create and approve pull requests" in the
 # repo settings. A pull request opened with GITHUB_TOKEN starts no other
@@ -173,16 +174,24 @@ jobs:
           [ -f results/streaming-results/results.json ] && args="$args --streaming results/streaming-results/results.json"
           [ -f results/callbacks-results/results.json ] && args="$args --callbacks results/callbacks-results/results.json"
           python -m pip install -e .
-          python -m benchmarks.publish --commit "${GITHUB_SHA::9}" $args
+          python -m benchmarks.publish --commit "${GITHUB_SHA::9}" \
+            --only-significant --changes "$RUNNER_TEMP/changes.md" $args
       - name: Open or update the pull request
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           git add benchmarks/results README.md
           if git diff --cached --quiet; then
-            echo "Nothing changed."
+            echo "No significant change."
             exit 0
           fi
+          {
+            echo "Benchmark numbers from ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} moved enough to publish:"
+            echo
+            cat "$RUNNER_TEMP/changes.md"
+            echo
+            echo "Merge to update the README table and the docs."
+          } > "$RUNNER_TEMP/body.md"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$BRANCH"
@@ -191,6 +200,7 @@ jobs:
           git push --force origin "$BRANCH"
           if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
             gh pr create --base dev --head "$BRANCH" \
-              --title "Update benchmark results" \
-              --body "Weekly benchmark numbers from ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Merge to update the README table and the docs."
+              --title "Update benchmark results" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr edit "$BRANCH" --body-file "$RUNNER_TEMP/body.md"
           fi

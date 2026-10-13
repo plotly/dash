@@ -371,3 +371,63 @@ def test_publish_keeps_committed_callbacks_when_not_given(tmp_path):
     history = json.loads((out / "callbacks-history.json").read_text())
     assert len(history) == 1
     assert history[0]["capacity"]["fastapi-w1-http"] == 100
+
+
+def _stats(median):
+    return {"n": 3, "min": 1, "median": median, "p90": median, "max": median}
+
+
+def test_renderer_change_must_beat_both_noise_floors():
+    old = {"results": {"a": {"m": _stats(100.0)}, "b": {"m": _stats(4.0)}}}
+    # +20 ms but only 20%: noise.
+    assert publish.renderer_changes(old, {"a": {"m": _stats(120.0)}}) == []
+    # +100% but only 4 ms: noise.
+    assert publish.renderer_changes(old, {"b": {"m": _stats(8.0)}}) == []
+    assert publish.renderer_changes(old, {"a": {"m": _stats(130.0)}}) == [
+        "renderer a (m): 100.0 -> 130.0 ms"
+    ]
+    assert publish.renderer_changes(old, {"c": {"m": _stats(7.0)}}) == [
+        "renderer c (m): new, 7.0 ms"
+    ]
+
+
+def test_load_change_is_a_capacity_step():
+    old = _run([_setup("a", [_point(100, 10), _point(500, 400)])])
+    same = _run([_setup("a", [_point(100, 50), _point(500, 900)])])
+    assert publish.load_changes("streaming", old, same, "latency_p95_ms") == []
+    better = _run([_setup("a", [_point(100, 10), _point(500, 20)])])
+    assert publish.load_changes("streaming", old, better, "latency_p95_ms") == [
+        "streaming a: 100 -> 500+ browsers"
+    ]
+    assert publish.load_changes("streaming", None, old, "latency_p95_ms") == [
+        "streaming: first published run"
+    ]
+
+
+def test_only_significant_runs_are_committed(tmp_path):
+    out = tmp_path / "results"
+    readme = _readme(tmp_path)
+    run = tmp_path / "streaming.json"
+    changes = tmp_path / "changes.md"
+    args = ["--dir", str(out), "--readme", str(readme), "--only-significant"]
+
+    run.write_text(json.dumps(_run([_setup("a", [_point(100, 10)])])))
+    publish.main([*args, "--streaming", str(run), "--changes", str(changes)])
+    assert changes.read_text() == "- streaming: first published run\n"
+    first = readme.read_text()
+
+    # Slower but still inside the same capacity step: nothing is written.
+    later = _run([_setup("a", [_point(100, 60)])])
+    later["meta"]["date"] = "2026-10-13T00:00:00Z"
+    run.write_text(json.dumps(later))
+    publish.main([*args, "--streaming", str(run), "--changes", str(changes)])
+    assert changes.read_text() == ""
+    assert readme.read_text() == first
+    assert len(json.loads((out / "streaming-history.json").read_text())) == 1
+
+    later["setups"][0]["points"].append(_point(500, 20))
+    run.write_text(json.dumps(later))
+    publish.main([*args, "--streaming", str(run), "--changes", str(changes)])
+    assert changes.read_text() == "- streaming a: 100+ -> 500+ browsers\n"
+    assert "| a | - | - | 500+ |" in readme.read_text()
+    assert len(json.loads((out / "streaming-history.json").read_text())) == 2

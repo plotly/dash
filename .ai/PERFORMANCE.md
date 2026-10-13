@@ -133,8 +133,9 @@ deployed app, on as many machines as needed. Pitfalls it guards against:
   confirm a click went over the websocket, check that it made no HTTP POST.
 
 `benchmarks/publish.py` commits results to `benchmarks/results/` (read by the
-docs) and the table in `README.md`, through a weekly pull request from
-`.github/workflows/benchmarks-publish.yml`.
+docs) and the table in `README.md`. `.github/workflows/benchmarks-publish.yml`
+runs weekly and opens a pull request only when the numbers moved
+significantly (`--only-significant`).
 
 ## Profiling a slow scenario
 
