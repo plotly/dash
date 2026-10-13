@@ -1,6 +1,9 @@
 import collections
 import hashlib
 import inspect
+import logging
+import re
+import threading
 import warnings
 from functools import wraps
 from typing import Callable, Optional, Any, List, Tuple, Union, Dict, TypeVar, cast
@@ -22,8 +25,10 @@ from .exceptions import (
     MissingLongCallbackManagerError,
     BackgroundCallbackError,
     ImportedInsideCallbackError,
+    StreamCallbackError,
 )
 from ._get_app import get_app
+from . import _callback_signing
 from ._grouping import (
     flatten_grouping,
     make_grouping_by_index,
@@ -40,6 +45,7 @@ from ._utils import (
 
 from .background_callback.managers import BaseBackgroundCallbackManager
 from ._callback_context import context_value
+from ._streaming import StreamedCallbackResponse
 from .types import CallbackExecutionResponse
 from ._no_update import NoUpdate
 from . import _validate
@@ -58,6 +64,8 @@ async def _async_invoke_callback(
 def _invoke_callback(func, *args, **kwargs):  # used to mark the frame for the debugger
     return func(*args, **kwargs)  # %% callback invoked %%
 
+
+logger = logging.getLogger(__name__)
 
 GLOBAL_CALLBACK_LIST: List[Any] = []
 GLOBAL_CALLBACK_MAP: Dict[str, Any] = {}
@@ -89,6 +97,8 @@ def callback(
     persistent: Optional[bool] = False,
     mcp_enabled: Optional[bool] = None,
     mcp_expose_docstring: Optional[bool] = None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
     **_kwargs,
 ) -> Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]]:
     """
@@ -107,6 +117,15 @@ def callback(
     The last, optional argument `prevent_initial_call` causes the callback
     not to fire when its outputs are first added to the page. Defaults to
     `False` and unlike `app.callback` is not configurable at the app level.
+
+    Decorating an async generator function (`async def` with `yield`) registers
+    a streaming callback: each yielded value has the same shape as a regular
+    return value (one value per `Output`) and is pushed to the browser
+    immediately; yield `dash.Patch` objects for incremental updates. Streams
+    over the WebSocket callback transport when active, otherwise over the HTTP
+    response (NDJSON). Synchronous generators are not supported (they would
+    occupy a server worker for the whole stream). Streaming callbacks cannot be
+    combined with `background=True`, `mcp_enabled=True` or `api_endpoint`.
 
     :Keyword Arguments:
         :param background:
@@ -187,6 +206,15 @@ def callback(
             If True, this callback will not show the "Updating..." title while
             running. Useful for persistent WebSocket callbacks that stay active
             for long periods without requiring a loading indicator.
+        :param compress_payload:
+            If True, the callback request payload will be compressed using gzip
+            compression before being sent to the server. This can significantly
+            reduce network transmission size for large payloads.
+            Defaults to False.
+        :param compress_threshold:
+            The size threshold in bytes above which the payload will be compressed
+            when `compress_payload` is True. Set to 0 to always compress regardless
+            of size. Defaults to 5,000 bytes (5 kB).
     """
 
     background_spec: Any = None
@@ -248,11 +276,39 @@ def callback(
         persistent=persistent,
         mcp_enabled=mcp_enabled,
         mcp_expose_docstring=mcp_expose_docstring,
+        compress_payload=compress_payload,
+        compress_threshold=compress_threshold,
     )
 
     return cast(
         Callable[[Callable[Params, ReturnVar]], Callable[Params, ReturnVar]], raw
     )
+
+
+def _validate_stream_callback(callback_id, background, kwargs, is_sync_gen):
+    """Reject options a streaming (generator) callback cannot be combined with."""
+    if is_sync_gen:
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' is a synchronous generator, "
+            "which is not supported: a sync generator occupies a server worker "
+            "for the whole stream. Define it with 'async def' so it streams on "
+            "the event loop instead."
+        )
+    if background is not None:
+        raise BackgroundCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "background=True: background callbacks return a single result."
+        )
+    if kwargs.get("mcp_enabled"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "mcp_enabled=True: MCP tools expect a single JSON result."
+        )
+    if kwargs.get("api_endpoint"):
+        raise StreamCallbackError(
+            f"Streaming callback '{callback_id}' cannot be combined with "
+            "api_endpoint: API endpoints expect a single JSON result."
+        )
 
 
 def validate_background_inputs(deps):
@@ -303,6 +359,8 @@ def insert_callback(
     persistent=False,
     mcp_enabled=None,
     mcp_expose_docstring=None,
+    compress_payload: bool = False,
+    compress_threshold: int = 5_000,
 ) -> str:
     if prevent_initial_call is None:
         prevent_initial_call = config_prevent_initial_callbacks
@@ -330,7 +388,16 @@ def insert_callback(
         "hidden": hidden,
         "websocket": websocket,
         "persistent": persistent,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
+    # Include output metadata if any output uses partial matching
+    output_list = output if isinstance(output, (list, tuple)) else [output]
+    if any(getattr(o, "partial_pattern", False) for o in output_list):
+        callback_spec["outputs_meta"] = [
+            {"partial": True} if getattr(o, "partial_pattern", False) else {}
+            for o in output_list
+        ]
     if running:
         callback_spec["running"] = running
 
@@ -346,8 +413,13 @@ def insert_callback(
         "allow_dynamic_callbacks": dynamic_creator,
         "no_output": no_output,
         "websocket": websocket,
+        # Flipped to True by register_callback when the decorated function
+        # turns out to be a generator (streaming callback).
+        "stream": False,
         "mcp_enabled": mcp_enabled,
         "mcp_expose_docstring": mcp_expose_docstring,
+        "compress_payload": compress_payload,
+        "compress_threshold": compress_threshold,
     }
     callback_list.append(callback_spec)
 
@@ -387,6 +459,81 @@ def _initialize_context(args, kwargs, inputs_state_indices, has_output, insert_o
     )
 
 
+def get_request_end_id(secret: bytes):
+    """Return the verified end_id for the current request, or ``None``.
+
+    The renderer echoes the server-signed ``endId`` token on every callback
+    request; this verifies the signature and returns the underlying end_id so
+    background handles can be checked against it.
+    """
+    return _callback_signing.unsign(
+        secret, _callback_signing.END_SCOPE, _request_end_token()
+    )
+
+
+def _request_end_token():
+    adapter = get_app().backend.request_adapter()
+    return adapter.args.get("endId") if adapter else None
+
+
+def get_stream_connection_id() -> "str | None":
+    """Return the verified streaming connection id for the request, or ``None``.
+
+    The multiplexed streaming transport keys each page's downlink topic on this
+    id, so it must be unforgeable: a client that could name an arbitrary topic
+    could read another page's stream or inject frames into it. It is derived from
+    the server-signed ``end_id`` (the same per-page-load token background-callback
+    handles are bound to), never from anything the client picks. A missing or
+    forged token yields ``None``, and the backend refuses the request (403).
+
+    ``end_id`` is signed with the server secret, so across worker processes every
+    worker must resolve the same secret: set a ``secret_key`` on the server or
+    the ``DASH_SECRET_KEY`` environment variable, or cross-worker stream requests
+    will not verify. Single-process apps are fine with no configuration.
+
+    The renderer also sends a ``downlinkId`` it picks fresh for each run of
+    streams, giving every run its own topic (``<end_id>:<downlinkId>``). A run
+    then never resumes a cursor into a topic the store released while the page
+    sat idle. It only partitions the page's own space, so it needs no signing.
+    """
+    end_id = get_request_end_id(_get_signing_secret())
+    if end_id is None:
+        if _request_end_token():
+            _warn_unverified_stream_token()
+        return None
+    downlink_id = get_app().backend.request_adapter().args.get("downlinkId")
+    if not downlink_id:
+        return end_id
+    if not _DOWNLINK_ID_RE.fullmatch(downlink_id):
+        return None
+    return f"{end_id}:{downlink_id}"
+
+
+_DOWNLINK_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
+_stream_token_warning_lock = threading.Lock()
+_stream_token_warned = False
+
+
+def _warn_unverified_stream_token():
+    # Once per process: a secret mismatch fails every cross-worker request.
+    global _stream_token_warned  # pylint: disable=global-statement
+    with _stream_token_warning_lock:
+        if _stream_token_warned:
+            return
+        _stream_token_warned = True
+    get_app().logger.warning(
+        "A streaming request was refused (403): its stream token failed "
+        "verification. On multi-worker or multi-pod deployments this usually "
+        "means the workers do not share a signing secret (or the server "
+        "restarted since the page loaded); set server.secret_key or the "
+        "DASH_SECRET_KEY environment variable."
+    )
+
+
+def _get_signing_secret() -> bytes:
+    return get_app()._get_signing_secret()  # pylint: disable=protected-access
+
+
 def _get_callback_manager(
     kwargs: dict, background: dict
 ) -> BaseBackgroundCallbackManager:
@@ -409,8 +556,14 @@ def _get_callback_manager(
     old_job = adapter.args.getlist("oldJob") if hasattr(adapter.args, "getlist") else []
 
     if old_job:
-        for job in old_job:
-            callback_manager.terminate_job(job)
+        secret = _get_signing_secret()
+        scope = _callback_signing.job_scope(get_request_end_id(secret))
+        for signed_job in old_job:
+            # Only terminate jobs whose handle we actually signed for this page
+            # load; ignore forged or replayed pids.
+            job = _callback_signing.unsign(secret, scope, signed_job)
+            if job is not None:
+                callback_manager.terminate_job(job)
 
     return callback_manager
 
@@ -423,59 +576,97 @@ def _setup_background_callback(
     if not callback_manager:
         return to_json({"error": "No background callback manager configured"})
 
-    progress_outputs = background.get("progress")
+    try:
+        progress_outputs = background.get("progress")
 
-    cache_ignore_triggered = background.get("cache_ignore_triggered", True)
+        cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
-    cache_key = callback_manager.build_cache_key(
-        func,
-        func_args if func_args else func_kwargs,
-        background.get("cache_args_to_ignore", []),
-        None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
-    )
-    job_fn = callback_manager.func_registry.get(background_key)
-    ctx_value = AttributeDict(**context_value.get())
-    ctx_value.ignore_register_page = True
-    ctx_value.pop("background_callback_manager")
-    ctx_value.pop("dash_response")
+        cache_key = callback_manager.build_cache_key(
+            func,
+            func_args if func_args else func_kwargs,
+            background.get("cache_args_to_ignore", []),
+            None
+            if cache_ignore_triggered
+            else callback_ctx.get("triggered_inputs", []),
+        )
+        job_fn = callback_manager.func_registry.get(background_key)
+        ctx_value = AttributeDict(**context_value.get())
+        ctx_value.ignore_register_page = True
+        ctx_value.pop("background_callback_manager")
+        ctx_value.pop("dash_response")
 
-    args_value = ctx_value.get("args")
-    if args_value is not None and not isinstance(args_value, dict):
-        ctx_value["args"] = dict(args_value)
+        args_value = ctx_value.get("args")
+        if args_value is not None and not isinstance(args_value, dict):
+            ctx_value["args"] = dict(args_value)
 
-    job = callback_manager.call_job_fn(
-        cache_key,
-        job_fn,
-        func_args if func_args else func_kwargs,
-        ctx_value,
-    )
+        job = callback_manager.call_job_fn(
+            cache_key,
+            job_fn,
+            func_args if func_args else func_kwargs,
+            ctx_value,
+        )
 
-    data = {
-        "cacheKey": cache_key,
-        "job": job,
-    }
-
-    cancel = background.get("cancel")
-    if cancel:
-        data["cancel"] = cancel
-
-    progress_default = background.get("progressDefault")
-    if progress_default:
-        data["progressDefault"] = {
-            str(o): x for o, x in zip(progress_outputs, progress_default)
+        # Sign the handles before handing them to the browser so they cannot be
+        # forged (arbitrary pid kill / arbitrary cache read) or replayed from
+        # another page load. The renderer treats them as opaque strings.
+        secret = _get_signing_secret()
+        end_id = get_request_end_id(secret)
+        data = {
+            "cacheKey": _callback_signing.sign(
+                secret, _callback_signing.cache_scope(end_id), cache_key
+            ),
+            "job": _callback_signing.sign(
+                secret, _callback_signing.job_scope(end_id), str(job)
+            ),
         }
-    return to_json(data)
+
+        cancel = background.get("cancel")
+        if cancel:
+            data["cancel"] = cancel
+
+        progress_default = background.get("progressDefault")
+        if progress_default:
+            data["progressDefault"] = {
+                str(o): x for o, x in zip(progress_outputs, progress_default)
+            }
+        return to_json(data)
+    except Exception:  # pylint: disable=broad-exception-caught
+        logger.exception("Error setting up background callback")
+        return to_json({"error": "Error setting up background callback"})
+
+
+def _read_request_handles():
+    """Read and verify the signed cacheKey/job handles from the current request.
+
+    Returns ``(cache_key, job_id)`` as the raw (unsigned) values, or ``None`` for
+    any handle that is missing or whose signature does not verify against this
+    page load's end_id. This is what prevents a client from supplying an
+    arbitrary cache key (read/delete) or an arbitrary pid (kill).
+    """
+    adapter = get_app().backend.request_adapter()
+    if not adapter:
+        return None, None
+    secret = _get_signing_secret()
+    end_id = get_request_end_id(secret)
+    cache_key = _callback_signing.unsign(
+        secret,
+        _callback_signing.cache_scope(end_id),
+        adapter.args.get("cacheKey"),
+    )
+    job_id = _callback_signing.unsign(
+        secret,
+        _callback_signing.job_scope(end_id),
+        adapter.args.get("job"),
+    )
+    return cache_key, job_id
 
 
 def _progress_background_callback(
     response, callback_manager, background, cache_key=None
 ):
     progress_outputs = background.get("progress")
-    if cache_key is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = adapter.args.get("cacheKey")
 
-    if progress_outputs:
+    if progress_outputs and cache_key is not None:
         # Get the progress before the result as it would be erased after the results.
         progress = callback_manager.get_progress(cache_key)
         if progress:
@@ -498,15 +689,19 @@ def _update_background_callback(
     callback_manager = _get_callback_manager(kwargs, background)
 
     if cache_key is None or job_id is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
-        job_id = job_id or (adapter.args.get("job") if adapter else None)
+        req_cache_key, req_job_id = _read_request_handles()
+        cache_key = cache_key or req_cache_key
+        job_id = job_id or req_job_id
 
     _progress_background_callback(
         response, callback_manager, background, cache_key=cache_key
     )
 
-    output_value = callback_manager.get_result(cache_key, job_id)
+    if cache_key is None:
+        # No valid handle for this page load -> read nothing, delete nothing.
+        output_value = callback_manager.UNDEFINED
+    else:
+        output_value = callback_manager.get_result(cache_key, job_id)
 
     return _handle_rest_background_callback(
         output_value,
@@ -531,12 +726,8 @@ def _handle_rest_background_callback(
     cache_key=None,
     job_id=None,
 ):
-    if cache_key is None or job_id is None:
-        adapter = get_app().backend.request_adapter()
-        cache_key = cache_key or (adapter.args.get("cacheKey") if adapter else None)
-        job_id = job_id or (adapter.args.get("job") if adapter else None)
     # Must get job_running after get_result since get_results terminates it.
-    job_running = callback_manager.job_running(job_id)
+    job_running = callback_manager.job_running(job_id) if job_id is not None else False
     if not job_running and output_value is callback_manager.UNDEFINED:
         # Job canceled -> no output to close the loop.
         output_value = NoUpdate()
@@ -716,10 +907,26 @@ def register_callback(
         persistent=_kwargs.get("persistent", False),
         mcp_enabled=_kwargs.get("mcp_enabled", None),
         mcp_expose_docstring=_kwargs.get("mcp_expose_docstring"),
+        compress_payload=_kwargs.get("compress_payload", False),
+        compress_threshold=_kwargs.get("compress_threshold", 5_000),
     )
+    # The client-facing spec insert_callback just appended. Streaming is flagged
+    # on it below (once the function is known to be a generator) so the renderer
+    # can keep streaming callbacks out of its concurrent-request budget.
+    client_spec = callback_list[-1]
 
     # pylint: disable=too-many-locals
     def wrap_func(func):
+        # A generator (or async generator) callback streams its yields; that is
+        # inferred from the function itself, there is no opt-in keyword.
+        is_gen_func = inspect.isgeneratorfunction(func)
+        is_async_gen_func = inspect.isasyncgenfunction(func)
+        is_stream = is_gen_func or is_async_gen_func
+        if is_stream:
+            _validate_stream_callback(
+                callback_id, background, _kwargs, is_sync_gen=is_gen_func
+            )
+
         if _kwargs.get("api_endpoint"):
             api_endpoint = _kwargs.get("api_endpoint")
             GLOBAL_API_PATHS[api_endpoint] = func
@@ -781,6 +988,7 @@ def register_callback(
                     if output_value is None and output_spec:
                         output_value = NoUpdate()
                 else:
+                    print(err)
                     raise err
 
             _prepare_response(
@@ -878,7 +1086,143 @@ def register_callback(
 
             return jsonResponse
 
-        if inspect.iscoroutinefunction(func):
+        def _build_stream_frame(
+            output_value, output_spec, callback_ctx, app, original_packages
+        ):
+            """Build one stream frame from a yielded value.
+
+            Returns None when the yield produced no update (PreventUpdate or
+            all no_update with no set_props).
+            """
+            response: CallbackExecutionResponse = {"multi": True}
+            try:
+                _prepare_response(
+                    output_value,
+                    output_spec,
+                    multi,
+                    response,
+                    callback_ctx,
+                    app,
+                    original_packages,
+                    None,
+                    False,
+                    has_output,
+                    output,
+                    callback_id,
+                    allow_dynamic_callbacks,
+                )
+            except PreventUpdate:
+                return None
+            finally:
+                # set_props between yields were folded into this frame's
+                # sideUpdate; don't resend them with later frames.
+                callback_ctx.updated_props.clear()
+            if not response.get("response") and not response.get("sideUpdate"):
+                return None
+            return response
+
+        def _stream_error_frame(err):
+            logger.exception("Exception raised in streamed callback")
+            return {"done": True, "error": {"message": str(err) or repr(err)}}
+
+        async def _astream_frames(
+            user_gen, error_handler, output_spec, callback_ctx, app, original_packages
+        ):
+            # Set the callback context var around each resumption of the user
+            # generator so dash.ctx/set_props resolve while its body runs. It is
+            # set per step rather than once for the whole stream because the
+            # keepalive drivers resume each __anext__ in a freshly copied
+            # context, where a token taken in an earlier step could not be reset.
+            async def _next():
+                token = context_value.set(callback_ctx)
+                try:
+                    return await user_gen.__anext__()
+                finally:
+                    context_value.reset(token)
+
+            def _handle_error(err):
+                # Run the on_error handler under the callback context too so
+                # dash.ctx/set_props resolve inside it, matching a step.
+                token = context_value.set(callback_ctx)
+                try:
+                    return error_handler(err)
+                finally:
+                    context_value.reset(token)
+
+            try:
+                while True:
+                    frame = None
+                    try:
+                        output_value = await _next()
+                        frame = _build_stream_frame(
+                            output_value,
+                            output_spec,
+                            callback_ctx,
+                            app,
+                            original_packages,
+                        )
+                    except (StopAsyncIteration, PreventUpdate):
+                        break
+                    except Exception as err:  # pylint: disable=broad-exception-caught
+                        if error_handler:
+                            output_value = _handle_error(err)
+                            if output_value is not None:
+                                frame = _build_stream_frame(
+                                    output_value,
+                                    output_spec,
+                                    callback_ctx,
+                                    app,
+                                    original_packages,
+                                )
+                                if frame is not None:
+                                    yield frame
+                            break
+                        yield _stream_error_frame(err)
+                        return
+                    if frame is not None:
+                        yield frame
+                yield {"done": True}
+            finally:
+                await user_gen.aclose()
+
+        @wraps(func)
+        async def async_add_context_stream(*args, **kwargs):
+            """Handles streaming callbacks defined as async generators."""
+            error_handler = on_error or kwargs.pop("app_on_error", None)
+
+            (
+                output_spec,
+                callback_ctx,
+                func_args,
+                func_kwargs,
+                app,
+                original_packages,
+                _,
+            ) = _initialize_context(
+                args, kwargs, inputs_state_indices, has_output, insert_output
+            )
+
+            user_gen = _invoke_callback(func, *func_args, **func_kwargs)
+            frames = _astream_frames(
+                user_gen,
+                error_handler,
+                output_spec,
+                callback_ctx,
+                app,
+                original_packages,
+            )
+            return StreamedCallbackResponse(frames, is_async=True)
+
+        if is_stream:
+            # Only async generators reach here; sync generators are rejected in
+            # _validate_stream_callback above.
+            callback_map[callback_id]["stream"] = True
+            # Server-inferred flag (not the removed stream=True keyword): the
+            # renderer reads it to exclude long-lived streams from its
+            # concurrent-request limit.
+            client_spec["stream"] = True
+            callback_map[callback_id]["callback"] = async_add_context_stream
+        elif inspect.iscoroutinefunction(func):
             callback_map[callback_id]["callback"] = async_add_context
         else:
             # A persistent, no-output callback streams via set_props and typically

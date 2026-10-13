@@ -4,6 +4,7 @@ import sys
 import uuid
 import hashlib
 import importlib
+import importlib.util
 from collections import abc
 import subprocess
 import logging
@@ -17,7 +18,7 @@ import os
 
 from html import escape
 from functools import wraps
-from typing import Union
+from typing import Optional, Union
 from .types import RendererHooks
 
 logger = logging.getLogger()
@@ -143,9 +144,9 @@ class AttributeDict(dict):
 
 
 def create_callback_id(output, inputs, no_output=False):
-    # A single dot within a dict id key or value is OK
-    # but in case of multiple dots together escape each dot
-    # with `\` so we don't mistake it for multi-outputs
+    # Dots within a string ID are escaped with \. to distinguish them
+    # from the separator between component-id and property.
+    # For dict IDs (JSON strings) we use \u002e instead - see _concat.
     hashed_inputs = None
 
     def _hash_inputs():
@@ -155,7 +156,17 @@ def create_callback_id(output, inputs, no_output=False):
 
     def _concat(x):
         nonlocal hashed_inputs
-        _id = x.component_id_str().replace(".", "\\.") + "." + x.component_property
+        id_str = x.component_id_str()
+        if isinstance(x.component_id, dict):
+            # Dict IDs are serialized as JSON strings. Using \. to escape
+            # dots produces an invalid JSON escape sequence that causes
+            # JSON.parse to throw SyntaxError in the frontend (see #3480).
+            # \u002e is the valid JSON Unicode escape for "." and is
+            # transparently decoded back to "." by JSON.parse.
+            escaped = id_str.replace(".", "\\u002e")
+        else:
+            escaped = id_str.replace(".", "\\.")
+        _id = escaped + "." + x.component_property
         if x.allow_duplicate:
             if not hashed_inputs:
                 hashed_inputs = _hash_inputs()
@@ -395,3 +406,78 @@ def get_root_path(import_name: str) -> str:
 
     # filepath is import_name.py for a module, or __init__.py for a package.
     return os.path.dirname(os.path.abspath(filepath))  # type: ignore[no-any-return]
+
+
+def canonical_import_name(module_file: str) -> Optional[str]:
+    """Best-effort dotted import name for a running main module.
+
+    Mirrors how the FastAPI backend derives the uvicorn import string
+    (see ``dash/backends/_fastapi.py``): the path relative to the current
+    working directory with the separator replaced by dots, so a nested
+    ``package/app.py`` is aliased under ``package.app`` rather than just
+    ``app``. Falls back to the bare basename when the file lives outside the
+    cwd (e.g. ``python some/dir/app.py`` where only the script's own directory
+    is on ``sys.path``).
+
+    :meta private:
+    """
+    try:
+        rel_path = os.path.relpath(os.path.abspath(module_file), os.getcwd())
+    except (ValueError, OSError):
+        rel_path = os.path.basename(module_file)
+    if rel_path == os.pardir or rel_path.startswith(os.pardir + os.sep):
+        rel_path = os.path.basename(module_file)
+    parts = os.path.splitext(rel_path)[0].split(os.sep)
+    if not all(part.isidentifier() for part in parts):
+        return None
+    return ".".join(parts)
+
+
+def alias_main_module(caller_name: str) -> None:
+    """Pre-register the running main module under its canonical import name.
+
+    When the app module runs as a script (``__main__``), or is re-executed by
+    multiprocessing's spawn as ``__mp_main__`` (e.g. in the worker process of
+    uvicorn's reloader), a later import of the same file by its real name
+    ("app:server" import strings) would execute the module a second time,
+    registering every callback twice. Pre-registering the running module under
+    its canonical import name makes that import resolve to this module instead
+    of re-executing the file. See issue #3818.
+
+    :meta private:
+    """
+    if caller_name not in ("__main__", "__mp_main__"):
+        return
+    module = sys.modules.get(caller_name)
+    if module is None:
+        return
+    module_file = getattr(module, "__file__", None)
+    if not module_file:
+        return
+    import_name = canonical_import_name(module_file)
+    if import_name is None or import_name in sys.modules:
+        return
+    try:
+        # find_spec imports the parent package of a dotted name. Skip the alias
+        # when that parent is not a package: the import can only fail, and for
+        # ``python app/app.py`` the parent ``app`` is the running script itself,
+        # which would execute a second time. See issue #4011.
+        top_level = import_name.partition(".")[0]
+        if top_level != import_name and top_level not in sys.modules:
+            top_spec = importlib.util.find_spec(top_level)
+            if top_spec is None or top_spec.submodule_search_locations is None:
+                return
+        spec = importlib.util.find_spec(import_name)
+        if (
+            spec is not None
+            and spec.origin is not None
+            and os.path.samefile(spec.origin, module_file)
+        ):
+            sys.modules[import_name] = module
+    except (ImportError, ValueError, OSError):
+        # Aliasing is a best-effort optimization to avoid re-executing the
+        # module: find_spec may raise ImportError/ValueError if the name isn't
+        # importable (e.g. a namespace package or a parent __init__ that errors)
+        # and samefile may raise OSError if spec.origin no longer exists. In any
+        # of these cases we simply skip the alias and let the normal import run.
+        pass

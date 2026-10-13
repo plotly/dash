@@ -8,6 +8,7 @@ from typing import Any, Literal
 from dash.mcp.types import CancelTaskResult, CreateTaskResult, GetTaskResult, Task
 
 from dash import get_app
+from dash import _callback_signing
 from dash._callback import _update_background_callback, _prepare_response
 from dash._utils import AttributeDict, split_callback_id
 from dash.development.base_component import ComponentRegistry
@@ -17,13 +18,32 @@ from dash.types import CallbackExecutionResponse
 
 
 def parse_task_id(task_id: str) -> tuple[str, str, str, datetime]:
-    """Parse a taskId into (tool_name, job_id, cache_key, created_at)."""
+    """Parse a taskId into (tool_name, job_id, cache_key, created_at).
+
+    The ``job_id`` and ``cache_key`` embedded in a taskId are the *signed*
+    handles issued by the background callback dispatch (see
+    ``dash._callback_signing``). They are verified and unwrapped here, so a
+    forged or tampered taskId is rejected before its values ever reach the
+    callback manager (which would otherwise ``kill`` an arbitrary pid or
+    read/delete an arbitrary cache entry). MCP requests carry no end_id, so the
+    handles are signed and verified with a ``None`` end_id scope.
+    """
     try:
-        tool_name, job_id, rest = task_id.split(":", 2)
-        cache_key, created_epoch = rest.rsplit(":", 1)
+        tool_name, signed_job, rest = task_id.split(":", 2)
+        signed_cache_key, created_epoch = rest.rsplit(":", 1)
         created_at = datetime.fromtimestamp(int(created_epoch), tz=timezone.utc)
     except (ValueError, TypeError) as exc:
         raise MCPError(f"Malformed taskId: {task_id!r}") from exc
+
+    secret = get_app()._get_signing_secret()  # pylint: disable=protected-access
+    job_id = _callback_signing.unsign(
+        secret, _callback_signing.job_scope(None), signed_job
+    )
+    cache_key = _callback_signing.unsign(
+        secret, _callback_signing.cache_scope(None), signed_cache_key
+    )
+    if job_id is None or cache_key is None:
+        raise MCPError(f"Invalid taskId: {task_id!r}")
     return tool_name, job_id, cache_key, created_at
 
 

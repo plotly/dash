@@ -79,9 +79,14 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
 
     assert call_count.value == 1
 
+    expected_calls = call_count.value
     for key in " hello":
-        with lock:
-            dash_duo.find_element("#input").send_keys(key)
+        expected_calls += 1
+        dash_duo.find_element("#input").send_keys(key)
+        # Gate each keystroke on its callback landing. Sending them faster than
+        # the callback resolves lets the renderer coalesce queued calls, so the
+        # final count would come up short.
+        wait.until(lambda e=expected_calls: call_count.value == e, 3)
 
     dash_duo.wait_for_text_to_equal("#output-container", "dash hello")
     _html = dash_duo.find_element("#output-container").get_property("innerHTML")
@@ -90,7 +95,7 @@ def test_rdmo002_multi_outputs_on_single_component(dash_duo):
         'style="font-family: &quot;dash hello&quot;;">dash hello</div>'
     )
 
-    wait.until(lambda: call_count.value == 7, 3)
+    assert call_count.value == 7
 
 
 def test_rdmo003_single_output_as_multi(dash_duo):

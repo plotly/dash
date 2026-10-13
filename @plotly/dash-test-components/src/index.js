@@ -15,6 +15,7 @@ import ReceivePropsComponent from "./components/ReceivePropsComponent";
 import ShapeOrExactKeepOrderComponent from "./components/ShapeOrExactKeepOrderComponent";
 import ArrayOfExactOrShapeWithNodePropAssignNone from './components/ArrayOfExactOrShapeWithNodePropAssignNone';
 import ExternalComponent from './components/ExternalComponent';
+import MountStateComponent from './components/MountStateComponent';
 
 
 export {
@@ -33,5 +34,6 @@ export {
     ShapeOrExactKeepOrderComponent,
     ArrayOfExactOrShapeWithNodePropAssignNone,
     ExternalComponent,
+    MountStateComponent,
     RenderType
 };

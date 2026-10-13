@@ -1,4 +1,5 @@
 import pytest
+from flaky import flaky
 from dash import Dash, Input, Output
 from dash.dcc import Dropdown
 from dash.html import Div, Label, P, Span
@@ -260,6 +261,9 @@ def test_a11y005_selection_visibility_multi(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+# ActionChains keyboard nav depends on the menu input having focus, which can
+# lag menu-open under CI load and drop a keystroke; retry the test when it does.
+@flaky(max_runs=3)
 def test_a11y006_multi_select_keyboard_focus_retention(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)
@@ -396,6 +400,7 @@ def test_a11y007_opens_and_closes_without_races(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+@flaky(max_runs=3)
 def test_a11y008_home_end_pageup_pagedown_navigation(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)

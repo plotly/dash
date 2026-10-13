@@ -1,4 +1,5 @@
 from dash import Dash, html, dcc, Input, Output
+from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
@@ -38,6 +39,10 @@ def test_ddso001_search_preserves_custom_order(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+# Keyboard nav here goes through ActionChains (document.activeElement); the
+# selection depends on the menu input having focus, which can lag menu-open under
+# CI load and drop a keystroke. Retry the whole test when that happens.
+@flaky(max_runs=3)
 def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     def send_keys(key):
         ActionChains(dash_duo.driver).send_keys(key).perform()

@@ -126,6 +126,10 @@ class _Hooks:
     ):
         """
         Add a route to the Dash server.
+
+        The route function can be `async def`; with the Flask backend this
+        requires `flask[async]`. Read the request with
+        `dash.get_app().backend.request_adapter()`.
         """
 
         def wrap(func: _t.Callable[[], _t.Any]):

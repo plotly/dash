@@ -47,6 +47,7 @@ function getTsConfigCompilerOptions() {
 
 let failedBuild = false;
 const excludedDocProps = ['setProps', 'id', 'className', 'style'];
+const errorFiles = [];
 
 const isOptional = prop => (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
 
@@ -96,19 +97,25 @@ function logError(error, filePath) {
     if (error instanceof Error) {
         process.stderr.write(error.stack + '\n');
     }
+    if (filePath && !errorFiles.includes(filePath)) {
+        errorFiles.push(filePath);
+    }
 }
 
-function isReservedPropName(propName) {
+function isReservedPropName(propName, location, propPath) {
+    let reserved = false;
     reservedPatterns.forEach(reservedPattern => {
         if (reservedPattern.test(propName)) {
-            process.stderr.write(
-                `\nERROR: "${propName}" matches reserved word ` +
-                    `pattern: ${reservedPattern.toString()}\n`
+            logError(
+                `\nERROR: "${propPath || propName}" matches reserved word ` +
+                    `pattern: ${reservedPattern.toString()}\n`,
+                location
             );
             failedBuild = true;
+            reserved = true;
         }
     });
-    return failedBuild;
+    return reserved;
 }
 
 function checkDocstring(name, value) {
@@ -145,7 +152,7 @@ function parseJSX(filepath) {
         const src = fs.readFileSync(filepath);
         const doc = reactDocs.parse(src);
         Object.keys(doc.props).forEach(propName =>
-            isReservedPropName(propName)
+            isReservedPropName(propName, filepath)
         );
         docstringWarning(doc);
         return doc;
@@ -157,6 +164,8 @@ function parseJSX(filepath) {
 function gatherComponents(sources, components = {}) {
     const names = [];
     const filepaths = [];
+    // Fallback error location when a symbol has no declaration.
+    let currentFilepath = '';
 
     const gather = filepath => {
         if (ignorePattern && ignorePattern.test(filepath)) {
@@ -171,8 +180,9 @@ function gatherComponents(sources, components = {}) {
                 filepaths.push(filepath);
                 names.push(name);
             } catch (err) {
-                process.stderr.write(
-                    `ERROR: Invalid component file ${filepath}: ${err}`
+                logError(
+                    `ERROR: Invalid component file ${filepath}: ${err}`,
+                    filepath
                 );
             }
         }
@@ -199,6 +209,25 @@ function gatherComponents(sources, components = {}) {
 
     const program = ts.createProgram(filepaths, getTsConfigCompilerOptions());
     const checker = program.getTypeChecker();
+
+    // `file:line:col` of a symbol's declaration, for error messages.
+    const getLocation = symbol => {
+        const decl =
+            symbol &&
+            (symbol.valueDeclaration || (symbol.declarations || [])[0]);
+        if (!decl) {
+            return currentFilepath;
+        }
+        const sourceFile = decl.getSourceFile();
+        const {line, character} = ts.getLineAndCharacterOfPosition(
+            sourceFile,
+            decl.getStart()
+        );
+        const filename = cleanPath(
+            path.relative(process.cwd(), sourceFile.fileName)
+        );
+        return `${filename}:${line + 1}:${character + 1}`;
+    };
 
     const coerceValue = t => {
         // May need to improve for shaped/list literals.
@@ -253,7 +282,7 @@ function gatherComponents(sources, components = {}) {
         }))
     });
 
-    const getUnion = (typeObj, propObj, parentType) => {
+    const getUnion = (typeObj, propObj, parentType, propPath) => {
         let name = 'union',
             value;
 
@@ -280,7 +309,7 @@ function gatherComponents(sources, components = {}) {
                     isArray(checker.typeToString(t))
                 );
             });
-        value = value.map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType));
+        value = value.map(t => t.value ? {name: 'literal', value: t.value} : getPropType(t, propObj, parentType, propPath));
 
         // de-dupe any types in this union
         value = value.reduce((acc, t) => {
@@ -320,7 +349,7 @@ function gatherComponents(sources, components = {}) {
         return propName;
     };
 
-    const getPropType = (propType, propObj, parentType = null) => {
+    const getPropType = (propType, propObj, parentType = null, propPath = []) => {
         // Types can get namespace prefixes or not.
         let name = checker.typeToString(propType).replace(/^React\./, '');
         let value, elements;
@@ -332,7 +361,10 @@ function gatherComponents(sources, components = {}) {
             if (isUnionLiteral(propType)) {
                 return {...getEnum(propType), raw};
             } else if (raw.includes('|')) {
-                return {...getUnion(propType, propObj, newParentType), raw};
+                return {
+                    ...getUnion(propType, propObj, newParentType, propPath),
+                    raw
+                };
             }
         }
 
@@ -359,7 +391,7 @@ function gatherComponents(sources, components = {}) {
 
                     if (nodeType) {
                         value = getPropType(
-                            nodeType, propObj, newParentType,
+                            nodeType, propObj, newParentType, propPath,
                         );
                     } else {
                         // Not sure, might be unsupported here.
@@ -372,7 +404,7 @@ function gatherComponents(sources, components = {}) {
             ) {
                 name = 'tuple';
                 elements = propType.resolvedTypeArguments.map(
-                    t => getPropType(t, propObj, newParentType)
+                    t => getPropType(t, propObj, newParentType, propPath)
                 );
             } else if (
                 BANNED_TYPES.includes(name) ||
@@ -388,13 +420,13 @@ function gatherComponents(sources, components = {}) {
                         return {...getEnum(propType), raw};
                     }
                     return {
-                        ...getUnion(propType, propObj, newParentType),
+                        ...getUnion(propType, propObj, newParentType, propPath),
                         raw
                     };
                 } else if (propType.indexInfos && propType.indexInfos.length) {
                     const {type} = propType.indexInfos[0];
                     name = 'objectOf';
-                    value = getPropType(type, propObj, newParentType);
+                    value = getPropType(type, propObj, newParentType, propPath);
                 } else {
                     value = getProps(
                         checker.getPropertiesOfType(propType),
@@ -403,6 +435,7 @@ function gatherComponents(sources, components = {}) {
                         {},
                         true,
                         newParentType,
+                        propPath,
                     );
                 }
             }
@@ -610,12 +643,21 @@ function gatherComponents(sources, components = {}) {
         defaultProps = {},
         flat = false,
         parentType = null,
+        propPath = [],
     ) => {
         const results = {};
 
         properties.forEach(prop => {
             const name = prop.getName();
-            if (isReservedPropName(name)) {
+
+            // Skip symbol properties (e.g., __@iterator@3570, __@asyncIterator@3571, etc.)
+            // These come from TypeScript's getApparentProperties() including inherited symbols
+            if (name.startsWith('__@') && /@\d+$/.test(name)) {
+                return;
+            }
+
+            const path = propPath.concat(name);
+            if (isReservedPropName(name, getLocation(prop), path.join('.'))) {
                 return;
             }
             const propType = checker.getTypeOfSymbolAtLocation(
@@ -637,7 +679,7 @@ function gatherComponents(sources, components = {}) {
                 required,
                 defaultValue
             };
-            const type = getPropType(propType, propsObj, parentType);
+            const type = getPropType(propType, propsObj, parentType, path);
             // root object is inserted as type,
             // otherwise it's flat in the value prop.
             if (!flat) {
@@ -681,6 +723,7 @@ function gatherComponents(sources, components = {}) {
     };
 
     zipArrays(filepaths, names).forEach(([filepath, name]) => {
+        currentFilepath = filepath;
         const source = program.getSourceFile(filepath);
         const moduleSymbol = checker.getSymbolAtLocation(source);
         const exports = checker.getExportsOfModule(moduleSymbol);
@@ -812,5 +855,11 @@ if (!failedBuild) {
     process.stdout.write(JSON.stringify(metadata, null, 2));
 } else {
     logError('extract-meta failed');
+    if (errorFiles.length) {
+        logError('Check these files for errors:');
+        errorFiles.forEach(errorFile => {
+            logError(`    ${errorFile}`);
+        });
+    }
     process.exit(1);
 }

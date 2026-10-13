@@ -111,24 +111,33 @@ export default class Upload extends Component {
         // Handle drag-and-drop with folder support when multiple=true
         if (event.dataTransfer && event.dataTransfer.items) {
             const items = Array.from(event.dataTransfer.items);
+
+            // Get all entries synchronously before the first await
+            const entries = [];
             const files = [];
 
             for (const item of items) {
-                if (item.kind === 'file') {
-                    const entry = item.webkitGetAsEntry
-                        ? item.webkitGetAsEntry()
-                        : null;
-                    if (entry) {
-                        const entryFiles = await this.traverseFileTree(entry);
-                        files.push(...entryFiles);
-                    } else {
-                        // Fallback for browsers without webkitGetAsEntry
-                        const file = item.getAsFile();
-                        if (file) {
-                            files.push(file);
-                        }
+                if (item.kind !== 'file') {
+                    continue;
+                }
+
+                const entry = item.webkitGetAsEntry
+                    ? item.webkitGetAsEntry()
+                    : null;
+                if (entry) {
+                    entries.push(entry);
+                } else {
+                    // Fallback for browsers without webkitGetAsEntry
+                    const file = item.getAsFile();
+                    if (file) {
+                        files.push(file);
                     }
                 }
+            }
+            // Process all entries after collecting them
+            for (const entry of entries) {
+                const entryFiles = await this.traverseFileTree(entry);
+                files.push(...entryFiles);
             }
             return files;
         }

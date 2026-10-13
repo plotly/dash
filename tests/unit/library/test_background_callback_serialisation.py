@@ -83,8 +83,12 @@ def fixture_patched_app():
     """Patch ``get_app`` so ``_get_callback_manager`` can resolve an adapter."""
     adapter = mock.Mock()
     adapter.args.getlist.return_value = []
+    # No signed handles on the request (endId/cacheKey/job absent).
+    adapter.args.get.return_value = None
     app = mock.Mock()
     app.backend.request_adapter.return_value = adapter
+    # Real bytes secret so the handle-signing in _setup_background_callback works.
+    app._get_signing_secret.return_value = b"test-secret"
     with mock.patch.object(_callback, "get_app", return_value=app):
         yield app
 

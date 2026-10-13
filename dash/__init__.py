@@ -41,7 +41,18 @@ from .dash import (  # noqa: F401,E402
     page_container,
 )
 from ._patch import Patch  # noqa: F401,E402
+from ._remount import remount  # noqa: F401,E402
 from ._jupyter import jupyter_dash  # noqa: F401,E402
+
+from ._shared_storage import (  # noqa: F401,E402
+    BaseSharedStorage,
+    DiskcacheSharedStorage,
+    LocalSharedStorage,
+    RedisSharedStorage,
+    SharedStorageError,
+    SharedStorageGap,
+    Subscription,
+)
 
 from ._hooks import hooks  # noqa: F401,E402
 
@@ -90,8 +101,16 @@ __all__ = [
     "NoUpdate",
     "page_container",
     "Patch",
+    "remount",
     "jupyter_dash",
     "ctx",
     "hooks",
     "stringify_id",
+    "BaseSharedStorage",
+    "DiskcacheSharedStorage",
+    "LocalSharedStorage",
+    "RedisSharedStorage",
+    "SharedStorageError",
+    "SharedStorageGap",
+    "Subscription",
 ]

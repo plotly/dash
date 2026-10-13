@@ -1,8 +1,6 @@
 import json
 import time
 
-import flaky
-
 from multiprocessing import Lock, Value
 import pytest
 
@@ -25,15 +23,14 @@ from dash import (
     no_update,
 )
 from dash.exceptions import PreventUpdate
+from dash.testing.wait import until
 from tests.integration.utils import json_engine
 from tests.utils import is_dash_async
 
 
-@flaky.flaky(max_runs=3)
 def test_async_cbsc001_simple_callback(dash_duo):
     if not is_dash_async():
         return
-    lock = Lock()
 
     app = Dash(__name__)
     app.layout = html.Div(
@@ -46,9 +43,8 @@ def test_async_cbsc001_simple_callback(dash_duo):
 
     @app.callback(Output("output-1", "children"), [Input("input", "value")])
     async def update_output(value):
-        with lock:
-            call_count.value = call_count.value + 1
-            return value
+        call_count.value = call_count.value + 1
+        return value
 
     dash_duo.start_server(app)
 
@@ -57,9 +53,16 @@ def test_async_cbsc001_simple_callback(dash_duo):
     input_ = dash_duo.find_element("#input")
     dash_duo.clear_input(input_)
 
-    for key in "hello world":
-        with lock:
-            input_.send_keys(key)
+    # Gate each keystroke on the previous callback having executed. If two
+    # keystroke callbacks are in the renderer's `requested` queue at once it
+    # coalesces them into a single request (see requestedCallbacks.ts), which
+    # undercounts invocations. Waiting for each keystroke to be processed
+    # keeps the one-callback-per-keystroke invariant the assertion relies on.
+    until(lambda: call_count.value == 2, timeout=3)
+
+    for i, key in enumerate("hello world"):
+        input_.send_keys(key)
+        until(lambda i=i: call_count.value == 3 + i, timeout=3)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
 
@@ -375,11 +378,9 @@ def test_async_cbsc007_parallel_updates(refresh, dash_duo):
         dash_duo.wait_for_text_to_equal("#out", '[{"a": "/2:a"}] - /2')
 
 
-@flaky.flaky(max_runs=3)
 def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     if not is_dash_async():
         return
-    lock = Lock()
 
     app = Dash(__name__)
     app.layout = html.Div(
@@ -406,10 +407,9 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
 
     @app.callback(Output("output-1", "data-cb"), [Input("input", "value")])
     async def update_data(value):
-        with lock:
-            if not percy_enabled.value:
-                input_call_count.value += 1
-            return value
+        if not percy_enabled.value:
+            input_call_count.value += 1
+        return value
 
     @app.callback(Output("output-1", "children"), [Input("output-1", "data-cb")])
     async def update_text(data):
@@ -424,10 +424,14 @@ def test_async_cbsc008_wildcard_prop_callbacks(dash_duo):
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
 
-    for key in "hello world":
-        with lock:
-            input1.send_keys(key)
-            time.sleep(0.05)  # allow some time for debounced callback to be sent
+    # Gate each keystroke on the previous callback having executed so the
+    # renderer cannot coalesce two in-flight callbacks into one request and
+    # undercount invocations (see requestedCallbacks.ts).
+    until(lambda: input_call_count.value == 2, timeout=3)
+
+    for i, key in enumerate("hello world"):
+        input1.send_keys(key)
+        until(lambda i=i: input_call_count.value == 3 + i, timeout=3)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"

@@ -8,13 +8,35 @@ appear in ``tools/list``.
 
 import json
 import re
+import subprocess
+import sys
 import time
 
 import diskcache
-from dash import Dash, Input, Output, html
+import psutil
+from dash import Dash, Input, Output, html, _callback_signing
 from dash.background_callback.managers.diskcache_manager import DiskcacheManager
 
 MCP_PATH = "_mcp"
+
+
+def _unwrap_handles(app, task_id):
+    """Return the raw (unsigned) ``(job_id, cache_key)`` from a signed taskId.
+
+    The handles embedded in a taskId are HMAC-signed (see ``_callback_signing``);
+    tests that poke the manager directly must unwrap them first. MCP dispatch has
+    no end_id, so the ``None`` end_id scope is used.
+    """
+    secret = app._get_signing_secret()
+    _tool, signed_job, rest = task_id.split(":", 2)
+    signed_cache, _epoch = rest.rsplit(":", 1)
+    job_id = _callback_signing.unsign(
+        secret, _callback_signing.job_scope(None), signed_job
+    )
+    cache_key = _callback_signing.unsign(
+        secret, _callback_signing.cache_scope(None), signed_cache
+    )
+    return job_id, cache_key
 
 
 # ---------------------------------------------------------------------------
@@ -98,7 +120,7 @@ def test_mcpbg012_trigger_poll_and_retrieve():
     assert poll_data["status"] == "working"
 
     # Wait for completion
-    job_id = task_id.split(":")[1]
+    job_id, _ = _unwrap_handles(app, task_id)
     manager = app.callback_map["output.children"]["manager"]
     deadline = time.time() + 5
     while time.time() < deadline:
@@ -148,7 +170,7 @@ def test_mcpbg013_result_expires():
     )
     task_info = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
     task_id = task_info["taskId"]
-    job_id = task_id.split(":")[1]
+    job_id, _ = _unwrap_handles(app, task_id)
 
     deadline = time.time() + 3
     while time.time() < deadline:
@@ -310,7 +332,7 @@ def test_mcpbg016_per_callback_manager_lookup():
     assert r.status_code == 200
     task_info = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
     task_id = task_info["taskId"]
-    cache_key = task_id.split(":")[2]
+    _, cache_key = _unwrap_handles(app, task_id)
 
     deadline = time.time() + 5
     while time.time() < deadline:
@@ -324,3 +346,79 @@ def test_mcpbg016_per_callback_manager_lookup():
     r = _post(client, "tasks/get", {"taskId": task_id}, request_id=2)
     assert r.status_code == 200
     assert json.loads(r.data)["result"]["status"] == "completed"
+
+
+# ---------------------------------------------------------------------------
+# Security: taskId handles are signed and verified end-to-end
+# ---------------------------------------------------------------------------
+
+
+def test_mcpbg017_forged_cancel_does_not_kill_arbitrary_process():
+    """A crafted taskId with an arbitrary pid must not reach terminate_job."""
+    app = _make_background_app()
+    client = app.server.test_client()
+
+    victim = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
+    try:
+        time.sleep(0.2)
+        assert psutil.pid_exists(victim.pid)
+
+        # Unsigned taskId an attacker would craft: <tool>:<victim_pid>:<key>:<epoch>
+        forged = f"slow_callback:{victim.pid}:deadbeef:0"
+        r = _post(client, "tasks/cancel", {"taskId": forged})
+
+        # The malformed/forged handle is rejected as a JSON-RPC error, and the
+        # unrelated process is left untouched.
+        body = json.loads(r.data)
+        assert "error" in body or body.get("result", {}).get("status") != "cancelled"
+        time.sleep(0.3)
+        assert psutil.pid_exists(victim.pid)
+        assert psutil.Process(victim.pid).status() != psutil.STATUS_ZOMBIE
+    finally:
+        victim.kill()
+
+
+def test_mcpbg018_forged_result_does_not_read_or_delete_cache():
+    """A crafted taskId with an arbitrary cacheKey must not read/delete it."""
+    app = _make_background_app()
+    manager = app.callback_map["output.children"]["manager"]
+    client = app.server.test_client()
+
+    manager.handle.set("operator-secret-key", {"secret": "topsecret"})
+
+    forged = "slow_callback:1:operator-secret-key:0"
+    for method in ("tasks/result", "tasks/get"):
+        r = _post(client, method, {"taskId": forged})
+        assert "topsecret" not in r.get_data(as_text=True)
+
+    # The unrelated entry is neither disclosed nor deleted.
+    assert manager.handle.get("operator-secret-key") == {"secret": "topsecret"}
+
+
+def test_mcpbg019_legitimate_cancel_terminates_the_job():
+    """The real signed taskId still cancels its own background job."""
+    app = _make_background_app()
+    client = app.server.test_client()
+
+    r = _post(
+        client,
+        "tools/call",
+        {"name": "slow_callback", "arguments": {"value": "hello"}},
+    )
+    task_info = json.loads(json.loads(r.data)["result"]["content"][0]["text"])
+    task_id = task_info["taskId"]
+
+    job_id, _ = _unwrap_handles(app, task_id)
+    manager = app.callback_map["output.children"]["manager"]
+    assert manager.job_running(job_id)
+
+    r = _post(client, "tasks/cancel", {"taskId": task_id}, request_id=2)
+    assert r.status_code == 200
+    assert json.loads(r.data)["result"]["status"] == "cancelled"
+
+    deadline = time.time() + 5
+    while time.time() < deadline:
+        if not manager.job_running(job_id):
+            break
+        time.sleep(0.1)
+    assert not manager.job_running(job_id)

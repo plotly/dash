@@ -36,7 +36,13 @@ import {
 import {ICallback, IStoredCallback} from '../types/callbacks';
 
 import {updateProps, setPaths, handleAsyncError} from '../actions';
-import {getPath, computePaths} from '../actions/paths';
+import {getPath, computePaths, appendPaths} from '../actions/paths';
+import {
+    PatchAnalysis,
+    analysisForAllProps,
+    analysisForProp,
+    tailAppend
+} from '../actions/patchAnalysis';
 
 import {applyPersistence, prunePersistence} from '../persistence';
 import {IStoreObserverDefinition} from '../StoreObserver';
@@ -47,7 +53,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
             callbacks: {executed}
         } = getState();
 
-        function applyProps(id: any, updatedProps: any) {
+        function applyProps(
+            id: any,
+            updatedProps: any,
+            patchAnalysis?: PatchAnalysis
+        ) {
             const {layout, paths} = getState();
             const itempath = getPath(paths, id);
             if (!itempath) {
@@ -65,7 +75,20 @@ const observer: IStoreObserverDefinition<IStoreState> = {
 
             // In case the update contains whole components, see if any of
             // those components have props to update to persist user edits.
-            const {props} = applyPersistence({props: updatedProps}, dispatch);
+            // A Patch resolves by carrying pre-existing children over from
+            // Redux, user edits included, so applyPersistence must leave those
+            // alone. It would otherwise see a "server override" and clear the
+            // stored edit. The analysis says which components the patch really
+            // created. Everything else came from a full replacement, where the
+            // server returns fresh default values and persisted edits must be
+            // restored (e.g. after a component moves on page).
+            // Only the `children` prop matters here, that is the one
+            // applyPersistence recurses through
+            const {props} = applyPersistence(
+                {props: updatedProps},
+                dispatch,
+                analysisForProp(patchAnalysis, 'children')
+            );
             (dispatch as ThunkDispatch<any, any, AnyAction>)(
                 updateProps({
                     itempath,
@@ -93,7 +116,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                 return;
             }
 
-            const {data, error, payload} = executionResult;
+            const {data, error, payload, patchedOutputs} = executionResult;
 
             if (data !== undefined) {
                 Object.entries(data).forEach(
@@ -105,8 +128,15 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             paths: oldPaths
                         } = getState();
 
+                        // What the Patch operations of this output changed
+                        const patchAnalysis = patchedOutputs?.[id];
+
                         // Components will trigger callbacks on their own as required (eg. derived)
-                        const appliedProps = applyProps(parsedId, props);
+                        const appliedProps = applyProps(
+                            parsedId,
+                            props,
+                            patchAnalysis
+                        );
 
                         // Add callbacks for modified inputs
                         requestedCallbacks = concat(
@@ -145,14 +175,60 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             children: any,
                             oldChildren: any,
                             oldChildrenPath: any[],
-                            filterRoot: any = false
+                            filterRoot: any = false,
+                            propAnalysis?: PatchAnalysis,
+                            append: {
+                                location: (string | number)[];
+                                count: number;
+                            } | null = null
                         ) => {
                             const oPaths = getState().paths;
-                            const paths = computePaths(
-                                children,
-                                oldChildrenPath,
-                                oPaths
-                            );
+
+                            // If this patch's only structural change was
+                            // appending items to the tail of one list (tracked
+                            // by patchAnalysis.tailAppends), the pre-existing
+                            // children kept their positions and identities.
+                            // Compute paths only for the new tail slice instead
+                            // of re-crawling the whole array - the dominant cost
+                            // of a repeated Patch().append() into a large
+                            // container. `location` points at the grown list,
+                            // which may be nested (`[]` for a plain `children`,
+                            // `[0, 'props', 'children']` for a nested extend).
+                            const newList = append
+                                ? append.location.length
+                                    ? path(append.location, children)
+                                    : children
+                                : undefined;
+                            const oldList = append
+                                ? append.location.length
+                                    ? path(append.location, oldChildren)
+                                    : oldChildren
+                                : undefined;
+                            const isTailAppend =
+                                !!append &&
+                                append.count > 0 &&
+                                Array.isArray(newList) &&
+                                Array.isArray(oldList) &&
+                                newList.length ===
+                                    oldList.length + append.count;
+
+                            const paths =
+                                isTailAppend && append
+                                    ? appendPaths(
+                                          (newList as any[]).slice(
+                                              (oldList as any[]).length
+                                          ),
+                                          oldChildrenPath.concat(
+                                              append.location
+                                          ),
+                                          (oldList as any[]).length,
+                                          oPaths
+                                      )
+                                    : computePaths(
+                                          children,
+                                          oldChildrenPath,
+                                          oPaths
+                                      );
                             dispatch(setPaths(paths));
 
                             // Get callbacks for new layout (w/ execution group)
@@ -160,6 +236,7 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                 requestedCallbacks,
                                 getLayoutCallbacks(graphs, paths, children, {
                                     chunkPath: oldChildrenPath,
+                                    patchAnalysis: propAnalysis,
                                     filterRoot
                                 }).map(rcb => ({
                                     ...rcb,
@@ -168,24 +245,29 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                             );
 
                             // Wildcard callbacks with array inputs (ALL / ALLSMALLER) need to trigger
-                            // even due to the deletion of components
-                            requestedCallbacks = concat(
-                                requestedCallbacks,
-                                getLayoutCallbacks(
-                                    graphs,
-                                    oldPaths,
-                                    oldChildren,
-                                    {
-                                        removedArrayInputsOnly: true,
-                                        newPaths: paths,
-                                        chunkPath: oldChildrenPath,
-                                        filterRoot
-                                    }
-                                ).map(rcb => ({
-                                    ...rcb,
-                                    predecessors
-                                }))
-                            );
+                            // even due to the deletion of components.
+                            // A tail append never removes anything, so oldChildren
+                            // is unchanged and this pass can only find what it
+                            // found last time (nothing new) - skip the crawl.
+                            if (!isTailAppend) {
+                                requestedCallbacks = concat(
+                                    requestedCallbacks,
+                                    getLayoutCallbacks(
+                                        graphs,
+                                        oldPaths,
+                                        oldChildren,
+                                        {
+                                            removedArrayInputsOnly: true,
+                                            newPaths: paths,
+                                            chunkPath: oldChildrenPath,
+                                            filterRoot
+                                        }
+                                    ).map(rcb => ({
+                                        ...rcb,
+                                        predecessors
+                                    }))
+                                );
+                            }
                         };
 
                         let recomputed = false;
@@ -211,6 +293,9 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                     }
 
                                     // Crawl layout needs the ns/type
+                                    // This crawls every prop of the component at
+                                    // once, so the analysis only applies if all
+                                    // of them came from a Patch
                                     handlePaths(
                                         {
                                             ...oldObj,
@@ -221,7 +306,11 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         },
                                         oldObj,
                                         basePath,
-                                        keys(appliedProps)
+                                        keys(appliedProps),
+                                        analysisForAllProps(
+                                            patchAnalysis,
+                                            keys(props)
+                                        )
                                     );
                                     // Only do it once for the component.
                                     recomputed = true;
@@ -245,10 +334,30 @@ const observer: IStoreObserverDefinition<IStoreState> = {
                                         oldLayout
                                     );
 
+                                    const childrenPropAnalysis =
+                                        analysisForProp(
+                                            patchAnalysis,
+                                            childrenPropPath[0]
+                                        );
+
                                     handlePaths(
                                         children,
                                         oldChildren,
-                                        oldChildrenPath
+                                        oldChildrenPath,
+                                        false,
+                                        childrenPropAnalysis,
+                                        // `tailAppends` locations are relative
+                                        // to the top-level property's value, so
+                                        // the shortcut only applies when
+                                        // `children` *is* that value (a plain
+                                        // `children`), not a dotted sub-path
+                                        // (`figure.data`) into it.
+                                        childrenPropPath.length === 1
+                                            ? tailAppend(
+                                                  childrenPropAnalysis,
+                                                  childrenPropPath[0]
+                                              )
+                                            : null
                                     );
                                 }
                             });

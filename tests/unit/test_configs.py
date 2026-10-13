@@ -5,6 +5,7 @@ import pytest
 from flask import Flask
 
 from dash import Dash, exceptions as _exc
+from dash._jupyter import jupyter_dash
 
 # noinspection PyProtectedMember
 from dash._configs import (
@@ -377,6 +378,21 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
     app.run(proxy=proxystr, host=host, port=port)
 
     assert "Dash is running on {}{}\n".format(proxy, path) in caplog.text
+
+
+def test_proxy_jupyter_server_url(mocker, empty_environ):
+    # The app is served on host:port but reached through the proxy, so the
+    # notebook must be given the proxied url.
+    proxy = "https://daash.plot.ly"
+    host, port = "127.0.0.1", 8050
+    app = Dash()
+    mocker.patch.object(app.server, "run")
+    mocker.patch.object(type(jupyter_dash), "active", True)
+    run_app = mocker.patch.object(jupyter_dash, "run_app")
+
+    app.run(proxy="http://{}:{}::{}".format(host, port, proxy), host=host, port=port)
+
+    assert run_app.call_args.kwargs["server_url"] == proxy
 
 
 def test_proxy_failure(mocker, empty_environ):

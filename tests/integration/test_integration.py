@@ -44,6 +44,58 @@ def test_inin003_wildcard_data_attributes(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+def test_inin005_meta_tags_social_media(dash_duo):
+    app = Dash(
+        title="my title",
+        description="my description",
+        image="my_app.png",
+    )
+    app.layout = html.Div(["Hey! Meta tags!"])
+
+    dash_duo.start_server(app)
+
+    assert (
+        dash_duo.find_element('meta[name="description"]').get_attribute("content")
+        == "my description"
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="twitter:title"]').get_attribute("content")
+        == "my title"
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="twitter:description"]').get_attribute(
+            "content"
+        )
+        == "my description"
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="twitter:image"]')
+        .get_attribute("content")
+        .endswith("/assets/my_app.png")
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="og:title"]').get_attribute("content")
+        == "my title"
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="og:description"]').get_attribute(
+            "content"
+        )
+        == "my description"
+    )
+
+    assert (
+        dash_duo.find_element('meta[property="og:image"]')
+        .get_attribute("content")
+        .endswith("/assets/my_app.png")
+    )
+
+
 def test_inin006_meta_tags(dash_duo):
     metas = [
         {"name": "description", "content": "my dash app"},

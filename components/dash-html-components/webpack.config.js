@@ -1,5 +1,6 @@
 const path = require('path');
 const packagejson = require('./package.json');
+const {jsxRuntimeExternal} = require('../../dash/dash-renderer/jsx-runtime-external');
 
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
@@ -37,6 +38,8 @@ module.exports = (env, argv) => {
     const externals = ('externals' in overrides) ? overrides.externals : ({
         react: 'React',
         'react-dom': 'ReactDOM',
+        'react/jsx-runtime': jsxRuntimeExternal,
+        'react/jsx-dev-runtime': jsxRuntimeExternal,
         'prop-types': 'PropTypes'
     });
 

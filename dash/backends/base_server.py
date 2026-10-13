@@ -180,6 +180,10 @@ class BaseDashServer(ABC, Generic[ServerType]):
     request_adapter: Type[RequestAdapter]
     response_adapter: Type[ResponseAdapter]
     websocket_capability: bool = False
+    # How streaming callbacks' downlink is served: "poll" (WSGI: a request
+    # returns the queued frames and ends, since an open response would hold a
+    # worker thread) or "stream" (ASGI: one open connection per browser).
+    downlink_mode: str = "poll"
 
     def __init__(self, server: ServerType) -> None:
         """Initialize the server wrapper.
