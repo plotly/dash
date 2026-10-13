@@ -34,10 +34,14 @@ def _redis_available():
         return False
 
 
-def _counter_app(storage):
+_FROM_ENV = object()
+
+
+def _counter_app(storage=_FROM_ENV):
     """A two-callback app: 'bump' increments a shared counter, 'read' (a separate
     callback) shows the current shared value."""
-    app = Dash(__name__, shared_storage=storage)
+    kwargs = {} if storage is _FROM_ENV else {"shared_storage": storage}
+    app = Dash(__name__, **kwargs)
     app.layout = html.Div(
         [
             html.Button("bump", id="bump"),
@@ -121,6 +125,19 @@ def test_counter_shared_across_callbacks_redis(dash_duo):
             )
         )
     )
+    _drive_counter(dash_duo)
+
+
+def test_redis_selected_by_env(dash_duo, monkeypatch):
+    if not _redis_available():
+        pytest.skip("no Redis reachable at REDIS_URL")
+    monkeypatch.setenv("DASH_SHARED_STORAGE", REDIS_URL)
+    app = _counter_app()
+    storage = app.shared_storage
+    assert isinstance(storage, RedisSharedStorage)
+    # The env var gives the default key prefix, so clear what earlier runs left.
+    storage.delete("count")
+    dash_duo.start_server(app)
     _drive_counter(dash_duo)
 
 

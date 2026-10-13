@@ -117,6 +117,39 @@ def test_flask_uplink_without_valid_end_id_is_rejected():
     storage.close()
 
 
+def test_flask_downlink_id_gives_each_run_its_own_topic():
+    # The renderer picks a downlink id per run of streams: the run's frames go
+    # to a topic of its own, while the lifecycle record stays on the page.
+    from dash import _stream_hub as hub
+
+    app, storage = _streaming_app()
+    run = f"{CONNECTION_ID}:run1"
+    out = []
+    th = _start_drain(storage, run, out)
+    client = app.server.test_client()
+    url = f"{_uplink_url(app)}&downlinkId=run1"
+
+    assert client.post(url, json=_uplink_body("r1")).status_code == 200
+    th.join(timeout=5)
+    _assert_delivered(out)
+
+    resp = client.post(url, json={"streamDownlink": {"from": 0}})
+    lines = [line for line in resp.get_data(as_text=True).split("\n") if line]
+    assert [json.loads(line)["rid"] for line in lines] == ["r1", "r1", "r1"]
+    assert storage.get(hub.connection_key(run))["mode"] == "poll"
+    assert hub.connection_key(run) == hub.connection_key(CONNECTION_ID)
+    storage.close()
+
+
+def test_flask_rejects_a_malformed_downlink_id():
+    app, storage = _streaming_app()
+    resp = app.server.test_client().post(
+        f"{_uplink_url(app)}&downlinkId=a:b", json={"streamDownlink": {"from": 0}}
+    )
+    assert resp.status_code == 403
+    storage.close()
+
+
 def test_flask_downlink_rejects_missing_end_id():
     # A downlink with no valid signed endId cannot name a topic at all: the
     # server refuses it (403) rather than serving an attacker-named connection.
@@ -125,6 +158,40 @@ def test_flask_downlink_rejects_missing_end_id():
         "/_dash-update-component", json={"streamDownlink": {"from": 0}}
     )
     assert resp.status_code == 403
+    storage.close()
+
+
+def test_flask_forged_stream_tokens_warn_once(monkeypatch, caplog):
+    # A token that fails verification is almost always a secret mismatch
+    # between workers, so say so, but once per process, not per poll.
+    from dash import _callback
+
+    monkeypatch.setattr(_callback, "_stream_token_warned", False)
+    app, storage = _streaming_app()
+    client = app.server.test_client()
+    forged = "/_dash-update-component?endId=forged~deadbeef"
+    with caplog.at_level("WARNING", logger="dash.dash"):
+        # A missing token is not a verification failure: no warning.
+        assert (
+            client.post(
+                "/_dash-update-component", json={"streamDownlink": {"from": 0}}
+            ).status_code
+            == 403
+        )
+        assert not caplog.records
+        for _ in range(3):
+            assert (
+                client.post(forged, json={"streamDownlink": {"from": 0}}).status_code
+                == 403
+            )
+        assert client.post(forged, json=_uplink_body("r1")).status_code == 403
+        assert (
+            client.post(forged, json={"streamCancel": {"requestId": "r1"}}).status_code
+            == 403
+        )
+    warnings = [r for r in caplog.records if "DASH_SECRET_KEY" in r.getMessage()]
+    assert len(warnings) == 1
+    assert "failed verification" in warnings[0].getMessage()
     storage.close()
 
 

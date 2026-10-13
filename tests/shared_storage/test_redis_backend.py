@@ -19,6 +19,7 @@ redis = pytest.importorskip("redis")
 from dash._shared_storage import (  # noqa: E402
     RedisSharedStorage,
     SharedStorageGap,
+    base,
 )
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
@@ -122,6 +123,27 @@ def test_no_gap_at_buffer_edge():
     assert _drain(sub, 2) == ["m2", "m3"]
     sub.close()
     store.close()
+
+
+def test_idle_topic_leaves_redis(monkeypatch):
+    monkeypatch.setattr(base, "MIN_TOPIC_TTL", 0.1)
+    prefix = f"dash:sstest:{uuid.uuid4().hex[:12]}"
+    store = RedisSharedStorage(url=REDIS_URL, key_prefix=prefix)
+    store.start()
+    for i in range(3):
+        store.publish("t", f"m{i}", ttl=0.3)
+    keys = [store._seq("t"), store._stream("t"), store._ttl("t")]
+    assert all(0 < store._redis.pttl(k) <= 375 for k in keys)
+    time.sleep(0.5)
+    assert store._redis.exists(*keys) == 0
+    store.close()
+
+
+def test_no_ttl_sets_no_expiry(store):
+    store.publish("t", "m")
+    assert store._redis.pttl(store._seq("t")) == -1
+    assert store._redis.pttl(store._stream("t")) == -1
+    store._redis.delete(store._seq("t"), store._stream("t"))
 
 
 def test_two_instances_share_state(store):
@@ -278,14 +300,14 @@ def test_async_subscriber_joining_behind_a_read_in_flight_gets_no_false_gap(stor
     for i in range(5):
         store.publish("t", f"m{i}")
 
-    async def head(_topic):
-        return 10**9
+    async def renew(_topic):
+        return 10**9, None
 
     async def scenario():
         parked = store.subscribe("t")  # at the head: seq 5
         parked_first = asyncio.ensure_future(_first(parked))
         await asyncio.sleep(0.3)  # the reader is blocked reading from seq 5
-        store._ahead = head  # joins without an await before the reader sees it
+        store._arenew = renew  # joins without an await before the reader sees it
         store.publish("t", "m5")
         out = []
         async for pair in store.subscribe("t", replay_from=1).aiter_with_seq():
@@ -297,6 +319,33 @@ def test_async_subscriber_joining_behind_a_read_in_flight_gets_no_false_gap(stor
     out, parked = asyncio.run(scenario())
     assert out == [(2, "m1"), (3, "m2"), (4, "m3"), (5, "m4"), (6, "m5")]
     assert parked == (6, "m5")
+
+
+@pytest.mark.parametrize("first_ttl", [1.0, None, 600.0])
+def test_async_subscriber_keeps_its_topic_alive(store, first_ttl):
+    """The reader renews a waiting subscription's topic as a sync poll would,
+    including one whose ttl a later publish gives or shortens."""
+    store.publish("t", "a", ttl=first_ttl)
+
+    async def scenario():
+        sub = store.subscribe("t")
+        out = []
+
+        async def read():
+            async for pair in sub.aiter_with_seq():
+                out.append(pair)
+                if len(out) == 2:
+                    return
+
+        task = asyncio.ensure_future(read())
+        await asyncio.sleep(0.3)
+        await store.apublish("t", "b", ttl=1.0)
+        await asyncio.sleep(3)  # over twice the topic's 1.25 s lifetime
+        await store.apublish("t", "c", ttl=1.0)
+        await asyncio.wait_for(task, timeout=2)
+        return out
+
+    assert asyncio.run(scenario()) == [(2, "b"), (3, "c")]
 
 
 def test_async_clients_of_closed_loops_are_dropped(store):

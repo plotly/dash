@@ -752,6 +752,8 @@ Special handling for Colab:
 | `DASH_PRUNE_ERRORS` | Simplify tracebacks |
 | `HOST` | Server host |
 | `PORT` | Server port |
+| `DASH_SECRET_KEY` | Signing secret for page, background and stream tokens when `server.secret_key` is unset |
+| `DASH_SHARED_STORAGE` | Shared-storage backend when `shared_storage=` is not passed (see Shared Storage) |
 
 ## Stores and Client-Side State
 
@@ -850,7 +852,7 @@ outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
 | `get(key, default=None)` | Read a value |
 | `set(key, value, ttl=None)` | Write a value; `ttl` = optional lifetime in seconds |
 | `delete(key)` | Remove a key |
-| `publish(topic, message)` | Append a message to a topic |
+| `publish(topic, message, ttl=None)` | Append a message to a topic; `ttl` = release the topic after that long idle |
 | `subscribe(topic, replay_from=None)` | Return a `Subscription` |
 
 **Key expiry (TTL).** `set(key, value, ttl=<seconds>)` gives a key a bounded
@@ -925,6 +927,27 @@ deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 purpose, since each topic retains that many arbitrary payloads; raise it for a
 wider reconnect window).
 
+**Topic lifetime.** `publish(topic, message, ttl=None)` takes an optional ttl
+(seconds, at least `MIN_TOPIC_TTL` = 1s, so a reconnecting reader is not
+outrun). A topic with a ttl is released, buffer and sequence both, once nobody
+has published to or read from it for that long; a later publish starts it over
+at 1, so a consumer returning with an old cursor gets `SharedStorageGap`.
+Without a ttl a topic lives as long as the store. The latest publish's ttl
+wins. Streaming publishes with `STREAM_TOPIC_TTL` (300s); user topics default
+to no ttl. Every backend expires a topic as a whole, never message by message
+while it is read (`tests/shared_storage/test_topic_ttl.py` runs the same cases
+on all three). Local: the engine records the ttl on the topic and sweeps idle
+ones (no publish, head or poll, and no call holding it) at most once a second,
+on the next pub/sub call. The sweep also drops empty, unheld topics, such as
+the one a returning reader's poll recreates after a release. Redis: the ttl sits in a third key; the publish
+script `PEXPIRE`s all three to 1.25 ttl, and a poll script renews them. A poll
+on such a topic blocks in `XREAD` for at most a third of that lifetime, not the
+usual 5s, so a waiting reader renews it in time. Diskcache: the ttl
+sits in a key; on publish or poll, once less than one ttl is left, every key of
+the topic (counter, ttl, buffered messages) is renewed to 1.25 ttl, and at
+once when a publish changes the ttl. A poll on such a topic waits at most half
+a ttl before it renews again.
+
 *Durability* is controlled by `mode` (the key/value store only — pub/sub is
 always transient):
 
@@ -982,13 +1005,31 @@ election only reaches processes in the same network + filesystem namespace.
   This works at 1 pod and fragments silently once it scales — use
   `RedisSharedStorage` (one Redis shared by all pods) instead.
 
+A hosting platform can switch the backend without editing the app through
+`DASH_SHARED_STORAGE` (`_shared_storage/_env.py`), read only when the app did
+not pass `shared_storage=` (the default is a sentinel, so an explicit argument,
+`None` included, always wins): `local`, `none`, `diskcache:///abs/path`, or a
+`redis://` / `rediss://` URL. A `key_prefix` query parameter on the Redis URL
+(`redis://host/0?key_prefix=myapp`) sets `RedisSharedStorage(key_prefix=)` and
+is stripped before the URL reaches redis-py; the diskcache path is
+percent-decoded. `cluster://` is reserved and raises; anything else raises
+`InvalidConfig` at construction, without echoing the value (it can hold
+credentials). The value becomes a zero-argument
+factory, so nothing is built or connected until `app.shared_storage` is first
+read, but a missing extra (`dash[redis]`, `dash[diskcache]`) fails at
+construction with the backend's own `ImportError`.
+
 ### Custom and Out-of-Tree Backends
 
 `BaseSharedStorage` is the stable, public extension point. A backend — shipped
 in-tree or as a **separate package** — implements:
 
 - `get(key, default)` / `set(key, value)` / `delete(key)` — JSON-compatible values
-- `publish(topic, message)` and `subscribe(topic, replay_from=None) -> Subscription`
+- `publish(topic, message, ttl=None)` and `subscribe(topic, replay_from=None) -> Subscription`
+- topic expiry: with a `ttl`, release the topic as a whole once nobody has
+  published to or read from it for that long, never message by message while
+  it is read; reject a ttl under `MIN_TOPIC_TTL` (run `test_topic_ttl.py`
+  against a new backend)
 - optional `start()` / `close()` (idempotent, called once per worker)
 
 and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises
@@ -1016,6 +1057,7 @@ same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
 | `_shared_storage/_polling.py` | `PollingSubscription`: shared poll-loop subscription for the diskcache/Redis backends |
 | `_shared_storage/_transport.py` | Length-prefixed, token-gated socket transport (local backend) |
 | `_shared_storage/_codec.py` | msgspec msgpack codec (data-only) |
+| `_shared_storage/_env.py` | `DASH_SHARED_STORAGE` parsing |
 | `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
 | `_callback_context.py` | `dash.ctx.shared_storage` accessor |
 
@@ -1386,8 +1428,24 @@ The connection id is never chosen by the client: every stream request rides on
 `?endId=`, the server-signed per-page-load token, and the backend derives the
 id from it (`get_stream_connection_id`), answering 403 when it is missing or
 forged -- otherwise a client could read or inject into another page's topic.
-Across worker processes every worker must resolve the same signing secret
-(`secret_key`).
+Across worker processes every worker must resolve the same signing secret.
+`_get_signing_secret` resolves, in order: `server.secret_key`, then
+`DASH_SECRET_KEY` (for Dash's signing only, never copied onto
+`server.secret_key`, so Flask sessions are untouched), then a secret persisted
+in the background-callback store, then a per-process random one. With the last,
+tokens only verify on the worker that issued them: stream requests 403 on the
+other workers, and the first failure in each process logs a warning pointing at
+`DASH_SECRET_KEY` (`_warn_unverified_stream_token`). A request with no token at
+all is not logged.
+
+Each run of streams (from the first stream after idle until none is in flight)
+also carries `&downlinkId=`, picked fresh by the client, and the connection id
+is `<end_id>:<downlinkId>`: every run gets its own topic and the client's
+cursor restarts at 0. Without it a page that sat idle past `STREAM_TOPIC_TTL` would
+resume a cursor into a topic the store released, get `{reset: true}`, and fail
+its new stream. The id only partitions the page's own space, so it is not
+signed (just checked against `[A-Za-z0-9_-]{1,64}`). The downlink lifecycle
+record (`connection_key`) stays keyed on the `end_id` alone.
 
 The downlink is hosted in a SharedWorker (`dash-stream-worker.js`, served like
 the WebSocket worker; `config.stream.worker_url`) so **one connection per
