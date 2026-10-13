@@ -1,4 +1,7 @@
 import json
+import math
+
+import pytest
 
 from benchmarks import publish
 
@@ -85,26 +88,27 @@ def test_capacity_is_a_lower_bound_when_clients_ran_out_of_cpu():
     assert publish.capacity(setup) == (100, True)
 
 
-def test_inline_chart_data_cannot_close_its_script():
-    chart = {
-        "id": "x",
-        "title": "t",
-        "subtitle": "s",
-        "source": "src",
-        "kind": "hbar",
-        "bars": [{"label": "<!--<script></script>", "value": 1, "text": "1"}],
-    }
-    script = publish._figure(chart).split("<script>")[1].split("</script>")[0]
-    assert "<" not in script
+README = """# Dash
+
+### Performance
+
+<!-- benchmarks:start -->
+No published run yet.
+<!-- benchmarks:end -->
+
+### Next
+"""
 
 
-def test_site_has_embeds_data_badges_and_history(tmp_path):
-    streaming = tmp_path / "streaming.json"
-    streaming.write_text(
-        json.dumps(_run([_setup("fastapi-uvicorn-w1", [_point(100, 10)])]))
-    )
-    renderer = tmp_path / "renderer.json"
-    renderer.write_text(
+def _readme(tmp_path):
+    path = tmp_path / "README.md"
+    path.write_text(README)
+    return path
+
+
+def _renderer_results(tmp_path):
+    path = tmp_path / "renderer.json"
+    path.write_text(
         json.dumps(
             {
                 "callback_fanout": {
@@ -120,42 +124,130 @@ def test_site_has_embeds_data_badges_and_history(tmp_path):
             }
         )
     )
-    site = tmp_path / "site"
+    return path
+
+
+def test_publish_commits_numbers_history_report_and_readme(tmp_path):
+    streaming = tmp_path / "streaming.json"
+    streaming.write_text(
+        json.dumps(_run([_setup("fastapi-uvicorn-w1", [_point(100, 10)])]))
+    )
+    renderer = _renderer_results(tmp_path)
+    readme = _readme(tmp_path)
+    out = tmp_path / "results"
 
     for date in ("2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z"):
         publish.main(
             [
-                "--site",
-                str(site),
+                "--dir",
+                str(out),
+                "--readme",
+                str(readme),
                 "--renderer",
                 str(renderer),
                 "--streaming",
                 str(streaming),
                 "--date",
                 date,
-                "--base-url",
-                "https://example.test/dash",
             ]
         )
 
-    for chart in (
+    history = json.loads((out / "renderer-history.json").read_text())
+    assert [h["date"][:10] for h in history] == ["2026-10-01", "2026-10-02"]
+    assert history[0]["results"] == {"callback_fanout": {"fanout_ms": {"median": 80.0}}}
+    latest = json.loads((out / "renderer-latest.json").read_text())
+    assert latest["results"]["callback_fanout"]["fanout_ms"]["p90"] == 90.0
+    assert json.loads((out / "streaming-latest.json").read_text())["setups"]
+    sections = json.loads((out / "report.json").read_text())["sections"]
+    assert [s["id"] for s in sections] == ["streaming", "renderer"]
+    charts = [c["id"] for s in sections for c in s["charts"]]
+    assert charts == [
         "streaming-capacity",
         "streaming-latency",
+        "streaming-first-frame",
+        "streaming-cpu",
         "renderer-latest",
         "renderer-trend",
-    ):
-        page = (site / "embed" / f"{chart}.html").read_text()
-        assert "renderChart(" in page
-        assert "../charts.js" in page
-    index = (site / "index.html").read_text()
-    assert "https://example.test/dash/embed/streaming-capacity.html" in index
-    badge = json.loads(
-        (site / "badges" / "streaming-fastapi-uvicorn-w1.json").read_text()
+    ]
+    for s in sections:
+        assert s["table"]["rows"]
+        for c in s["charts"]:
+            assert c["figure"]["data"] and c["figure"]["layout"]
+    text = readme.read_text()
+    assert "| fastapi-uvicorn-w1 | - | - | 100+ |" in text
+    assert "No published run yet." not in text
+    assert text.endswith("<!-- benchmarks:end -->\n\n### Next\n")
+
+
+def test_lines_figure_marks_the_threshold_in_log_units():
+    chart = publish.streaming_charts(
+        _run([_setup("a", [_point(100, 10), _point(500, 20)])])
+    )[1]
+    fig = publish.figure(chart)
+    assert [t["x"] for t in fig["data"]] == [[100, 500]]
+    assert fig["layout"]["xaxis"]["ticktext"] == ["100", "500"]
+    assert fig["layout"]["shapes"][0]["y0"] == publish.CAPACITY_P95_MS
+    assert fig["layout"]["annotations"][0]["y"] == pytest.approx(
+        math.log10(publish.CAPACITY_P95_MS)
     )
-    assert badge["message"] == "100+ browsers"
-    history = json.loads((site / "data" / "renderer-history.json").read_text())
-    assert [h["date"][:10] for h in history] == ["2026-10-01", "2026-10-02"]
-    assert (site / ".nojekyll").exists()
+
+
+def test_trend_figure_shows_one_scenario_at_a_time():
+    entry = {
+        "date": "2026-10-01T00:00:00Z",
+        "commit": "abc",
+        "runner": "test",
+        "results": {
+            "a": {"m": {"median": 10.0, "p90": 12.0, "max": 13.0}},
+            "b": {"m": {"median": 20.0, "p90": 22.0, "max": 23.0}},
+        },
+    }
+    trend = publish.renderer_charts(entry, [entry])[1]
+    fig = publish.figure(trend)
+    # Slowest scenario first.
+    assert [(t["name"], t["visible"]) for t in fig["data"]] == [
+        ("b (m)", True),
+        ("a (m)", False),
+    ]
+    buttons = fig["layout"]["updatemenus"][0]["buttons"]
+    assert [b["args"][0]["visible"] for b in buttons] == [[True, False], [False, True]]
+    # A single run gets a week of axis, not a millisecond.
+    assert "xaxis.range" in buttons[0]["args"][1]
+
+
+def test_named_input_must_exist(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        publish.main(
+            [
+                "--dir",
+                str(tmp_path / "results"),
+                "--readme",
+                str(_readme(tmp_path)),
+                "--streaming",
+                str(tmp_path / "typo.json"),
+            ]
+        )
+
+
+def test_readme_names_each_run_and_sorts_unknown_backends_last():
+    callbacks = _cb_run()
+    streaming = _run(
+        [{**_setup("starlette-uvicorn-w1", [_point(100, 10)]), "backend": "starlette"}]
+    )
+    streaming["meta"] = {**streaming["meta"], "date": "2026-10-07T00:00:00Z"}
+    lines = publish.readme_table(streaming, callbacks).splitlines()
+    assert lines[-3].startswith("| starlette-uvicorn-w1 |")
+    assert lines[-1].endswith(
+        "Measured 2026-10-06: server on 4 cores (test), Dash 4.5.0;"
+        " 2026-10-07: server on 4 cores (test), Dash 4.5.0."
+    )
+
+
+def test_readme_needs_its_markers(tmp_path):
+    readme = tmp_path / "README.md"
+    readme.write_text("# Dash\n")
+    with pytest.raises(SystemExit):
+        publish.update_readme(str(readme), None, None)
 
 
 def _cb_point(browsers, p95, calls_per_s=100.0, cores=0.2, client_bound=False):
@@ -239,16 +331,43 @@ def test_callback_charts_split_by_transport_and_workers():
     assert cpu == {"fastapi-w1-ws": 0.3, "fastapi-w1-http": 1.0}
 
 
-def test_site_keeps_published_callbacks_when_not_given(tmp_path):
+def test_readme_table_has_one_row_per_server():
+    streaming = _run(
+        [
+            {
+                **_setup("fastapi-uvicorn-w1", [_point(100, 10), _point(500, 400)]),
+                "label": "FastAPI, uvicorn 1 worker",
+            }
+        ]
+    )
+    callbacks = _cb_run()
+    for s in callbacks["setups"]:
+        s["label"] = {
+            "fastapi-w1-http": "FastAPI, uvicorn 1 worker, HTTP",
+            "fastapi-w1-ws": "FastAPI, uvicorn 1 worker, websocket",
+            "quart-w4-ws": "Quart, uvicorn 4 workers, websocket",
+        }[s["name"]]
+    lines = publish.readme_table(streaming, callbacks).splitlines()
+    assert lines[2:4] == [
+        "| FastAPI, uvicorn 1 worker | 100 | 1,000+ | 100 |",
+        "| Quart, uvicorn 4 workers | - | 100+ | - |",
+    ]
+    assert lines[-1].endswith(
+        "Measured 2026-10-06: server on 4 cores (test), Dash 4.5.0."
+    )
+
+
+def test_publish_keeps_committed_callbacks_when_not_given(tmp_path):
     callbacks = tmp_path / "callbacks.json"
     callbacks.write_text(json.dumps(_cb_run()))
-    site = tmp_path / "site"
-    publish.main(["--site", str(site), "--callbacks", str(callbacks)])
-    publish.main(["--site", str(site)])
-    index = (site / "index.html").read_text()
-    assert "HTTP vs websocket" in index
-    assert (site / "embed" / "callbacks-capacity.html").exists()
-    badge = json.loads((site / "badges" / "callbacks-fastapi-w1-ws.json").read_text())
-    assert badge["message"] == "1,000+ browsers"
-    history = json.loads((site / "data" / "callbacks-history.json").read_text())
+    out = tmp_path / "results"
+    readme = _readme(tmp_path)
+    args = ["--dir", str(out), "--readme", str(readme)]
+    publish.main([*args, "--callbacks", str(callbacks)])
+    publish.main(args)
+    sections = json.loads((out / "report.json").read_text())["sections"]
+    assert [s["title"] for s in sections] == ["Callbacks under load: HTTP vs websocket"]
+    assert "| fastapi-w1-http | 100 | 1,000+ | - |" in readme.read_text()
+    history = json.loads((out / "callbacks-history.json").read_text())
+    assert len(history) == 1
     assert history[0]["capacity"]["fastapi-w1-http"] == 100

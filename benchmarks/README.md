@@ -134,15 +134,15 @@ python -m benchmarks.swarm.aggregate reports/*.json --out swarm.json
 
 ## Publishing (`publish.py`)
 
-`.github/workflows/benchmarks-publish.yml` measures on `dev` and pushes a static
-site to the `gh-pages` branch: renderer timings on every push, the streaming
-and callback sweeps weekly and on demand. Each chart has its own page under `embed/` to drop
-into an `<iframe>` (`?theme=dark` or `?theme=light` to force a theme), the raw
-numbers and their history are under `data/`, and `badges/` holds shields.io
-endpoint badges. To build the site locally:
+`.github/workflows/benchmarks-publish.yml` measures on `dev` weekly (and on
+demand) and opens a pull request that commits the numbers to `results/` and
+the table in the repo's `README.md`. `results/` holds the raw numbers
+(`*-latest.json`), one summary per run (`*-history.json`), and `report.json`:
+every chart as a Plotly figure and the numbers as tables, which the docs page
+renders. To update them locally:
 
 ```bash
-python -m benchmarks.publish --site /tmp/site \
+python -m benchmarks.publish \
     --renderer benchmarks/results.json --streaming benchmarks/streaming/results.json \
     --callbacks benchmarks/callbacks/results.json
 ```

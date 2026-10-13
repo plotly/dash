@@ -1,34 +1,32 @@
-"""Build the public benchmark site from benchmark results.
+"""Turn benchmark results into the numbers the docs and the README show.
 
-    python -m benchmarks.publish --site site \\
+    python -m benchmarks.publish \\
         --renderer benchmarks/results.json \\
         --streaming benchmarks/streaming/results.json \\
         --callbacks benchmarks/callbacks/results.json
 
-``--site`` is a checkout of the ``gh-pages`` branch (or any directory). Each
-run appends to ``data/*-history.json`` there, so the trend charts grow with
-every publish, then rewrites the pages:
+Writes to ``benchmarks/results/`` (``--dir``), which is committed:
 
-- ``index.html``: every chart, the numbers as tables, and how they were measured
-- ``embed/<chart>.html``: one chart per page, sized to its frame, for
-  ``<iframe>`` embedding (``?theme=light|dark`` forces a theme)
-- ``data/<name>.json``: the latest results and their history, for anyone who
-  wants to chart them their own way
-- ``badges/<name>.json``: shields.io endpoint badges for READMEs
+- ``<name>-latest.json`` and ``<name>-history.json``: the raw numbers, and one
+  summary per run so trends can be charted
+- ``report.json``: every chart as a Plotly figure and the numbers as tables,
+  in sections; the docs page renders it
 
-Any input may be omitted; the site keeps the last published numbers for it.
+and rewrites the table between the ``benchmarks`` markers in ``README.md``
+(``--readme``). Any input may be omitted; the committed numbers for it stay.
 """
 from __future__ import annotations
 
 import argparse
-import html
 import json
+import math
 import os
-import shutil
 import sys
+import time
+from datetime import datetime, timedelta
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-STATIC = os.path.join(HERE, "web")
+REPO_ROOT = os.path.dirname(HERE)
 HISTORY_LIMIT = 200
 
 # Interactive feel: a p95 frame delivery or callback round trip under this
@@ -50,10 +48,19 @@ def _load(path, default):
     return default
 
 
+def _read(path):
+    """An input the caller named: a missing file is a mistake, not a skip."""
+    if path is None:
+        return None
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def _dump(path, data):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=1)
+        f.write("\n")
 
 
 def _append(history, entry, key):
@@ -199,19 +206,6 @@ def _fmt(v, key=""):
     return str(v)
 
 
-def streaming_badges(run):
-    badges = {}
-    for s in run["setups"]:
-        cap, capped = capacity(s)
-        badges[f"streaming-{s['name']}"] = {
-            "schemaVersion": 1,
-            "label": f"streaming {s['label']}",
-            "message": f"{cap:,}{'+' if capped else ''} browsers",
-            "color": "blue",
-        }
-    return badges
-
-
 # --- callbacks ------------------------------------------------------------------
 
 # Server CPU is compared where every setup still keeps up.
@@ -355,28 +349,14 @@ def callbacks_table(run):
     return ["setup"] + [c for _, c in cols] + ["note"], rows
 
 
-def callbacks_badges(run):
-    badges = {}
-    for s in run["setups"]:
-        cap, capped = capacity(s, "rtt_p95_ms")
-        badges[f"callbacks-{s['name']}"] = {
-            "schemaVersion": 1,
-            "label": f"callbacks {s['label']}",
-            "message": f"{cap:,}{'+' if capped else ''} browsers",
-            "color": "blue",
-        }
-    return badges
-
-
 # --- renderer -----------------------------------------------------------------
 
 
 def _descriptions():
-    sys.path.insert(0, os.path.dirname(HERE))
+    sys.path.insert(0, REPO_ROOT)
     try:
-        from benchmarks.scenarios import (
-            SCENARIOS,
-        )  # pylint: disable=import-outside-toplevel
+        # pylint: disable-next=import-outside-toplevel
+        from benchmarks.scenarios import SCENARIOS
 
         return {name: sc.description for name, sc in SCENARIOS.items()}
     except Exception as err:  # pylint: disable=broad-except
@@ -469,163 +449,379 @@ def renderer_table(entry):
     ], rows
 
 
-# --- pages ----------------------------------------------------------------------
+# --- report -----------------------------------------------------------------------
+
+# A light theme; backgrounds stay transparent so the figures sit on any page.
+SERIES = {1: "#2a78d6", 2: "#eb6834", 3: "#1baf7a"}
+INK, INK_2, MUTED = "#0b0b0b", "#52514e", "#898781"
+GRID, AXIS = "#e1e0d9", "#c3c2b7"
+LEGEND = {
+    "orientation": "h",
+    "x": 0,
+    "y": 1.02,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "font": {"size": 12, "color": INK_2},
+}
 
 
-def _table(header, rows):
-    head = "".join(f"<th>{html.escape(h)}</th>" for h in header)
-    body = "".join(
-        "<tr>" + "".join(f"<td>{html.escape(str(c))}</td>" for c in r) + "</tr>"
-        for r in rows
+def _axis(spec, **extra):
+    spec = spec or {}
+    log = spec.get("type") == "log"
+    axis = {
+        "title": {"text": spec.get("title", ""), "font": {"size": 12, "color": INK_2}},
+        "type": spec.get("type", "linear"),
+        "rangemode": spec.get("rangemode", "normal"),
+        "gridcolor": GRID,
+        "linecolor": AXIS,
+        "zeroline": False,
+        "tickfont": {"size": 11, "color": MUTED},
+        "automargin": True,
+    }
+    if log:
+        # Label the decades only (1, 10, 100, ...).
+        axis["dtick"] = 1
+    axis.update(extra)
+    return axis
+
+
+def _layout(spec):
+    return {
+        "paper_bgcolor": "rgba(0,0,0,0)",
+        "plot_bgcolor": "rgba(0,0,0,0)",
+        "font": {
+            "family": 'system-ui, -apple-system, "Segoe UI", sans-serif',
+            "color": INK,
+        },
+        "margin": {"l": 8, "r": 16, "t": 8, "b": 8},
+        "xaxis": _axis(spec.get("xaxis")),
+        "yaxis": _axis(spec.get("yaxis")),
+        "showlegend": False,
+    }
+
+
+def _marker(hue):
+    return {"size": 8, "color": SERIES[hue], "line": {"width": 2, "color": "#fff"}}
+
+
+def _lines(spec):
+    data = [
+        {
+            "type": "scatter",
+            "mode": "lines+markers",
+            "name": t["name"],
+            "x": t["x"],
+            "y": t["y"],
+            "line": {"color": SERIES[t["hue"]], "width": 2, "dash": t["dash"]},
+            "marker": _marker(t["hue"]),
+            "hovertemplate": f"%{{x:,}} browsers<br>%{{y:,.1f}} {t['unit']}"
+            f"<extra>{t['name']}</extra>",
+        }
+        for t in spec["traces"]
+    ]
+    layout = _layout(spec)
+    # Label the x axis at the measured counts rather than log minor ticks.
+    xs = sorted({x for t in spec["traces"] for x in t["x"]})
+    if xs:
+        layout["xaxis"].pop("dtick", None)
+        layout["xaxis"]["tickvals"] = xs
+        layout["xaxis"]["ticktext"] = [f"{x:,}" for x in xs]
+    layout.update(showlegend=True, legend=LEGEND, hovermode="closest")
+    threshold = spec.get("threshold")
+    if threshold:
+        log = spec.get("yaxis", {}).get("type") == "log"
+        layout["shapes"] = [
+            {
+                "type": "line",
+                "xref": "paper",
+                "x0": 0,
+                "x1": 1,
+                "y0": threshold,
+                "y1": threshold,
+                "line": {"color": MUTED, "width": 1},
+            }
+        ]
+        layout["annotations"] = [
+            {
+                "xref": "paper",
+                "x": 0,
+                "yref": "y",
+                # Annotations on a log axis are placed in log units.
+                "y": math.log10(threshold) if log else threshold,
+                "xanchor": "left",
+                "yanchor": "bottom",
+                "showarrow": False,
+                "text": f"{threshold} ms",
+                "font": {"size": 11, "color": MUTED},
+            }
+        ]
+    return {"data": data, "layout": layout}
+
+
+def _hbar(spec):
+    bars = spec["bars"]
+    names = {item["hue"]: item["label"] for item in spec.get("legend", [])}
+    data = []
+    # One trace per colour so a legend can name them; overlaid, each bar keeps
+    # its full width on its own row.
+    for hue in sorted({b.get("hue", 1) for b in bars}):
+        group = [b for b in bars if b.get("hue", 1) == hue]
+        data.append(
+            {
+                "type": "bar",
+                "orientation": "h",
+                "name": names.get(hue, ""),
+                "y": [b["label"] for b in group],
+                "x": [b["value"] for b in group],
+                "text": [b["text"] for b in group],
+                "textposition": "outside",
+                "cliponaxis": False,
+                "textfont": {"size": 12, "color": INK_2},
+                "marker": {"color": SERIES[hue]},
+                "hovertext": [
+                    b.get("hover", f"{b['label']}: {b['text']}") for b in group
+                ],
+                "hoverinfo": "text",
+            }
+        )
+    layout = _layout(spec)
+    layout["yaxis"] = _axis(
+        {"type": "category"},
+        gridcolor="rgba(0,0,0,0)",
+        tickfont={"size": 12, "color": INK_2},
+        categoryorder="array",
+        categoryarray=[b["label"] for b in bars],
     )
-    return f'<div class="table-wrap"><table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
+    layout.update(bargap=0.35, barmode="overlay")
+    layout["margin"]["r"] = 64
+    if spec.get("legend"):
+        layout.update(showlegend=True, legend=LEGEND)
+    return {"data": data, "layout": layout}
 
 
-def _page(title, body, depth=0, embed=False):
-    up = "../" * depth
-    cls = "embed" if embed else "full"
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(title)}</title>
-<link rel="stylesheet" href="{up}style.css">
-<script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2.35.2/plotly-basic.min.js"></script>
-<script src="{up}charts.js"></script>
-</head>
-<body class="{cls}">
-{body}
-</body>
-</html>
-"""
-
-
-def _figure(chart, embed_url=None, embed=False):
-    # No "<" at all inside the inline script, so no data can end it early.
-    spec = json.dumps(chart).replace("<", "\\u003c")
-    snippet = ""
-    if embed_url:
-        code = (
-            f'<iframe src="{embed_url}" width="100%" height="460"'
-            f' style="border:0" title="{html.escape(chart["title"])}"></iframe>'
-        )
-        snippet = (
-            f'<details class="embed-code"><summary>Embed this chart</summary>'
-            f"<pre><code>{html.escape(code)}</code></pre></details>"
-        )
-    title = "h1" if embed else "h3"
-    home = (
-        ' &middot; <a href="../index.html" target="_blank">Dash benchmarks</a>'
-        if embed
-        else ""
-    )
-    return f"""<figure class="chart">
-<{title} class="chart-title">{html.escape(chart['title'])}</{title}>
-<p class="chart-sub">{html.escape(chart['subtitle'])}</p>
-<div class="plot" id="plot-{chart['id']}"></div>
-<p class="chart-source">{html.escape(chart['source'])}{home}</p>
-<script>renderChart(document.getElementById("plot-{chart['id']}"), {spec});</script>
-{snippet}
-</figure>"""
-
-
-def build(site, base_url, streaming, renderer, renderer_history, callbacks=None):
-    charts = []
-    if streaming:
-        charts += streaming_charts(streaming)
-    if callbacks:
-        charts += callbacks_charts(callbacks)
-    if renderer:
-        charts += renderer_charts(renderer, renderer_history)
-
-    for name in ("style.css", "charts.js"):
-        shutil.copy(os.path.join(STATIC, name), os.path.join(site, name))
-    os.makedirs(os.path.join(site, "embed"), exist_ok=True)
-    for chart in charts:
-        page = _page(
-            chart["title"],
-            _figure(chart, embed=True),
-            depth=1,
-            embed=True,
-        )
-        with open(
-            os.path.join(site, "embed", f"{chart['id']}.html"), "w", encoding="utf-8"
-        ) as f:
-            f.write(page)
-
-    def embed_url(chart):
-        return f"{base_url.rstrip('/')}/embed/{chart['id']}.html"
-
-    def section(title, intro, prefix, table):
-        figures = "".join(
-            _figure(c, embed_url(c)) for c in charts if c["id"].startswith(prefix)
-        )
-        return (
-            f"<section><h2>{title}</h2><p>{intro}</p>{figures}"
-            f"<h3>All measurements</h3>{_table(*table)}</section>"
+def _picker(spec):
+    """One trace per series and a dropdown that shows one at a time."""
+    names = list(spec["series"])
+    data = []
+    for i, name in enumerate(names):
+        s = spec["series"][name]
+        data.append(
+            {
+                "type": "scatter",
+                "mode": "lines+markers",
+                "name": name,
+                "x": s["x"],
+                "y": s["y"],
+                "customdata": s["commit"],
+                "visible": i == 0,
+                "line": {"color": SERIES[1], "width": 2},
+                "marker": _marker(1),
+                "hovertemplate": "%{x|%Y-%m-%d}<br>%{y:,.1f} ms<br>commit %{customdata}"
+                "<extra></extra>",
+            }
         )
 
+    def x_range(series):
+        if len(series["x"]) != 1:
+            return {"xaxis.autorange": True}
+        # One run so far: show a week around it, not a millisecond.
+        day = datetime.fromisoformat(series["x"][0].replace("Z", "+00:00"))
+        return {
+            "xaxis.range": [
+                (day - timedelta(days=3)).isoformat(),
+                (day + timedelta(days=3)).isoformat(),
+            ]
+        }
+
+    layout = _layout(spec)
+    layout["xaxis"].update(type="date", tickformat="%b %d")
+    if names:
+        first = spec["series"][names[0]]
+        if len(first["x"]) == 1:
+            layout["xaxis"]["range"] = x_range(first)["xaxis.range"]
+        layout["margin"]["t"] = 48
+        layout["updatemenus"] = [
+            {
+                "x": 0,
+                "y": 1.02,
+                "xanchor": "left",
+                "yanchor": "bottom",
+                "buttons": [
+                    {
+                        "label": name,
+                        "method": "update",
+                        "args": [
+                            {"visible": [n == name for n in names]},
+                            x_range(spec["series"][name]),
+                        ],
+                    }
+                    for name in names
+                ],
+            }
+        ]
+    return {"data": data, "layout": layout}
+
+
+def figure(spec):
+    """The chart spec as a Plotly figure (``data`` and ``layout``)."""
+    return {"lines": _lines, "hbar": _hbar, "picker": _picker}[spec["kind"]](spec)
+
+
+def _section(sid, title, intro, charts, table):
+    header, rows = table
+    return {
+        "id": sid,
+        "title": title,
+        "intro": intro,
+        "charts": [
+            {
+                "id": c["id"],
+                "title": c["title"],
+                "subtitle": c["subtitle"],
+                "source": c["source"],
+                "figure": figure(c),
+            }
+            for c in charts
+        ],
+        "table": {"header": header, "rows": rows},
+    }
+
+
+def report(streaming, renderer, renderer_history, callbacks=None):
+    """Every chart as a Plotly figure and the numbers as tables, in sections:
+    what the docs page renders."""
     sections = []
     if streaming:
         sections.append(
-            section(
+            _section(
+                "streaming",
                 "Streaming callbacks under load",
                 "Simulated browsers stream from one app, one setup at a time, with the"
                 " count raised until frames arrive late or fail. Each browser behaves"
                 " like the renderer: one shared downlink, a long NDJSON response on ASGI"
                 " and short polls on WSGI. Server and clients run on separate cores of"
                 " one machine.",
-                "streaming",
+                streaming_charts(streaming),
                 streaming_table(streaming),
             )
         )
     if callbacks:
         sections.append(
-            section(
+            _section(
+                "callbacks",
                 "Callbacks under load: HTTP vs websocket",
                 "The same callback served two ways: a POST per call, or messages on"
                 " one websocket per browser (FastAPI and Quart; Flask has no"
                 " websocket). Simulated browsers speak each protocol as the renderer"
                 " does, and the count is raised until responses come back late or"
                 " fail. Server and clients run on separate cores of one machine.",
-                "callbacks",
+                callbacks_charts(callbacks),
                 callbacks_table(callbacks),
             )
         )
     if renderer:
         sections.append(
-            section(
+            _section(
+                "renderer",
                 "Renderer",
                 "Each scenario runs as a real app in headless Chrome. Lower is better."
                 " Growth compares late to early operations: near 1x is flat, higher"
                 " means the cost grows with the page.",
-                "renderer",
+                renderer_charts(renderer, renderer_history),
                 renderer_table(renderer),
             )
         )
-    body = (
-        "<header><h1>Dash benchmarks</h1>"
-        '<p>Performance numbers for <a href="https://github.com/plotly/dash">Dash</a>,'
-        ' measured by the harness in <a href="https://github.com/plotly/dash/tree/dev/benchmarks">'
-        "benchmarks/</a> and published from CI. Every chart can be embedded. Raw numbers:"
-        ' <a href="data/streaming-latest.json">streaming</a>'
-        ' (<a href="data/streaming-history.json">history</a>),'
-        ' <a href="data/callbacks-latest.json">callbacks</a>'
-        ' (<a href="data/callbacks-history.json">history</a>),'
-        ' <a href="data/renderer-latest.json">renderer</a>'
-        ' (<a href="data/renderer-history.json">history</a>).</p></header>'
-        + "".join(sections)
+    return {"sections": sections}
+
+
+# --- README ------------------------------------------------------------------------
+
+README_START = "<!-- benchmarks:start -->"
+README_END = "<!-- benchmarks:end -->"
+NOT_MEASURED = "-"
+
+
+def _server(setup):
+    return (setup["backend"], setup["server"], setup["workers"])
+
+
+def readme_table(streaming, callbacks):
+    """Browsers each server setup keeps interactive, as a Markdown table."""
+    labels, cells = {}, {}
+    for s in (callbacks or {}).get("setups", []):
+        key = _server(s)
+        labels.setdefault(key, s["label"].rsplit(", ", 1)[0])
+        cap, capped = capacity(s, "rtt_p95_ms")
+        cells[key, s["transport"]] = f"{cap:,}{'+' if capped else ''}"
+    for s in (streaming or {}).get("setups", []):
+        key = _server(s)
+        labels.setdefault(key, s["label"])
+        cap, capped = capacity(s)
+        cells[key, "stream"] = f"{cap:,}{'+' if capped else ''}"
+    if not labels:
+        return "No published run yet."
+    backends = list(BACKEND_HUE)
+    order = sorted(
+        labels,
+        key=lambda k: (
+            backends.index(k[0]) if k[0] in backends else len(backends),
+            k[0],
+            k[2],
+        ),
     )
-    with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
-        f.write(_page("Dash benchmarks", body))
-    # Keep GitHub Pages from running the site through Jekyll.
-    open(os.path.join(site, ".nojekyll"), "w", encoding="utf-8").close()
+    lines = [
+        "| Server | Callbacks over HTTP | Callbacks over websocket | Streaming callbacks |",
+        "|---|--:|--:|--:|",
+    ]
+    for key in order:
+        row = [cells.get((key, col), NOT_MEASURED) for col in ("http", "ws", "stream")]
+        lines.append(f"| {labels[key]} | " + " | ".join(row) + " |")
+    runs = [r for r in (callbacks, streaming) if r]
+    where = sorted(
+        {
+            f"{r['meta']['date'][:10]}: server on {r['meta']['server_cpus']} cores"
+            f" ({r['meta']['runner']}), Dash {r['meta']['dash_version']}"
+            for r in runs
+        }
+    )
+    lines += [
+        "",
+        f"Concurrent browsers with p95 response under {CAPACITY_P95_MS} ms and under"
+        " 1% errors; + means the sweep stopped before the server fell behind."
+        " Flask has no websocket. Measured " + "; ".join(where) + ".",
+    ]
+    return "\n".join(lines)
+
+
+def update_readme(path, streaming, callbacks):
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    head, start, rest = text.partition(README_START)
+    _, end, tail = rest.partition(README_END)
+    if not start or not end:
+        raise SystemExit(f"{path} has no {README_START} ... {README_END} section")
+    table = readme_table(streaming, callbacks)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(f"{head}{start}\n{table}\n{end}{tail}")
+
+
+def _publish_load(run, out, name, metric):
+    """Commit a load run: its numbers, and a capacity summary in its history."""
+    _dump(os.path.join(out, f"{name}-latest.json"), run)
+    history = _load(os.path.join(out, f"{name}-history.json"), [])
+    summary = {
+        "date": run["meta"]["date"],
+        "commit": run["meta"]["commit"],
+        "runner": run["meta"]["runner"],
+        "capacity": {s["name"]: capacity(s, metric)[0] for s in run["setups"]},
+    }
+    _dump(os.path.join(out, f"{name}-history.json"), _append(history, summary, "date"))
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--site", required=True)
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n", maxsplit=1)[0])
+    parser.add_argument("--dir", default=os.path.join(HERE, "results"))
+    parser.add_argument("--readme", default=os.path.join(REPO_ROOT, "README.md"))
     parser.add_argument("--renderer", help="results.json from benchmarks.run")
     parser.add_argument(
         "--streaming", help="results.json from benchmarks.streaming.load"
@@ -638,75 +834,51 @@ def main(argv=None):
     parser.add_argument(
         "--runner", default=os.environ.get("BENCH_RUNNER", "local machine")
     )
-    parser.add_argument(
-        "--base-url",
-        default="https://plotly.github.io/dash",
-        help="where the site is served, for the embed snippets",
-    )
     args = parser.parse_args(argv)
+    out = args.dir
+    os.makedirs(out, exist_ok=True)
 
-    site = args.site
-    data = os.path.join(site, "data")
-    os.makedirs(data, exist_ok=True)
+    for name, path, metric in (
+        ("streaming", args.streaming, "latency_p95_ms"),
+        ("callbacks", args.callbacks, "rtt_p95_ms"),
+    ):
+        run = _read(path)
+        if run:
+            _publish_load(run, out, name, metric)
 
-    streaming = _load(args.streaming, None)
-    if streaming:
-        _dump(os.path.join(data, "streaming-latest.json"), streaming)
-        history = _load(os.path.join(data, "streaming-history.json"), [])
-        summary = {
-            "date": streaming["meta"]["date"],
-            "commit": streaming["meta"]["commit"],
-            "runner": streaming["meta"]["runner"],
-            "capacity": {s["name"]: capacity(s)[0] for s in streaming["setups"]},
-        }
-        _dump(
-            os.path.join(data, "streaming-history.json"),
-            _append(history, summary, "date"),
-        )
-        for name, badge in streaming_badges(streaming).items():
-            _dump(os.path.join(site, "badges", f"{name}.json"), badge)
-    else:
-        streaming = _load(os.path.join(data, "streaming-latest.json"), None)
-
-    callbacks = _load(args.callbacks, None)
-    if callbacks:
-        _dump(os.path.join(data, "callbacks-latest.json"), callbacks)
-        history = _load(os.path.join(data, "callbacks-history.json"), [])
-        summary = {
-            "date": callbacks["meta"]["date"],
-            "commit": callbacks["meta"]["commit"],
-            "runner": callbacks["meta"]["runner"],
-            "capacity": {
-                s["name"]: capacity(s, "rtt_p95_ms")[0] for s in callbacks["setups"]
-            },
-        }
-        _dump(
-            os.path.join(data, "callbacks-history.json"),
-            _append(history, summary, "date"),
-        )
-        for name, badge in callbacks_badges(callbacks).items():
-            _dump(os.path.join(site, "badges", f"{name}.json"), badge)
-    else:
-        callbacks = _load(os.path.join(data, "callbacks-latest.json"), None)
-
-    renderer_history = _load(os.path.join(data, "renderer-history.json"), [])
-    results = _load(args.renderer, None)
+    results = _read(args.renderer)
     if results:
-        import time  # pylint: disable=import-outside-toplevel
-
         entry = {
             "date": args.date or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "commit": args.commit,
             "runner": args.runner,
             "results": results,
         }
-        renderer_history = _append(renderer_history, entry, "date")
-        _dump(os.path.join(data, "renderer-latest.json"), entry)
-        _dump(os.path.join(data, "renderer-history.json"), renderer_history)
-    renderer = _load(os.path.join(data, "renderer-latest.json"), None)
+        # The trend only charts medians; full stats stay in renderer-latest.
+        trend = {
+            **entry,
+            "results": {
+                scenario: {m: {"median": st["median"]} for m, st in metrics.items()}
+                for scenario, metrics in results.items()
+            },
+        }
+        history = _load(os.path.join(out, "renderer-history.json"), [])
+        _dump(os.path.join(out, "renderer-latest.json"), entry)
+        _dump(
+            os.path.join(out, "renderer-history.json"),
+            _append(history, trend, "date"),
+        )
 
-    build(site, args.base_url, streaming, renderer, renderer_history, callbacks)
-    print(f"site written to {site}")
+    streaming = _load(os.path.join(out, "streaming-latest.json"), None)
+    callbacks = _load(os.path.join(out, "callbacks-latest.json"), None)
+    renderer = _load(os.path.join(out, "renderer-latest.json"), None)
+    renderer_history = _load(os.path.join(out, "renderer-history.json"), [])
+    _dump(
+        os.path.join(out, "report.json"),
+        report(streaming, renderer, renderer_history, callbacks),
+    )
+    update_readme(args.readme, streaming, callbacks)
+    print(f"results written to {out}, README table to {args.readme}")
     return 0
 
 

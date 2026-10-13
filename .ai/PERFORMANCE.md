@@ -95,7 +95,7 @@ production bundle, runs the harness against `baseline.json`, and:
 Thresholds live per-scenario in `scenarios.py` (`warn_ms` / `fail_ms`, keyed by
 metric). Keep them generous: this is a smoke alarm, not a microbenchmark.
 
-## Streaming load test and the public site
+## Load tests and published numbers
 
 `benchmarks/streaming/` measures streaming-callback capacity per server setup
 (see `benchmarks/README.md` for how to run it). Simulated browsers follow the
@@ -132,8 +132,9 @@ deployed app, on as many machines as needed. Pitfalls it guards against:
 - `page.on("websocket")` does not see sockets opened by a SharedWorker; to
   confirm a click went over the websocket, check that it made no HTTP POST.
 
-`benchmarks/publish.py` turns results into the site on `gh-pages`
-(`.github/workflows/benchmarks-publish.yml`).
+`benchmarks/publish.py` commits results to `benchmarks/results/` (read by the
+docs) and the table in `README.md`, through a weekly pull request from
+`.github/workflows/benchmarks-publish.yml`.
 
 ## Profiling a slow scenario
 

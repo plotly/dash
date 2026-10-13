@@ -1,19 +1,15 @@
 name: Publish Benchmarks
 
-# Measures the benchmarks on the dev branch and publishes them to GitHub
-# Pages (the gh-pages branch): every chart as an embeddable page, the raw JSON
-# and its history. Renderer timings run on every push to dev; the streaming
-# and callback load sweeps take 30-60 minutes each, so they run weekly and on
-# demand.
+# Measures the benchmarks on the dev branch and opens a pull request that
+# commits the numbers (benchmarks/results/, read by the docs) and the table in
+# README.md. The streaming and callback load sweeps take 30-60 minutes each,
+# so everything runs weekly and on demand.
+#
+# Needs "Allow GitHub Actions to create and approve pull requests" in the
+# repo settings. A pull request opened with GITHUB_TOKEN starts no other
+# workflows: close and reopen it to run the checks before merging.
 
 on:
-  push:
-    branches: [dev]
-    paths:
-      - 'dash/**'
-      - 'benchmarks/**'
-      - 'components/**'
-      - '@plotly/**'
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
@@ -147,9 +143,9 @@ jobs:
           path: benchmarks/callbacks/results.json
 
   publish:
-    name: Publish to GitHub Pages
+    name: Open the results pull request
     needs: [renderer, streaming, callbacks]
-    # Only dev's numbers go public, even when a dispatch runs elsewhere.
+    # Only dev's numbers are committed, even when a dispatch runs elsewhere.
     if: >-
       always() && github.ref == 'refs/heads/dev' &&
       (needs.renderer.result == 'success' || needs.streaming.result == 'success' ||
@@ -157,25 +153,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+    env:
+      BRANCH: benchmarks/update-results
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check out gh-pages
-        run: |
-          if git ls-remote --exit-code --heads origin gh-pages; then
-            git fetch origin gh-pages
-            git worktree add site origin/gh-pages
-            git -C site switch -c gh-pages
-          else
-            git worktree add --detach site
-            git -C site switch --orphan gh-pages
-          fi
       - uses: actions/download-artifact@v4
         with:
           path: results
-      - name: Build the site
+      - name: Update the results
         env:
           BENCH_RUNNER: GitHub Actions ubuntu-latest
         run: |
@@ -184,17 +173,24 @@ jobs:
           [ -f results/streaming-results/results.json ] && args="$args --streaming results/streaming-results/results.json"
           [ -f results/callbacks-results/results.json ] && args="$args --callbacks results/callbacks-results/results.json"
           python -m pip install -e .
-          python -m benchmarks.publish --site site --commit "${GITHUB_SHA::9}" \
-            --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" $args
-      - name: Push
+          python -m benchmarks.publish --commit "${GITHUB_SHA::9}" $args
+      - name: Open or update the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cd site
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add benchmarks/results README.md
           if git diff --cached --quiet; then
             echo "Nothing changed."
             exit 0
           fi
-          git commit -m "Publish benchmarks for ${GITHUB_SHA::9}"
-          git push origin gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git commit -m "Update benchmark results for ${GITHUB_SHA::9}"
+          # Each run starts from dev, so an unmerged run is replaced, not stacked.
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --base dev --head "$BRANCH" \
+              --title "Update benchmark results" \
+              --body "Weekly benchmark numbers from ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Merge to update the README table and the docs."
+          fi
