@@ -201,9 +201,7 @@ class Browser(DashPageMixin):
         except WebDriverException as err:
             logger.warning("visual snapshot %s failed: %s", name, err)
         finally:
-            self.driver.set_window_size(
-                original_size["width"], original_size["height"]
-            )
+            self.driver.set_window_size(original_size["width"], original_size["height"])
 
     def take_snapshot(self, name: str):
         """Hook method to take snapshot when a selenium test fails. The
