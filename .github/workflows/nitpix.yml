@@ -21,6 +21,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: read          # download the nitpix-snapshots-* artifacts from the test run
   contents: write        # push to the nitpix-baselines branch
   pull-requests: write   # the review comment
   statuses: write        # the nitpix/visual check
