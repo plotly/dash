@@ -552,57 +552,63 @@ def _setup_background_callback(
     if not callback_manager:
         return to_json({"error": "No background callback manager configured"})
 
-    progress_outputs = background.get("progress")
+    try:
+        progress_outputs = background.get("progress")
 
-    cache_ignore_triggered = background.get("cache_ignore_triggered", True)
+        cache_ignore_triggered = background.get("cache_ignore_triggered", True)
 
-    cache_key = callback_manager.build_cache_key(
-        func,
-        func_args if func_args else func_kwargs,
-        background.get("cache_args_to_ignore", []),
-        None if cache_ignore_triggered else callback_ctx.get("triggered_inputs", []),
-    )
-    job_fn = callback_manager.func_registry.get(background_key)
-    ctx_value = AttributeDict(**context_value.get())
-    ctx_value.ignore_register_page = True
-    ctx_value.pop("background_callback_manager")
-    ctx_value.pop("dash_response")
+        cache_key = callback_manager.build_cache_key(
+            func,
+            func_args if func_args else func_kwargs,
+            background.get("cache_args_to_ignore", []),
+            None
+            if cache_ignore_triggered
+            else callback_ctx.get("triggered_inputs", []),
+        )
+        job_fn = callback_manager.func_registry.get(background_key)
+        ctx_value = AttributeDict(**context_value.get())
+        ctx_value.ignore_register_page = True
+        ctx_value.pop("background_callback_manager")
+        ctx_value.pop("dash_response")
 
-    args_value = ctx_value.get("args")
-    if args_value is not None and not isinstance(args_value, dict):
-        ctx_value["args"] = dict(args_value)
+        args_value = ctx_value.get("args")
+        if args_value is not None and not isinstance(args_value, dict):
+            ctx_value["args"] = dict(args_value)
 
-    job = callback_manager.call_job_fn(
-        cache_key,
-        job_fn,
-        func_args if func_args else func_kwargs,
-        ctx_value,
-    )
+        job = callback_manager.call_job_fn(
+            cache_key,
+            job_fn,
+            func_args if func_args else func_kwargs,
+            ctx_value,
+        )
 
-    # Sign the handles before handing them to the browser so they cannot be
-    # forged (arbitrary pid kill / arbitrary cache read) or replayed from
-    # another page load. The renderer treats them as opaque strings.
-    secret = _get_signing_secret()
-    end_id = get_request_end_id(secret)
-    data = {
-        "cacheKey": _callback_signing.sign(
-            secret, _callback_signing.cache_scope(end_id), cache_key
-        ),
-        "job": _callback_signing.sign(
-            secret, _callback_signing.job_scope(end_id), str(job)
-        ),
-    }
-
-    cancel = background.get("cancel")
-    if cancel:
-        data["cancel"] = cancel
-
-    progress_default = background.get("progressDefault")
-    if progress_default:
-        data["progressDefault"] = {
-            str(o): x for o, x in zip(progress_outputs, progress_default)
+        # Sign the handles before handing them to the browser so they cannot be
+        # forged (arbitrary pid kill / arbitrary cache read) or replayed from
+        # another page load. The renderer treats them as opaque strings.
+        secret = _get_signing_secret()
+        end_id = get_request_end_id(secret)
+        data = {
+            "cacheKey": _callback_signing.sign(
+                secret, _callback_signing.cache_scope(end_id), cache_key
+            ),
+            "job": _callback_signing.sign(
+                secret, _callback_signing.job_scope(end_id), str(job)
+            ),
         }
-    return to_json(data)
+
+        cancel = background.get("cancel")
+        if cancel:
+            data["cancel"] = cancel
+
+        progress_default = background.get("progressDefault")
+        if progress_default:
+            data["progressDefault"] = {
+                str(o): x for o, x in zip(progress_outputs, progress_default)
+            }
+        return to_json(data)
+    except Exception:  # pylint: disable=broad-exception-caught
+        logger.exception("Error setting up background callback")
+        return to_json({"error": "Error setting up background callback"})
 
 
 def _read_request_handles():
@@ -958,6 +964,7 @@ def register_callback(
                     if output_value is None and output_spec:
                         output_value = NoUpdate()
                 else:
+                    print(err)
                     raise err
 
             _prepare_response(
