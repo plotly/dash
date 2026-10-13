@@ -1,10 +1,12 @@
 # The swarm agent: headless Chromium users driven by Playwright.
 #   docker build -t dash-swarm-agent benchmarks/swarm
 #   docker run --rm --init --ipc=host dash-swarm-agent --target http://app:8050 --users 50
-# The playwright version must match the image tag.
+# The image ships the browsers but not the Python package: install it at the
+# version that matches the tag.
 FROM mcr.microsoft.com/playwright/python:v1.63.0-noble
 
-RUN python3 -m pip install --no-cache-dir --break-system-packages "psutil>=7"
+RUN python3 -m pip install --no-cache-dir --break-system-packages \
+    "playwright==1.63.0" "psutil>=7"
 COPY agent.py histogram.py /swarm/
 # The image's unprivileged user.
 USER pwuser
