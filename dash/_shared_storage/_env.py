@@ -5,7 +5,7 @@ call. Only used when the app did not pass ``shared_storage=``.
 """
 
 import functools
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 from urllib.parse import parse_qsl, unquote, urlencode, urlparse
 
 from ..exceptions import InvalidConfig
@@ -27,7 +27,7 @@ def _invalid(reason: str) -> InvalidConfig:
 def _redis_from_url(raw: str) -> Any:
     parsed = urlparse(raw)
     query = parse_qsl(parsed.query, keep_blank_values=True)
-    kwargs = {}
+    kwargs: Dict[str, Any] = {}
     rest = []
     for key, value in query:
         if key == "key_prefix":
