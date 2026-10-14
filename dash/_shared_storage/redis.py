@@ -120,6 +120,20 @@ def _lifetime_of(fields: dict) -> Optional[int]:
     return int(raw) if raw else None
 
 
+def _block_cap_ms(client: Any) -> Optional[int]:
+    """The longest XREAD block that returns before the client's socket timeout
+    fires: half of it. redis-py 8 defaults the timeout to 5 s, which a 5 s block
+    on a quiet stream would hit."""
+    try:
+        pool = client.connection_pool
+        # Read off a connection (never opened): the effective value, defaults
+        # included, which the pool's kwargs leave out.
+        timeout = pool.connection_class(**pool.connection_kwargs).socket_timeout
+    except Exception:  # pylint: disable=broad-except
+        return None
+    return None if timeout is None else max(1, int(timeout * 1000) // 2)
+
+
 def _key_of(key: Any) -> str:
     return key.decode() if isinstance(key, bytes) else key
 
@@ -230,6 +244,7 @@ class _StreamReader:
         self._renewed_at = time.monotonic()
         self._wake_key = f"{storage._prefix}:wake:{secrets.token_hex(8)}"
         self._wake_id = "0-0"
+        self._block_cap = _block_cap_ms(client)
         self._task: Optional["asyncio.Task[None]"] = None
 
     async def add(self, sub: RedisSubscription, lifetime_ms: Optional[int]) -> None:
@@ -333,6 +348,8 @@ class _StreamReader:
                 streams = {key: f"{start}-0" for key, start in starts.items()}
                 streams[self._wake_key] = self._wake_id
                 block_ms = int((self._renew_due() - time.monotonic()) * 1000)
+                if self._block_cap is not None:
+                    block_ms = min(block_ms, self._block_cap)
                 result = await self._client.xread(streams, block=max(1, block_ms))
                 if result:
                     self._dispatch(result, starts)
@@ -377,6 +394,7 @@ class RedisSharedStorage(BaseSharedStorage):
             self._redis = redis.Redis.from_url(url)
             self._owns_client = True
         self._url = url if client is None else None
+        self._block_cap = _block_cap_ms(self._redis)
         self._prefix = key_prefix
         self._buffer_size = buffer_size
         self._publish_script: Any = None
@@ -534,6 +552,8 @@ class RedisSharedStorage(BaseSharedStorage):
         block_ms = int(timeout * 1000)
         if lifetime_ms is not None:
             block_ms = min(block_ms, int(lifetime_ms) // 3)
+        if self._block_cap is not None:
+            block_ms = min(block_ms, self._block_cap)
         entries = self._redis.xread({stream: f"{after_seq}-0"}, block=max(1, block_ms))
         if not entries:
             return PollResult([], after_seq, False)

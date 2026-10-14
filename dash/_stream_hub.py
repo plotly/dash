@@ -263,6 +263,8 @@ class Downlink:
                 yield {**message, "seq": seq}
         except SharedStorageGap:
             yield dict(RESET_ENVELOPE)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            _log_downlink_failure(exc)
         finally:
             self.close()
 
@@ -274,6 +276,8 @@ class Downlink:
                 yield {**message, "seq": seq}
         except SharedStorageGap:
             yield dict(RESET_ENVELOPE)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            _log_downlink_failure(exc)
         finally:
             if self._release():
                 # Its own task: when the client disconnects, the server cancels
@@ -284,6 +288,17 @@ class Downlink:
                     task = asyncio.ensure_future(self._arecord_closed())
                     _closing_downlinks.add(task)
                     task.add_done_callback(_closing_downlinks.discard)
+
+
+def _log_downlink_failure(exc: Exception) -> None:
+    # The response has started, so raising only gets the server to try a 500
+    # on top of it. Ending the body lets the browser reconnect and replay.
+    logger.warning(
+        "Stream downlink ended, shared storage failed: %s: %s",
+        type(exc).__name__,
+        exc,
+    )
+    logger.debug("Stream downlink storage failure", exc_info=exc)
 
 
 # Downlinks writing their closed record (keeps the tasks referenced).

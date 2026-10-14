@@ -344,6 +344,43 @@ def test_cancelled_async_downlink_still_records_closed():
     storage.close()
 
 
+@pytest.mark.parametrize("flavor", ["sync", "async"])
+def test_downlink_ends_quietly_when_storage_fails(flavor, monkeypatch, caplog):
+    """The response has already started, so a storage error must end the body
+    for the browser to reconnect, not reach the server as a traceback."""
+    from dash import _stream_hub as hub
+
+    storage = _storage(f"fail-{flavor}")
+    cid = f"c-fail-{flavor}"
+    downlink = hub.Downlink(storage, cid)
+
+    def boom(*_args, **_kwargs):
+        raise ConnectionError("store unreachable")
+        yield  # pylint: disable=unreachable
+
+    async def aboom(*_args, **_kwargs):
+        raise ConnectionError("store unreachable")
+        yield  # pylint: disable=unreachable
+
+    monkeypatch.setattr(downlink.subscription, "iter_with_seq", boom)
+    monkeypatch.setattr(downlink.subscription, "aiter_with_seq", aboom)
+
+    if flavor == "sync":
+        assert list(downlink.envelopes()) == []
+    else:
+
+        async def scenario():
+            out = [env async for env in downlink.aenvelopes()]
+            await asyncio.gather(*hub._closing_downlinks)
+            return out
+
+        assert asyncio.run(scenario()) == []
+
+    assert "shared storage failed: ConnectionError: store unreachable" in caplog.text
+    assert storage.get(hub.connection_key(cid))["open"] is False
+    storage.close()
+
+
 def _cancellation_probe():
     """An endless async frame generator that records its cancellation."""
     state = {"cancelled": False, "frames": 0}

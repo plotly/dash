@@ -293,6 +293,31 @@ def test_async_path_with_a_passed_client():
     client.close()
 
 
+@pytest.mark.parametrize("flavor", ["sync", "async"])
+def test_quiet_topic_outlasts_the_socket_timeout(flavor):
+    """redis-py 8 times sockets out after 5 s, as long as an XREAD block: a
+    topic quiet for longer must not kill its subscribers."""
+    store = RedisSharedStorage(
+        url=f"{REDIS_URL}?socket_timeout=0.5",
+        key_prefix=f"dash:sstest:{uuid.uuid4().hex[:12]}",
+    )
+    sub = store.subscribe("t")
+
+    if flavor == "sync":
+        threading.Timer(1.5, store.publish, ("t", "m")).start()
+        assert _drain(sub, 1) == ["m"]
+    else:
+
+        async def scenario():
+            reader = asyncio.ensure_future(_first(sub))
+            await asyncio.sleep(1.5)
+            await store.apublish("t", "m")
+            return await asyncio.wait_for(reader, timeout=2)
+
+        assert asyncio.run(scenario()) == (1, "m")
+    store.close()
+
+
 def test_async_subscriber_joining_behind_a_read_in_flight_gets_no_false_gap(store):
     """A reconnecting downlink replays from behind while another subscription to
     the same topic is parked in the reader's XREAD: the read in flight started
