@@ -25,10 +25,10 @@ logger = logging.getLogger()
 
 
 def to_json(value):
-    # pylint: disable=import-outside-toplevel
-    from plotly.io.json import to_json_plotly  # type: ignore[import-untyped]
+    # pylint: disable-next=import-outside-toplevel
+    from ._json import to_json as _to_json
 
-    return to_json_plotly(value)
+    return _to_json(value)
 
 
 def interpolate_str(template, **data):
