@@ -20,6 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/nitpix')
     steps:
-      - uses: plotly/nitpix/approve@main # TODO: pin to @v1 once released
+      - uses: plotly/nitpix/approve@ab5cf6a797cd5d5d12821b1339cf429f7063edc3 # 2026-07-08, TODO: move to @v1 once released
         with:
           baseline-branch: nitpix-baselines
