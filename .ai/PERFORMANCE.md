@@ -271,13 +271,23 @@ The fix belongs in plotly.py, not Dash:
 - pass `default=` to `orjson.dumps` so only the non-native values are
   converted, keeping the old path as a fallback on `TypeError`;
 - give figures and traces a `_to_json_dict()` that skips the `deepcopy` and
-  copies only the containers the base64 conversion changes;
+  copies only the containers the base64 conversion changes; skip lists of
+  scalars with one `set(map(type, lst))` check instead of a Python loop;
 - in `PlotlyJSONEncoder.default`, return `isoformat()` first for exact
   `datetime`/`date` (it now tries five encoders that raise before that one).
 
-A local patch to plotly 6.7 doing this brought every orjson "+ value" case to
-the figure-alone time, `go.Figure` and layouts to 16-27 ms, and the stdlib list
-of datetime from 354 to 106 ms. Its JSON was identical except numpy
-`datetime64`, which then always uses orjson's short form
-(`2024-01-01T00:00:00`), as the fast path already did. Lists of floats without
-orjson stay at ~50 ms: that is the stdlib encoder itself.
+A local patch to plotly 6.7 doing this brought every orjson case within ~3 ms
+of the figure alone (list of datetime as `go.Figure` or in a layout: 375 ->
+11 ms), and the stdlib list of datetime from 354 to 109 ms. Its JSON was
+identical except numpy `datetime64`, which then always uses orjson's short
+form (`2024-01-01T00:00:00`), as the fast path already did.
+
+Without orjson, what is left is the stdlib encoder: 200k floats take ~50 ms,
+and 200k datetimes ~70 ms just to make their `isoformat()` strings, before
+encoding. Bulk conversion does not help: numpy, pandas and pyarrow all pay
+per object to read a list of datetimes (77-149 ms), and pyarrow casts a
+timestamp column to strings in 5 ms but has no JSON writer for a nested
+response, so the strings come back out as Python objects at the same cost.
+Native encoders write bytes without Python objects: orjson and msgspec do
+200k floats in ~5 ms and 200k datetimes in 2-4 ms. Making orjson a Dash
+dependency is the change that helps every case.
