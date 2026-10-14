@@ -6,6 +6,7 @@ which the client's single downlink relays them). Exercised over the real HTTP
 dispatch on all three backends (Flask WSGI, Quart + FastAPI ASGI).
 """
 import asyncio
+import contextlib
 import json
 import threading
 import time
@@ -284,6 +285,7 @@ def test_downlink_gone_semantics(monkeypatch):
     assert hub.downlink_gone(storage, cid, started - 2.0, grace=1.0)
 
     downlink = hub.Downlink(storage, cid)
+    downlink.open()
     assert not hub.downlink_gone(storage, cid, started - 100, grace=0.0)
     downlink.close()
     # Closed long before this pump started: the client may be about to open a
@@ -300,11 +302,83 @@ def test_replaced_downlink_does_not_mark_the_new_one_closed():
     storage = _storage("replace")
     cid = "c2"
     old = hub.Downlink(storage, cid)
+    old.open()
     new = hub.Downlink(storage, cid, replay_from=0)  # the client reconnected
+    new.open()
     old.close()  # the stale relay winds down late
     assert storage.get(hub.connection_key(cid))["open"] is True
     new.close()
     assert storage.get(hub.connection_key(cid))["open"] is False
+
+
+def test_cancelled_async_downlink_still_records_closed():
+    """A client disconnect cancels the ASGI response mid-relay; the closed record
+    must still be written, or pumps never learn the browser left."""
+    from dash import _stream_hub as hub
+
+    storage = _storage("acancel")
+    cid = "c3"
+
+    async def scenario():
+        downlink = hub.Downlink(storage, cid)
+        envelopes = downlink.aenvelopes()
+
+        async def relay():
+            async for _env in envelopes:
+                pass
+
+        task = asyncio.ensure_future(relay())
+        await asyncio.sleep(0.2)
+        assert (await storage.aget(hub.connection_key(cid)))["open"] is True
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+        assert downlink.subscription not in hub._active_subscriptions
+        for _ in range(50):
+            if not (await storage.aget(hub.connection_key(cid)))["open"]:
+                return True
+            await asyncio.sleep(0.02)
+        return False
+
+    assert asyncio.run(scenario())
+    storage.close()
+
+
+@pytest.mark.parametrize("flavor", ["sync", "async"])
+def test_downlink_ends_quietly_when_storage_fails(flavor, monkeypatch, caplog):
+    """The response has already started, so a storage error must end the body
+    for the browser to reconnect, not reach the server as a traceback."""
+    from dash import _stream_hub as hub
+
+    storage = _storage(f"fail-{flavor}")
+    cid = f"c-fail-{flavor}"
+    downlink = hub.Downlink(storage, cid)
+
+    def boom(*_args, **_kwargs):
+        raise ConnectionError("store unreachable")
+        yield  # pylint: disable=unreachable
+
+    async def aboom(*_args, **_kwargs):
+        raise ConnectionError("store unreachable")
+        yield  # pylint: disable=unreachable
+
+    monkeypatch.setattr(downlink.subscription, "iter_with_seq", boom)
+    monkeypatch.setattr(downlink.subscription, "aiter_with_seq", aboom)
+
+    if flavor == "sync":
+        assert list(downlink.envelopes()) == []
+    else:
+
+        async def scenario():
+            out = [env async for env in downlink.aenvelopes()]
+            await asyncio.gather(*hub._closing_downlinks)
+            return out
+
+        assert asyncio.run(scenario()) == []
+
+    assert "shared storage failed: ConnectionError: store unreachable" in caplog.text
+    assert storage.get(hub.connection_key(cid))["open"] is False
+    storage.close()
 
 
 def _cancellation_probe():
@@ -374,6 +448,7 @@ def test_async_pump_cancels_callback_when_downlink_gone(monkeypatch):
     storage = _storage("apump")
     cid = "c5"
     downlink = hub.Downlink(storage, cid)
+    downlink.open()
 
     async def scenario():
         state, frames = _cancellation_probe()
@@ -408,6 +483,7 @@ def test_stream_cancel_stops_sync_pump_while_downlink_stays_open(monkeypatch):
     storage = _storage("cancel-pump")
     cid = "c6"
     downlink = hub.Downlink(storage, cid)  # stays open: other tabs still stream
+    downlink.open()
     state, frames = _cancellation_probe()
     marker = StreamedCallbackResponse(frames, is_async=True)
     pump = hub.pump_to_storage(storage, cid, "r1", marker)
@@ -594,7 +670,7 @@ def test_wsgi_pumps_share_one_loop_thread():
     from dash._streaming import StreamedCallbackResponse
 
     storage = _storage("pumploop")
-    hub.Downlink(storage, "c10")  # a browser is present
+    hub.Downlink(storage, "c10").open()  # a browser is present
     pumps = []
     for i in range(25):
         _state, frames = _cancellation_probe()
@@ -623,7 +699,7 @@ def test_wsgi_pump_loop_survives_an_exception_raised_into_it():
     from dash._streaming import StreamedCallbackResponse
 
     storage = _storage("pumprestart")
-    hub.Downlink(storage, "c11")
+    hub.Downlink(storage, "c11").open()
     hub._shared_pump_loop()  # pylint: disable=protected-access
     thread = hub._pump_thread  # pylint: disable=protected-access
     _state, frames = _cancellation_probe()
