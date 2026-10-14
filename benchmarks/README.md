@@ -132,11 +132,25 @@ Reports from any number of agents merge exactly (`swarm/aggregate.py`):
 python -m benchmarks.swarm.aggregate reports/*.json --out swarm.json
 ```
 
+## Serialization (`serialization/`)
+
+How long Dash takes to turn a callback response or a layout into JSON, on the
+server, for one large figure: alone, next to a small value orjson cannot
+serialize (`html.Div`, `pd.Timestamp`), returned as a `go.Figure` object, and
+inside a layout. Runs once with orjson and once with its import blocked (issue
+#4065).
+
+```bash
+python -m benchmarks.serialization.bench
+python -m benchmarks.serialization.bench --case list_float+div --engine json --points 100000
+```
+
 ## Publishing (`publish.py`)
 
 `.github/workflows/benchmarks-publish.yml` measures on `dev` weekly (and on
 demand). Only when the numbers moved enough to matter (a load test's capacity
-changes step, or a renderer median moves by over 25% and 5 ms) does it open a
+changes step, a renderer median moves by over 25% and 5 ms, or a serialization
+median by over 25% and 5 ms) does it open a
 pull request that commits them to `results/` and the table in the repo's
 `README.md`; the pull request lists what moved. `results/` holds the raw numbers
 (`*-latest.json`), one summary per run (`*-history.json`), and `report.json`:
@@ -146,5 +160,6 @@ renders. To update them locally:
 ```bash
 python -m benchmarks.publish \
     --renderer benchmarks/results.json --streaming benchmarks/streaming/results.json \
-    --callbacks benchmarks/callbacks/results.json
+    --callbacks benchmarks/callbacks/results.json \
+    --serialization benchmarks/serialization/results.json
 ```

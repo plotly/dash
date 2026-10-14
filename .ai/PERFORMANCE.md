@@ -132,6 +132,12 @@ deployed app, on as many machines as needed. Pitfalls it guards against:
 - `page.on("websocket")` does not see sockets opened by a SharedWorker; to
   confirm a click went over the websocket, check that it made no HTTP POST.
 
+`benchmarks/serialization/` times `dash._utils.to_json` (plotly's
+`to_json_plotly`) on one large figure, alone and next to a small value orjson
+cannot serialize, plus the figure inside a layout. Each engine runs in its own
+process; the stdlib one blocks the orjson import, so it is a real install
+without orjson, not just a config switch. See finding 6.
+
 `benchmarks/publish.py` commits results to `benchmarks/results/` (read by the
 docs) and the table in `README.md`. `.github/workflows/benchmarks-publish.yml`
 runs weekly and opens a pull request only when the numbers moved
@@ -240,3 +246,38 @@ exists for growing containers; it is kept as a contrast with loose thresholds.
 limit) for a component tree nested deeper than ~254. The `deep_nesting`
 scenario is capped at 120 to stay clear. Worth remembering before recommending
 deeply-recursive layouts.
+
+### 6. One non-native value sends the whole response down plotly's slow path (#4065)
+
+With orjson, `to_json_plotly` tries `orjson.dumps` on the whole response. If
+any value is not orjson-native (a component, a `go.Figure` object, a
+`pd.Timestamp`), it discards the attempt, walks everything in Python with
+`clean_to_json_compatible`, then dumps again. A `go.Figure` also pays a
+`deepcopy` of its data in `to_dict()`. Layouts always take this path, since
+they are made of components. The cost scales with the number of Python-level
+values in the response: numpy arrays pass through the walk whole, lists of
+floats or datetimes are visited one value at a time. 10 traces x 20k points,
+Python 3.13, plotly 6.7:
+
+| figure data | alone | + html.Div | as go.Figure | in a layout | no orjson, alone |
+|--|--:|--:|--:|--:|--:|
+| numpy array | 3 ms | 3 ms | 5 ms | 5 ms | 10 ms |
+| list of float | 6 ms | 40 ms | 75 ms | 75 ms | 52 ms |
+| pd.DatetimeIndex | 14 ms | 50 ms | 42 ms | 42 ms | 75 ms |
+| list of datetime | 8 ms | 171 ms | 375 ms | 373 ms | 354 ms |
+
+The fix belongs in plotly.py, not Dash:
+
+- pass `default=` to `orjson.dumps` so only the non-native values are
+  converted, keeping the old path as a fallback on `TypeError`;
+- give figures and traces a `_to_json_dict()` that skips the `deepcopy` and
+  copies only the containers the base64 conversion changes;
+- in `PlotlyJSONEncoder.default`, return `isoformat()` first for exact
+  `datetime`/`date` (it now tries five encoders that raise before that one).
+
+A local patch to plotly 6.7 doing this brought every orjson "+ value" case to
+the figure-alone time, `go.Figure` and layouts to 16-27 ms, and the stdlib list
+of datetime from 354 to 106 ms. Its JSON was identical except numpy
+`datetime64`, which then always uses orjson's short form
+(`2024-01-01T00:00:00`), as the fast path already did. Lists of floats without
+orjson stay at ~50 ms: that is the stdlib encoder itself.

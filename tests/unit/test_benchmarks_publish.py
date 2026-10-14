@@ -377,18 +377,106 @@ def _stats(median):
     return {"n": 3, "min": 1, "median": median, "p90": median, "max": median}
 
 
-def test_renderer_change_must_beat_both_noise_floors():
+def test_median_change_must_beat_both_noise_floors():
     old = {"results": {"a": {"m": _stats(100.0)}, "b": {"m": _stats(4.0)}}}
+
+    def changes(new):
+        return publish.median_changes("renderer", old, new, 5.0)
+
     # +20 ms but only 20%: noise.
-    assert publish.renderer_changes(old, {"a": {"m": _stats(120.0)}}) == []
+    assert changes({"a": {"m": _stats(120.0)}}) == []
     # +100% but only 4 ms: noise.
-    assert publish.renderer_changes(old, {"b": {"m": _stats(8.0)}}) == []
-    assert publish.renderer_changes(old, {"a": {"m": _stats(130.0)}}) == [
-        "renderer a (m): 100.0 -> 130.0 ms"
+    assert changes({"b": {"m": _stats(8.0)}}) == []
+    assert changes({"a": {"m": _stats(130.0)}}) == ["renderer a (m): 100.0 -> 130.0 ms"]
+    assert changes({"c": {"m": _stats(7.0)}}) == ["renderer c (m): new, 7.0 ms"]
+
+
+def _serialization_run(div_ms):
+    def stats(median):
+        return {"median": median, "min": median, "max": median, "bytes": 1000}
+
+    return {
+        "meta": {
+            "traces": 10,
+            "points": 20000,
+            "repeat": 7,
+            "versions": {
+                "python": "3.12.0",
+                "dash": "4.5.0",
+                "plotly": "6.7.0",
+                "orjson": "3.11.0",
+            },
+            "labels": {
+                "list_float+none": "list of float, figure alone",
+                "list_float+div": "list of float, + html.Div",
+            },
+        },
+        "results": {
+            "list_float+none": {"orjson": stats(6.0), "json": stats(50.0)},
+            "list_float+div": {"orjson": stats(div_ms), "json": stats(51.0)},
+        },
+    }
+
+
+def test_serialization_section_compares_each_case_to_the_figure_alone(tmp_path):
+    out = tmp_path / "results"
+    run = tmp_path / "serialization.json"
+    changes = tmp_path / "changes.md"
+    args = ["--dir", str(out), "--readme", str(_readme(tmp_path)), "--only-significant"]
+
+    run.write_text(json.dumps(_serialization_run(40.0)))
+    publish.main([*args, "--serialization", str(run), "--date", "2026-10-01T00:00:00Z"])
+    sections = json.loads((out / "report.json").read_text())["sections"]
+    assert [s["id"] for s in sections] == ["serialization"]
+    section = sections[0]
+    assert [c["id"] for c in section["charts"]] == [
+        "serialization-orjson",
+        "serialization-json",
+        "serialization-trend",
     ]
-    assert publish.renderer_changes(old, {"c": {"m": _stats(7.0)}}) == [
-        "renderer c (m): new, 7.0 ms"
+    orjson_bars = section["charts"][0]["figure"]["data"]
+    assert [t["name"] for t in orjson_bars] == [
+        "figure alone",
+        "same figure, plus one non-native value",
     ]
+    assert orjson_bars[1]["x"] == [40.0]
+    assert section["table"]["rows"][1][:3] == [
+        "list of float, + html.Div",
+        "40.0",
+        "6.7x",
+    ]
+    latest = json.loads((out / "serialization-latest.json").read_text())
+    assert latest["versions"]["plotly"] == "6.7.0"
+    assert latest["date"] == "2026-10-01T00:00:00Z"
+
+    # A plotly fix that drops the + html.Div case to the figure-alone time.
+    fixed = _serialization_run(6.5)
+    fixed["meta"]["versions"]["plotly"] = "6.8.0"
+    run.write_text(json.dumps(fixed))
+    publish.main(
+        [
+            *args,
+            "--serialization",
+            str(run),
+            "--date",
+            "2026-10-08T00:00:00Z",
+            "--changes",
+            str(changes),
+        ]
+    )
+    assert changes.read_text() == (
+        "- serialization list_float+div (orjson): 40.0 -> 6.5 ms\n"
+        "- serialization measured with plotly 6.8.0 (was 6.7.0)\n"
+    )
+    history = json.loads((out / "serialization-history.json").read_text())
+    assert [h["results"]["list_float+div"]["orjson"] for h in history] == [
+        {"median": 40.0},
+        {"median": 6.5},
+    ]
+    trend = json.loads((out / "report.json").read_text())["sections"][0]["charts"][2]
+    assert (
+        trend["figure"]["data"][0]["name"] == "list of float, figure alone, with orjson"
+    )
 
 
 def test_load_change_is_a_capacity_step():

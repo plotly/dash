@@ -3,7 +3,8 @@
     python -m benchmarks.publish \\
         --renderer benchmarks/results.json \\
         --streaming benchmarks/streaming/results.json \\
-        --callbacks benchmarks/callbacks/results.json
+        --callbacks benchmarks/callbacks/results.json \\
+        --serialization benchmarks/serialization/results.json
 
 Writes to ``benchmarks/results/`` (``--dir``), which is committed:
 
@@ -15,7 +16,7 @@ Writes to ``benchmarks/results/`` (``--dir``), which is committed:
 and rewrites the table between the ``benchmarks`` markers in ``README.md``
 (``--readme``). Any input may be omitted; the committed numbers for it stay.
 With ``--only-significant`` (CI), an input is committed only if it moves the
-published numbers (see ``load_changes`` and ``renderer_changes``), and nothing
+published numbers (see ``load_changes`` and ``median_changes``), and nothing
 is written when none does.
 """
 from __future__ import annotations
@@ -367,6 +368,21 @@ def _descriptions():
         return {}
 
 
+def _median_series(history, name):
+    """One median trend per (outer, inner) key of each run's results."""
+    series = {}
+    for h in history:
+        for outer, inner in h["results"].items():
+            for key, stats in inner.items():
+                s = series.setdefault(
+                    name(outer, key), {"x": [], "y": [], "commit": []}
+                )
+                s["x"].append(h["date"])
+                s["y"].append(stats["median"])
+                s["commit"].append(h["commit"])
+    return series
+
+
 def renderer_charts(entry, history):
     desc = _descriptions()
     rows = []
@@ -380,15 +396,7 @@ def renderer_charts(entry, history):
         f"Headless Chrome, production bundle, {entry['runner']}; commit"
         f" {entry['commit']}, measured {entry['date'][:10]}"
     )
-    series = {}
-    for h in history:
-        for scenario, metrics in h["results"].items():
-            for metric, stats in metrics.items():
-                key = f"{scenario} ({metric})"
-                s = series.setdefault(key, {"x": [], "y": [], "commit": []})
-                s["x"].append(h["date"])
-                s["y"].append(stats["median"])
-                s["commit"].append(h["commit"])
+    series = _median_series(history, lambda scenario, metric: f"{scenario} ({metric})")
     order = [r[0] for r in reversed(rows)]
     return [
         {
@@ -449,6 +457,110 @@ def renderer_table(entry):
         "max ms",
         "growth",
         "what",
+    ], rows
+
+
+# --- serialization --------------------------------------------------------------
+
+ENGINE_NAME = {"orjson": "with orjson", "json": "without orjson (stdlib json)"}
+
+
+def _figure_only(case):
+    return case.split("+")[0] + "+none"
+
+
+def _serialization_where(entry):
+    v = entry["versions"]
+    return (
+        f"{entry['traces']} traces x {entry['points']:,} points, median of"
+        f" {entry['repeat']}; Dash {v['dash']}, plotly {v['plotly']}, orjson"
+        f" {v['orjson']}, Python {v['python']}, {entry['runner']}; commit"
+        f" {entry['commit']}, measured {entry['date'][:10]}"
+    )
+
+
+def serialization_charts(entry, history):
+    labels = entry["labels"]
+    where = _serialization_where(entry)
+    charts = []
+    for engine, name in ENGINE_NAME.items():
+        cases = [c for c, by in entry["results"].items() if engine in by]
+        if not cases:
+            continue
+        bars = []
+        for case in reversed(cases):
+            stats = entry["results"][case][engine]
+            ref = entry["results"].get(_figure_only(case), {}).get(engine)
+            ratio = (
+                f", {stats['median'] / ref['median']:.1f}x the figure alone"
+                if ref
+                else ""
+            )
+            bars.append(
+                {
+                    "label": labels.get(case, case),
+                    "value": stats["median"],
+                    "text": f"{stats['median']:,.0f} ms",
+                    "hover": f"{labels.get(case, case)}<br>median {stats['median']:,.1f} ms,"
+                    f" min {stats['min']:,.1f} ms{ratio}",
+                    "hue": 1 if case.endswith("+none") else 2,
+                }
+            )
+        charts.append(
+            {
+                "id": f"serialization-{engine}",
+                "title": f"Serializing a callback response, {name}",
+                "subtitle": (
+                    "The same figure alone, then with one small value orjson cannot"
+                    " take as is. Shorter is better."
+                ),
+                "source": where,
+                "kind": "hbar",
+                "bars": bars,
+                "legend": [
+                    {"hue": 1, "label": "figure alone"},
+                    {"hue": 2, "label": "same figure, plus one non-native value"},
+                ],
+                "xaxis": {"title": "median ms (log)", "type": "log"},
+            }
+        )
+    series = _median_series(
+        history, lambda case, engine: f"{labels.get(case, case)}, {ENGINE_NAME[engine]}"
+    )
+    charts.append(
+        {
+            "id": "serialization-trend",
+            "title": "Serialization: median over time",
+            "subtitle": "One point per published run on the dev branch. Pick a case.",
+            "source": where,
+            "kind": "picker",
+            "series": series,
+            "yaxis": {"title": "median ms", "rangemode": "tozero"},
+        }
+    )
+    return charts
+
+
+def serialization_table(entry):
+    rows = []
+    for case, by_engine in entry["results"].items():
+        row = [entry["labels"].get(case, case)]
+        for engine in ENGINE_NAME:
+            stats = by_engine.get(engine)
+            ref = entry["results"].get(_figure_only(case), {}).get(engine)
+            row.append(_fmt(stats["median"]) if stats else "-")
+            row.append(
+                f"{stats['median'] / ref['median']:.1f}x" if stats and ref else "-"
+            )
+        row.append(_fmt(next(iter(by_engine.values()))["bytes"]))
+        rows.append(row)
+    return [
+        "case",
+        "orjson ms",
+        "orjson vs figure alone",
+        "stdlib json ms",
+        "stdlib json vs figure alone",
+        "bytes",
     ], rows
 
 
@@ -690,7 +802,14 @@ def _section(sid, title, intro, charts, table):
     }
 
 
-def report(streaming, renderer, renderer_history, callbacks=None):
+def report(
+    streaming,
+    renderer,
+    renderer_history,
+    callbacks=None,
+    serialization=None,
+    serialization_history=(),
+):
     """Every chart as a Plotly figure and the numbers as tables, in sections:
     what the docs page renders."""
     sections = []
@@ -732,6 +851,21 @@ def report(streaming, renderer, renderer_history, callbacks=None):
                 " means the cost grows with the page.",
                 renderer_charts(renderer, renderer_history),
                 renderer_table(renderer),
+            )
+        )
+    if serialization:
+        sections.append(
+            _section(
+                "serialization",
+                "Serializing callback responses",
+                "Time for Dash to turn a callback response or a layout into JSON, on"
+                " the server. orjson serializes plain data in one fast pass, but one"
+                " value it cannot take (a component, a go.Figure object, a"
+                " pd.Timestamp) sends the whole response through a slow Python walk"
+                " (issue #4065). Without orjson, Python's json module does all the"
+                " work.",
+                serialization_charts(serialization, serialization_history),
+                serialization_table(serialization),
             )
         )
     return {"sections": sections}
@@ -812,9 +946,10 @@ def update_readme(path, streaming, callbacks):
 
 # With --only-significant, a run is committed only when it moves the numbers
 # people read. Load capacity is a step on the sweep's browser counts, so any
-# step counts; a renderer median must move by both of these.
-RENDERER_CHANGE = 0.25
+# step counts; a median must move by both the ratio and its floor.
+MEDIAN_CHANGE = 0.25
 RENDERER_CHANGE_MS = 5.0
+SERIALIZATION_CHANGE_MS = 5.0
 
 
 def _cap_text(cap):
@@ -840,25 +975,41 @@ def load_changes(name, old, new, metric):
     return changes
 
 
-def renderer_changes(old, new):
-    """Renderer medians that moved by more than the noise allows."""
+def median_changes(name, old, new, floor_ms):
+    """Medians that moved by more than the noise allows."""
     if not old:
-        return ["renderer: first published run"]
+        return [f"{name}: first published run"]
     changes = []
-    for scenario, metrics in new.items():
-        for metric, stats in metrics.items():
-            was = old["results"].get(scenario, {}).get(metric)
+    for outer, inner in new.items():
+        for key, stats in inner.items():
+            was = old["results"].get(outer, {}).get(key)
             now = stats["median"]
             if was is None:
-                changes.append(f"renderer {scenario} ({metric}): new, {now:,.1f} ms")
+                changes.append(f"{name} {outer} ({key}): new, {now:,.1f} ms")
                 continue
             delta = abs(now - was["median"])
-            if delta >= RENDERER_CHANGE_MS and delta > RENDERER_CHANGE * was["median"]:
+            if delta >= floor_ms and delta > MEDIAN_CHANGE * was["median"]:
                 changes.append(
-                    f"renderer {scenario} ({metric}):"
-                    f" {was['median']:,.1f} -> {now:,.1f} ms"
+                    f"{name} {outer} ({key}):" f" {was['median']:,.1f} -> {now:,.1f} ms"
                 )
     return changes
+
+
+SERIALIZATION_SETUP = ("traces", "points", "python", "plotly", "orjson")
+
+
+def serialization_setup_changes(old, meta):
+    """What else changed between the runs, so a move is not read as Dash's."""
+
+    def setup(entry):
+        return {k: entry.get(k, entry["versions"].get(k)) for k in SERIALIZATION_SETUP}
+
+    was, now = setup(old), setup(meta)
+    return [
+        f"serialization measured with {k} {now[k]} (was {was[k]})"
+        for k in SERIALIZATION_SETUP
+        if was[k] != now[k]
+    ]
 
 
 # --- main ---------------------------------------------------------------------------
@@ -877,18 +1028,60 @@ def _publish_load(run, out, name, metric):
     _dump(os.path.join(out, f"{name}-history.json"), _append(history, summary, "date"))
 
 
-def _publish_renderer(entry, out):
-    # The trend only charts medians; full stats stay in renderer-latest.
+def _publish_medians(name, entry, out):
+    # The trend only charts medians; full stats stay in <name>-latest.
     trend = {
-        **entry,
+        "date": entry["date"],
+        "commit": entry["commit"],
+        "runner": entry["runner"],
         "results": {
-            scenario: {m: {"median": st["median"]} for m, st in metrics.items()}
-            for scenario, metrics in entry["results"].items()
+            outer: {k: {"median": st["median"]} for k, st in inner.items()}
+            for outer, inner in entry["results"].items()
         },
     }
-    history = _load(os.path.join(out, "renderer-history.json"), [])
-    _dump(os.path.join(out, "renderer-latest.json"), entry)
-    _dump(os.path.join(out, "renderer-history.json"), _append(history, trend, "date"))
+    history = _load(os.path.join(out, f"{name}-history.json"), [])
+    _dump(os.path.join(out, f"{name}-latest.json"), entry)
+    _dump(os.path.join(out, f"{name}-history.json"), _append(history, trend, "date"))
+
+
+def _publish_serialization(run, out, stamp, only_significant):
+    if not run:
+        return []
+    old = _load(os.path.join(out, "serialization-latest.json"), None)
+    moved = median_changes(
+        "serialization", old, run["results"], SERIALIZATION_CHANGE_MS
+    )
+    if moved and old:
+        moved += serialization_setup_changes(old, run["meta"])
+    if moved or not only_significant:
+        _publish_medians(
+            "serialization", {**stamp, **run["meta"], "results": run["results"]}, out
+        )
+    return moved
+
+
+def _write_outputs(out, readme):
+    """report.json and the README table, from everything committed in ``out``."""
+
+    def latest(name):
+        return _load(os.path.join(out, f"{name}-latest.json"), None)
+
+    def history(name):
+        return _load(os.path.join(out, f"{name}-history.json"), [])
+
+    streaming, callbacks = latest("streaming"), latest("callbacks")
+    _dump(
+        os.path.join(out, "report.json"),
+        report(
+            streaming,
+            latest("renderer"),
+            history("renderer"),
+            callbacks,
+            latest("serialization"),
+            history("serialization"),
+        ),
+    )
+    update_readme(readme, streaming, callbacks)
 
 
 def main(argv=None):
@@ -901,6 +1094,9 @@ def main(argv=None):
     )
     parser.add_argument(
         "--callbacks", help="results.json from benchmarks.callbacks.load"
+    )
+    parser.add_argument(
+        "--serialization", help="results.json from benchmarks.serialization.bench"
     )
     parser.add_argument("--commit", default=os.environ.get("GITHUB_SHA", "")[:9])
     parser.add_argument("--date")
@@ -931,22 +1127,19 @@ def main(argv=None):
             changes += moved
             _publish_load(run, out, name, metric)
 
+    date = args.date or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    stamp = {"date": date, "commit": args.commit, "runner": args.runner}
     results = _read(args.renderer)
     if results:
         old = _load(os.path.join(out, "renderer-latest.json"), None)
-        moved = renderer_changes(old, results)
+        moved = median_changes("renderer", old, results, RENDERER_CHANGE_MS)
         if moved or not args.only_significant:
             changes += moved
-            _publish_renderer(
-                {
-                    "date": args.date
-                    or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    "commit": args.commit,
-                    "runner": args.runner,
-                    "results": results,
-                },
-                out,
-            )
+            _publish_medians("renderer", {**stamp, "results": results}, out)
+
+    changes += _publish_serialization(
+        _read(args.serialization), out, stamp, args.only_significant
+    )
 
     if args.changes:
         with open(args.changes, "w", encoding="utf-8") as f:
@@ -955,15 +1148,7 @@ def main(argv=None):
         print("no significant change; nothing written")
         return 0
 
-    streaming = _load(os.path.join(out, "streaming-latest.json"), None)
-    callbacks = _load(os.path.join(out, "callbacks-latest.json"), None)
-    renderer = _load(os.path.join(out, "renderer-latest.json"), None)
-    renderer_history = _load(os.path.join(out, "renderer-history.json"), [])
-    _dump(
-        os.path.join(out, "report.json"),
-        report(streaming, renderer, renderer_history, callbacks),
-    )
-    update_readme(args.readme, streaming, callbacks)
+    _write_outputs(out, args.readme)
     print(f"results written to {out}, README table to {args.readme}")
     for change in changes:
         print(f"  {change}")
