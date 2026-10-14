@@ -185,12 +185,14 @@ class Browser(DashPageMixin):
             for width in widths:
                 self.driver.set_window_size(width, 1024)
                 try:
-                    # capture the full page height (Percy rendered full pages),
-                    # bounded to keep runaway layouts from producing huge images
-                    doc_height = self.driver.execute_script(
-                        "return document.documentElement.scrollHeight"
+                    # Calculate full page height by accounting for browser UI.
+                    # Keep it bounded to avoid runaway layouts producing huge images.
+                    inner_height, doc_height = self.driver.execute_script(
+                        "return [window.innerHeight,"
+                        " document.documentElement.scrollHeight]"
                     )
-                    height = max(1024, min(int(doc_height or 0), 4096))
+                    ui_height = max(0, 1024 - int(inner_height or 1024))
+                    height = max(1024, min(int(doc_height or 0), 4096)) + ui_height
                 except WebDriverException:
                     height = 1024
                 if height != 1024:
