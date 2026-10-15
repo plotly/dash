@@ -43,6 +43,10 @@ class Link(Component):
         Controls whether or not the page will refresh when the link is
         clicked.
 
+    - scrollToTop (boolean; default True):
+        Controls whether or not the page will scroll to the top when the
+        link is clicked. Defaults to True.
+
     - title (string; optional):
         Adds the title attribute to your link, which can contain
         supplementary information.
@@ -91,6 +95,7 @@ class Link(Component):
         href: typing.Optional[str] = None,
         target: typing.Optional[typing.Union[str]] = None,
         refresh: typing.Optional[typing.Union[bool]] = None,
+        scrollToTop: typing.Optional[typing.Union[bool]] = None,
         title: typing.Optional[typing.Union[str]] = None,
         className: typing.Optional[typing.Union[str]] = None,
         style: typing.Optional[typing.Any] = None,
@@ -103,6 +108,7 @@ class Link(Component):
             "href",
             "target",
             "refresh",
+            "scrollToTop",
             "title",
             "className",
             "style",
@@ -116,6 +122,7 @@ class Link(Component):
             "href",
             "target",
             "refresh",
+            "scrollToTop",
             "title",
             "className",
             "style",
