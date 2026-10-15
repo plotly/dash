@@ -340,7 +340,7 @@ def test_mcpbg012_no_output_task_result_does_not_raise():
     _wait_for_completion(app, task_id)
 
     result = _mcp(app, "tasks/result", {"taskId": task_id})
-    assert "error" not in result
+    assert result["result"]["structuredContent"] == {"multi": True}
 
 
 def test_mcpbg013_cancel_no_output_task_does_not_raise():
@@ -360,4 +360,4 @@ def test_mcpbg013_cancel_no_output_task_does_not_raise():
     assert "error" not in cancel_result
 
     result = _mcp(app, "tasks/result", {"taskId": task_id})
-    assert "error" not in result
+    assert result["result"]["structuredContent"] == {"multi": True}
