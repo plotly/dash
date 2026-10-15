@@ -12,13 +12,19 @@ The engine is thread-safe and transport-agnostic; sockets live one layer up.
 ``poll`` blocks a thread; ``apoll`` parks an asyncio task on a future that
 ``publish`` resolves from whichever thread it runs on, so an ASGI server can
 hold thousands of subscriptions without an executor thread each.
+
+A topic published with a ``ttl`` is dropped, buffer and sequence both, once
+nobody has published to, polled or subscribed to it for that long, so
+per-session topics do not pile up for the life of the process. A later publish
+starts it over at sequence 1.
 """
 
 import asyncio
+import contextlib
 import threading
 import time
 from collections import deque
-from typing import Any, Deque, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Deque, Dict, Iterator, List, NamedTuple, Optional, Tuple
 
 # Per-topic replay buffer size. Kept small by default because messages are
 # arbitrary user payloads and every topic retains up to this many -- unbounded
@@ -27,6 +33,10 @@ from typing import Any, Deque, Dict, List, NamedTuple, Optional, Tuple
 # consumer past this raises a gap rather than dropping messages silently.
 # Deployments that need a wider reconnect window set buffer_size explicitly.
 DEFAULT_BUFFER = 32
+
+# How often idle topics are looked for, so a topic outlives its ttl by at most
+# this much.
+_SWEEP_INTERVAL = 1.0
 
 
 class PollResult(NamedTuple):
@@ -39,14 +49,19 @@ _Waiter = Tuple[asyncio.AbstractEventLoop, "asyncio.Future[None]"]
 
 
 class _Topic:  # pylint: disable=too-few-public-methods
-    __slots__ = ("seq", "buf", "cond", "waiters")
+    __slots__ = ("seq", "buf", "cond", "waiters", "users", "touched", "ttl")
 
-    def __init__(self, maxlen: int):
+    def __init__(self, maxlen: int, now: float):
         self.seq = 0
         self.buf: Deque[Tuple[int, Any]] = deque(maxlen=maxlen)
         self.cond = threading.Condition()
         # asyncio tasks parked in apoll(), woken by the next publish/close.
         self.waiters: List[_Waiter] = []
+        # Calls currently holding this topic (a blocked poll among them), and
+        # when the last one let go. Both guarded by the engine's _topics_lock.
+        self.users = 0
+        self.touched = now
+        self.ttl: Optional[float] = None
 
 
 def _wake(fut: "asyncio.Future[None]") -> None:
@@ -55,8 +70,13 @@ def _wake(fut: "asyncio.Future[None]") -> None:
 
 
 class StoreEngine:
-    def __init__(self, buffer_size: int = DEFAULT_BUFFER, persistence: Any = None):
+    def __init__(
+        self,
+        buffer_size: int = DEFAULT_BUFFER,
+        persistence: Any = None,
+    ):
         self._buffer_size = buffer_size
+        self._next_sweep = 0.0
         # key -> (value, expiry). expiry is a monotonic deadline, or None for
         # no TTL. Expired entries are dropped lazily on the next read.
         self._data: Dict[str, Tuple[Any, Optional[float]]] = {}
@@ -144,30 +164,57 @@ class StoreEngine:
         return out
 
     # --- pub/sub -----------------------------------------------------------
-    def _topic(self, name: str) -> _Topic:
+    @contextlib.contextmanager
+    def _use(self, name: str) -> Iterator[_Topic]:
+        """Hold a topic for one call. A held topic is never swept, so a
+        publish cannot land in a topic that was just dropped from the map."""
+        now = time.monotonic()
         with self._topics_lock:
+            self._sweep(now)
             topic = self._topics.get(name)
             if topic is None:
-                topic = self._topics[name] = _Topic(self._buffer_size)
-            return topic
+                topic = self._topics[name] = _Topic(self._buffer_size, now)
+            topic.users += 1
+        try:
+            yield topic
+        finally:
+            with self._topics_lock:
+                topic.users -= 1
+                topic.touched = time.monotonic()
 
-    def publish(self, topic: str, message: Any) -> int:
-        t = self._topic(topic)
-        with t.cond:
-            t.seq += 1
-            t.buf.append((t.seq, message))
-            t.cond.notify_all()
-            waiters, t.waiters = t.waiters, []
-            seq = t.seq
+    def _sweep(self, now: float) -> None:
+        """Under ``_topics_lock``: drop topics idle past their ttl, and empty
+        ones a read left behind, which are no different from a missing one."""
+        if now < self._next_sweep:
+            return
+        self._next_sweep = now + _SWEEP_INTERVAL
+        idle = [
+            name
+            for name, t in self._topics.items()
+            if t.users == 0
+            and (t.seq == 0 or (t.ttl is not None and t.touched < now - t.ttl))
+        ]
+        for name in idle:
+            del self._topics[name]
+
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> int:
+        with self._use(topic) as t:
+            with t.cond:
+                t.ttl = ttl
+                t.seq += 1
+                t.buf.append((t.seq, message))
+                t.cond.notify_all()
+                waiters, t.waiters = t.waiters, []
+                seq = t.seq
         for loop, fut in waiters:
             loop.call_soon_threadsafe(_wake, fut)
         return seq
 
     def head_seq(self, topic: str) -> int:
         """Current highest sequence -- where a fresh subscription starts."""
-        t = self._topic(topic)
-        with t.cond:
-            return t.seq
+        with self._use(topic) as t:
+            with t.cond:
+                return t.seq
 
     def _ready(self, t: _Topic, after_seq: int) -> Optional[PollResult]:
         """Under ``t.cond``: the result available right now, or None to wait."""
@@ -196,22 +243,25 @@ class StoreEngine:
         elapsed (caller re-polls) or the engine closed. ``gap`` is True when the
         next expected message was already evicted from the buffer.
         """
-        t = self._topic(topic)
         deadline = time.monotonic() + timeout
-        with t.cond:
-            while True:
-                res = self._ready(t, after_seq)
-                if res is not None:
-                    return res
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    return PollResult([], after_seq, False)
-                t.cond.wait(remaining)
+        with self._use(topic) as t:
+            with t.cond:
+                while True:
+                    res = self._ready(t, after_seq)
+                    if res is not None:
+                        return res
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        return PollResult([], after_seq, False)
+                    t.cond.wait(remaining)
 
     async def apoll(self, topic: str, after_seq: int, timeout: float) -> PollResult:
         """:meth:`poll` for asyncio: parks the task on a future instead of
         blocking a thread; ``publish`` (from any thread) or ``close`` wakes it."""
-        t = self._topic(topic)
+        with self._use(topic) as t:
+            return await self._apoll(t, after_seq, timeout)
+
+    async def _apoll(self, t: _Topic, after_seq: int, timeout: float) -> PollResult:
         loop = asyncio.get_running_loop()
         deadline = time.monotonic() + timeout
         while True:
