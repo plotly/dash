@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- [#4026](https://github.com/plotly/dash/pull/4026) Add `DASH_SECRET_KEY` so a hosting platform can give every worker and pod the same signing secret for page, background and stream tokens without editing the app (`server.secret_key` still wins and is not changed).
+- [#4026](https://github.com/plotly/dash/pull/4026) Add `DASH_SHARED_STORAGE` to pick the shared-storage backend when the app does not pass `shared_storage=`: `local`, `none`, `diskcache:///abs/path`, or a `redis://` / `rediss://` URL.
+- [#4024](https://github.com/plotly/dash/pull/4024) Add support for social media meta tags in regular Dash apps using `app.title`, `app.description`, and `app.image`.
+- [#3976](https://github.com/plotly/dash/pull/3976) Add a new `scrollToTop` prop to `dcc.Link` to control whether the page scrolls to the top after client-side navigation. It defaults to `True` to preserve the existing behavior. Fixes [#3974](https://github.com/plotly/dash/issues/3974).
 - [#3947](https://github.com/plotly/dash/pull/3947) Make `plotly-cloud` a default install dependency of Dash instead of an optional extra, so the `plotly` CLI and Dash's cloud integration work out of the box. The `dash[cloud]` extra is kept for backward compatibility.
 - [#3930](https://github.com/plotly/dash/pull/3930) Add shared storage: a backend-agnostic cross-process state manager (key/value with optional TTL, plus ordered replayable pub/sub) on every app via `dash.ctx.shared_storage`, started lazily and disabled with `shared_storage=None`. Ships `LocalSharedStorage` (default, in-memory with optional disk persistence), `DiskcacheSharedStorage`, and `RedisSharedStorage` for horizontally-scaled deployments; see `.ai/ARCHITECTURE.md`.
 - [#3931](https://github.com/plotly/dash/pull/3931) Add streaming callbacks: an `async def` generator callback streams its yields to the browser as they are produced (`dash.Patch` yields apply incrementally). A browser's streams share one SharedWorker-hosted connection so they do not count against the per-host connection limit; closing a tab cancels its streams.
@@ -20,10 +24,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
 ### Changed
+- [#4026](https://github.com/plotly/dash/pull/4026) Log a warning, once per process, when a streaming request is refused because its stream token failed verification, which on multi-worker deployments usually means the workers do not share a signing secret.
 - [#3987](https://github.com/plotly/dash/pull/3987) Forward FastAPI reload scope options (`reload_dirs`, `reload_excludes`, and `reload_includes`) to Uvicorn when reloading.
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
+- [#4027](https://github.com/plotly/dash/pull/4027) Support `async def` hook routes (`dash.hooks.route`) on all backends, stop hook routes from leaking the app context to the caller, and let hook routes and MCP read the request on the `fastapi` backend.
+- [#4053](https://github.com/plotly/dash/pull/4053) Fix callbacks being registered twice under a reloader (e.g. `uvicorn --reload`) when `Dash()` is given an explicit `name` or is built by an app factory called from the main module. Fixes [#3912](https://github.com/plotly/dash/issues/3912).
+- [#3980](https://github.com/plotly/dash/pull/3980) Fix the three `before_request` hooks (`Dash._setup_server` and the pages `router_sync` / `router_async`) publishing their "already done" guard flag before the setup work behind it had run. Under a multi-threaded WSGI worker such as `gunicorn -k gthread` (or under an ASGI worker for the async router), a second request arriving mid-setup could observe the flag already set, skip setup, then read `registered_paths` / `callback_map` / the pages router callback while they were still being registered - causing the first burst of component bundle requests after a restart to 500 with `Error loading dependency. "<lib>" is not a registered library`, or the pages router to hit `DuplicateCallback` when two workers raced past the guard. Each hook body now runs under a lock (`threading.Lock` for the two sync hooks, an `asyncio.Lock` bound to the running loop for the async router) and only publishes the flag after all work completes. Fixes [#3971](https://github.com/plotly/dash/issues/3971).
 - [#3944](https://github.com/plotly/dash/pull/3944) Fix `dash.testing` runner backend detection for wrapped FastAPI/Quart servers so threaded Flask-only options are not passed to ASGI runners.
 - [#3955](https://github.com/plotly/dash/pull/3955) Unpin `selenium` in the testing requirements (was capped at `<=4.2.0` from 2022) and require `>=4.11.0`, so it can drive current stable Chrome via Selenium Manager and stop the widespread CI flakiness.
 - [#3881](https://github.com/plotly/dash/pull/3881) Speed up the renderer layout crawl (`crawlLayout` and its callers) by replacing curried-ramda `path`/`pathOr` lookups with direct property access on the hot path: ~16% faster `Patch().append()` into a large container, with no behavior change.
@@ -39,6 +47,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3929](https://github.com/plotly/dash/issues/3929) Fix components that set their own initial state on mount (eg. `dash-bootstrap-components` `Tabs`) not applying it on first render, because descendant layout hashes were reset on the first fresh render (regression introduced in 4.2.0 by [#3570](https://github.com/plotly/dash/pull/3570)).
 - [#3948](https://github.com/plotly/dash/issues/3948) Fix page getting progressively slower as callbacks append children
 - [#4012](https://github.com/plotly/dash/pull/4012) Fix `InvalidCallbackReturnValue` raised when a no-output background callback's error handler returns `None` (or the job is cancelled), by treating `None` returns from error handlers and the cancelled-job branch the same way — as `NoUpdate()` only when there are outputs, `None` otherwise. Fixes [#3628](https://github.com/plotly/dash/issues/3628).
+- [#4009](https://github.com/plotly/dash/issues/4009) Disable autocomplete in DatePickerSingle and DatePickerRange inputs.
+- [#3002](https://github.com/plotly/dash/issues/3002) Fix page loads failing with a 500 error on Windows when Dash is imported from an extended-length (`\\?\`) path, as in JupyterLab Desktop. Package resource paths are now joined with the OS separator instead of `/`.
+- [#4011](https://github.com/plotly/dash/issues/4011) Fix extra callback registrations when an app runs from the parent directory: `python app/app.py`, where the script shares its folder's name, registered its callbacks twice, and `python app/main.py` imported a sibling `app/app.py` as the parent package and registered its callbacks too (regression introduced in 4.4.1 by [#3883](https://github.com/plotly/dash/pull/3883)).
+- [#4057](https://github.com/plotly/dash/issues/3104) Fixed background callbacks to update `set_props` instead of replacing
 
 ## [4.4.1] - 2026-07-21
 

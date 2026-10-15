@@ -94,7 +94,9 @@ def _trigger_task(app):
 def _wait_for_completion(app, task_id, timeout=3):
     """Block until the callback manager reports the job is no longer running."""
     job_id, _ = _unwrap_handles(app, task_id)
-    manager = app.callback_map["output.children"]["manager"]
+    tool_name = task_id.split(":", 1)[0]
+    adapter = app.mcp_callback_map.find_by_tool_name(tool_name)
+    manager = app.callback_map[adapter.output_id]["manager"]
     deadline = time.time() + timeout
     while time.time() < deadline:
         if not manager.job_running(job_id):

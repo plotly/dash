@@ -10,7 +10,7 @@ def hook_cleanup():
     yield
     hooks._ns["layout"] = []
     hooks._ns["setup"] = []
-    hooks._ns["route"] = []
+    hooks._ns["routes"] = []
     hooks._ns["error"] = []
     hooks._ns["callback"] = []
     hooks._ns["index"] = []
