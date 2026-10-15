@@ -162,6 +162,7 @@ def get_task_result(task_id: str) -> Any:
         kwargs={"background_callback_manager": manager},
         background=background,
         multi=multi,
+        output_spec=output_spec,
         cache_key=cache_key,
         job_id=job_id,
     )
