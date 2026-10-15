@@ -86,7 +86,29 @@ def test_json003_datetime_series_with_nat(engine):
     assert json.loads(to_json({"v": series})) == {"v": ["2024-01-01T00:00:00", None]}
 
 
-@pytest.mark.parametrize("value", [object(), 1j, {(1, 2): 1}, {"a": [{(1,): 2}]}])
+@pytest.mark.parametrize(
+    "value",
+    [object(), 1j, {(1, 2): 1}, {"a": [{(1,): 2}]}, {decimal.Decimal("1.5"): 1}],
+)
 def test_json004_unserializable_raises_type_error(engine, value):
     with pytest.raises(TypeError):
         to_json({"v": value})
+
+
+@pytest.mark.parametrize(
+    "value",
+    [decimal.Decimal("NaN"), decimal.Decimal("-Infinity"), np.datetime64("NaT")],
+)
+def test_json005_non_finite_values_are_null(engine, value):
+    if engine == "orjson" and isinstance(value, np.datetime64):
+        pytest.skip("orjson writes NaT, as plotly does")
+    assert json.loads(to_json({"v": [value]})) == {"v": [None]}
+
+
+def test_json006_circular_values_raise_value_error(engine):
+    if engine == "orjson":
+        pytest.skip("orjson raises RecursionError, as plotly does")
+    circular = []
+    circular.append(circular)
+    with pytest.raises(ValueError):
+        to_json(circular)

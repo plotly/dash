@@ -49,16 +49,24 @@ def _orjson_default(value):
     return _convert(value, native=True)
 
 
+def _is_nat(value):
+    np = get_module("numpy", should_load=False)
+    pd = get_module("pandas", should_load=False)
+    return (pd is not None and value is pd.NaT) or (
+        np is not None and isinstance(value, np.datetime64) and np.isnat(value)
+    )
+
+
 def _msgspec_hook(value):
     # numpy scalars subclass float and int, but msgspec takes only exact types
     if isinstance(value, float):
         return float(value)
     if isinstance(value, int):
         return int(value)
+    if _is_nat(value):
+        return None
     pd = get_module("pandas", should_load=False)
     if pd is not None:
-        if value is pd.NaT:
-            return None
         # isoformat keeps nanoseconds, which to_pydatetime drops
         if isinstance(value, pd.Timestamp):
             return value.isoformat()
@@ -85,6 +93,9 @@ def to_json(value):
             )
         else:
             out = _msgspec_encoder.encode(value)
-    except (TypeError, ValueError, OverflowError):
+            # msgspec writes Decimal as is, so a NaN or Infinity value or a
+            # Decimal dict key gives invalid JSON. Checking the syntax is cheap.
+            msgspec.json.decode(out, type=msgspec.Raw)
+    except (TypeError, ValueError, OverflowError, RecursionError, msgspec.MsgspecError):
         return to_json_plotly(value)
     return _safe(out.decode("utf8"), _swap_orjson)
