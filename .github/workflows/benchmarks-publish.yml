@@ -1,0 +1,236 @@
+name: Publish Benchmarks
+
+# Measures the benchmarks on the dev branch weekly (and on demand). Only when
+# the numbers moved enough to matter (a capacity step in the load tests, a
+# renderer median by over 25% and 5 ms, or a serialization median by over 25%
+# and 5 ms) does it open a pull request that
+# commits them to benchmarks/results/ (read by the docs) and the README table.
+# Per-PR renderer regressions are benchmarks.yml's job, not this one.
+#
+# Needs "Allow GitHub Actions to create and approve pull requests" in the
+# repo settings. A pull request opened with GITHUB_TOKEN starts no other
+# workflows: close and reopen it to run the checks before merging.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      streaming:
+        description: Run the streaming load sweep too
+        type: boolean
+        default: true
+      callbacks:
+        description: Run the HTTP vs websocket callback sweep too
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-publish
+  cancel-in-progress: false
+
+jobs:
+  renderer:
+    name: Renderer benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing]
+      - run: npm run build
+      - uses: browser-actions/setup-chrome@c785b87e244131f27c9f19c1a33e2ead956ab7ce # v1
+        with:
+          chrome-version: stable
+      - name: Set up virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          sudo Xvfb :99 -ac -screen 0 1400x1000x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      - run: python -m benchmarks.run --out benchmarks/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: renderer-results
+          path: benchmarks/results.json
+
+  streaming:
+    name: Streaming load sweep
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.streaming)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing,async,fastapi,quart,redis]
+          python -m pip install gunicorn uvicorn aiohttp psutil
+      - run: npm run build
+      - name: Run the sweep
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          ulimit -n 65536
+          python -m benchmarks.streaming.load \
+            --redis-url redis://127.0.0.1:6379/0 \
+            --out benchmarks/streaming/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: streaming-results
+          path: benchmarks/streaming/results.json
+
+  callbacks:
+    name: Callback load sweep
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.callbacks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing,async,fastapi,quart]
+          python -m pip install gunicorn uvicorn aiohttp psutil
+      - run: npm run build
+      - name: Run the sweep
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          ulimit -n 65536
+          python -m benchmarks.callbacks.load --out benchmarks/callbacks/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: callbacks-results
+          path: benchmarks/callbacks/results.json
+
+  serialization:
+    name: Serialization benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Dash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "setuptools<80.0.0"
+          python -m pip install -e .[ci,dev,testing]
+      - run: npm run build
+      # Runs with orjson and again with its import blocked.
+      - run: python -m benchmarks.serialization.bench --out benchmarks/serialization/results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: serialization-results
+          path: benchmarks/serialization/results.json
+
+  publish:
+    name: Open the results pull request
+    needs: [renderer, streaming, callbacks, serialization]
+    # Only dev's numbers are committed, even when a dispatch runs elsewhere.
+    if: >-
+      always() && github.ref == 'refs/heads/dev' &&
+      (needs.renderer.result == 'success' || needs.streaming.result == 'success' ||
+       needs.callbacks.result == 'success' || needs.serialization.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      BRANCH: benchmarks/update-results
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          path: results
+      - name: Update the results
+        env:
+          BENCH_RUNNER: GitHub Actions ubuntu-latest
+        run: |
+          args=""
+          [ -f results/renderer-results/results.json ] && args="$args --renderer results/renderer-results/results.json"
+          [ -f results/streaming-results/results.json ] && args="$args --streaming results/streaming-results/results.json"
+          [ -f results/callbacks-results/results.json ] && args="$args --callbacks results/callbacks-results/results.json"
+          [ -f results/serialization-results/results.json ] && args="$args --serialization results/serialization-results/results.json"
+          python -m pip install -e .
+          python -m benchmarks.publish --commit "${GITHUB_SHA::9}" \
+            --only-significant --changes "$RUNNER_TEMP/changes.md" $args
+      - name: Open or update the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add benchmarks/results README.md
+          if git diff --cached --quiet; then
+            echo "No significant change."
+            exit 0
+          fi
+          {
+            echo "Benchmark numbers from ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} moved enough to publish:"
+            echo
+            cat "$RUNNER_TEMP/changes.md"
+            echo
+            echo "Merge to update the README table and the docs."
+          } > "$RUNNER_TEMP/body.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git commit -m "Update benchmark results for ${GITHUB_SHA::9}"
+          # Each run starts from dev, so an unmerged run is replaced, not stacked.
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --base dev --head "$BRANCH" \
+              --title "Update benchmark results" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr edit "$BRANCH" --body-file "$RUNNER_TEMP/body.md"
+          fi
