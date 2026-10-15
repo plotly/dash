@@ -1,6 +1,6 @@
 {
   "name": "dash-renderer",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "render dash components in react",
   "main": "build/dash_renderer.min.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.12.1",
     "@plotly/dash-component-plugins": "^1.2.3",
-    "cookie": "^1.1.1",
+    "cookie": "^2.0.1",
     "cytoscape": "^3.29.2",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-fcose": "^2.2.0",
