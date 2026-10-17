@@ -17,7 +17,7 @@ setup(
     version=main_ns["__version__"],
     author="Chris Parmer",
     author_email="chris@plotly.com",
-    packages=find_packages(exclude=["tests*"]),
+    packages=find_packages(include=["dash*"]),
     include_package_data=True,
     license="MIT",
     description=(

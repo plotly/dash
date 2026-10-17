@@ -16,7 +16,7 @@ from logging.config import dictConfig
 from contextvars import copy_context
 from typing import Any, Dict, TYPE_CHECKING
 
-from importlib_metadata import version as _get_distribution_version
+from importlib.metadata import version as _get_distribution_version
 
 # Attempt top-level Quart imports; allow absence if user not using quart backend
 try:

@@ -11,7 +11,7 @@ import traceback
 from contextvars import copy_context
 from typing import TYPE_CHECKING, Any, Callable, Dict
 
-from importlib_metadata import version as _get_distribution_version
+from importlib.metadata import version as _get_distribution_version
 
 from flask import (
     Flask,
