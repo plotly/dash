@@ -888,13 +888,13 @@ def test_ldcp019_loading_component_pattern_matching(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-def test_ldcp020_loading_component_clip_spinner(dash_dcc):
+def test_ldcp020_loading_component_circle_spinner(dash_dcc):
     app = Dash(__name__)
 
     app.layout = html.Div(
         dcc.Loading(
             html.Div("content"),
-            type="clip",
+            type="circle",
             color="rgb(255, 0, 0)",
             display="show",
             className="loading",
@@ -903,11 +903,11 @@ def test_ldcp020_loading_component_clip_spinner(dash_dcc):
 
     dash_dcc.start_server(app)
 
-    spinner = ".loading .dash-spinner.dash-clip-spinner"
+    spinner = ".loading .dash-spinner.dash-circle-spinner"
     dash_dcc.wait_for_style_to_equal(spinner, "border-top-color", "rgba(255, 0, 0, 1)")
     dash_dcc.wait_for_style_to_equal(spinner, "border-bottom-color", "rgba(0, 0, 0, 0)")
     dash_dcc.wait_for_style_to_equal(
-        spinner, "animation-name", "dash-clip-spinner-rotate"
+        spinner, "animation-name", "dash-circle-spinner-rotate"
     )
 
     assert dash_dcc.get_logs() == []

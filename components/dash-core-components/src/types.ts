@@ -1077,9 +1077,9 @@ export interface LoadingProps extends BaseDccProps<LoadingProps> {
 
     /**
      * Property that determines which built-in spinner to show
-     * one of 'graph', 'cube', 'circle', 'dot', 'clip', or 'default'.
+     * one of 'graph', 'cube', 'circle', 'dot', or 'default'.
      */
-    type?: 'graph' | 'cube' | 'circle' | 'dot' | 'clip' | 'default';
+    type?: 'graph' | 'cube' | 'circle' | 'dot' | 'default';
 
     /**
      * Boolean that makes the built-in spinner display full-screen
