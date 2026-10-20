@@ -142,7 +142,7 @@ def _parse_path_variables(pathname, path_template):
     var_names = re.findall("<(.*?)>", path_template)
 
     # parse variables from path
-    variables = re.findall(var_pattern, pathname)
+    variables = re.findall(var_pattern, pathname, re.DOTALL)
     variables = variables[0] if isinstance(variables[0], tuple) else variables
 
     return dict(zip(var_names, variables))

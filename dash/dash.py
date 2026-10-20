@@ -16,7 +16,7 @@ import logging
 import mimetypes
 import hashlib
 import base64
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 from typing import (
     Any,
     Callable,
@@ -2836,7 +2836,9 @@ class Dash(ObsoleteChecker):
                 async def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():
@@ -2924,7 +2926,9 @@ class Dash(ObsoleteChecker):
                 def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():

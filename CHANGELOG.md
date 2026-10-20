@@ -51,6 +51,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4023](https://github.com/plotly/dash/pull/4023) Fix extra callback registrations when an app runs from the parent directory: `python app/app.py`, where the script shares its folder's name, registered its callbacks twice, and `python app/main.py` imported a sibling `app/app.py` as the parent package and registered its callbacks too (regression introduced in 4.4.1 by [#3883](https://github.com/plotly/dash/pull/3883)). Fixes [#4011](https://github.com/plotly/dash/issues/4011).
 - [#4057](https://github.com/plotly/dash/pull/4057) Fixed background callbacks to update `set_props` instead of replacing. Fixes [#3104](https://github.com/plotly/dash/issues/3104).
 - [#3923](https://github.com/plotly/dash/pull/3923) Fix a blank page and `SyntaxError` in the browser when a dict component ID has a dot in one of its values. Fixes [#3480](https://github.com/plotly/dash/issues/3480).
+- [#2360](https://github.com/plotly/dash/issues/2360) Fix Pages passing percent-encoded path variables to `layout` and `title` (`hello%20world` instead of `hello world`), and showing the 404 page for pages whose `path` has spaces or non-ASCII characters. The pages router now decodes the `pathname` it gets from the browser before matching it, like the server already does for the meta tags.
 
 ## [4.4.1] - 2026-07-21
 
