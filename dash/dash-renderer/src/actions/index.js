@@ -3,7 +3,7 @@ import {createAction} from 'redux-actions';
 import {addRequestedCallbacks} from './callbacks';
 import {getAppState} from '../reducers/constants';
 import {getAction} from './constants';
-import * as cookie from 'cookie';
+import {parseCookie} from 'cookie';
 import {validateCallbacksToLayout} from './dependencies';
 import {
     includeObservers,
@@ -77,7 +77,7 @@ export function getCSRFHeader(config) {
     try {
         const tokenName = (config && config.csrf_token_name) || '_csrf_token';
         const headerName = (config && config.csrf_header_name) || 'X-CSRFToken';
-        const cookies = cookie.parse(document.cookie);
+        const cookies = parseCookie(document.cookie);
         const token = cookies[tokenName];
         if (!token) {
             return {};
