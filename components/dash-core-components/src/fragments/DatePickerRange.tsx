@@ -405,6 +405,7 @@ const DatePickerRange = ({
                             disabled={disabled}
                             dir={direction}
                             aria-label={start_date_placeholder_text}
+                            autoComplete="off"
                         />
                         <ArrowIcon className="dash-datepicker-range-arrow" />
                         <AutosizeInput
@@ -427,6 +428,7 @@ const DatePickerRange = ({
                             disabled={disabled}
                             dir={direction}
                             aria-label={end_date_placeholder_text}
+                            autoComplete="off"
                         />
                         {clearable && !disabled && (
                             <a

@@ -5,6 +5,8 @@ import {SharedStreamClient, StreamClient} from '../src/utils/streamClient';
 import {attachStreamWorkerHost} from '../src/utils/streamWorkerHost';
 import {makeFetch, waitFor} from './helpers/streamMocks';
 
+const RUN_URL = /^\/cb\?endId=e1&downlinkId=[\w-]+$/;
+
 // The worker side: one StreamClient (one downlink) behind a fake worker scope.
 // Each "tab" is a MessageChannel: port1 connects to the host, port2 is the
 // page's SharedStreamClient.
@@ -39,7 +41,7 @@ describe('SharedWorker stream transport', () => {
         await waitFor(() => worker.mock.downlinks.length === 1);
         // The uplink carried the tab's signed endId and the payload.
         const conn = worker.mock.uplinks[0].streamConnection;
-        expect(worker.mock.uplinks[0].url).to.equal('/cb?endId=e1');
+        expect(worker.mock.uplinks[0].url).to.match(RUN_URL);
         expect(worker.client.connectionEndId).to.equal('e1');
         expect(worker.mock.uplinks[0].output).to.equal('a.b');
 
@@ -80,7 +82,7 @@ describe('SharedWorker stream transport', () => {
         await waitFor(() => worker.mock.uplinks.length === 2);
         expect(worker.mock.downlinks.length).to.equal(1);
         // Tab B's stream rides tab A's connection: one endId keys the topic.
-        expect(worker.mock.uplinks[1].url).to.equal('/cb?endId=e1');
+        expect(worker.mock.uplinks[1].url).to.equal(worker.mock.uplinks[0].url);
         const ridA = worker.mock.uplinks[0].streamConnection.requestId;
         const ridB = worker.mock.uplinks[1].streamConnection.requestId;
         const dl = worker.mock.downlinks[0].dl;
@@ -108,7 +110,7 @@ describe('SharedWorker stream transport', () => {
         tabA.release(); // tab A closed
         await waitFor(() => worker.mock.cancels.length === 1);
         expect(worker.mock.cancels[0]).to.deep.equal({
-            url: '/cb?endId=e1',
+            url: worker.mock.uplinks[0].url,
             requestId: ridA
         });
         // Tab B still has a stream in flight: the shared downlink stays open.
