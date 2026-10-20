@@ -259,7 +259,8 @@ const customCodesForComponents = {
     iframe: createXSSProtection('src'),
     object: createXSSProtection('data'),
     embed: createXSSProtection('src'),
-    button: createXSSProtection('formAction')
+    button: createXSSProtection('formAction'),
+    area: createXSSProtection('href')
 }
 
 function generateComponent(Component, element, attributes) {

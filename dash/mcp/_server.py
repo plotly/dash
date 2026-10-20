@@ -259,10 +259,20 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
     request_id: str | int = _id if isinstance(_id, (str, int)) else ""
 
     app = get_app()
-    if app.mcp_callback_map is None:
-        app.mcp_callback_map = CallbackAdapterCollection(app)
-        app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+    app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+    # A fresh collection per message: its adapters cache values computed from
+    # this caller's request, which must never be served to another user.
+    # pylint: disable-next=protected-access
+    token = app._mcp_callback_map.set(CallbackAdapterCollection(app))
+    try:
+        return _dispatch_mcp_message(method, params, request_id)
+    finally:
+        app._mcp_callback_map.reset(token)  # pylint: disable=protected-access
 
+
+def _dispatch_mcp_message(
+    method: str, params: dict[str, Any], request_id: str | int
+) -> dict[str, Any] | None:
     mcp_methods = {
         "initialize": _handle_initialize,
         "tools/list": list_tools,

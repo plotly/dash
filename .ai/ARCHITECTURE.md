@@ -186,6 +186,7 @@ The backend system uses an abstract interface:
 - `FastAPIRequestAdapter` - Uses context variable for current request
 - `FastAPIResponseAdapter` - Uses Starlette responses
 - `DashMiddleware` - Consolidated ASGI middleware for request handling
+  - Runs `before_request` hooks on every HTTP route (user routes, assets, mounted apps) and the WebSocket handshake; a non-None hook result is sent as the response, like Flask. Only Dash's own routes get their JSON body pre-read and timing recorded.
 - Runs with uvicorn, supports hot reload
 - Built-in GZip compression
 
@@ -596,7 +597,7 @@ cache_manager = DiskcacheManager(
 4. **Completion**: When job finishes, poll returns final result
 5. **Cleanup**: Results cleared from cache (unless `cache_by` specified)
 
-Cache key is SHA256 hash of: function source + arguments + triggered inputs + cache_by values.
+Cache key is SHA256 hash of: callback key + function source + arguments + triggered inputs + cache_by values. Without `cache_by` a random nonce is added, so every run gets its own key: the job runs with the requester's context, so two users with equal inputs must never share a result.
 
 ### Key Files
 
