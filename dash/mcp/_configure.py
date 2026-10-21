@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from dash import get_app
 from dash.exceptions import AppNotFoundError
@@ -32,7 +32,7 @@ _CLIENTSIDE_CALLBACK_RESOURCES = {ClientsideCallbacksResource}
 _PAGE_RESOURCES = {PagesResource, PageLayoutResource}
 _LAYOUT_TOOLS = {GetDashComponentTool}
 
-_DEFAULT_CONFIG = {
+_DEFAULT_CONFIG: Dict[str, Any] = {
     "include_layout": True,
     "include_callbacks": True,
     "include_clientside_callbacks": True,
@@ -40,7 +40,7 @@ _DEFAULT_CONFIG = {
     "expose_callback_docstrings": False,
     "cache_by": [],
 }
-_current_config = dict(_DEFAULT_CONFIG)
+_current_config: Dict[str, Any] = dict(_DEFAULT_CONFIG)
 
 
 def configure_mcp_server(
