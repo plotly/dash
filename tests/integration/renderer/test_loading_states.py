@@ -50,7 +50,7 @@ def test_rdls001_multi_loading_components(dash_duo):
 
     def wait_for_all_spinners():
         dash_duo.find_element(".loading-1 .dash-spinner.dash-default-spinner")
-        dash_duo.find_element(".loading-2 .dash-spinner.dash-sk-circle")
+        dash_duo.find_element(".loading-2 .dash-spinner.dash-circle-spinner")
         dash_duo.find_element(".loading-3 .dash-spinner.dash-cube-container")
 
     def wait_for_no_spinners():

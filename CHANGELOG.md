@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
 
 ### Changed
+- [#4015](https://github.com/plotly/dash/pull/4015) Replace the `circle` spinner in `dcc.Loading` with a rotating ring, ported from react-spinners. Apps using `type="circle"` will see the new spinner.
 - [#4026](https://github.com/plotly/dash/pull/4026) Log a warning, once per process, when a streaming request is refused because its stream token failed verification, which on multi-worker deployments usually means the workers do not share a signing secret.
 - [#3987](https://github.com/plotly/dash/pull/3987) Forward FastAPI reload scope options (`reload_dirs`, `reload_excludes`, and `reload_includes`) to Uvicorn when reloading.
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
