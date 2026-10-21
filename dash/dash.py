@@ -690,11 +690,13 @@ class Dash(ObsoleteChecker):
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
         self.mcp_decorated_functions: dict = {}
-        # Request scoped: the adapters cache values computed in the caller's
-        # request context, so they must not outlive one MCP request.
+        # The collection serving the current MCP request, picked from
+        # _mcp_callback_maps by the configured cache_by key.
         self._mcp_callback_map: ContextVar = ContextVar(
             "mcp_callback_map", default=None
         )
+        self._mcp_callback_maps: collections.OrderedDict = collections.OrderedDict()
+        self._mcp_callback_maps_lock = threading.Lock()
 
         # list of inline scripts
         self._inline_scripts: list = []

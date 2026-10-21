@@ -260,7 +260,8 @@ const customCodesForComponents = {
     object: createXSSProtection('data'),
     embed: createXSSProtection('src'),
     button: createXSSProtection('formAction'),
-    area: createXSSProtection('href')
+    area: createXSSProtection('href'),
+    base: createXSSProtection('href')
 }
 
 function generateComponent(Component, element, attributes) {

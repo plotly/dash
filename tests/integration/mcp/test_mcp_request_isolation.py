@@ -1,5 +1,6 @@
-"""Values the MCP server computes from one caller's request must not be served
-to another caller."""
+"""The MCP server caches tool descriptions and initial values. With
+``cache_by`` keyed on the user, values computed for one user are not served to
+another."""
 
 import base64
 import json
@@ -7,6 +8,7 @@ import json
 import flask
 
 from dash import Dash, Input, Output, dcc, html
+from dash.mcp import configure_mcp_server
 
 USERS = {"alice": "pw-a", "bob": "pw-b"}
 SECRETS = {"alice": "alice-secret-111", "bob": "bob-secret-222"}
@@ -39,8 +41,9 @@ def _rpc(client, user, method, params=None):
     return json.dumps(r.get_json())
 
 
-def test_mcpi001_callback_initial_output_is_per_request():
+def test_mcpi001_callback_initial_output_is_per_user():
     app = Dash(__name__, enable_mcp=True)
+    configure_mcp_server(cache_by=lambda: flask.g.user)
     app.layout = html.Div(
         [
             dcc.Location(id="url"),
@@ -80,8 +83,9 @@ def test_mcpi001_callback_initial_output_is_per_request():
     assert SECRETS["alice"] not in bob_tools
 
 
-def test_mcpi002_layout_function_values_are_per_request():
+def test_mcpi002_layout_function_values_are_per_user():
     app = Dash(__name__, enable_mcp=True, suppress_callback_exceptions=True)
+    configure_mcp_server(cache_by=[lambda: flask.g.user])
 
     def serve_layout():
         user = getattr(flask.g, "user", None) if flask.has_app_context() else None
@@ -102,3 +106,41 @@ def test_mcpi002_layout_function_values_are_per_request():
     bob_tools = _rpc(client, "bob", "tools/list")
     assert SECRETS["alice"] not in bob_tools
     assert SECRETS["bob"] in bob_tools
+
+
+def test_mcpi003_cache_is_reused_across_requests():
+    app = Dash(__name__, enable_mcp=True)
+    app.layout = html.Div([dcc.Input(id="in", value="x"), html.Div(id="out")])
+    _add_basic_auth(app)
+    runs = []
+
+    @app.callback(Output("out", "children"), Input("in", "value"))
+    def echo(value):
+        runs.append(value)
+        return value
+
+    client = app.server.test_client()
+    get_out = {"name": "get_dash_component", "arguments": {"component_id": "out"}}
+    _rpc(client, "alice", "tools/call", get_out)
+    _rpc(client, "bob", "tools/call", get_out)
+    _rpc(client, "alice", "tools/list")
+    assert len(runs) == 1
+
+
+def test_mcpi004_failing_cache_by_returns_error():
+    app = Dash(__name__, enable_mcp=True)
+    app.layout = html.Div([dcc.Input(id="in", value="x"), html.Div(id="out")])
+    _add_basic_auth(app)
+
+    def broken():
+        raise KeyError("no user")
+
+    configure_mcp_server(cache_by=broken)
+
+    @app.callback(Output("out", "children"), Input("in", "value"))
+    def echo(value):
+        return value
+
+    body = json.loads(_rpc(app.server.test_client(), "alice", "tools/list"))
+    assert body["error"]["code"] == -32603
+    assert "result" not in body

@@ -119,3 +119,31 @@ def test_bgiso002_callbacks_from_one_factory_do_not_share_results():
     out = _poll_until_done(client, end_id, _body("public"), public)
     assert "public stats" in out
     assert "admin payroll" not in out
+
+
+def test_bgiso003_unread_results_expire_without_cache_by():
+    manager = DiskcacheManager(diskcache.Cache(tempfile.mkdtemp()))
+    app = Dash(__name__, background_callback_manager=manager)
+    app.layout = html.Div([dcc.Input(id="in-x", value="go"), html.Div(id="out-x")])
+
+    @app.callback(
+        Output("out-x", "children"),
+        Input("in-x", "value"),
+        background=True,
+        prevent_initial_call=True,
+    )
+    def slow(value):
+        return value
+
+    client = app.server.test_client()
+    handles = _start(client, _end_id(client), _body("x"))
+    raw_key = handles["cacheKey"].split("~")[0]
+
+    # Nobody polls (the page was closed): the stored result must still expire.
+    for _ in range(50):
+        _, expire_time = manager.handle.get(raw_key, expire_time=True)
+        if expire_time is not None:
+            break
+        time.sleep(0.2)
+    remaining = expire_time - time.time()
+    assert 0 < remaining <= manager.UNCACHED_RESULT_EXPIRE

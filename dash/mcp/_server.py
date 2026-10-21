@@ -26,6 +26,7 @@ from dash.mcp.types import (
 )
 
 from dash import get_app
+from dash.mcp import _configure
 from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
 from dash.mcp.primitives import (
     call_tool,
@@ -45,6 +46,9 @@ if TYPE_CHECKING:
     from dash import Dash
 
 logger = logging.getLogger(__name__)
+
+# Bounds memory when cache_by yields one key per user.
+_MAX_CACHED_CALLBACK_MAPS = 128
 
 
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
@@ -260,14 +264,45 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
 
     app = get_app()
     app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
-    # A fresh collection per message: its adapters cache values computed from
-    # this caller's request, which must never be served to another user.
+    try:
+        collection = _callback_map_for_request(app)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        # Never fall back to a shared cache: it could serve another user's values.
+        logger.error("MCP cache_by failed: %s", e, exc_info=True)
+        return JSONRPCError(
+            jsonrpc="2.0",
+            id=request_id,
+            error=ErrorData(code=-32603, message=f"cache_by failed: {e}"),
+        ).model_dump(exclude_none=True)
     # pylint: disable-next=protected-access
-    token = app._mcp_callback_map.set(CallbackAdapterCollection(app))
+    token = app._mcp_callback_map.set(collection)
     try:
         return _dispatch_mcp_message(method, params, request_id)
     finally:
         app._mcp_callback_map.reset(token)  # pylint: disable=protected-access
+
+
+def _callback_map_for_request(app: Dash) -> CallbackAdapterCollection:
+    """Return the cached adapter collection for this request's cache_by key.
+
+    The adapters lazily cache values computed in the request that first reads
+    them, so requests only share a collection when their cache_by values match.
+    """
+    # pylint: disable-next=protected-access
+    cache_by = _configure._current_config["cache_by"] or []
+    cache_key = str([fn() for fn in cache_by])
+    # pylint: disable=protected-access
+    with app._mcp_callback_maps_lock:
+        maps = app._mcp_callback_maps
+        collection = maps.get(cache_key)
+        if collection is None:
+            collection = CallbackAdapterCollection(app)
+            maps[cache_key] = collection
+            if len(maps) > _MAX_CACHED_CALLBACK_MAPS:
+                maps.popitem(last=False)
+        else:
+            maps.move_to_end(cache_key)
+    return collection
 
 
 def _dispatch_mcp_message(

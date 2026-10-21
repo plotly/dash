@@ -143,3 +143,17 @@ def test_xss005_location_refresh_href(dash_duo):
 
     dash_duo.find_element("#good").click()
     until(lambda: dash_duo.driver.current_url.endswith("/next"), timeout=5)
+
+
+def test_xss006_base_href(dash_duo):
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Div("ready", id="ready"),
+            html.Base(href="javascript:alert(1)", id="base"),
+        ]
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#ready", "ready")
+    assert dash_duo.find_element("#base").get_attribute("href") == "about:blank"

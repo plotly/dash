@@ -4,6 +4,7 @@ from contextvars import copy_context, ContextVar
 import asyncio
 import concurrent.futures
 import json
+import logging
 import queue
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import sys
@@ -23,7 +24,7 @@ try:
     from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
-    from starlette.datastructures import MutableHeaders
+    from starlette.datastructures import Headers, MutableHeaders
     from starlette.exceptions import HTTPException
     from starlette.requests import HTTPConnection
     from starlette.types import ASGIApp, Scope, Receive, Send
@@ -77,6 +78,8 @@ from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
+
+logger = logging.getLogger(__name__)
 
 
 def _run_subprocess(args, env):
@@ -166,13 +169,22 @@ def _replay_body(body: bytes, receive: Receive) -> Receive:
 
 def _hook_response(result: Any) -> StarletteResponse:
     """Turn a before_request hook's return value into a response, following the
-    Flask/Quart contract: a response, a body, or ``(body, status[, headers])``."""
+    Flask/Quart contract: a response, a body, ``(body, status)``,
+    ``(body, headers)`` or ``(body, status, headers)``."""
     if isinstance(result, StarletteResponse):
         return result
     status, headers = 200, None
     if isinstance(result, tuple):
-        result, status, *rest = result
-        headers = rest[0] if rest else None
+        if len(result) == 3:
+            result, status, headers = result
+        elif isinstance(result[1], (dict, Headers, list, tuple)):
+            result, headers = result
+        else:
+            result, status = result
+    if isinstance(status, str):
+        status = int(status.split(" ", 1)[0])
+    if isinstance(headers, (list, tuple)):
+        headers = dict(headers)
     if isinstance(result, (dict, list)):
         return JSONResponse(content=result, status_code=status, headers=headers)
     return Response(content=result, status_code=status, headers=headers)
@@ -374,6 +386,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         try:
             denied = await self._run_before_hooks()
         except Exception:  # pylint: disable=broad-exception-caught
+            logger.exception("before_request hook failed, rejecting WebSocket")
             denied = True
         finally:
             reset_current_request(token)

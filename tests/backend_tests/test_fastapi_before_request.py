@@ -144,3 +144,46 @@ def test_fabr003_hook_gates_websocket_handshake():
             "/_dash-ws-callback", headers={**origin, "authorization": "good"}
         ):
             pass
+
+
+@pytest.mark.parametrize(
+    "returned, status",
+    [
+        (("blocked", {"X-Blocked": "1"}), 200),
+        (("blocked", [("X-Blocked", "1")]), 200),
+        (("blocked", "403 FORBIDDEN", {"X-Blocked": "1"}), 403),
+    ],
+)
+def test_fabr004_hook_returns_flask_style_tuples(returned, status):
+    from starlette.testclient import TestClient
+
+    app = Dash(__name__, backend="fastapi")
+    app.layout = html.Div("layout")
+    app.backend.before_request(lambda: returned)
+
+    with TestClient(app.server) as client:
+        r = client.get("/_dash-layout")
+        assert r.status_code == status
+        assert r.text == "blocked"
+        assert r.headers["X-Blocked"] == "1"
+
+
+def test_fabr005_failing_hook_logs_and_rejects_websocket(caplog):
+    from starlette.testclient import TestClient
+    from starlette.websockets import WebSocketDisconnect
+
+    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
+    app.layout = html.Div("layout")
+
+    def broken():
+        raise ValueError("hook bug")
+
+    app.backend.before_request(broken)
+
+    with TestClient(app.server) as client:
+        with pytest.raises(WebSocketDisconnect):
+            with client.websocket_connect(
+                "/_dash-ws-callback", headers={"origin": "http://testserver"}
+            ):
+                pass
+    assert "hook bug" in caplog.text
