@@ -39,8 +39,12 @@ _DEFAULT_CONFIG: Dict[str, Any] = {
     "include_pages": True,
     "expose_callback_docstrings": False,
     "cache_by": [],
+    "cache_maxsize": 128,
 }
 _current_config: Dict[str, Any] = dict(_DEFAULT_CONFIG)
+
+# None is a meaningful cache_maxsize (no limit), so "not passed" needs its own value.
+_UNSET: Any = object()
 
 
 def configure_mcp_server(
@@ -51,6 +55,7 @@ def configure_mcp_server(
     include_pages: Optional[bool] = None,
     expose_callback_docstrings: Optional[bool] = None,
     cache_by: Optional[Union[Callable[[], object], List[Callable[[], object]]]] = None,
+    cache_maxsize: Optional[int] = _UNSET,
 ) -> None:
     """
     Configure which content the Dash MCP server exposes.
@@ -78,6 +83,10 @@ def configure_mcp_server(
         callbacks depend on who is asking, pass a function that returns the
         user or session id (a string or int) so each user gets their own
         values, the same way ``cache_by`` works for background callbacks.
+    :param cache_maxsize: How many ``cache_by`` keys (for example users) keep
+        a cache at once; the least recently used is dropped past that.
+        Defaults to ``128``. ``None`` keeps every key for the life of the
+        process.
 
     Example — expose only ``@mcp_enabled``-decorated functions::
 
@@ -107,6 +116,8 @@ def configure_mcp_server(
     _current_config.update(
         {key: value for key, value in passed.items() if value is not None}
     )
+    if cache_maxsize is not _UNSET:
+        _current_config["cache_maxsize"] = cache_maxsize
 
     CallbackTools.callbacks_mcp_enabled_by_default = _current_config[
         "include_callbacks"

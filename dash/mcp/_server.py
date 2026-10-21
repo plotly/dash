@@ -47,9 +47,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Bounds memory when cache_by yields one key per user.
-_MAX_CACHED_CALLBACK_MAPS = 128
-
 
 def enable_mcp_server(app: Dash, mcp_path: str) -> None:
     """Add MCP routes to a Dash app."""
@@ -298,7 +295,8 @@ def _callback_map_for_request(app: Dash) -> CallbackAdapterCollection:
         if collection is None:
             collection = CallbackAdapterCollection(app)
             maps[cache_key] = collection
-            if len(maps) > _MAX_CACHED_CALLBACK_MAPS:
+            maxsize = _configure._current_config["cache_maxsize"]
+            if maxsize is not None and len(maps) > maxsize:
                 maps.popitem(last=False)
         else:
             maps.move_to_end(cache_key)

@@ -6,6 +6,7 @@ import base64
 import json
 
 import flask
+import pytest
 
 from dash import Dash, Input, Output, dcc, html
 from dash.mcp import configure_mcp_server
@@ -144,3 +145,23 @@ def test_mcpi004_failing_cache_by_returns_error():
     body = json.loads(_rpc(app.server.test_client(), "alice", "tools/list"))
     assert body["error"]["code"] == -32603
     assert "result" not in body
+
+
+@pytest.mark.parametrize("maxsize, expected_runs", [(1, 3), (None, 2)])
+def test_mcpi005_cache_maxsize(maxsize, expected_runs):
+    app = Dash(__name__, enable_mcp=True)
+    app.layout = html.Div([dcc.Input(id="in", value="x"), html.Div(id="out")])
+    _add_basic_auth(app)
+    configure_mcp_server(cache_by=lambda: flask.g.user, cache_maxsize=maxsize)
+    runs = []
+
+    @app.callback(Output("out", "children"), Input("in", "value"))
+    def echo(value):
+        runs.append(value)
+        return value
+
+    client = app.server.test_client()
+    get_out = {"name": "get_dash_component", "arguments": {"component_id": "out"}}
+    for user in ("alice", "bob", "alice"):
+        _rpc(client, user, "tools/call", get_out)
+    assert len(runs) == expected_runs
