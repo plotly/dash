@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -58,9 +57,6 @@ def test_threaded_server_wrapped_fastapi(monkeypatch):
             runner.stop()
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3,), reason="requires python3 for process testing"
-)
 def test_process_server_smoke(dash_process_server):
     cwd = os.getcwd()
     this_dir = os.path.dirname(__file__)

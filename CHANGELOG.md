@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
+- [#4039](https://github.com/plotly/dash/pull/4039) Remove unnecessary Python version checks (pre 3.9).
 
 ### Changed
 - [#4073](https://github.com/plotly/dash/pull/4073) Move `plotly-cloud` back to the optional `dash[cloud]` extra (it was a default dependency in 4.5.0rc0/rc1), since it is not available on conda-forge.
