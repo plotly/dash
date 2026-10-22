@@ -433,6 +433,11 @@ class Component(metaclass=ComponentMeta):
         for t in self._traverse_ids():
             yield t.id  # type: ignore[reportAttributeAccessIssue]
 
+    def __bool__(self):
+        # Without this, truthiness falls back to __len__, so a component
+        # with no children (or no children prop, like DataTable) is falsy.
+        return True
+
     def __len__(self):
         """Return the number of items in the tree."""
         # TODO - Should we return the number of items that have IDs
