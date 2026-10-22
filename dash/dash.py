@@ -11,6 +11,7 @@ from importlib.util import find_spec
 from importlib import metadata
 import pkgutil
 import threading
+from contextvars import ContextVar
 import re
 import logging
 import mimetypes
@@ -48,7 +49,12 @@ from .exceptions import (
 )
 from .backends import get_backend
 from .version import __version__
-from ._configs import get_combined_config, pathname_configs, pages_folder_config
+from ._configs import (
+    get_combined_config,
+    load_dash_env_vars,
+    pathname_configs,
+    pages_folder_config,
+)
 from ._utils import (
     AttributeDict,
     format_tag,
@@ -76,11 +82,8 @@ from . import _get_app
 from . import backends
 
 from ._get_app import with_app_context, with_app_context_factory
-from ._shared_storage import (
-    BaseSharedStorage,
-    LocalSharedStorage,
-    SharedStorageError,
-)
+from ._shared_storage import BaseSharedStorage, SharedStorageError
+from ._shared_storage._env import storage_from_env
 from ._grouping import map_grouping, grouping_len, update_args_group
 from ._obsolete import ObsoleteChecker
 from ._callback_context import callback_context
@@ -154,6 +157,9 @@ _ID_STORE = "_pages_store"
 _ID_DUMMY = "_pages_dummy"
 
 _UNINITIALIZED = object()  # Sentinel for tracking init_app state
+# Default for ``shared_storage`` so "not passed" (DASH_SHARED_STORAGE may pick
+# the backend) can be told apart from an explicit argument.
+_SHARED_STORAGE_DEFAULT: Any = object()
 
 DASH_VERSION_URL = "https://dash-version.plotly.com:8080/current_version"
 
@@ -470,6 +476,20 @@ class Dash(ObsoleteChecker):
         takes a thread for milliseconds. ASGI backends (Quart, FastAPI) keep
         one open connection per browser instead and ignore this.
     :type stream_poll_interval: int
+
+    :param shared_storage: Backend for ``dash.ctx.shared_storage`` and the
+        streaming-callback transport: a ``BaseSharedStorage`` subclass or
+        instance, or ``None`` to disable. Default ``LocalSharedStorage`` (one
+        machine or pod). When not passed, the ``DASH_SHARED_STORAGE``
+        environment variable can choose it: ``local``, ``none``,
+        ``diskcache:///absolute/path``, or a ``redis://`` / ``rediss://`` URL.
+        An explicit argument, including ``None``, always wins.
+
+        Stream requests are signed per page load, so with several workers or
+        pods they all need the same signing secret: set ``server.secret_key``
+        or the ``DASH_SECRET_KEY`` environment variable. ``DASH_SECRET_KEY`` is
+        used for Dash's own signing only and does not set ``server.secret_key``.
+    :type shared_storage: BaseSharedStorage subclass or instance, or None
     """
 
     _plotlyjs_url: str
@@ -535,7 +555,7 @@ class Dash(ObsoleteChecker):
         stream_poll_interval: int = 100,
         shared_storage: Optional[
             Union[Type[BaseSharedStorage], BaseSharedStorage]
-        ] = LocalSharedStorage,
+        ] = _SHARED_STORAGE_DEFAULT,
         enable_mcp: Optional[bool] = None,
         mcp_path: Optional[str] = None,
         **obsolete,
@@ -549,9 +569,12 @@ class Dash(ObsoleteChecker):
         if not csrf_header_name or not csrf_header_name.strip():
             raise ValueError("csrf_header_name must be a non-empty string")
 
-        caller_name: str = name if name is not None else get_caller_name()
+        module_name = get_caller_name()
+        caller_name: str = name if name is not None else module_name
 
-        alias_main_module(caller_name)
+        # Alias based on the module that is running, not the app name: an
+        # explicit ``name`` or an app factory still runs from the main module.
+        alias_main_module(module_name)
 
         # Determine backend
         if backend is None:
@@ -667,7 +690,13 @@ class Dash(ObsoleteChecker):
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
         self.mcp_decorated_functions: dict = {}
-        self.mcp_callback_map: Any = None
+        # The collection serving the current MCP request, picked from
+        # _mcp_callback_maps by the configured cache_by key.
+        self._mcp_callback_map: ContextVar = ContextVar(
+            "mcp_callback_map", default=None
+        )
+        self._mcp_callback_maps: collections.OrderedDict = collections.OrderedDict()
+        self._mcp_callback_maps_lock = threading.Lock()
 
         # list of inline scripts
         self._inline_scripts: list = []
@@ -721,6 +750,10 @@ class Dash(ObsoleteChecker):
         # access so it costs nothing until used and never binds in a gunicorn
         # preload master or the Flask reloader parent -- only in the worker that
         # actually touches it.
+        if shared_storage is _SHARED_STORAGE_DEFAULT:
+            shared_storage = storage_from_env(
+                load_dash_env_vars().get("DASH_SHARED_STORAGE")
+            )
         self._shared_storage_arg = shared_storage
         self._shared_storage_instance: Optional[BaseSharedStorage] = None
         self._shared_storage_lock = threading.Lock()
@@ -750,9 +783,8 @@ class Dash(ObsoleteChecker):
         self._pages_lock = threading.Lock()
         self._pages_async_lock: Optional[asyncio.Lock] = None
 
-        # Secret used to sign background-callback handles (see _callback_signing).
-        # Prefer the Flask/Quart secret_key (shared across workers when the
-        # operator sets one); otherwise fall back to a per-process random secret.
+        # Fallback signing secret, used when neither server.secret_key nor
+        # DASH_SECRET_KEY is set. See _get_signing_secret.
         self._generated_signing_secret: Optional[bytes] = None
 
         if server:
@@ -974,6 +1006,14 @@ class Dash(ObsoleteChecker):
         self._plotlyjs_url = url
 
     @property
+    def mcp_callback_map(self) -> Any:
+        return self._mcp_callback_map.get()
+
+    @mcp_callback_map.setter
+    def mcp_callback_map(self, value: Any):
+        self._mcp_callback_map.set(value)
+
+    @property
     def layout(self) -> Any:
         return self._layout
 
@@ -1019,7 +1059,7 @@ class Dash(ObsoleteChecker):
             with self._shared_storage_lock:
                 if self._shared_storage_instance is None:
                     storage = self._shared_storage_arg
-                    if isinstance(storage, type):
+                    if isinstance(storage, (type, functools.partial)):
                         storage = storage()
                     storage.start()
                     self._shared_storage_instance = storage
@@ -1068,21 +1108,29 @@ class Dash(ObsoleteChecker):
         )
 
     def _get_signing_secret(self) -> bytes:
-        """Return the secret used to sign background-callback handles.
+        """Return the secret used to sign page tokens (``end_id``), background
+        callback handles and stream connections.
 
         Resolution order:
 
         1. The server's ``secret_key`` if set (shared across workers when the
            operator configures one, e.g. for Flask-Login).
-        2. Otherwise a random secret persisted in the background-callback result
+        2. ``DASH_SECRET_KEY`` from the environment, so a hosting platform can
+           give every worker and pod the same key without editing the app. Used
+           for Dash's own signing only, never assigned to ``server.secret_key``
+           (that would change Flask session behavior).
+        3. Otherwise a random secret persisted in the background-callback result
            store, so every worker reads back the same value. This is exactly as
            shared as the callback results themselves, so it works cross-worker
            whenever the deployment is set up for multi-worker background
            callbacks (an explicitly shared cache / broker).
-        3. Finally, if no background manager is available, a per-process random
-           secret (there are no background handles to verify in that case).
+        4. Finally, if no background manager is available, a per-process random
+           secret. Stream tokens then only verify on the worker that issued
+           them, so multi-worker streaming apps need 1 or 2.
         """
-        key = getattr(self.server, "secret_key", None)
+        key = getattr(self.server, "secret_key", None) or load_dash_env_vars().get(
+            "DASH_SECRET_KEY"
+        )
         if key:
             return key.encode("utf-8") if isinstance(key, str) else key
         if self._generated_signing_secret is None:

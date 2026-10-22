@@ -37,7 +37,13 @@ from ._transport import (
     recv_frame,
     send_frame,
 )
-from .base import BaseSharedStorage, SharedStorageError, SharedStorageGap, Subscription
+from .base import (
+    BaseSharedStorage,
+    SharedStorageError,
+    SharedStorageGap,
+    Subscription,
+    check_topic_ttl,
+)
 
 _HAS_AF_UNIX = hasattr(socket, "AF_UNIX")
 _CLIENT_POLL_TIMEOUT = 20.0  # long-poll cycle for remote subscribers
@@ -543,7 +549,7 @@ class LocalSharedStorage(BaseSharedStorage):
         if op == "delete":
             return engine.delete(req[1])
         if op == "publish":
-            return engine.publish(req[1], req[2])
+            return engine.publish(req[1], req[2], req[3] if len(req) > 3 else None)
         if op == "head":
             return engine.head_seq(req[1])
         raise ValueError(f"unknown op {op!r}")
@@ -596,8 +602,11 @@ class LocalSharedStorage(BaseSharedStorage):
     async def adelete(self, key: str) -> None:
         await self._acall(["delete", key])
 
-    async def apublish(self, topic: str, message: Any) -> None:
-        await self._acall(["publish", topic, message])
+    async def apublish(
+        self, topic: str, message: Any, ttl: Optional[float] = None
+    ) -> None:
+        check_topic_ttl(ttl)
+        await self._acall(["publish", topic, message, ttl])
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._call(["get", key, default])
@@ -608,8 +617,9 @@ class LocalSharedStorage(BaseSharedStorage):
     def delete(self, key: str) -> None:
         self._call(["delete", key])
 
-    def publish(self, topic: str, message: Any) -> None:
-        self._call(["publish", topic, message])
+    def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:
+        check_topic_ttl(ttl)
+        self._call(["publish", topic, message, ttl])
 
     def _head(self, topic: str) -> int:
         return self._call(["head", topic])

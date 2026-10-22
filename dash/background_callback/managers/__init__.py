@@ -1,6 +1,7 @@
 from abc import ABC
 import inspect
 import hashlib
+import secrets
 from typing import Any, List
 
 
@@ -69,7 +70,9 @@ class BaseBackgroundCallbackManager(ABC):
         """
         raise NotImplementedError
 
-    def build_cache_key(self, fn, args, cache_args_to_ignore, triggered):
+    def build_cache_key(
+        self, fn, args, cache_args_to_ignore, triggered, callback_key=None
+    ):
         try:
             fn_source = inspect.getsource(fn)
             fn_str = fn_source
@@ -87,13 +90,19 @@ class BaseBackgroundCallbackManager(ABC):
                     arg for i, arg in enumerate(args) if i not in cache_args_to_ignore
                 ]
 
-        hash_dict = dict(args=args, fn_source=fn_str, triggered=triggered)
+        hash_dict = dict(
+            args=args, fn_source=fn_str, triggered=triggered, callback=callback_key
+        )
 
         if self.cache_by is not None:
             # Caching enabled
             for i, cache_item in enumerate(self.cache_by):
                 # Call cache function
                 hash_dict[f"cache_key_{i}"] = cache_item()
+        else:
+            # Without caching the job runs in the requester's context, so two
+            # requests with equal inputs must never share a result.
+            hash_dict["nonce"] = secrets.token_hex(16)
 
         return hashlib.sha256(str(hash_dict).encode("utf-8")).hexdigest()
 
