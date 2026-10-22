@@ -7,6 +7,7 @@ from time import sleep
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html
+from selenium.webdriver.common.action_chains import ActionChains
 
 import dash.testing.wait as wait
 
@@ -708,4 +709,134 @@ def test_grbs012_graph_patch_keeps_relayout_ranges(dash_dcc):
     )
     assert rendered_range() == [3, 5]
 
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("clear_on_unhover", [True, False])
+def test_grbs013_parcoords_hover(dash_dcc, clear_on_unhover):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                clear_on_unhover=clear_on_unhover,
+                config={"plotGlPixelRatio": 1},
+                figure={
+                    "data": [
+                        {
+                            "type": "parcoords",
+                            "dimensions": [
+                                {
+                                    "label": label,
+                                    "range": [0, 4],
+                                    "values": [0.5, 3.5, 2],
+                                }
+                                for label in ["A", "B", "C"]
+                            ],
+                        }
+                    ],
+                    "layout": {
+                        "width": 600,
+                        "height": 400,
+                        "margin": {"l": 80, "r": 80, "t": 60, "b": 60},
+                    },
+                },
+            ),
+            html.Pre(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("graph", "hoverData"))
+    def show_hover(data):
+        return json.dumps(data)
+
+    dash_dcc.driver.set_window_size(1000, 800)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .js-plotly-plot:not(.dash-graph--pending)")
+    dash_dcc.wait_for_text_to_equal("#output", "null")
+    canvas = dash_dcc.find_element("#graph .gl-canvas-pick")
+
+    # Line 2 exceeds the trace count and must not be used as a trace index.
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(canvas, -110, 0).perform()
+    dash_dcc.wait_for_contains_text("#output", '"points"')
+    hover_data = json.loads(dash_dcc.find_element("#output").text)
+    assert hover_data == {
+        "points": [
+            {
+                "x": 190,
+                "y": 200,
+                "clientX": canvas.rect["x"] + 190,
+                "clientY": canvas.rect["y"] + 200,
+                "dataIndex": 0,
+                "curveNumber": 2,
+            }
+        ]
+    }
+
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(
+        canvas, -110, -40
+    ).perform()
+    if clear_on_unhover:
+        dash_dcc.wait_for_text_to_equal("#output", "null")
+    else:
+        assert json.loads(dash_dcc.find_element("#output").text) == hover_data
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("trace_type", ["scatter", "sankey"])
+def test_grbs014_graph_hover_points(dash_dcc, trace_type):
+    app = Dash(__name__)
+    if trace_type == "scatter":
+        trace = {
+            "type": "scatter",
+            "x": [1, 2, 3],
+            "y": [1, 2, 3],
+            "mode": "markers",
+            "customdata": ["a", "b", "c"],
+        }
+        selector = ".scatterlayer .point"
+        expected = {
+            "curveNumber": 0,
+            "pointNumber": 0,
+            "x": 1,
+            "y": 1,
+            "customdata": "a",
+        }
+    else:
+        trace = {
+            "type": "sankey",
+            "node": {"label": ["A", "B"]},
+            "link": {"source": [0], "target": [1], "value": [2]},
+        }
+        selector = ".sankey-node"
+        expected = {"curveNumber": 0, "pointNumber": 0, "label": "A", "value": 2}
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={"data": [trace]},
+                style={"width": 600, "height": 400},
+                clear_on_unhover=True,
+            ),
+            html.Pre(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("graph", "hoverData"))
+    def show_hover(data):
+        return json.dumps(data)
+
+    dash_dcc.driver.set_window_size(1000, 800)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .js-plotly-plot:not(.dash-graph--pending)")
+    ActionChains(dash_dcc.driver).move_to_element(
+        dash_dcc.find_element(f"#graph {selector}")
+    ).perform()
+    dash_dcc.wait_for_contains_text("#output", '"points"')
+    hover_data = json.loads(dash_dcc.find_element("#output").text)
+    assert len(hover_data["points"]) == 1
+    point = hover_data["points"][0]
+    assert {key: point[key] for key in expected} == expected
+    assert not {"data", "fullData", "xaxis", "yaxis"}.intersection(point)
     assert dash_dcc.get_logs() == []
