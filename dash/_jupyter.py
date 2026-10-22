@@ -9,8 +9,7 @@ import sys
 import threading
 import time
 
-from typing import Optional, Any
-from typing_extensions import Literal
+from typing import Optional, Any, Literal
 
 from werkzeug.serving import make_server
 
