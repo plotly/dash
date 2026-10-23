@@ -73,9 +73,12 @@ const filterEventData = (gd, eventData, event) => {
          * into the event object
          */
         const data = gd.data;
+        // Parcoords sends a flat point, whose curveNumber is a line index.
+        const hasPointsArray = Array.isArray(eventData.points);
+        const eventPoints = hasPointsArray ? eventData.points : [eventData];
 
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
+        for (let i = 0; i < eventPoints.length; i++) {
+            const fullPoint = eventPoints[i];
             const pointData = filter(function (o) {
                 return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
@@ -86,6 +89,7 @@ const filterEventData = (gd, eventData, event) => {
             }
 
             if (
+                hasPointsArray &&
                 has('curveNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
