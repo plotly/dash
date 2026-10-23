@@ -55,6 +55,16 @@ const UNRESPONSIVE_CONFIG = {
     responsive: false,
 };
 
+const toPlainArray = value => {
+    if (ArrayBuffer.isView(value)) {
+        return Array.from(value);
+    }
+    if (Array.isArray(value)) {
+        return value.map(toPlainArray);
+    }
+    return value;
+};
+
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
     if (includes(event, ['click', 'hover', 'selected'])) {
@@ -89,25 +99,28 @@ const filterEventData = (gd, eventData, event) => {
                 has('curveNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
+                const customdata = data[pointData.curveNumber].customdata;
+                // Plotly.js caches decoded binary arrays on the input object.
+                const customdataArray = customdata?._inputArray || customdata;
                 if (has('pointNumber', fullPoint)) {
                     if (typeof fullPoint.pointNumber === 'number') {
                         pointData.customdata =
-                            data[pointData.curveNumber].customdata[
-                                fullPoint.pointNumber
-                            ];
+                            customdataArray[fullPoint.pointNumber];
                     } else if (
                         !fullPoint.pointNumber &&
                         fullPoint.data.mode.includes('lines')
                     ) {
-                        pointData.customdata =
-                            data[pointData.curveNumber].customdata;
+                        pointData.customdata = customdataArray;
                     }
                 } else if (has('pointNumbers', fullPoint)) {
                     pointData.customdata = fullPoint.pointNumbers.map(function (
                         point
                     ) {
-                        return data[pointData.curveNumber].customdata[point];
+                        return customdataArray[point];
                     });
+                }
+                if (customdata?._inputArray) {
+                    pointData.customdata = toPlainArray(pointData.customdata);
                 }
             }
 
