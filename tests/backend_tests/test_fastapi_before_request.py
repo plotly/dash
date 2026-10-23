@@ -2,7 +2,7 @@
 and Quart."""
 import pytest
 
-from dash import Dash, Input, Output, _get_app, hooks, html
+from dash import Dash, Input, Output, _get_app, callback, hooks, html
 
 pytest.importorskip("fastapi")
 
@@ -187,3 +187,36 @@ def test_fabr005_failing_hook_logs_and_rejects_websocket(caplog):
             ):
                 pass
     assert "hook bug" in caplog.text
+
+
+def test_fabr006_websocket_callback_before_any_http_request():
+    # dash.callback is only copied into callback_map by _setup_server, a
+    # before_request hook, so the handshake must run it too (gh-4082).
+    from starlette.testclient import TestClient
+
+    app = Dash(__name__, backend="fastapi")
+    app.layout = html.Div([html.Button(id="ws-btn"), html.Div(id="ws-out")])
+
+    @callback(Output("ws-out", "children"), Input("ws-btn", "n_clicks"), websocket=True)
+    def echo(n_clicks):
+        return f"ws {n_clicks}"
+
+    request = {
+        "type": "callback_request",
+        "requestId": "1",
+        "rendererId": "r",
+        "payload": {
+            "output": "ws-out.children",
+            "outputs": {"id": "ws-out", "property": "children"},
+            "inputs": [{"id": "ws-btn", "property": "n_clicks", "value": 1}],
+            "changedPropIds": ["ws-btn.n_clicks"],
+        },
+    }
+    with TestClient(app.server) as client:
+        with client.websocket_connect(
+            "/_dash-ws-callback", headers={"origin": "http://testserver"}
+        ) as ws:
+            ws.send_json(request)
+            payload = ws.receive_json()["payload"]
+    assert payload["status"] == "ok"
+    assert payload["data"]["response"] == {"ws-out": {"children": "ws 1"}}
