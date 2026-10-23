@@ -1,9 +1,9 @@
 import typing
-from typing import Any, Dict, List, Union
+from typing import Annotated, Any, Dict, List, Union
 
 from pydantic import Field, GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic_core import core_schema
-from typing_extensions import Annotated, TypedDict, NotRequired
+from typing_extensions import TypedDict, NotRequired
 
 
 class _NumberSchema:  # pylint: disable=too-few-public-methods
