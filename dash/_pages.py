@@ -1,4 +1,5 @@
 import collections
+import functools
 import importlib
 import importlib.util  # to make the type checker happy
 import os
@@ -129,23 +130,26 @@ def _parse_path_variables(pathname, path_template):
          returns **{"asset_id": "a100"}
     """
 
-    # parse variable definitions e.g. <var_name> from template
-    # and create pattern to match
     wildcard_pattern = re.sub("<.*?>", "*", path_template)
-    var_pattern = re.sub("<.*?>", "(.*)", path_template)
 
-    # check that static sections of the pathname match the template
+    # fnmatch compiles to a pattern that cannot backtrack, so it gates out
+    # non-matching paths cheaply before the capturing match below runs.
     if not fnmatch(pathname, wildcard_pattern):
         return None
 
-    # parse variable names e.g. var_name from template
+    match = _path_template_regex(path_template).fullmatch(pathname)
+    if match is None:
+        return None
+
     var_names = re.findall("<(.*?)>", path_template)
+    return dict(zip(var_names, match.groups()))
 
-    # parse variables from path
-    variables = re.findall(var_pattern, pathname, re.DOTALL)
-    variables = variables[0] if isinstance(variables[0], tuple) else variables
 
-    return dict(zip(var_names, variables))
+@functools.lru_cache(maxsize=None)
+def _path_template_regex(path_template):
+    static_parts = re.split("<.*?>", path_template)
+    # DOTALL to agree with fnmatch, whose * also matches newlines.
+    return re.compile("(.*)".join(re.escape(p) for p in static_parts), re.DOTALL)
 
 
 def _set_redirect(redirect_from, path):

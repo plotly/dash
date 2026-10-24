@@ -3,14 +3,13 @@ import warnings
 import os
 
 import typing as _t
-import typing_extensions as _tx
 
 
 from .development.base_component import ComponentRegistry
 from . import exceptions
 
 # ResourceType has `async` key, use the init form to be able to provide it.
-ResourceType = _tx.TypedDict(
+ResourceType = _t.TypedDict(
     "ResourceType",
     {
         "namespace": str,

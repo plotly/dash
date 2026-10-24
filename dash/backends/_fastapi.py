@@ -4,6 +4,7 @@ from contextvars import copy_context, ContextVar
 import asyncio
 import concurrent.futures
 import json
+import logging
 import queue
 from typing import TYPE_CHECKING, Any, Callable, Dict, List
 import sys
@@ -23,7 +24,9 @@ try:
     from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
     from fastapi.staticfiles import StaticFiles
     from starlette.responses import Response as StarletteResponse
-    from starlette.datastructures import MutableHeaders
+    from starlette.datastructures import Headers, MutableHeaders
+    from starlette.exceptions import HTTPException
+    from starlette.requests import HTTPConnection
     from starlette.types import ASGIApp, Scope, Receive, Send
     from starlette.websockets import WebSocket, WebSocketDisconnect
     import uvicorn
@@ -75,6 +78,8 @@ from ._utils import format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
+
+logger = logging.getLogger(__name__)
 
 
 def _run_subprocess(args, env):
@@ -162,6 +167,29 @@ def _replay_body(body: bytes, receive: Receive) -> Receive:
     return replay
 
 
+def _hook_response(result: Any) -> StarletteResponse:
+    """Turn a before_request hook's return value into a response, following the
+    Flask/Quart contract: a response, a body, ``(body, status)``,
+    ``(body, headers)`` or ``(body, status, headers)``."""
+    if isinstance(result, StarletteResponse):
+        return result
+    status, headers = 200, None
+    if isinstance(result, tuple):
+        if len(result) == 3:
+            result, status, headers = result
+        elif isinstance(result[1], (dict, Headers, list, tuple)):
+            result, headers = result
+        else:
+            result, status = result
+    if isinstance(status, str):
+        status = int(status.split(" ", 1)[0])
+    if isinstance(headers, (list, tuple)):
+        headers = dict(headers)
+    if isinstance(result, (dict, list)):
+        return JSONResponse(content=result, status_code=status, headers=headers)
+    return Response(content=result, status_code=status, headers=headers)
+
+
 class DashMiddleware:  # pylint: disable=too-few-public-methods
     """Consolidated middleware for all Dash/FastAPI integration needs."""
 
@@ -209,15 +237,15 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             }
         return body
 
-    async def _run_before_hooks(self) -> None:
-        """Run all before-request hooks."""
+    async def _run_before_hooks(self) -> Any:
+        """Run the before-request hooks, returning the first non-None result."""
         for func in self.before_request_funcs:
-            if inspect.iscoroutinefunction(func):
-                result = await func()
-            else:
-                result = func()
+            result = func()
+            if inspect.isawaitable(result):
+                result = await result
             if result is not None:
                 return result
+        return None
 
     async def _run_after_hooks(self) -> None:
         """Run after-request hook if configured."""
@@ -245,6 +273,12 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         """Handle exceptions during request processing."""
         if isinstance(error, PreventUpdate):
             response = Response(status_code=204)
+        elif isinstance(error, HTTPException):
+            response = JSONResponse(
+                status_code=error.status_code,
+                content={"detail": error.detail},
+                headers=error.headers,
+            )
         elif self.dash_server.error_handling_mode in ["raise", "prune"]:
             tb = self.dash_server._get_traceback(None, error)  # pylint: disable=W0212
             response = Response(content=tb, media_type="text/html", status_code=500)
@@ -281,32 +315,39 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
             await self.app(scope, _receive_with_shutdown, send)
             return
 
-        # Non-HTTP/WebSocket scopes pass through
+        if scope["type"] == "websocket":
+            await self._gate_websocket(scope, receive, send)
+            return
+
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
-        # Non-Dash routes pass through to avoid consuming body stream.
-        # Routes registered through Dash (hook routes, MCP) are Dash routes too.
-        path = scope["path"]
-        prefix = self.dash_app.config.routes_pathname_prefix
-        dash_prefix = prefix.rstrip("/") + "/_dash-"
-        if (
-            not path.startswith(dash_prefix)
-            and path != prefix
-            and path != prefix.rstrip("/")
-            and path not in self.dash_app.routes
-        ):
-            await self.app(scope, receive, send)
-            return
-
-        # HTTP request handling
+        # before_request hooks run for every route, like Flask and Quart. Only
+        # Dash's own routes get their JSON body parsed and timing recorded, so
+        # user routes keep their raw body stream.
+        is_dash_route = self._is_dash_route(scope)
         request = Request(scope, receive=receive)
         token = set_current_request(request)
 
         try:
-            body = await self._setup_timing(request)
-            await self._run_before_hooks()
+            body = None
+            if is_dash_route:
+                body = await self._setup_timing(request)
+            else:
+                request.state.json_body = None
+
+            denied = await self._run_before_hooks()
+            if denied is not None:
+                await _hook_response(denied)(scope, receive, send)
+                return
+
+            if not is_dash_route:
+                # User routes keep their own error handling.
+                reset_current_request(token)
+                token = None
+                await self.app(scope, receive, send)
+                return
 
             if body is not None:
                 # The body stream is consumed, replay it for handlers reading it.
@@ -319,7 +360,41 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         except Exception as e:  # pylint: disable=W0718
             await self._handle_error(e, scope, receive, send)
         finally:
+            if token is not None:
+                reset_current_request(token)
+
+    def _is_dash_route(self, scope: Scope) -> bool:
+        path = scope["path"]
+        # When mounted under a parent app the path still carries the mount
+        # prefix, which Starlette also reports as root_path.
+        root_path = scope.get("root_path", "")
+        if root_path and (path == root_path or path.startswith(root_path + "/")):
+            path = path[len(root_path) :] or "/"
+        prefix = self.dash_app.config.routes_pathname_prefix
+        return (
+            path.startswith(prefix.rstrip("/") + "/_dash-")
+            or path in (prefix, prefix.rstrip("/"))
+            or path in self.dash_app.routes
+        )
+
+    async def _gate_websocket(self, scope: Scope, receive: Receive, send: Send):
+        """Run the before_request hooks on the WebSocket handshake so the
+        WebSocket callback transport has the same access check as HTTP."""
+        connection = HTTPConnection(scope)
+        connection.state.json_body = None
+        token = set_current_request(connection)
+        try:
+            denied = await self._run_before_hooks()
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.exception("before_request hook failed, rejecting WebSocket")
+            denied = True
+        finally:
             reset_current_request(token)
+        if denied is not None:
+            # Closing before accept makes the server reject the handshake (403).
+            await send({"type": "websocket.close", "code": 1008})
+            return
+        await self.app(scope, receive, send)
 
 
 class FastAPIDashServer(BaseDashServer[FastAPI]):

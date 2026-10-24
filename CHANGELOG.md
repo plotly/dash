@@ -22,13 +22,21 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 - [#3646](https://github.com/plotly/dash/pull/3646) Remove React 16 support (`16.14.0` is no longer an accepted value for `REACT_VERSION` / `_set_react_version`).
+- [#4039](https://github.com/plotly/dash/pull/4039) Remove unnecessary Python version checks (pre 3.9).
 
 ### Changed
+- [#4073](https://github.com/plotly/dash/pull/4073) Move `plotly-cloud` back to the optional `dash[cloud]` extra (it was a default dependency in 4.5.0rc0/rc1), since it is not available on conda-forge.
 - [#4026](https://github.com/plotly/dash/pull/4026) Log a warning, once per process, when a streaming request is refused because its stream token failed verification, which on multi-worker deployments usually means the workers do not share a signing secret.
 - [#3987](https://github.com/plotly/dash/pull/3987) Forward FastAPI reload scope options (`reload_dirs`, `reload_excludes`, and `reload_includes`) to Uvicorn when reloading.
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
+- [#4075](https://github.com/plotly/dash/pull/4075) `fastapi` backend: run `before_request` hooks on every route of the Dash app (assets, hook routes, `api_endpoint`, pages, when mounted) and send a non-None hook result as the response, as on Flask. `fastapi` and `quart` also run them on the WebSocket handshake.
+- [#4075](https://github.com/plotly/dash/pull/4075) Background callbacks without `cache_by` no longer share a result between requests with equal inputs (unread Diskcache results now expire after a day, or after `expire` when set, even with `cache_by`), and callbacks with the same source no longer share a cache key. `build_cache_key` takes a new `callback_key` argument.
+- [#4075](https://github.com/plotly/dash/pull/4075) `dcc.Location(refresh=True).href`, `html.Area.href` and `html.Base.href` now block `javascript:` URLs like `html.A`.
+- [#4075](https://github.com/plotly/dash/pull/4075) Pages `path_template` matching no longer errors or backtracks badly on paths with a newline.
+- [#4075](https://github.com/plotly/dash/pull/4075) Add `configure_mcp_server(cache_by=..., cache_maxsize=...)` so apps whose layout or callbacks depend on the user can keep the MCP server's cached tool descriptions and initial values per user (128 users by default, `None` for no limit).
+- [#4052](https://github.com/plotly/dash/pull/4052) Fix callbacks of removed components still firing after a callback returns `None` for `children`: the renderer now clears their paths. Fixes [#4033](https://github.com/plotly/dash/issues/4033).
 - [#4027](https://github.com/plotly/dash/pull/4027) Support `async def` hook routes (`dash.hooks.route`) on all backends, stop hook routes from leaking the app context to the caller, and let hook routes and MCP read the request on the `fastapi` backend.
 - [#4053](https://github.com/plotly/dash/pull/4053) Fix callbacks being registered twice under a reloader (e.g. `uvicorn --reload`) when `Dash()` is given an explicit `name` or is built by an app factory called from the main module. Fixes [#3912](https://github.com/plotly/dash/issues/3912).
 - [#3980](https://github.com/plotly/dash/pull/3980) Fix the three `before_request` hooks (`Dash._setup_server` and the pages `router_sync` / `router_async`) publishing their "already done" guard flag before the setup work behind it had run. Under a multi-threaded WSGI worker such as `gunicorn -k gthread` (or under an ASGI worker for the async router), a second request arriving mid-setup could observe the flag already set, skip setup, then read `registered_paths` / `callback_map` / the pages router callback while they were still being registered - causing the first burst of component bundle requests after a restart to 500 with `Error loading dependency. "<lib>" is not a registered library`, or the pages router to hit `DuplicateCallback` when two workers raced past the guard. Each hook body now runs under a lock (`threading.Lock` for the two sync hooks, an `asyncio.Lock` bound to the running loop for the async router) and only publishes the flag after all work completes. Fixes [#3971](https://github.com/plotly/dash/issues/3971).
