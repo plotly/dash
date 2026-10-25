@@ -11,6 +11,52 @@ from dash import Dash, Input, Output, dcc, html
 import dash.testing.wait as wait
 
 
+def test_grbs013_graph_config_matches_plotly_schema(dash_dcc):
+    app = Dash(__name__)
+    app.layout = dcc.Graph(id="graph")
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .js-plotly-plot")
+
+    config_schema = dash_dcc.driver.execute_script(
+        "return Plotly.PlotSchema.get().config;"
+    )
+    with open(dcc.__path__[0] + "/metadata.json", encoding="utf-8") as metadata_file:
+        graph_metadata = json.load(metadata_file)["src/components/Graph.react.js"]
+    config_prop_shape = graph_metadata["props"]["config"]["type"]["value"]
+
+    ignored_config = {
+        "config.edits.role",
+        "config.globalTransforms",
+        "config.logging",
+        "config.notifyOnLogging",
+        "config.setBackground",
+        "config.showSources",
+        "config.typesetMath",
+    }
+
+    def assert_matching_config(schema, props, path="config"):
+        for prop_name in props:
+            prop_path = f"{path}.{prop_name}"
+            assert prop_name in schema, f"{prop_path} is not in Plotly's schema"
+
+        for item_name, item in schema.items():
+            item_path = f"{path}.{item_name}"
+            if item_path in ignored_config:
+                continue
+
+            assert item_name in props, f"{item_path} is missing from Graph config"
+            if "valType" not in item:
+                assert (
+                    isinstance(props[item_name], dict)
+                    and "value" in props[item_name]
+                    and isinstance(props[item_name]["value"], dict)
+                ), f"{item_path} has no nested 'value' shape"
+                assert_matching_config(item, props[item_name]["value"], item_path)
+
+    assert_matching_config(config_schema, config_prop_shape)
+    assert dash_dcc.get_logs() == []
+
+
 @pytest.mark.parametrize("is_eager", [True, False])
 def test_grbs001_graph_without_ids(dash_dcc, is_eager):
     app = Dash(__name__, eager_loading=is_eager)
