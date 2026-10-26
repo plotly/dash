@@ -11,6 +11,7 @@ from importlib.util import find_spec
 from importlib import metadata
 import pkgutil
 import threading
+from contextvars import ContextVar
 import re
 import logging
 import mimetypes
@@ -689,7 +690,13 @@ class Dash(ObsoleteChecker):
         self._callback_list: list = []
         self.callback_api_paths: dict = {}
         self.mcp_decorated_functions: dict = {}
-        self.mcp_callback_map: Any = None
+        # The collection serving the current MCP request, picked from
+        # _mcp_callback_maps by the configured cache_by key.
+        self._mcp_callback_map: ContextVar = ContextVar(
+            "mcp_callback_map", default=None
+        )
+        self._mcp_callback_maps: collections.OrderedDict = collections.OrderedDict()
+        self._mcp_callback_maps_lock = threading.Lock()
 
         # list of inline scripts
         self._inline_scripts: list = []
@@ -997,6 +1004,14 @@ class Dash(ObsoleteChecker):
             ]
         )
         self._plotlyjs_url = url
+
+    @property
+    def mcp_callback_map(self) -> Any:
+        return self._mcp_callback_map.get()
+
+    @mcp_callback_map.setter
+    def mcp_callback_map(self, value: Any):
+        self._mcp_callback_map.set(value)
 
     @property
     def layout(self) -> Any:

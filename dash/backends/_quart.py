@@ -28,6 +28,7 @@ try:
         Blueprint,
         g as quart_g,
         has_request_context,
+        has_websocket_context,
         redirect,
         websocket,
     )
@@ -253,6 +254,9 @@ class QuartDashServer(BaseDashServer[Quart]):
 
     def before_request(self, func: _t.Callable[[], _t.Any]):
         self.server.before_request(func)
+        # Also gate the WebSocket handshake, so the WebSocket callback
+        # transport gets the same access check as HTTP.
+        self.server.before_websocket(func)
 
     def after_request(self, func: _t.Callable[[], _t.Any]):
         @self.server.after_request
@@ -820,13 +824,18 @@ class QuartDashServer(BaseDashServer[Quart]):
 
 class QuartRequestAdapter(RequestAdapter):
     def __init__(self) -> None:
-        self._request = request  # type: ignore[assignment]
+        # Inside a before_websocket hook there is no request, only the websocket.
+        self._request = (  # type: ignore[assignment]
+            websocket
+            if not has_request_context() and has_websocket_context()
+            else request
+        )
         if self._request is None:
             raise RuntimeError("Quart not installed; cannot access request context")
 
     @property
     def context(self):
-        if not has_request_context():
+        if not (has_request_context() or has_websocket_context()):
             raise RuntimeError("No active request in context")
         return quart_g
 
