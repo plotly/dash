@@ -588,6 +588,7 @@ def _setup_background_callback(
             None
             if cache_ignore_triggered
             else callback_ctx.get("triggered_inputs", []),
+            callback_key=background_key,
         )
         job_fn = callback_manager.func_registry.get(background_key)
         ctx_value = AttributeDict(**context_value.get())
