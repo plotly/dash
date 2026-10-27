@@ -1,6 +1,7 @@
 import os
 import shutil
 import re
+import sys
 from textwrap import dedent
 
 import pytest
@@ -92,6 +93,8 @@ def test_r_exports(make_r_dir):
 
 def test_r_pkg_without_help_title(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    # generate_rpkg puts the cwd on sys.path and imports the package
+    monkeypatch.setattr(sys, "path", list(sys.path))
     (tmp_path / "mypkg.py").write_text(
         "_js_dist = [{'relative_package_path': 'mypkg.min.js'}]\n"
     )
@@ -104,7 +107,10 @@ def test_r_pkg_without_help_title(tmp_path, monkeypatch):
     }
     rpkg_data = {"pkg_copyright": "Plotly"}
 
-    generate_rpkg(pkg_data, rpkg_data, "mypkg", "", "", "", "", False)
+    try:
+        generate_rpkg(pkg_data, rpkg_data, "mypkg", "", "", "", "", False)
+    finally:
+        sys.modules.pop("mypkg", None)
 
     description = (tmp_path / "DESCRIPTION").read_text()
     assert "Title: My package" in description
