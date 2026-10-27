@@ -21,13 +21,15 @@ def get_mixed_markdown_table():
     data = [
         {
             "not-markdown-column": "this is not a markdown cell",
-            "markdown-column": """```javascript
+            "markdown-column": (
+                """```javascript
 console.warn("this is a markdown cell")```"""
-            if i % 2 == 0
-            else """```javascript
+                if i % 2 == 0
+                else """```javascript
 console.log("logging things")
 console.warn("this is a markdown cell")
-```""",
+```"""
+            ),
             "also-not-markdown-column": str(i),
             "also-also-not-markdown-column": "this is also also not a markdown cell",
         }

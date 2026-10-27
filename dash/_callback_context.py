@@ -10,9 +10,9 @@ from . import exceptions
 from ._get_app import get_app
 from ._utils import AttributeDict, stringify_id
 
-context_value: contextvars.ContextVar[
-    typing.Dict[str, typing.Any]
-] = contextvars.ContextVar("callback_context")
+context_value: contextvars.ContextVar[typing.Dict[str, typing.Any]] = (
+    contextvars.ContextVar("callback_context")
+)
 context_value.set({})
 
 

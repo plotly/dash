@@ -12,6 +12,7 @@ thread per subscription, and a dozen subscriptions starve every other
 ``run_in_executor`` call in the process. It polls without waiting and sleeps on
 the loop between polls instead.
 """
+
 import asyncio
 import threading
 from typing import Callable

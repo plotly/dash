@@ -1,4 +1,5 @@
 """Unit tests for callback decorator behavior - no browser required."""
+
 import inspect
 import json
 

@@ -6,6 +6,7 @@ background callback raised ``PreventUpdate`` or another exception before
 function directly, so they require neither a browser nor a running Celery or
 Diskcache backend.
 """
+
 import json
 
 import pytest

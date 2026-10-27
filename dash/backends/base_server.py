@@ -3,6 +3,7 @@
 This module provides abstract base classes and protocols that define the interface
 for different web server backends (Flask, Quart, FastAPI, etc.) to integrate with Dash.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

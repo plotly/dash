@@ -76,7 +76,8 @@ disable=fixme,
         unnecessary-lambda-assignment,
         broad-exception-raised,
         consider-using-generator,
-        too-many-ancestors
+        too-many-ancestors,
+        too-many-positional-arguments
 
 
 # Enable the message, report, category or checker with the given id(s). You can

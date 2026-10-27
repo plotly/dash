@@ -314,18 +314,14 @@ def register_page(
         title=(
             title
             if title is not None
-            else CONFIG.title
-            if CONFIG.title != "Dash"
-            else page["name"]
+            else CONFIG.title if CONFIG.title != "Dash" else page["name"]
         ),
     )
     page.update(
         description=(
             description
             if description
-            else CONFIG.description
-            if CONFIG.description
-            else ""
+            else CONFIG.description if CONFIG.description else ""
         ),
         order=order,
         supplied_order=order,

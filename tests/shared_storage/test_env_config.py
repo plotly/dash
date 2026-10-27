@@ -1,4 +1,5 @@
 """DASH_SHARED_STORAGE picks the backend when the app does not pass one."""
+
 # pylint: disable=protected-access
 import sys
 

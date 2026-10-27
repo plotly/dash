@@ -11,7 +11,7 @@ routes = [
     "layout",
     "dependencies",
     "update-component",
-    "_config"
+    "_config",
     # routes and component-suites
     # are other endpoints but are excluded to speed up tests
 ]

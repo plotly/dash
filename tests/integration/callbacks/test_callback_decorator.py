@@ -1,4 +1,5 @@
 """Integration tests for callback decorator behavior."""
+
 import dash
 from dash import Input, Output, State, callback, dcc, html
 

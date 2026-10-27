@@ -1,4 +1,5 @@
 """Type compliance tests for callback with strict mypy/pyright settings."""
+
 import os
 import sys
 

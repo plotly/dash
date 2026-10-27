@@ -81,7 +81,7 @@ def get_app():
 
         modified = False
         if len(current) == len(previous):
-            for (i, datum) in enumerate(current):
+            for i, datum in enumerate(current):
                 previous_datum = previous[i]
 
                 if datum["Unnamed: 0"] != previous_datum["Unnamed: 0"]:

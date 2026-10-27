@@ -1,6 +1,6 @@
 # Dependencies used by CI on github.com/plotly/dash
 black==25.11.0
-flake8==7.4.1
+flake8==7.3.0
 flaky==3.8.1
 flask-talisman==1.1.0
 httpx  # fastapi.testclient (tests/websocket/test_ws_stream.py)

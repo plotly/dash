@@ -115,7 +115,6 @@ def _custom_formatargvalues(
     formatvarkw=lambda name: "**" + name,
     formatvalue=lambda value: "=" + repr(value),
 ):
-
     """Copied from inspect.formatargvalues, modified to place function
     arguments on separate lines"""
 

@@ -20,6 +20,7 @@ dozen open downlinks every other store call in the worker queues behind them.
 Instead each loop gets one reader task that serves all of its subscriptions with
 a single multi-stream XREAD, and renews the lifetime of every topic it reads.
 """
+
 import asyncio
 import os
 import secrets

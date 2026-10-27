@@ -75,16 +75,13 @@ class Subscription(abc.ABC):
         at least one. Raises ``SharedStorageGap`` if the buffer overran."""
 
     @abc.abstractmethod
-    def iter_with_seq(self) -> Iterator[Any]:
-        ...
+    def iter_with_seq(self) -> Iterator[Any]: ...
 
     @abc.abstractmethod
-    def aiter_with_seq(self) -> AsyncIterator[Any]:
-        ...
+    def aiter_with_seq(self) -> AsyncIterator[Any]: ...
 
     @abc.abstractmethod
-    def close(self) -> None:
-        ...
+    def close(self) -> None: ...
 
     def __iter__(self) -> Iterator[Any]:
         for _seq, message in self.iter_with_seq():
@@ -128,8 +125,7 @@ class BaseSharedStorage(abc.ABC):
         """Release this worker's handle on the backend. Idempotent."""
 
     @abc.abstractmethod
-    def get(self, key: str, default: Any = None) -> Any:
-        ...
+    def get(self, key: str, default: Any = None) -> Any: ...
 
     @abc.abstractmethod
     def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
@@ -142,8 +138,7 @@ class BaseSharedStorage(abc.ABC):
         """
 
     @abc.abstractmethod
-    def delete(self, key: str) -> None:
-        ...
+    def delete(self, key: str) -> None: ...
 
     @abc.abstractmethod
     def publish(self, topic: str, message: Any, ttl: Optional[float] = None) -> None:

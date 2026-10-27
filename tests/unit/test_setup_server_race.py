@@ -13,6 +13,7 @@ same time. After every thread returns, ``registered_paths`` must be
 populated, because a return from ``_setup_server`` is meant to guarantee
 the setup work is done.
 """
+
 import threading
 import time
 

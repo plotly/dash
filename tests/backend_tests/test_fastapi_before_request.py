@@ -1,5 +1,6 @@
 """before_request hooks on the FastAPI backend gate every route, as on Flask
 and Quart."""
+
 import pytest
 
 from dash import Dash, Input, Output, _get_app, hooks, html
@@ -109,9 +110,11 @@ def test_fabr002_hook_gates_mounted_app():
     )
     app.layout = html.Div("layout")
     app.backend.before_request(
-        lambda: None
-        if app.backend.request_adapter().headers.get("authorization") == "good"
-        else ("denied", 401)
+        lambda: (
+            None
+            if app.backend.request_adapter().headers.get("authorization") == "good"
+            else ("denied", 401)
+        )
     )
     parent = FastAPI()
     parent.mount("/dash", app.server)
@@ -130,9 +133,11 @@ def test_fabr003_hook_gates_websocket_handshake():
     app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
     app.layout = html.Div("layout")
     app.backend.before_request(
-        lambda: None
-        if app.backend.request_adapter().headers.get("authorization") == "good"
-        else ("denied", 401)
+        lambda: (
+            None
+            if app.backend.request_adapter().headers.get("authorization") == "good"
+            else ("denied", 401)
+        )
     )
     origin = {"origin": "http://testserver"}
 

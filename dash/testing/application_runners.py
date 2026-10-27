@@ -359,9 +359,11 @@ class ProcessRunner(BaseDashRunner):
             return
         self.port = port
         args = shlex.split(
-            raw_command
-            if raw_command
-            else f"waitress-serve --listen=0.0.0.0:{port} {app_module}:{application_name}.server",
+            (
+                raw_command
+                if raw_command
+                else f"waitress-serve --listen=0.0.0.0:{port} {app_module}:{application_name}.server"
+            ),
             posix=not self.is_windows,
         )
 

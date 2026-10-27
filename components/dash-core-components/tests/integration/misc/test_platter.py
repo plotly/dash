@@ -17,7 +17,9 @@ def test_mspl001_dcc_components_platter(platter_app, dash_dcc):
     dash_dcc.percy_snapshot("gallery")
 
     dash_dcc.find_element("#dropdown").click()
-    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys("北")
+    dash_dcc.find_element(".dash-dropdown-content .dash-dropdown-search").send_keys(
+        "北"
+    )
     dash_dcc.percy_snapshot("gallery - chinese character")
 
     text_input = dash_dcc.find_element("#textinput")

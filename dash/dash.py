@@ -2449,9 +2449,7 @@ class Dash(ObsoleteChecker):
                     pkg_dir = (
                         package.submodule_search_locations[0]
                         if package.submodule_search_locations
-                        else os.path.dirname(package.origin)
-                        if package.origin
-                        else None
+                        else os.path.dirname(package.origin) if package.origin else None
                     )
                     if pkg_dir and "dash/dash" in pkg_dir:
                         component_packages_dist[i : i + 1] = [
@@ -2886,9 +2884,11 @@ class Dash(ObsoleteChecker):
 
                     async def get_layouts():
                         return [
-                            await execute_async_function(page["layout"])
-                            if callable(page["layout"])
-                            else page["layout"]
+                            (
+                                await execute_async_function(page["layout"])
+                                if callable(page["layout"])
+                                else page["layout"]
+                            )
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
 
@@ -2978,9 +2978,11 @@ class Dash(ObsoleteChecker):
                         ]
                     self.validation_layout = html.Div(
                         [
-                            page["layout"]()
-                            if callable(page["layout"])
-                            else page["layout"]
+                            (
+                                page["layout"]()
+                                if callable(page["layout"])
+                                else page["layout"]
+                            )
                             for page in _pages.PAGE_REGISTRY.values()
                         ]
                         + layout

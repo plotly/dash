@@ -39,9 +39,9 @@ class ComponentRegistry:
     """Holds a registry of the namespaces used by components."""
 
     registry = OrderedSet()
-    children_props: typing.DefaultDict[
-        str, typing.Dict[str, typing.Any]
-    ] = collections.defaultdict(dict)
+    children_props: typing.DefaultDict[str, typing.Dict[str, typing.Any]] = (
+        collections.defaultdict(dict)
+    )
     namespace_to_package: typing.Dict[str, str] = {}
 
     @classmethod
@@ -130,9 +130,11 @@ class Component(metaclass=ComponentMeta):
             "type": "object",
             "properties": {
                 "type": {"type": "string"},
-                "namespace": {"type": "string", "enum": namespaces}
-                if namespaces
-                else {"type": "string"},
+                "namespace": (
+                    {"type": "string", "enum": namespaces}
+                    if namespaces
+                    else {"type": "string"}
+                ),
                 "props": {"type": "object"},
             },
         }

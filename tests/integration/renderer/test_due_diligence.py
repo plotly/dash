@@ -85,9 +85,11 @@ def test_rddd001_initial_state(dash_duo):
     assert paths["strs"] == {
         abbr: ["components"]
         + [
-            int(token)
-            if token in string.digits
-            else token.replace("p", "props").replace("c", "children")
+            (
+                int(token)
+                if token in string.digits
+                else token.replace("p", "props").replace("c", "children")
+            )
             for token in abbr.split(".")
         ]
         for abbr in (

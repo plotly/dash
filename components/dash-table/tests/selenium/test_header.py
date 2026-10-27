@@ -60,9 +60,11 @@ def test_head001_renames_only_row(test, row):
 
     for i in range(3):
         wait.until(
-            lambda: target.column("rows").get_text(i) == "modified"
-            if row == i
-            else title[i],
+            lambda: (
+                target.column("rows").get_text(i) == "modified"
+                if row == i
+                else title[i]
+            ),
             3,
         )
 

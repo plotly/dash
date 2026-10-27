@@ -8,6 +8,7 @@ must keep exposing that same name so those exemptions keep working.
 
 See https://github.com/plotly/dash/issues/3827
 """
+
 import pytest
 from dash import Dash, html
 

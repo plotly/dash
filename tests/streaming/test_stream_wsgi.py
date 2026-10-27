@@ -8,6 +8,7 @@ With several workers, each must verify the stream token another one signed,
 so they need a shared signing secret (``server.secret_key`` or
 ``DASH_SECRET_KEY``).
 """
+
 import contextlib
 import json
 import os

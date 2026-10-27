@@ -125,17 +125,13 @@ def test_grrs001_graph(dash_dcc, is_responsive, responsive, autosize, height, wi
     initial_height = (
         360
         if (initial_responsive and (height is None or is_responsive is True))
-        else 450
-        if height is None
-        else height
+        else 450 if height is None else height
     )
 
     resize_height = (
         260
         if (resize_responsive and (height is None or is_responsive is True))
-        else initial_height
-        if height is None
-        else height
+        else initial_height if height is None else height
     )
 
     # 500px card minus (100px header + 20px padding) minus (20px padding on container) -> 360px left

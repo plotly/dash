@@ -5,6 +5,7 @@ Drives the same process shape ``app.run()`` spawns for the FastAPI backend
 responses, so if the streaming shutdown hook is not wired in, the process
 ignores SIGINT until the generator ends.
 """
+
 import os
 import signal
 import socket

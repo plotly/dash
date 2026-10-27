@@ -1,6 +1,7 @@
 """Hook routes on every backend: sync and async views reading the request
 through the backend's request adapter, and FastAPI handlers reading the body
 themselves after the Dash middleware parsed it."""
+
 import asyncio
 import inspect
 

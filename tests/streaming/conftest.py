@@ -6,6 +6,7 @@ process; without isolation they would contend for one owner and reset each
 other's connections at teardown. Patching the default namespace per test keeps
 each app its own owner.
 """
+
 import uuid
 
 import pytest

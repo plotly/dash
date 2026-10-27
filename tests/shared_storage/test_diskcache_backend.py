@@ -4,6 +4,7 @@ Covers the contract semantics (future-only subscribe, replay, gap) in-process
 and cross-process visibility over a shared cache directory. Requires the
 diskcache extra, which the shared-storage CI job installs.
 """
+
 import asyncio
 import multiprocessing as mp
 import threading

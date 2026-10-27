@@ -17,6 +17,7 @@ cursor. A consumer that falls farther behind than the window gets a
 and every key of the topic expires together once nobody has published to or
 polled it for that long, so abandoned topics leave the cache.
 """
+
 import time
 from typing import Any, Optional
 

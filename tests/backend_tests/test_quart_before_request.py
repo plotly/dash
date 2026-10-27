@@ -1,4 +1,5 @@
 """before_request hooks on the Quart backend also gate the WebSocket handshake."""
+
 import asyncio
 
 import pytest
@@ -14,9 +15,11 @@ def test_qbr001_hook_gates_websocket_handshake():
     app = Dash(__name__, backend="quart", websocket_callbacks=True)
     app.layout = html.Div("layout")
     app.backend.before_request(
-        lambda: None
-        if app.backend.request_adapter().headers.get("authorization") == "good"
-        else ("denied", 401)
+        lambda: (
+            None
+            if app.backend.request_adapter().headers.get("authorization") == "good"
+            else ("denied", 401)
+        )
     )
     origin = {"origin": "http://localhost"}
 

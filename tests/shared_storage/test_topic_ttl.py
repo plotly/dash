@@ -1,6 +1,7 @@
 """Topic ttl contract, run against every backend so they expire topics the
 same way: a topic goes as a whole once nobody publishes to or reads it, never
 message by message while it is in use."""
+
 import os
 import threading
 import time

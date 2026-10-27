@@ -1,4 +1,5 @@
 """Browser integration tests for streaming callbacks over HTTP (NDJSON)."""
+
 import asyncio
 import time
 

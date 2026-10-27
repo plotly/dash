@@ -5,6 +5,7 @@ waiting task: if each one parks a blocking read in the loop's executor, a dozen
 of them starve the worker, and every publish and store call behind them waits
 out the read's block timeout. Frames then arrive seconds late, or not at all.
 """
+
 import os
 import re
 import signal

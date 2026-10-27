@@ -4,6 +4,7 @@ Requires a reachable Redis (``$REDIS_URL`` or ``redis://localhost:6379``); the
 tests skip when none is available. The CI shared-storage job provides one. Each
 test uses a unique key prefix so a shared Redis stays isolated.
 """
+
 import asyncio
 import os
 import threading

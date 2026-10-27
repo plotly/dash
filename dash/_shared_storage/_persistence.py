@@ -87,9 +87,9 @@ class ChunkedStore:
         self._chunk_size = chunk_size
         self._lock = threading.RLock()
         self._keys: Dict[str, int] = {}  # key -> chunk_num
-        self._chunks: Dict[
-            int, Dict[str, Any]
-        ] = {}  # chunk_num -> {key: [value, expire_at]}
+        self._chunks: Dict[int, Dict[str, Any]] = (
+            {}
+        )  # chunk_num -> {key: [value, expire_at]}
         self._loaded = False
         os.makedirs(self._dir, exist_ok=True)
 

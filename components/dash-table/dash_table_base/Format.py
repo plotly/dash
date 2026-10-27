@@ -231,9 +231,7 @@ class Format:
         groups = (
             groups
             if isinstance(groups, list)
-            else [groups]
-            if isinstance(groups, int)
-            else None
+            else [groups] if isinstance(groups, int) else None
         )
 
         if not isinstance(groups, list):

@@ -1,4 +1,5 @@
 """Unit tests for streaming (generator) callbacks - no browser required."""
+
 import asyncio
 import contextvars
 import json

@@ -99,32 +99,38 @@ def test_filt002_sensitivity(test, filter_case_options, column_case_filter_optio
             dict(
                 id="a",
                 name="a",
-                filter_options=dict(case=column_case_filter_options)
-                if column_case_filter_options is not None
-                else None,
+                filter_options=(
+                    dict(case=column_case_filter_options)
+                    if column_case_filter_options is not None
+                    else None
+                ),
                 type="any",
             ),
             dict(
                 id="b",
                 name="b",
-                filter_options=dict(case=column_case_filter_options)
-                if column_case_filter_options is not None
-                else None,
+                filter_options=(
+                    dict(case=column_case_filter_options)
+                    if column_case_filter_options is not None
+                    else None
+                ),
                 type="text",
             ),
             dict(
                 id="c",
                 name="c",
-                filter_options=dict(case=column_case_filter_options)
-                if column_case_filter_options is not None
-                else None,
+                filter_options=(
+                    dict(case=column_case_filter_options)
+                    if column_case_filter_options is not None
+                    else None
+                ),
                 type="numeric",
             ),
         ],
         filter_action="native",
-        filter_options=dict(case=filter_case_options)
-        if filter_case_options is not None
-        else None,
+        filter_options=(
+            dict(case=filter_case_options) if filter_case_options is not None else None
+        ),
         style_cell=dict(width=100, min_width=100, max_width=100),
     )
 
@@ -221,9 +227,11 @@ def test_filt003_sensitivity(test, filter_case_options, column_case_filter_optio
             dict(
                 id="a",
                 name="a",
-                filter_options=dict(case=column_case_filter_options)
-                if column_case_filter_options is not None
-                else None,
+                filter_options=(
+                    dict(case=column_case_filter_options)
+                    if column_case_filter_options is not None
+                    else None
+                ),
                 type="any",
             ),
             dict(
@@ -235,16 +243,18 @@ def test_filt003_sensitivity(test, filter_case_options, column_case_filter_optio
             dict(
                 id="c",
                 name="c",
-                filter_options=dict(case=column_case_filter_options)
-                if column_case_filter_options is not None
-                else None,
+                filter_options=(
+                    dict(case=column_case_filter_options)
+                    if column_case_filter_options is not None
+                    else None
+                ),
                 type="numeric",
             ),
         ],
         filter_action="native",
-        filter_options=dict(case=filter_case_options)
-        if filter_case_options is not None
-        else None,
+        filter_options=(
+            dict(case=filter_case_options) if filter_case_options is not None else None
+        ),
         style_cell=dict(width=100, min_width=100, max_width=100),
     )
 
@@ -341,9 +351,11 @@ def test_filt004_placeholder(
             ),
         ],
         filter_action="native",
-        filter_options=dict(placeholder_text=table_placeholder_setting)
-        if table_placeholder_setting is not None
-        else None,
+        filter_options=(
+            dict(placeholder_text=table_placeholder_setting)
+            if table_placeholder_setting is not None
+            else None
+        ),
     )
 
     test.start_server(get_app(props))

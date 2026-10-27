@@ -5,7 +5,10 @@ from textwrap import dedent
 
 import pytest
 
-from dash.development._r_components_generation import make_namespace_exports
+from dash.development._r_components_generation import (
+    generate_rpkg,
+    make_namespace_exports,
+)
 
 
 @pytest.fixture
@@ -85,3 +88,24 @@ def test_r_exports(make_r_dir):
     matches = re.findall(r"export\(([^()]+)\)", exports.replace("\n", " "))
 
     assert matches == expected_exports
+
+
+def test_r_pkg_without_help_title(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "mypkg.py").write_text(
+        "_js_dist = [{'relative_package_path': 'mypkg.min.js'}]\n"
+    )
+    pkg_data = {
+        "name": "my-pkg",
+        "version": "1.0.0",
+        "description": "My package",
+        "author": "Jane Doe <jane@example.com>",
+        "license": "MIT",
+    }
+    rpkg_data = {"pkg_copyright": "Plotly"}
+
+    generate_rpkg(pkg_data, rpkg_data, "mypkg", "", "", "", "", False)
+
+    description = (tmp_path / "DESCRIPTION").read_text()
+    assert "Title: My package" in description
+    assert "Description: My package" in description

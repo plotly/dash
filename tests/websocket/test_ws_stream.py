@@ -5,6 +5,7 @@ streaming callbacks emit intermediate callback_response frames with
 ``stream: true`` followed by a terminal done frame, plus browser tests for the
 full renderer round-trip.
 """
+
 import asyncio
 import json
 
