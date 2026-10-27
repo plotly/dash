@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from dash import get_app
 from dash.exceptions import AppNotFoundError
@@ -32,14 +32,19 @@ _CLIENTSIDE_CALLBACK_RESOURCES = {ClientsideCallbacksResource}
 _PAGE_RESOURCES = {PagesResource, PageLayoutResource}
 _LAYOUT_TOOLS = {GetDashComponentTool}
 
-_DEFAULT_CONFIG = {
+_DEFAULT_CONFIG: Dict[str, Any] = {
     "include_layout": True,
     "include_callbacks": True,
     "include_clientside_callbacks": True,
     "include_pages": True,
     "expose_callback_docstrings": False,
+    "cache_by": [],
+    "cache_maxsize": 128,
 }
-_current_config = dict(_DEFAULT_CONFIG)
+_current_config: Dict[str, Any] = dict(_DEFAULT_CONFIG)
+
+# None is a meaningful cache_maxsize (no limit), so "not passed" needs its own value.
+_UNSET: Any = object()
 
 
 def configure_mcp_server(
@@ -49,6 +54,8 @@ def configure_mcp_server(
     include_clientside_callbacks: Optional[bool] = None,
     include_pages: Optional[bool] = None,
     expose_callback_docstrings: Optional[bool] = None,
+    cache_by: Optional[Union[Callable[[], object], List[Callable[[], object]]]] = None,
+    cache_maxsize: Optional[int] = _UNSET,
 ) -> None:
     """
     Configure which content the Dash MCP server exposes.
@@ -69,6 +76,17 @@ def configure_mcp_server(
         ``dash://page-layout/{path}``.  Defaults to ``True``.
     :param expose_callback_docstrings: Include callback docstrings in
         tool descriptions.  Defaults to ``False``.
+    :param cache_by: Zero-argument functions, called during each MCP request,
+        whose return values key the server's cache of tool descriptions and
+        initial values (computed by walking the layout and running callbacks).
+        By default one cache is shared by every MCP client. If your layout or
+        callbacks depend on who is asking, pass a function that returns the
+        user or session id (a string or int) so each user gets their own
+        values, the same way ``cache_by`` works for background callbacks.
+    :param cache_maxsize: How many ``cache_by`` keys (for example users) keep
+        a cache at once; the least recently used is dropped past that.
+        Defaults to ``128``. ``None`` keeps every key for the life of the
+        process.
 
     Example — expose only ``@mcp_enabled``-decorated functions::
 
@@ -93,10 +111,13 @@ def configure_mcp_server(
         "include_clientside_callbacks": include_clientside_callbacks,
         "include_pages": include_pages,
         "expose_callback_docstrings": expose_callback_docstrings,
+        "cache_by": [cache_by] if callable(cache_by) else cache_by,
     }
     _current_config.update(
         {key: value for key, value in passed.items() if value is not None}
     )
+    if cache_maxsize is not _UNSET:
+        _current_config["cache_maxsize"] = cache_maxsize
 
     CallbackTools.callbacks_mcp_enabled_by_default = _current_config[
         "include_callbacks"
@@ -125,9 +146,12 @@ def configure_mcp_server(
         tool for tool in _ALL_MCP_TOOL_PROVIDERS if tool not in excluded_tools
     ]
 
-    # Invalidate the cached callback map so it is rebuilt with the new config.
+    # Invalidate the cached callback maps so they are rebuilt with the new config.
     # No app yet (configured before `Dash()`) means there is no cache to clear.
     try:
-        get_app().mcp_callback_map = None
+        app = get_app()
     except AppNotFoundError:
-        pass
+        return
+    app.mcp_callback_map = None
+    with app._mcp_callback_maps_lock:  # pylint: disable=protected-access
+        app._mcp_callback_maps.clear()  # pylint: disable=protected-access

@@ -120,11 +120,15 @@ export class StreamClient implements StreamTransport {
     // kept while any stream is in flight, so every tab behind a shared worker
     // publishes to and reads from the same topic.
     private endId = '';
+    // Picked fresh with the endId for each run of streams, so each run reads a
+    // topic of its own: the previous run's topic may have been released by the
+    // server while the page sat idle, and its cursor means nothing here.
+    private downlinkId = '';
     private pending = new Map<string, PendingStream>();
     private counter = 0;
     // Last sequence applied; the downlink resumes from here on reconnect. Starts
-    // at 0 so the first connect replays anything published before it subscribed
-    // (the uplink POST and the downlink open race).
+    // each run at 0 so the first connect replays anything published before it
+    // subscribed (the uplink POST and the downlink open race).
     private cursor = 0;
     private downlinkOpen = false;
     private abort: AbortController | null = null;
@@ -194,7 +198,10 @@ export class StreamClient implements StreamTransport {
             return url;
         }
         const delim = url.includes('?') ? '&' : '?';
-        return `${url}${delim}endId=${encodeURIComponent(this.endId)}`;
+        return (
+            `${url}${delim}endId=${encodeURIComponent(this.endId)}` +
+            `&downlinkId=${encodeURIComponent(this.downlinkId)}`
+        );
     }
 
     run(
@@ -223,6 +230,8 @@ export class StreamClient implements StreamTransport {
             // streams are in flight the key stays put, so a stream from
             // another tab (shared worker) lands on the same topic.
             this.endId = endId || '';
+            this.downlinkId = genId();
+            this.cursor = 0;
         }
         const requestId = `${this.localId}-${++this.counter}`;
         const settled = new Promise<void>((resolve, reject) => {
@@ -447,7 +456,7 @@ export class StreamClient implements StreamTransport {
                 if (!res.ok || !res.body) {
                     throw new Error(`downlink responded ${res.status}`);
                 }
-                received = await this.consume(res.body);
+                received = await this.consume(res.body, gen);
                 if (received === 0 && !polling) {
                     // Accepted then closed without a single envelope (a server
                     // mid-shutdown, a proxy dropping idle connections): back
@@ -517,7 +526,10 @@ export class StreamClient implements StreamTransport {
     }
 
     /** Relay envelopes until the connection ends; returns how many arrived. */
-    private async consume(body: ReadableStream<Uint8Array>): Promise<number> {
+    private async consume(
+        body: ReadableStream<Uint8Array>,
+        gen: number
+    ): Promise<number> {
         const reader = body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
@@ -534,6 +546,10 @@ export class StreamClient implements StreamTransport {
                 buffer = buffer.slice(nl + 1);
                 if (!line.trim()) {
                     continue; // keepalive blank line
+                }
+                if (this.loopGen !== gen) {
+                    // Retired while reading: a newer run owns the cursor.
+                    return received;
                 }
                 received++;
                 this.dispatchEnvelope(JSON.parse(line));

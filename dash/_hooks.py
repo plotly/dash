@@ -2,8 +2,6 @@ import typing as _t
 
 from importlib import metadata as _importlib_metadata
 
-import typing_extensions as _tx
-
 from .exceptions import HookError
 from .resources import ResourceType
 from ._callback import ClientsideFuncType
@@ -20,12 +18,12 @@ else:
     Dash = None
 
 
-HookDataType = _tx.TypeVar("HookDataType")
-DevtoolPosition = _tx.Literal["right", "left"]
+HookDataType = _t.TypeVar("HookDataType")
+DevtoolPosition = _t.Literal["right", "left"]
 
 
 # pylint: disable=too-few-public-methods
-class _Hook(_tx.Generic[HookDataType]):
+class _Hook(_t.Generic[HookDataType]):
     def __init__(
         self, func, priority=0, final=False, data: _t.Optional[HookDataType] = None
     ):
@@ -126,6 +124,10 @@ class _Hooks:
     ):
         """
         Add a route to the Dash server.
+
+        The route function can be `async def`; with the Flask backend this
+        requires `flask[async]`. Read the request with
+        `dash.get_app().backend.request_adapter()`.
         """
 
         def wrap(func: _t.Callable[[], _t.Any]):

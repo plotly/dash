@@ -17,6 +17,10 @@ _pending_value = "__$pending__"
 class DiskcacheManager(BaseBackgroundCallbackManager):
     """Manage the background execution of callbacks with subprocesses and a diskcache result backend."""
 
+    # Without cache_by each run has its own result key, so a result nobody polls
+    # for (the page was closed or refreshed first) is never read and deleted.
+    UNCACHED_RESULT_EXPIRE = 24 * 60 * 60
+
     def __init__(self, cache=None, cache_by=None, expire=None):
         """
         Background callback manager that runs callback logic in a subprocess and stores
@@ -140,9 +144,13 @@ DiskcacheManager requires extra dependencies which can be installed doing
         from multiprocess import Process  # type: ignore
 
         # pylint: disable-next=not-callable
+        expire = self.expire
+        if expire is None and self.cache_by is None:
+            expire = self.UNCACHED_RESULT_EXPIRE
         process = Process(
             target=job_fn,
             args=(key, self._make_progress_key(key), args, context),
+            kwargs={"expire": expire},
         )
         process.start()
         return process.pid
@@ -217,17 +225,21 @@ DiskcacheManager requires extra dependencies which can be installed doing
 # pylint: disable-next=too-many-statements
 def _make_job_fn(fn, cache, progress):
     # pylint: disable-next=too-many-statements
-    def job_fn(result_key, progress_key, user_callback_args, context):
+    def job_fn(result_key, progress_key, user_callback_args, context, expire=None):
         def _set_progress(progress_value):
             if not isinstance(progress_value, (list, tuple)):
                 progress_value = [progress_value]
 
-            cache.set(progress_key, progress_value)
+            cache.set(progress_key, progress_value, expire=expire)
 
         maybe_progress = [_set_progress] if progress else []
 
         def _set_props(_id, props):
-            cache.set(f"{result_key}-set_props", {_id: props})
+            key = f"{result_key}-set_props"
+            old = cache.get(key, {})
+            old_props = old.get(_id, {})
+            old[_id] = {**old_props, **props}
+            cache.set(key, old, expire=expire)
 
         ctx = copy_context()
 
@@ -247,7 +259,9 @@ def _make_job_fn(fn, cache, progress):
                     user_callback_output = fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
                 errored = True
-                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
+                cache.set(
+                    result_key, {"_dash_no_update": "_dash_no_update"}, expire=expire
+                )
             except Exception as err:  # pylint: disable=broad-except
                 errored = True
                 cache.set(
@@ -258,10 +272,11 @@ def _make_job_fn(fn, cache, progress):
                             "tb": traceback.format_exc(),
                         }
                     },
+                    expire=expire,
                 )
 
             if not errored:
-                cache.set(result_key, user_callback_output)
+                cache.set(result_key, user_callback_output, expire=expire)
 
         async def async_run():
             c = AttributeDict(**context)
@@ -283,7 +298,9 @@ def _make_job_fn(fn, cache, progress):
                     user_callback_output = await fn(*maybe_progress, user_callback_args)
             except PreventUpdate:
                 errored = True
-                cache.set(result_key, {"_dash_no_update": "_dash_no_update"})
+                cache.set(
+                    result_key, {"_dash_no_update": "_dash_no_update"}, expire=expire
+                )
             except Exception as err:  # pylint: disable=broad-except
                 errored = True
                 cache.set(
@@ -294,13 +311,14 @@ def _make_job_fn(fn, cache, progress):
                             "tb": traceback.format_exc(),
                         }
                     },
+                    expire=expire,
                 )
 
             if not errored:
                 if asyncio.iscoroutine(user_callback_output):
                     user_callback_output = await user_callback_output
                 try:
-                    cache.set(result_key, user_callback_output)
+                    cache.set(result_key, user_callback_output, expire=expire)
                 except Exception as err:  # pylint: disable=broad-except
                     print(f"Diskcache manager couldn't save output: {err}")
 
