@@ -2,7 +2,7 @@
 and Quart."""
 import pytest
 
-from dash import Dash, Input, Output, _get_app, callback, hooks, html
+from dash import Dash, Input, Output, _callback, _get_app, callback, hooks, html
 
 pytest.importorskip("fastapi")
 
@@ -212,11 +212,21 @@ def test_fabr006_websocket_callback_before_any_http_request():
             "changedPropIds": ["ws-btn.n_clicks"],
         },
     }
-    with TestClient(app.server) as client:
-        with client.websocket_connect(
-            "/_dash-ws-callback", headers={"origin": "http://testserver"}
-        ) as ws:
-            ws.send_json(request)
-            payload = ws.receive_json()["payload"]
-    assert payload["status"] == "ok"
-    assert payload["data"]["response"] == {"ws-out": {"children": "ws 1"}}
+    try:
+        with TestClient(app.server) as client:
+            with client.websocket_connect(
+                "/_dash-ws-callback", headers={"origin": "http://testserver"}
+            ) as ws:
+                ws.send_json(request)
+                payload = ws.receive_json()["payload"]
+        assert payload["status"] == "ok"
+        assert payload["data"]["response"] == {"ws-out": {"children": "ws 1"}}
+    finally:
+        # Without _setup_server, the callback stays in the global registry and
+        # would be added to the app of the next test.
+        _callback.GLOBAL_CALLBACK_MAP.pop("ws-out.children", None)
+        _callback.GLOBAL_CALLBACK_LIST[:] = [
+            spec
+            for spec in _callback.GLOBAL_CALLBACK_LIST
+            if spec["output"] != "ws-out.children"
+        ]
