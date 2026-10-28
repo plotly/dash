@@ -33,13 +33,15 @@ APP = textwrap.dedent(
     import asyncio
     import os
     from dash import Dash, Input, Output, html
+    from dash._shared_storage import LocalSharedStorage, _codec
 
-    app = Dash(__name__)
+    app = Dash(__name__, shared_storage=LocalSharedStorage)
     server = app.server
 
     @server.after_request
     def tag_worker(response):
         response.headers["X-Worker-Pid"] = str(os.getpid())
+        response.headers["X-Has-Msgspec"] = str(_codec.HAS_MSGSPEC)
         return response
 
     app.layout = html.Div([html.Button("go", id="btn", n_clicks=0), html.Div(id="out")])
@@ -62,8 +64,9 @@ def _free_port():
 
 
 @contextlib.contextmanager
-def _gunicorn(tmp_path, workers, env=None):
+def _gunicorn(tmp_path, workers, env=None, config=""):
     (tmp_path / "wsgi_app.py").write_text(APP)
+    (tmp_path / "gunicorn_conf.py").write_text(config)
     port = _free_port()
     proc_env = {k: v for k, v in os.environ.items() if k.lower() != "dash_secret_key"}
     proc_env.update(env or {})
@@ -79,6 +82,8 @@ def _gunicorn(tmp_path, workers, env=None):
             str(workers),
             "--timeout",
             "30",
+            "--config",
+            "gunicorn_conf.py",
         ],
         cwd=tmp_path,
         env=proc_env,
@@ -170,3 +175,16 @@ def test_stwg003_workers_without_shared_secret_refuse_streams(tmp_path):
         page_pid, polls = _downlink_polls(url)
     for pid, status in polls:
         assert status == (200 if pid == page_pid else 403)
+
+
+def test_stwg004_workers_stream_without_msgspec(dash_br, tmp_path):
+    # Without the shared_storage extra, the in-memory backend still brokers
+    # streams across workers, encoding its socket messages as JSON.
+    no_msgspec = "import sys\nsys.modules['msgspec'] = None\n"
+    with _gunicorn(
+        tmp_path, workers=4, env={"DASH_SECRET_KEY": "shared"}, config=no_msgspec
+    ) as url:
+        assert requests.get(url, timeout=5).headers["X-Has-Msgspec"] == "False"
+        _, polls = _downlink_polls(url)
+        assert {status for _, status in polls} == {200}
+        _stream_completes(dash_br, url)

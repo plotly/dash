@@ -479,11 +479,15 @@ class Dash(ObsoleteChecker):
 
     :param shared_storage: Backend for ``dash.ctx.shared_storage`` and the
         streaming-callback transport: a ``BaseSharedStorage`` subclass or
-        instance, or ``None`` to disable. Default ``LocalSharedStorage`` (one
-        machine or pod). When not passed, the ``DASH_SHARED_STORAGE``
-        environment variable can choose it: ``local``, ``none``,
-        ``diskcache:///absolute/path``, or a ``redis://`` / ``rediss://`` URL.
-        An explicit argument, including ``None``, always wins.
+        instance, or ``None`` to disable. Off by default: pass
+        ``LocalSharedStorage`` for one machine or pod. Without it, streaming
+        callbacks still work, each on its own connection. When not passed, the
+        ``DASH_SHARED_STORAGE`` environment variable can choose it: ``local``,
+        ``none``, ``diskcache:///absolute/path``, or a ``redis://`` /
+        ``rediss://`` URL. An explicit argument, including ``None``, always
+        wins. The persistent ``LocalSharedStorage`` modes need
+        ``pip install "dash[shared_storage]"``; the diskcache and Redis backends
+        need their own ``dash[diskcache]`` / ``dash[redis]`` extra.
 
         Stream requests are signed per page load, so with several workers or
         pods they all need the same signing secret: set ``server.secret_key``
@@ -1036,7 +1040,7 @@ class Dash(ObsoleteChecker):
 
     @property
     def shared_storage_enabled(self) -> bool:
-        """Whether this app has a shared-storage backend (not ``None``).
+        """Whether this app has a shared-storage backend (off by default).
 
         Cheap to read and does not start the backend, unlike ``shared_storage``.
         """
@@ -1047,13 +1051,14 @@ class Dash(ObsoleteChecker):
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
         Started on first access in the worker that uses it. Access it from a
-        callback via ``dash.ctx.shared_storage``. Raises if the app was created
-        with ``shared_storage=None``.
+        callback via ``dash.ctx.shared_storage``. Raises if the app has no
+        shared storage (pass ``shared_storage=`` or set ``DASH_SHARED_STORAGE``).
         """
         if self._shared_storage_arg is None:
             raise SharedStorageError(
                 "Shared storage is disabled for this app; construct it with "
-                "Dash(shared_storage=...) to use dash.ctx.shared_storage."
+                "Dash(shared_storage=...) or set DASH_SHARED_STORAGE to use "
+                "dash.ctx.shared_storage."
             )
         if self._shared_storage_instance is None:
             with self._shared_storage_lock:

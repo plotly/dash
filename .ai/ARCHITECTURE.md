@@ -727,7 +727,7 @@ Special handling for Colab:
 - `prevent_initial_callbacks` - Skip callbacks on load (default: `False`)
 - `background_callback_manager` - DiskcacheManager or CeleryManager
 - `on_error` - Global callback error handler
-- `shared_storage` - Cross-process state + pub/sub backend (default: `LocalSharedStorage`). Pass `None` to disable, or a `BaseSharedStorage` subclass/instance to swap. See [Shared Storage](#shared-storage).
+- `shared_storage` - Cross-process state + pub/sub backend (default: off). Pass `LocalSharedStorage` to enable, or a `BaseSharedStorage` subclass/instance to swap. See [Shared Storage](#shared-storage).
 
 **WebSocket Callbacks:**
 - `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
@@ -820,7 +820,9 @@ channel. Unlike `dcc.Store` (which lives in the browser), shared storage lives
 on the server and lets callbacks running in different workers see the same keys
 and topics without standing up an external service like Redis.
 
-Enabled by default on every app. It starts lazily on first use, so it costs
+Opt-in: off unless the app passes `shared_storage=` or `DASH_SHARED_STORAGE`
+is set, so existing deployments do not grow a socket owner or a streaming
+downlink on upgrade. Once enabled it starts lazily on first use, so it costs
 nothing until touched.
 
 ### Accessing It
@@ -836,13 +838,21 @@ def handler(n):
     return store.get("clicks", 0)
 
 # Or off the app directly:
-app = dash.Dash()
+app = dash.Dash(shared_storage=dash.LocalSharedStorage)
 app.shared_storage.set("key", {"any": "json-compatible value"})
 ```
 
 Values (and published messages) must be **JSON-compatible** — dict / list / str
 / int / float / bool / None — the same constraint as `dcc.Store` and callback
-outputs. Messages are encoded with `msgspec` (msgpack), a hard dependency.
+outputs. Messages are encoded with `msgspec` (msgpack) from the
+`dash[shared_storage]` extra (also pulled in by `dash[diskcache]` and
+`dash[redis]`). Without it, `LocalSharedStorage` in `"memory"` mode still works
+and its socket transport falls back to stdlib JSON (both ends run the same
+install, so they always agree). JSON turns non-string dict keys into strings and
+cannot carry `bytes`, so keep values strictly JSON-shaped. Everything that
+writes encoded bytes somewhere lasting (the persistent modes, Diskcache, Redis)
+raises an `ImportError` naming the extra that brings it instead, so a stored
+format never depends on what happens to be installed.
 
 ### API
 
@@ -895,7 +905,7 @@ more than one container/pod (see [Deployment Topology](#deployment-topology-and-
 
 | Backend | Backing store | Reaches | Extra |
 |---------|---------------|---------|-------|
-| `LocalSharedStorage` *(default)* | in-memory, owner-elected socket | one **container** (all its workers) | none |
+| `LocalSharedStorage` | in-memory, owner-elected socket | one **container** (all its workers) | none (`dash[shared_storage]` for the persistent modes) |
 | `DiskcacheSharedStorage` | a `diskcache.Cache` | one **host** (all processes sharing the dir) | `dash[diskcache]` |
 | `RedisSharedStorage` | Redis (Streams for pub/sub) | **any** process/container/pod | `dash[redis]` |
 
@@ -909,14 +919,15 @@ from dash._shared_storage import (
     LocalSharedStorage, DiskcacheSharedStorage, RedisSharedStorage,
 )
 
-Dash(shared_storage=LocalSharedStorage)                       # default
+Dash()                                                        # disabled (default)
+Dash(shared_storage=LocalSharedStorage)
 Dash(shared_storage=DiskcacheSharedStorage(directory="/tmp/ss"))
 Dash(shared_storage=RedisSharedStorage(url="redis://host:6379"))
-Dash(shared_storage=None)                                     # disabled
 ```
 
 When disabled, accessing `app.shared_storage` / `dash.ctx.shared_storage`
-raises `SharedStorageError`.
+raises `SharedStorageError`, and streaming callbacks still work, each on its own
+connection instead of the multiplexed downlink.
 
 **`LocalSharedStorage`** — in-memory, no external service. On first use every
 worker races to become the single **owner** for the machine by binding a stable
@@ -993,7 +1004,7 @@ subscriptions likewise poll without blocking and sleep on the loop.
 
 ### Deployment Topology and Shared Storage
 
-The default `LocalSharedStorage` is **per-container**: its socket/loopback
+`LocalSharedStorage` is **per-container**: its socket/loopback
 election only reaches processes in the same network + filesystem namespace.
 
 - **Single process / single pod** (e.g. Plotly Cloud apps): fine — one owner,
@@ -1009,16 +1020,16 @@ election only reaches processes in the same network + filesystem namespace.
 A hosting platform can switch the backend without editing the app through
 `DASH_SHARED_STORAGE` (`_shared_storage/_env.py`), read only when the app did
 not pass `shared_storage=` (the default is a sentinel, so an explicit argument,
-`None` included, always wins): `local`, `none`, `diskcache:///abs/path`, or a
-`redis://` / `rediss://` URL. A `key_prefix` query parameter on the Redis URL
-(`redis://host/0?key_prefix=myapp`) sets `RedisSharedStorage(key_prefix=)` and
-is stripped before the URL reaches redis-py; the diskcache path is
-percent-decoded. `cluster://` is reserved and raises; anything else raises
-`InvalidConfig` at construction, without echoing the value (it can hold
-credentials). The value becomes a zero-argument
-factory, so nothing is built or connected until `app.shared_storage` is first
-read, but a missing extra (`dash[redis]`, `dash[diskcache]`) fails at
-construction with the backend's own `ImportError`.
+`None` included, always wins): `local`, `none` (same as unset or empty),
+`diskcache:///abs/path`, or a `redis://` / `rediss://` URL. A `key_prefix` query
+parameter on the Redis URL (`redis://host/0?key_prefix=myapp`) sets
+`RedisSharedStorage(key_prefix=)` and is stripped before the URL reaches
+redis-py; the diskcache path is percent-decoded. `cluster://` is reserved and
+raises; anything else raises `InvalidConfig` at construction, without echoing
+the value (it can hold credentials). The value becomes a zero-argument factory,
+so nothing is built or connected until `app.shared_storage` is first read, but a
+missing extra (`dash[redis]`, `dash[diskcache]`, `dash[shared_storage]`) fails
+at construction with the backend's own `ImportError`.
 
 ### Custom and Out-of-Tree Backends
 
@@ -1039,12 +1050,13 @@ and returns a `Subscription` (`__iter__` / `__aiter__` / `close`) that raises
 top-level `dash`; the poll-loop helpers (`PollResult`, the polling subscription)
 are private and not part of the contract.
 
-Core only ships backends whose dependency is already a Dash extra (`msgspec`
-base; `dash[diskcache]`; `dash[redis]`). Anything needing a heavier dependency
-belongs **out of tree** behind this same interface — e.g. a Postgres backend
-(`LISTEN`/`NOTIFY` for push pub/sub + a table for KV and replay) lives in its own
-package so a `psycopg` connection is never pulled into Dash core. It plugs in the
-same way as a built-in: `Dash(shared_storage=PostgresSharedStorage(...))`.
+Core only ships backends whose dependency is already a Dash extra
+(`dash[shared_storage]`; `dash[diskcache]`; `dash[redis]`). Anything needing a
+heavier dependency belongs **out of tree** behind this same interface — e.g. a
+Postgres backend (`LISTEN`/`NOTIFY` for push pub/sub + a table for KV and
+replay) lives in its own package so a `psycopg` connection is never pulled into
+Dash core. It plugs in the same way as a built-in:
+`Dash(shared_storage=PostgresSharedStorage(...))`.
 
 ### Module Layout
 
@@ -1412,7 +1424,7 @@ with an empty result on the terminal frame.
 
 ### Multiplexed downlink and the stream SharedWorker
 
-When the app has a shared-storage backend (the default `LocalSharedStorage`),
+When the app has a shared-storage backend (opt-in, see Shared Storage),
 HTTP streams do not each hold their own response. The callback's POST carries
 `streamConnection: {requestId}` and returns a fast ack; a *pump*
 (`dash/_stream_hub.py`) drives the generator as an asyncio task and publishes

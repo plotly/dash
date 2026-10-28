@@ -49,10 +49,10 @@ def storage_from_env(value: Optional[str]) -> Any:
     """
     raw = (value or "").strip()
     lowered = raw.lower()
-    if lowered in ("", "local"):
-        return LocalSharedStorage
-    if lowered == "none":
+    if lowered in ("", "none"):
         return None
+    if lowered == "local":
+        return LocalSharedStorage
 
     try:
         scheme = urlparse(raw).scheme.lower()

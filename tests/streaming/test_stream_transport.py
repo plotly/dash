@@ -161,6 +161,40 @@ def test_flask_downlink_rejects_missing_end_id():
     storage.close()
 
 
+@pytest.mark.parametrize("flavor", ["flask", "fastapi", "quart"])
+def test_downlink_without_shared_storage_is_rejected(flavor):
+    # The renderer never opens a downlink when shared storage is off, so a
+    # request for one gets 403 instead of a SharedStorageError 500.
+    body = {"streamDownlink": {"from": 0}}
+    if flavor == "flask":
+        app = Dash(__name__)
+        app.layout = html.Div()
+        resp = app.server.test_client().post(_uplink_url(app), json=body)
+        assert resp.status_code == 403
+        return
+    if flavor == "fastapi":
+        pytest.importorskip("httpx", reason="fastapi.testclient requires httpx")
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        app = Dash(__name__, server=FastAPI())
+        app.layout = html.Div()
+        app._setup_server()  # pylint: disable=protected-access
+        with TestClient(app.server) as client:
+            assert client.post(_uplink_url(app), json=body).status_code == 403
+        return
+    quart = pytest.importorskip("quart")
+    app = Dash(__name__, server=quart.Quart(__name__))
+    app.layout = html.Div()
+    app._setup_server()  # pylint: disable=protected-access
+
+    async def run():
+        resp = await app.server.test_client().post(_uplink_url(app), json=body)
+        return resp.status_code
+
+    assert asyncio.run(run()) == 403
+
+
 def test_flask_forged_stream_tokens_warn_once(monkeypatch, caplog):
     # A token that fails verification is almost always a secret mismatch
     # between workers, so say so, but once per process, not per poll.
