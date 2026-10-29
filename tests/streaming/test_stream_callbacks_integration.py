@@ -11,6 +11,7 @@ from dash import (
     no_update,
     set_props,
 )
+from dash._shared_storage import LocalSharedStorage
 from dash.testing.wait import until
 
 
@@ -216,8 +217,6 @@ def test_stst020_multiplexed_transport_over_shared_storage(dash_duo):
     stream client rejects) and the downlink would 403, so nothing would render.
     Two callbacks share the one downlink, so this also covers multiplexing.
     """
-    from dash._shared_storage import LocalSharedStorage
-
     app = Dash(__name__, shared_storage=LocalSharedStorage())
     app.layout = html.Div(
         [
@@ -279,7 +278,7 @@ def _open_tab(dash_duo):
 def test_stst010_many_tabs_share_one_downlink(dash_duo):
     """Browsers cap connections per host (~6); with the downlink hosted in a
     SharedWorker, eight streaming tabs share one and all keep streaming."""
-    app = Dash(__name__)
+    app = Dash(__name__, shared_storage=LocalSharedStorage)
     app.layout = html.Div([html.Div(id="out", children="idle")])
 
     @app.callback(Output("out", "children"), Input("out", "id"))
@@ -303,7 +302,7 @@ def test_stst010_many_tabs_share_one_downlink(dash_duo):
 def test_stst011_closing_a_tab_cancels_its_stream(dash_duo):
     """A tab closing while others keep the shared downlink open cancels that
     tab's callback server-side instead of running it to completion."""
-    app = Dash(__name__)
+    app = Dash(__name__, shared_storage=LocalSharedStorage)
     app.layout = html.Div([html.Div(id="out", children="idle")])
     events = []
 
@@ -338,7 +337,6 @@ def test_stst012_idle_stream_topics_are_released(dash_duo, monkeypatch):
     behind for the life of the process. A page that streams again after its
     topic was dropped still gets every frame of the new run."""
     from dash import _stream_hub
-    from dash._shared_storage import LocalSharedStorage
 
     ttl = 1.0
     monkeypatch.setattr(_stream_hub, "STREAM_TOPIC_TTL", ttl)
