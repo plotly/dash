@@ -157,6 +157,33 @@ const filterEventData = (gd, eventData, event) => {
     return filteredEventData;
 };
 
+// Layout edits that plotly.js keeps across figure updates while uirevision is
+// unchanged (layoutUIControlPatterns in plotly.js src/plot_api/plot_api.js)
+const UIREVISION_LAYOUT_EDITS = [
+    /^hiddenlabels/,
+    /^(x|y)axis\d*\.((auto)?range|title\.text)/,
+    /axis\d*\.showspikes$/,
+    /(hover|drag)mode$/,
+    /^scene\d*\.camera/,
+    /^geo\d*\.(projection|center|fitbounds)/,
+    /^ternary\d*\.[abc]axis\.(min|title\.text)$/,
+    /^polar\d*\.radialaxis\.((auto)?range|angle|title\.text)/,
+    /^polar\d*\.angularaxis\.rotation/,
+    /^map\d*\.(center|zoom|bearing|pitch)/,
+    /^legend\.(x|y)$/,
+    /^(shapes|annotations)/,
+    /^selections/,
+    /^title\.text$/,
+];
+
+// Keys like 'map._derived' carry computed state, not user edits
+const isKeptByUirevision = eventKey =>
+    eventKey.includes('._') ||
+    UIREVISION_LAYOUT_EDITS.some(pattern => pattern.test(eventKey));
+
+const getUirevision = (layout, key) =>
+    layout?.[key]?.uirevision ?? layout?.uirevision;
+
 /**
  * Graph can be used to render any plotly.js-powered data visualization.
  *
@@ -183,6 +210,7 @@ class PlotlyGraph extends Component {
         this.amendTraces = this.amendTraces.bind(this);
 
         this.state = {override: {}, originals: {}};
+        this._guiEdits = {};
     }
 
     plot(props) {
@@ -197,9 +225,12 @@ class PlotlyGraph extends Component {
         // add typesetMath | not exposed to the dash API
         configClone.typesetMath = mathjax;
 
+        const layout = this.getLayout(figure?.layout, responsive);
+        this.restoreGuiEditOrigins(layout);
+
         const figureClone = {
             data: figure?.data,
-            layout: this.getLayout(figure?.layout, responsive),
+            layout,
             frames: figure?.frames,
             config: configClone,
         };
@@ -365,6 +396,36 @@ class PlotlyGraph extends Component {
         return layout;
     }
 
+    /*
+     * The plotly_relayout handler copies user edits (pan, zoom, ...) into the
+     * figure prop. If they reach Plotly.react as figure input, plotly.js takes
+     * them as the new starting point and drops them from its uirevision
+     * bookkeeping, so the next figure without them resets the view. While the
+     * figure still holds the synced value and the same uirevision, give
+     * plotly.js the value from before the edit instead, and plotly.js keeps
+     * the edit itself.
+     */
+    restoreGuiEditOrigins(layout) {
+        for (const key of Object.keys(this._guiEdits)) {
+            const {original, synced, uirevision, keptByPlotly} =
+                this._guiEdits[key];
+            if (
+                keptByPlotly &&
+                uirevision &&
+                getUirevision(layout, key) === uirevision &&
+                equals(layout[key], synced)
+            ) {
+                if (original === undefined) {
+                    delete layout[key];
+                } else {
+                    layout[key] = clone(original);
+                }
+            } else {
+                delete this._guiEdits[key];
+            }
+        }
+    }
+
     getConfigOverride(responsive) {
         switch (responsive) {
             case false:
@@ -491,6 +552,20 @@ class PlotlyGraph extends Component {
                         !equals(figure?.layout?.[key], gd.layout[key])
                     ) {
                         updates[key] = clone(gd.layout[key]);
+                        if (!(key in this._guiEdits)) {
+                            this._guiEdits[key] = {
+                                original: figure?.layout?.[key],
+                                uirevision: getUirevision(figure?.layout, key),
+                                keptByPlotly: true,
+                            };
+                        }
+                        this._guiEdits[key].synced = updates[key];
+                    }
+                    if (
+                        key in this._guiEdits &&
+                        !isKeptByUirevision(eventKey)
+                    ) {
+                        this._guiEdits[key].keptByPlotly = false;
                     }
                 }
                 if (Object.keys(updates).length) {
