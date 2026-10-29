@@ -33,6 +33,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
+- [#4067](https://github.com/plotly/dash/pull/4067) Fix slow serialization of callback responses and layouts that hold a component, figure or `pd.Timestamp`, and use msgspec when orjson is not installed. Fixes [#4065](https://github.com/plotly/dash/issues/4065).
 - [#4075](https://github.com/plotly/dash/pull/4075) `fastapi` backend: run `before_request` hooks on every route of the Dash app (assets, hook routes, `api_endpoint`, pages, when mounted) and send a non-None hook result as the response, as on Flask. `fastapi` and `quart` also run them on the WebSocket handshake.
 - [#4075](https://github.com/plotly/dash/pull/4075) Background callbacks without `cache_by` no longer share a result between requests with equal inputs (unread Diskcache results now expire after a day, or after `expire` when set, even with `cache_by`), and callbacks with the same source no longer share a cache key. `build_cache_key` takes a new `callback_key` argument.
 - [#4075](https://github.com/plotly/dash/pull/4075) `dcc.Location(refresh=True).href`, `html.Area.href` and `html.Base.href` now block `javascript:` URLs like `html.A`.
