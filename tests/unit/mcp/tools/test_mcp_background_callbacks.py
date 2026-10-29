@@ -94,7 +94,9 @@ def _trigger_task(app):
 def _wait_for_completion(app, task_id, timeout=3):
     """Block until the callback manager reports the job is no longer running."""
     job_id, _ = _unwrap_handles(app, task_id)
-    manager = app.callback_map["output.children"]["manager"]
+    tool_name = task_id.split(":", 1)[0]
+    adapter = app.mcp_callback_map.find_by_tool_name(tool_name)
+    manager = app.callback_map[adapter.output_id]["manager"]
     deadline = time.time() + timeout
     while time.time() < deadline:
         if not manager.job_running(job_id):
@@ -298,3 +300,64 @@ def test_mcpbg011_task_id_encodes_tool_name_job_id_cache_key():
     assert job_id.isdigit()
     assert len(cache_key) == 64  # SHA256 hex
     assert created_epoch.isdigit()
+
+
+def _make_no_output_background_app():
+    cache = diskcache.Cache()
+    manager = DiskcacheManager(cache)
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(id="trigger-no-output"),
+            html.Div(id="side-effect-target"),
+        ]
+    )
+
+    @app.callback(
+        Input("trigger-no-output", "children"),
+        background=True,
+        manager=manager,
+    )
+    def no_output_slow_callback(value):
+        time.sleep(0.5)
+
+    return app
+
+
+def test_mcpbg012_no_output_task_result_does_not_raise():
+    app = _make_no_output_background_app()
+    create_result = _mcp(
+        app,
+        "tools/call",
+        {
+            "name": "no_output_slow_callback",
+            "arguments": {"value": "hello"},
+            "task": {"ttl": 60000},
+        },
+    )
+    task_id = create_result["result"]["task"]["taskId"]
+    _wait_for_completion(app, task_id)
+
+    result = _mcp(app, "tasks/result", {"taskId": task_id})
+    assert result["result"]["structuredContent"] == {"multi": True}
+
+
+def test_mcpbg013_cancel_no_output_task_does_not_raise():
+    app = _make_no_output_background_app()
+    create_result = _mcp(
+        app,
+        "tools/call",
+        {
+            "name": "no_output_slow_callback",
+            "arguments": {"value": "hello"},
+            "task": {"ttl": 60000},
+        },
+    )
+    task_id = create_result["result"]["task"]["taskId"]
+
+    cancel_result = _mcp(app, "tasks/cancel", {"taskId": task_id})
+    assert "error" not in cancel_result
+
+    result = _mcp(app, "tasks/result", {"taskId": task_id})
+    assert result["result"]["structuredContent"] == {"multi": True}

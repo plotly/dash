@@ -521,3 +521,58 @@ def test_stcb024_cancelled_pump_publishes_terminal_error():
         },
     ]
     assert all(m["rid"] == "rid" for _, m in published)
+
+
+def _stream_app(**kwargs):
+    callback_kwargs = (
+        {"websocket": kwargs.pop("websocket")} if "websocket" in kwargs else {}
+    )
+    app = Dash(__name__, **kwargs)
+    app.layout = html.Div([html.Button(id="btn"), html.Div(id="out")])
+
+    @app.callback(
+        Output("out", "children"), Input("btn", "n_clicks"), **callback_kwargs
+    )
+    async def stream(n):
+        yield n
+
+    return app
+
+
+def test_stcb025_http_stream_without_shared_storage_fails_at_setup():
+    # The error must come at setup, the same locally and once deployed, instead
+    # of streaming on a fallback that breaks behind a real deployment.
+    app = _stream_app(shared_storage=None)
+    with pytest.raises(StreamCallbackError, match="need shared storage"):
+        app._setup_server()  # pylint: disable=protected-access
+
+
+def test_stcb026_http_stream_without_shared_storage_fails_first_request():
+    app = _stream_app(shared_storage=None)
+    app.server.testing = True
+    client = app.server.test_client()
+    for _ in range(2):
+        with pytest.raises(StreamCallbackError, match="out.children"):
+            client.get("/")
+
+
+def test_stcb027_websocket_streams_do_not_need_shared_storage():
+    pytest.importorskip("fastapi")
+    _stream_app(
+        shared_storage=None, backend="fastapi", websocket_callbacks=True
+    )._setup_server()  # pylint: disable=protected-access
+    _stream_app(
+        shared_storage=None, backend="fastapi", websocket=True
+    )._setup_server()  # pylint: disable=protected-access
+
+
+@pytest.mark.parametrize("kwargs", [{"websocket_callbacks": True}, {"websocket": True}])
+def test_stcb029_websocket_flag_on_flask_still_needs_shared_storage(kwargs):
+    # Flask has no WebSocket route, so these streams would run over HTTP.
+    app = _stream_app(shared_storage=None, **kwargs)
+    with pytest.raises(StreamCallbackError, match="need shared storage"):
+        app._setup_server()  # pylint: disable=protected-access
+
+
+def test_stcb028_http_stream_with_shared_storage_sets_up():
+    _stream_app()._setup_server()  # pylint: disable=protected-access

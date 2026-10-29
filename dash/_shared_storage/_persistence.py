@@ -4,8 +4,8 @@ Only the elected owner persists; clients proxy to it. The store is *chunked* --
 keys are sharded across fixed-size chunk files via a key->chunk index, so a
 single mutation rewrites only the affected chunk rather than the whole store
 (the design is adapted from raposa's ``BinaryStorage``). Serialization is
-msgspec msgpack via :mod:`._codec`; each chunk write is atomic (temp file +
-``os.replace``).
+msgspec msgpack via :mod:`._codec` (the ``dash[shared_storage]`` extra); each
+chunk write is atomic (temp file + ``os.replace``).
 
 Two modes drive *when* the store is written:
 

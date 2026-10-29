@@ -18,6 +18,9 @@ from dash._streaming import _shutdown as _streaming_shutdown
 def _isolate_shared_storage(monkeypatch):
     namespace = f"streamtest-{uuid.uuid4().hex[:12]}"
     monkeypatch.setattr(_local, "_default_namespace", lambda: namespace)
+    # HTTP streaming needs shared storage, so apps here get it unless they pass
+    # their own.
+    monkeypatch.setenv("DASH_SHARED_STORAGE", "local")
     yield
 
 
