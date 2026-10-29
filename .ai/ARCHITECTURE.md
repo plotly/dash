@@ -926,8 +926,14 @@ Dash(shared_storage=RedisSharedStorage(url="redis://host:6379"))
 ```
 
 When disabled, accessing `app.shared_storage` / `dash.ctx.shared_storage`
-raises `SharedStorageError`, and streaming callbacks still work, each on its own
-connection instead of the multiplexed downlink.
+raises `SharedStorageError`. Streaming callbacks over HTTP need it: server setup
+raises `StreamCallbackError` naming them (`_validate.validate_stream_callbacks`),
+so an app cannot stream on a fallback locally and then break once deployed.
+WebSocket streaming callbacks (`websocket_callbacks=True` or `websocket=True`
+on a backend with `websocket_capability`, i.e. FastAPI or Quart) send frames on
+the socket and do not need it; on Flask those flags change nothing and the check
+still applies. Browsers without `SharedWorker` do not use the WebSocket
+transport and stream over HTTP, one connection per stream.
 
 **`LocalSharedStorage`** — in-memory, no external service. On first use every
 worker races to become the single **owner** for the machine by binding a stable

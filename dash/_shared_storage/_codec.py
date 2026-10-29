@@ -1,10 +1,11 @@
 """Codec for the shared-storage transport and the persistent backends.
 
 Uses ``msgspec`` (msgpack: fast, compact) from the ``dash[shared_storage]``
-extra, also part of ``dash[diskcache]`` and ``dash[redis]``. Without it, only the in-memory transport works and it falls back to
-stdlib JSON; the backends that write encoded bytes somewhere lasting (disk
-persistence, diskcache, Redis) call :func:`require_msgspec` so the stored
-format never depends on what happens to be installed. Both formats are
+extra, also part of ``dash[diskcache]`` and ``dash[redis]``. Without it, only
+the in-memory transport works and it falls back to stdlib JSON; the backends
+that write encoded bytes somewhere lasting (disk persistence, diskcache, Redis)
+call :func:`require_msgspec` so the stored format never depends on what
+happens to be installed. Both formats are
 data-only, so bytes read off the socket cannot execute code.
 
 Payloads must be JSON-compatible (dict / list / str / int / float / bool /

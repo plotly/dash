@@ -167,7 +167,7 @@ def test_downlink_without_shared_storage_is_rejected(flavor):
     # request for one gets 403 instead of a SharedStorageError 500.
     body = {"streamDownlink": {"from": 0}}
     if flavor == "flask":
-        app = Dash(__name__)
+        app = Dash(__name__, shared_storage=None)
         app.layout = html.Div()
         resp = app.server.test_client().post(_uplink_url(app), json=body)
         assert resp.status_code == 403
@@ -177,14 +177,14 @@ def test_downlink_without_shared_storage_is_rejected(flavor):
         from fastapi import FastAPI
         from fastapi.testclient import TestClient
 
-        app = Dash(__name__, server=FastAPI())
+        app = Dash(__name__, server=FastAPI(), shared_storage=None)
         app.layout = html.Div()
         app._setup_server()  # pylint: disable=protected-access
         with TestClient(app.server) as client:
             assert client.post(_uplink_url(app), json=body).status_code == 403
         return
     quart = pytest.importorskip("quart")
-    app = Dash(__name__, server=quart.Quart(__name__))
+    app = Dash(__name__, server=quart.Quart(__name__), shared_storage=None)
     app.layout = html.Div()
     app._setup_server()  # pylint: disable=protected-access
 
