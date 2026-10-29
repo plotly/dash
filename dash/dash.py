@@ -480,8 +480,9 @@ class Dash(ObsoleteChecker):
     :param shared_storage: Backend for ``dash.ctx.shared_storage`` and the
         streaming-callback transport: a ``BaseSharedStorage`` subclass or
         instance, or ``None`` to disable. Off by default: pass
-        ``LocalSharedStorage`` for one machine or pod. Without it, streaming
-        callbacks still work, each on its own connection. When not passed, the
+        ``LocalSharedStorage`` for one machine or pod. Streaming callbacks
+        over HTTP need it, and server setup raises without it; WebSocket
+        streaming callbacks do not. When not passed, the
         ``DASH_SHARED_STORAGE`` environment variable can choose it: ``local``,
         ``none``, ``diskcache:///absolute/path``, or a ``redis://`` /
         ``rediss://`` URL. An explicit argument, including ``None``, always
@@ -1270,14 +1271,14 @@ class Dash(ObsoleteChecker):
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
-        # Streaming callbacks use the single multiplexed downlink only when a
-        # shared-storage backend is available to broker frames across workers;
-        # otherwise the client streams each callback on its own connection.
-        # The worker script hosts that downlink in a SharedWorker so every tab
-        # of the browser shares one connection (browsers cap connections per
-        # host); the renderer falls back to a per-tab downlink without it.
-        # "mode" is how the downlink is served: one open connection (ASGI) or
-        # polling (WSGI, where an open response would pin a worker thread).
+        # HTTP streaming callbacks need shared storage to broker frames across
+        # workers onto the single multiplexed downlink (_setup_server refuses
+        # them without it). The worker script hosts that downlink in a
+        # SharedWorker so every tab of the browser shares one connection
+        # (browsers cap connections per host); the renderer falls back to a
+        # per-tab downlink without SharedWorker support. "mode" is how the
+        # downlink is served: one open connection (ASGI) or polling (WSGI,
+        # where an open response would pin a worker thread).
         config["stream"] = {"enabled": self.shared_storage_enabled}
         if self.shared_storage_enabled:
             config["stream"].update(
@@ -1933,6 +1934,12 @@ class Dash(ObsoleteChecker):
             _callback.GLOBAL_CALLBACK_LIST.clear()
 
             _validate.validate_background_callbacks(self.callback_map)
+            _validate.validate_stream_callbacks(
+                self.callback_map,
+                self.shared_storage_enabled,
+                self._websocket_callbacks,
+                self.backend.websocket_capability,
+            )
 
             cancels = {}
 

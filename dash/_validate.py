@@ -564,6 +564,33 @@ def validate_background_callbacks(callback_map):
             )
 
 
+def validate_stream_callbacks(
+    callback_map, shared_storage_enabled, websocket_callbacks, websocket_capable
+):
+    # Over HTTP a stream needs shared storage to broker its frames. Fail the same
+    # way locally as in a deployment rather than streaming one way here and
+    # breaking there. A websocket flag only counts on a backend that serves
+    # WebSockets; on Flask those callbacks still run over HTTP.
+    if shared_storage_enabled:
+        return
+    streams = [
+        callback_id
+        for callback_id, callback in callback_map.items()
+        if callback.get("stream")
+        and not (
+            websocket_capable and (websocket_callbacks or callback.get("websocket"))
+        )
+    ]
+    if streams:
+        raise exceptions.StreamCallbackError(
+            f"Streaming callbacks {streams} run over HTTP and need shared "
+            "storage. Pass Dash(shared_storage=dash.LocalSharedStorage) (or a "
+            "Diskcache or Redis backend), set DASH_SHARED_STORAGE, or run them "
+            "over WebSocket on a backend that supports it (FastAPI or Quart, "
+            "with websocket_callbacks=True or websocket=True on the callback)."
+        )
+
+
 def validate_duplicate_output(
     output, prevent_initial_call, config_prevent_initial_call
 ):
