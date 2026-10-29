@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [4.5.0] - 2026-10-29
 
 ### Added
 - [#4099](https://github.com/plotly/dash/pull/4099) Streaming callbacks over HTTP now require shared storage and fail at server setup without it, instead of falling back to one connection per stream; WebSocket streaming callbacks do not need it.
@@ -62,7 +62,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4057](https://github.com/plotly/dash/pull/4057) Fixed background callbacks to update `set_props` instead of replacing. Fixes [#3104](https://github.com/plotly/dash/issues/3104).
 - [#3923](https://github.com/plotly/dash/pull/3923) Fix a blank page and `SyntaxError` in the browser when a dict component ID has a dot in one of its values. Fixes [#3480](https://github.com/plotly/dash/issues/3480).
 - [#4074](https://github.com/plotly/dash/pull/4074) Fix Pages passing percent-encoded path variables to `layout` and `title`, and the 404 page for paths with spaces or non-ASCII characters. Fixes [#2360](https://github.com/plotly/dash/issues/2360).
-- [#4012](https://github.com/plotly/dash/pull/4012) Fix `InvalidCallbackReturnValue` raised when a no-output background callback's error handler returns `None` (or the job is cancelled), by treating `None` returns from error handlers and the cancelled-job branch the same way — as `NoUpdate()` only when there are outputs, `None` otherwise. Fixes [#3628](https://github.com/plotly/dash/issues/3628).
+- [#4012](https://github.com/plotly/dash/pull/4012) Fix `InvalidCallbackReturnValue` raised when a no-output background callback's error handler returns `None` (or the job is cancelled), by treating `None` returns from error handlers and the cancelled-job branch the same way: `NoUpdate()` only when there are outputs, `None` otherwise. Fixes [#3628](https://github.com/plotly/dash/issues/3628).
 
 ## [4.4.1] - 2026-07-21
 
