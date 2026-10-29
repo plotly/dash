@@ -17,7 +17,7 @@ import logging
 import mimetypes
 import hashlib
 import base64
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 from typing import (
     Any,
     Callable,
@@ -479,11 +479,16 @@ class Dash(ObsoleteChecker):
 
     :param shared_storage: Backend for ``dash.ctx.shared_storage`` and the
         streaming-callback transport: a ``BaseSharedStorage`` subclass or
-        instance, or ``None`` to disable. Default ``LocalSharedStorage`` (one
-        machine or pod). When not passed, the ``DASH_SHARED_STORAGE``
-        environment variable can choose it: ``local``, ``none``,
-        ``diskcache:///absolute/path``, or a ``redis://`` / ``rediss://`` URL.
-        An explicit argument, including ``None``, always wins.
+        instance, or ``None`` to disable. Off by default: pass
+        ``LocalSharedStorage`` for one machine or pod. Streaming callbacks
+        over HTTP need it, and server setup raises without it; WebSocket
+        streaming callbacks do not. When not passed, the
+        ``DASH_SHARED_STORAGE`` environment variable can choose it: ``local``,
+        ``none``, ``diskcache:///absolute/path``, or a ``redis://`` /
+        ``rediss://`` URL. An explicit argument, including ``None``, always
+        wins. The persistent ``LocalSharedStorage`` modes need
+        ``pip install "dash[shared_storage]"``; the diskcache and Redis backends
+        need their own ``dash[diskcache]`` / ``dash[redis]`` extra.
 
         Stream requests are signed per page load, so with several workers or
         pods they all need the same signing secret: set ``server.secret_key``
@@ -1036,7 +1041,7 @@ class Dash(ObsoleteChecker):
 
     @property
     def shared_storage_enabled(self) -> bool:
-        """Whether this app has a shared-storage backend (not ``None``).
+        """Whether this app has a shared-storage backend (off by default).
 
         Cheap to read and does not start the backend, unlike ``shared_storage``.
         """
@@ -1047,13 +1052,14 @@ class Dash(ObsoleteChecker):
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
         Started on first access in the worker that uses it. Access it from a
-        callback via ``dash.ctx.shared_storage``. Raises if the app was created
-        with ``shared_storage=None``.
+        callback via ``dash.ctx.shared_storage``. Raises if the app has no
+        shared storage (pass ``shared_storage=`` or set ``DASH_SHARED_STORAGE``).
         """
         if self._shared_storage_arg is None:
             raise SharedStorageError(
                 "Shared storage is disabled for this app; construct it with "
-                "Dash(shared_storage=...) to use dash.ctx.shared_storage."
+                "Dash(shared_storage=...) or set DASH_SHARED_STORAGE to use "
+                "dash.ctx.shared_storage."
             )
         if self._shared_storage_instance is None:
             with self._shared_storage_lock:
@@ -1265,14 +1271,14 @@ class Dash(ObsoleteChecker):
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
-        # Streaming callbacks use the single multiplexed downlink only when a
-        # shared-storage backend is available to broker frames across workers;
-        # otherwise the client streams each callback on its own connection.
-        # The worker script hosts that downlink in a SharedWorker so every tab
-        # of the browser shares one connection (browsers cap connections per
-        # host); the renderer falls back to a per-tab downlink without it.
-        # "mode" is how the downlink is served: one open connection (ASGI) or
-        # polling (WSGI, where an open response would pin a worker thread).
+        # HTTP streaming callbacks need shared storage to broker frames across
+        # workers onto the single multiplexed downlink (_setup_server refuses
+        # them without it). The worker script hosts that downlink in a
+        # SharedWorker so every tab of the browser shares one connection
+        # (browsers cap connections per host); the renderer falls back to a
+        # per-tab downlink without SharedWorker support. "mode" is how the
+        # downlink is served: one open connection (ASGI) or polling (WSGI,
+        # where an open response would pin a worker thread).
         config["stream"] = {"enabled": self.shared_storage_enabled}
         if self.shared_storage_enabled:
             config["stream"].update(
@@ -1928,6 +1934,12 @@ class Dash(ObsoleteChecker):
             _callback.GLOBAL_CALLBACK_LIST.clear()
 
             _validate.validate_background_callbacks(self.callback_map)
+            _validate.validate_stream_callbacks(
+                self.callback_map,
+                self.shared_storage_enabled,
+                self._websocket_callbacks,
+                self.backend.websocket_capability,
+            )
 
             cancels = {}
 
@@ -2851,7 +2863,9 @@ class Dash(ObsoleteChecker):
                 async def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():
@@ -2939,7 +2953,9 @@ class Dash(ObsoleteChecker):
                 def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():

@@ -683,6 +683,7 @@ def _update_background_callback(
     kwargs,
     background,
     multi,
+    output_spec,
     cache_key=None,
     job_id=None,
 ):
@@ -711,6 +712,7 @@ def _update_background_callback(
         error_handler,
         callback_ctx,
         multi,
+        output_spec,
         cache_key=cache_key,
         job_id=job_id,
     )
@@ -723,6 +725,7 @@ def _handle_rest_background_callback(
     error_handler,
     callback_ctx,
     multi,
+    output_spec,
     has_update=False,
     cache_key=None,
     job_id=None,
@@ -731,7 +734,10 @@ def _handle_rest_background_callback(
     job_running = callback_manager.job_running(job_id) if job_id is not None else False
     if not job_running and output_value is callback_manager.UNDEFINED:
         # Job canceled -> no output to close the loop.
-        output_value = NoUpdate()
+        if output_spec:
+            output_value = NoUpdate()
+        else:
+            output_value = None
 
     elif isinstance(output_value, dict) and "background_callback_error" in output_value:
         error = output_value.get("background_callback_error", {})
@@ -741,7 +747,7 @@ def _handle_rest_background_callback(
         if error_handler:
             output_value = error_handler(exc)
 
-            if output_value is None:
+            if output_value is None and output_spec:
                 output_value = NoUpdate()
             # set_props from the error handler uses the original ctx
             # instead of manager.get_updated_props since it runs in the
@@ -975,7 +981,13 @@ def register_callback(
                         )
 
                     output_value, has_update, skip = _update_background_callback(
-                        error_handler, callback_ctx, response, kwargs, background, multi
+                        error_handler,
+                        callback_ctx,
+                        response,
+                        kwargs,
+                        background,
+                        multi,
+                        output_spec,
                     )
                     if skip:
                         return output_value
@@ -1047,7 +1059,13 @@ def register_callback(
                             callback_ctx,
                         )
                     output_value, has_update, skip = _update_background_callback(
-                        error_handler, callback_ctx, response, kwargs, background, multi
+                        error_handler,
+                        callback_ctx,
+                        response,
+                        kwargs,
+                        background,
+                        multi,
+                        output_spec,
                     )
                     if skip:
                         return output_value
