@@ -20,22 +20,24 @@ interface Hashes {
 
 const previousHashes: Hashes = {};
 
+const NOT_FIRST_LEVEL_CHILD: [boolean, string[]] = [false, []];
+
 const isFirstLevelPropsChild = (
     updatedPath: string,
     strPath: string
 ): [boolean, string[]] => {
-    const updatedSegments = updatedPath.split(',');
-    const fullSegments = strPath.split(',');
-
-    // Check that strPath actually starts with updatedPath
-    const startsWithPath = fullSegments.every(
-        (seg, i) => updatedSegments[i] === seg
-    );
-
-    if (!startsWithPath) return [false, []];
+    // This runs for every layoutHashes entry and most are unrelated, so reject
+    // them before splitting. strPath must end on a segment boundary.
+    if (
+        !updatedPath.startsWith(strPath) ||
+        (updatedPath.length > strPath.length &&
+            updatedPath[strPath.length] !== ',')
+    ) {
+        return NOT_FIRST_LEVEL_CHILD;
+    }
 
     // Get the remaining path after the prefix
-    const remainingSegments = updatedSegments.slice(fullSegments.length);
+    const remainingSegments = updatedPath.slice(strPath.length + 1).split(',');
 
     const propsCount = remainingSegments.filter(s => s === 'props').length;
 
@@ -49,12 +51,13 @@ function determineChangedProps(
     let combinedHash = 0;
     let renderType: any; // Default render type, adjust as needed
     const changedProps: Record<string, any> = {};
-    Object.entries(state.layoutHashes).forEach(([updatedPath, pathHash]) => {
+    Object.keys(state.layoutHashes).forEach(updatedPath => {
         const [descendant, remainingSegments] = isFirstLevelPropsChild(
             updatedPath,
             strPath
         );
         if (descendant) {
+            const pathHash = state.layoutHashes[updatedPath];
             const previousHash: any = pathOr({}, [updatedPath], previousHashes);
             combinedHash += pathOr(0, ['hash'], pathHash);
             if (previousHash !== pathHash) {
