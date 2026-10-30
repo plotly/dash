@@ -5,7 +5,7 @@ export type DashConfig = {
     props_check: boolean;
     show_undo_redo: boolean;
     suppress_callback_exceptions: boolean;
-    update_title: string;
+    update_title: string | null;
     hot_reload?: {
         interval: number;
         max_retry: number;
