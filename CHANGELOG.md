@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#PR](https://github.com/plotly/dash/pull/PR) Allow `update_title=None` in the `Dash` constructor type hints.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
