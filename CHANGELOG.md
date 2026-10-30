@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- [#PR](https://github.com/plotly/dash/pull/PR) Allow `update_title=None` in the `Dash` constructor type hints.
+- [#4104](https://github.com/plotly/dash/pull/4104) Allow `update_title=None` in the `Dash` constructor type hints.
 
 ## [4.5.0] - 2026-10-29
 
