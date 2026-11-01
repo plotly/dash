@@ -286,3 +286,35 @@ def test_index_with_windows_extended_length_paths(tmp_path, monkeypatch):
     assert "/_dash-component-suites/dash/deps/polyfill@" in body
     assert "dash-stream-worker.v" in body
     assert "/assets/icons/favicon.ico?m=" in body
+
+
+def test_index_links_only_css_assets_as_stylesheets(tmp_path):
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    (assets / "style.css").write_text("")
+    (assets / "theme.scss").write_text("")
+
+    app = dash.Dash(__name__, assets_folder=str(assets))
+    app.layout = html.Div()
+
+    body = app.server.test_client().get("/").get_data(as_text=True)
+
+    assert "/assets/style.css?m=" in body
+    assert "theme.scss" not in body
+
+
+def test_hot_reload_treats_only_css_assets_as_css(tmp_path):
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    app = dash.Dash(__name__, assets_folder=str(assets))
+
+    for name in ("style.css", "theme.scss"):
+        path = assets / name
+        path.write_text("")
+        app._on_assets_change(str(path), path.stat().st_mtime, False)
+
+    assert [
+        (asset["url"].split("?")[0], asset["is_css"])
+        for asset in app._hot_reload.changed_assets
+    ] == [("/assets/style.css", True), ("/assets/theme.scss", False)]
+    assert [r["asset_path"] for r in app.css._resources._resources] == ["style.css"]

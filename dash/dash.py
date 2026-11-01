@@ -2033,7 +2033,7 @@ class Dash(ObsoleteChecker):
                         self.scripts.append_script(
                             self._add_assets_resource(path, full)
                         )
-                    elif f.endswith("css"):
+                    elif f.endswith(".css"):
                         self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
                     elif f == "favicon.ico":
                         self._favicon = path
@@ -2534,7 +2534,7 @@ class Dash(ObsoleteChecker):
                     {
                         "url": self.get_asset_url(asset_path),
                         "modified": int(modified),
-                        "is_css": filename.endswith("css"),
+                        "is_css": filename.endswith(".css"),
                     }
                 )
 
@@ -2542,7 +2542,7 @@ class Dash(ObsoleteChecker):
                     res = self._add_assets_resource(asset_path, filename)
                     if filename.endswith("js"):
                         self.scripts.append_script(res)
-                    elif filename.endswith("css"):
+                    elif filename.endswith(".css"):
                         self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
@@ -2561,7 +2561,7 @@ class Dash(ObsoleteChecker):
                     if filename.endswith("js"):
                         # pylint: disable=protected-access
                         delete_resource(self.scripts._resources._resources)
-                    elif filename.endswith("css"):
+                    elif filename.endswith(".css"):
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
