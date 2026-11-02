@@ -2,6 +2,7 @@
 
 ## Contributor Checklist
 
+- [ ] This PR targets `dev` (fix or chore) or `next` (feature, new API, breaking change), see [Which branch to target](https://github.com/plotly/dash/blob/dev/CONTRIBUTING.md#which-branch-to-target)
 - [ ] I have broken down my PR scope into the following TODO tasks
    -  [ ] task 1
    -  [ ] task 2

@@ -4,7 +4,7 @@
 Glad that you decided to make your contribution in Dash. This guide provides instructions to set up and build the Dash repository and describes best practices when contributing to the Dash repository. 
 
 ### Fork the Dash repository
-When contributing to the Dash repository you should always work in your own copy of the Dash repository. Create a fork of the `dev`-branch, to create a copy of the Dash repository in your own GitHub account. See official instructions for [creating a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) if needed.
+When contributing to the Dash repository you should always work in your own copy of the Dash repository. Create a fork, to create a copy of the Dash repository in your own GitHub account. See official instructions for [creating a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo) if needed.
 
 Clone the forked repository (either option will work). Replace `<your_user_name>` with your user name. 
 ```
@@ -156,7 +156,23 @@ Specific details on making changes and contributing to `dcc`, `html`, and `dash_
 
 ## Git
 
-Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposing contributions to this repository (i.e. create a feature branch and submit a PR against the default branch).
+Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposing contributions to this repository: create a branch and submit a PR against `dev` or `next`.
+
+### Which branch to target
+
+| Branch | Receives | Releases |
+| --- | --- | --- |
+| `dev` (default) | Fixes, security, dependency bumps, CI, docs, refactors and perf work with no behavior change | Patches `x.y.Z` |
+| `next` | Features, new API, deprecations, breaking changes | RCs and minors `x.Y.0` |
+
+Semver decides: a change that needs a minor version bump goes to `next`, one that needs only a patch bump goes to `dev`. A fix that depends on an unreleased feature goes to `next`. When in doubt, pick `next`. A PR into `dev` that adds an `Added` entry to the CHANGELOG fails the "No features on dev" check. Maintainers retarget feature PRs opened against `dev`.
+
+Fixes are written once, on `dev`. The Forward Merge workflow keeps a "Merge dev into next" PR open from the `dev-into-next` branch. Merge it with a merge commit, never squash. If it has conflicts, resolve them on `dev-into-next` by merging `origin/next` into it (never on `dev`); until then other PRs into `next` are blocked. Expect this after each patch release, since the version bumps and CHANGELOG heading on `dev` collide with `next`.
+
+### Releases
+
+- **Patch:** release from `dev` (`master-x.y.Z` merges `dev`).
+- **Minor:** RCs come from `next`, and while one is out `next` only takes RC fixes. On release, merge the open "Merge dev into next" PR, check that `git log origin/next..origin/dev` is empty, then fast-forward `dev` to `next` (`git push origin origin/next:dev`, admins only) and release from `dev` as usual. `dev` and `next` are then identical.
 
 ### Organize your commits
 

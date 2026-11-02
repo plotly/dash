@@ -1,0 +1,86 @@
+name: Forward Merge
+
+# Keeps next containing dev (RFD #142): each push to dev opens or updates a
+# "Merge dev into next" PR from the dev-into-next branch. Conflicts are
+# resolved on that branch, never on dev. Merge it with a merge commit only:
+# a squash would drop dev's history from next and every later merge conflicts.
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  statuses: write
+
+concurrency:
+  group: forward-merge
+  cancel-in-progress: false
+
+env:
+  MERGE_BRANCH: dev-into-next
+
+jobs:
+  forward-merge:
+    name: Merge dev into next
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update the merge branch and PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin dev next
+
+          push_failed() {
+            # GITHUB_TOKEN cannot push commits that change .github/workflows.
+            echo "::error::Could not push $MERGE_BRANCH. If dev changed a workflow file, a maintainer has to push it: git push origin origin/dev:$MERGE_BRANCH (or merge origin/dev into it)."
+            exit 1
+          }
+
+          if git merge-base --is-ancestor origin/dev origin/next; then
+            echo "next already contains dev."
+            exit 0
+          fi
+
+          pr=$(gh pr list --base next --head "$MERGE_BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr" ] && git fetch origin "$MERGE_BRANCH" && \
+             ! git merge-base --is-ancestor "origin/$MERGE_BRANCH" origin/dev; then
+            # Someone already resolved conflicts on the branch: build on that.
+            git switch -c "$MERGE_BRANCH" "origin/$MERGE_BRANCH"
+            if ! git merge --no-edit origin/dev; then
+              git merge --abort
+              gh pr comment "$pr" --body "dev moved to $(git rev-parse --short origin/dev) and does not merge cleanly into \`$MERGE_BRANCH\`. Merge \`dev\` into \`$MERGE_BRANCH\` by hand."
+              exit 0
+            fi
+            git push origin "$MERGE_BRANCH" || push_failed
+            head=$(git rev-parse HEAD)
+            # Pushes made with GITHUB_TOKEN do not trigger CI, a dispatch does.
+            gh workflow run testing.yml --ref "$MERGE_BRANCH"
+          else
+            # The branch is dev itself, so the checks already run on dev apply.
+            git push --force origin "origin/dev:refs/heads/$MERGE_BRANCH" || push_failed
+            head=$(git rev-parse origin/dev)
+          fi
+
+          # Required on next, but the branch-policy job never runs for this PR
+          # because PRs opened with GITHUB_TOKEN do not trigger workflows.
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$head" \
+            -f state=success -f context="Forward merge not conflicted" \
+            -f description="This is the forward merge PR" > /dev/null
+
+          if [ -z "$pr" ]; then
+            gh pr create --base next --head "$MERGE_BRANCH" \
+              --title "Merge dev into next" \
+              --body "Automated forward merge of \`dev\` into \`next\` (RFD #142). Merge with **Create a merge commit**, never squash. On conflicts, resolve them on \`$MERGE_BRANCH\`, not on \`dev\`. While this PR has conflicts, other PRs into \`next\` are blocked."
+          fi
