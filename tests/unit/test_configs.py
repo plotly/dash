@@ -304,6 +304,8 @@ def test_strip_relative_path(prefix, partial_path, expected):
         ("/", "relative-page-1"),
         ("/my-dash-app", "relative-page-1"),
         ("/my-dash-app", "/some-other-path"),
+        ("/app/", "/application/a"),
+        ("/app/", "/apple"),
     ],
 )
 def test_invalid_strip_relative_path(prefix, partial_path):

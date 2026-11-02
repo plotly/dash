@@ -141,8 +141,11 @@ def strip_relative_path(path):
 def app_strip_relative_path(requests_pathname, path):
     if path is None:
         return None
+    prefix = requests_pathname.rstrip("/")
     if (
-        requests_pathname != "/" and not path.startswith(requests_pathname.rstrip("/"))
+        requests_pathname != "/"
+        and path != prefix
+        and not path.startswith(prefix + "/")
     ) or (requests_pathname == "/" and not path.startswith("/")):
         raise exceptions.UnsupportedRelativePath(
             f"""
@@ -150,11 +153,11 @@ def app_strip_relative_path(requests_pathname, path):
             You supplied: {path} and requests_pathname_prefix was {requests_pathname}
             """
         )
-    if requests_pathname != "/" and path.startswith(requests_pathname.rstrip("/")):
+    if requests_pathname != "/":
         path = path.replace(
             # handle the case where the path might be `/my-dash-app`
             # but the requests_pathname_prefix is `/my-dash-app/`
-            requests_pathname.rstrip("/"),
+            prefix,
             "",
             1,
         )
