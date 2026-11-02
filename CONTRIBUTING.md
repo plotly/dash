@@ -167,12 +167,12 @@ Use the [GitHub flow](https://guides.github.com/introduction/flow/) when proposi
 
 Semver decides: a change that needs a minor version bump goes to `next`, one that needs only a patch bump goes to `dev`. A fix that depends on an unreleased feature goes to `next`. When in doubt, pick `next`. A PR into `dev` that adds an `Added` entry to the CHANGELOG fails the "No features on dev" check. Maintainers retarget feature PRs opened against `dev`.
 
-Fixes are written once, on `dev`. The Forward Merge workflow keeps a "Merge dev into next" PR open from the `dev-into-next` branch. Merge it with a merge commit, never squash. If it has conflicts, resolve them on `dev-into-next` by merging `origin/next` into it (never on `dev`); until then other PRs into `next` are blocked. Expect this after each patch release, since the version bumps and CHANGELOG heading on `dev` collide with `next`.
+Fixes are written once, on `dev`. The Forward Merge workflow merges `dev` into `next` on every push to `dev`. When that merge conflicts, it opens a "Merge dev into next" PR from the `dev-into-next` branch instead: resolve the conflicts there by merging `origin/next` into it (never on `dev`), then merge it with a merge commit, never squash. Until then other PRs into `next` are blocked. Expect this after each patch release, since the version bumps and CHANGELOG heading on `dev` collide with `next`.
 
 ### Releases
 
 - **Patch:** release from `dev` (`master-x.y.Z` merges `dev`).
-- **Minor:** RCs come from `next`, and while one is out `next` only takes RC fixes. On release, merge the open "Merge dev into next" PR, check that `git log origin/next..origin/dev` is empty, then fast-forward `dev` to `next` (`git push origin origin/next:dev`, admins only) and release from `dev` as usual. `dev` and `next` are then identical.
+- **Minor:** RCs come from `next`, and while one is out `next` only takes RC fixes. On release, make sure no "Merge dev into next" PR is open, check that `git log origin/next..origin/dev` is empty, then fast-forward `dev` to `next` (`git push origin origin/next:dev`, admins only) and release from `dev` as usual. `dev` and `next` are then identical.
 
 ### Organize your commits
 
