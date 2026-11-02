@@ -198,11 +198,7 @@ def test_grbs005_graph_customdata(dash_dcc):
 
     dash_dcc.find_elements("g .slice")[0].click()
 
-    wait.until(
-        lambda: '"points"'
-        in (dash_dcc.find_element("#text-area").get_attribute("value") or ""),
-        timeout=3,
-    )
+    dash_dcc.wait_for_contains_text("#text-area", '"points"', timeout=3)
     data = json.loads(dash_dcc.find_element("#text-area").get_attribute("value"))
     assert "customdata" in data["points"][0], "graph clickData must contain customdata"
     assert data["points"][0]["customdata"] == data["points"][0]["pointNumbers"]

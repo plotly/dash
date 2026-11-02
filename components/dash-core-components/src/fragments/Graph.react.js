@@ -100,8 +100,10 @@ const filterEventData = (gd, eventData, event) => {
                 has('customdata', data[pointData.curveNumber])
             ) {
                 const customdata = data[pointData.curveNumber].customdata;
-                // Plotly.js caches decoded binary arrays on the input object.
-                const customdataArray = customdata?._inputArray || customdata;
+                // Binary (typed array) customdata is only decoded in the full
+                // trace, so read it from there and fall back to the input.
+                const customdataArray =
+                    fullPoint.fullData?.customdata ?? customdata;
                 if (has('pointNumber', fullPoint)) {
                     if (typeof fullPoint.pointNumber === 'number') {
                         pointData.customdata =
@@ -119,9 +121,8 @@ const filterEventData = (gd, eventData, event) => {
                         return customdataArray[point];
                     });
                 }
-                if (customdata?._inputArray) {
-                    pointData.customdata = toPlainArray(pointData.customdata);
-                }
+                // Typed arrays would serialize as objects, so send plain arrays.
+                pointData.customdata = toPlainArray(pointData.customdata);
             }
 
             // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
