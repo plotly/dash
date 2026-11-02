@@ -42,7 +42,7 @@ from .dependencies import (
     Output,
     State,
 )
-from .development.base_component import ComponentRegistry
+from .development.base_component import Component, ComponentRegistry
 from .exceptions import (
     ProxyError,
     DuplicateCallback,
@@ -245,6 +245,17 @@ async def execute_async_function(func, *args, **kwargs):
         return await func(*args, **kwargs)
     # If the function is not a coroutine, call it directly
     return func(*args, **kwargs)
+
+
+def _layout_is_unset(layout):
+    """True when ``use_pages`` should fill in ``page_container`` for ``layout``.
+
+    Components are always truthy, so an empty component such as
+    ``html.Div()`` is checked by its length to keep it counting as unset.
+    """
+    if isinstance(layout, Component):
+        return len(layout) == 0
+    return not layout
 
 
 # pylint: disable=too-many-instance-attributes
@@ -1891,7 +1902,7 @@ class Dash(ObsoleteChecker):
             if self.config.include_assets_files:
                 self._walk_assets_directory()
 
-            if not self.layout and self.use_pages:
+            if self.use_pages and _layout_is_unset(self.layout):
                 self.layout = page_container
 
             _validate.validate_layout(self.layout, self._layout_value())
