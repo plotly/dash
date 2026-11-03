@@ -177,6 +177,12 @@ try:
 except:  # noqa: E722
     page_container = None
 
+_ASSET_TYPES = {".js": "js", ".mjs": "mjs", ".css": "css"}
+
+
+def _asset_type(filename):
+    return _ASSET_TYPES.get(os.path.splitext(filename)[1])
+
 
 def _get_traceback(secret, error: Exception):
     try:
@@ -1428,7 +1434,7 @@ class Dash(ObsoleteChecker):
                 static_url = self.get_asset_url(resource["asset_path"])
                 url_with_cache = static_url + f"?m={resource['ts']}"
                 # Import .mjs files with type=module script tag
-                if static_url.endswith(".mjs"):
+                if _asset_type(resource["asset_path"]) == "mjs":
                     attrs = {url_attr: url_with_cache, "type": "module"}
                     if "attributes" in resource:
                         attrs.update(resource["attributes"])
@@ -2028,12 +2034,13 @@ class Dash(ObsoleteChecker):
                     path = "/".join([base, f]) if base else f
 
                     full = os.path.join(current, f)
+                    asset_type = _asset_type(f)
 
-                    if f.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         self.scripts.append_script(
                             self._add_assets_resource(path, full)
                         )
-                    elif f.endswith(".css"):
+                    elif asset_type == "css":
                         self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
                     elif f == "favicon.ico":
                         self._favicon = path
@@ -2529,20 +2536,21 @@ class Dash(ObsoleteChecker):
                     .replace("\\", "/")
                     .lstrip("/")
                 )
+                asset_type = _asset_type(filename)
 
                 _reload.changed_assets.append(
                     {
                         "url": self.get_asset_url(asset_path),
                         "modified": int(modified),
-                        "is_css": filename.endswith(".css"),
+                        "type": asset_type,
                     }
                 )
 
                 if filename not in self._assets_files and not deleted:
                     res = self._add_assets_resource(asset_path, filename)
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         self.scripts.append_script(res)
-                    elif filename.endswith(".css"):
+                    elif asset_type == "css":
                         self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
@@ -2558,10 +2566,10 @@ class Dash(ObsoleteChecker):
                         if to_delete:
                             resources.remove(to_delete)
 
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         # pylint: disable=protected-access
                         delete_resource(self.scripts._resources._resources)
-                    elif filename.endswith(".css"):
+                    elif asset_type == "css":
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 

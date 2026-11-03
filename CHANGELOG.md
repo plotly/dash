@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Fixed
-- [#4105](https://github.com/plotly/dash/pull/4105) Only link `.css` files in the assets folder as stylesheets, so `.scss` and other names ending in "css" are no longer linked or hot-reloaded as CSS. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
+- [#4105](https://github.com/plotly/dash/pull/4105) Load files in the assets folder by their extension: only `.js` and `.mjs` files as scripts and only `.css` files as stylesheets, at startup and on hot reload. Files such as `theme.scss` or `bundle.cjs` are no longer loaded as CSS or JavaScript. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
 
 ## [4.5.0] - 2026-10-29
 
