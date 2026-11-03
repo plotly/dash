@@ -20,6 +20,7 @@ connection), which is what makes long-poll subscriptions cheap.
 
 import asyncio
 import socket
+import ssl
 import struct
 import threading
 from typing import Any, Callable, Optional, Set, Tuple
@@ -27,6 +28,7 @@ from typing import Any, Callable, Optional, Set, Tuple
 from ._codec import decode, encode
 
 EOF = object()  # returned by recv_frame on a clean close
+_HANDSHAKE_TIMEOUT = 5.0
 OK = ["ok", None]
 
 
@@ -88,8 +90,10 @@ class OwnerServer:
         listen_sock: socket.socket,
         token: str,
         guard: Optional[Callable[[], bool]] = None,
+        ssl_context: Optional[ssl.SSLContext] = None,
     ):
         self._engine = engine
+        self._ssl = ssl_context
         self._sock = listen_sock
         self._token = token
         self._guard = guard
@@ -116,6 +120,13 @@ class OwnerServer:
         return not self._closed.is_set() and (self._guard is None or self._guard())
 
     def _handle(self, conn: socket.socket) -> None:
+        if self._ssl is not None:
+            try:
+                conn.settimeout(_HANDSHAKE_TIMEOUT)
+                conn = self._ssl.wrap_socket(conn, server_side=True)
+                conn.settimeout(None)
+            except (OSError, ValueError):
+                return  # a failed handshake closes the socket
         with self._conns_lock:
             if self._closed.is_set():
                 conn.close()
@@ -182,7 +193,11 @@ class OwnerServer:
 
 
 async def aconnect_to_owner(
-    family: int, address, token: str, timeout: float = 5.0
+    family: int,
+    address,
+    token: str,
+    timeout: float = 5.0,
+    ssl_context: Optional[ssl.SSLContext] = None,
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     """Async counterpart of :func:`connect_to_owner` (asyncio streams). The
     timeout covers the handshake too: an owner that accepts but never answers
@@ -191,7 +206,7 @@ async def aconnect_to_owner(
         opener = asyncio.open_unix_connection(address)
     else:
         host, port = address
-        opener = asyncio.open_connection(host, port)
+        opener = asyncio.open_connection(host, port, ssl=ssl_context)
     reader, writer = await asyncio.wait_for(opener, timeout)
     try:
         await asyncio.wait_for(asend_frame(writer, token), timeout)
@@ -205,7 +220,13 @@ async def aconnect_to_owner(
     return reader, writer
 
 
-def connect_to_owner(family: int, address, token: str, timeout: float = 5.0):
+def connect_to_owner(
+    family: int,
+    address,
+    token: str,
+    timeout: float = 5.0,
+    ssl_context: Optional[ssl.SSLContext] = None,
+):
     """Open a client connection and complete the token handshake."""
     if family == getattr(socket, "AF_UNIX", None):
         sock = socket.socket(family, socket.SOCK_STREAM)
@@ -213,8 +234,15 @@ def connect_to_owner(family: int, address, token: str, timeout: float = 5.0):
         sock.connect(address)
     else:
         sock = socket.create_connection(tuple(address), timeout=timeout)
-    send_frame(sock, token)
-    if recv_frame(sock) != OK:
+        if ssl_context is not None:
+            sock = ssl_context.wrap_socket(sock)
+    try:
+        send_frame(sock, token)
+        ok = recv_frame(sock) == OK
+    except BaseException:
+        sock.close()
+        raise
+    if not ok:
         sock.close()
         raise ConnectionError("shared-storage owner rejected the handshake")
     sock.settimeout(None)

@@ -1031,8 +1031,26 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
   timeout. TCP keepalive is on.
 - *Auth.* `secret` (default `$DASH_SECRET_KEY`, run through HMAC so the signing
   key is not reused as is) is proven both ways with an HMAC challenge and never
-  sent. Views are MACed. The data channel and its token travel in clear: keep
-  the ports on a private network, as with Redis without TLS.
+  sent. Views are MACed. Without TLS the data channel and its token travel in
+  clear: keep the ports on a private network, as with Redis without TLS.
+- *TLS (optional).* `tls_cert` + `tls_key` (PEM; `?tls_cert=&tls_key=&tls_ca=`
+  on the URL) turn every connection between replicas into mutual TLS (1.2+):
+  election probes, the data channel, and a worker's loopback hops to its own
+  replica. Each side checks the other's certificate against `tls_ca`, which
+  defaults to `tls_cert`, so one self-signed pair mounted in every replica is
+  enough (`openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1
+  -nodes -subj /CN=dash -keyout key.pem -out cert.pem`); a CA with one
+  certificate per pod (cert-manager) works too. Hostnames are not checked,
+  since replicas are reached by IP: trust comes from the CA, and the HMAC
+  secret is still required on top. Stdlib only, hence files and not keys
+  derived from the secret (TLS-PSK needs Python 3.13). TLS and plaintext
+  replicas do not see each other, so roll it out to all replicas at once. Each
+  certificate is used as client and server certificate: it needs no extended
+  key usage or both `serverAuth` and `clientAuth` (a `serverAuth`-only
+  certificate fails with `unsupported certificate`; set cert-manager's
+  `usages` accordingly). A failed peer handshake is logged once per peer.
+  Files are read at startup, so restart replicas after rotating them. Probes
+  get 1s instead of 0.5s with TLS, since each is a full handshake.
 - *What it gives up.* When replicas briefly see different DNS answers (all of
   them waking from zero at once is the usual case) two owners exist until they
   probe each other; writes to the one that steps down are lost. Replicas that

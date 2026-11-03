@@ -26,11 +26,12 @@ import json
 import logging
 import secrets
 import socket
+import ssl
 import struct
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple
 
 from ._codec import decode, encode
 
@@ -56,6 +57,34 @@ class LockState(NamedTuple):
     # advertises (its data port, ...). None for the owner itself.
     owner_addr: Optional[Addr] = None
     advert: Any = None
+
+
+class TLS(NamedTuple):
+    """Mutual TLS between replicas: each side presents its certificate and
+    checks the other's against the CA. Peers are reached by IP, so there is no
+    hostname to check; trust comes from the CA (and the shared secret)."""
+
+    server: ssl.SSLContext
+    client: ssl.SSLContext
+
+
+def tls_contexts(cert: str, key: str, ca: Optional[str] = None) -> TLS:
+    """Contexts from PEM files. ``ca`` defaults to ``cert``, so a single
+    self-signed certificate mounted in every replica is enough."""
+    server = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    client = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    client.check_hostname = False
+    for context in (server, client):
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        context.verify_mode = ssl.CERT_REQUIRED
+        # An encrypted key would prompt for a password on a terminal.
+        context.load_cert_chain(cert, key, password=_no_password)
+        context.load_verify_locations(ca or cert)
+    return TLS(server, client)
+
+
+def _no_password() -> str:
+    raise ssl.SSLError("the cluster TLS key must not be encrypted")
 
 
 def resolve_peers(host: str, port: int) -> List[Addr]:
@@ -113,13 +142,27 @@ def _recv(conn: socket.socket, deadline: float) -> Any:
     return decode(exactly(length))
 
 
-def probe(addr: Addr, secret: bytes, timeout: float) -> Optional[Dict[str, Any]]:
+# Peers whose TLS handshake failed, so the warning is logged once per peer
+# until it succeeds again.
+_tls_failed: Set[Addr] = set()
+
+
+def probe(
+    addr: Addr,
+    secret: bytes,
+    timeout: float,
+    tls: Optional[ssl.SSLContext] = None,
+) -> Optional[Dict[str, Any]]:
     """Ask the lock at ``addr`` for its view: its id, role and term, plus the
     owner's advert (and, from a follower, the owner's host). None when it does
-    not answer or cannot prove it holds ``secret``."""
+    not answer or cannot prove it holds ``secret``. ``tls`` is the client
+    context when the replicas talk TLS."""
     deadline = time.monotonic() + timeout
     try:
-        with socket.create_connection(addr, timeout=timeout) as conn:
+        raw = socket.create_connection(addr, timeout=timeout)
+        conn = tls.wrap_socket(raw) if tls is not None else raw
+        _tls_failed.discard(addr)
+        with conn:
             nonce = secrets.token_hex(16)
             _send(conn, nonce)
             challenge, proof = _recv(conn, deadline)
@@ -130,6 +173,12 @@ def probe(addr: Addr, secret: bytes, timeout: float) -> Optional[Dict[str, Any]]
             if not hmac.compare_digest(view_mac, _mac(secret, b"view", nonce, raw)):
                 return None
             view = json.loads(raw)
+    except ssl.SSLError as err:
+        # Otherwise silent: replicas would just never see each other.
+        if addr not in _tls_failed:
+            _tls_failed.add(addr)
+            logger.warning("dash cluster TLS handshake with %s failed: %s", addr, err)
+        return None
     except Exception:  # pylint: disable=broad-exception-caught
         return None
     if not _valid_view(view):
@@ -159,7 +208,7 @@ def _valid_view(view: Any) -> bool:
     return True
 
 
-class ClusterLock:
+class ClusterLock:  # pylint: disable=too-many-instance-attributes
     """Elects and tracks the owner among the replicas ``peers`` returns.
 
     ``peers`` is called every probe and returns lock addresses, this replica's
@@ -178,6 +227,7 @@ class ClusterLock:
         bind: Addr = ("0.0.0.0", 0),
         advert: Any = None,
         on_change: Optional[Callable[[LockState], None]] = None,
+        tls: Optional[TLS] = None,
         probe_interval: float = 1.0,
         probe_timeout: float = 0.5,
         miss_limit: int = 3,
@@ -189,6 +239,7 @@ class ClusterLock:
         self._secret = secret
         self._advert = advert
         self._on_change = on_change
+        self._tls = tls
         self._interval = probe_interval
         self._timeout = probe_timeout
         self._miss_limit = miss_limit
@@ -292,6 +343,9 @@ class ClusterLock:
     def _answer(self, conn: socket.socket) -> None:
         deadline = time.monotonic() + self._timeout
         try:
+            if self._tls is not None:
+                conn.settimeout(self._timeout)
+                conn = self._tls.server.wrap_socket(conn, server_side=True)
             with conn:
                 nonce = _recv(conn, deadline)
                 if not isinstance(nonce, str) or not 0 < len(nonce) <= 64:
@@ -316,7 +370,12 @@ class ClusterLock:
 
     # --- probing -----------------------------------------------------------
     def _probe(self, addr: Addr) -> Optional[Dict[str, Any]]:
-        return probe(addr, self._secret, self._timeout)
+        return probe(
+            addr,
+            self._secret,
+            self._timeout,
+            self._tls.client if self._tls is not None else None,
+        )
 
     def _run(self) -> None:
         while not self._closed.is_set():

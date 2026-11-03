@@ -56,8 +56,17 @@ def _cluster_from_url(raw: str) -> Any:
         raise _invalid("cluster needs a valid port")
     if not host:
         raise _invalid("cluster needs a host that resolves to every replica")
-    if parsed.path not in ("", "/") or parsed.query or parsed.fragment:
-        raise _invalid("cluster takes only a host, a port and a secret")
+    if parsed.path not in ("", "/") or parsed.fragment:
+        raise _invalid("cluster takes only a host, a port, a secret and TLS files")
+    tls = {}
+    # Not parse_qsl: it turns "+" into a space, and these are file paths.
+    for pair in filter(None, parsed.query.split("&")):
+        name, _, value = pair.partition("=")
+        if name not in ("tls_cert", "tls_key", "tls_ca") or name in tls or not value:
+            raise _invalid("cluster takes only tls_cert, tls_key and tls_ca, once each")
+        tls[name] = unquote(value)
+    if bool(tls.get("tls_cert")) != bool(tls.get("tls_key")):
+        raise _invalid("cluster TLS needs both tls_cert and tls_key")
     if port >= 65535:
         raise _invalid("cluster needs a port below 65535, the next one is used too")
     if parsed.username and not parsed.password:
@@ -67,7 +76,9 @@ def _cluster_from_url(raw: str) -> Any:
         raise _invalid(
             f"cluster needs a secret: cluster://:secret@host or {SECRET_ENV}"
         )
-    return functools.partial(ClusterSharedStorage, host=host, port=port, secret=secret)
+    return functools.partial(
+        ClusterSharedStorage, host=host, port=port, secret=secret, **tls
+    )
 
 
 def storage_from_env(value: Optional[str]) -> Any:

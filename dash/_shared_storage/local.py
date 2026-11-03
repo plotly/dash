@@ -146,6 +146,8 @@ class _Coordinator:
     # How long a call keeps retrying while a new owner is found. Locally the
     # next owner is a bind away; a cluster needs a few probes to notice.
     failover_window = 0.0
+    # TLS context for client connections to the owner (cluster only).
+    client_ssl: Optional[Any] = None
 
     def __init__(
         self,
@@ -237,12 +239,18 @@ class _Coordinator:
         it belongs to, which may differ from the caller's last one."""
         family, address, token = self._target()
         assert family is not None and token is not None
-        return connect_to_owner(family, address, token), token
+        return (
+            connect_to_owner(family, address, token, ssl_context=self.client_ssl),
+            token,
+        )
 
     async def aconnect(self):
         """Async :meth:`connect`. Call after an election, never during one."""
         family, address, token = self._target()
-        return await aconnect_to_owner(family, address, token), token
+        streams = await aconnect_to_owner(
+            family, address, token, ssl_context=self.client_ssl
+        )
+        return streams, token
 
     def on_owner_lost(self) -> None:
         """The owner became unreachable; re-elect (may promote us to owner)."""

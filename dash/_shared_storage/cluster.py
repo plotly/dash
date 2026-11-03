@@ -9,9 +9,10 @@ port ask their replica's lock process, on loopback, where the owner is.
 
 The owner's term is the token clients present, so an owner change looks like
 a re-election does locally: the buffer is gone and readers get
-``SharedStorageGap``. A deposed owner's server stops answering at once. Data
-crosses the network unencrypted, so keep the ports on a private network, as
-with a Redis without TLS.
+``SharedStorageGap``. A deposed owner's server stops answering at once.
+Without ``tls_cert``/``tls_key`` data crosses the network unencrypted, so keep
+the ports on a private network, as with a Redis without TLS; with them, every
+connection between replicas is mutual TLS.
 """
 
 import atexit
@@ -20,6 +21,7 @@ import hashlib
 import hmac
 import os
 import socket
+import ssl
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -27,12 +29,14 @@ from ._cluster_lock import (
     ELECTING,
     FOLLOWER,
     OWNER,
+    TLS,
     Addr,
     ClusterLock,
     LockState,
     listen,
     probe,
     resolve_peers,
+    tls_contexts,
 )
 from ._engine import DEFAULT_BUFFER
 from ._transport import OwnerServer
@@ -44,6 +48,8 @@ SECRET_ENV = "DASH_SECRET_KEY"
 
 _PROBE_INTERVAL = 1.0
 _PROBE_TIMEOUT = 0.5
+# A probe over TLS is a full handshake: give it room on a busy pod.
+_TLS_PROBE_TIMEOUT = 1.0
 _SETTLE_TIMEOUT = 15.0
 # A pod that vanishes does not close its sockets, so a client could wait on it
 # forever: keep long polls short and give up on an answer that never comes.
@@ -59,6 +65,19 @@ def _derive_secret(secret: str) -> bytes:
     return hmac.new(
         secret.encode(), b"dash-shared-storage-cluster", hashlib.sha256
     ).digest()
+
+
+def _load_tls(
+    cert: Optional[str], key: Optional[str], ca: Optional[str]
+) -> Optional[TLS]:
+    if cert is None and key is None and ca is None:
+        return None
+    if not (cert and key):
+        raise SharedStorageError("cluster TLS needs both tls_cert and tls_key")
+    try:
+        return tls_contexts(cert, key, ca)
+    except (OSError, ssl.SSLError) as err:
+        raise SharedStorageError(f"cannot load the cluster TLS files: {err}") from err
 
 
 class _ClusterCoordinator(_Coordinator):
@@ -82,6 +101,7 @@ class _ClusterCoordinator(_Coordinator):
         flush_interval: float,
         probe_interval: float,
         settle_timeout: float,
+        tls: Optional[TLS] = None,
     ):
         super().__init__(
             f"cluster-{host}-{port}", buffer_size, mode, path, flush_interval
@@ -95,6 +115,9 @@ class _ClusterCoordinator(_Coordinator):
         self._cluster: Optional[ClusterLock] = None
         self._term: Optional[str] = None
         self._closed = False
+        self._tls = tls
+        self.client_ssl = tls.client if tls is not None else None
+        self._probe_timeout = _PROBE_TIMEOUT if tls is None else _TLS_PROBE_TIMEOUT
 
     def is_owner(self) -> bool:
         self.ensure()
@@ -154,8 +177,9 @@ class _ClusterCoordinator(_Coordinator):
                 bind=("", self._port),
                 advert={"data_port": self._data_port},
                 on_change=self._on_change,
+                tls=self._tls,
                 probe_interval=self._probe_interval,
-                probe_timeout=_PROBE_TIMEOUT,
+                probe_timeout=self._probe_timeout,
             ).start()
         except OSError as err:
             if err.errno in _ADDR_IN_USE:
@@ -167,7 +191,12 @@ class _ClusterCoordinator(_Coordinator):
 
     def _follow_local(self) -> bool:
         """Learn the owner from this replica's lock process."""
-        view = probe(("127.0.0.1", self._port), self._secret, _PROBE_TIMEOUT)
+        view = probe(
+            ("127.0.0.1", self._port),
+            self._secret,
+            self._probe_timeout,
+            self.client_ssl,
+        )
         if view is None:
             return False
         if view["role"] == ELECTING:
@@ -202,7 +231,13 @@ class _ClusterCoordinator(_Coordinator):
         self._stop_serving()
         sock = self._listen_data()
         engine = self._new_engine()
-        server = OwnerServer(engine, sock, term, guard=lambda: self._guard(term))
+        server = OwnerServer(
+            engine,
+            sock,
+            term,
+            guard=lambda: self._guard(term),
+            ssl_context=self._tls.server if self._tls is not None else None,
+        )
         server.start()
         self._engine, self._server, self._term = engine, server, term
         self._family, self._address = socket.AF_INET, ("127.0.0.1", self._data_port)
@@ -271,7 +306,15 @@ class ClusterSharedStorage(LocalSharedStorage):
     fixed list of hosts.
 
     All replicas share ``secret`` (default: ``$DASH_SECRET_KEY``), which they
-    prove to each other without sending it. Traffic is not encrypted.
+    prove to each other without sending it. Traffic is not encrypted unless
+    ``tls_cert`` and ``tls_key`` (PEM files) are given: then every connection
+    between replicas is mutual TLS, each side checking the other's
+    certificate against ``tls_ca`` (default: ``tls_cert``, so one self-signed
+    certificate mounted in every replica will do). Replicas reach each other by
+    IP, so hostnames are not checked. All replicas must agree on TLS. Each
+    certificate serves as both server and client certificate, so it must allow
+    client authentication (no extended key usage, or both serverAuth and
+    clientAuth). The files are read once: restart replicas after rotating them.
 
     When the owner goes, another replica takes over with an empty store
     (``mode="memory"``) or what it recovers from ``path`` (the persistent
@@ -293,6 +336,9 @@ class ClusterSharedStorage(LocalSharedStorage):
         flush_interval: float = 60.0,
         probe_interval: float = _PROBE_INTERVAL,
         settle_timeout: float = _SETTLE_TIMEOUT,
+        tls_cert: Optional[str] = None,
+        tls_key: Optional[str] = None,
+        tls_ca: Optional[str] = None,
     ):
         if host is None and peers is None:
             raise SharedStorageError("ClusterSharedStorage needs a host or peers")
@@ -302,6 +348,7 @@ class ClusterSharedStorage(LocalSharedStorage):
                 "ClusterSharedStorage needs a secret shared by every replica: "
                 f"pass secret= or set {SECRET_ENV}"
             )
+        tls = _load_tls(tls_cert, tls_key, tls_ca)
         if peers is None:
             name: str = host or ""
             peers = lambda: resolve_peers(name, port)  # noqa: E731
@@ -312,6 +359,7 @@ class ClusterSharedStorage(LocalSharedStorage):
             peers=peers,
             probe_interval=probe_interval,
             settle_timeout=settle_timeout,
+            tls=tls,
         )
         super().__init__(
             namespace=f"cluster-{host}-{port}",

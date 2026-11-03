@@ -25,6 +25,7 @@ from dash._shared_storage._cluster_lock import (
     _mac,
     _recv,
     _send,
+    probe,
     resolve_peers,
 )
 
@@ -531,3 +532,44 @@ def test_resolve_peers():
     peers = resolve_peers("localhost", 8050)
     assert peers and all(port == 8050 for _host, port in peers)
     assert resolve_peers("does-not-resolve.invalid", 8050) == []
+
+
+def _tls(make_cert, name="replica"):
+    from dash._shared_storage._cluster_lock import tls_contexts
+
+    return tls_contexts(*make_cert(name))
+
+
+def test_tls_replicas_settle(cluster, make_cert):
+    tls = _tls(make_cert)
+    for _ in range(3):
+        cluster.add(tls=tls)
+    owner = cluster.wait_settled()
+    view = probe(("127.0.0.1", owner.port), SECRET, 1.0, tls.client)
+    assert view["role"] == OWNER and view["id"] == owner.id
+
+
+def test_tls_lock_answers_no_plaintext_probe(cluster, make_cert):
+    lock = cluster.add(tls=_tls(make_cert))
+    lock.wait_settled(5)
+    assert probe(("127.0.0.1", lock.port), SECRET, 1.0) is None
+
+
+def test_tls_rejects_a_certificate_from_another_ca(cluster, make_cert):
+    good = cluster.add(tls=_tls(make_cert))
+    good.wait_settled(5)
+    other = _tls(make_cert, "other")
+    assert probe(("127.0.0.1", good.port), SECRET, 1.0, other.client) is None
+    rogue = cluster.add(tls=other)
+    rogue.wait_settled(5)
+    time.sleep(0.3)
+    assert good.state.role == OWNER and rogue.state.role == OWNER
+
+
+def test_plaintext_and_tls_replicas_do_not_mix(cluster, make_cert):
+    tls_lock = cluster.add(tls=_tls(make_cert))
+    tls_lock.wait_settled(5)
+    plain = cluster.add()
+    plain.wait_settled(5)
+    time.sleep(0.3)
+    assert tls_lock.state.role == OWNER and plain.state.role == OWNER

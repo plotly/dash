@@ -90,6 +90,29 @@ def test_cluster_from_url(monkeypatch):
     storage.close()
 
 
+def test_cluster_tls_files_from_url(monkeypatch, make_cert):
+    cert, key = make_cert()
+    url = f"cluster://:pw@app-peers?tls_cert={cert}&tls_key={key}&tls_ca={cert}"
+    storage = _built(_app(monkeypatch, url))
+    coord, _port, _data_port = _cluster(storage)
+    assert coord.client_ssl is not None and coord._tls is not None
+    storage.close()
+
+
+def test_cluster_tls_path_keeps_plus(monkeypatch, make_cert, tmp_path):
+    import shutil
+
+    cert, key = make_cert()
+    odd = tmp_path / "a+b"
+    odd.mkdir()
+    shutil.copy(cert, odd / "cert.pem")
+    shutil.copy(key, odd / "key.pem")
+    url = f"cluster://:pw@app-peers?tls_cert={odd}/cert.pem&tls_key={odd}/key.pem"
+    storage = _built(_app(monkeypatch, url))
+    assert storage._coord._tls is not None
+    storage.close()
+
+
 def test_cluster_secret_from_env_and_default_port(monkeypatch):
     monkeypatch.setenv("DASH_SECRET_KEY", "from-env")
     storage = _built(_app(monkeypatch, "cluster://app-peers"))
@@ -106,7 +129,9 @@ def test_cluster_secret_from_env_and_default_port(monkeypatch):
         ("cluster://:pw@app-peers:notaport", "valid port"),
         ("cluster://:pw@app-peers:65535", "below 65535"),
         ("cluster://:pw@app-peers/path", "only a host"),
-        ("cluster://:pw@app-peers?mode=persist", "only a host"),
+        ("cluster://:pw@app-peers?mode=persist", "only tls_cert"),
+        ("cluster://:pw@app-peers?tls_cert=/a", "both tls_cert and tls_key"),
+        ("cluster://:pw@app-peers?tls_cert=/a&tls_key=/b&tls_cert=/c", "once each"),
         ("cluster://:pw@app-peers:0", "valid port"),
         ("cluster://pw@app-peers", "after a colon"),
     ],

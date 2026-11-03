@@ -396,3 +396,110 @@ def test_bind_errors_other_than_in_use_are_reported(pods, monkeypatch):
     store = pods.worker(pods.add_pod())
     with pytest.raises(SharedStorageError, match="cannot listen on the cluster port"):
         store.start()
+
+
+def test_tls_pods_share_kv_and_pubsub_encrypted(pods, make_cert):
+    import ssl
+
+    cert, key = make_cert()
+    a, b = pods.add_pod(), pods.add_pod()
+    tls = {"tls_cert": cert, "tls_key": key}
+    owner = pods.worker(a, **tls)
+    owner.start()
+    other = pods.worker(b, **tls)
+    worker = pods.worker(a, **tls)  # finds the owner through its pod's lock
+    other.start()
+    worker.start()
+
+    other.set("k", "v")
+    assert owner.get("k") == "v" and worker.get("k") == "v"
+    assert isinstance(other._conn, ssl.SSLSocket)
+    sub = worker.subscribe("t")
+    other.publish("t", 1)
+    assert sub.poll(timeout=5) == [(1, 1)]
+
+    async def run():
+        await other.aset("a", 2)
+        return await worker.aget("a")
+
+    assert asyncio.run(run()) == 2
+
+
+def test_tls_data_port_refuses_plaintext(pods, make_cert):
+    from dash._shared_storage._transport import connect_to_owner
+
+    cert, key = make_cert()
+    a = pods.add_pod()
+    store = pods.worker(a, tls_cert=cert, tls_key=key)
+    store.start()
+    token = store._coord.token
+    data = ("127.0.0.1", pods.ports[a] + 1)
+    socket.create_connection(data, timeout=2).close()  # it is listening
+    # The server drops a client that does not open with a TLS handshake: a
+    # reset or a closed connection, never an answer.
+    with pytest.raises(ConnectionError) as err:
+        connect_to_owner(socket.AF_INET, data, token)
+    assert not isinstance(err.value, ConnectionRefusedError)
+    assert isinstance(err.value, ConnectionResetError) or "rejected" in str(err.value)
+
+
+def test_tls_needs_cert_and_key(make_cert):
+    cert, _key = make_cert()
+    with pytest.raises(SharedStorageError, match="both tls_cert and tls_key"):
+        ClusterSharedStorage(host="peers", secret="s", tls_cert=cert)
+    with pytest.raises(SharedStorageError, match="cannot load the cluster TLS"):
+        ClusterSharedStorage(
+            host="peers", secret="s", tls_cert=cert, tls_key="/does/not/exist"
+        )
+
+
+def test_tls_with_a_ca_and_a_certificate_per_pod(pods, make_cert):
+    ca = make_cert("cluster-ca")
+    a, b = pods.add_pod(), pods.add_pod()
+    stores = []
+    for pod in (a, b):
+        cert, key = make_cert(f"pod-{pod}", signed_by=ca)
+        stores.append(pods.worker(pod, tls_cert=cert, tls_key=key, tls_ca=ca[0]))
+    for store in stores:
+        store.start()
+    stores[1].set("k", "signed")
+    assert stores[0].get("k") == "signed"
+
+    # Signed by another CA: it never joins.
+    stranger_ca = make_cert("stranger-ca")
+    cert, key = make_cert("stranger", signed_by=stranger_ca)
+    c = pods.add_pod()
+    stranger = pods.worker(c, tls_cert=cert, tls_key=key, tls_ca=stranger_ca[0])
+    stranger.start()
+    stranger.set("k", "stranger")
+    assert stores[0].get("k") == "signed"
+
+
+def test_tls_server_only_certificate_is_refused_and_logged(pods, make_cert, caplog):
+    from dash._shared_storage import _cluster_lock
+
+    cert, key = make_cert(
+        "server-only", extra=("-addext", "extendedKeyUsage=serverAuth")
+    )
+    _cluster_lock._tls_failed.clear()
+    a, b = pods.add_pod(), pods.add_pod()
+    first = pods.worker(a, tls_cert=cert, tls_key=key)
+    first.start()
+    second = pods.worker(b, tls_cert=cert, tls_key=key)
+    second.start()
+    assert first._coord.is_owner() and second._coord.is_owner()
+    assert any("TLS handshake" in r.getMessage() for r in caplog.records)
+
+
+def test_tls_options_fail_loudly(make_cert):
+    cert, key = make_cert()
+    with pytest.raises(SharedStorageError, match="both tls_cert and tls_key"):
+        ClusterSharedStorage(host="peers", secret="s", tls_cert="", tls_key="")
+    locked, locked_key = make_cert("locked", extra=("-passout", "pass:pw"))
+    started = time.monotonic()
+    with pytest.raises(SharedStorageError, match="cannot load the cluster TLS"):
+        ClusterSharedStorage(
+            host="peers", secret="s", tls_cert=locked, tls_key=locked_key
+        )
+    assert time.monotonic() - started < 5
+    ClusterSharedStorage(host="peers", secret="s", tls_cert=cert, tls_key=key).close()
