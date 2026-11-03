@@ -229,3 +229,38 @@ def test_mcp_parse_task_id_rejects_forged_handles():
     # A raw pid + cache key with no valid signature (what an attacker sends).
     with pytest.raises(MCPError):
         parse_task_id("mytool:9999:operator-secret-key:0")
+
+
+def test_server_secret_key_beats_env(monkeypatch):
+    monkeypatch.setenv("DASH_SECRET_KEY", "env-secret")
+    app, _ = _make_app()
+    app.server.secret_key = "configured-secret"
+    assert app._get_signing_secret() == b"configured-secret"
+
+
+def test_env_secret_beats_background_store(monkeypatch):
+    shared_dir = tempfile.mkdtemp()
+    stored = _make_app(cache_dir=shared_dir)[0]._get_signing_secret()
+    monkeypatch.setenv("DASH_SECRET_KEY", "env-secret")
+    app, _ = _make_app(cache_dir=shared_dir)
+    assert app._get_signing_secret() == b"env-secret" != stored
+    assert not app.server.secret_key
+
+
+def test_env_secret_without_background_manager(monkeypatch):
+    from dash import Dash
+
+    monkeypatch.setenv("DASH_SECRET_KEY", "env-secret")
+    assert Dash(__name__)._get_signing_secret() == b"env-secret"
+
+
+def test_empty_env_secret_is_ignored(monkeypatch):
+    from dash import Dash
+
+    monkeypatch.setenv("DASH_SECRET_KEY", "")
+    shared_dir = tempfile.mkdtemp()
+    app_a, _ = _make_app(cache_dir=shared_dir)
+    app_b, _ = _make_app(cache_dir=shared_dir)
+    assert app_a._get_signing_secret() == app_b._get_signing_secret() != b""
+    # No store and no key: a random per-process secret, different per app.
+    assert Dash(__name__)._get_signing_secret() != Dash(__name__)._get_signing_secret()

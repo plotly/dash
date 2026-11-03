@@ -33,7 +33,7 @@ def check_errors(dash_duo, specs):
     found = []
     for i in range(cnt):
         msg = dash_duo.find_elements(".dash-fe-error__title")[i].text
-        # plotly-cloud (a default install dep) injects a `_plotly-cloud-*`
+        # plotly-cloud (installed with dash[cloud]) injects a `_plotly-cloud-*`
         # component into every layout via a dash_hooks entry point, so it
         # shows up in the "string ids in the current layout" list. Strip it
         # so these assertions hold whether or not plotly-cloud is installed.

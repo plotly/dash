@@ -310,7 +310,7 @@ class FlaskDashServer(BaseDashServer[Flask]):
             # The connection id is derived from the signed end_id, never taken
             # from the client, so a page can only ever read its own topic.
             connection_id = get_stream_connection_id()
-            if connection_id is None:
+            if connection_id is None or not dash_app.shared_storage_enabled:
                 return Response(status=403)
             envelopes = poll_downlink(
                 dash_app.shared_storage, connection_id, downlink.get("from")

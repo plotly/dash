@@ -60,6 +60,12 @@ function makeFetch() {
     return {fetchImpl, uplinks, downlinks, mode};
 }
 
+// The URL every request of one run carries: the signed endId plus the run's
+// downlink id.
+const RUN_URL = /^\/cb\?endId=e1&downlinkId=[\w-]+$/;
+const downlinkIdOf = url =>
+    new URL(url, 'http://x').searchParams.get('downlinkId');
+
 const tick = (ms = 5) => new Promise(r => setTimeout(r, ms));
 async function waitFor(pred, timeout = 1000) {
     const end = Date.now() + timeout;
@@ -212,6 +218,35 @@ describe('StreamClient', () => {
         // stale cursor (5).
         client.run('/cb', {}, 'e1', {output: 'b'}, () => {});
         await waitFor(() => mock.downlinks.length === 2);
+        expect(mock.downlinks[1].from).to.equal(0);
+    });
+
+    it('gives each run of streams its own downlink id, starting from 0', async () => {
+        // The server may release an idle run's topic, so a later run must not
+        // resume that run's cursor: it reads a fresh topic from the start.
+        const first = client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
+        client.run('/cb', {}, 'e1', {output: 'b'}, () => {});
+        await waitFor(
+            () => mock.uplinks.length === 2 && mock.downlinks.length === 1
+        );
+        const runA = downlinkIdOf(mock.uplinks[0].url);
+        expect(mock.uplinks[0].url).to.match(RUN_URL);
+        expect(downlinkIdOf(mock.uplinks[1].url)).to.equal(runA);
+        expect(downlinkIdOf(mock.downlinks[0].url)).to.equal(runA);
+
+        const [ridA, ridB] = mock.uplinks.map(
+            u => u.streamConnection.requestId
+        );
+        mock.downlinks[0].dl.push({rid: ridA, frame: {done: true}, seq: 7});
+        mock.downlinks[0].dl.push({rid: ridB, frame: {done: true}, seq: 8});
+        await first;
+        await waitFor(() => client.activeCount === 0);
+
+        client.run('/cb', {}, 'e1', {output: 'c'}, () => {});
+        await waitFor(() => mock.downlinks.length === 2);
+        const runB = downlinkIdOf(mock.uplinks[2].url);
+        expect(runB).to.not.equal(runA);
+        expect(downlinkIdOf(mock.downlinks[1].url)).to.equal(runB);
         expect(mock.downlinks[1].from).to.equal(0);
     });
 
@@ -449,7 +484,12 @@ describe('StreamClient cancellation', () => {
         let err;
         await settled.catch(e => (err = e));
         expect(err.message).to.contain('cancelled');
-        expect(mock.cancels).to.deep.equal([{url: '/cb?endId=e1', requestId}]);
+        expect(mock.cancels.length).to.equal(1);
+        expect(mock.cancels[0].requestId).to.equal(requestId);
+        expect(mock.cancels[0].url).to.match(RUN_URL);
+        expect(downlinkIdOf(mock.cancels[0].url)).to.equal(
+            downlinkIdOf(mock.uplinks[0].url)
+        );
         // A late frame for the cancelled request is dropped, not delivered.
         client.dispatchEnvelope({
             rid: requestId,
@@ -466,10 +506,8 @@ describe('StreamClient cancellation', () => {
         client.run('/cb', {}, 'e1', {output: 'a'}, () => {});
         client.run('/cb', {}, 'e2', {output: 'b'}, () => {});
         await waitFor(() => mock.uplinks.length === 2);
-        expect(mock.uplinks.map(u => u.url)).to.deep.equal([
-            '/cb?endId=e1',
-            '/cb?endId=e1'
-        ]);
+        expect(mock.uplinks[0].url).to.match(RUN_URL);
+        expect(mock.uplinks[1].url).to.equal(mock.uplinks[0].url);
         expect(client.connectionEndId).to.equal('e1');
     });
 });
@@ -497,7 +535,7 @@ describe('StreamClient in poll mode', () => {
         const withFrames = mock.polls.filter(p => p.n > 0);
         expect(withFrames.length).to.equal(2);
         expect(mock.polls[mock.polls.length - 1].from).to.equal(1);
-        expect(mock.polls[0].url).to.equal('/cb?endId=e1');
+        expect(mock.polls[0].url).to.match(RUN_URL);
         expect(client.activeCount).to.equal(0);
     });
 

@@ -45,6 +45,17 @@ export default class Location extends Component {
                 // Prop has changed?
                 if (refresh === true) {
                     // Refresh the page?
+                    if (
+                        fieldName === 'href' &&
+                        window.dash_clientside.clean_url(propVal) !== propVal
+                    ) {
+                        setProps({
+                            _dash_error: new Error(
+                                `Dangerous link detected: ${propVal}`
+                            ),
+                        });
+                        return false;
+                    }
                     window.location[fieldName] = propVal;
                 } else if (this.props[fieldName] !== propVal) {
                     // If this prop has changed, need to setProps

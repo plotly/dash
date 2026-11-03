@@ -1,4 +1,5 @@
 import collections
+import functools
 import importlib
 import importlib.util  # to make the type checker happy
 import os
@@ -129,23 +130,26 @@ def _parse_path_variables(pathname, path_template):
          returns **{"asset_id": "a100"}
     """
 
-    # parse variable definitions e.g. <var_name> from template
-    # and create pattern to match
     wildcard_pattern = re.sub("<.*?>", "*", path_template)
-    var_pattern = re.sub("<.*?>", "(.*)", path_template)
 
-    # check that static sections of the pathname match the template
+    # fnmatch compiles to a pattern that cannot backtrack, so it gates out
+    # non-matching paths cheaply before the capturing match below runs.
     if not fnmatch(pathname, wildcard_pattern):
         return None
 
-    # parse variable names e.g. var_name from template
+    match = _path_template_regex(path_template).fullmatch(pathname)
+    if match is None:
+        return None
+
     var_names = re.findall("<(.*?)>", path_template)
+    return dict(zip(var_names, match.groups()))
 
-    # parse variables from path
-    variables = re.findall(var_pattern, pathname)
-    variables = variables[0] if isinstance(variables[0], tuple) else variables
 
-    return dict(zip(var_names, variables))
+@functools.lru_cache(maxsize=None)
+def _path_template_regex(path_template):
+    static_parts = re.split("<.*?>", path_template)
+    # DOTALL to agree with fnmatch, whose * also matches newlines.
+    return re.compile("(.*)".join(re.escape(p) for p in static_parts), re.DOTALL)
 
 
 def _set_redirect(redirect_from, path):
@@ -220,26 +224,28 @@ def register_page(
        order `0`
 
     - `title`:
-       (string or function) Specifies the page title displayed in the browser tab.
+      (string or function) Specifies the page title displayed in the browser tab and used in social media meta tags.
         If not supplied, the app's title is used if different from the default "Dash".
         Otherwise, the title is the given `name` or inferred from the module name.
-        For example, `pages.weekly_analytics` is inferred as "Weekly Analytics".
+        For example, `pages.weekly_analytics` is inferred as "Weekly Analytics"
 
     - `description`:
-       (string or function) The <meta type="description"></meta>.
-       If not defined, the application description will be used if available.
+      (string or function) Specifies the page description used in the `<meta name="description">` tag and in social
+       media meta tags. If not supplied, the app's description is used if available.
 
     - `image`:
-       The meta description image used by social media platforms.
-       If not supplied, then it looks for the following images in `assets/`:
-        - A page specific image: `assets/<module>.<extension>` is used, e.g. `assets/weekly_analytics.png`
-        - A generic app image at `assets/app.<extension>`
-        - A logo at `assets/logo.<extension>`
-        When inferring the image file, it will look for the following extensions:
+      Specifies the image used in social media meta tags. This can be an image filename in the `assets/` folder
+      or a URL. If not supplied, Dash looks for the following images in `assets/`:
+
+      - A page-specific image: `assets/<module>.<extension>`, for example `assets/weekly_analytics.png`
+      - A generic app image: `assets/app.<extension>`
+      - A logo: `assets/logo.<extension>`
+        When inferring the image file, Dash checks for the following extensions:
         APNG, AVIF, GIF, JPEG, JPG, PNG, SVG, WebP.
 
-    -  `image_url`:
-       Overrides the image property and sets the `<image>` meta tag to the provided image URL.
+    - `image_url`:
+      Specifies the URL of the image used in social media meta tags. This property is retained for backwards
+      compatibility. Use `image` to specify either an image filename or a URL.
 
     - `redirect_from`:
        A list of paths that should redirect to this page.

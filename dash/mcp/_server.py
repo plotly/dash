@@ -26,6 +26,7 @@ from dash.mcp.types import (
 )
 
 from dash import get_app
+from dash.mcp import _configure
 from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
 from dash.mcp.primitives import (
     call_tool,
@@ -259,10 +260,52 @@ def _process_mcp_message(data: dict[str, Any]) -> dict[str, Any] | None:
     request_id: str | int = _id if isinstance(_id, (str, int)) else ""
 
     app = get_app()
-    if app.mcp_callback_map is None:
-        app.mcp_callback_map = CallbackAdapterCollection(app)
-        app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+    app.mcp_decorated_functions = dict(MCP_DECORATED_FUNCTIONS)
+    try:
+        collection = _callback_map_for_request(app)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        # Never fall back to a shared cache: it could serve another user's values.
+        logger.error("MCP cache_by failed: %s", e, exc_info=True)
+        return JSONRPCError(
+            jsonrpc="2.0",
+            id=request_id,
+            error=ErrorData(code=-32603, message=f"cache_by failed: {e}"),
+        ).model_dump(exclude_none=True)
+    # pylint: disable-next=protected-access
+    token = app._mcp_callback_map.set(collection)
+    try:
+        return _dispatch_mcp_message(method, params, request_id)
+    finally:
+        app._mcp_callback_map.reset(token)  # pylint: disable=protected-access
 
+
+def _callback_map_for_request(app: Dash) -> CallbackAdapterCollection:
+    """Return the cached adapter collection for this request's cache_by key.
+
+    The adapters lazily cache values computed in the request that first reads
+    them, so requests only share a collection when their cache_by values match.
+    """
+    # pylint: disable-next=protected-access
+    cache_by = _configure._current_config["cache_by"] or []
+    cache_key = str([fn() for fn in cache_by])
+    # pylint: disable=protected-access
+    with app._mcp_callback_maps_lock:
+        maps = app._mcp_callback_maps
+        collection = maps.get(cache_key)
+        if collection is None:
+            collection = CallbackAdapterCollection(app)
+            maps[cache_key] = collection
+            maxsize = _configure._current_config["cache_maxsize"]
+            if maxsize is not None and len(maps) > maxsize:
+                maps.popitem(last=False)
+        else:
+            maps.move_to_end(cache_key)
+    return collection
+
+
+def _dispatch_mcp_message(
+    method: str, params: dict[str, Any], request_id: str | int
+) -> dict[str, Any] | None:
     mcp_methods = {
         "initialize": _handle_initialize,
         "tools/list": list_tools,
