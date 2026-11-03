@@ -216,7 +216,7 @@ class CallbackContext:
 
         A backend-agnostic key/value + publish/subscribe store shared across
         worker processes -- for cross-callback or session state without an
-        external service. Requires ``Dash(shared_storage=...)`` (on by default).
+        external service. Requires ``Dash(shared_storage=...)`` (off by default).
         """
         return get_app().shared_storage
 

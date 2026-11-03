@@ -1,8 +1,6 @@
-import sys
 import time
 from multiprocessing import Lock
 
-import pytest
 from flaky import flaky
 
 from tests.utils import is_dash_async
@@ -21,11 +19,16 @@ def test_001ab_arbitrary(dash_duo, manager):
         dash_duo.find_element("#start").click()
 
         dash_duo.wait_for_text_to_equal("#secondary", "first")
+        dash_duo.wait_for_text_to_equal("#third", "first")
         dash_duo.wait_for_style_to_equal(
             "#secondary", "background-color", "rgba(255, 0, 0, 1)"
         )
+        dash_duo.wait_for_style_to_equal(
+            "#third", "background-color", "rgba(255, 0, 0, 1)"
+        )
         dash_duo.wait_for_text_to_equal("#output", "initial")
         dash_duo.wait_for_text_to_equal("#secondary", "second")
+        dash_duo.wait_for_text_to_equal("#third", "second")
         dash_duo.wait_for_text_to_equal("#output", "completed")
 
         dash_duo.find_element("#start-no-output").click()
@@ -34,9 +37,6 @@ def test_001ab_arbitrary(dash_duo, manager):
         dash_duo.wait_for_text_to_equal("#no-output", "completed")
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 7), reason="Python 3.6 long callbacks tests hangs up"
-)
 @flaky(max_runs=3)
 def test_002ab_basic(dash_duo, manager):
     """

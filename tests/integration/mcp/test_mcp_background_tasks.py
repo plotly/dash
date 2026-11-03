@@ -17,6 +17,8 @@ import psutil
 from dash import Dash, Input, Output, html, _callback_signing
 from dash.background_callback.managers.diskcache_manager import DiskcacheManager
 
+from tests.integration.mcp.conftest import _mcp_method
+
 MCP_PATH = "_mcp"
 
 
@@ -87,6 +89,41 @@ def _post(client, method, params=None, request_id=1):
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
+
+def test_mcpbg_cancel_no_output_task_result(dash_duo):
+    manager = DiskcacheManager(diskcache.Cache())
+    app = Dash(__name__)
+    app.layout = html.Div(id="trigger")
+
+    @app.callback(
+        Input("trigger", "children"),
+        background=True,
+        manager=manager,
+        prevent_initial_call=True,
+    )
+    def no_output_callback(value):
+        time.sleep(0.5)
+
+    dash_duo.start_server(app)
+    created = _mcp_method(
+        dash_duo.server_url,
+        "tools/call",
+        {
+            "name": "no_output_callback",
+            "arguments": {"value": "hello"},
+            "task": {"ttl": 60000},
+        },
+    )
+    task_id = created["result"]["task"]["taskId"]
+    job_id, _ = _unwrap_handles(app, task_id)
+    cancelled = _mcp_method(dash_duo.server_url, "tasks/cancel", {"taskId": task_id})
+    assert cancelled["result"]["status"] == "cancelled"
+    assert not manager.job_running(job_id)
+
+    result = _mcp_method(dash_duo.server_url, "tasks/result", {"taskId": task_id})
+    assert result["result"]["structuredContent"] == {"multi": True}
+    assert dash_duo.get_logs() == []
 
 
 def test_mcpbg012_trigger_poll_and_retrieve():

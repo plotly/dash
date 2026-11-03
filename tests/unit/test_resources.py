@@ -272,7 +272,11 @@ def test_index_with_windows_extended_length_paths(tmp_path, monkeypatch):
     icons.mkdir(parents=True)
     (icons / "favicon.ico").write_bytes(b"")
 
-    app = dash.Dash(__name__, assets_folder="\\\\?\\" + str(tmp_path / "assets"))
+    app = dash.Dash(
+        __name__,
+        assets_folder="\\\\?\\" + str(tmp_path / "assets"),
+        shared_storage=dash.LocalSharedStorage,
+    )
     app.layout = html.Div()
 
     response = app.server.test_client().get("/")
