@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Added
+- [#](https://github.com/plotly/dash/pull/) Add `ClusterSharedStorage` (`DASH_SHARED_STORAGE=cluster://:secret@host:port`): shared storage across pods or containers with no external service, the replicas electing one owner among themselves. An owner change loses its data, like a local re-election.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added

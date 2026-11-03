@@ -13,6 +13,7 @@ import pytest
 
 from dash import Dash, Input, Output, ctx, html
 from dash._shared_storage import (
+    ClusterSharedStorage,
     DiskcacheSharedStorage,
     LocalSharedStorage,
     RedisSharedStorage,
@@ -106,6 +107,49 @@ def test_counter_shared_across_callbacks_local_persist(dash_duo, tmp_path):
     _drive_counter(dash_duo)
     # The write-through store landed on disk.
     assert (tmp_path / "ss" / "index.msgpack").exists()
+
+
+def _port_pair():
+    """A port whose next one up is free too: ClusterSharedStorage uses both."""
+    import socket  # pylint: disable=import-outside-toplevel
+
+    for _ in range(50):
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            port = probe.getsockname()[1]
+        try:
+            with socket.create_server(("", port)), socket.create_server(("", port + 1)):
+                return port
+        except OSError:
+            continue
+    raise RuntimeError("no free port pair")
+
+
+def test_counter_shared_across_pods_cluster(dash_duo):
+    # The app is one pod; a second pod in this process shares its store.
+    ports = [_port_pair(), _port_pair()]
+
+    def peers():
+        return [("127.0.0.1", port) for port in ports]
+
+    def pod(port):
+        return ClusterSharedStorage(
+            port=port, secret="s3cret", peers=peers, probe_interval=0.05
+        )
+
+    other = pod(ports[1])
+    try:
+        other.start()
+        other.set("count", 10)
+        dash_duo.start_server(_counter_app(pod(ports[0])))
+        dash_duo.find_element("#bump").click()
+        dash_duo.wait_for_text_to_equal("#count", "11")
+        assert other.get("count") == 11
+        other.set("count", 20)
+        dash_duo.find_element("#read").click()
+        dash_duo.wait_for_text_to_equal("#readout", "count=20")
+    finally:
+        other.close()
 
 
 def test_counter_shared_across_callbacks_diskcache(dash_duo, tmp_path):

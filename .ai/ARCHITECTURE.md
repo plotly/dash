@@ -899,17 +899,18 @@ gap rather than a silent hole). A `Subscription` is iterable synchronously
 
 ### Backends
 
-Three backends ship, differing only in **how far state reaches**. Pick by the
+Four backends ship, differing only in **how far state reaches**. Pick by the
 deployment topology — critically, whether the app runs behind a load balancer as
 more than one container/pod (see [Deployment Topology](#deployment-topology-and-shared-storage) below).
 
 | Backend | Backing store | Reaches | Extra |
 |---------|---------------|---------|-------|
 | `LocalSharedStorage` | in-memory, owner-elected socket | one **container** (all its workers) | none (`dash[shared_storage]` for the persistent modes) |
+| `ClusterSharedStorage` | in-memory, owner elected across replicas over TCP | every **pod/container** that resolves the same name | none (same as local) |
 | `DiskcacheSharedStorage` | a `diskcache.Cache` | one **host** (all processes sharing the dir) | `dash[diskcache]` |
 | `RedisSharedStorage` | Redis (Streams for pub/sub) | **any** process/container/pod | `dash[redis]` |
 
-All three implement the same `BaseSharedStorage` contract (KV + ordered,
+All four implement the same `BaseSharedStorage` contract (KV + ordered,
 replayable pub/sub with `SharedStorageGap` on buffer overrun), so app code is
 identical across them — only the constructor differs.
 
@@ -988,6 +989,62 @@ Dash(shared_storage=LocalSharedStorage(mode="persist"))
 Dash(shared_storage=LocalSharedStorage(mode="persist-reset", flush_interval=30))
 ```
 
+**`ClusterSharedStorage`**: `LocalSharedStorage` stretched across replicas,
+with no external service and no consensus (`_shared_storage/cluster.py`,
+`_cluster_lock.py`).
+
+- *Discovery.* `host` is a name that resolves to every replica (a Kubernetes
+  headless Service, a podman or Docker network alias). `peers=` replaces DNS
+  with a function returning `(host, port)` lock addresses.
+- *Ports.* `port` (default 7100) runs the election, `port + 1` serves the store.
+  Both must be reachable between replicas.
+- *Inside a replica* the first process to bind `port` runs the `ClusterLock`;
+  the bind is the per-replica lease, as the socket bind is for local. Other
+  workers ask it on `127.0.0.1:port` where the owner is.
+- *Election.* Every probe interval (1s) each lock asks every peer for its view.
+  It follows the owner it sees, picking the one that has owned longest (a
+  monotonic duration, so clock skew does not matter). When two owners meet,
+  only the lower id judges: it steps down to an older owner, or keeps owning
+  and lists the other as a rival, and an owner steps down once a lower id
+  lists it. Both sides comparing ages deadlocked: each sees its own age now and
+  the other's from a probe ago, so owners that claimed within a round trip of
+  each other both thought they were older. With no owner, the lowest id among
+  reachable peers claims a fresh term; a higher id waits for it at most `miss_limit` (3)
+  probes. A follower gives up on an owner after 3 missed probes, so a dead
+  owner is replaced in about 5 to 6 seconds (measured with 3 Docker containers).
+- *Failover.* Calls retry for up to 10s (`failover_window`) while followers
+  notice a dead owner, so a write during a failover waits instead of failing.
+  `_local` raises `_OwnerGone` when the engine closed under it, and the call
+  retries on the new owner. Elections that can block run in the executor on
+  asyncio paths (`_aelect`). A deposed owner abandons its engine
+  (`StoreEngine.abandon`): no final flush, so a persistent store on a shared
+  volume keeps the new owner's data.
+- *Fencing.* The term is the data connection token. The owner's server checks
+  `ClusterLock.is_owner(term)` before every request and drops the connection
+  once it lost the term; clients then re-elect and get `SharedStorageGap`. Every
+  subscription takes the token before reading the head, and gaps when a poll
+  or a reconnect finds another one, so it never reads a new owner's topic with
+  an old owner's cursor.
+- *Network.* Client sockets time out after 10s and long polls last 5s (20s
+  locally), since a vanished pod does not close its sockets; a caller's longer
+  `poll(timeout)` is cut to one cycle. The async handshake has the same
+  timeout. TCP keepalive is on.
+- *Auth.* `secret` (default `$DASH_SECRET_KEY`, run through HMAC so the signing
+  key is not reused as is) is proven both ways with an HMAC challenge and never
+  sent. Views are MACed. The data channel and its token travel in clear: keep
+  the ports on a private network, as with Redis without TLS.
+- *What it gives up.* When replicas briefly see different DNS answers (all of
+  them waking from zero at once is the usual case) two owners exist until they
+  probe each other; writes to the one that steps down are lost. Replicas that
+  cannot reach each other at all stay split, and an isolated owner keeps
+  owning. The owner's store is lost with it (`mode="memory"`); the persistent
+  modes only help when `path` is on a volume every replica mounts. Every
+  replica probes every other each second, fine at the 1-10 pods an HPA runs.
+
+```python
+Dash(shared_storage=ClusterSharedStorage(host="myapp-headless", secret="..."))
+```
+
 **`DiskcacheSharedStorage`** — KV + an append-log pub/sub on a `diskcache.Cache`,
 the same store `DiskcacheManager` uses; pass an existing `cache` to share one.
 Every process on one host that opens the same directory shares state, so it
@@ -999,8 +1056,9 @@ topic (an atomic `INCR`+`XADD` script keeps sequences ordered; `MAXLEN` bounds
 the replay window; a subscriber past the trimmed floor gets `SharedStorageGap`).
 Redis is the single source of truth, so no owner election. Pass a `url`
 (defaults to `$REDIS_URL`) or an existing `client` to reuse a connection pool.
-This is the only backend correct for **horizontally-scaled, multi-pod**
-deployments. On an event loop it uses `redis.asyncio` (one client per loop),
+One of the two backends for **horizontally-scaled, multi-pod** deployments,
+with `ClusterSharedStorage`. Redis keeps its data when app pods come and go;
+the cluster backend loses its store with the owner pod. On an event loop it uses `redis.asyncio` (one client per loop),
 and one reader task per loop serves every async subscription with a single
 multi-stream `XREAD`; a new subscription interrupts it through a private wake
 stream. Never park a blocking read in the executor per subscription: at a dozen
@@ -1021,17 +1079,21 @@ election only reaches processes in the same network + filesystem namespace.
   an HPA, routed round-robin with no session affinity): **each pod elects its own
   isolated owner**, so `set()`/`publish()` on one pod are invisible on another.
   This works at 1 pod and fragments silently once it scales — use
-  `RedisSharedStorage` (one Redis shared by all pods) instead.
+  `RedisSharedStorage` (one Redis shared by all pods) or
+  `ClusterSharedStorage` (the pods elect one owner among themselves) instead.
 
 A hosting platform can switch the backend without editing the app through
 `DASH_SHARED_STORAGE` (`_shared_storage/_env.py`), read only when the app did
 not pass `shared_storage=` (the default is a sentinel, so an explicit argument,
 `None` included, always wins): `local`, `none` (same as unset or empty),
-`diskcache:///abs/path`, or a `redis://` / `rediss://` URL. A `key_prefix` query
+`diskcache:///abs/path`, a `redis://` / `rediss://` URL, or
+`cluster://[:secret@]host[:port]`. A `key_prefix` query
 parameter on the Redis URL (`redis://host/0?key_prefix=myapp`) sets
 `RedisSharedStorage(key_prefix=)` and is stripped before the URL reaches
-redis-py; the diskcache path is percent-decoded. `cluster://` is reserved and
-raises; anything else raises `InvalidConfig` at construction, without echoing
+redis-py; the diskcache path is percent-decoded. A `cluster://` URL takes only
+a host, an optional port (default 7100, below 65535 since the next port is used
+too) and a percent-decoded password as the secret, falling back to
+`DASH_SECRET_KEY`; with neither it raises. Anything else raises `InvalidConfig` at construction, without echoing
 the value (it can hold credentials). The value becomes a zero-argument factory,
 so nothing is built or connected until `app.shared_storage` is first read, but a
 missing extra (`dash[redis]`, `dash[diskcache]`, `dash[shared_storage]`) fails
@@ -1071,6 +1133,8 @@ Dash core. It plugs in the same way as a built-in:
 | `_shared_storage/base.py` | Abstract interface: `BaseSharedStorage`, `Subscription`, `SharedStorageError`, `SharedStorageGap` |
 | `_shared_storage/_engine.py` | `StoreEngine`: authoritative in-memory kv map + per-topic ordered log with bounded replay buffer (thread-safe, transport-agnostic) |
 | `_shared_storage/local.py` | `LocalSharedStorage`: owner election; owner hosts the engine, clients proxy |
+| `_shared_storage/cluster.py` | `ClusterSharedStorage`: the local backend with the owner elected across replicas |
+| `_shared_storage/_cluster_lock.py` | `ClusterLock`: owner election among replicas over TCP, HMAC-authenticated |
 | `_shared_storage/diskcache.py` | `DiskcacheSharedStorage`: KV + append-log pub/sub on a `diskcache.Cache` |
 | `_shared_storage/redis.py` | `RedisSharedStorage`: KV + Redis Streams pub/sub (atomic `INCR`+`XADD`) |
 | `_shared_storage/_polling.py` | `PollingSubscription`: shared poll-loop subscription for the diskcache/Redis backends |

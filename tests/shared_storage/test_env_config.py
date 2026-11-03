@@ -6,6 +6,7 @@ import pytest
 
 from dash import Dash
 from dash._shared_storage import (
+    ClusterSharedStorage,
     DiskcacheSharedStorage,
     LocalSharedStorage,
     RedisSharedStorage,
@@ -74,9 +75,46 @@ def test_redis(monkeypatch, url):
     storage.close()
 
 
-def test_cluster_is_reserved(monkeypatch):
-    with pytest.raises(InvalidConfig, match="not supported in this version"):
-        _app(monkeypatch, "cluster://nodes")
+def _cluster(storage):
+    coord = storage._coord
+    return coord, coord._port, coord._data_port
+
+
+def test_cluster_from_url(monkeypatch):
+    monkeypatch.delenv("DASH_SECRET_KEY", raising=False)
+    storage = _built(_app(monkeypatch, "cluster://:s%40cret@app-peers:7200"))
+    assert isinstance(storage, ClusterSharedStorage)
+    coord, port, data_port = _cluster(storage)
+    assert (port, data_port) == (7200, 7201)
+    assert coord._role is None  # nothing bound or probed yet
+    storage.close()
+
+
+def test_cluster_secret_from_env_and_default_port(monkeypatch):
+    monkeypatch.setenv("DASH_SECRET_KEY", "from-env")
+    storage = _built(_app(monkeypatch, "cluster://app-peers"))
+    _coord, port, _data_port = _cluster(storage)
+    assert port == 7100
+    storage.close()
+
+
+@pytest.mark.parametrize(
+    "value, reason",
+    [
+        ("cluster://app-peers", "needs a secret"),
+        ("cluster://:pw@", "needs a host"),
+        ("cluster://:pw@app-peers:notaport", "valid port"),
+        ("cluster://:pw@app-peers:65535", "below 65535"),
+        ("cluster://:pw@app-peers/path", "only a host"),
+        ("cluster://:pw@app-peers?mode=persist", "only a host"),
+        ("cluster://:pw@app-peers:0", "valid port"),
+        ("cluster://pw@app-peers", "after a colon"),
+    ],
+)
+def test_cluster_rejects(monkeypatch, value, reason):
+    monkeypatch.delenv("DASH_SECRET_KEY", raising=False)
+    with pytest.raises(InvalidConfig, match=reason):
+        _app(monkeypatch, value)
 
 
 @pytest.mark.parametrize("value", ["memcached://x", "redis", "/tmp/cache", "true"])
@@ -90,7 +128,7 @@ def test_garbage_names_the_variable(monkeypatch, value):
     [
         "valkey://:hunter2@host:6379",
         "valkey://default:Zx9/Qm+4kP@cache.internal:6379/0",
-        "cluster://admin:hunter2@nodes",
+        "cluster://admin:hunter2@nodes:99999",
         "diskcache://user:hunter2@host/path",
         "redis://:hunter2@[::1/0",
     ],

@@ -285,6 +285,13 @@ class StoreEngine:
                         if waiter in t.waiters:
                             t.waiters.remove(waiter)
 
+    def abandon(self) -> None:
+        """Close without persisting: this engine lost its ownership."""
+        persistence, self._persistence = self._persistence, None
+        if persistence is not None:
+            persistence.abandon()
+        self.close()
+
     def close(self) -> None:
         self._closed = True
         if self._persistence is not None:

@@ -22,7 +22,7 @@ import asyncio
 import socket
 import struct
 import threading
-from typing import Any, Optional, Tuple
+from typing import Any, Callable, Optional, Set, Tuple
 
 from ._codec import decode, encode
 
@@ -75,13 +75,27 @@ async def arecv_frame(reader: asyncio.StreamReader) -> Any:
 
 
 class OwnerServer:
-    """Serves one StoreEngine to client workers over ``listen_sock``."""
+    """Serves one StoreEngine to client workers over ``listen_sock``.
 
-    def __init__(self, engine, listen_sock: socket.socket, token: str):
+    ``guard``, when given, is checked before every request; once it returns
+    False the server drops the connection instead of answering, so a cluster
+    owner that lost its term stops taking writes.
+    """
+
+    def __init__(
+        self,
+        engine,
+        listen_sock: socket.socket,
+        token: str,
+        guard: Optional[Callable[[], bool]] = None,
+    ):
         self._engine = engine
         self._sock = listen_sock
         self._token = token
+        self._guard = guard
         self._closed = threading.Event()
+        self._conns: Set[socket.socket] = set()
+        self._conns_lock = threading.Lock()
         self._accept_thread = threading.Thread(
             target=self._accept_loop, name="dash-shared-owner", daemon=True
         )
@@ -98,19 +112,29 @@ class OwnerServer:
                 break
             threading.Thread(target=self._handle, args=(conn,), daemon=True).start()
 
+    def _serving(self) -> bool:
+        return not self._closed.is_set() and (self._guard is None or self._guard())
+
     def _handle(self, conn: socket.socket) -> None:
+        with self._conns_lock:
+            if self._closed.is_set():
+                conn.close()
+                return
+            self._conns.add(conn)
         try:
-            if recv_frame(conn) != self._token:
+            if recv_frame(conn) != self._token or not self._serving():
                 return
             send_frame(conn, OK)
-            while not self._closed.is_set():
+            while True:
                 req = recv_frame(conn)
-                if req is EOF:
+                if req is EOF or not self._serving():
                     break
                 send_frame(conn, self._dispatch(req))
         except (OSError, EOFError, ValueError):
             pass
         finally:
+            with self._conns_lock:
+                self._conns.discard(conn)
             try:
                 conn.close()
             except OSError:
@@ -140,25 +164,42 @@ class OwnerServer:
 
     def close(self) -> None:
         self._closed.set()
-        try:
-            self._sock.close()
-        except OSError:
-            pass
+        # close() alone does not wake a thread blocked in accept() on Linux,
+        # and clients of a closed owner must notice now, not on their next
+        # request.
+        with self._conns_lock:
+            conns = list(self._conns)
+        for sock in [self._sock, *conns]:
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            try:
+                sock.close()
+            except OSError:
+                pass
         self._engine.close()
 
 
 async def aconnect_to_owner(
     family: int, address, token: str, timeout: float = 5.0
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
-    """Async counterpart of :func:`connect_to_owner` (asyncio streams)."""
-    if family == socket.AF_INET:
+    """Async counterpart of :func:`connect_to_owner` (asyncio streams). The
+    timeout covers the handshake too: an owner that accepts but never answers
+    must not hang the caller."""
+    if family == getattr(socket, "AF_UNIX", None):
+        opener = asyncio.open_unix_connection(address)
+    else:
         host, port = address
         opener = asyncio.open_connection(host, port)
-    else:
-        opener = asyncio.open_unix_connection(address)
     reader, writer = await asyncio.wait_for(opener, timeout)
-    await asend_frame(writer, token)
-    if await arecv_frame(reader) != OK:
+    try:
+        await asyncio.wait_for(asend_frame(writer, token), timeout)
+        ok = await asyncio.wait_for(arecv_frame(reader), timeout) == OK
+    except BaseException:
+        writer.close()
+        raise
+    if not ok:
         writer.close()
         raise ConnectionError("shared-storage owner rejected the handshake")
     return reader, writer
@@ -166,9 +207,12 @@ async def aconnect_to_owner(
 
 def connect_to_owner(family: int, address, token: str, timeout: float = 5.0):
     """Open a client connection and complete the token handshake."""
-    sock = socket.socket(family, socket.SOCK_STREAM)
-    sock.settimeout(timeout)
-    sock.connect(address)
+    if family == getattr(socket, "AF_UNIX", None):
+        sock = socket.socket(family, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        sock.connect(address)
+    else:
+        sock = socket.create_connection(tuple(address), timeout=timeout)
     send_frame(sock, token)
     if recv_frame(sock) != OK:
         sock.close()

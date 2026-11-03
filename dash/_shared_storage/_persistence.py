@@ -272,6 +272,17 @@ class _Persistence:
                 # not silently kill the flush thread and stop all persistence.
                 logger.exception("shared-storage persist-reset flush failed")
 
+    def abandon(self) -> None:
+        """Stop without the final flush: another owner has the store now, and
+        this one's state would overwrite it."""
+        if self._closed:
+            return
+        self._closed = True
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=self._flush_interval + 5)
+        self._drain()
+
     def close(self) -> None:
         if self._closed:
             return
