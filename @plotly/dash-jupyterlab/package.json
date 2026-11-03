@@ -25,10 +25,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:pack": "jlpm run prepare && jlpm pack --filename ../../dash/labextension/dist/dash-jupyterlab.tgz && jlpm run build:copy",
-    "build:copy": "cp package.json ../../dash/labextension/dist/package.json",
+    "build:pack": "jlpm run prepare && jupyter labextension build . && jlpm run build:copy",
+    "build:copy": "cp install.json ../../dash/labextension",
     "clean": "rimraf lib",
-    "prepare": "mkdirp ../../dash/labextension/dist && jlpm run clean && jlpm run build",
+    "prepare": "mkdirp ../../dash/labextension && jlpm run clean && jlpm run build",
     "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
     "watch": "tsc -w"
   },
@@ -38,6 +38,7 @@
     "@jupyterlab/notebook": "^2.0.0 || ^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
+    "@jupyterlab/builder": "^3.6.8",
     "@types/json-schema": "^7.0.15",
     "mkdirp": "^0.5.1",
     "prettier": "2.0.5",
@@ -45,6 +46,10 @@
     "typescript": "5.6.2"
   },
   "jupyterlab": {
-    "extension": true
+    "extension": true,
+    "outputDir": "../../dash/labextension"
+  },
+  "resolutions": {
+    "webpack": "5.106.2"
   }
 }
