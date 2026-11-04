@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- [#4115](https://github.com/plotly/dash/pull/4115) Allow `type="color"` in `dcc.Input`. Fixes [#2772](https://github.com/plotly/dash/issues/2772).
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
