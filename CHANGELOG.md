@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#4102](https://github.com/plotly/dash/pull/4102) Fix `dcc.Graph` zoom, pan and other edits being reset by a new figure or a `Patch` while `uirevision` is unchanged, a regression from #3882. Fixes [#4093](https://github.com/plotly/dash/issues/4093).
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
