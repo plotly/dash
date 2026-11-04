@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - next
       - master
   pull_request:
   workflow_dispatch:
@@ -340,7 +341,8 @@ jobs:
     name: Run Background & Async Callback Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.background_cb_changed == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -452,7 +454,8 @@ jobs:
     name: Run Backend Callback Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.backend_cb_changed == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -526,7 +529,8 @@ jobs:
     name: Table Unit/Lint Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -584,7 +588,8 @@ jobs:
     # Conditional execution:
     # OR if the 'changes_filter' job detected changes in 'table_related_paths'.
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -648,7 +653,8 @@ jobs:
     name: WebSocket Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.websocket_changed == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -709,7 +715,8 @@ jobs:
     name: Streaming Callback Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.streaming_changed == 'true'
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -871,7 +878,8 @@ jobs:
     name: HTML Components Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.html_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -1026,7 +1034,8 @@ jobs:
     name: DCC Lint Tests (Python ${{ matrix.python-version }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.dcc_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -1074,7 +1083,8 @@ jobs:
     name: DCC Integration Tests (Python ${{ matrix.python-version }}, React ${{ matrix.react-version }}, Group ${{ matrix.test-group }})
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.dcc_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -1168,7 +1178,8 @@ jobs:
     name: Dash Table Visual Tests
     needs: [build, changes_filter]
     if: |
-      (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')) ||
+      (github.event_name == 'push' && contains(fromJSON('["refs/heads/master", "refs/heads/dev", "refs/heads/next"]'), github.ref)) ||
+      github.event_name == 'workflow_dispatch' ||
       needs.changes_filter.outputs.table_paths_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -1348,6 +1359,7 @@ jobs:
       github.event_name == 'push' &&
       (github.ref == 'refs/heads/master' ||
        github.ref == 'refs/heads/dev' ||
+       github.ref == 'refs/heads/next' ||
        startsWith(github.ref, 'refs/tags/'))
 
     steps:
