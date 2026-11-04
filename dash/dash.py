@@ -522,7 +522,7 @@ class Dash(ObsoleteChecker):
         include_assets_files: bool = True,
         include_pages_meta: bool = True,
         title: str = "Dash",
-        update_title: str = "Updating...",
+        update_title: Optional[str] = "Updating...",
         description: Optional[str] = None,
         image: Optional[str] = None,
         url_base_pathname: Optional[str] = None,
