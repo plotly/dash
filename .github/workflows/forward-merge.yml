@@ -44,6 +44,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin dev next
+          git fetch origin "$MERGE_BRANCH" 2>/dev/null || true
+          lease=$(git rev-parse -q --verify "origin/$MERGE_BRANCH" || true)
 
           if git merge-base --is-ancestor origin/dev origin/next; then
             echo "next already contains dev."
@@ -52,28 +54,25 @@ jobs:
 
           pr=$(gh pr list --base next --head "$MERGE_BRANCH" --state open --json number --jq '.[0].number // empty')
 
-          # While a conflict PR is open, keep going through it so work done on
-          # the branch is not bypassed.
+          # While a PR is open, keep going through it so work done on the
+          # branch is not bypassed. Any failure to merge directly opens one, so
+          # it shows up there instead of only as a failed run.
           if [ -z "$pr" ]; then
-            conflict=
-            for attempt in 1 2 3; do
-              git switch -C next origin/next
-              if ! git merge --no-edit origin/dev; then
-                git merge --abort
-                conflict=1
-                break
-              fi
+            git switch -C next origin/next
+            if git merge --no-edit origin/dev; then
               if git push origin next; then
                 echo "Merged dev into next."
                 exit 0
               fi
-              # Something merged into next meanwhile.
-              git fetch origin next
-            done
-            [ -n "$conflict" ] || exit 1
+              reason="Pushing the merge to \`next\` failed, most likely because a PR merged into \`next\` at the same time. Merge this PR if it is clean."
+            else
+              git merge --abort
+              reason="\`dev\` does not merge cleanly into \`next\`. Resolve the conflicts on \`$MERGE_BRANCH\` by merging \`origin/next\` into it, never on \`dev\`."
+            fi
+            echo "::warning::Could not merge dev into next directly, opening a PR. $reason"
           fi
 
-          if [ -n "$pr" ] && git fetch origin "$MERGE_BRANCH" && \
+          if [ -n "$pr" ] && [ -n "$lease" ] && \
              ! git merge-base --is-ancestor "origin/$MERGE_BRANCH" origin/dev; then
             # Someone already resolved conflicts on the branch: build on that.
             git switch -C "$MERGE_BRANCH" "origin/$MERGE_BRANCH"
@@ -88,7 +87,7 @@ jobs:
             gh workflow run testing.yml --ref "$MERGE_BRANCH"
           else
             # The branch is dev itself, so the checks already run on dev apply.
-            git push --force origin "origin/dev:refs/heads/$MERGE_BRANCH"
+            git push --force-with-lease="$MERGE_BRANCH:$lease" origin "origin/dev:refs/heads/$MERGE_BRANCH"
             head=$(git rev-parse origin/dev)
           fi
 
@@ -101,5 +100,5 @@ jobs:
           if [ -z "$pr" ]; then
             gh pr create --base next --head "$MERGE_BRANCH" \
               --title "Merge dev into next" \
-              --body "\`dev\` does not merge cleanly into \`next\` (RFD #142). Resolve the conflicts on \`$MERGE_BRANCH\` by merging \`origin/next\` into it, never on \`dev\`. Merge with **Create a merge commit**, never squash. Until this PR is merged, other PRs into \`next\` are blocked and automatic forward merges pause."
+              --body "Automatic forward merge of \`dev\` into \`next\` failed (RFD #142). $reason Merge with **Create a merge commit**, never squash. Until this PR is merged, other PRs into \`next\` are blocked and automatic forward merges pause."
           fi
