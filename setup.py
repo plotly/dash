@@ -11,7 +11,6 @@ def read_req_file(req_type):
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 
-
 setup(
     name="dash",
     version=main_ns["__version__"],
@@ -93,8 +92,12 @@ setup(
             "dash/nbextension/dash.json"
         ]),
         # Place jupyterlab extension in extension directory
-        ("share/jupyter/lab/extensions", [
-            "dash/labextension/dist/dash-jupyterlab.tgz"
-        ]),
+        *[
+            (os.path.normpath(os.path.join("share/jupyter/labextensions/@plotly/dash-jupyterlab", os.path.relpath(directory, "dash/labextension/"))), [
+                os.path.join(directory, filename)
+                for filename in filenames
+            ])
+            for directory, _, filenames in os.walk("dash/labextension") if filenames
+        ],
     ],
 )
