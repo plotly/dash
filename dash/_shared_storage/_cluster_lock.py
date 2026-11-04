@@ -15,6 +15,15 @@ server checks its term with ``is_owner`` so a deposed owner stops taking
 writes. An owner cut off from every peer keeps owning until it can reach them
 again, and replicas that cannot reach each other at all stay split.
 
+With ``replicas`` set (the number of replicas the app runs), a majority is
+needed. Each electing replica backs one candidate, the lowest electing id it
+sees, and a replica claims only once a majority (itself included) has backed
+it without a break for a whole lease. An owner holds a lease that it renews
+only while a majority follows its term. An owner on the minority side of a
+partition stops owning when its lease runs out, before the majority side may
+claim, a peer backs one claimant at a time, and a replica that starts alone
+waits for its peers.
+
 Peers prove they hold the shared secret with an HMAC challenge both ways, and
 the view a replica answers with is MACed too, so the secret never crosses the
 wire and an on-path attacker cannot forge a view. Nothing is encrypted.
@@ -205,7 +214,14 @@ def _valid_view(view: Any) -> bool:
         return isinstance(view.get("term"), str) and isinstance(
             view.get("owner_host"), str
         )
-    return True
+    ballot = view.get("ballot")
+    return ballot is None or (
+        isinstance(ballot, list)
+        and len(ballot) == 2
+        and (ballot[0] is None or isinstance(ballot[0], str))
+        and isinstance(ballot[1], int)
+        and not isinstance(ballot[1], bool)
+    )
 
 
 class ClusterLock:  # pylint: disable=too-many-instance-attributes
@@ -231,9 +247,14 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
         probe_interval: float = 1.0,
         probe_timeout: float = 0.5,
         miss_limit: int = 3,
+        replicas: Optional[int] = None,
     ):
         if not secret:
             raise ValueError("ClusterLock needs a non-empty secret")
+        if replicas is not None and (
+            not isinstance(replicas, int) or isinstance(replicas, bool) or replicas < 1
+        ):
+            raise ValueError("replicas must be a positive integer")
         self.id = secrets.token_hex(8)
         self._peers = peers
         self._secret = secret
@@ -248,6 +269,20 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
         self._owned_since = 0.0
         # Owners this one judged younger than itself, which must step down.
         self._rivals: List[str] = []
+        self._majority = replicas // 2 + 1 if replicas else None
+        # Ticks start at most interval + timeout apart. A new owner needs
+        # about three of them to see its followers follow, and a lease of four
+        # survives a dropped probe after that.
+        self.lease = 4 * (probe_interval + probe_timeout)
+        self._quorum_at = 0.0
+        # Majority mode: whom this replica would see own (its candidate) and
+        # a counter bumped on every change, since when, and which candidates
+        # it gave up on. Peers backing this replica: id -> (their counter,
+        # first seen with it).
+        self._ballot: Tuple[Optional[str], int] = (None, 0)
+        self._ballot_since = time.monotonic()
+        self._banned: Dict[str, float] = {}
+        self._backers: Dict[str, Tuple[int, float]] = {}
         self._state = LockState(ELECTING)
         self._cond = threading.Condition()
         self._closed = threading.Event()
@@ -296,6 +331,12 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             and state.role == OWNER
             and term is not None
             and state.term == term
+            and self._leased()
+        )
+
+    def _leased(self) -> bool:
+        return (
+            self._majority is None or time.monotonic() - self._quorum_at <= self.lease
         )
 
     def wait_settled(self, timeout: Optional[float] = None) -> LockState:
@@ -311,7 +352,11 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
     # --- server ------------------------------------------------------------
     def _view(self) -> Dict[str, Any]:
         state = self._state
+        if state.role == OWNER and not self._leased():
+            state = LockState(ELECTING)
         view = {"id": self.id, "role": state.role, "term": state.term}
+        if state.role == ELECTING and self._majority is not None:
+            view["ballot"] = list(self._ballot)
         if state.role == OWNER:
             view["age"] = time.monotonic() - self._owned_since
             view["advert"] = self._advert
@@ -387,7 +432,8 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
                 logger.exception("dash cluster lock probe failed")
             self._closed.wait(self._interval)
 
-    def _tick(self) -> None:
+    def _tick(self) -> None:  # pylint: disable=too-many-branches
+        started = time.monotonic()
         peers = list(self._peers())
         views = {}
         for addr, view in zip(peers, self._pool.map(self._probe, peers)):
@@ -395,6 +441,8 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
                 views[view["id"]] = (addr, view)
         if self._closed.is_set():
             return
+        if self._majority is not None:
+            self._vote(views)
 
         state = self._state
         if state.role == FOLLOWER:
@@ -416,6 +464,18 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             self._misses = 0
             self._deferred = 0
         if state.role == OWNER:
+            if self._majority is not None:
+                if not self._leased():
+                    # Peers may already count it as electing: never renew.
+                    self._step_down()
+                    return
+                following = [
+                    view
+                    for _, view in views.values()
+                    if view["role"] == FOLLOWER and view["term"] == state.term
+                ]
+                if 1 + len(following) >= self._majority:
+                    self._quorum_at = started
             self._resolve_owners(owners)
             return
         if owners:
@@ -425,19 +485,92 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             self._follow(owner_id, *owners[owner_id])
             return
 
+        if self._majority is not None:
+            if self._may_claim():
+                self._claim(started)
+            else:
+                self._set(LockState(ELECTING))
+            return
+
         # No owner anywhere: the lowest id claims. Wait on a lower one only so
         # long, in case it follows an owner this replica cannot reach.
         if all(self.id < other for other in views) or (
             self._deferred >= self._miss_limit
         ):
-            self._deferred = 0
-            self._misses = 0
-            self._owned_since = time.monotonic()
-            self._rivals = []
-            self._set(LockState(OWNER, secrets.token_hex(8), self.id))
+            self._claim(started)
         else:
             self._deferred += 1
             self._set(LockState(ELECTING))
+
+    def _claim(self, started: float) -> None:
+        self._deferred = 0
+        self._misses = 0
+        self._owned_since = time.monotonic()
+        # Majority mode: lease from the probe round that saw the backing, not
+        # from now. A voter may switch right after answering, and a slow
+        # round would otherwise stretch this lease past that switch.
+        self._quorum_at = started
+        self._rivals = []
+        self._set(LockState(OWNER, secrets.token_hex(8), self.id))
+
+    def _vote(self, views: Dict[str, Tuple[Addr, Dict[str, Any]]]) -> None:
+        """Back the lowest electing id in sight, and track who backs this one.
+
+        A candidate that never manages to claim (it cannot reach a majority
+        itself) is passed over for a while, so the others are not stuck."""
+        now = time.monotonic()
+        if self._state.role != ELECTING:
+            candidate = None
+        else:
+            self._banned = {i: t for i, t in self._banned.items() if t > now}
+            electing = [
+                view_id
+                for view_id, (_, view) in views.items()
+                if view["role"] == ELECTING and view_id not in self._banned
+            ]
+            candidate = min([self.id, *electing])
+            stuck = now - self._ballot_since > 3 * self.lease
+            if candidate == self._ballot[0] != self.id and stuck:
+                self._banned[candidate] = now + 3 * self.lease
+        if candidate != self._ballot[0]:
+            self._ballot = (candidate, self._ballot[1] + 1)
+            self._ballot_since = now
+        backers = {}
+        for view_id, (_, view) in views.items():
+            ballot = view.get("ballot")
+            if view["role"] != ELECTING or not ballot or ballot[0] != self.id:
+                continue
+            seen = self._backers.get(view_id)
+            same = seen is not None and seen[0] == ballot[1]
+            backers[view_id] = seen if same else (ballot[1], now)
+        self._backers = backers
+
+    def _may_claim(self) -> bool:
+        """A majority, this replica included, that has backed it without a
+        break for longer than a lease.
+
+        A ballot stands for one candidate; any change, following an owner
+        included, bumps its counter and restarts the run. An owner renews only
+        from peers that follow it, and two majorities share a peer: a peer
+        that backed this replica for a whole lease neither followed an owner
+        (whose lease has run out since) nor backed another claimant then.
+        """
+        assert self._majority is not None
+        if self._state.role == FOLLOWER:
+            return False
+        now = time.monotonic()
+        if self._ballot[0] != self.id or now - self._ballot_since <= self.lease:
+            return False
+        backed = [
+            since for _, since in self._backers.values() if now - since > self.lease
+        ]
+        return 1 + len(backed) >= self._majority
+
+    def _step_down(self) -> None:
+        self._rivals = []
+        self._misses = 0
+        self._deferred = 0
+        self._set(LockState(ELECTING))
 
     def _resolve_owners(self, owners: Dict[str, Tuple[Addr, Dict[str, Any]]]) -> None:
         """Settle which of several owners keeps owning.

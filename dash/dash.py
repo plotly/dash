@@ -11,6 +11,7 @@ from importlib.util import find_spec
 from importlib import metadata
 import pkgutil
 import threading
+import weakref
 from contextvars import ContextVar
 import re
 import logging
@@ -84,6 +85,7 @@ from . import backends
 from ._get_app import with_app_context, with_app_context_factory
 from ._shared_storage import BaseSharedStorage, SharedStorageError
 from ._shared_storage._env import storage_from_env
+from ._shared_storage.cluster import starts_at_boot
 from ._grouping import map_grouping, grouping_len, update_args_group
 from ._obsolete import ObsoleteChecker
 from ._callback_context import callback_context
@@ -754,7 +756,8 @@ class Dash(ObsoleteChecker):
         # Shared storage (state manager + pub/sub). Started lazily on first
         # access so it costs nothing until used and never binds in a gunicorn
         # preload master or the Flask reloader parent -- only in the worker that
-        # actually touches it.
+        # actually touches it. The exception is a cluster in majority mode,
+        # which must join the election at boot (_start_shared_storage_at_boot).
         if shared_storage is _SHARED_STORAGE_DEFAULT:
             shared_storage = storage_from_env(
                 load_dash_env_vars().get("DASH_SHARED_STORAGE")
@@ -767,6 +770,9 @@ class Dash(ObsoleteChecker):
 
         if not self.logger.handlers and add_log_handler:
             self.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+
+        if starts_at_boot(shared_storage):
+            self._start_shared_storage_at_boot()
 
         if plugins is not None and isinstance(
             plugins, patch_collections_abc("Iterable")
@@ -1038,6 +1044,46 @@ class Dash(ObsoleteChecker):
             layout_value = self._layout_value()
             _validate.validate_layout(value, layout_value)
             self.validation_layout = layout_value
+
+    def _start_shared_storage_at_boot(self) -> None:
+        # Unlike the lazy default this binds in a gunicorn preload master too:
+        # the master then holds the replica's lock and votes, and its workers
+        # reach it on loopback. A forked child (a worker, or a multiprocessing
+        # child) drops the parent's objects, whose threads did not survive the
+        # fork, and starts lazily on first use: the parent already votes.
+        app_ref = weakref.ref(self)
+
+        def after_fork_in_child():
+            # pylint: disable=protected-access
+            app = app_ref()
+            if app is None:
+                return
+            app._shared_storage_lock = threading.Lock()
+            started = app._shared_storage_instance
+            app._shared_storage_instance = None
+            for storage in {
+                id(s): s for s in (started, app._shared_storage_arg)
+            }.values():
+                if hasattr(storage, "after_fork") and not isinstance(storage, type):
+                    storage.after_fork()
+
+        if hasattr(os, "register_at_fork"):
+            os.register_at_fork(after_in_child=after_fork_in_child)
+        self._boot_shared_storage()
+
+    def _boot_shared_storage(self) -> None:
+        def run():
+            try:
+                self.shared_storage  # pylint: disable=pointless-statement
+            except Exception:  # pylint: disable=broad-exception-caught
+                self.logger.warning(
+                    "shared storage did not start yet, retrying on first use",
+                    exc_info=True,
+                )
+
+        threading.Thread(
+            target=run, name="dash-shared-storage-boot", daemon=True
+        ).start()
 
     @property
     def shared_storage_enabled(self) -> bool:

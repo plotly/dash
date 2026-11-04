@@ -113,6 +113,14 @@ def test_cluster_tls_path_keeps_plus(monkeypatch, make_cert, tmp_path):
     storage.close()
 
 
+def test_cluster_replicas_from_url(monkeypatch):
+    storage = _built(_app(monkeypatch, "cluster://:pw@app-peers?replicas=3"))
+    coord = storage._coord
+    assert coord._replicas == 3
+    assert coord.failover_window > 10
+    storage.close()
+
+
 def test_cluster_secret_from_env_and_default_port(monkeypatch):
     monkeypatch.setenv("DASH_SECRET_KEY", "from-env")
     storage = _built(_app(monkeypatch, "cluster://app-peers"))
@@ -130,6 +138,9 @@ def test_cluster_secret_from_env_and_default_port(monkeypatch):
         ("cluster://:pw@app-peers:65535", "below 65535"),
         ("cluster://:pw@app-peers/path", "only a host"),
         ("cluster://:pw@app-peers?mode=persist", "only tls_cert"),
+        ("cluster://:pw@app-peers?replicas=0", "positive integer"),
+        ("cluster://:pw@app-peers?replicas=three", "positive integer"),
+        ("cluster://:pw@app-peers?replicas=3&replicas=5", "once each"),
         ("cluster://:pw@app-peers?tls_cert=/a", "both tls_cert and tls_key"),
         ("cluster://:pw@app-peers?tls_cert=/a&tls_key=/b&tls_cert=/c", "once each"),
         ("cluster://:pw@app-peers:0", "valid port"),

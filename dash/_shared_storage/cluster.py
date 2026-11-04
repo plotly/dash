@@ -17,11 +17,13 @@ connection between replicas is mutual TLS.
 
 import atexit
 import errno
+import functools
 import hashlib
 import hmac
 import os
 import socket
 import ssl
+import threading
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -57,6 +59,8 @@ _CLIENT_POLL_TIMEOUT = 5.0
 _RECV_TIMEOUT = _CLIENT_POLL_TIMEOUT + 5.0
 # Followers need a few missed probes to give up on a dead owner.
 _FAILOVER_WINDOW = 10.0
+# With replicas set, a claim also waits for the old owner's lease to run out.
+_QUORUM_FAILOVER_WINDOW = 30.0
 _ADDR_IN_USE = {errno.EADDRINUSE, getattr(errno, "WSAEADDRINUSE", errno.EADDRINUSE)}
 
 
@@ -78,6 +82,18 @@ def _load_tls(
         return tls_contexts(cert, key, ca)
     except (OSError, ssl.SSLError) as err:
         raise SharedStorageError(f"cannot load the cluster TLS files: {err}") from err
+
+
+def starts_at_boot(storage: Any) -> bool:
+    """Whether a ``shared_storage`` argument (an instance, or the partial
+    ``DASH_SHARED_STORAGE`` builds) must start with the process."""
+    if isinstance(storage, functools.partial):
+        return (
+            isinstance(storage.func, type)
+            and issubclass(storage.func, ClusterSharedStorage)
+            and storage.keywords.get("replicas") is not None
+        )
+    return isinstance(storage, ClusterSharedStorage) and storage.starts_at_boot
 
 
 class _ClusterCoordinator(_Coordinator):
@@ -102,6 +118,7 @@ class _ClusterCoordinator(_Coordinator):
         probe_interval: float,
         settle_timeout: float,
         tls: Optional[TLS] = None,
+        replicas: Optional[int] = None,
     ):
         super().__init__(
             f"cluster-{host}-{port}", buffer_size, mode, path, flush_interval
@@ -118,6 +135,9 @@ class _ClusterCoordinator(_Coordinator):
         self._tls = tls
         self.client_ssl = tls.client if tls is not None else None
         self._probe_timeout = _PROBE_TIMEOUT if tls is None else _TLS_PROBE_TIMEOUT
+        self._replicas = replicas
+        if replicas is not None:
+            self.failover_window = _QUORUM_FAILOVER_WINDOW
 
     def is_owner(self) -> bool:
         self.ensure()
@@ -180,6 +200,7 @@ class _ClusterCoordinator(_Coordinator):
                 tls=self._tls,
                 probe_interval=self._probe_interval,
                 probe_timeout=self._probe_timeout,
+                replicas=self._replicas,
             ).start()
         except OSError as err:
             if err.errno in _ADDR_IN_USE:
@@ -206,6 +227,10 @@ class _ClusterCoordinator(_Coordinator):
 
     def _apply(self, state: LockState) -> bool:
         if state.role == OWNER:
+            # A lapsed lease the lock has not stepped down from yet: serving
+            # would start an empty store under the same term.
+            if self._cluster is None or not self._cluster.is_owner(state.term):
+                return False
             self._serve(state.term)
             return True
         if state.role == FOLLOWER and state.owner_addr is not None:
@@ -285,6 +310,22 @@ class _ClusterCoordinator(_Coordinator):
                 self._stop_serving()
                 self._role = None
 
+    def forget(self) -> None:
+        """In a forked child: let go of the parent's sockets without shutting
+        them down, which would stop them in the parent too. Threads do not
+        survive a fork, so nothing else here is live."""
+        server = self._server
+        for sock in (
+            getattr(self._cluster, "_sock", None),
+            getattr(server, "_sock", None),
+            *getattr(server, "_conns", ()),
+        ):
+            if sock is not None:
+                try:
+                    sock.close()
+                except OSError:
+                    pass
+
     def close(self) -> None:
         with self._lock:
             self._closed = True
@@ -322,6 +363,15 @@ class ClusterSharedStorage(LocalSharedStorage):
     Readers get ``SharedStorageGap``. If replicas briefly elect two owners,
     say when they all start at once, the one that owned longer wins and
     writes made on the other in the meantime are lost.
+
+    ``replicas``, the number of replicas the app runs (3 is the usual choice),
+    turns on majority mode: no owner without a majority of them in reach, so
+    a replica that starts alone waits for its peers and an owner cut off in a
+    minority stops owning before the others elect a new one. The store is
+    unavailable while no majority is up, failover takes 10 to 20 seconds, and
+    the store starts with the app process instead of on first use, so every
+    replica votes. Use an odd number: with 2, losing either one stops the
+    store.
     """
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -335,13 +385,22 @@ class ClusterSharedStorage(LocalSharedStorage):
         path: Optional[str] = None,
         flush_interval: float = 60.0,
         probe_interval: float = _PROBE_INTERVAL,
-        settle_timeout: float = _SETTLE_TIMEOUT,
+        settle_timeout: Optional[float] = None,
         tls_cert: Optional[str] = None,
         tls_key: Optional[str] = None,
         tls_ca: Optional[str] = None,
+        replicas: Optional[int] = None,
     ):
         if host is None and peers is None:
             raise SharedStorageError("ClusterSharedStorage needs a host or peers")
+        if replicas is not None and (
+            not isinstance(replicas, int) or isinstance(replicas, bool) or replicas < 1
+        ):
+            raise SharedStorageError("replicas must be a positive integer")
+        if settle_timeout is None:
+            settle_timeout = (
+                _SETTLE_TIMEOUT if replicas is None else _QUORUM_FAILOVER_WINDOW
+            )
         secret = secret or os.environ.get(SECRET_ENV)
         if not secret:
             raise SharedStorageError(
@@ -352,6 +411,7 @@ class ClusterSharedStorage(LocalSharedStorage):
         if peers is None:
             name: str = host or ""
             peers = lambda: resolve_peers(name, port)  # noqa: E731
+        self._forked_in = os.getpid()
         self._cluster_args: Dict[str, Any] = dict(
             host=host or "peers",
             port=port,
@@ -360,6 +420,7 @@ class ClusterSharedStorage(LocalSharedStorage):
             probe_interval=probe_interval,
             settle_timeout=settle_timeout,
             tls=tls,
+            replicas=replicas,
         )
         super().__init__(
             namespace=f"cluster-{host}-{port}",
@@ -369,9 +430,32 @@ class ClusterSharedStorage(LocalSharedStorage):
             flush_interval=flush_interval,
         )
 
+    @property
+    def starts_at_boot(self) -> bool:
+        """In majority mode every replica must take part in the election
+        before any request reaches it, or the first replica to get one waits
+        for a majority that never shows up."""
+        return self._cluster_args["replicas"] is not None
+
+    def after_fork(self) -> None:
+        """Start afresh in a forked child (gunicorn ``--preload``). The parent
+        keeps its lock; the child finds it on loopback like any other worker."""
+        if self._forked_in == os.getpid():
+            return  # one instance shared by several apps
+        self._forked_in = os.getpid()
+        coord = self._coord
+        assert isinstance(coord, _ClusterCoordinator)
+        coord.forget()
+        self._coord = self._new_coordinator(*self._coord_args)
+        self._conn = None
+        self._conn_token = None
+        self._conn_lock = threading.Lock()
+        self._aconns = {}
+
     def _new_coordinator(  # pylint: disable=too-many-arguments
         self, namespace, buffer_size, mode, path, flush_interval
     ) -> _Coordinator:
+        self._coord_args = (namespace, buffer_size, mode, path, flush_interval)
         return _ClusterCoordinator(
             buffer_size=buffer_size,
             mode=mode,

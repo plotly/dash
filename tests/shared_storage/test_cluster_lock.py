@@ -573,3 +573,128 @@ def test_plaintext_and_tls_replicas_do_not_mix(cluster, make_cert):
     plain.wait_settled(5)
     time.sleep(0.3)
     assert tls_lock.state.role == OWNER and plain.state.role == OWNER
+
+
+QUORUM = {"replicas": 3, "probe_timeout": 0.2}
+
+
+def _owning(locks):
+    return [lock for lock in locks if lock.is_owner(lock.state.term)]
+
+
+def test_replicas_must_be_a_positive_integer(cluster):
+    for bad in (0, -1, 2.0, True, "3"):
+        with pytest.raises(ValueError, match="replicas"):
+            cluster.add(replicas=bad)
+
+
+def test_quorum_lone_replica_waits_for_a_majority(cluster):
+    lone = cluster.add(**QUORUM)
+    time.sleep(lone.lease * 2)
+    assert lone.state.role == ELECTING
+    cluster.add(**QUORUM)
+    owner = cluster.wait_settled()
+    assert owner.is_owner(owner.state.term)
+
+
+def test_quorum_minority_owner_stops_before_the_majority_claims(cluster):
+    for _ in range(3):
+        cluster.add(**QUORUM)
+    old = cluster.wait_settled()
+    i = cluster.locks.index(old)
+    rest = [j for j in range(3) if j != i]
+    cluster.see(i, [])
+    for j in rest:
+        cluster.see(j, rest)
+
+    majority = [cluster.locks[j] for j in rest]
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        owning = _owning(cluster.locks)
+        assert len(owning) <= 1, "two owners at once"
+        if owning and owning[0] is not old:
+            break
+        time.sleep(0.002)
+    else:
+        raise AssertionError("the majority never elected an owner")
+    new = cluster.wait_settled(locks=majority)
+    assert old.state.role == ELECTING
+
+    time.sleep(old.lease)
+    assert old.state.role == ELECTING  # alone, it never claims back
+    cluster.see_all()
+    assert cluster.wait_settled() is new
+
+
+def test_quorum_no_claim_while_a_peer_follows_a_live_owner(cluster):
+    # B cannot reach the owner but reaches C, which follows it. B and C are a
+    # majority by count, yet C is the owner's: B must not claim.
+    for _ in range(3):
+        cluster.add(**QUORUM)
+    owner = cluster.wait_settled()
+    i = cluster.locks.index(owner)
+    b, c = [j for j in range(3) if j != i]
+    cluster.see(b, [c])
+    cluster.see(i, [c])
+    deadline = time.monotonic() + owner.lease * 3
+    while time.monotonic() < deadline:
+        assert _owning(cluster.locks) == [owner]
+        time.sleep(0.01)
+    assert cluster.locks[c].state.owner_id == owner.id
+
+
+def test_quorum_owner_is_fenced_even_with_a_stalled_probe_thread(cluster):
+    for _ in range(3):
+        cluster.add(**QUORUM)
+    owner = cluster.wait_settled()
+    term = owner.state.term
+    stall = threading.Event()
+    owner._tick = stall.wait  # the probe thread stops renewing
+    time.sleep(owner.lease + 0.2)
+    assert owner.state.role == OWNER
+    assert not owner.is_owner(term)
+    stall.set()
+
+
+def test_quorum_owner_survives_while_followed(cluster):
+    for _ in range(3):
+        cluster.add(**QUORUM)
+    owner = cluster.wait_settled()
+    term = owner.state.term
+    deadline = time.monotonic() + owner.lease * 3
+    while time.monotonic() < deadline:
+        assert owner.is_owner(term)
+        time.sleep(0.01)
+
+
+def test_quorum_one_way_loss_never_gives_two_owners(cluster):
+    # C drops out first; then B stops reaching the owner while the owner still
+    # reaches B, so B still counts toward its lease while it gives up on it.
+    for _ in range(3):
+        cluster.add(**QUORUM)
+    owner = cluster.wait_settled()
+    i = cluster.locks.index(owner)
+    b, c = sorted((j for j in range(3) if j != i), key=lambda j: cluster.locks[j].id)
+    cluster.see(c, [b])
+    cluster.see(i, [b])
+    until(lambda: cluster.locks[c].state.role == ELECTING)
+    time.sleep(owner.lease * 2)
+    assert owner.is_owner(owner.state.term)
+    cluster.see(b, [c])
+    deadline = time.monotonic() + owner.lease * 3
+    while time.monotonic() < deadline:
+        assert len(_owning(cluster.locks)) <= 1, "two owners at once"
+        time.sleep(0.002)
+
+
+def test_quorum_passes_over_a_candidate_that_cannot_claim(cluster):
+    for _ in range(3):
+        cluster.add(start=False, **QUORUM)
+    low = min(range(3), key=lambda j: cluster.locks[j].id)
+    cluster.see(low, [])  # the others see it, it sees no one
+    for lock in cluster.locks:
+        lock.start()
+    others = [lock for j, lock in enumerate(cluster.locks) if j != low]
+    owner = cluster.wait_settled(timeout=30, locks=others)
+    assert owner is not cluster.locks[low]
+    assert cluster.locks[low].state.role == ELECTING

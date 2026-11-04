@@ -43,6 +43,9 @@ def _redis_from_url(raw: str) -> Any:
     return functools.partial(RedisSharedStorage, url=url, **kwargs)
 
 
+_CLUSTER_OPTIONS = ("tls_cert", "tls_key", "tls_ca", "replicas")
+
+
 def _cluster_from_url(raw: str) -> Any:
     parsed = urlparse(raw)
     try:
@@ -57,15 +60,22 @@ def _cluster_from_url(raw: str) -> Any:
     if not host:
         raise _invalid("cluster needs a host that resolves to every replica")
     if parsed.path not in ("", "/") or parsed.fragment:
-        raise _invalid("cluster takes only a host, a port, a secret and TLS files")
-    tls = {}
+        raise _invalid("cluster takes only a host, a port, a secret and options")
+    options: Dict[str, Any] = {}
     # Not parse_qsl: it turns "+" into a space, and these are file paths.
     for pair in filter(None, parsed.query.split("&")):
         name, _, value = pair.partition("=")
-        if name not in ("tls_cert", "tls_key", "tls_ca") or name in tls or not value:
-            raise _invalid("cluster takes only tls_cert, tls_key and tls_ca, once each")
-        tls[name] = unquote(value)
-    if bool(tls.get("tls_cert")) != bool(tls.get("tls_key")):
+        if name not in _CLUSTER_OPTIONS or name in options or not value:
+            raise _invalid(
+                "cluster takes only tls_cert, tls_key, tls_ca and replicas, once each"
+            )
+        options[name] = unquote(value)
+    if "replicas" in options:
+        replicas = options["replicas"]
+        if not (replicas.isascii() and replicas.isdigit()) or int(replicas) < 1:
+            raise _invalid("cluster replicas must be a positive integer")
+        options["replicas"] = int(replicas)
+    if bool(options.get("tls_cert")) != bool(options.get("tls_key")):
         raise _invalid("cluster TLS needs both tls_cert and tls_key")
     if port >= 65535:
         raise _invalid("cluster needs a port below 65535, the next one is used too")
@@ -77,7 +87,7 @@ def _cluster_from_url(raw: str) -> Any:
             f"cluster needs a secret: cluster://:secret@host or {SECRET_ENV}"
         )
     return functools.partial(
-        ClusterSharedStorage, host=host, port=port, secret=secret, **tls
+        ClusterSharedStorage, host=host, port=port, secret=secret, **options
     )
 
 

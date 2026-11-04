@@ -1051,11 +1051,53 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
   `usages` accordingly). A failed peer handshake is logged once per peer.
   Files are read at startup, so restart replicas after rotating them. Probes
   get 1s instead of 0.5s with TLS, since each is a full handshake.
+- *Majority mode (optional).* `replicas=N` (`?replicas=3`), the number of
+  replicas the app runs, fixed like raposa's `cluster_size` rather than read
+  from DNS, which changes as pods start and stop.
+  - *Lease.* An owner renews `ClusterLock.lease` (4 probe gaps of interval +
+    timeout: 6s, 8s with TLS) only on a probe where a majority, itself
+    included, follows its term. `is_owner` checks the lease on the owner's
+    clock, so a stalled probe thread fences itself; a lapsed owner steps
+    down and never renews.
+  - *Votes.* Each electing replica publishes a ballot: the lowest electing id
+    it sees, plus a counter bumped on every change (following an owner
+    counts as a change). A replica claims once a majority, itself included,
+    has shown it the same ballot naming it for longer than a lease. Two
+    majorities share a peer, and that peer neither followed an owner nor
+    backed anyone else during the run, so a minority owner's lease has run
+    out and no second claimant had its vote. A plain "majority seen
+    electing" rule was not enough: after a one-way cut, two replicas each
+    counted the same quiet peer and both claimed. A candidate that has not
+    claimed after 3 leases (it cannot reach a majority itself) is passed
+    over for 3 leases. Followers never claim directly; they drop to
+    electing first, which restarts their ballot.
+  - *Assumes* monotonic clocks run at about the same rate on all hosts.
+  - *Boot.* Every replica must vote before any request reaches it, so in
+    this mode `Dash()` starts the storage in a thread at construction
+    (`starts_at_boot`), unlike the lazy default. A forked child (gunicorn
+    `--preload`) drops the parent's objects through `os.register_at_fork`
+    (`after_fork`, closing inherited sockets without shutting them down)
+    and reaches the parent's lock on loopback.
+  - *Cost.* No owner without a majority up: calls fail after
+    `settle_timeout` (30s here). Failover takes 10 to 20s (measured 10s for
+    a killed owner, 20s for a cut-off one with 3 containers), so
+    `failover_window` is 30s. A follower that sees its owner lapse drops to
+    electing at once, so a quorum hiccup longer than a lease costs an
+    election. Use an odd N: with 2, losing either stops the store.
+  - *N must be right.* Majorities only intersect if every replica uses the
+    same N and no more than N run: a rolling update's surge pod during a
+    partition, or an N set too low, can let both sides claim. A failed boot
+    start is logged and retried on first use, which waits up to
+    `settle_timeout`.
+  - *Fork.* The child does not boot again (a multiprocessing child for a
+    background callback must not take the replica's port); it starts lazily
+    like any worker, and `after_fork` runs once per process even when one
+    instance backs several apps.
 - *What it gives up.* When replicas briefly see different DNS answers (all of
   them waking from zero at once is the usual case) two owners exist until they
   probe each other; writes to the one that steps down are lost. Replicas that
   cannot reach each other at all stay split, and an isolated owner keeps
-  owning. The owner's store is lost with it (`mode="memory"`); the persistent
+  owning (both without `replicas`). The owner's store is lost with it (`mode="memory"`); the persistent
   modes only help when `path` is on a volume every replica mounts. Every
   replica probes every other each second, fine at the 1-10 pods an HPA runs.
 

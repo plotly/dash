@@ -6,6 +6,7 @@ finds the owner through the pod's lock process. ``peers`` stands in for DNS.
 """
 # pylint: disable=protected-access
 import asyncio
+import os
 import socket
 import threading
 import time
@@ -503,3 +504,155 @@ def test_tls_options_fail_loudly(make_cert):
         )
     assert time.monotonic() - started < 5
     ClusterSharedStorage(host="peers", secret="s", tls_cert=cert, tls_key=key).close()
+
+
+QUORUM = {"replicas": 3, "settle_timeout": 30.0}
+
+
+def test_replicas_must_be_a_positive_integer():
+    for bad in (0, "3", True):
+        with pytest.raises(SharedStorageError, match="replicas"):
+            ClusterSharedStorage(host="peers", secret="s", replicas=bad)
+
+
+def test_quorum_pods_need_a_majority_and_fence_a_cut_off_owner(pods):
+    a, b, c = pods.add_pod(), pods.add_pod(), pods.add_pod()
+    alone = pods.worker(a, replicas=3, settle_timeout=1.0)
+    with pytest.raises(SharedStorageError, match="no shared-storage cluster owner"):
+        alone.start()
+    stores = {pod: pods.worker(pod, **QUORUM) for pod in (a, b, c)}
+    # Each start waits for a majority, so they must start together.
+    starts = [threading.Thread(target=store.start) for store in stores.values()]
+    for thread in starts:
+        thread.start()
+    for thread in starts:
+        thread.join(30)
+    stores[b].set("k", 1)
+    assert all(store.get("k") == 1 for store in stores.values())
+
+    # The pod a lock is the first worker's, which failed to start alone.
+    locks = {a: alone._coord._cluster, b: stores[b]._coord._cluster}
+    locks[c] = stores[c]._coord._cluster
+    cut = next(pod for pod, lock in locks.items() if lock.state.role == "owner")
+    rest = [pod for pod in (a, b, c) if pod != cut]
+    term = locks[cut].state.term
+    pods.isolate([cut], rest)
+
+    # The cut-off owner stops owning, and the majority carries on.
+    until(lambda: not locks[cut].is_owner(term), timeout=20)
+    deadline = time.monotonic() + 30
+    while True:
+        try:
+            stores[rest[0]].set("k", 2)
+            break
+        except SharedStorageError:
+            assert time.monotonic() < deadline
+            time.sleep(0.2)
+    assert stores[rest[1]].get("k") == 2
+    stores[cut]._coord.failover_window = 1.0
+    with pytest.raises(SharedStorageError):
+        stores[cut].set("k", "lost")
+
+
+def test_starts_at_boot_only_in_majority_mode():
+    import functools
+
+    from dash._shared_storage.cluster import starts_at_boot
+
+    assert starts_at_boot(functools.partial(ClusterSharedStorage, replicas=3))
+    assert not starts_at_boot(functools.partial(ClusterSharedStorage, host="x"))
+    assert not starts_at_boot(ClusterSharedStorage)
+    assert not starts_at_boot(None)
+    store = ClusterSharedStorage(host="peers", secret="s", replicas=3)
+    assert starts_at_boot(store)
+    store.close()
+    store = ClusterSharedStorage(host="peers", secret="s")
+    assert not starts_at_boot(store)
+    store.close()
+
+
+def test_majority_mode_joins_the_election_before_any_request(pods):
+    # Only one app is ever used; the others must still vote, or it waits for
+    # a majority that never comes.
+    from dash import Dash
+
+    a, b, c = pods.add_pod(), pods.add_pod(), pods.add_pod()
+    apps = [Dash(shared_storage=pods.worker(pod, **QUORUM)) for pod in (a, b, c)]
+    until(lambda: apps[0]._shared_storage_instance is not None, timeout=30)
+    apps[0].shared_storage.set("k", 1)
+    assert apps[0].shared_storage.get("k") == 1
+
+
+FORK_SCRIPT = """
+import os, socket, sys, time
+from dash import Dash
+from dash._shared_storage import ClusterSharedStorage
+
+port = int(sys.argv[1])
+store = ClusterSharedStorage(
+    port=port, secret="s", peers=lambda: [("127.0.0.1", port)],
+    replicas=1, probe_interval=0.05,
+)
+app = Dash(shared_storage=store)
+other = Dash(shared_storage=store)  # one instance, two fork handlers
+deadline = time.monotonic() + 20
+while app._shared_storage_instance is None:
+    assert time.monotonic() < deadline, "parent never started"
+    time.sleep(0.05)
+pid = os.fork()
+if pid == 0:
+    try:
+        time.sleep(0.5)
+        # No boot in a child: the parent already votes for this replica.
+        assert app._shared_storage_instance is None
+        assert store._coord._cluster is None
+        app.shared_storage.set("from-child", os.getpid())
+        assert other.shared_storage.get("from-child") == os.getpid()
+        os._exit(0)
+    except BaseException as err:
+        print("child:", repr(err), flush=True)
+        os._exit(1)
+_, status = os.waitpid(pid, 0)
+assert status == 0, status
+assert app.shared_storage.get("from-child") == pid
+print("ok")
+"""
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="needs fork")
+def test_majority_mode_survives_a_preload_fork(pods, tmp_path):
+    import subprocess
+    import sys
+
+    script = tmp_path / "fork_app.py"
+    script.write_text(FORK_SCRIPT)
+    port = _port_pair()
+    import dash
+
+    root = os.path.dirname(os.path.dirname(dash.__file__))
+    env = {**os.environ, "PYTHONPATH": root}
+    out = subprocess.run(
+        [sys.executable, str(script), str(port)],
+        env=env,
+        capture_output=True, text=True, timeout=60, check=False,
+    )  # fmt: skip
+    assert out.stdout.strip().endswith("ok"), out.stdout + out.stderr
+
+
+def test_lapsed_lease_never_restarts_the_store_under_the_same_term(pods):
+    a = pods.add_pod()
+    store = pods.worker(a, replicas=1)
+    store.start()
+    store.set("k", 1)
+    coord = store._coord
+    coord._settle_timeout = 1.0
+    lock, engine = coord._cluster, coord._engine
+    stall = threading.Event()
+    lock._tick = stall.wait  # the lease lapses, the lock never steps down
+    try:
+        time.sleep(lock.lease + 0.2)
+        with pytest.raises(SharedStorageError):
+            coord.is_owner()
+        assert coord._engine in (None, engine)
+    finally:
+        stall.set()
