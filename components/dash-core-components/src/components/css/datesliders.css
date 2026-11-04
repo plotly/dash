@@ -1,0 +1,95 @@
+.date-slider-container,
+.date-range-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.date-slider-container[data-vertical='true'],
+.date-range-slider-container[data-vertical='true'] {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.dash-range-slider-max-input {
+    order: 1;
+    max-width: 140px;
+}
+
+.dash-range-slider-min-input {
+    text-align: center;
+    max-width: 140px;
+}
+
+.dash-slider-wrapper {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+}
+
+.dash-date-range-slider-wrapper {
+    position: relative;
+    flex: 1;
+    padding: 0 28px;
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Slider */
+.date-slider-container[data-narrow='true'] .dash-range-slider-min-input {
+    display: none;
+}
+
+@container (max-width: 130px) {
+    .date-slider-container[data-vertical='true'] .dash-range-slider-min-input {
+        display: none !important;
+    }
+}
+
+/* Range Slider */
+.date-range-slider-container[data-narrow='true'] .dash-range-slider-min-input,
+.date-range-slider-container[data-narrow='true'] .dash-range-slider-max-input {
+    display: none;
+}
+
+@container (max-width: 130px) {
+    .date-range-slider-container[data-vertical='true'] .dash-range-slider-min-input,
+    .date-range-slider-container[data-vertical='true'] .dash-range-slider-max-input {
+        display: none !important;
+    }
+}
+
+.dash-slider-tooltip {
+    display: none;
+    position: absolute;
+    border-radius: var(--Dash-Spacing);
+    padding: calc(var(--Dash-Spacing) * 3);
+    font-size: 12px;
+    line-height: 1;
+    box-shadow: 0 0 8px var(--Dash-Shading-Strong);
+    background-color: var(--Dash-Fill-Inverse-Strong);
+    user-select: none;
+    z-index: 1000;
+    fill: var(--Dash-Fill-Inverse-Strong);
+    white-space: nowrap;
+}
+
+.dash-slider-mark {
+    position: absolute;
+    font-size: 12px;
+    height: 12px;
+    line-height: 12px;
+    color: var(--Dash-Text-Strong);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    transform: translateX(
+        max(-50%, calc(0px - var(--dash-mark-offset, 0px)))
+    );
+}
+
+.dash-datepicker {
+    width: 140px;
+}
