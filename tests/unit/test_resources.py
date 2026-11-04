@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 import mock
@@ -286,3 +287,55 @@ def test_index_with_windows_extended_length_paths(tmp_path, monkeypatch):
     assert "/_dash-component-suites/dash/deps/polyfill@" in body
     assert "dash-stream-worker.v" in body
     assert "/assets/icons/favicon.ico?m=" in body
+
+
+def test_index_loads_assets_by_extension(tmp_path):
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    for name in (
+        "style.css",
+        "theme.scss",
+        "app.js",
+        "app.mjs",
+        "bundle.cjs",
+        "nodejs",
+    ):
+        (assets / name).write_text("")
+
+    app = dash.Dash(__name__, assets_folder=str(assets))
+    app.layout = html.Div()
+
+    body = app.server.test_client().get("/").get_data(as_text=True)
+
+    assert '<link rel="stylesheet" href="/assets/style.css?m=' in body
+    assert '<script src="/assets/app.js?m=' in body
+    assert re.search(r'<script src="/assets/app\.mjs\?m=[^"]*" type="module">', body)
+    for name in ("theme.scss", "bundle.cjs", "/assets/nodejs"):
+        assert name not in body
+
+
+def test_hot_reload_uses_asset_type(tmp_path):
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    app = dash.Dash(__name__, assets_folder=str(assets))
+
+    for name in ("style.css", "theme.scss", "app.mjs", "bundle.cjs"):
+        path = assets / name
+        path.write_text("")
+        app._on_assets_change(str(path), path.stat().st_mtime, False)
+
+    assert [
+        (asset["url"], asset["type"]) for asset in app._hot_reload.changed_assets
+    ] == [
+        ("/assets/style.css", "css"),
+        ("/assets/theme.scss", None),
+        ("/assets/app.mjs", "mjs"),
+        ("/assets/bundle.cjs", None),
+    ]
+    assert [r["asset_path"] for r in app.css._resources._resources] == ["style.css"]
+    assert [r["asset_path"] for r in app.scripts._resources._resources] == ["app.mjs"]
+
+    for name in ("style.css", "app.mjs"):
+        app._on_assets_change(str(assets / name), 0, True)
+    assert app.css._resources._resources == []
+    assert app.scripts._resources._resources == []
