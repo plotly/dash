@@ -33,6 +33,7 @@ app.layout = html.Div([
 - **Static layout**: Assigned directly as a component tree
 - **Dynamic layout**: Assigned as a function that returns components (called on each page load, useful for per-session state)
 - Layout is serialized to JSON and sent to the React frontend via `/_dash-layout`
+- Every payload (layout, callback responses, stream frames) goes through `dash._utils.to_json` (`dash/_json.py`): orjson with a `default=` hook when installed, otherwise msgspec (a hard dependency), so only values the encoder can't take (components, figures, pandas/numpy values) are converted. Anything it fails on goes to plotly's `to_json_plotly`, keeping plotly's errors. Without orjson, msgspec is more permissive than orjson and plotly: a timezone-aware UTC `datetime` comes out as `...Z`, not `+00:00`, and sets, bytes (base64), `timedelta` and `np.timedelta64` serialize instead of raising, so `_validate` no longer flags them. A `go.Figure` still pays `to_dict()`'s deepcopy (#4065).
 - Components can contain other components via `children` prop
 - Component IDs can be strings or dicts (for pattern-matching callbacks)
 
