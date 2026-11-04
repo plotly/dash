@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Changed
+- [#4103](https://github.com/plotly/dash/pull/4103) Speed up components that use `dashChildrenUpdate` (`dcc.Tabs` and others): unrelated paths are now rejected before any allocation on each store update. Addresses [#4032](https://github.com/plotly/dash/issues/4032).
+
 ## [4.5.0] - 2026-10-29
 
 ### Added

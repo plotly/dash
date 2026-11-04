@@ -356,6 +356,47 @@ scenario(
 
 
 # ===========================================================================
+# 6b. Callback fan-out with components that listen to descendant updates
+# ===========================================================================
+
+
+def _build_fanout_children_update(params):
+    app = Dash(__name__)
+    n = params["n"]
+    app.layout = html.Div(
+        [
+            dcc.Input(id="src", value="0"),
+            html.Div(
+                [dcc.Tabs([dcc.Tab(label="a")]) for _ in range(params["tabs"])],
+            ),
+            html.Div([html.Div(id=f"out-{i}") for i in range(n)], id="content"),
+            READY,
+        ]
+    )
+
+    @app.callback(
+        [Output(f"out-{i}", "children") for i in range(n)],
+        Input("src", "value"),
+        prevent_initial_call=True,
+    )
+    def fan(v):
+        return [f"{v}-{i}" for i in range(n)]
+
+    return app
+
+
+scenario(
+    name="callback_fanout_children_update",
+    description="One Input drives 300 Outputs with 50 dcc.Tabs mounted",
+    params={"n": 300, "tabs": 50},
+    warn_ms={"fanout_ms": 1000},
+    fail_ms={"fanout_ms": 5000},
+    repeats=12,
+    warmup=2,
+)((_build_fanout_children_update, _drive_fanout))
+
+
+# ===========================================================================
 # 7. Wildcard (MATCH) resolution over many pattern-matched components
 # ===========================================================================
 
