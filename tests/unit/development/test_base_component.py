@@ -6,7 +6,7 @@ import pytest
 from dash import __version__, Dash
 from dash import html
 from dash.development.base_component import Component
-from dash import dcc, Input, Output
+from dash import dcc, dash_table, Input, Output
 
 Component._prop_names = ("id", "a", "children", "style")
 Component._type = "TestComponent"
@@ -539,3 +539,11 @@ def test_debc029_random_id_errors():
 def test_debc030_invalid_children_args():
     with pytest.raises(TypeError):
         dcc.Input(children="invalid children")
+
+
+def test_debc031_bool_is_always_true():
+    assert bool(Component())
+    assert bool(Component(children=[]))
+    assert bool(html.Div())
+    assert bool(dash_table.DataTable(data=[{"a": 1}]))
+    assert (html.Div() or None) is not None
