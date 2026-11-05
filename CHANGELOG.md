@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#4037](https://github.com/plotly/dash/pull/4037) Only load the IPython and Jupyter integration modules when Dash is imported inside IPython. Roughly halves `import dash` time in environments that have IPython installed.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
