@@ -4,13 +4,15 @@ Covers the contract semantics (future-only subscribe, replay, gap) in-process
 and cross-process visibility over a shared cache directory. Requires the
 diskcache extra, which the shared-storage CI job installs.
 """
+import asyncio
 import multiprocessing as mp
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from dash._shared_storage import DiskcacheSharedStorage, SharedStorageGap
+from dash._shared_storage import DiskcacheSharedStorage, SharedStorageGap, base
 
 CTX = mp.get_context("spawn")
 
@@ -94,6 +96,26 @@ def test_no_gap_at_buffer_edge(tmp_path):
     store.close()
 
 
+def test_idle_topic_leaves_the_cache(tmp_path, monkeypatch):
+    monkeypatch.setattr(base, "MIN_TOPIC_TTL", 0.1)
+    store = DiskcacheSharedStorage(directory=str(tmp_path / "c"))
+    for i in range(3):
+        store.publish("t", f"m{i}", ttl=0.3)
+    time.sleep(0.5)
+    keys = [store._seq("t"), store._ttl("t")] + [store._msg("t", n) for n in (1, 2, 3)]
+    assert all(store._cache.get(k) is None for k in keys)
+    store.close()
+
+
+def test_no_ttl_sets_no_expiry(tmp_path):
+    store = DiskcacheSharedStorage(directory=str(tmp_path / "c"))
+    store.publish("t", "m")
+    for key in (store._seq("t"), store._msg("t", 1)):
+        _value, expire = store._cache.get(key, expire_time=True)
+        assert expire is None
+    store.close()
+
+
 # --- cross-process (shared cache directory) -------------------------------
 
 
@@ -144,3 +166,37 @@ def test_pubsub_across_processes(tmp_path):
     sub.close()
     store.close()
     assert received == ["m0", "m1", "m2"]
+
+
+def test_async_subscriptions_hold_no_executor_threads(store):
+    """Waiting async subscriptions must leave the loop's executor free for the
+    other store calls on an ASGI worker."""
+
+    async def first(sub):
+        async for pair in sub.aiter_with_seq():
+            return pair
+        return None
+
+    async def scenario():
+        executor = ThreadPoolExecutor(max_workers=1)
+        asyncio.get_running_loop().set_default_executor(executor)
+        subs = [store.subscribe(f"t{i}", replay_from=0) for i in range(20)]
+        try:
+            await asyncio.wait_for(check(subs), timeout=5)
+        finally:
+            for sub in subs:
+                sub.close()
+            executor.shutdown(wait=False, cancel_futures=True)
+
+    async def check(subs):
+        readers = [asyncio.ensure_future(first(sub)) for sub in subs]
+        await asyncio.sleep(0.3)
+
+        started = time.monotonic()
+        for i in range(20):
+            await store.apublish(f"t{i}", f"m{i}")
+        got = await asyncio.wait_for(asyncio.gather(*readers), timeout=5)
+        assert got == [(1, f"m{i}") for i in range(20)]
+        assert time.monotonic() - started < 2.0
+
+    asyncio.run(scenario())

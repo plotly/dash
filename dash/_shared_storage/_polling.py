@@ -6,6 +6,11 @@ cursor, resumes from it on every call, and turns a buffer overrun into
 ``SharedStorageGap``. ``LocalSharedStorage`` has its own reconnecting
 subscription (it also handles owner re-election); this serves the diskcache and
 Redis backends, whose store is always reachable.
+
+Async iteration never parks a blocking poll in the executor: that holds a
+thread per subscription, and a dozen subscriptions starve every other
+``run_in_executor`` call in the process. It polls without waiting and sleeps on
+the loop between polls instead.
 """
 import asyncio
 import threading
@@ -21,12 +26,18 @@ class PollingSubscription(Subscription):
     """Iterate a topic by repeatedly polling ``poll_fn`` from a moving cursor."""
 
     def __init__(
-        self, topic: str, start_seq: int, poll_fn: PollFn, poll_timeout: float
+        self,
+        topic: str,
+        start_seq: int,
+        poll_fn: PollFn,
+        poll_timeout: float,
+        poll_interval: float,
     ):
         self._topic = topic
         self._cursor = start_seq
         self._poll_fn = poll_fn
         self._poll_timeout = poll_timeout
+        self._poll_interval = poll_interval
         self._closed = threading.Event()
 
     def close(self) -> None:
@@ -71,17 +82,16 @@ class PollingSubscription(Subscription):
             while not self._closed.is_set():
                 try:
                     res = await loop.run_in_executor(
-                        None,
-                        self._poll_fn,
-                        self._topic,
-                        self._cursor,
-                        self._poll_timeout,
+                        None, self._poll_fn, self._topic, self._cursor, 0.0
                     )
                 except RuntimeError:
                     # The loop/executor is shutting down -- end cleanly.
                     break
                 if res.gap:
                     raise self._gap()
+                if not res.messages:
+                    await asyncio.sleep(self._poll_interval)
+                    continue
                 for pair in self._with_seq(res):
                     yield pair
                 self._cursor = res.last_seq

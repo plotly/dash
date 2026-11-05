@@ -1,4 +1,5 @@
-from dash import Dash, html, dcc
+from dash import Dash, Input, Output, ctx, dcc, html
+from dash.testing.wait import until
 
 
 def test_xss001_banned_protocols(dash_duo):
@@ -91,3 +92,68 @@ def test_xss003_data_allowed(dash_duo):
     element = dash_duo.find_element("#image")
     assert element.get_attribute("src") != "about:blank"
     assert dash_duo.get_logs() == []
+
+
+def test_xss004_area_href(dash_duo):
+    app = Dash()
+    app.layout = html.MapEl(
+        html.Area(href="javascript:alert(1)", id="area", shape="default"),
+        name="map",
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#area")
+    assert dash_duo.find_element("#area").get_attribute("href") == "about:blank"
+
+
+def test_xss005_location_refresh_href(dash_duo):
+    app = Dash()
+    app.layout = html.Div(
+        [
+            dcc.Location(id="url", refresh=True),
+            html.Button("bad", id="bad"),
+            html.Button("good", id="good"),
+        ]
+    )
+
+    @app.callback(
+        Output("url", "href"),
+        Input("bad", "n_clicks"),
+        Input("good", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def navigate(_bad, _good):
+        if ctx.triggered_id == "bad":
+            return "javascript:void(window.xss_ran = true)"
+        return "/next"
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+    )
+    dash_duo.wait_for_element("#bad").click()
+    dash_duo.wait_for_text_to_equal(
+        ".dash-fe-error__title",
+        "Dangerous link detected: javascript:void(window.xss_ran = true)",
+    )
+    assert dash_duo.driver.execute_script("return window.xss_ran") is None
+
+    dash_duo.find_element("#good").click()
+    until(lambda: dash_duo.driver.current_url.endswith("/next"), timeout=5)
+
+
+def test_xss006_base_href(dash_duo):
+    app = Dash()
+    app.layout = html.Div(
+        [
+            html.Div("ready", id="ready"),
+            html.Base(href="javascript:alert(1)", id="base"),
+        ]
+    )
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#ready", "ready")
+    assert dash_duo.find_element("#base").get_attribute("href") == "about:blank"

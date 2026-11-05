@@ -17,7 +17,7 @@ on:
       regenerate_baseline:
         description: >-
           Measure a fresh baseline on the CI runner and open a PR updating
-          benchmarks/baseline.json (run on the default branch after a merge so
+          benchmarks/baseline.json (run on dev or next after a merge so
           the machine scale is ~1.0x for the next PR).
         type: boolean
         default: false
@@ -134,7 +134,7 @@ jobs:
   regenerate-baseline:
     name: Regenerate benchmark baseline
     # Manual only: dispatch with regenerate_baseline=true, on the branch whose
-    # baseline you want to refresh (usually the default branch, post-merge).
+    # baseline you want to refresh (dev or next, post-merge).
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.regenerate_baseline }}
     runs-on: ubuntu-latest
     timeout-minutes: 30

@@ -1,14 +1,8 @@
-import sys
-
-import pytest
 from flaky import flaky
 
 from tests.background_callback.utils import setup_background_callback_app
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 9), reason="Python 3.8 long callbacks tests hangs up"
-)
 @flaky(max_runs=3)
 def test_lcbc016_multi_page_cancel(dash_duo, manager):
     with setup_background_callback_app(manager, "app_page_cancel") as app:

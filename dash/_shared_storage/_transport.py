@@ -3,9 +3,9 @@
 A single owner process serves one :class:`StoreEngine` over a stream socket
 (AF_UNIX where available, TCP loopback otherwise). Messages are length-prefixed:
 a 4-byte big-endian length followed by a body encoded by ``_codec`` (msgspec
-msgpack). The codec is data-only -- the socket is
-localhost-only, but deserializing untrusted bytes off a socket is a
-remote-code-execution hazard, so the transport carries only data. The channel is
+msgpack, or JSON without the ``dash[shared_storage]`` extra). The codec is
+data-only -- the socket is localhost-only, but deserializing untrusted bytes off
+a socket is a remote-code-execution hazard, so the transport carries only data. The channel is
 additionally gated by a per-owner random token; only same-host clients that read
 the owner's advertisement file (written 0600) can attach.
 
@@ -128,7 +128,8 @@ class OwnerServer:
                 self._engine.delete(req[1])
                 return ("ok", None)
             if op == "publish":
-                return ("ok", self._engine.publish(req[1], req[2]))
+                ttl = req[3] if len(req) > 3 else None
+                return ("ok", self._engine.publish(req[1], req[2], ttl))
             if op == "head":
                 return ("ok", self._engine.head_seq(req[1]))
             if op == "poll":

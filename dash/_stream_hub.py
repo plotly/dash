@@ -17,7 +17,10 @@ The connection id is the page's server-signed ``end_id`` (verified by the
 backend, never taken from the client), so a page can only ever read or write its
 own topic. The renderer hosts the downlink in a SharedWorker so every tab of the
 browser shares one connection: the worker pins the ``end_id`` of the first tab
-that streams and sends it with every request for that connection.
+that streams and sends it with every request for that connection. It also picks
+a fresh downlink id for each run of streams, so the connection id is
+``<end_id>:<downlink_id>`` and each run gets its own topic, which the store
+releases once it sits idle. The lifecycle record stays keyed on the page.
 
 Downlink line shape (one JSON object per NDJSON line)::
 
@@ -91,6 +94,10 @@ DOWNLINK_GRACE = 10.0
 POLL_GRACE = 30.0
 # How often a pump consults the connection record while a callback runs.
 DOWNLINK_CHECK_INTERVAL = 2.0
+# How long the store keeps a stream topic nobody publishes to or reads. Long
+# enough to outlast the grace windows above many times over, short enough that
+# a busy app does not hold every finished run's frames for hours.
+STREAM_TOPIC_TTL = 300.0
 
 # The uplink's fast acknowledgement -- the streaming callback's POST returns this
 # immediately; its outputs arrive on the downlink, not this response.
@@ -125,7 +132,8 @@ def stream_topic(connection_id: str) -> str:
 
 
 def connection_key(connection_id: str) -> str:
-    return f"{_CONN_PREFIX}{connection_id}"
+    page_id = connection_id.split(":", 1)[0]
+    return f"{_CONN_PREFIX}{page_id}"
 
 
 def cancel_key(connection_id: str, request_id: str) -> str:
@@ -151,7 +159,11 @@ def publish_frame(
     frame: Any,
 ) -> None:
     """Publish one streaming frame onto a connection's downlink topic."""
-    storage.publish(stream_topic(connection_id), _envelope(request_id, frame))
+    storage.publish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 async def apublish_frame(
@@ -161,7 +173,11 @@ async def apublish_frame(
     frame: Any,
 ) -> None:
     """:func:`publish_frame` for the pumps: never blocks their event loop."""
-    await storage.apublish(stream_topic(connection_id), _envelope(request_id, frame))
+    await storage.apublish(
+        stream_topic(connection_id),
+        _envelope(request_id, frame),
+        ttl=STREAM_TOPIC_TTL,
+    )
 
 
 # --- downlink lifecycle record ---------------------------------------------
@@ -177,10 +193,11 @@ _registry_lock = threading.Lock()
 class Downlink:
     """One long-lived downlink: its topic subscription plus its lifecycle record.
 
-    ``close`` is thread-safe and idempotent. Closing only rewrites the connection
-    record if it still carries this downlink's token, so a downlink that was
-    replaced by a reconnect cannot mark the new one closed when it finally winds
-    down.
+    The relay (``envelopes`` / ``aenvelopes``) marks the record open when it
+    starts and closed when it ends. ``close`` is thread-safe and idempotent.
+    Closing only rewrites the connection record if it still carries this
+    downlink's token, so a downlink that was replaced by a reconnect cannot mark
+    the new one closed when it finally winds down.
     """
 
     def __init__(
@@ -192,61 +209,100 @@ class Downlink:
         self.storage = storage
         self.connection_id = connection_id
         self.subscription = storage.subscribe(stream_topic(connection_id), replay_from)
+        self._key = connection_key(connection_id)
         self._token = secrets.token_hex(8)
         self._closed = False
-        storage.set(
-            connection_key(connection_id),
-            {
-                "mode": "stream",
-                "open": True,
-                "at": time.time(),
-                "token": self._token,
-            },
-        )
         with _registry_lock:
             _active_subscriptions.add(self.subscription)
 
-    def close(self) -> None:
+    def _record(self, is_open: bool) -> Any:
+        return {
+            "mode": "stream",
+            "open": is_open,
+            "at": time.time(),
+            "token": self._token,
+        }
+
+    def _is_mine(self, record: Any) -> bool:
+        return isinstance(record, dict) and record.get("token") == self._token
+
+    def _release(self) -> bool:
+        """End the subscription; False if this downlink was already closed."""
         if self._closed:
-            return
+            return False
         self._closed = True
         with _registry_lock:
             _active_subscriptions.discard(self.subscription)
         self.subscription.close()
-        key = connection_key(self.connection_id)
+        return True
+
+    def open(self) -> None:
+        self.storage.set(self._key, self._record(True))
+
+    async def aopen(self) -> None:
+        await self.storage.aset(self._key, self._record(True))
+
+    def close(self) -> None:
+        if not self._release():
+            return
         with contextlib.suppress(Exception):
-            current = self.storage.get(key)
-            if isinstance(current, dict) and current.get("token") == self._token:
-                self.storage.set(
-                    key,
-                    {
-                        "mode": "stream",
-                        "open": False,
-                        "at": time.time(),
-                        "token": self._token,
-                    },
-                )
+            if self._is_mine(self.storage.get(self._key)):
+                self.storage.set(self._key, self._record(False))
+
+    async def _arecord_closed(self) -> None:
+        with contextlib.suppress(Exception):
+            if self._is_mine(await self.storage.aget(self._key)):
+                await self.storage.aset(self._key, self._record(False))
 
     def envelopes(self) -> Iterator[Any]:
         """Sync relay: yield envelopes until the subscription ends or is closed.
         A lost buffer surfaces as a single reset envelope."""
         try:
+            self.open()
             for seq, message in self.subscription.iter_with_seq():
                 yield {**message, "seq": seq}
         except SharedStorageGap:
             yield dict(RESET_ENVELOPE)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            _log_downlink_failure(exc)
         finally:
             self.close()
 
     async def aenvelopes(self) -> AsyncIterator[Any]:
         """Async counterpart of :meth:`envelopes` for ASGI backends."""
         try:
+            await self.aopen()
             async for seq, message in self.subscription.aiter_with_seq():
                 yield {**message, "seq": seq}
         except SharedStorageGap:
             yield dict(RESET_ENVELOPE)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            _log_downlink_failure(exc)
         finally:
-            self.close()
+            if self._release():
+                # Its own task: when the client disconnects, the server cancels
+                # this response, and an await here would be cancelled with it,
+                # leaving the record open so the pumps never learn the browser
+                # left.
+                with contextlib.suppress(RuntimeError):  # the loop is gone
+                    task = asyncio.ensure_future(self._arecord_closed())
+                    _closing_downlinks.add(task)
+                    task.add_done_callback(_closing_downlinks.discard)
+
+
+def _log_downlink_failure(exc: Exception) -> None:
+    # The response has started, so raising only gets the server to try a 500
+    # on top of it. Ending the body lets the browser reconnect and replay.
+    logger.warning(
+        "Stream downlink ended, shared storage failed: %s: %s",
+        type(exc).__name__,
+        exc,
+    )
+    logger.debug("Stream downlink storage failure", exc_info=exc)
+
+
+# Downlinks writing their closed record (keeps the tasks referenced).
+_closing_downlinks: "set[asyncio.Task]" = set()
 
 
 def downlink_gone(

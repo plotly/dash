@@ -173,10 +173,7 @@ def generate_components(
 
 
 def safe_json_loads(s):
-    jsondata_unicode = json.loads(s, object_pairs_hook=OrderedDict)
-    if sys.version_info[0] >= 3:
-        return jsondata_unicode
-    return byteify(jsondata_unicode)
+    return json.loads(s, object_pairs_hook=OrderedDict)
 
 
 def component_build_arg_parser():
@@ -280,19 +277,6 @@ def cli():
         max_props=args.max_props,
         custom_typing_module=args.custom_typing_module,
     )
-
-
-# pylint: disable=undefined-variable
-def byteify(input_object):
-    if isinstance(input_object, dict):
-        return OrderedDict(
-            [(byteify(key), byteify(value)) for key, value in input_object.items()]
-        )
-    if isinstance(input_object, list):
-        return [byteify(element) for element in input_object]
-    if isinstance(input_object, str):  # noqa:F821
-        return input_object.encode(encoding="utf-8")
-    return input_object
 
 
 if __name__ == "__main__":

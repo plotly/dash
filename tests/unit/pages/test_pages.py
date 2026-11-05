@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 import dash
-from dash import Dash, _pages
+from dash import Dash, _pages, html
 from mock import patch
 
 
@@ -76,3 +76,49 @@ def test_import_layouts_from_pages(
 
     page_entry = list(dash.page_registry.values())[0]
     assert page_entry["module"] == expected_module_name
+
+
+def _route(client, pathname):
+    response = client.post(
+        "/_dash-update-component",
+        json={
+            "output": ".._pages_content.children..._pages_store.data..",
+            "outputs": [
+                {"id": "_pages_content", "property": "children"},
+                {"id": "_pages_store", "property": "data"},
+            ],
+            "inputs": [
+                {"id": "_pages_location", "property": "pathname", "value": pathname},
+                {"id": "_pages_location", "property": "search", "value": ""},
+            ],
+            "state": [],
+            "changedPropIds": ["_pages_location.pathname"],
+        },
+    )
+    return response.get_json()["response"]["_pages_content"]["children"]
+
+
+@pytest.mark.parametrize("use_async", [False, True])
+def test_router_decodes_pathname(clear_pages_state, use_async):
+    if use_async:
+        pytest.importorskip("asgiref")
+    app = Dash(__name__, use_pages=True, pages_folder="", use_async=use_async)
+    dash.register_page(
+        "report",
+        path_template="/report/<name>",
+        layout=lambda name=None, **_: html.Div(name, id="name"),
+    )
+    dash.register_page("cafe", path="/caf\u00e9", layout=html.Div(id="cafe"))
+    app.layout = html.Div(dash.page_container)
+    client = app.server.test_client()
+    client.get("/")
+
+    # dcc.Location sends window.location.pathname, which browsers percent-encode
+    assert _route(client, "/report/hello%20world")["props"]["children"] == (
+        "hello world"
+    )
+    assert _route(client, "/report/%E6%97%A5%E6%9C%AC")["props"]["children"] == (
+        "\u65e5\u672c"
+    )
+    assert _route(client, "/report/a%0Ab")["props"]["children"] == "a\nb"
+    assert _route(client, "/caf%C3%A9")["props"]["id"] == "cafe"

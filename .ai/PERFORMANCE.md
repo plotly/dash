@@ -59,8 +59,11 @@ Commit the new `baseline.json` in the same PR, and say why in the message.
 To capture the baseline on CI hardware instead (so the machine scale is ~1.0x
 for subsequent PRs), run the **Performance Benchmarks** workflow via
 `workflow_dispatch` with `regenerate_baseline` checked, on the branch you want
-to refresh (usually the default branch, right after a merge). It measures a
-fresh baseline on the runner and opens a PR updating `benchmarks/baseline.json`.
+to refresh, right after a merge. It measures a fresh baseline on the runner and
+opens a PR into that branch updating `benchmarks/baseline.json`. `dev` and
+`next` each carry their own baseline: one regenerated on `dev` reaches `next`
+through the forward merge, so only regenerate on `next` after a feature there
+changes the numbers.
 
 ### Machine-independent gating
 
