@@ -24,7 +24,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: benchmarks-${{ github.ref }}
@@ -80,6 +79,14 @@ jobs:
           sudo Xvfb :99 -ac -screen 0 1400x1000x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
 
+      - name: Record PR number for the comment follow-up
+        # Fork PRs run with a read-only GITHUB_TOKEN, so this job cannot post the
+        # results comment. The post-benchmark-comment workflow does that in the
+        # base-repo context; it needs the PR number, which isn't in the
+        # workflow_run payload for fork PRs, so hand it over via the artifact.
+        if: always() && github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.number }}" > benchmarks/pr-number.txt
+
       - name: Run benchmarks
         id: bench
         run: |
@@ -98,30 +105,8 @@ jobs:
           path: |
             benchmarks/results.json
             benchmarks/summary.md
+            benchmarks/pr-number.txt
           retention-days: 30
-
-      - name: Comment results on the PR
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            let body = '## Dash performance benchmarks\n\n_no summary produced_';
-            try { body = fs.readFileSync('benchmarks/summary.md', 'utf8'); } catch (e) {}
-            const marker = '<!-- dash-benchmarks -->';
-            body = `${marker}\n${body}`;
-            const {owner, repo} = context.repo;
-            const issue_number = context.issue.number;
-            const comments = await github.paginate(
-              github.rest.issues.listComments, {owner, repo, issue_number});
-            const existing = comments.find(c => c.body && c.body.includes(marker));
-            if (existing) {
-              await github.rest.issues.updateComment(
-                {owner, repo, comment_id: existing.id, body});
-            } else {
-              await github.rest.issues.createComment(
-                {owner, repo, issue_number, body});
-            }
 
       - name: Fail on hard regression
         if: always()
