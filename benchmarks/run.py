@@ -348,7 +348,8 @@ def gate(results, scenarios, baseline=None):
 
     A metric fails on the absolute fail_ms ceiling, or (if a baseline exists) on
     a >2x regression vs baseline p90 after normalizing out machine speed (see
-    ``machine_scale``). It warns on warn_ms, or a >1.3x normalized baseline
+    ``machine_scale``), or when its growth stat exceeds the scenario's
+    max_growth. It warns on warn_ms, or a >1.3x normalized baseline
     regression. The baseline-ratio check is skipped for metrics whose baseline
     p90 is below ``MIN_BASELINE_MS`` (sub-ms metrics are pure timer jitter; the
     absolute ceilings still guard them). ``scale`` is the machine factor that
@@ -372,6 +373,10 @@ def gate(results, scenarios, baseline=None):
             elif warn_ms is not None and p90 > warn_ms:
                 level = "warn"
                 reasons.append(f"p90 {p90}ms > warn {warn_ms}ms")
+            max_growth = sc.max_growth.get(metric)
+            if max_growth is not None and stats["growth"] > max_growth:
+                level = "fail"
+                reasons.append(f"growth {stats['growth']}x > {max_growth}x")
             base_p90 = base.get(metric, {}).get("p90")
             if base_p90 and base_p90 >= MIN_BASELINE_MS:
                 # On a 3x-slower runner every raw p90 is ~3x its baseline, so
