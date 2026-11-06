@@ -1194,33 +1194,42 @@ def register_callback(
                 finally:
                     context_value.reset(token)
 
+            async def _flush_side_updates():
+                while side_updates:
+                    yield side_updates.pop(0)
+                side_update_ready.clear()
+
+            async def _yield_side_updates_while_waiting(next_task):
+                while not next_task.done():
+                    if side_updates:
+                        async for update in _flush_side_updates():
+                            yield update
+                        continue
+
+                    wait_updates = asyncio.create_task(side_update_ready.wait())
+                    done, _ = await asyncio.wait(
+                        {next_task, wait_updates},
+                        return_when=asyncio.FIRST_COMPLETED,
+                    )
+                    if wait_updates in done:
+                        side_update_ready.clear()
+                        continue
+
+                    wait_updates.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await wait_updates
+
             try:
                 while True:
                     frame = None
                     try:
                         next_task = asyncio.create_task(_next())
-                        while not next_task.done():
-                            if side_updates:
-                                while side_updates:
-                                    yield side_updates.pop(0)
-                                side_update_ready.clear()
-                                continue
-
-                            wait_updates = asyncio.create_task(side_update_ready.wait())
-                            done, _ = await asyncio.wait(
-                                {next_task, wait_updates},
-                                return_when=asyncio.FIRST_COMPLETED,
-                            )
-                            if wait_updates in done:
-                                side_update_ready.clear()
-                            else:
-                                wait_updates.cancel()
-                                with contextlib.suppress(asyncio.CancelledError):
-                                    await wait_updates
-
-                        while side_updates:
-                            yield side_updates.pop(0)
-                        side_update_ready.clear()
+                        async for update in _yield_side_updates_while_waiting(
+                            next_task
+                        ):
+                            yield update
+                        async for update in _flush_side_updates():
+                            yield update
 
                         output_value = next_task.result()
                         frame = _build_stream_frame(
@@ -1231,32 +1240,30 @@ def register_callback(
                             original_packages,
                         )
                     except (StopAsyncIteration, PreventUpdate):
-                        while side_updates:
-                            yield side_updates.pop(0)
-                        side_update_ready.clear()
+                        async for update in _flush_side_updates():
+                            yield update
                         break
                     except Exception as err:  # pylint: disable=broad-exception-caught
-                        while side_updates:
-                            yield side_updates.pop(0)
-                        side_update_ready.clear()
-                        if error_handler:
-                            output_value = _handle_error(err)
-                            while side_updates:
-                                yield side_updates.pop(0)
-                            side_update_ready.clear()
-                            if output_value is not None:
-                                frame = _build_stream_frame(
-                                    output_value,
-                                    output_spec,
-                                    callback_ctx,
-                                    app,
-                                    original_packages,
-                                )
-                                if frame is not None:
-                                    yield frame
-                            break
-                        yield _stream_error_frame(err)
-                        return
+                        async for update in _flush_side_updates():
+                            yield update
+                        if not error_handler:
+                            yield _stream_error_frame(err)
+                            return
+
+                        output_value = _handle_error(err)
+                        async for update in _flush_side_updates():
+                            yield update
+                        if output_value is not None:
+                            frame = _build_stream_frame(
+                                output_value,
+                                output_spec,
+                                callback_ctx,
+                                app,
+                                original_packages,
+                            )
+                            if frame is not None:
+                                yield frame
+                        break
                     if frame is not None:
                         yield frame
                 yield {"done": True}
