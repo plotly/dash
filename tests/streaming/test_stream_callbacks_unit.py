@@ -151,11 +151,11 @@ def test_stcb008_flask_ndjson_frames():
     # and cleared so it is not resent with the next frame.
     assert frames[1]["sideUpdate"] == {"side": {"children": "side-value"}}
     assert (
-        frames[1]["response"]["out"]["children"]["__dash_patch_update"]
+        frames[2]["response"]["out"]["children"]["__dash_patch_update"]
         == "__dash_patch_update"
     )
-    assert frames[2] == {"multi": True, "response": {"out": {"children": "final"}}}
-    assert frames[3] == {"done": True}
+    assert frames[3] == {"multi": True, "response": {"out": {"children": "final"}}}
+    assert frames[4] == {"done": True}
 
 
 def test_stcb009_stream_error_frame():
