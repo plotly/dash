@@ -26,7 +26,8 @@ Upload.propTypes = {
     id: PropTypes.string,
 
     /**
-     * The contents of the uploaded file as a binary string
+     * The contents of the uploaded file as a base64 encoded data URL
+     * (`data:<mime type>;base64,<data>`)
      */
     contents: PropTypes.oneOfType([
         /**
