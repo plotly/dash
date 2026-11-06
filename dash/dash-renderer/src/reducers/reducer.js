@@ -18,7 +18,7 @@ import layout from './layout';
 import paths from './paths';
 import callbackJobs from './callbackJobs';
 import loading from './loading';
-import {stringifyPath} from '../wrapper/wrapping';
+import {isPathOrDescendant, stringifyPath} from '../wrapper/wrapping';
 
 export const apiRequests = [
     'dependenciesRequest',
@@ -53,12 +53,12 @@ const layoutHashes = (state = {}, action) => {
         const {itempath} = action.payload;
         if (itempath) {
             const prefixStr = stringifyPath(itempath);
-            // Remove all hashes for keys starting with prefixStr
-            return Object.fromEntries(
-                Object.entries(state).filter(
-                    ([key]) => !key.startsWith(prefixStr)
-                )
+            const kept = Object.entries(state).filter(
+                ([key]) => !isPathOrDescendant(key, prefixStr)
             );
+            if (kept.length !== Object.keys(state).length) {
+                return Object.fromEntries(kept);
+            }
         }
     }
     return state;

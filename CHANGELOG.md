@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#]() Re-rendering callback-returned children no longer dispatches one store update per component, which made updates O(n^2) in the subtree size. Fixes [#4121](https://github.com/plotly/dash/issues/4121).
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
