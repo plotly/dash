@@ -62,6 +62,7 @@ and cancels every pump, then hands the signal on to the server's own handler.
 import asyncio
 import atexit
 import contextlib
+import inspect
 import json
 import logging
 import secrets
@@ -492,6 +493,7 @@ async def apump_to_storage(
     iterator = marker.frames.__aiter__()
     next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
     completed = False
+    stopping = False
     step = None
     try:
         while True:
@@ -504,6 +506,7 @@ async def apump_to_storage(
                     break
                 next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
                 if await stop():
+                    stopping = True
                     return
             try:
                 frame = step.result()
@@ -516,6 +519,7 @@ async def apump_to_storage(
             if time.monotonic() >= next_check:
                 next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
                 if await stop():
+                    stopping = True
                     return
     except asyncio.CancelledError:
         completed = True
@@ -530,6 +534,15 @@ async def apump_to_storage(
             step.cancel()
             with contextlib.suppress(BaseException):
                 await step
+        elif stopping:
+            # If we stop between frames there is no pending await to cancel;
+            # inject CancelledError so user async generators see cancellation.
+            athrow = getattr(iterator, "athrow", None)
+            if callable(athrow):
+                with contextlib.suppress(BaseException):
+                    outcome = athrow(asyncio.CancelledError())
+                    if inspect.isawaitable(outcome):
+                        await outcome
         with contextlib.suppress(Exception):
             await marker.frames.aclose()
         if not completed:
