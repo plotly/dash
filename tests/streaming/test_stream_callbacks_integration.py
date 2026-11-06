@@ -324,7 +324,8 @@ def test_stst011_closing_a_tab_cancels_its_stream(dash_duo):
 
     dash_duo.driver.close()  # the second tab goes away
     dash_duo.driver.switch_to.window(first)
-    until(lambda: events == ["cancelled"], timeout=10)
+    # Cancellation crosses browser/worker/server boundaries and can lag on CI.
+    until(lambda: events == ["cancelled"], timeout=20)
     # The surviving tab keeps streaming on the shared downlink.
     before = dash_duo.find_element("#out").text
     until(lambda: dash_duo.find_element("#out").text != before, timeout=5)

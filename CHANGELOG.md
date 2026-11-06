@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- [#4129](https://github.com/plotly/dash/issues/4129) Fix streaming callbacks so `set_props(...)` updates flush immediately during the callback on all HTTP backends (Flask, FastAPI, Quart), instead of waiting for the next `yield`.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added

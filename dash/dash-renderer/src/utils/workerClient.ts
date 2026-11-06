@@ -228,13 +228,14 @@ class WorkerClient {
         if (!this.worker) {
             throw new Error('Worker not connected');
         }
+        const worker = this.worker;
 
         const requestId = `${this.rendererId}-${++this.requestCounter}`;
 
         return new Promise((resolve, reject) => {
             this.pendingCallbacks.set(requestId, {resolve, reject, onFrame});
 
-            this.worker!.port.postMessage({
+            worker.port.postMessage({
                 type: WorkerMessageType.CALLBACK_REQUEST,
                 rendererId: this.rendererId,
                 requestId,
