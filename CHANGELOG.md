@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [unreleased]
+
+### Fixed
+- [#4128](https://github.com/plotly/dash/pull/4128) Fix `set_props` side updates being dropped when a callback raises `PreventUpdate`. Callback responses now preserve and apply `sideUpdate` payloads across HTTP and WebSocket paths, while keeping the no-payload `PreventUpdate` behavior unchanged.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
