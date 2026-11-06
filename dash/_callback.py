@@ -1,4 +1,6 @@
 import collections
+import asyncio
+import contextlib
 import hashlib
 import inspect
 import logging
@@ -1147,6 +1149,30 @@ def register_callback(
         async def _astream_frames(
             user_gen, error_handler, output_spec, callback_ctx, app, original_packages
         ):
+            side_updates = []
+            side_update_ready = asyncio.Event()
+            original_updated_props = callback_ctx.updated_props
+
+            class _StreamingUpdatedPropsProxy(dict):
+                """Emit set_props side updates immediately during stream steps."""
+
+                def __setitem__(self, key, value):
+                    super().__setitem__(key, value)
+                    side_updates.append(
+                        {
+                            "multi": True,
+                            "sideUpdate": {
+                                key: value,
+                            },
+                        }
+                    )
+                    side_update_ready.set()
+                    # Streaming set_props are emitted immediately; keeping
+                    # them here would resend at the next yield boundary.
+                    super().clear()
+
+            callback_ctx.updated_props = _StreamingUpdatedPropsProxy()
+
             # Set the callback context var around each resumption of the user
             # generator so dash.ctx/set_props resolve while its body runs. It is
             # set per step rather than once for the whole stream because the
@@ -1172,7 +1198,31 @@ def register_callback(
                 while True:
                     frame = None
                     try:
-                        output_value = await _next()
+                        next_task = asyncio.create_task(_next())
+                        while not next_task.done():
+                            if side_updates:
+                                while side_updates:
+                                    yield side_updates.pop(0)
+                                side_update_ready.clear()
+                                continue
+
+                            wait_updates = asyncio.create_task(side_update_ready.wait())
+                            done, _ = await asyncio.wait(
+                                {next_task, wait_updates},
+                                return_when=asyncio.FIRST_COMPLETED,
+                            )
+                            if wait_updates in done:
+                                side_update_ready.clear()
+                            else:
+                                wait_updates.cancel()
+                                with contextlib.suppress(asyncio.CancelledError):
+                                    await wait_updates
+
+                        while side_updates:
+                            yield side_updates.pop(0)
+                        side_update_ready.clear()
+
+                        output_value = next_task.result()
                         frame = _build_stream_frame(
                             output_value,
                             output_spec,
@@ -1181,10 +1231,19 @@ def register_callback(
                             original_packages,
                         )
                     except (StopAsyncIteration, PreventUpdate):
+                        while side_updates:
+                            yield side_updates.pop(0)
+                        side_update_ready.clear()
                         break
                     except Exception as err:  # pylint: disable=broad-exception-caught
+                        while side_updates:
+                            yield side_updates.pop(0)
+                        side_update_ready.clear()
                         if error_handler:
                             output_value = _handle_error(err)
+                            while side_updates:
+                                yield side_updates.pop(0)
+                            side_update_ready.clear()
                             if output_value is not None:
                                 frame = _build_stream_frame(
                                     output_value,
@@ -1202,6 +1261,7 @@ def register_callback(
                         yield frame
                 yield {"done": True}
             finally:
+                callback_ctx.updated_props = original_updated_props
                 await user_gen.aclose()
 
         @wraps(func)
