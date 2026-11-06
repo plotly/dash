@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- [#]() Re-rendering callback-returned children no longer dispatches one store update per component, which made updates O(n^2) in the subtree size. Fixes [#4121](https://github.com/plotly/dash/issues/4121).
+- [#4124](https://github.com/plotly/dash/pull/4124) Re-rendering callback-returned children no longer dispatches one store update per component, which made updates O(n^2) in the subtree size. Fixes [#4121](https://github.com/plotly/dash/issues/4121).
 
 ## [4.5.0] - 2026-10-29
 
