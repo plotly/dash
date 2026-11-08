@@ -12,7 +12,7 @@ import {
     remarkMathPlugins,
     remarkGfmPlugins,
 } from '../utils/markdown/plugins';
-import {dedentText} from '../utils/markdown/text';
+import {dedentText, normalizeEscapedDollarMath} from '../utils/markdown/text';
 
 const MarkdownContent = React.memo(function MarkdownContent({
     children,
@@ -22,6 +22,10 @@ const MarkdownContent = React.memo(function MarkdownContent({
     link_target,
 }: MarkdownContentProps & {children: string}) {
     const displayText = dedent && children ? dedentText(children) : children;
+
+    const markdownText = mathjax
+        ? normalizeEscapedDollarMath(displayText)
+        : displayText;
 
     const remarkPlugins: PluggableList = [...remarkGfmPlugins];
     const rehypePlugins: PluggableList = [];
@@ -40,7 +44,7 @@ const MarkdownContent = React.memo(function MarkdownContent({
             rehypePlugins={rehypePlugins}
             components={components}
         >
-            {displayText}
+            {markdownText}
         </ReactMarkdown>
     );
 });
