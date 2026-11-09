@@ -248,8 +248,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         return None
 
     async def _run_after_hooks(self) -> None:
-        """Run all after-request hooks."""
-        for func in self.after_request_funcs:
+        """Run all after-request hooks in LIFO order."""
+        for func in reversed(self.after_request_funcs):
             result = func(Response)
             if inspect.isawaitable(result):
                 await result
