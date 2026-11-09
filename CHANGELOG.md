@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - [#4114](https://github.com/plotly/dash/pull/4114) Fix the `get_dash_component` MCP tool failing when a component's value contains Dash components, Plotly figures, or numpy arrays. Fixes [#4113](https://github.com/plotly/dash/issues/4113).
+- [#4137](https://github.com/plotly/dash/pull/4137) Fix FastAPI `after_request` hooks to match Flask behavior: support multiple hooks and run them in LIFO order.
 
 ## [4.5.0] - 2026-10-29
 
