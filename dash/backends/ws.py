@@ -652,7 +652,7 @@ def _prepare_ws_partial(
     payload: CallbackExecutionBody,
     ws_callback: DashWebsocketCallback,
     response_adapter: "ResponseAdapter",
-) -> tuple[Callable[[], Any], Any]:
+) -> Callable[[], Any]:
     """Build the callback context and return the partial ready to be invoked.
 
     Shared by the threadpool (sync) and event-loop (async) dispatch paths.
@@ -663,10 +663,9 @@ def _prepare_ws_partial(
     args = dash_app._inputs_to_vals(  # pylint: disable=protected-access
         cb_ctx.inputs_list + cb_ctx.states_list
     )
-    partial = dash_app._execute_callback(  # pylint: disable=protected-access
+    return dash_app._execute_callback(  # pylint: disable=protected-access
         func, args, cb_ctx.outputs_list, cb_ctx
     )
-    return partial, cb_ctx
 
 
 def run_callback_in_executor(
@@ -700,9 +699,8 @@ def run_callback_in_executor(
     ctx = copy_context()
 
     def execute() -> dict:
-        cb_ctx = None
         try:
-            partial_func, cb_ctx = _prepare_ws_partial(
+            partial_func = _prepare_ws_partial(
                 dash_app, payload, ws_callback, response_adapter
             )
 
@@ -722,12 +720,6 @@ def run_callback_in_executor(
             return {"status": "ok", "data": json.loads(response_data)}
 
         except PreventUpdate:
-            side_update = dict(getattr(cb_ctx, "updated_props", {}) or {})
-            if side_update:
-                return {
-                    "status": "prevent_update",
-                    "data": {"multi": True, "sideUpdate": side_update},
-                }
             return {"status": "prevent_update"}
         except WebsocketDisconnected:
             return {"status": "prevent_update"}
@@ -765,9 +757,8 @@ async def run_callback_on_loop(
     Returns:
         The response dict (same shape as ``run_callback_in_executor``).
     """
-    cb_ctx = None
     try:
-        partial_func, cb_ctx = _prepare_ws_partial(
+        partial_func = _prepare_ws_partial(
             dash_app, payload, ws_callback, response_adapter
         )
         result = partial_func()
@@ -779,12 +770,6 @@ async def run_callback_on_loop(
         return {"status": "ok", "data": json.loads(response_data)}
 
     except PreventUpdate:
-        side_update = dict(getattr(cb_ctx, "updated_props", {}) or {})
-        if side_update:
-            return {
-                "status": "prevent_update",
-                "data": {"multi": True, "sideUpdate": side_update},
-            }
         return {"status": "prevent_update"}
     except WebsocketDisconnected:
         return {"status": "prevent_update"}

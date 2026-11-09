@@ -268,36 +268,6 @@ def test_ws036_set_props_dict_component_id(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-def test_ws037_set_props_survives_prevent_update(dash_duo):
-    """Test set_props still applies side updates when callback raises PreventUpdate."""
-    app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
-
-    app.layout = html.Div(
-        [
-            html.Button("Update", id="btn"),
-            html.Div("side-initial", id="side"),
-            html.Div("output-initial", id="result"),
-        ]
-    )
-
-    @app.callback(Output("result", "children"), Input("btn", "n_clicks"))
-    async def update_with_prevent_update(n):
-        if not n:
-            raise PreventUpdate
-
-        set_props("side", {"children": f"side {n}"})
-        raise PreventUpdate
-
-    dash_duo.start_server(app)
-
-    dash_duo.find_element("#btn").click()
-
-    dash_duo.wait_for_text_to_equal("#side", "side 1", timeout=10)
-    dash_duo.wait_for_text_to_equal("#result", "output-initial")
-
-    assert dash_duo.get_logs() == []
-
-
 def test_ws045_set_props_component_prop_children(dash_duo):
     """Test set_props updating component props like Div's children with component."""
     app = Dash(__name__, backend="fastapi", websocket_callbacks=True)
