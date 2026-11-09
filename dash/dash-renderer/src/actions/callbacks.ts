@@ -679,16 +679,6 @@ function handleServerside(
     };
 
     return new Promise((resolve, reject) => {
-        const applySideEffects = (data?: CallbackResponseData) => {
-            if (data?.sideUpdate) {
-                dispatch(sideUpdate(data.sideUpdate, payload));
-            }
-
-            if (data?.progress) {
-                dispatch(sideUpdate(data.progress, payload));
-            }
-        };
-
         const handleOutput = (res: any) => {
             const {status} = res;
 
@@ -876,7 +866,13 @@ function handleServerside(
                         job = data.job;
                     }
 
-                    applySideEffects(data);
+                    if (data.sideUpdate) {
+                        dispatch(sideUpdate(data.sideUpdate, payload));
+                    }
+
+                    if (data.progress) {
+                        dispatch(sideUpdate(data.progress, payload));
+                    }
                     if (!progressDefault && data.progressDefault) {
                         progressDefault = data.progressDefault;
                     }
@@ -902,31 +898,6 @@ function handleServerside(
                     }
                 });
             } else if (status === STATUS.PREVENT_UPDATE) {
-                const contentType = res.headers.get('Content-Type') || '';
-                const hasJsonBody =
-                    contentType.includes('application/json') ||
-                    contentType.includes('+json');
-
-                if (hasJsonBody) {
-                    res.text().then((text: string) => {
-                        if (text?.trim()) {
-                            try {
-                                applySideEffects(
-                                    JSON.parse(text) as CallbackResponseData
-                                );
-                            } catch {
-                                // Ignore malformed payloads and continue to
-                                // preserve PreventUpdate behavior.
-                            }
-                        }
-
-                        completeJob();
-                        recordProfile({});
-                        resolve({});
-                    });
-                    return;
-                }
-
                 completeJob();
                 recordProfile({});
                 resolve({});
@@ -1005,19 +976,7 @@ async function handleWebsocketCallback(
             dispatch(sideUpdate(runningOff, payload));
         }
 
-        const applySideEffects = (data?: CallbackResponseData) => {
-            if (data?.sideUpdate) {
-                dispatch(sideUpdate(data.sideUpdate, payload));
-            }
-
-            if (data?.progress) {
-                dispatch(sideUpdate(data.progress, payload));
-            }
-        };
-
         if (response.status === 'prevent_update') {
-            applySideEffects(response.data as CallbackResponseData | undefined);
-
             // Record timing for profiling
             if (config.ui) {
                 const totalTime = Date.now() - requestTime;
@@ -1076,7 +1035,9 @@ async function handleWebsocketCallback(
         const callbackData = response.data as CallbackResponseData;
 
         // Handle sideUpdate if present
-        applySideEffects(callbackData);
+        if (callbackData?.sideUpdate) {
+            dispatch(sideUpdate(callbackData.sideUpdate, payload));
+        }
 
         // Extract the actual outputs from the response
         // Format is similar to HTTP path's finishLine function
