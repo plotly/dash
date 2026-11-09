@@ -2,6 +2,14 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Removed
+- [#](https://github.com/plotly/dash/pull/) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
+
+### Fixed
+- [#](https://github.com/plotly/dash/pull/) MCP tools with a generic type annotation such as `list[str]` no longer crash on Python 3.10.
+
 ## [4.5.0] - 2026-10-29
 
 ### Added
