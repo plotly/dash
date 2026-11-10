@@ -13,6 +13,7 @@ import {
 } from './dependencies_ts';
 import {computePaths, getPath} from './paths';
 import {recordUiEdit} from '../persistence';
+import {isPathOrDescendant, stringifyPath} from '../wrapper/wrapping';
 
 export const onError = createAction(getAction('ON_ERROR'));
 export const setAppLifecycle = createAction(getAction('SET_APP_LIFECYCLE'));
@@ -30,6 +31,22 @@ export const onPropChange = createAction(getAction('ON_PROP_CHANGE'));
 export const resetComponentState = createAction(
     getAction('RESET_COMPONENT_STATE')
 );
+
+// Called by every wrapper in a re-rendered subtree, so only dispatch when
+// there is something to clear: each dispatch re-runs every wrapper's
+// selector, which made subtree updates O(N^2) (#4121).
+export function resetDescendantHashes(itempath) {
+    return (dispatch, getState) => {
+        const prefix = stringifyPath(itempath);
+        if (
+            Object.keys(getState().layoutHashes).some(key =>
+                isPathOrDescendant(key, prefix)
+            )
+        ) {
+            dispatch(resetComponentState({itempath}));
+        }
+    };
+}
 
 export function updateProps(payload) {
     return (dispatch, getState) => {

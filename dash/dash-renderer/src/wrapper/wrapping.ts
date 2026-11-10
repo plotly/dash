@@ -55,6 +55,12 @@ export function stringifyPath(layoutPath: DashLayoutPath) {
     return join(',', layoutPath);
 }
 
+// `strPath` is `prefix` or one of its descendants. A bare startsWith would
+// also match siblings: 'children,1' is a prefix of 'children,10'.
+export function isPathOrDescendant(strPath: string, prefix: string) {
+    return strPath === prefix || strPath.startsWith(prefix + ',');
+}
+
 export function getComponentLayout(
     componentPath: DashLayoutPath,
     state: any
