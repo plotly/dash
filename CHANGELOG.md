@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - [#4136](https://github.com/plotly/dash/pull/4136) MCP tools with a generic type annotation such as `list[str]` no longer crash on Python 3.10.
 - [#4114](https://github.com/plotly/dash/pull/4114) Fix the `get_dash_component` MCP tool failing when a component's value contains Dash components, Plotly figures, or numpy arrays. Fixes [#4113](https://github.com/plotly/dash/issues/4113).
+- [#4105](https://github.com/plotly/dash/pull/4105) Only load `.js`/`.mjs` assets as scripts and `.css` assets as stylesheets, at startup and on hot reload. Hot reload now skips files excluded by `assets_ignore` or `assets_path_ignore`. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
 
 ## [4.5.0] - 2026-10-29
 
