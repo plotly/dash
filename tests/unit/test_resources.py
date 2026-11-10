@@ -339,3 +339,34 @@ def test_hot_reload_uses_asset_type(tmp_path):
         app._on_assets_change(str(assets / name), 0, True)
     assert app.css._resources._resources == []
     assert app.scripts._resources._resources == []
+
+
+def test_hot_reload_skips_ignored_assets(tmp_path):
+    assets = tmp_path / "assets"
+    (assets / "drafts").mkdir(parents=True)
+    app = dash.Dash(
+        __name__,
+        assets_folder=str(assets),
+        assets_ignore=r".*\.scss$|^ignored",
+        assets_path_ignore=["drafts"],
+    )
+    reload_hash = app._hot_reload.hash
+
+    for name in ("theme.scss", "ignored.css", "drafts/draft.css"):
+        path = assets / name
+        path.write_text("")
+        app._on_assets_change(str(path), path.stat().st_mtime, False)
+        app._on_assets_change(str(path), -1, True)
+
+    assert app._hot_reload.hash == reload_hash
+    assert app._hot_reload.changed_assets == []
+    assert app.css._resources._resources == []
+
+    path = assets / "style.css"
+    path.write_text("")
+    app._on_assets_change(str(path), path.stat().st_mtime, False)
+
+    assert app._hot_reload.hash != reload_hash
+    assert [asset["url"] for asset in app._hot_reload.changed_assets] == [
+        "/assets/style.css"
+    ]
