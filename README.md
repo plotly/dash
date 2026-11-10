@@ -32,6 +32,17 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 
 To learn more about Dash, read the [extensive announcement letter](https://medium.com/@plotlygraphs/introducing-dash-5ecf7191b503) or [jump in with the user guide](https://plotly.com/dash).
 
+### Performance
+
+How many people can use one Dash server at once? CI measures it weekly, from
+simulated browsers clicking callbacks and streaming against each server setup.
+
+<!-- benchmarks:start -->
+No published run yet.
+<!-- benchmarks:end -->
+
+Charts, the full numbers and how they are measured: [benchmarks](https://github.com/plotly/dash/tree/dev/benchmarks).
+
 ### Dash OSS & Dash Enterprise
 
 With Dash Open Source, Dash apps run on your local laptop or workstation, but cannot be easily accessed by others in your organization.
