@@ -13,7 +13,7 @@ orjson>=3.10.11
 openpyxl
 pandas>=1.4.0
 pyarrow
-pylint==3.0.3
+pylint==4.0.9
 pytest-mock
 pytest-split
 pytest-sugar==1.1.1
