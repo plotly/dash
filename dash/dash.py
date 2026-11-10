@@ -786,10 +786,6 @@ class Dash(ObsoleteChecker):
         self._got_first_request = {"pages": False, "setup_server": False}
         # Serialize the before_request hooks so a raced-in worker cannot see
         # the guard flag while the work behind it is still in flight (gh-3971).
-        # The async lock is created inside router_async so it binds to the
-        # running event loop; on 3.9 asyncio.Lock captures the loop at
-        # construction, which for a Dash instance built in module scope is
-        # the wrong one.
         self._setup_server_lock = threading.Lock()
         self._pages_lock = threading.Lock()
         self._pages_async_lock: Optional[asyncio.Lock] = None
