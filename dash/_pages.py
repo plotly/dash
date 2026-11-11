@@ -17,7 +17,7 @@ from ._get_paths import get_relative_path
 from ._utils import AttributeDict, get_root_path
 
 CONFIG = AttributeDict()
-PAGE_REGISTRY = collections.OrderedDict()
+PAGE_REGISTRY: collections.OrderedDict = collections.OrderedDict()
 
 
 def _infer_image(module):
