@@ -4,6 +4,8 @@ name: Performance Benchmarks
 # use generous thresholds and report rather than flake the test matrix. The job
 # hard-fails only on an order-of-magnitude ("fail") regression; a smaller
 # ("warn") drift is surfaced as a sticky PR comment without failing the build.
+# Fork PRs get a read-only token and can't comment, so they only get the job
+# summary and the uploaded artifact.
 
 on:
   pull_request:
@@ -100,8 +102,16 @@ jobs:
             benchmarks/summary.md
           retention-days: 30
 
+      - name: Add results to the job summary
+        if: always()
+        run: cat benchmarks/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
       - name: Comment results on the PR
-        if: always() && github.event_name == 'pull_request'
+        if: >-
+          always() && github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        # Dependabot PRs also get a read-only token.
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -127,7 +137,7 @@ jobs:
         if: always()
         run: |
           if [ "${{ steps.bench.outputs.status }}" != "0" ]; then
-            echo "Benchmarks exceeded a hard (fail) threshold. See the PR comment."
+            echo "Benchmarks exceeded a hard (fail) threshold. See the job summary."
             exit 1
           fi
 
