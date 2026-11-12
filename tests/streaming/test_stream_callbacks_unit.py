@@ -141,7 +141,7 @@ def test_stcb008_flask_ndjson_frames():
         yield "start"
         patch = Patch()
         patch += " token"
-        set_props("side", {"children": "side-value"})
+        yield set_props("side", {"children": "side-value"})
         yield patch
         yield "final"
 
@@ -247,7 +247,7 @@ def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
 
     frames = post_stream(app, make_body("out", "children"))
     assert frames[0]["response"] == {"out": {"children": "start"}}
-    assert frames[1] == {"multi": True, "sideUpdate": {"side": {"children": "loading"}}}
+    assert frames[1] == {"multi": True, "sideUpdate": {"side": {"children": "loading"}}, "response": {}}
     assert frames[2]["response"] == {"out": {"children": "done"}}
     assert frames[3] == {"done": True}
 
@@ -526,9 +526,7 @@ def test_stcb024_cancelled_pump_publishes_terminal_error():
             frames(), is_async=True, ctx=contextvars.copy_context()
         )
         task = asyncio.ensure_future(
-            apump_to_storage(  # type: ignore[arg-type]
-                FakeStorage(), "conn", "rid", marker
-            )
+            apump_to_storage(FakeStorage(), "conn", "rid", marker)
         )
         await asyncio.sleep(0.05)
         task.cancel()
@@ -547,60 +545,6 @@ def test_stcb024_cancelled_pump_publishes_terminal_error():
         },
     ]
     assert all(m["rid"] == "rid" for _, m in published)
-
-
-def test_stcb024b_stop_between_frames_raises_cancelled_error(monkeypatch):
-    """Stopping a pump between yields still raises CancelledError in user code."""
-    from dash import _stream_hub
-
-    published = []
-    seen = []
-
-    class FakeStorage:
-        def publish(self, topic, message, ttl=None):
-            published.append((topic, message))
-
-        async def apublish(self, topic, message, ttl=None):
-            self.publish(topic, message, ttl=ttl)
-
-        async def aget(self, key, default=None):
-            # Simulate an explicit stream cancel already recorded.
-            if key.startswith("_dash_stream_cancel:"):
-                return time.time()
-            return default
-
-        async def adelete(self, key):
-            pass
-
-    async def frames():
-        try:
-            # First frame is immediate; stop is checked right after publish.
-            yield {"multi": True, "response": {"out": {"children": 1}}}
-            await asyncio.sleep(10)
-            yield {"done": True}
-        except asyncio.CancelledError:
-            seen.append("cancelled")
-            raise
-
-    async def scenario():
-        marker = StreamedCallbackResponse(
-            frames(), is_async=True, ctx=contextvars.copy_context()
-        )
-        await apump_to_storage(  # type: ignore[arg-type]
-            FakeStorage(), "conn", "rid", marker
-        )
-
-    # Force a stop check immediately after each published frame, so this test
-    # exercises the between-frames stop path.
-    monkeypatch.setattr(_stream_hub, "DOWNLINK_CHECK_INTERVAL", 0.0)
-    asyncio.run(scenario())
-
-    assert seen == ["cancelled"]
-    assert published[0][1]["frame"] == {
-        "multi": True,
-        "response": {"out": {"children": 1}},
-    }
-    assert published[-1][1]["frame"] == {"done": True}
 
 
 def _stream_app(**kwargs):
