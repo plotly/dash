@@ -1171,7 +1171,7 @@ def register_callback(
             try:
                 while True:
                     frame = None
-                    response = {'multi': True}
+                    response = {"multi": True}
                     try:
                         output_value = await _next()
                         frame = _build_stream_frame(
