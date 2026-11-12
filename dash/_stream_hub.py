@@ -62,7 +62,6 @@ and cancels every pump, then hands the signal on to the server's own handler.
 import asyncio
 import atexit
 import contextlib
-import inspect
 import json
 import logging
 import secrets
@@ -470,61 +469,6 @@ async def _forget_cancel(storage, connection_id, request_id):
         await storage.adelete(cancel_key(connection_id, request_id))
 
 
-async def _wait_for_step_or_stop(
-    step: asyncio.Future,
-    stop: Callable[[], Any],
-    next_check: float,
-) -> tuple[bool, float]:
-    while True:
-        done, _ = await asyncio.wait(
-            {step}, timeout=max(0.0, next_check - time.monotonic())
-        )
-        if done:
-            return False, next_check
-        next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
-        if await stop():
-            return True, next_check
-
-
-def _step_frame(step: asyncio.Future) -> tuple[bool, Any]:
-    try:
-        return True, step.result()
-    except StopAsyncIteration:
-        return False, None
-
-
-async def _check_stop_if_due(
-    stop: Callable[[], Any],
-    next_check: float,
-) -> tuple[bool, float]:
-    if time.monotonic() < next_check:
-        return False, next_check
-    next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
-    return await stop(), next_check
-
-
-async def _finish_pending_step(
-    iterator: AsyncIterator[Any],
-    step: Optional[asyncio.Future],
-    stopping: bool,
-) -> None:
-    if step is not None and not step.done():
-        step.cancel()
-        with contextlib.suppress(BaseException):
-            await step
-        return
-    if not stopping:
-        return
-    # If we stop between frames there is no pending await to cancel;
-    # inject CancelledError so user async generators see cancellation.
-    athrow = getattr(iterator, "athrow", None)
-    if callable(athrow):
-        with contextlib.suppress(BaseException):
-            outcome = athrow(asyncio.CancelledError())
-            if inspect.isawaitable(outcome):
-                await outcome
-
-
 async def apump_to_storage(
     storage: BaseSharedStorage,
     connection_id: str,
@@ -548,28 +492,31 @@ async def apump_to_storage(
     iterator = marker.frames.__aiter__()
     next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
     completed = False
-    stopping = False
-    step: Optional[asyncio.Future] = None
+    step = None
     try:
         while True:
-            current_step = asyncio.ensure_future(iterator.__anext__())
-            step = current_step
-            should_stop, next_check = await _wait_for_step_or_stop(
-                current_step, stop, next_check
-            )
-            if should_stop:
-                stopping = True
+            step = asyncio.ensure_future(iterator.__anext__())
+            while True:
+                done, _ = await asyncio.wait(
+                    {step}, timeout=max(0.0, next_check - time.monotonic())
+                )
+                if done:
+                    break
+                next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
+                if await stop():
+                    return
+            try:
+                frame = step.result()
+            except StopAsyncIteration:
                 return
-            has_frame, frame = _step_frame(current_step)
-            if not has_frame:
-                return
-            step = None
+            finally:
+                step = None
             await apublish_frame(storage, connection_id, request_id, frame)
             completed = bool(frame.get("done"))
-            should_stop, next_check = await _check_stop_if_due(stop, next_check)
-            if should_stop:
-                stopping = True
-                return
+            if time.monotonic() >= next_check:
+                next_check = time.monotonic() + DOWNLINK_CHECK_INTERVAL
+                if await stop():
+                    return
     except asyncio.CancelledError:
         completed = True
         await _publish_terminal(storage, connection_id, request_id, _INTERRUPTED_FRAME)
@@ -579,7 +526,10 @@ async def apump_to_storage(
         completed = True
         await _publish_terminal(storage, connection_id, request_id, _CANCELLED_FRAME)
     finally:
-        await _finish_pending_step(iterator, step, stopping)
+        if step is not None and not step.done():
+            step.cancel()
+            with contextlib.suppress(BaseException):
+                await step
         with contextlib.suppress(Exception):
             await marker.frames.aclose()
         if not completed:

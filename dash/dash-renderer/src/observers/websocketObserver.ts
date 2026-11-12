@@ -279,8 +279,7 @@ export async function initializeWebSocket(
     // globally. With only per-callback websocket=True, the handlers above stay
     // registered but no socket is opened until a websocket callback actually
     // runs and calls ensureConnected.
-    const websocketConfig = config.websocket;
-    if (!websocketConfig?.enabled) {
+    if (!config.websocket?.enabled) {
         return;
     }
 
@@ -288,10 +287,11 @@ export async function initializeWebSocket(
     const wsUrl = buildWebSocketUrl(config);
 
     try {
+        // config.websocket is guaranteed to exist due to wsAvailable check above
         await workerClient.connect(
-            websocketConfig.worker_url,
+            config.websocket!.worker_url,
             wsUrl,
-            websocketConfig.inactivity_timeout
+            config.websocket!.inactivity_timeout
         );
     } catch (error) {
         console.error('[Dash] Failed to connect to WebSocket worker:', error);
