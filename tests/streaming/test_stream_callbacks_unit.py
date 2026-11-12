@@ -247,7 +247,11 @@ def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
 
     frames = post_stream(app, make_body("out", "children"))
     assert frames[0]["response"] == {"out": {"children": "start"}}
-    assert frames[1] == {"multi": True, "sideUpdate": {"side": {"children": "loading"}}, "response": {}}
+    assert frames[1] == {
+        "multi": True,
+        "sideUpdate": {"side": {"children": "loading"}},
+        "response": {},
+    }
     assert frames[2]["response"] == {"out": {"children": "done"}}
     assert frames[3] == {"done": True}
 
