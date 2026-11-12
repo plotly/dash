@@ -228,7 +228,7 @@ def test_stcb011_prevent_update_and_no_update_yields():
     assert len(frames) == 3
 
 
-def test_stcb011b_stream_set_props_flushes_without_helper_yield():
+def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
     app = Dash(__name__)
     app.layout = html.Div(
         [
@@ -241,7 +241,7 @@ def test_stcb011b_stream_set_props_flushes_without_helper_yield():
     @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
     async def stream_cb(n):
         yield "start"
-        set_props("side", {"children": "loading"})
+        yield set_props("side", {"children": "loading"})
         await asyncio.sleep(0.05)
         yield "done"
 
