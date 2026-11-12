@@ -14,6 +14,7 @@ on:
       - 'benchmarks/**'
       - 'components/**'
       - '@plotly/**'
+      - '.github/workflows/benchmarks.yml'
   workflow_dispatch:
     inputs:
       regenerate_baseline:
