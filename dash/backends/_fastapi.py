@@ -199,14 +199,14 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         dash_app: Dash,
         dash_server: FastAPIDashServer,
         before_request_funcs: list,
-        after_request_func: Callable | None = None,
+        after_request_funcs: list,
         enable_timing: bool = False,
     ) -> None:
         self.app = app
         self.dash_app = dash_app
         self.dash_server = dash_server
         self.before_request_funcs = before_request_funcs
-        self.after_request_func = after_request_func
+        self.after_request_funcs = after_request_funcs
         self.enable_timing = enable_timing
         self._dev_tools_initialized = False
 
@@ -248,12 +248,11 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         return None
 
     async def _run_after_hooks(self) -> None:
-        """Run after-request hook if configured."""
-        if self.after_request_func is not None:
-            if inspect.iscoroutinefunction(self.after_request_func):
-                await self.after_request_func()
-            else:
-                self.after_request_func()
+        """Run all after-request hooks in LIFO order."""
+        for func in reversed(self.after_request_funcs):
+            result = func(Response)
+            if inspect.isawaitable(result):
+                await result
 
     def _finalize_timing(self, request: Request) -> dict | None:
         """Calculate final timing information and return headers to add."""
@@ -408,7 +407,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
         self.request_adapter = FastAPIRequestAdapter
         self.response_adapter = FastAPIResponseAdapter
         self._before_request_funcs: List[Callable[[], Any]] = []
-        self._after_request_func: Callable[[], Any] | None = None
+        self._after_request_funcs: List[Callable[[], Any]] = []
         self._enable_timing = False
 
     def __call__(self, *args: Any, **kwargs: Any):
@@ -517,7 +516,8 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             self._before_request_funcs.append(func)
 
     def after_request(self, func: Callable[[], Any] | None):
-        self._after_request_func = func
+        if func is not None:
+            self._after_request_funcs.append(func)
 
     def has_request_context(self) -> bool:
         try:
@@ -843,7 +843,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             dash_app=dash_app,
             dash_server=self,
             before_request_funcs=self._before_request_funcs,
-            after_request_func=self._after_request_func,
+            after_request_funcs=self._after_request_funcs,
             enable_timing=self._enable_timing,
         )
 
