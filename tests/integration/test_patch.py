@@ -884,3 +884,54 @@ def test_pch007_patch_operations_side_updates(dash_duo):
 
     dash_duo.find_element("#clear-btn").click()
     until(lambda: get_output()["array"] == [], 2)
+
+
+def test_pch008_patch_update_shared_mapping(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Apply", id="apply"),
+            dcc.Store(
+                id="records",
+                data={"jan": {"retained": 1}, "feb": {"retained": 2}},
+            ),
+            html.Pre(id="records-json"),
+            html.Pre(id="common-json"),
+        ]
+    )
+    app.clientside_callback(
+        "data => JSON.stringify(data)",
+        Output("records-json", "children"),
+        Input("records", "data"),
+    )
+
+    @app.callback(
+        Output("records", "data"),
+        Output("common-json", "children"),
+        Input("apply", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def apply_patch(_):
+        common = {"currency": "USD"}
+        p = Patch()
+        p["jan"].update(common, amount=100)
+        p["feb"].update(common, amount=200)
+        return p, json.dumps(common)
+
+    dash_duo.start_server(app)
+    dash_duo.find_element("#apply").click()
+
+    def data_received():
+        raw_data = dash_duo.find_element("#records-json").text
+        if not raw_data or not dash_duo.find_element("#common-json").text:
+            return False
+        data = json.loads(raw_data)
+        return all("amount" in data.get(month, {}) for month in ("jan", "feb"))
+
+    until(data_received, timeout=3)
+    assert json.loads(dash_duo.find_element("#records-json").text) == {
+        "jan": {"retained": 1, "currency": "USD", "amount": 100},
+        "feb": {"retained": 2, "currency": "USD", "amount": 200},
+    }
+    assert json.loads(dash_duo.find_element("#common-json").text) == {"currency": "USD"}
+    assert dash_duo.get_logs() == []
