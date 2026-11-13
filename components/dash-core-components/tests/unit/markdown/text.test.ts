@@ -5,6 +5,7 @@ import {
     collectText,
     reactNodeToText,
     dedentText,
+    normalizeEscapedDollarMath,
 } from '../../../src/utils/markdown/text';
 
 describe('collectText', () => {
@@ -96,5 +97,59 @@ describe('dedentText', () => {
 
     it('leaves unindented text unchanged', () => {
         expect(dedentText('a\nb')).toBe('a\nb');
+    });
+});
+
+describe('normalizeEscapedDollarMath', () => {
+    it('protects escaped dollars inside inline math', () => {
+        expect(normalizeEscapedDollarMath(String.raw`$x=\$3$`)).toBe(
+            String.raw`$$x=\$3$$`
+        );
+        expect(normalizeEscapedDollarMath(String.raw`$x=\$3 + \$4$`)).toBe(
+            String.raw`$$x=\$3 + \$4$$`
+        );
+        expect(normalizeEscapedDollarMath(String.raw`$x=\$3$ and $y=5$`)).toBe(
+            String.raw`$$x=\$3$$ and $y=5$`
+        );
+    });
+
+    it('does not rewrite currency, display math, or even backslashes', () => {
+        for (const source of [
+            String.raw`\$5 and \$10`,
+            String.raw`$$x=\$3$$`,
+            String.raw`$x=\\$3$`,
+        ]) {
+            expect(normalizeEscapedDollarMath(source)).toBe(source);
+        }
+    });
+
+    it('does not rewrite Markdown links or raw HTML', () => {
+        const cases = [
+            String.raw`[link](https://example.org/$x=\$3$)`,
+            String.raw`![image](https://example.org/$x=\$3$)`,
+            String.raw`[ref]: https://example.org/$x=\$3$`,
+            String.raw`<script>const x = '$x=\$3$';</script>`,
+        ];
+
+        for (const source of cases) {
+            expect(normalizeEscapedDollarMath(source)).toBe(source);
+        }
+    });
+
+    it('does not rewrite inline/fenced/indented code or HTML code', () => {
+        const source = [
+            'Before `$x=\\$3$` after',
+            '```python',
+            String.raw`$x=\$3$`,
+            '```',
+            String.raw`    $x=\$3$`,
+            String.raw`<pre><code>$x=\$3$</code></pre>`,
+            '<code>',
+            String.raw`$x=\$3$`,
+            '</code>',
+            '`multi-line \n$x=\\$3$\n code`',
+        ].join('\n');
+
+        expect(normalizeEscapedDollarMath(source)).toBe(source);
     });
 });
