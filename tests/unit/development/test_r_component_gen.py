@@ -1,11 +1,16 @@
 import os
 import shutil
 import re
+import sys
+import types
 from textwrap import dedent
 
 import pytest
 
-from dash.development._r_components_generation import make_namespace_exports
+from dash.development._r_components_generation import (
+    generate_rpkg,
+    make_namespace_exports,
+)
 
 
 @pytest.fixture
@@ -85,3 +90,58 @@ def test_r_exports(make_r_dir):
     matches = re.findall(r"export\(([^()]+)\)", exports.replace("\n", " "))
 
     assert matches == expected_exports
+
+
+def generate_description(author, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    os.makedirs("man")
+    # generate_rpkg imports the component package to read its JS dependencies
+    my_lib = types.ModuleType("my_lib")
+    my_lib._js_dist = [{"relative_package_path": "my_lib.min.js"}]
+    monkeypatch.setitem(sys.modules, "my_lib", my_lib)
+    monkeypatch.setattr(sys, "path", sys.path[:])
+    generate_rpkg(
+        {"name": "my-lib", "version": "1.0.0", "author": author},
+        {"pkg_help_title": "My Lib", "pkg_help_description": "My Lib"},
+        "my_lib",
+        "",
+        "",
+        "",
+        "",
+        False,
+    )
+    return (
+        (tmp_path / "DESCRIPTION").read_text(),
+        (tmp_path / "man" / "myLib-package.Rd").read_text(),
+    )
+
+
+@pytest.mark.parametrize(
+    "author",
+    [
+        "Barney Rubble <b@rubble.com>",
+        "Barney Rubble <b@rubble.com> (http://barnyrubble.tumblr.com/)",
+        {"name": "Barney Rubble", "email": "b@rubble.com"},
+        {
+            "name": "Barney Rubble",
+            "email": "b@rubble.com",
+            "url": "http://barnyrubble.tumblr.com/",
+        },
+    ],
+)
+def test_r_author_formats(author, tmp_path, monkeypatch):
+    description, package_help = generate_description(author, tmp_path, monkeypatch)
+
+    assert (
+        'Authors@R: person("Barney", "Rubble", role = c("aut", "cre"), '
+        'email = "b@rubble.com")'
+    ) in description
+    assert "Maintainer}: Barney Rubble <b@rubble.com>" in package_help
+
+
+@pytest.mark.parametrize("author", ["Barney Rubble", {"name": "Barney Rubble"}])
+def test_r_author_without_email(author, tmp_path, monkeypatch, capsys):
+    with pytest.raises(SystemExit):
+        generate_description(author, tmp_path, monkeypatch)
+
+    assert "email" in capsys.readouterr().err

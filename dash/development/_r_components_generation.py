@@ -627,15 +627,14 @@ def generate_rpkg(
             file=sys.stderr,
         )
 
-    package_author = pkg_data.get("author")
+    package_author = pkg_data.get("author", "")
 
-    package_author_name = package_author.split(" <")[0]
-    package_author_email = package_author.split(" <")[1][:-1]
-
-    package_author_fn = package_author_name.split(" ")[0]
-    package_author_ln = package_author_name.rsplit(" ", 2)[-1]
-
-    maintainer = pkg_data.get("maintainer", pkg_data.get("author"))
+    # npm also accepts {"name": ..., "email": ..., "url": ...}
+    if isinstance(package_author, dict):
+        author_email = package_author.get("email")
+        package_author = package_author.get("name", "")
+        if author_email:
+            package_author += " <{}>".format(author_email)
 
     if "<" not in package_author:
         print(
@@ -646,6 +645,14 @@ def generate_rpkg(
             file=sys.stderr,
         )
         sys.exit(1)
+
+    package_author_name = package_author.split(" <")[0]
+    package_author_email = package_author.split("<")[1].split(">")[0]
+
+    package_author_fn = package_author_name.split(" ")[0]
+    package_author_ln = package_author_name.rsplit(" ", 2)[-1]
+
+    maintainer = pkg_data.get("maintainer", package_author)
 
     if rpkg_data is not None:
         if rpkg_data.get("pkg_authors"):
