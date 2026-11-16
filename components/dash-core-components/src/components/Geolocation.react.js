@@ -119,7 +119,7 @@ Geolocation.propTypes = {
 
     /**
      * The position of the device.  `lat`, `lon`, and `accuracy` will always be returned.  The other data will be included
-     * when available, otherwise it will be NaN.
+     * when available, otherwise it will be null.
      *
      *       `lat` is latitude in degrees.
      *       `lon` is longitude in degrees.
