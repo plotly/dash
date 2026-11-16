@@ -32,9 +32,6 @@ export const resetComponentState = createAction(
     getAction('RESET_COMPONENT_STATE')
 );
 
-// Called by every wrapper in a re-rendered subtree, so only dispatch when
-// there is something to clear: each dispatch re-runs every wrapper's
-// selector, which made subtree updates O(N^2) (#4121).
 export function resetDescendantHashes(itempath) {
     return (dispatch, getState) => {
         const prefix = stringifyPath(itempath);
