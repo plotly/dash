@@ -1171,6 +1171,7 @@ def register_callback(
             try:
                 while True:
                     frame = None
+                    response = {"multi": True}
                     try:
                         output_value = await _next()
                         frame = _build_stream_frame(
@@ -1181,6 +1182,8 @@ def register_callback(
                             original_packages,
                         )
                     except (StopAsyncIteration, PreventUpdate):
+                        if _set_side_update(callback_ctx, response):
+                            yield response
                         break
                     except Exception as err:  # pylint: disable=broad-exception-caught
                         if error_handler:
@@ -1200,6 +1203,8 @@ def register_callback(
                         return
                     if frame is not None:
                         yield frame
+                if _set_side_update(callback_ctx, response):
+                    yield response
                 yield {"done": True}
             finally:
                 await user_gen.aclose()

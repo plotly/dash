@@ -141,7 +141,7 @@ def test_stcb008_flask_ndjson_frames():
         yield "start"
         patch = Patch()
         patch += " token"
-        set_props("side", {"children": "side-value"})
+        yield set_props("side", {"children": "side-value"})
         yield patch
         yield "final"
 
@@ -151,11 +151,11 @@ def test_stcb008_flask_ndjson_frames():
     # and cleared so it is not resent with the next frame.
     assert frames[1]["sideUpdate"] == {"side": {"children": "side-value"}}
     assert (
-        frames[1]["response"]["out"]["children"]["__dash_patch_update"]
+        frames[2]["response"]["out"]["children"]["__dash_patch_update"]
         == "__dash_patch_update"
     )
-    assert frames[2] == {"multi": True, "response": {"out": {"children": "final"}}}
-    assert frames[3] == {"done": True}
+    assert frames[3] == {"multi": True, "response": {"out": {"children": "final"}}}
+    assert frames[4] == {"done": True}
 
 
 def test_stcb009_stream_error_frame():
@@ -226,6 +226,34 @@ def test_stcb011_prevent_update_and_no_update_yields():
     assert frames[1]["response"] == {"out2": {"children": "b"}}
     assert frames[2] == {"done": True}
     assert len(frames) == 3
+
+
+def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="btn"),
+            html.Div(id="out"),
+            html.Div(id="side", children="idle"),
+        ]
+    )
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
+    async def stream_cb(n):
+        yield "start"
+        yield set_props("side", {"children": "loading"})
+        await asyncio.sleep(0.05)
+        yield "done"
+
+    frames = post_stream(app, make_body("out", "children"))
+    assert frames[0]["response"] == {"out": {"children": "start"}}
+    assert frames[1] == {
+        "multi": True,
+        "sideUpdate": {"side": {"children": "loading"}},
+        "response": {},
+    }
+    assert frames[2]["response"] == {"out": {"children": "done"}}
+    assert frames[3] == {"done": True}
 
 
 def test_stcb012_sync_iter_asyncgen():

@@ -8,6 +8,7 @@ from dash.backends.ws import DashWebsocketCallback
 
 from . import exceptions
 from ._get_app import get_app
+from ._no_update import NoUpdate
 from ._utils import AttributeDict, stringify_id
 
 context_value: contextvars.ContextVar[
@@ -51,6 +52,16 @@ falsy_triggered = FalsyList([{"prop_id": ".", "value": None}])
 
 # pylint: disable=no-init
 class CallbackContext:
+    @staticmethod
+    def _shape_no_update(value):
+        if isinstance(value, list):
+            return [CallbackContext._shape_no_update(v) for v in value]
+        if isinstance(value, tuple):
+            return tuple(CallbackContext._shape_no_update(v) for v in value)
+        if isinstance(value, dict):
+            return {k: CallbackContext._shape_no_update(v) for k, v in value.items()}
+        return NoUpdate()
+
     @property
     @has_context
     def inputs(self):
@@ -279,6 +290,28 @@ class CallbackContext:
         else:
             ctx_value.updated_props[_id] = props
 
+    @has_context
+    def make_no_update_response(self):
+        """Build a no_update payload that matches the callback output shape.
+
+        Useful in streaming callbacks to flush set_props side updates without
+        changing any declared Output values.
+        """
+        ctx_value = _get_context_value()
+
+        if getattr(ctx_value, "using_outputs_grouping", False):
+            outputs_grouping = getattr(ctx_value, "outputs_grouping", None)
+            if outputs_grouping not in (None, []):
+                return CallbackContext._shape_no_update(outputs_grouping)
+
+        outputs_list = getattr(ctx_value, "outputs_list", None)
+        if isinstance(outputs_list, list):
+            if len(outputs_list) <= 1:
+                return NoUpdate()
+            return [NoUpdate() for _ in outputs_list]
+
+        return NoUpdate()
+
     @property
     @has_context
     def cookies(self):
@@ -386,3 +419,9 @@ def set_props(component_id: typing.Union[str, dict], props: dict):
     else:
         # Batch for response (existing behavior)
         callback_context.set_props(component_id, props)
+    return make_no_update_response()
+
+
+def make_no_update_response():
+    """Convenience wrapper for callback_context.make_no_update_response()."""
+    return callback_context.make_no_update_response()
