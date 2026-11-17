@@ -16,7 +16,7 @@ converter used by both callback and component annotation pipelines.
 from __future__ import annotations
 
 import inspect
-from typing import Any
+from typing import Any, get_origin
 
 from pydantic import TypeAdapter
 
@@ -34,7 +34,12 @@ def annotation_to_json_schema(annotation: type) -> dict[str, Any] | None:
     if annotation is inspect.Parameter.empty or annotation is type(None):
         return None
 
-    if isinstance(annotation, type) and issubclass(annotation, Component):
+    # On Python 3.10, isinstance(list[str], type) is True but issubclass raises.
+    if (
+        isinstance(annotation, type)
+        and get_origin(annotation) is None
+        and issubclass(annotation, Component)
+    ):
         return {"type": "string"}
 
     try:

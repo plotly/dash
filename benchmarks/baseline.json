@@ -49,16 +49,6 @@
       "growth": 3.34
     }
   },
-  "full_children_replace": {
-    "replace_ms": {
-      "n": 10,
-      "min": 153.5,
-      "median": 1822.9,
-      "p90": 4697.1,
-      "max": 5768.9,
-      "growth": 15.93
-    }
-  },
   "patch_scalar_update_large": {
     "update_ms": {
       "n": 12,

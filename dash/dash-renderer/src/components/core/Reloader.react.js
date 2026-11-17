@@ -109,7 +109,7 @@ class Reloader extends React.Component {
                 let was_css = false;
                 // eslint-disable-next-line prefer-const
                 for (let a of reloadRequest.content.files) {
-                    if (a.is_css) {
+                    if (a.type === 'css') {
                         was_css = true;
                         const nodesToDisable = [];
 

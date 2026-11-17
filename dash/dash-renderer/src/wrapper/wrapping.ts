@@ -55,6 +55,10 @@ export function stringifyPath(layoutPath: DashLayoutPath) {
     return join(',', layoutPath);
 }
 
+export function isPathOrDescendant(strPath: string, prefix: string) {
+    return strPath === prefix || strPath.startsWith(prefix + ',');
+}
+
 export function getComponentLayout(
     componentPath: DashLayoutPath,
     state: any
