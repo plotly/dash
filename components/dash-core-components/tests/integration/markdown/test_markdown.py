@@ -643,3 +643,54 @@ def test_mkdw018_markdown_table(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#md td:nth-child(2)", "$2")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_mkdw019_escaped_dollar_inside_inline_math(dash_dcc):
+    app = Dash(__name__)
+
+    app.layout = html.Div(
+        [
+            dcc.Markdown(
+                r"control: $\approx 3,150$",
+                mathjax=True,
+                id="control",
+            ),
+            dcc.Markdown(
+                r"escaped dollar: $\approx \$3,150$",
+                mathjax=True,
+                id="md",
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    # Verify that normal math renders successfully.
+    dash_dcc.wait_for_element("#control svg")
+
+    # Escaped dollars must not terminate inline math.
+    assert dash_dcc.find_elements(
+        "#md svg"
+    ), "Escaped-dollar inline math was not rendered"
+    assert "3,150$" not in dash_dcc.find_element("#md").text
+
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize(
+    "expression, count",
+    [
+        (r"$x=\$3 + \$4$", 1),
+        (r"$x=\$3$ and $y=5$", 2),
+    ],
+    ids=["multiple-escaped", "two-equations"],
+)
+def test_mkdw020_escaped_dollar_math_edges(dash_dcc, expression, count):
+    app = Dash(__name__)
+    app.layout = dcc.Markdown(expression, mathjax=True, id="md")
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element("#md svg")
+    assert len(dash_dcc.find_elements("#md svg")) == count
+    assert dash_dcc.get_logs() == []

@@ -62,3 +62,101 @@ export function dedentText(text: string): string {
         .map(line => (line.match(/\S/) ? line.substr(commonLen) : ''))
         .join('\n');
 }
+
+// Work around remark-math treating `\$` inside `$...$` as the closing
+// delimiter. Single-line `$$...$$` remains inline math in remark-math.
+// Only rewrite Markdown text, not code, link destinations or raw HTML.
+export function normalizeEscapedDollarMath(text: string): string {
+    const mathOrHtml =
+        /<[^>\r\n]+>|(?<![\\$])\$(?!\$)((?:\\[^\r\n]|[^$\r\n])+?)\$(?!\$)/g;
+    let fence: {char: string; length: number} | null = null;
+    let htmlProtectedDepth = 0;
+    let inlineCodeTicks = 0;
+
+    return text
+        .split(/(\r\n|\r|\n)/)
+        .map(line => {
+            if (line === '\n' || line === '\r' || line === '\r\n') {
+                return line;
+            }
+            if (fence) {
+                if (
+                    new RegExp(
+                        `^ {0,3}${fence.char}{${fence.length},}\\s*$`
+                    ).test(line)
+                ) {
+                    fence = null;
+                }
+                return line;
+            }
+            const opening = inlineCodeTicks
+                ? null
+                : /^ {0,3}(`{3,}|~{3,})/.exec(line);
+            if (opening) {
+                fence = {char: opening[1][0], length: opening[1].length};
+                return line;
+            }
+            if (/^( {4}|\t)/.test(line) || /^ {0,3}\[[^\]]+\]:/.test(line)) {
+                return line;
+            }
+
+            return line
+                .split(/(<\/?(?:code|pre|script|style|textarea)\b[^>]*>)/gi)
+                .map(part => {
+                    if (/^<(?:code|pre|script|style|textarea)\b/i.test(part)) {
+                        htmlProtectedDepth++;
+                        return part;
+                    }
+                    if (
+                        /^<\/(?:code|pre|script|style|textarea)\b/i.test(part)
+                    ) {
+                        htmlProtectedDepth = Math.max(
+                            0,
+                            htmlProtectedDepth - 1
+                        );
+                        return part;
+                    }
+                    if (htmlProtectedDepth) {
+                        return part;
+                    }
+                    return part
+                        .split(/(\]\([^)\r\n]*\))/g)
+                        .map(segment => {
+                            // Leave Markdown link/image destinations unchanged.
+                            if (segment.startsWith('](')) {
+                                return segment;
+                            }
+                            return segment
+                                .split(/(`+)/g)
+                                .map(piece => {
+                                    if (/^`+$/.test(piece)) {
+                                        if (!inlineCodeTicks) {
+                                            inlineCodeTicks = piece.length;
+                                        } else if (
+                                            inlineCodeTicks === piece.length
+                                        ) {
+                                            inlineCodeTicks = 0;
+                                        }
+                                        return piece;
+                                    }
+                                    return inlineCodeTicks
+                                        ? piece
+                                        : piece.replace(
+                                              mathOrHtml,
+                                              (
+                                                  full,
+                                                  math: string | undefined
+                                              ) =>
+                                                  math?.includes('\\$')
+                                                      ? `$$${math}$$`
+                                                      : full
+                                          );
+                                })
+                                .join('');
+                        })
+                        .join('');
+                })
+                .join('');
+        })
+        .join('');
+}
