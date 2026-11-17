@@ -12,6 +12,7 @@ from dash import _callback_signing
 from dash._callback import _update_background_callback, _prepare_response
 from dash._utils import AttributeDict, split_callback_id
 from dash.development.base_component import ComponentRegistry
+from dash.exceptions import PreventUpdate
 from dash.mcp.primitives.tools.results import format_callback_response
 from dash.mcp.types import MCPError
 from dash.types import CallbackExecutionResponse
@@ -146,7 +147,7 @@ def get_task_result(task_id: str) -> Any:
     background = cb_info.get("background")
     has_output = not cb_info.get("no_output")
     multi = adapter.output_id.startswith("..")
-    output = split_callback_id(adapter.output_id)
+    output = split_callback_id(adapter.output_id) if has_output else []
 
     # Build the body to get output_spec, same as as_callback_body
     body = adapter.as_callback_body({})
@@ -162,6 +163,7 @@ def get_task_result(task_id: str) -> Any:
         kwargs={"background_callback_manager": manager},
         background=background,
         multi=multi,
+        output_spec=output_spec,
         cache_key=cache_key,
         job_id=job_id,
     )
@@ -172,21 +174,24 @@ def get_task_result(task_id: str) -> Any:
             "Task result not ready. Poll tasks/get until status is 'completed'."
         )
 
-    _prepare_response(
-        output_value,
-        output_spec,
-        multi,
-        response,
-        callback_ctx,
-        app,
-        set(ComponentRegistry.registry),
-        background,
-        has_update,
-        has_output,
-        output,
-        adapter.output_id,
-        cb_info.get("allow_dynamic_callbacks"),
-    )
+    try:
+        _prepare_response(
+            output_value,
+            output_spec,
+            multi,
+            response,
+            callback_ctx,
+            app,
+            set(ComponentRegistry.registry),
+            background,
+            has_update,
+            has_output,
+            output,
+            adapter.output_id,
+            cb_info.get("allow_dynamic_callbacks"),
+        )
+    except PreventUpdate:
+        return format_callback_response(response, adapter)
 
     return format_callback_response(response, adapter)
 

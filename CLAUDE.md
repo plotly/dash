@@ -20,6 +20,10 @@ Deeper reference lives in `.ai/`. Open the one that covers what you're touching,
 
 To find code, grep. Don't rely on a hand-kept file map, it goes stale.
 
+## Branches
+
+Fixes and chores target `dev`, features target `next`. See "Which branch to target" in `CONTRIBUTING.md`.
+
 ## Writing Style
 
 Applies to code comments, commit messages, PR descriptions, review comments, and CHANGELOG entries.

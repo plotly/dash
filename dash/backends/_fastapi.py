@@ -718,7 +718,7 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             downlink = body.get("streamDownlink")
             if downlink is not None:
                 connection_id = get_stream_connection_id()
-                if connection_id is None:
+                if connection_id is None or not dash_app.shared_storage_enabled:
                     return Response(status_code=403)
                 return _ndjson_response(
                     async_downlink_marker(

@@ -27,7 +27,7 @@ import threading
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from ._codec import decode, encode
+from ._codec import decode, encode, require_msgspec
 from ._engine import DEFAULT_BUFFER, PollResult
 from ._polling import PollingSubscription
 from .base import (
@@ -93,6 +93,7 @@ return {
 
 
 def _require_redis():
+    require_msgspec("RedisSharedStorage", "redis")
     try:
         import redis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
 
