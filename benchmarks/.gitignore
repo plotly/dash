@@ -1,5 +1,7 @@
-# Generated benchmark artifacts (baseline.json is committed on purpose)
+# Generated benchmark artifacts (baseline.json and results/ are committed on purpose)
 results.json
 summary.md
 *.cpuprofile
 __pycache__/
+streaming/results.json
+callbacks/results.json
