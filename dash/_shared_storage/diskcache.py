@@ -20,7 +20,7 @@ polled it for that long, so abandoned topics leave the cache.
 import time
 from typing import Any, Optional
 
-from ._codec import decode, encode
+from ._codec import decode, encode, require_msgspec
 from ._engine import DEFAULT_BUFFER, PollResult
 from ._polling import PollingSubscription
 from .base import BaseSharedStorage, Subscription, check_topic_ttl
@@ -37,6 +37,7 @@ _TTL_SLACK = 1.25
 
 
 def _require_diskcache():
+    require_msgspec("DiskcacheSharedStorage", "diskcache")
     try:
         import diskcache  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel
 

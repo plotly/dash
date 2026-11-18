@@ -25,6 +25,7 @@ import threading
 import time
 from typing import Any, Optional, Tuple
 
+from ._codec import require_msgspec
 from ._engine import DEFAULT_BUFFER, PollResult, StoreEngine
 from ._persistence import _Persistence, default_store_dir
 from ._transport import (
@@ -477,6 +478,7 @@ class LocalSharedStorage(BaseSharedStorage):
       ``flush_interval`` seconds and on clean exit, and recovered on start; up to
       one interval of writes may be lost on an unclean crash.
 
+    The persistent modes need the ``dash[shared_storage]`` extra (msgspec).
     ``path`` is the on-disk store directory for the persistent modes; it defaults
     to a per-namespace folder under the user cache directory. ``flush_interval``
     (seconds) only applies to ``"persist-reset"``.
@@ -501,6 +503,8 @@ class LocalSharedStorage(BaseSharedStorage):
             raise SharedStorageError(
                 f"flush_interval must be positive, got {flush_interval!r}"
             )
+        if mode != "memory":
+            require_msgspec(f"LocalSharedStorage(mode={mode!r})")
         ns = namespace or _default_namespace()
         if mode != "memory" and path is None:
             path = default_store_dir(ns)

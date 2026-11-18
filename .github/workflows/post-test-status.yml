@@ -82,7 +82,7 @@ jobs:
             const sha = context.payload.workflow_run.head_sha;
             const statusContext = 'percy/dash';
 
-            const { data: { statuses } } = await github.rest.repos.getCombinedStatus({
+            const { data: { statuses } } = await github.rest.repos.getCombinedStatusForRef({
               owner,
               repo,
               ref: sha,
