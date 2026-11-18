@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4105](https://github.com/plotly/dash/pull/4105) Only load `.js`/`.mjs` assets as scripts and `.css` assets as stylesheets, at startup and on hot reload. Hot reload now skips files excluded by `assets_ignore` or `assets_path_ignore`. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
 - [#4128](https://github.com/plotly/dash/pull/4128) Fix `set_props` side updates being dropped when a callback raises `PreventUpdate`. Fixes [#2958](https://github.com/plotly/dash/issues/2958)
 - [#4115](https://github.com/plotly/dash/pull/4115) Allow `type="color"` in `dcc.Input`. Fixes [#2772](https://github.com/plotly/dash/issues/2772).
+- [#4077](https://github.com/plotly/dash/pull/4077) Hovering a `parcoords` trace no longer throws in `dcc.Graph`, and `hoverData` now has the same shape as other traces: a `points` list where `curveNumber` is the trace index and `pointNumber` is the hovered line. Fixes [#3128](https://github.com/plotly/dash/issues/3128).
 
 ## [4.5.0] - 2026-10-29
 
