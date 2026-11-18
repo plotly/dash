@@ -36,7 +36,7 @@ dash/
 │   ├── integration/         # Selenium browser tests
 │   ├── compliance/          # Type checking (pyright/mypy)
 │   └── background_callback/ # Background callback tests
-└── requirements/            # Modular dependency files
+└── pyproject.toml           # Package metadata and dependencies
 ```
 
 ## Code Review Conventions

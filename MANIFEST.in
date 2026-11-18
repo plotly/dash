@@ -1,6 +1,5 @@
 include README.md
 include LICENSE
-include requirements/*.txt
 include dash/favicon.ico
 include dash/extract-meta.js
 include dash/deps/*.js
