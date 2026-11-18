@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
 
 ### Fixed
-- [#]() Fix R package generation crashing when the R package settings have no `pkg_help_title` or `pkg_help_description`; it now falls back to the `package.json` description.
+- [#4160](https://github.com/plotly/dash/pull/4160) Fix R package generation crashing when the R package settings have no `pkg_help_title` or `pkg_help_description`; it now falls back to the `package.json` description.
 - [#4148](https://github.com/plotly/dash/pull/4148) The wheel no longer installs the repository's `benchmarks` harness as a top-level `benchmarks` package (included since 4.5.0), which shadowed a `benchmarks` directory in projects that install dash.
 - [#4136](https://github.com/plotly/dash/pull/4136) MCP tools with a generic type annotation such as `list[str]` no longer crash on Python 3.10.
 - [#4114](https://github.com/plotly/dash/pull/4114) Fix the `get_dash_component` MCP tool failing when a component's value contains Dash components, Plotly figures, or numpy arrays. Fixes [#4113](https://github.com/plotly/dash/issues/4113).
