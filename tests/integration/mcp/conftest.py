@@ -1,29 +1,15 @@
 """Shared helpers for MCP integration tests."""
 
-import sys
-
 import pytest
 import requests
 
 from dash import _get_app
 
-collect_ignore_glob = []
-if sys.version_info < (3, 10):
-    collect_ignore_glob.append("*")
-else:
-    from dash.mcp.primitives.resources import (  # pylint: disable=wrong-import-position
-        _RESOURCE_PROVIDERS,
-    )
-    from dash.mcp.primitives.tools import (  # pylint: disable=wrong-import-position
-        _TOOL_PROVIDERS,
-    )
-    from dash.mcp.primitives.tools.tools_callbacks import (  # pylint: disable=wrong-import-position
-        CallbackTools,
-    )
-    from dash.mcp._decorator import (  # pylint: disable=wrong-import-position
-        MCP_DECORATED_FUNCTIONS,
-    )
-    from dash.mcp import _configure  # pylint: disable=wrong-import-position
+from dash.mcp.primitives.resources import _RESOURCE_PROVIDERS
+from dash.mcp.primitives.tools import _TOOL_PROVIDERS
+from dash.mcp.primitives.tools.tools_callbacks import CallbackTools
+from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
+from dash.mcp import _configure
 
 
 @pytest.fixture(autouse=True)

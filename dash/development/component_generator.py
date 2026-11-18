@@ -56,15 +56,7 @@ def generate_components(
     project_shortname = project_shortname.replace("-", "_").rstrip("/\\")
 
     # Get path to extract-meta.js using importlib.resources
-    try:
-        # Python 3.9+
-        extract_path = str(
-            importlib_resources.files("dash").joinpath("extract-meta.js")
-        )
-    except AttributeError:
-        # Python 3.8 fallback
-        with importlib_resources.path("dash", "extract-meta.js") as p:
-            extract_path = str(p)
+    extract_path = str(importlib_resources.files("dash").joinpath("extract-meta.js"))
 
     reserved_patterns = "|".join(f"^{p}$" for p in reserved_words)
 

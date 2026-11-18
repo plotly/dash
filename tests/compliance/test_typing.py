@@ -444,10 +444,7 @@ def test_typi001_component_typing(arguments, assertions, tmp_path):
     assert_output(codefile, code, module="pyright", **assertions)
 
 
-typing_modules = ["pyright"]
-
-if sys.version_info.minor >= 10:
-    typing_modules.append("mypy")
+typing_modules = ["pyright", "mypy"]
 
 
 @pytest.mark.parametrize("typing_module", typing_modules)
