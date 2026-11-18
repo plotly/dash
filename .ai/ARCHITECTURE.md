@@ -1080,7 +1080,7 @@ Dash core. It plugs in the same way as a built-in:
 | `dash.py` | `shared_storage` constructor arg + lazy `app.shared_storage` property |
 | `_callback_context.py` | `dash.ctx.shared_storage` accessor |
 
-Requires `msgspec` (in `requirements/install.txt`); `DiskcacheSharedStorage`
+Requires `msgspec` (the `shared_storage` extra); `DiskcacheSharedStorage`
 needs the `diskcache` extra and `RedisSharedStorage` the `redis` extra.
 
 ## Async Callbacks

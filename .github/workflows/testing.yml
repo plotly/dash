@@ -30,14 +30,14 @@ jobs:
         id: filter # Give an ID to this step to reference its outputs
         uses: dorny/paths-filter@v3
         with:
-          # Every job installs from requirements/ and setup.py and runs under
+          # Every job installs from pyproject.toml and runs under
           # the shared lint and pytest config, so a change there must run every
           # job. A dependency bump once skipped the table and dcc jobs and only
           # failed after merging to dev.
           filters: |
             shared_paths: &shared_paths
-              - 'requirements/**'
-              - 'setup.py'
+              - 'pyproject.toml'
+              - 'MANIFEST.in'
               - 'pytest.ini'
               - '.flake8'
               - '.pylintrc'
@@ -118,7 +118,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -243,7 +243,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
       
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -309,7 +309,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -389,7 +389,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -495,7 +495,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -557,7 +557,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -617,7 +617,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -681,7 +681,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -743,7 +743,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -819,7 +819,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -921,7 +921,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -1059,7 +1059,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -1129,7 +1129,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
@@ -1209,7 +1209,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-          cache-dependency-path: requirements/*.txt
+          cache-dependency-path: pyproject.toml
 
       - name: Download built Dash packages
         uses: actions/download-artifact@v4
