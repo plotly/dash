@@ -8,10 +8,14 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
 
 ### Fixed
+- [#4148](https://github.com/plotly/dash/pull/4148) The wheel no longer installs the repository's `benchmarks` harness as a top-level `benchmarks` package (included since 4.5.0), which shadowed a `benchmarks` directory in projects that install dash.
 - [#4136](https://github.com/plotly/dash/pull/4136) MCP tools with a generic type annotation such as `list[str]` no longer crash on Python 3.10.
 - [#4114](https://github.com/plotly/dash/pull/4114) Fix the `get_dash_component` MCP tool failing when a component's value contains Dash components, Plotly figures, or numpy arrays. Fixes [#4113](https://github.com/plotly/dash/issues/4113).
+- [#4124](https://github.com/plotly/dash/pull/4124) Re-rendering callback-returned children no longer dispatches one store update per component, which made updates O(n^2) in the subtree size. Fixes [#4121](https://github.com/plotly/dash/issues/4121).
 - [#4105](https://github.com/plotly/dash/pull/4105) Only load `.js`/`.mjs` assets as scripts and `.css` assets as stylesheets, at startup and on hot reload. Hot reload now skips files excluded by `assets_ignore` or `assets_path_ignore`. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
-- [#4129](https://github.com/plotly/dash/issues/4129) Fixed `set_props` to be returnable so that it can be returned or yielded for no_update to all outputs to allow for immediate feedback with all callbacks. Streaming callbacks now check if there are any `sideUpdates` before completing or giving `PreventUpdate`.
+- [#4128](https://github.com/plotly/dash/pull/4128) Fix `set_props` side updates being dropped when a callback raises `PreventUpdate`. Fixes [#2958](https://github.com/plotly/dash/issues/2958)
+- [#4115](https://github.com/plotly/dash/pull/4115) Allow `type="color"` in `dcc.Input`. Fixes [#2772](https://github.com/plotly/dash/issues/2772).
+- [#4129](https://github.com/plotly/dash/pull/4129) `set_props` now returns `no_update`, so `yield set_props(...)` in a streaming callback sends the side update right away. `set_props` called after the last yield is no longer dropped.
 
 ## [4.5.0] - 2026-10-29
 
@@ -44,6 +48,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
+- [#4076](https://github.com/plotly/dash/pull/4076) `dcc.Graph` `clickData`, `hoverData` and `selectedData` now include `customdata` when it was sent as a numpy array (binary-encoded by plotly.py 6), as plain numbers and lists. Fixes [#3196](https://github.com/plotly/dash/issues/3196).
 - [#4075](https://github.com/plotly/dash/pull/4075) `fastapi` backend: run `before_request` hooks on every route of the Dash app (assets, hook routes, `api_endpoint`, pages, when mounted) and send a non-None hook result as the response, as on Flask. `fastapi` and `quart` also run them on the WebSocket handshake.
 - [#4075](https://github.com/plotly/dash/pull/4075) Background callbacks without `cache_by` no longer share a result between requests with equal inputs (unread Diskcache results now expire after a day, or after `expire` when set, even with `cache_by`), and callbacks with the same source no longer share a cache key. `build_cache_key` takes a new `callback_key` argument.
 - [#4075](https://github.com/plotly/dash/pull/4075) `dcc.Location(refresh=True).href`, `html.Area.href` and `html.Base.href` now block `javascript:` URLs like `html.A`.
