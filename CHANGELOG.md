@@ -2,7 +2,7 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [UNRELEASED]
+## [4.5.1] - 2026-11-19
 
 ### Removed
 - [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
@@ -18,6 +18,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4128](https://github.com/plotly/dash/pull/4128) Fix `set_props` side updates being dropped when a callback raises `PreventUpdate`. Fixes [#2958](https://github.com/plotly/dash/issues/2958)
 - [#4115](https://github.com/plotly/dash/pull/4115) Allow `type="color"` in `dcc.Input`. Fixes [#2772](https://github.com/plotly/dash/issues/2772).
 - [#4077](https://github.com/plotly/dash/pull/4077) Hovering a `parcoords` trace no longer throws in `dcc.Graph`, and `hoverData` now has the same shape as other traces: a `points` list where `curveNumber` is the trace index and `pointNumber` is the hovered line. Fixes [#3128](https://github.com/plotly/dash/issues/3128).
+- [#4076](https://github.com/plotly/dash/pull/4076) `dcc.Graph` `clickData`, `hoverData` and `selectedData` now include `customdata` when it was sent as a numpy array (binary-encoded by plotly.py 6), as plain numbers and lists. Fixes [#3196](https://github.com/plotly/dash/issues/3196).
+- [#4056](https://github.com/plotly/dash/pull/4056) Fix the `dcc.Dropdown` hidden input causing a horizontal scrollbar on small screens. Fixes [#4042](https://github.com/plotly/dash/issues/4042).
 
 ## [4.5.0] - 2026-10-29
 
@@ -50,7 +52,6 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#3986](https://github.com/plotly/dash/pull/3986) Adjust `_run_before_hooks` in the `fastapi` backend to honor a response returned by a `before_request` function, matching the `flask` backend's behavior.
 
 ### Fixed
-- [#4076](https://github.com/plotly/dash/pull/4076) `dcc.Graph` `clickData`, `hoverData` and `selectedData` now include `customdata` when it was sent as a numpy array (binary-encoded by plotly.py 6), as plain numbers and lists. Fixes [#3196](https://github.com/plotly/dash/issues/3196).
 - [#4075](https://github.com/plotly/dash/pull/4075) `fastapi` backend: run `before_request` hooks on every route of the Dash app (assets, hook routes, `api_endpoint`, pages, when mounted) and send a non-None hook result as the response, as on Flask. `fastapi` and `quart` also run them on the WebSocket handshake.
 - [#4075](https://github.com/plotly/dash/pull/4075) Background callbacks without `cache_by` no longer share a result between requests with equal inputs (unread Diskcache results now expire after a day, or after `expire` when set, even with `cache_by`), and callbacks with the same source no longer share a cache key. `build_cache_key` takes a new `callback_key` argument.
 - [#4075](https://github.com/plotly/dash/pull/4075) `dcc.Location(refresh=True).href`, `html.Area.href` and `html.Base.href` now block `javascript:` URLs like `html.A`.
