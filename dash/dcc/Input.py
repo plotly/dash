@@ -30,7 +30,7 @@ class Input(Component):
     - value (string | number; optional):
         The value of the input.
 
-    - type (a value equal to: None, 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden'; default HTMLInputTypes.text):
+    - type (a value equal to: None, 'text', 'number', 'password', 'email', 'range', 'search', 'tel', 'url', 'hidden', 'color'; default HTMLInputTypes.text):
         The type of control to render.
 
     - debounce (number | boolean; default False):
@@ -256,6 +256,7 @@ class Input(Component):
                 "tel",
                 "url",
                 "hidden",
+                "color",
             ]
         ] = None,
         debounce: typing.Optional[typing.Union[NumberType, bool]] = None,
