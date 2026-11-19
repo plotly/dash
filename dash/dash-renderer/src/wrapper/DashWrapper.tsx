@@ -31,7 +31,7 @@ import {
     notifyObservers,
     onError,
     updateProps,
-    resetComponentState
+    resetDescendantHashes
 } from '../actions';
 import {getWatchedKeys, stringifyId} from '../actions/dependencies';
 import {
@@ -505,11 +505,7 @@ function DashWrapper({
             // least once, so reset from the second fresh render onward.
             // (#3929, keeps #3330 fixed.)
             if (hasFreshRendered.current) {
-                dispatch(
-                    resetComponentState({
-                        itempath: componentPath
-                    })
-                );
+                dispatch(resetDescendantHashes(componentPath) as any);
             }
             hasFreshRendered.current = true;
         }

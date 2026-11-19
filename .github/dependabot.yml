@@ -268,11 +268,9 @@ updates:
     # jupyterlab is pinned <4.0.0: jupyterlab 4.x ships jlpm as Yarn Berry, which
     # cannot consume @plotly/dash-jupyterlab's Yarn 1 lockfile and breaks the build.
     #
-    # Linters are held entirely. black >=25.12.0, pylint >=4.0.0 and flake8
-    # >=7.4.0 require Python >=3.10 and cannot install on the 3.9 CI jobs (Dash
-    # still supports Python 3.9). Even the last 3.9-compatible black / pylint
-    # force a repo-wide reformat / lint-fix pass, so linter bumps are done
-    # deliberately, not via Dependabot.
+    # Linters are held entirely. Newer black / pylint force a repo-wide
+    # reformat / lint-fix pass, so linter bumps are done deliberately, not via
+    # Dependabot.
     ignore:
       - dependency-name: "jupyterlab"
         versions: [">=4.0.0"]

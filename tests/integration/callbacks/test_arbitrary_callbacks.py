@@ -15,6 +15,7 @@ from dash import (
     register_page,
     clientside_callback,
 )
+from dash.exceptions import PreventUpdate
 
 
 def test_arb001_global_set_props(dash_duo):
@@ -239,8 +240,37 @@ def test_arb007_clientside_no_output(dash_duo):
     dash_duo.wait_for_text_to_equal("#output", "start2")
 
 
+def test_arb008_set_props_survives_prevent_update(dash_duo):
+    app = Dash()
+
+    app.layout = html.Div(
+        [
+            html.Button("start", id="start"),
+            html.Div("side-initial", id="side"),
+            html.Div("output-initial", id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "children"),
+        Input("start", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        set_props("side", {"children": f"side {n_clicks}"})
+        raise PreventUpdate
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#start").click()
+    dash_duo.wait_for_text_to_equal("#side", "side 1")
+    dash_duo.wait_for_text_to_equal("#output", "output-initial")
+
+    assert dash_duo.get_logs() == []
+
+
 @flaky(max_runs=3)
-def test_arb008_set_props_chain_cb(dash_duo):
+def test_arb009_set_props_chain_cb(dash_duo):
     app = Dash(suppress_callback_exceptions=True)
 
     app.layout = html.Div(
