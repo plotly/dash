@@ -37,9 +37,6 @@ persistent=no
 # Specify a configuration file.
 #rcfile=
 
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages
-suggestion-mode=yes
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
@@ -405,6 +402,9 @@ valid-metaclass-classmethod-first-arg=mcs
 
 # Maximum number of arguments for function / method
 max-args=11
+
+# Maximum number of positional arguments for function / method.
+max-positional-arguments=11
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=20

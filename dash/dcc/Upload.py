@@ -57,7 +57,8 @@ class Upload(Component):
         HTML class name of the component if rejected.
 
     - contents (string | list of strings; optional):
-        The contents of the uploaded file as a binary string.
+        The contents of the uploaded file as a base64 encoded data URL
+        (`data:<mime type>;base64,<data>`).
 
     - disable_click (boolean; default False):
         Disallow clicking on the component to open the file dialog.

@@ -2,6 +2,25 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [4.5.1] - 2026-11-19
+
+### Removed
+- [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
+
+### Fixed
+- [#4162](https://github.com/plotly/dash/pull/4162) Fix the FastAPI websocket handler logging an `Exception in ASGI application` traceback when the client disconnects while messages are being sent. Fixes [#4157](https://github.com/plotly/dash/issues/4157).
+- [#4160](https://github.com/plotly/dash/pull/4160) Fix R package generation crashing when the R package settings have no `pkg_help_title` or `pkg_help_description`; it now falls back to the `package.json` description.
+- [#4148](https://github.com/plotly/dash/pull/4148) The wheel no longer installs the repository's `benchmarks` harness as a top-level `benchmarks` package (included since 4.5.0), which shadowed a `benchmarks` directory in projects that install dash.
+- [#4136](https://github.com/plotly/dash/pull/4136) MCP tools with a generic type annotation such as `list[str]` no longer crash on Python 3.10.
+- [#4114](https://github.com/plotly/dash/pull/4114) Fix the `get_dash_component` MCP tool failing when a component's value contains Dash components, Plotly figures, or numpy arrays. Fixes [#4113](https://github.com/plotly/dash/issues/4113).
+- [#4124](https://github.com/plotly/dash/pull/4124) Re-rendering callback-returned children no longer dispatches one store update per component, which made updates O(n^2) in the subtree size. Fixes [#4121](https://github.com/plotly/dash/issues/4121).
+- [#4105](https://github.com/plotly/dash/pull/4105) Only load `.js`/`.mjs` assets as scripts and `.css` assets as stylesheets, at startup and on hot reload. Hot reload now skips files excluded by `assets_ignore` or `assets_path_ignore`. Fixes [#1684](https://github.com/plotly/dash/issues/1684).
+- [#4128](https://github.com/plotly/dash/pull/4128) Fix `set_props` side updates being dropped when a callback raises `PreventUpdate`. Fixes [#2958](https://github.com/plotly/dash/issues/2958)
+- [#4115](https://github.com/plotly/dash/pull/4115) Allow `type="color"` in `dcc.Input`. Fixes [#2772](https://github.com/plotly/dash/issues/2772).
+- [#4077](https://github.com/plotly/dash/pull/4077) Hovering a `parcoords` trace no longer throws in `dcc.Graph`, and `hoverData` now has the same shape as other traces: a `points` list where `curveNumber` is the trace index and `pointNumber` is the hovered line. Fixes [#3128](https://github.com/plotly/dash/issues/3128).
+- [#4076](https://github.com/plotly/dash/pull/4076) `dcc.Graph` `clickData`, `hoverData` and `selectedData` now include `customdata` when it was sent as a numpy array (binary-encoded by plotly.py 6), as plain numbers and lists. Fixes [#3196](https://github.com/plotly/dash/issues/3196).
+- [#4056](https://github.com/plotly/dash/pull/4056) Fix the `dcc.Dropdown` hidden input causing a horizontal scrollbar on small screens. Fixes [#4042](https://github.com/plotly/dash/issues/4042).
+
 ## [4.5.0] - 2026-10-29
 
 ### Added

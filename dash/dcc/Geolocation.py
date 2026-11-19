@@ -53,7 +53,7 @@ class Geolocation(Component):
     - position (dict; optional):
         The position of the device.  `lat`, `lon`, and `accuracy` will
         always be returned.  The other data will be included when
-        available, otherwise it will be NaN.        `lat` is latitude in
+        available, otherwise it will be None.        `lat` is latitude in
         degrees.       `lon` is longitude in degrees.       `accuracy` is
         the accuracy of the lat/lon in meters.    *        `alt` is
         altitude above mean sea level in meters.       `alt_accuracy` is

@@ -138,7 +138,7 @@ pk.Dropdown.propTypes = {options:pt.any,
  id:pt.oneOfType([pt.string]),
  componentPath:pt.any};
 pk.Input.propTypes = {value:pt.oneOfType([pt.string,pt.number]),
- type:pt.oneOf(['text','number','password','email','range','search','tel','url','hidden']),
+ type:pt.oneOf(['text','number','password','email','range','search','tel','url','hidden','color']),
  debounce:pt.oneOfType([pt.number,pt.bool]),
  placeholder:pt.oneOfType([pt.string,pt.number]),
  n_submit:pt.oneOfType([pt.number]),

@@ -174,6 +174,7 @@ export enum HTMLInputTypes {
     'tel' = 'tel',
     'url' = 'url',
     'hidden' = 'hidden',
+    'color' = 'color',
 }
 
 export interface InputProps extends BaseDccProps<InputProps> {
