@@ -43,3 +43,15 @@
     top: 3px;
     right: 3px;
 }
+
+.dash-callback-dag--layoutNote {
+    position: absolute;
+    top: 30px;
+    right: 3px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    font-family: Verdana, sans-serif;
+    font-size: 12px;
+}

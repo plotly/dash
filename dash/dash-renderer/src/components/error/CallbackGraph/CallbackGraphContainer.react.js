@@ -213,6 +213,10 @@ function CallbackGraph() {
     const chosenType = graphLayout?._chosenType;
     const layoutSelector = useRef(null);
     const [layoutType, setLayoutType] = useState(chosenType || 'top-down');
+    const [layoutFailed, setLayoutFailed] = useState(
+        Boolean(graphLayout?._layoutFailed)
+    );
+    const layoutFailedRef = useRef(layoutFailed);
 
     // Generate and memoize the elements.
     const elements = useMemo(
@@ -263,9 +267,38 @@ function CallbackGraph() {
             positions,
             zoom: cy.zoom(),
             pan: cy.pan(),
-            _chosenType: layoutSelector.current?.value
+            _chosenType: layoutSelector.current?.value,
+            _layoutFailed: layoutFailedRef.current
         };
     }
+
+    function markLayoutFailed(failed) {
+        layoutFailedRef.current = failed;
+        setLayoutFailed(failed);
+    }
+
+    // Run the layout here instead of through CytoscapeComponent's layout
+    // prop, so a dagre failure on some graph shapes can fall back to force.
+    useCytoscapeEffect(
+        cy => {
+            if (chosenType === layoutType) {
+                cy.layout(graphLayout).run();
+                return;
+            }
+            try {
+                markLayoutFailed(false);
+                cy.layout(
+                    mergeRight(layouts[layoutType], {ready: setPresetLayout})
+                ).run();
+            } catch (e) {
+                markLayoutFailed(true);
+                cy.layout(
+                    mergeRight(forceLayout, {ready: setPresetLayout})
+                ).run();
+            }
+        },
+        [cytoscape, elements]
+    );
 
     // Adds callbacks once cyctoscape is initialized.
     useCytoscapeEffect(
@@ -393,18 +426,12 @@ function CallbackGraph() {
         }
     }
 
-    const cyLayout =
-        chosenType === layoutType
-            ? graphLayout
-            : mergeRight(layouts[layoutType], {ready: setPresetLayout});
-
     return (
         <div className='dash-callback-dag--container'>
             <CytoscapeComponent
                 style={{width: '100%', height: '100%'}}
                 cy={setCytoscape}
                 elements={elements}
-                layout={cyLayout}
                 stylesheet={stylesheet}
             />
             {selected ? (
@@ -440,6 +467,11 @@ function CallbackGraph() {
                     </option>
                 ))}
             </select>
+            {layoutFailed ? (
+                <div className='dash-callback-dag--layoutNote'>
+                    The {layoutType} layout failed, showing force instead.
+                </div>
+            ) : null}
         </div>
     );
 }

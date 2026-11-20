@@ -1,7 +1,7 @@
 from time import sleep
 import flask
 
-from dash import Dash, Input, Output, dcc, html
+from dash import MATCH, Dash, Input, Output, State, dcc, html, no_update
 import dash.testing.wait as wait
 
 from dash_test_components import WidthComponent
@@ -119,6 +119,139 @@ def test_dvui003_callback_graph(dash_duo):
         return pos.y;
         """
     )
+
+
+def test_dvui008_callback_graph_dagre_failure_falls_back(dash_duo):
+    # Minimal set reduced from the Dash docs app: dagre's layout throws
+    # "Cannot set properties of undefined (setting 'order')" on this graph.
+    # Needs both the location.pathname input/output loop and the unrelated
+    # callbacks; dropping any one of them lays out fine.
+    app = Dash(__name__, suppress_callback_exceptions=True)
+    app.layout = html.Div("callback graph layout", id="content")
+
+    def noop(*_):
+        return no_update
+
+    def cb(outputs, inputs, state=()):
+        app.callback(outputs, inputs, list(state), prevent_initial_call=True)(noop)
+
+    cb(
+        [
+            Output("ddk-main-app", "theme"),
+            Output("sun-icon", "style"),
+            Output("moon-icon", "style"),
+            Output("logo-img", "src"),
+        ],
+        [Input("dark-mode-switch", "on"), Input("location", "pathname")],
+    )
+    cb(
+        [
+            Output({"type": "links-show", "index": MATCH}, "className"),
+            Output({"type": "load-more-btn", "index": MATCH}, "style"),
+        ],
+        [Input({"type": "load-more-btn", "index": MATCH}, "n_clicks")],
+    )
+    cb(
+        [
+            Output(i, p)
+            for i, p in [
+                ("chapter", "children"),
+                ("backlinks-top", "children"),
+                ("backlinks-top", "style"),
+                ("backlinks-bottom", "children"),
+                ("pagemenu", "dummy2"),
+                ("location", "pathname"),
+                ("url-params", "data"),
+                ("page-title", "data"),
+                ("pagemenu", "style"),
+                ("chapters-sidebar", "updateComponent"),
+                ("app-catalog-example", "children"),
+                ("main-app-content", "style"),
+                ("refresh-page", "data"),
+                ("chapters-sidebar", "searchIndex"),
+                ("de-version", "data"),
+                ("de-version-dropdown", "value"),
+                ("de-version-dd-container", "style"),
+                ("location", "hash"),
+                ("sidebar-image-img", "src"),
+                ("sidebar-image-link", "href"),
+            ]
+        ],
+        [
+            Input("location", "pathname"),
+            Input("location", "search"),
+            Input("de-version-dropdown", "value"),
+        ],
+        [
+            State("location", "hash"),
+            State("last-path", "data"),
+            State("de-version", "data"),
+        ],
+    )
+    cb(
+        [
+            Output("pagemenu", "dummy"),
+            Output("last-path", "data"),
+            Output("refresh-page-confirm", "data"),
+        ],
+        [Input("page-title", "data")],
+        [
+            State("location", "pathname"),
+            State("url-params", "data"),
+            State("location", "hash"),
+            State("refresh-page", "data"),
+        ],
+    )
+    cb(
+        [
+            Output("updating-column-maintain-order", "columnDefs"),
+            Output("btn-init-props-maintain-order", "children"),
+        ],
+        [Input("btn-init-props-maintain-order", "n_clicks")],
+    )
+    cb(
+        Output("updating-column-group2", "columnDefs"),
+        [
+            Input("btn-column-group-set1", "n_clicks"),
+            Input("btn-column-group-set2", "n_clicks"),
+        ],
+    )
+    cb(
+        [
+            Output("updating-column-group", "columnDefs"),
+            Output("btn-toggle-cols", "children"),
+        ],
+        [Input("btn-toggle-cols", "n_clicks")],
+    )
+    cb(
+        [
+            Output("toggle-medals-columns", "columnDefs"),
+            Output("medal-toggle", "children"),
+        ],
+        [Input("medal-toggle", "n_clicks")],
+    )
+
+    dash_duo.start_server(
+        app,
+        debug=True,
+        use_reloader=False,
+        use_debugger=True,
+        dev_tools_hot_reload=False,
+        dev_tools_disable_version_check=True,
+    )
+
+    dash_duo.wait_for_text_to_equal("#content", "callback graph layout")
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
+    dash_duo.wait_for_element('canvas[data-id="layer2-node"]')
+    note = "The top-down layout failed, showing force instead."
+    dash_duo.wait_for_contains_text(".dash-callback-dag--layoutNote", note)
+
+    # the fallback and its note persist when the graph is closed and reopened
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
+    dash_duo.wait_for_no_elements(".dash-callback-dag--container")
+    dash_duo.find_element("#dash-debug-menu__callback-graph-button").click()
+    dash_duo.wait_for_contains_text(".dash-callback-dag--layoutNote", note)
+    assert dash_duo.get_logs() == []
 
 
 def test_dvui004_width_props(dash_duo):
