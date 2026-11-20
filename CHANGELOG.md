@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#4165](https://github.com/plotly/dash/pull/4165) Use `@pytest.hookimpl(tryfirst=True)` on `pytest_addhooks` in `dash.testing.plugin` to eliminate `PytestRemovedIn10Warning` during pytest plugin registration and preserve compatibility with pytest 10. Fixes [#2420](https://github.com/plotly/dash/issues/2420).
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed

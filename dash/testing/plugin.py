@@ -101,7 +101,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.mark.tryfirst
+@pytest.hookimpl(tryfirst=True)
 def pytest_addhooks(pluginmanager):
     if not _installed:
         return
