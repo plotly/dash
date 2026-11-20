@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- [#]() Fix the dev tools callback graph crashing with `Cannot set properties of undefined (setting 'order')` on some apps. When the dagre layout fails, it now falls back to the force layout and says so.
+- [#4166](https://github.com/plotly/dash/pull/4166) Fix the dev tools callback graph crashing with `Cannot set properties of undefined (setting 'order')` on some apps. When the dagre layout fails, it now falls back to the force layout and says so.
 
 ## [4.5.1] - 2026-11-19
 
