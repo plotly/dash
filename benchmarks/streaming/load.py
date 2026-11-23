@@ -9,11 +9,11 @@ errors and CPU. A setup stops climbing once it saturates (p95 latency over
     python -m benchmarks.streaming.load --out benchmarks/streaming/results.json
     python -m benchmarks.streaming.load --setup fastapi-uvicorn-w1 --browsers 100 500
 
-Multi-worker setups need shared storage across processes; pass
-``--redis-url`` (they are skipped without it). The server and the clients
-are pinned to separate CPUs (``--server-cpus``) so the clients' own load
-does not show up as server latency, and each point records the clients'
-peak CPU so a client-bound point can be spotted.
+Workers share frames through ``LocalSharedStorage`` (in memory, one owner
+process per machine). The server and the clients are pinned to separate CPUs
+(``--server-cpus``) so the clients' own load does not show up as server
+latency, and each point records the clients' peak CPU so a client-bound point
+can be spotted.
 """
 from __future__ import annotations
 
@@ -61,7 +61,6 @@ def run_point(setup, browsers, args):
         "LOAD_FRAMES": str(args.frames),
         "LOAD_INTERVAL": str(args.interval),
         "LOAD_SECRET": "load-test",
-        "LOAD_REDIS_URL": args.redis_url if setup.needs_redis else "",
     }
     with loadkit.serve(setup, HERE, "load_app", env, args.server_cpus) as (
         url,
@@ -104,11 +103,8 @@ def run_point(setup, browsers, args):
     return point
 
 
-def _entry_fields(setup, redis_url):
-    if setup.needs_redis and not redis_url:
-        print(f"skip {setup.name}: multi-worker needs --redis-url", flush=True)
-        return None
-    return {"storage": "redis" if setup.needs_redis else "local"}
+def _entry_fields(_setup):
+    return {"storage": "local"}
 
 
 def _describe(point):
@@ -140,14 +136,7 @@ def main(argv=None):
         },
         "setups": [],
     }
-    loadkit.sweep(
-        results,
-        setups,
-        args,
-        run_point,
-        _describe,
-        lambda setup: _entry_fields(setup, args.redis_url),
-    )
+    loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields)
     return 0
 
 

@@ -74,11 +74,6 @@ jobs:
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.streaming)
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -94,7 +89,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install "setuptools<80.0.0"
-          python -m pip install -e .[ci,dev,testing,async,fastapi,quart,redis]
+          python -m pip install -e .[ci,dev,testing,async,fastapi,quart]
           python -m pip install gunicorn uvicorn aiohttp psutil
       - run: npm run build
       - name: Run the sweep
@@ -103,7 +98,6 @@ jobs:
         run: |
           ulimit -n 65536
           python -m benchmarks.streaming.load \
-            --redis-url redis://127.0.0.1:6379/0 \
             --out benchmarks/streaming/results.json
       - uses: actions/upload-artifact@v4
         with:

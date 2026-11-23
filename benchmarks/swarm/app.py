@@ -11,11 +11,12 @@ One page, three things to click, each measured by the agents in the browser:
 ``SWARM_WORK_MS`` adds that much ``asyncio.sleep`` to the plain callbacks, like
 a query. Serve it the way a deployment would, for example::
 
-    SWARM_BACKEND=fastapi SWARM_REDIS_URL=redis://redis:6379/0 \\
+    SWARM_BACKEND=fastapi \\
         uvicorn benchmarks.swarm.app:server --host 0.0.0.0 --workers 4
 
-``SWARM_REDIS_URL`` is needed for streaming with more than one worker or
-instance, and ``SWARM_SECRET`` must be the same everywhere the app runs.
+Workers on one machine share streams through ``LocalSharedStorage``.
+``SWARM_REDIS_URL`` is only needed when the app runs on several machines or
+pods, and ``SWARM_SECRET`` must be the same everywhere the app runs.
 """
 import asyncio
 import os

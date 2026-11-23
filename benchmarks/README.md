@@ -14,14 +14,13 @@ of the `dash` package). What each part needs on top of a stock venv:
 ```bash
 npm ci && npm run build                          # every part serves the built renderer
 pip install -e ".[ci,dev,testing]"               # renderer + serialization
-pip install -e ".[async,fastapi,quart,redis]" gunicorn aiohttp psutil   # load tests
+pip install -e ".[async,fastapi,quart]" gunicorn aiohttp psutil   # load tests
 pip install playwright psutil && playwright install --only-shell chromium   # swarm, local
 ```
 
 The renderer benchmarks also need Chrome and a matching chromedriver, like the
-integration tests. The load tests' multi-worker setups need a Redis server
-(`docker run -d -p 6379:6379 redis:7-alpine`). A swarm across machines also
-needs SSH access to hosts that run Docker (see "Browser swarm" below).
+integration tests. A swarm across machines also needs SSH access to hosts that
+run Docker (see "Browser swarm" below).
 
 ## Quick start
 
@@ -67,12 +66,12 @@ pass 1%.
 
 ```bash
 ulimit -n 65536
-python -m benchmarks.streaming.load --redis-url redis://127.0.0.1:6379/0
+python -m benchmarks.streaming.load
 python -m benchmarks.streaming.load --setup fastapi-uvicorn-w1 --browsers 100 1000
 ```
 
-Multi-worker setups share frames through Redis and are skipped without
-`--redis-url`. The server and the clients get separate CPUs (`--server-cpus`,
+Workers share frames through `LocalSharedStorage` in memory, so no Redis is
+needed. The server and the clients get separate CPUs (`--server-cpus`,
 half the machine by default); a point where a client process hit 85% CPU is
 flagged `client_bound` and ends that setup's sweep, since past that the numbers
 measure the load generator.
@@ -108,7 +107,7 @@ the same callback over the websocket, or a streaming callback
 Serve the app where it will be tested, the way it would be deployed:
 
 ```bash
-SWARM_BACKEND=fastapi SWARM_REDIS_URL=redis://redis:6379/0 \
+SWARM_BACKEND=fastapi \
     uvicorn benchmarks.swarm.app:server --host 0.0.0.0 --port 8050 --workers 4
 ```
 

@@ -39,10 +39,6 @@ class Setup:
     label: str
     env: Dict[str, str] = field(default_factory=dict)
 
-    @property
-    def needs_redis(self):
-        return self.workers > 1
-
 
 def free_port():
     with socket.socket() as sock:
@@ -420,5 +416,4 @@ def add_common_args(parser, browsers):
     parser.add_argument("--ramp", type=float, default=10.0)
     parser.add_argument("--duration", type=float, default=20.0)
     parser.add_argument("--max-p95", type=float, default=1000.0)
-    parser.add_argument("--redis-url")
     parser.add_argument("--server-cpus", help="e.g. 0-3 (default: half the machine)")

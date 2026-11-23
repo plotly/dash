@@ -114,9 +114,10 @@ Pitfalls the harness guards against:
   a client hits 85% CPU.
 - Client output goes to temp files, not pipes: a full pipe blocks the client
   forever because the runner only reads after the clients exit.
-- Multi-worker setups need shared storage (Redis); with a per-process secret
-  the workers also reject each other's stream tokens, so the runner sets
-  a shared secret (`LOAD_SECRET`). The server imports dash from the checkout
+- Multi-worker setups share streams through `LocalSharedStorage` (in memory,
+  one owner process per machine). With a per-process secret the workers
+  reject each other's stream tokens, so the runner sets a shared secret
+  (`LOAD_SECRET`). The server imports dash from the checkout
   under test (`PYTHONPATH`), not whatever is installed.
 
 `benchmarks/callbacks/` runs the same way for plain callbacks, HTTP vs
