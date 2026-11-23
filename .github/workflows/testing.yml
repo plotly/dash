@@ -98,7 +98,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -145,9 +145,9 @@ jobs:
       - name: Setup virtual display
         uses: ./.github/actions/setup-virtual-display
 
+      # The pinned black and pylint crash on Python 3.14.
       - name: Run lint
-        env:
-          PYLINT_EXTRA_ARGS: ${{ matrix.python-version == '3.9' && '--ignored-modules=mcp' || '' }}
+        if: matrix.python-version == '3.10'
         run: npm run lint
 
       - name: Run unit tests
@@ -274,7 +274,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     # Redis service for the RedisSharedStorage backend.
     services:
@@ -349,7 +349,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     # Service container for Redis
     services:
@@ -462,7 +462,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     services:
       redis:
@@ -661,7 +661,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -723,7 +723,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -783,14 +783,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -846,11 +846,11 @@ jobs:
         run: npm run setup-tests.py
 
       - name: Run main integration tests
-        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
+        if: matrix.python-version != '3.14' || matrix.react-version != '18.3.1'
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
 
       - name: Run main integration tests with Percy
-        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
+        if: matrix.python-version == '3.14' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_intg.xml tests/integration --splits 3 --group ${{ matrix.test-group }}
@@ -886,13 +886,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
@@ -949,12 +949,12 @@ jobs:
         run: npm ci
 
       - name: Run HTML components tests
-        if: matrix.python-version != '3.12' || matrix.react-version != '18.3.1'
+        if: matrix.python-version != '3.14' || matrix.react-version != '18.3.1'
         working-directory: components/dash-html-components
         run: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
 
       - name: Run HTML components tests with Percy
-        if: matrix.python-version == '3.12' && matrix.react-version == '18.3.1'
+        if: matrix.python-version == '3.14' && matrix.react-version == '18.3.1'
         uses: ./.github/actions/percy-exec
         with:
           command: pytest --headless --nopercyfinalize --junitxml=test-reports/junit_html.xml
@@ -1042,7 +1042,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -1073,7 +1073,9 @@ jobs:
           python -m pip install "setuptools<80.0.0"
           find packages -name dash-*.whl -print -exec sh -c 'pip install "{}[ci,testing,dev]"' \;
 
+      # The pinned black crashes on Python 3.14.
       - name: Lint DCC
+        if: matrix.python-version == '3.10'
         run: |
           cd components/dash-core-components
           npm ci
@@ -1091,14 +1093,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.14"]
         react-version: ["18.3.1", "19.2.4"]
         test-group: ["1", "2", "3"]
 
     env:
       REACT_VERSION: ${{ matrix.react-version }}
-      PERCY_TOKEN: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
-      PERCY_ENABLE: ${{ matrix.python-version == '3.12' && matrix.react-version == '18.3.1' && '1' || '0' }}
+      PERCY_TOKEN: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && secrets.PERCY_TOKEN || '' }}
+      PERCY_ENABLE: ${{ matrix.python-version == '3.14' && matrix.react-version == '18.3.1' && '1' || '0' }}
       PERCY_PARALLEL_TOTAL: -1
       # Pin the build identity so every shard joins the same parallel build and
       # Percy links it to the PR. Auto-detection otherwise uses the ephemeral
