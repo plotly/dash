@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- Fix clientside callbacks dispatching empty property updates and unnecessarily rendering components whose outputs all return `dash_clientside.no_update`.
+- [#4175](https://github.com/plotly/dash/pull/4175) Fix clientside callbacks dispatching empty property updates and unnecessarily rendering components whose outputs all return `dash_clientside.no_update`. Fixes [#4173](https://github.com/plotly/dash/issues/4173).
 
 ## [4.5.1] - 2026-11-19
 
