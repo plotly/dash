@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- Fix the inferred path of a page whose module name contains the pages folder name: `pages/landing_pages.py` no longer gets `/` and `pages/subpages/report.py` no longer gets `/report`. Fixes [#4168](https://github.com/plotly/dash/issues/4168).
+- [#4169](https://github.com/plotly/dash/pull/4169) Fix the inferred path of a page whose module name contains the pages folder name: `pages/landing_pages.py` no longer gets `/` and `pages/subpages/report.py` no longer gets `/report`. Fixes [#4168](https://github.com/plotly/dash/issues/4168).
 
 ## [4.5.1] - 2026-11-19
 
