@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- Fix `dcc.Graph` discarding earlier layout changes when multiple `Plotly.relayout` calls run before React delivers the updated figure prop.
+- [#4174](https://github.com/plotly/dash/pull/4174) Fix `dcc.Graph` discarding earlier layout changes when multiple `Plotly.relayout` calls run before React delivers the updated figure prop. Fixes [#4172](https://github.com/plotly/dash/issues/4172).
 
 ## [4.5.1] - 2026-11-19
 
