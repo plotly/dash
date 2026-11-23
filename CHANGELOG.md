@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- Fix `dcc.Graph` discarding earlier layout changes when multiple `Plotly.relayout` calls run before React delivers the updated figure prop.
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed
