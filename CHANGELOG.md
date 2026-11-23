@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- Fix clientside callbacks dispatching empty property updates and unnecessarily rendering components whose outputs all return `dash_clientside.no_update`.
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed

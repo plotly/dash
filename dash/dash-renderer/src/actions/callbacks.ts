@@ -353,8 +353,8 @@ async function handleClientside(
                 zipIfArray(outi, reti).forEach(([outij, retij]) => {
                     const {id, property} = outij;
                     const idStr = stringifyId(id);
-                    const dataForId = (result[idStr] = result[idStr] || {});
                     if (retij !== dc.no_update) {
+                        const dataForId = (result[idStr] = result[idStr] || {});
                         dataForId[cleanOutputProp(property)] = retij;
                     }
                 });
