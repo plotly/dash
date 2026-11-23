@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- Fix `dcc.Graph` resetting a user zoom or pan when a callback returns a new figure with an unchanged `uirevision` (regression introduced in 4.4.1 by [#3882](https://github.com/plotly/dash/pull/3882)). Fixes [#4093](https://github.com/plotly/dash/issues/4093).
+- [#4183](https://github.com/plotly/dash/pull/4183) Fix `dcc.Graph` resetting a user zoom or pan when a callback returns a new figure with an unchanged `uirevision` (regression introduced in 4.4.1 by [#3882](https://github.com/plotly/dash/pull/3882)). Fixes [#4093](https://github.com/plotly/dash/issues/4093).
 
 ## [4.5.1] - 2026-11-19
 
