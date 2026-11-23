@@ -6,6 +6,23 @@ is noisy, so this reports rather than flaking tests. See
 [`.ai/PERFORMANCE.md`](../.ai/PERFORMANCE.md) for the full methodology,
 profiling guide, and findings.
 
+## Setup
+
+Run everything from a dev checkout of the repo (the benchmarks are not part
+of the `dash` package). What each part needs on top of a stock venv:
+
+```bash
+npm ci && npm run build                          # every part serves the built renderer
+pip install -e ".[ci,dev,testing]"               # renderer + serialization
+pip install -e ".[async,fastapi,quart,redis]" gunicorn aiohttp psutil   # load tests
+pip install playwright psutil && playwright install --only-shell chromium   # swarm, local
+```
+
+The renderer benchmarks also need Chrome and a matching chromedriver, like the
+integration tests. The load tests' multi-worker setups need a Redis server
+(`docker run -d -p 6379:6379 redis:7-alpine`). A swarm across machines also
+needs SSH access to hosts that run Docker (see "Browser swarm" below).
+
 ## Quick start
 
 ```bash
@@ -97,10 +114,9 @@ SWARM_BACKEND=fastapi SWARM_REDIS_URL=redis://redis:6379/0 \
 
 On Flask (no websocket) pass `--scenario http,stream`.
 
-Try the swarm on one machine first (agents as local processes):
+Try the swarm on one machine first (agents as local processes, see Setup):
 
 ```bash
-pip install playwright psutil && playwright install --only-shell chromium
 python -m benchmarks.swarm.run --target http://127.0.0.1:8050 --local 2 \
     --users 10 25 --ramp 10 --duration 20
 ```
