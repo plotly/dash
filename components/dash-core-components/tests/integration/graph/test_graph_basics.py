@@ -897,3 +897,53 @@ def test_grbs014_graph_hover_points(dash_dcc, trace_type):
     assert {key: point[key] for key in expected} == expected
     assert not {"data", "fullData", "xaxis", "yaxis"}.intersection(point)
     assert dash_dcc.get_logs() == []
+
+
+def test_grbs015_graph_new_figure_keeps_user_zoom(dash_dcc):
+    """Regression test for https://github.com/plotly/dash/issues/4093.
+
+    A mouse drag, not Plotly.relayout: only a GUI edit is kept by uirevision."""
+    app = Dash(__name__)
+
+    def figure(showlegend):
+        return {
+            "data": [{"x": list(range(10)), "y": list(range(10))}],
+            "layout": {"uirevision": True, "showlegend": showlegend},
+        }
+
+    app.layout = html.Div(
+        [
+            html.Button("Toggle legend", id="toggle"),
+            dcc.Graph(id="graph", figure=figure(True), style={"width": 600}),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("toggle", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def toggle(n_clicks):
+        return figure(n_clicks % 2 == 0)
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    def rendered(expression):
+        return dash_dcc.driver.execute_script(
+            f"return document.querySelector('#graph .js-plotly-plot').{expression}"
+        )
+
+    full_range = rendered("_fullLayout.xaxis.range")
+    drag = dash_dcc.find_element("#graph .nsewdrag")
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(
+        drag, -100, 0
+    ).click_and_hold().move_by_offset(150, 0).release().perform()
+    wait.until(lambda: rendered("_fullLayout.xaxis.range") != full_range, 3)
+    zoomed = rendered("_fullLayout.xaxis.range")
+
+    dash_dcc.find_element("#toggle").click()
+    wait.until(lambda: rendered("_fullLayout.showlegend") is False, 3)
+    assert rendered("_fullLayout.xaxis.range") == zoomed
+
+    assert dash_dcc.get_logs() == []

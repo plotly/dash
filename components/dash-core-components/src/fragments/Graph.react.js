@@ -1,6 +1,8 @@
 import lazyLoadMathJax from '../utils/LazyLoader/third-party/mathjax';
 import React, {Component} from 'react';
 import {
+    assocPath,
+    dissocPath,
     equals,
     filter,
     has,
@@ -8,6 +10,7 @@ import {
     isNil,
     mergeDeepRight,
     omit,
+    path,
     type,
     clone,
 } from 'ramda';
@@ -63,6 +66,36 @@ const toPlainArray = value => {
         return value.map(toPlainArray);
     }
     return value;
+};
+
+// 'xaxis.range[0]' -> ['xaxis', 'range', 0], the key format of plotly.js `_preGUI`
+const guiEditPath = key =>
+    key
+        .split(/\.|\[(\d+)\]/)
+        .filter(Boolean)
+        .map(part => (/^\d+$/.test(part) ? Number(part) : part));
+
+// plotly.js keeps a user edit only while the incoming value equals its `_preGUI`
+// one; the relayout sync puts the edit in the figure, so restore the pre-edit value.
+const restoreGuiEdits = (gd, layout) => {
+    const preGUI = gd?._fullLayout?._preGUI;
+    if (!layout || !preGUI || layout.uirevision !== gd.layout?.uirevision) {
+        return layout;
+    }
+    let restored = layout;
+    for (const key of Object.keys(preGUI)) {
+        const keyPath = guiEditPath(key);
+        const incoming = path(keyPath, restored);
+        if (
+            incoming !== undefined &&
+            equals(incoming, path(keyPath, gd.layout))
+        ) {
+            restored = isNil(preGUI[key])
+                ? dissocPath(keyPath, restored)
+                : assocPath(keyPath, preGUI[key], restored);
+        }
+    }
+    return restored;
 };
 
 const filterEventData = (gd, eventData, event) => {
@@ -226,7 +259,10 @@ class PlotlyGraph extends Component {
 
         const figureClone = {
             data: figure?.data,
-            layout: this.getLayout(figure?.layout, responsive),
+            layout: restoreGuiEdits(
+                gd,
+                this.getLayout(figure?.layout, responsive)
+            ),
             frames: figure?.frames,
             config: configClone,
         };
