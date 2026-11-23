@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- Hot reload no longer stops for the rest of the session when the assets watcher finds a file it cannot stat, such as a dangling symlink (an Emacs lock file) or a temp file deleted mid-scan. Fixes [#4170](https://github.com/plotly/dash/issues/4170).
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed
