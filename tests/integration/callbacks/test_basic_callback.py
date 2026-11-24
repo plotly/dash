@@ -418,16 +418,14 @@ def test_cbsc008_wildcard_prop_callbacks(dash_duo):
     input1 = dash_duo.find_element("#input")
     dash_duo.clear_input(input1)
 
-    for key in "hello world":
-        with lock:
-            input1.send_keys(key)
-        time.sleep(0.05)  # Small delay to prevent callback debouncing
+    # Same keystroke gating as cbsc001: queued same-input callbacks coalesce.
+    until(lambda: input_call_count.value == 2, timeout=3)
+    for i, key in enumerate("hello world"):
+        input1.send_keys(key)
+        until(lambda i=i: input_call_count.value == 3 + i, timeout=3)
 
     dash_duo.wait_for_text_to_equal("#output-1", "hello world")
     assert dash_duo.find_element("#output-1").get_attribute("data-cb") == "hello world"
-
-    # Wait for all callbacks to complete
-    time.sleep(0.1)
 
     # an initial call, one for clearing the input
     # and one for each hello world character
