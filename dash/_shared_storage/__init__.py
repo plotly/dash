@@ -2,7 +2,7 @@
 
 Exposes the ``BaseSharedStorage`` interface and its backends:
 
-- ``LocalSharedStorage`` (default): in-memory, owner-elected -- one container.
+- ``LocalSharedStorage``: in-memory, owner-elected -- one container.
 - ``DiskcacheSharedStorage``: on a ``diskcache.Cache`` -- one machine, not pods.
 - ``RedisSharedStorage``: on Redis -- across processes and containers.
 """

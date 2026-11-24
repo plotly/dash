@@ -24,19 +24,19 @@ def _built(app):
     return storage if storage is None else storage()
 
 
-def test_unset_defaults_to_local(monkeypatch):
+def test_unset_disables(monkeypatch):
     monkeypatch.delenv("DASH_SHARED_STORAGE", raising=False)
     app = Dash(__name__)
-    assert app._shared_storage_arg is LocalSharedStorage
+    assert not app.shared_storage_enabled
 
 
-@pytest.mark.parametrize("value", ["local", "LOCAL", " local ", ""])
+@pytest.mark.parametrize("value", ["local", "LOCAL", " local "])
 def test_local(monkeypatch, value):
     app = _app(monkeypatch, value)
     assert app._shared_storage_arg is LocalSharedStorage
 
 
-@pytest.mark.parametrize("value", ["none", "None"])
+@pytest.mark.parametrize("value", ["none", "None", ""])
 def test_none_disables(monkeypatch, value):
     app = _app(monkeypatch, value)
     assert not app.shared_storage_enabled

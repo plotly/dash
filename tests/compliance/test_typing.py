@@ -444,10 +444,7 @@ def test_typi001_component_typing(arguments, assertions, tmp_path):
     assert_output(codefile, code, module="pyright", **assertions)
 
 
-typing_modules = ["pyright"]
-
-if sys.version_info.minor >= 10:
-    typing_modules.append("mypy")
+typing_modules = ["pyright", "mypy"]
 
 
 @pytest.mark.parametrize("typing_module", typing_modules)
@@ -468,4 +465,29 @@ def test_typi002_typing_compliance(
     code = format_template_and_save(
         basic_app_template, codefile, prelayout, layout, callback_return
     )
+    assert_output(codefile, code, module=typing_module, **assertions)
+
+
+dash_constructor_template = """
+from dash import Dash
+
+app = Dash({0})
+"""
+
+
+@pytest.mark.parametrize("typing_module", typing_modules)
+@pytest.mark.parametrize(
+    "arguments, assertions",
+    [
+        ("update_title='Loading...'", expect(status=0)),
+        ("update_title=''", expect(status=0)),
+        ("update_title=None", expect(status=0)),
+        ("update_title=123", expect(status=1)),
+    ],
+)
+def test_typi003_dash_constructor_typing(
+    typing_module, arguments, assertions, tmp_path
+):
+    codefile = os.path.join(tmp_path, "code.py")
+    code = format_template_and_save(dash_constructor_template, codefile, arguments)
     assert_output(codefile, code, module=typing_module, **assertions)

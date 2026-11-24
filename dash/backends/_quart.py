@@ -447,7 +447,7 @@ class QuartDashServer(BaseDashServer[Quart]):
             downlink = body.get("streamDownlink")
             if downlink is not None:
                 connection_id = get_stream_connection_id()
-                if connection_id is None:
+                if connection_id is None or not dash_app.shared_storage_enabled:
                     return Response(status=403)  # type: ignore[return-value]
                 marker = async_downlink_marker(
                     dash_app.shared_storage,

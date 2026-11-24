@@ -17,7 +17,7 @@ import logging
 import mimetypes
 import hashlib
 import base64
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 from typing import (
     Any,
     Callable,
@@ -177,6 +177,12 @@ try:
 except:  # noqa: E722
     page_container = None
 
+_ASSET_TYPES = {".js": "js", ".mjs": "mjs", ".css": "css"}
+
+
+def _asset_type(filename):
+    return _ASSET_TYPES.get(os.path.splitext(filename)[1])
+
 
 def _get_traceback(secret, error: Exception):
     try:
@@ -248,7 +254,7 @@ async def execute_async_function(func, *args, **kwargs):
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
 class Dash(ObsoleteChecker):
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
@@ -479,11 +485,16 @@ class Dash(ObsoleteChecker):
 
     :param shared_storage: Backend for ``dash.ctx.shared_storage`` and the
         streaming-callback transport: a ``BaseSharedStorage`` subclass or
-        instance, or ``None`` to disable. Default ``LocalSharedStorage`` (one
-        machine or pod). When not passed, the ``DASH_SHARED_STORAGE``
-        environment variable can choose it: ``local``, ``none``,
-        ``diskcache:///absolute/path``, or a ``redis://`` / ``rediss://`` URL.
-        An explicit argument, including ``None``, always wins.
+        instance, or ``None`` to disable. Off by default: pass
+        ``LocalSharedStorage`` for one machine or pod. Streaming callbacks
+        over HTTP need it, and server setup raises without it; WebSocket
+        streaming callbacks do not. When not passed, the
+        ``DASH_SHARED_STORAGE`` environment variable can choose it: ``local``,
+        ``none``, ``diskcache:///absolute/path``, or a ``redis://`` /
+        ``rediss://`` URL. An explicit argument, including ``None``, always
+        wins. The persistent ``LocalSharedStorage`` modes need
+        ``pip install "dash[shared_storage]"``; the diskcache and Redis backends
+        need their own ``dash[diskcache]`` / ``dash[redis]`` extra.
 
         Stream requests are signed per page load, so with several workers or
         pods they all need the same signing secret: set ``server.secret_key``
@@ -517,7 +528,7 @@ class Dash(ObsoleteChecker):
         include_assets_files: bool = True,
         include_pages_meta: bool = True,
         title: str = "Dash",
-        update_title: str = "Updating...",
+        update_title: Optional[str] = "Updating...",
         description: Optional[str] = None,
         image: Optional[str] = None,
         url_base_pathname: Optional[str] = None,
@@ -775,10 +786,6 @@ class Dash(ObsoleteChecker):
         self._got_first_request = {"pages": False, "setup_server": False}
         # Serialize the before_request hooks so a raced-in worker cannot see
         # the guard flag while the work behind it is still in flight (gh-3971).
-        # The async lock is created inside router_async so it binds to the
-        # running event loop; on 3.9 asyncio.Lock captures the loop at
-        # construction, which for a Dash instance built in module scope is
-        # the wrong one.
         self._setup_server_lock = threading.Lock()
         self._pages_lock = threading.Lock()
         self._pages_async_lock: Optional[asyncio.Lock] = None
@@ -1036,7 +1043,7 @@ class Dash(ObsoleteChecker):
 
     @property
     def shared_storage_enabled(self) -> bool:
-        """Whether this app has a shared-storage backend (not ``None``).
+        """Whether this app has a shared-storage backend (off by default).
 
         Cheap to read and does not start the backend, unlike ``shared_storage``.
         """
@@ -1047,13 +1054,14 @@ class Dash(ObsoleteChecker):
         """The app's shared storage (state manager + pub/sub), backend-agnostic.
 
         Started on first access in the worker that uses it. Access it from a
-        callback via ``dash.ctx.shared_storage``. Raises if the app was created
-        with ``shared_storage=None``.
+        callback via ``dash.ctx.shared_storage``. Raises if the app has no
+        shared storage (pass ``shared_storage=`` or set ``DASH_SHARED_STORAGE``).
         """
         if self._shared_storage_arg is None:
             raise SharedStorageError(
                 "Shared storage is disabled for this app; construct it with "
-                "Dash(shared_storage=...) to use dash.ctx.shared_storage."
+                "Dash(shared_storage=...) or set DASH_SHARED_STORAGE to use "
+                "dash.ctx.shared_storage."
             )
         if self._shared_storage_instance is None:
             with self._shared_storage_lock:
@@ -1265,14 +1273,14 @@ class Dash(ObsoleteChecker):
                 "heartbeat_interval": self._websocket_heartbeat_interval,
             }
 
-        # Streaming callbacks use the single multiplexed downlink only when a
-        # shared-storage backend is available to broker frames across workers;
-        # otherwise the client streams each callback on its own connection.
-        # The worker script hosts that downlink in a SharedWorker so every tab
-        # of the browser shares one connection (browsers cap connections per
-        # host); the renderer falls back to a per-tab downlink without it.
-        # "mode" is how the downlink is served: one open connection (ASGI) or
-        # polling (WSGI, where an open response would pin a worker thread).
+        # HTTP streaming callbacks need shared storage to broker frames across
+        # workers onto the single multiplexed downlink (_setup_server refuses
+        # them without it). The worker script hosts that downlink in a
+        # SharedWorker so every tab of the browser shares one connection
+        # (browsers cap connections per host); the renderer falls back to a
+        # per-tab downlink without SharedWorker support. "mode" is how the
+        # downlink is served: one open connection (ASGI) or polling (WSGI,
+        # where an open response would pin a worker thread).
         config["stream"] = {"enabled": self.shared_storage_enabled}
         if self.shared_storage_enabled:
             config["stream"].update(
@@ -1422,7 +1430,7 @@ class Dash(ObsoleteChecker):
                 static_url = self.get_asset_url(resource["asset_path"])
                 url_with_cache = static_url + f"?m={resource['ts']}"
                 # Import .mjs files with type=module script tag
-                if static_url.endswith(".mjs"):
+                if _asset_type(resource["asset_path"]) == "mjs":
                     attrs = {url_attr: url_with_cache, "type": "module"}
                     if "attributes" in resource:
                         attrs.update(resource["attributes"])
@@ -1928,6 +1936,12 @@ class Dash(ObsoleteChecker):
             _callback.GLOBAL_CALLBACK_LIST.clear()
 
             _validate.validate_background_callbacks(self.callback_map)
+            _validate.validate_stream_callbacks(
+                self.callback_map,
+                self.shared_storage_enabled,
+                self._websocket_callbacks,
+                self.backend.websocket_capability,
+            )
 
             cancels = {}
 
@@ -1975,17 +1989,21 @@ class Dash(ObsoleteChecker):
         self._assets_files.append(file_path)
         return res
 
+    def _is_ignored_asset(self, folders, filename):
+        # folders: the folder names between the assets folder and the file.
+        ignore_str = self.config.assets_ignore
+        if ignore_str and re.search(ignore_str, filename):
+            return True
+        return any(
+            re.search(ignore_path, folder)
+            for ignore_path in (self.config.assets_path_ignore or [])
+            if ignore_path
+            for folder in folders
+        )
+
     def _walk_assets_directory(self):
         walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r"[\\/]+")
-        ignore_str = self.config.assets_ignore
-        ignore_path_list = self.config.assets_path_ignore
-        ignore_filter = re.compile(ignore_str) if ignore_str else None
-        ignore_path_filters = [
-            re.compile(ignore_path)
-            for ignore_path in (ignore_path_list or [])
-            if ignore_path
-        ]
 
         for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
@@ -1999,32 +2017,23 @@ class Dash(ObsoleteChecker):
                 else:
                     base = splitted[0]
 
-            # Check if any level of current path matches ignore path
-            if s and any(
-                ignore_path_filter.search(x)
-                for ignore_path_filter in ignore_path_filters
-                for x in s.split(os.path.sep)
-            ):
-                pass
-            else:
-                if ignore_filter:
-                    files_gen = (x for x in files if not ignore_filter.search(x))
-                else:
-                    files_gen = files
+            folders = s.split(os.path.sep) if s else []
 
-                for f in sorted(files_gen):
-                    path = "/".join([base, f]) if base else f
+            for f in sorted(files):
+                if self._is_ignored_asset(folders, f):
+                    continue
 
-                    full = os.path.join(current, f)
+                path = "/".join([base, f]) if base else f
 
-                    if f.endswith("js"):
-                        self.scripts.append_script(
-                            self._add_assets_resource(path, full)
-                        )
-                    elif f.endswith("css"):
-                        self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
-                    elif f == "favicon.ico":
-                        self._favicon = path
+                full = os.path.join(current, f)
+                asset_type = _asset_type(f)
+
+                if asset_type in ("js", "mjs"):
+                    self.scripts.append_script(self._add_assets_resource(path, full))
+                elif asset_type == "css":
+                    self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
+                elif f == "favicon.ico":
+                    self._favicon = path
 
     @staticmethod
     def _invalid_resources_handler(err):
@@ -2504,33 +2513,41 @@ class Dash(ObsoleteChecker):
     # noinspection PyProtectedMember
     def _on_assets_change(self, filename, modified, deleted):
         _reload = self._hot_reload
+        in_assets = self.config.assets_folder in filename
+        asset_path = ""
+        if in_assets:
+            asset_path = (
+                os.path.relpath(
+                    filename,
+                    os.path.commonprefix([self.config.assets_folder, filename]),
+                )
+                .replace("\\", "/")
+                .lstrip("/")
+            )
+            *folders, name = asset_path.split("/")
+            if self._is_ignored_asset(folders, name):
+                return
+
         with _reload.lock:
             _reload.hard = True
             _reload.hash = generate_hash()
 
-            if self.config.assets_folder in filename:
-                asset_path = (
-                    os.path.relpath(
-                        filename,
-                        os.path.commonprefix([self.config.assets_folder, filename]),
-                    )
-                    .replace("\\", "/")
-                    .lstrip("/")
-                )
+            if in_assets:
+                asset_type = _asset_type(filename)
 
                 _reload.changed_assets.append(
                     {
                         "url": self.get_asset_url(asset_path),
                         "modified": int(modified),
-                        "is_css": filename.endswith("css"),
+                        "type": asset_type,
                     }
                 )
 
                 if filename not in self._assets_files and not deleted:
                     res = self._add_assets_resource(asset_path, filename)
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         self.scripts.append_script(res)
-                    elif filename.endswith("css"):
+                    elif asset_type == "css":
                         self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
@@ -2546,10 +2563,10 @@ class Dash(ObsoleteChecker):
                         if to_delete:
                             resources.remove(to_delete)
 
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         # pylint: disable=protected-access
                         delete_resource(self.scripts._resources._resources)
-                    elif filename.endswith("css"):
+                    elif asset_type == "css":
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
@@ -2851,7 +2868,9 @@ class Dash(ObsoleteChecker):
                 async def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():
@@ -2939,7 +2958,9 @@ class Dash(ObsoleteChecker):
                 def update(pathname_, search_, **states):
                     query_parameters = _parse_query_string(search_)
                     page, path_variables = _path_to_page(
-                        self.strip_relative_path(pathname_)
+                        self.strip_relative_path(
+                            unquote(pathname_) if pathname_ else pathname_
+                        )
                     )
                     if page == {}:
                         for module, page in _pages.PAGE_REGISTRY.items():
