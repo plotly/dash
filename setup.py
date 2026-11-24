@@ -21,7 +21,7 @@ setup(
     include_package_data=True,
     license="MIT",
     description=(
-        "A Python framework for building reactive web-apps. "
+        "Plotly Dash: the Python framework for building reactive web apps. "
         "Developed by Plotly."
     ),
     long_description=io.open("README.md", encoding="utf-8").read(),  # pylint: disable=consider-using-with
