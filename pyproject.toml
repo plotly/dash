@@ -8,7 +8,6 @@ dynamic = ["version"]
 description = "A Python framework for building reactive web-apps. Developed by Plotly."
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE"]
 authors = [{ name = "Chris Parmer", email = "chris@plotly.com" }]
 requires-python = ">=3.10"
 classifiers = [
