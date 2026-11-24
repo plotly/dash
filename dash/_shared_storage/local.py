@@ -98,8 +98,12 @@ def _unix_is_stale(path: str) -> bool:
     try:
         probe.connect(path)
         return False  # a live owner answered
+    except (ConnectionRefusedError, FileNotFoundError):
+        return True  # no listener -> stale socket file
     except OSError:
-        return True  # refused / no listener -> stale socket file
+        # A timeout or a full backlog: the owner is alive but too busy to
+        # accept. Taking its socket over would start a second, empty store.
+        return False
     finally:
         probe.close()
 

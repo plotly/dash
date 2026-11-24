@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#]() Fix `LocalSharedStorage` electing a second, empty owner under load when the owner was too busy to accept connections, which reset every open stream.
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed

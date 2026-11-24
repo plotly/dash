@@ -939,7 +939,10 @@ transport and stream over HTTP, one connection per stream.
 worker races to become the single **owner** for the machine by binding a stable
 address (`AF_UNIX` on POSIX, `127.0.0.1` loopback on Windows); the winner hosts
 the engine, losers proxy over the socket. The bind *is* the lease — when the
-owner dies the address frees and a survivor re-elects. A single-process
+owner dies the address frees and a survivor re-elects. A leftover unix socket
+counts as dead only when a connect is refused or the file is gone. An owner too
+busy to accept (full backlog, probe timeout) is alive: taking its socket over
+started a second, empty store at 4000 streaming browsers. A single-process
 deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 (defaults to a hash of cwd + argv[0]), `buffer_size` (default 32 — small on
 purpose, since each topic retains that many arbitrary payloads; raise it for a

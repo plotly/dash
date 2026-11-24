@@ -6,6 +6,9 @@ client reconnect-with-replay across a forced socket drop -- all over the real
 socket transport, not the in-process fast path.
 """
 import multiprocessing as mp
+import os
+import signal
+import socket
 import threading
 import time
 import uuid
@@ -173,6 +176,41 @@ def test_reelection_after_owner_killed(owner):
     client.set("after", "fresh")
     assert client.get("after") == "fresh"
     assert client._coord.is_owner()  # we are the new owner
+    client.close()
+
+
+@pytest.mark.skipif(
+    not hasattr(socket, "AF_UNIX") or not hasattr(signal, "SIGSTOP"),
+    reason="needs unix sockets and SIGSTOP",
+)
+def test_busy_owner_is_not_replaced(owner):
+    """An owner too busy to accept (its backlog full) is alive. A client that
+    re-elects must not take its socket over and start a second, empty store."""
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    o.do("set", "before", "value")
+    assert client.get("before") == "value"
+
+    os.kill(o.proc.pid, signal.SIGSTOP)
+    held = []
+    try:
+        for _ in range(200):
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.setblocking(False)
+            try:
+                sock.connect(client._coord._sock_path)
+            except OSError:
+                pass
+            held.append(sock)
+        client._coord.on_owner_lost()
+        assert not client._coord.is_owner()
+    finally:
+        os.kill(o.proc.pid, signal.SIGCONT)
+        for sock in held:
+            sock.close()
+
+    assert client.get("before") == "value"
     client.close()
 
 
