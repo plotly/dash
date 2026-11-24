@@ -2,8 +2,10 @@ import dash
 from dash import Input, Output, html, dcc
 from dash.exceptions import PreventUpdate
 from dash.dash_table import DataTable
+from dash.testing.wait import until
 
 import pytest
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 
 import math
@@ -242,7 +244,13 @@ def test_tpag011_valid_page(test):
     target = test.table("table")
     test.find_element("#button").click()
 
-    assert target.paging.current.get_value() == "1"
+    def on_first_page():
+        try:
+            return target.paging.current.get_value() == "1"
+        except WebDriverException:
+            return False
+
+    until(on_first_page, timeout=4)
     assert test.get_log_errors() == []
 
     test.table("table").is_ready()
