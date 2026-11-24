@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
-- [#]() Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
+- [#4184](https://github.com/plotly/dash/pull/4184) Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
 
 ## [4.5.1] - 2026-11-19
 
