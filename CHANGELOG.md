@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#]() Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed
