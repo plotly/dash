@@ -445,6 +445,8 @@ def test_relay_of_a_gone_client_does_not_keep_the_connection_alive(monkeypatch):
         await asyncio.sleep(0.05)
         newer_task = asyncio.ensure_future(relay(newer))
         await asyncio.sleep(0.05)
+        # The zombie's own write lands over the newer open record.
+        await zombie.aopen()
         newer_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await newer_task
@@ -459,6 +461,24 @@ def test_relay_of_a_gone_client_does_not_keep_the_connection_alive(monkeypatch):
         return gone
 
     assert asyncio.run(scenario())
+    storage.close()
+
+
+def test_closed_record_from_an_older_dash_is_left_alone():
+    from dash import _stream_hub as hub
+
+    storage = _storage("legacy")
+    cid = "c-legacy"
+
+    async def scenario():
+        downlink = hub.Downlink(storage, cid)
+        await downlink.aopen()
+        legacy = {"mode": "stream", "open": False, "at": time.time(), "token": "x"}
+        await storage.aset(hub.connection_key(cid), legacy)
+        await downlink._arepair()
+        return await storage.aget(hub.connection_key(cid))
+
+    assert asyncio.run(scenario())["token"] == "x"
     storage.close()
 
 

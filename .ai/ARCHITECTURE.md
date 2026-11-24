@@ -1512,11 +1512,14 @@ a terminal `{"done": true}` so a late-reconnecting client resolves.
 A downlink's close reads the record (is it still mine?) and then writes it
 closed: two round trips. When the browser's next downlink opens between them,
 the stale close overwrites a live record. On a busy store that happened to
-1-2% of streams at 4000 browsers, each cancelled at 10s. So an open async
+1-2% of streams at 4000 browsers, each cancelled at 10s. The rule now: the
+newest downlink of a page owns its record (records carry `opened`). A close
+writes closed over its own record or an older downlink's. An open async
 downlink reads the record every `DOWNLINK_GRACE / 2` and writes it open again
-only when an older downlink closed it. It leaves an open record or one closed
-by a newer downlink alone: a relay whose client vanished unnoticed must not
-keep the connection alive. Its own close waits for a repair in flight.
+only when an older downlink closed it, never over an open record or a newer
+downlink's: a relay whose client vanished unnoticed must not keep the page
+alive. Its close waits for a repair in flight. `opened` is wall-clock time, so
+across hosts it assumes clocks agree to well under a round trip.
 
 **Shutdown.** ASGI servers drain in-flight responses before stopping and a
 long-lived downlink never ends by itself, so `_stream_hub` installs a

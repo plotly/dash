@@ -232,6 +232,14 @@ class Downlink:
     def _is_mine(self, record: Any) -> bool:
         return isinstance(record, dict) and record.get("token") == self._token
 
+    def _owns(self, record: Any) -> bool:
+        """The newest downlink of a page owns its record: this one's, or an
+        older downlink's that this one replaced."""
+        if self._is_mine(record):
+            return True
+        opened = record.get("opened") if isinstance(record, dict) else None
+        return opened is not None and opened < self._opened
+
     def _release(self) -> bool:
         """End the subscription; False if this downlink was already closed."""
         if self._closed:
@@ -252,7 +260,7 @@ class Downlink:
         if not self._release():
             return
         with contextlib.suppress(Exception):
-            if self._is_mine(self.storage.get(self._key)):
+            if self._owns(self.storage.get(self._key)):
                 self.storage.set(self._key, self._record(False))
 
     async def _akeep_open(self) -> None:
@@ -268,9 +276,7 @@ class Downlink:
 
     async def _arepair(self) -> None:
         record = await self.storage.aget(self._key)
-        if isinstance(record, dict) and (
-            record.get("open") or record.get("opened", 0.0) > self._opened
-        ):
+        if isinstance(record, dict) and (record.get("open") or not self._owns(record)):
             # Open, or closed by a newer downlink: this one may be a relay
             # whose client is gone, and must not mark the connection alive.
             return
@@ -286,7 +292,7 @@ class Downlink:
             with contextlib.suppress(Exception):
                 await self._refresh
         with contextlib.suppress(Exception):
-            if self._is_mine(await self.storage.aget(self._key)):
+            if self._owns(await self.storage.aget(self._key)):
                 await self.storage.aset(self._key, self._record(False))
 
     def envelopes(self) -> Iterator[Any]:
