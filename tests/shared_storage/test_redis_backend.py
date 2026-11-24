@@ -293,6 +293,29 @@ def test_async_path_with_a_passed_client():
     client.close()
 
 
+@pytest.mark.parametrize("passed_client", [False, True])
+def test_async_burst_larger_than_the_pool_waits_for_connections(passed_client):
+    """redis-py 8 caps a pool at 100 connections and raises past it. A burst of
+    pumps publishing at once must wait for a connection, not fail."""
+    client = redis.Redis.from_url(REDIS_URL) if passed_client else None
+    store = RedisSharedStorage(
+        url=None if passed_client else REDIS_URL,
+        client=client,
+        key_prefix=f"dash:sstest:{uuid.uuid4().hex[:12]}",
+    )
+    store.start()
+
+    async def scenario():
+        await asyncio.gather(*(store.apublish("burst", i) for i in range(500)))
+        await asyncio.gather(*(store.aset(f"k{i}", i) for i in range(500)))
+
+    asyncio.run(scenario())
+    assert store.get("k499") == 499
+    store.close()
+    if client is not None:
+        client.close()
+
+
 @pytest.mark.parametrize("flavor", ["sync", "async"])
 def test_quiet_topic_outlasts_the_socket_timeout(flavor):
     """redis-py 8 times sockets out after 5 s, as long as an XREAD block: a

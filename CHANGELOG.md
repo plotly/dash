@@ -2,6 +2,11 @@
 All notable changes to `dash` will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [UNRELEASED]
+
+### Fixed
+- [#]() Fix `RedisSharedStorage` streaming callbacks failing under load with redis-py 8 (`MaxConnectionsError: Too many connections`): async calls now wait for a free connection.
+
 ## [4.5.1] - 2026-11-19
 
 ### Removed

@@ -45,6 +45,10 @@ _POLL_TIMEOUT = 5.0
 _READER_BLOCK_MS = 5000
 _WAKE_TTL_MS = 60_000
 _DEFAULT_URL = "redis://localhost:6379"
+# Connections per event loop's async client, and how long a call waits for a
+# free one before it fails.
+_ASYNC_POOL_SIZE = 100
+_ASYNC_POOL_WAIT = 20.0
 
 # A topic's keys live this many ttls past its last publish or poll. A poll on a
 # topic with a ttl blocks for at most a third of that lifetime, so a waiting
@@ -431,18 +435,29 @@ class RedisSharedStorage(BaseSharedStorage):
         _require_redis()
         from redis import asyncio as aredis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel,import-error
 
+        # redis-py 8 caps a pool at 100 connections and raises past that, so a
+        # burst of pumps publishing at once failed. A blocking pool waits for a
+        # free connection instead, and keeps the count Redis sees bounded.
+        limits = {
+            "max_connections": _ASYNC_POOL_SIZE,
+            "timeout": _ASYNC_POOL_WAIT,
+        }
         if self._url is not None:
-            return aredis.Redis.from_url(self._url)
-        # Same server and options as the client we were handed.
-        pool = self._redis.connection_pool
-        connection_class = getattr(
-            aredis.connection, pool.connection_class.__name__, aredis.Connection
-        )
-        return aredis.Redis(
-            connection_pool=aredis.ConnectionPool(
-                connection_class=connection_class, **pool.connection_kwargs
+            pool = aredis.BlockingConnectionPool.from_url(self._url, **limits)
+        else:
+            # Same server and options as the client we were handed.
+            sync_pool = self._redis.connection_pool
+            connection_class = getattr(
+                aredis.connection,
+                sync_pool.connection_class.__name__,
+                aredis.Connection,
             )
-        )
+            pool = aredis.BlockingConnectionPool(
+                connection_class=connection_class,
+                **limits,
+                **sync_pool.connection_kwargs,
+            )
+        return aredis.Redis(connection_pool=pool)
 
     def _loop_state(self) -> "_LoopState":
         loop = asyncio.get_running_loop()
