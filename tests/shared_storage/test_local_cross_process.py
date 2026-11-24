@@ -8,7 +8,10 @@ socket transport, not the in-process fast path.
 import multiprocessing as mp
 import os
 import signal
+import json
 import socket
+import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -212,6 +215,37 @@ def test_busy_owner_is_not_replaced(owner):
 
     assert client.get("before") == "value"
     client.close()
+
+
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_stale_socket_probe(tmp_path, monkeypatch):
+    from dash._shared_storage import local
+
+    sock_path = str(tmp_path / "s.sock")
+    addr_path = str(tmp_path / "s.addr")
+    assert local._unix_is_stale(sock_path, addr_path)  # no file
+
+    leftover = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    leftover.bind(sock_path)
+    leftover.close()  # the file stays, nobody listens
+    assert local._unix_is_stale(sock_path, addr_path)
+
+    stray = tmp_path / "stray"
+    stray.write_text("not a socket")
+    assert local._unix_is_stale(str(stray), addr_path)
+
+    # macOS and the BSDs also refuse when the backlog is full: there a refused
+    # probe means stale only once the advertised owner process is gone.
+    monkeypatch.setattr(local.sys, "platform", "darwin")
+    assert local._unix_is_stale(sock_path, addr_path)  # no advertisement
+    with open(addr_path, "w", encoding="utf-8") as f:
+        json.dump({"pid": os.getpid()}, f)
+    assert not local._unix_is_stale(sock_path, addr_path)
+    gone = subprocess.Popen([sys.executable, "-c", ""])
+    gone.wait()
+    with open(addr_path, "w", encoding="utf-8") as f:
+        json.dump({"pid": gone.pid}, f)
+    assert local._unix_is_stale(sock_path, addr_path)
 
 
 def test_reelection_recovers_persisted_data(tmp_path):
