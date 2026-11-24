@@ -8,6 +8,7 @@ import sys
 from fnmatch import fnmatch
 from os.path import isfile, join
 from pathlib import Path
+from typing import Any
 from urllib.parse import parse_qs
 
 from . import _validate
@@ -17,7 +18,7 @@ from ._get_paths import get_relative_path
 from ._utils import AttributeDict, get_root_path
 
 CONFIG = AttributeDict()
-PAGE_REGISTRY = collections.OrderedDict()
+PAGE_REGISTRY: collections.OrderedDict[str, dict[str, Any]] = collections.OrderedDict()
 
 
 def _infer_image(module):
