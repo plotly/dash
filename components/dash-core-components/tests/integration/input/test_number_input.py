@@ -283,3 +283,44 @@ def test_inni011_min_max_bug(dash_dcc, min):
     dash_dcc.wait_for_text_to_equal("#output", "16")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_inni012_stepper_does_not_orphan_debounce(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [dcc.Input(id="input", type="number", debounce=1), html.Div(id="output")]
+    )
+
+    @app.callback(Output("output", "children"), Input("input", "value"))
+    def update(value):
+        return value
+
+    dash_dcc.start_server(app)
+    input_elem = dash_dcc.find_element("#input")
+    increment = dash_dcc.find_element("#input~.dash-stepper-increment")
+    input_elem.send_keys("100")
+    dash_dcc.wait_for_text_to_equal("#output", "100")
+
+    # Stepper clicks used to drop the pending debounce timer, so later timers
+    # fired late and wrote an old value back over what the user had typed.
+    start = time.time()
+
+    def wait_until(offset):
+        time.sleep(max(0, start + offset - time.time()))
+
+    increment.click()
+    wait_until(0.5)
+    increment.click()
+    wait_until(1.2)
+    input_elem.send_keys(Keys.END, "7")
+    wait_until(1.7)
+    input_elem.send_keys(Keys.END, "4")
+    wait_until(2.4)
+    input_elem.send_keys(Keys.END, "5", Keys.BACKSPACE, Keys.BACKSPACE)
+
+    dash_dcc.wait_for_text_to_equal("#output", "1027")
+    time.sleep(1.2)
+    assert input_elem.get_attribute("value") == "1027"
+    assert dash_dcc.find_element("#output").text == "1027"
+
+    assert dash_dcc.get_logs() == []
