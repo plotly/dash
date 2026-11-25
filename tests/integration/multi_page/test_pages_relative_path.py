@@ -1,4 +1,8 @@
 from pathlib import Path
+from urllib.parse import urlparse
+
+import pytest
+import requests
 
 import dash
 from dash import Dash, dcc, html
@@ -87,3 +91,33 @@ def test_pare003_absolute_path(dash_duo, clear_pages_state):
         until(lambda: dash_duo.driver.title == page["title"], timeout=3)
 
     assert dash_duo.get_logs() == [], "browser console should contain no error"
+
+
+@pytest.mark.parametrize(
+    "prefixes,source,target",
+    [
+        ({"url_base_pathname": "/app/"}, "/app/home", "/app/overview"),
+        # The DE workspace proxy strips requests_pathname_prefix before the server.
+        (
+            {"routes_pathname_prefix": "/", "requests_pathname_prefix": "/ws/abc/"},
+            "/home",
+            "/ws/abc/overview",
+        ),
+    ],
+)
+def test_pare004_redirect_from_with_prefix(
+    dash_thread_server, clear_pages_state, prefixes, source, target
+):
+    app = Dash(__name__, use_pages=True, pages_folder="", **prefixes)
+    dash.register_page(
+        "overview",
+        path="/overview",
+        redirect_from=["/home"],
+        layout=html.Div("overview", id="overview"),
+    )
+    app.layout = dash.page_container
+    dash_thread_server(app)
+
+    res = requests.get(f"{dash_thread_server.url}{source}", allow_redirects=False)
+    assert res.status_code in (301, 302, 307, 308)
+    assert urlparse(res.headers["Location"]).path == target

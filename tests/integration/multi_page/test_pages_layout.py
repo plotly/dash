@@ -1,3 +1,6 @@
+import sys
+import types
+
 import pytest
 import dash
 from dash import Dash, Input, State, dcc, html, Output
@@ -295,3 +298,23 @@ def test_pala007_app_title_discription(dash_duo, clear_pages_state):
     assert dash.page_registry["page1"]["title"] == "Page 1 Title"
     assert dash.page_registry["home"]["description"] == "App Description"
     assert dash.page_registry["page1"]["description"] == "Page 1 Description"
+
+
+def test_pala008_main_module_without_file(
+    dash_duo, clear_pages_state, tmp_path, monkeypatch
+):
+    # Jupyter runs the app in a __main__ module that has no __file__.
+    monkeypatch.setitem(sys.modules, "__main__", types.ModuleType("__main__"))
+    pages_folder = tmp_path / "pages"
+    pages_folder.mkdir()
+    (pages_folder / "home.py").write_text(
+        "import dash\n"
+        "from dash import html\n"
+        "dash.register_page(__name__, path='/')\n"
+        "layout = html.Div('home', id='home')\n"
+    )
+
+    app = Dash("__main__", use_pages=True, pages_folder=str(pages_folder))
+    app.layout = dash.page_container
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#home", "home")

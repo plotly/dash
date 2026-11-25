@@ -13,7 +13,7 @@ from urllib.parse import parse_qs
 from . import _validate
 from ._callback_context import context_value
 from ._get_app import get_app
-from ._get_paths import get_relative_path
+from ._get_paths import app_get_relative_path, get_relative_path
 from ._utils import AttributeDict, get_root_path
 
 CONFIG = AttributeDict()
@@ -88,8 +88,8 @@ def _infer_path(module_name, template):
 def _module_name_is_package(module_name):
     if module_name not in sys.modules:
         return False
-    file = sys.modules[module_name].__file__
-    return file and file.endswith("__init__.py")
+    file = getattr(sys.modules[module_name], "__file__", None)
+    return bool(file) and file.endswith("__init__.py")
 
 
 def _path_to_module_name(path):
@@ -158,8 +158,10 @@ def _set_redirect(redirect_from, path):
     app = get_app()
     if redirect_from and len(redirect_from):
         for redirect in redirect_from:
-            fullname = app.get_relative_path(redirect)
-            app.backend.add_redirect_rule(app, fullname, app.get_relative_path(path))
+            fullname = app_get_relative_path(
+                app.config.routes_pathname_prefix, redirect
+            )
+            app.backend.add_redirect_rule(app, fullname, path)
 
 
 def register_page(

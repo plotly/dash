@@ -37,6 +37,32 @@ class _Hook(_t.Generic[HookDataType]):
 
 
 class _Hooks:
+    """
+    Extend every Dash app from a separate package, through ``dash.hooks``.
+
+    Hooks are registered at import time, usually in a plugin package, and
+    apply to every ``Dash`` app created after they are registered. To load a
+    plugin without importing it in the app, declare a ``dash_hooks`` entry
+    point that points to the module registering the hooks::
+
+        # pyproject.toml
+        [project.entry-points.dash_hooks]
+        my_plugin = "my_plugin"
+
+    Example::
+
+        from dash import hooks, html
+
+        @hooks.layout()
+        def add_footer(layout):
+            return [layout, html.Footer("Powered by my_plugin")]
+
+    Decorator hooks take ``priority`` and ``final``. Hooks with a higher
+    ``priority`` run first; without one, hooks run in the order they were
+    registered. A ``final`` hook always runs last, and only one ``final``
+    hook is allowed per hook type.
+    """
+
     def __init__(self) -> None:
         self._ns: _t.Dict[str, _t.List[_t.Any]] = {
             "setup": [],
@@ -94,8 +120,17 @@ class _Hooks:
 
     def layout(self, priority: _t.Optional[int] = None, final: bool = False):
         """
-        Run a function when serving the layout, the return value
-        will be used as the layout.
+        Modify the layout each time it is served.
+
+        The function receives the current layout and returns the new one.
+        Layout hooks are chained, each one receives the result of the
+        previous one.
+
+        Example::
+
+            @hooks.layout()
+            def wrap(layout):
+                return html.Div([html.Header("My org"), layout])
         """
 
         def _wrap(func: _t.Callable[[LayoutType], LayoutType]):
@@ -106,7 +141,17 @@ class _Hooks:
 
     def setup(self, priority: _t.Optional[int] = None, final: bool = False):
         """
-        Can be used to get a reference to the app after it is instantiated.
+        Run a function with the app instance once it is created.
+
+        Called during ``Dash.__init__``, before the server routes are set
+        up, with the ``Dash`` app as its only argument. The return value is
+        ignored.
+
+        Example::
+
+            @hooks.setup()
+            def on_setup(app):
+                app.config.suppress_callback_exceptions = True
         """
 
         def _setup(func: _t.Callable[[Dash], None]):
@@ -125,9 +170,20 @@ class _Hooks:
         """
         Add a route to the Dash server.
 
-        The route function can be `async def`; with the Flask backend this
-        requires `flask[async]`. Read the request with
-        `dash.get_app().backend.request_adapter()`.
+        ``name`` is the url path, relative to ``routes_pathname_prefix``. It
+        defaults to the function name. ``methods`` lists the allowed HTTP
+        methods. The function takes no arguments and its return value is
+        the response.
+
+        The route function can be ``async def``; with the Flask backend this
+        requires ``flask[async]``. Read the request with
+        ``dash.get_app().backend.request_adapter()``.
+
+        Example::
+
+            @hooks.route("my-plugin/status", methods=("GET",))
+            def status():
+                return {"ok": True}
         """
 
         def wrap(func: _t.Callable[[], _t.Any]):
@@ -144,7 +200,20 @@ class _Hooks:
         return wrap
 
     def error(self, priority: _t.Optional[int] = None, final: bool = False):
-        """Automatically add an error handler to the dash app."""
+        """
+        Handle exceptions raised in callbacks.
+
+        The function receives the exception, the same way as the app
+        ``on_error`` argument. It runs after the app ``on_error`` handler
+        if one is set. A value returned by either is used as the callback
+        output, the app handler result taking precedence.
+
+        Example::
+
+            @hooks.error()
+            def log_error(err):
+                logger.exception(err)
+        """
 
         def _error(func: _t.Callable[[Exception], _t.Any]):
             self.add_hook("error", func, priority=priority, final=final)
@@ -156,7 +225,16 @@ class _Hooks:
         self, *args, priority: _t.Optional[int] = None, final: bool = False, **kwargs
     ):
         """
-        Add a callback to all the apps with the hook installed.
+        Add a callback to every app.
+
+        Takes the same arguments as ``dash.callback``. The components it
+        uses must be in the app layout, usually added with a layout hook.
+
+        Example::
+
+            @hooks.callback(Output("plugin-out", "children"), Input("plugin-btn", "n_clicks"))
+            def on_click(n_clicks):
+                return f"Clicked {n_clicks} times"
         """
 
         def wrap(func):
@@ -175,20 +253,61 @@ class _Hooks:
         self, clientside_function: ClientsideFuncType, *args, **kwargs
     ):
         """
-        Add a callback to all the apps with the hook installed.
+        Add a clientside callback to every app.
+
+        Takes the same arguments as ``dash.clientside_callback``. Unlike
+        the other hooks, this is a plain call, not a decorator.
+
+        Example::
+
+            hooks.clientside_callback(
+                "function(n) { return n || 0; }",
+                Output("plugin-count", "children"),
+                Input("plugin-btn", "n_clicks"),
+            )
         """
         self._clientside_callbacks.append((clientside_function, args, kwargs))
 
     def script(self, distribution: _t.List[ResourceType]):
-        """Add js scripts to the page."""
+        """
+        Add JavaScript files to every app.
+
+        ``distribution`` is a list of resources in the same format as a
+        component library ``_js_dist``: dicts with ``relative_package_path``,
+        ``external_url``, ``namespace``, and so on.
+
+        Example::
+
+            hooks.script([{
+                "external_url": "https://cdn.example.com/plugin.js",
+                "namespace": "my_plugin",
+            }])
+        """
         self._js_dist.extend(distribution)
 
     def stylesheet(self, distribution: _t.List[ResourceType]):
-        """Add stylesheets to the page."""
+        """
+        Add stylesheets to every app.
+
+        ``distribution`` is a list of resources in the same format as a
+        component library ``_css_dist``. See ``hooks.script``.
+        """
         self._css_dist.extend(distribution)
 
     def index(self, priority: _t.Optional[int] = None, final=False):
-        """Modify the index of the apps."""
+        """
+        Modify the HTML of the index page.
+
+        The function receives the rendered index as a string and returns
+        the new one. The result must still contain the Dash entry points,
+        or serving the page raises an error.
+
+        Example::
+
+            @hooks.index()
+            def add_banner(index):
+                return index.replace("<body>", "<body><div>Beta</div>")
+        """
 
         def wrap(func):
             self.add_hook(
@@ -205,10 +324,21 @@ class _Hooks:
         self, namespace: str, priority: _t.Optional[int] = None, final=False
     ):
         """
-        Add data to the callback_context.custom_data property under the namespace.
+        Add data to ``callback_context.custom_data`` under ``namespace``.
 
-        The hook function takes the current context_value and before the ctx is set
-        and has access to the flask request context.
+        Runs before each callback. The function receives the callback
+        context value and its return value is stored under ``namespace``.
+        It runs inside the request, so it can read it with
+        ``dash.get_app().backend.request_adapter()``.
+
+        Example::
+
+            @hooks.custom_data("auth")
+            def user(_ctx):
+                req = dash.get_app().backend.request_adapter()
+                return {"user": req.headers.get("X-User")}
+
+            # in a callback: ctx.custom_data.auth["user"]
         """
 
         def wrap(func: _t.Callable[[_t.Dict], _t.Any]):
@@ -233,11 +363,23 @@ class _Hooks:
         """
         Add a component to be rendered inside the dev tools.
 
-        If it's a dash component, it can be used in callbacks provided
-        that it has an id and the dependency is set with allow_optional=True.
+        ``namespace`` and ``component_type`` name the component, as in its
+        ``_namespace`` and ``_type``. ``position`` is ``"right"`` or
+        ``"left"`` in the dev tools bar. Only shown when the dev tools UI is
+        on (``debug=True``).
 
-        `props` can be a function, in which case it will be called before
+        If it's a dash component, it can be used in callbacks provided
+        that it has an id and the dependency is set with ``allow_optional=True``.
+
+        ``props`` can be a function, in which case it will be called before
         sending the component to the frontend.
+
+        Example::
+
+            hooks.devtool(
+                "dash_html_components", "Div",
+                props={"id": "plugin-devtool", "children": "my_plugin"},
+            )
         """
         self._ns["dev_tools"].append(
             {
