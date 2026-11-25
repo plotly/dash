@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4171](https://github.com/plotly/dash/pull/4171) Hot reload no longer stops for the rest of the session when the assets watcher finds a file it cannot stat, such as a dangling symlink (an Emacs lock file) or a temp file deleted mid-scan. Fixes [#4170](https://github.com/plotly/dash/issues/4170).
 - [#4165](https://github.com/plotly/dash/pull/4165) Use `@pytest.hookimpl(tryfirst=True)` on `pytest_addhooks` in `dash.testing.plugin` to eliminate `PytestRemovedIn10Warning` during pytest plugin registration and preserve compatibility with pytest 10. Fixes [#2420](https://github.com/plotly/dash/issues/2420).
 - [#4104](https://github.com/plotly/dash/pull/4104) Allow `update_title=None` in the `Dash` constructor type hints.
+- [#4129](https://github.com/plotly/dash/pull/4129) `set_props` now returns `no_update`, so `yield set_props(...)` in a streaming callback sends the side update right away, and a `set_props` called after the last yield is no longer dropped. Fixes [#4127](https://github.com/plotly/dash/issues/4127).
 - [#4137](https://github.com/plotly/dash/pull/4137) Fix FastAPI `after_request` hooks to match Flask: multiple hooks run in LIFO order on every route, get the response and can return a new one. Quart `after_request` hooks get the response too.
 
 ## [4.5.1] - 2026-11-19

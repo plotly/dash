@@ -3,6 +3,7 @@ import asyncio
 import time
 
 from dash import (
+    ALL,
     Dash,
     Input,
     Output,
@@ -109,6 +110,99 @@ def test_stst003_stream_multi_output_and_set_props(dash_duo):
     dash_duo.wait_for_text_to_equal("#a", "a1")
     dash_duo.wait_for_text_to_equal("#b", "b1")
     dash_duo.wait_for_text_to_equal("#side", "from-set-props")
+    assert dash_duo.get_logs() == []
+
+
+def test_stst007_yield_set_props_renders_before_stream_ends(dash_duo):
+    """App from #4127: the yielded set_props shows before the sleep ends."""
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="input", type="button", children="Click Me"),
+            html.Div(id="output"),
+        ]
+    )
+
+    @app.callback(
+        Output("output", "id"),
+        Input("input", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    async def update_output(value):
+        yield set_props(
+            "output", {"children": html.Div(id="output2", children="Loading...")}
+        )
+        await asyncio.sleep(5)
+        set_props("output2", {"children": f"You entered: {value}"})
+
+    dash_duo.start_server(app)
+    dash_duo.find_element("#input").click()
+    dash_duo.wait_for_text_to_equal("#output2", "Loading...", timeout=3)
+    dash_duo.wait_for_text_to_equal("#output2", "You entered: 1", timeout=8)
+    assert dash_duo.get_logs() == []
+
+
+def test_stst008_returned_set_props_keeps_dict_and_wildcard_outputs(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("Stream", id="btn-stream", n_clicks=0),
+            html.Button("Regular", id="btn-regular", n_clicks=0),
+            html.Button("Wildcard", id="btn-all", n_clicks=0),
+            html.Div(id="a", children="a0"),
+            html.Div(id="b", children="b0"),
+            html.Div(id="c", children="c0"),
+            html.Div(id="d", children="d0"),
+            html.Div(id={"w": 1}, children="w0"),
+            html.Div(id="side-stream", children=""),
+            html.Div(id="side-regular", children=""),
+            html.Div(id="side-all", children=""),
+        ]
+    )
+
+    @app.callback(
+        output=dict(x=Output("a", "children"), y=Output("b", "children")),
+        inputs=dict(n=Input("btn-stream", "n_clicks")),
+        prevent_initial_call=True,
+    )
+    async def stream_cb(n):
+        yield set_props("side-stream", {"children": "stream-start"})
+        await asyncio.sleep(5)
+        yield dict(x="a1", y=no_update)
+
+    @app.callback(
+        output=dict(x=Output("c", "children"), y=Output("d", "children")),
+        inputs=dict(n=Input("btn-regular", "n_clicks")),
+        prevent_initial_call=True,
+    )
+    def regular_cb(n):
+        return set_props("side-regular", {"children": "regular"})
+
+    @app.callback(
+        Output({"w": ALL}, "children"),
+        Input("btn-all", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def wildcard_cb(n):
+        return set_props("side-all", {"children": "wildcard"})
+
+    dash_duo.start_server(app)
+
+    dash_duo.find_element("#btn-regular").click()
+    dash_duo.wait_for_text_to_equal("#side-regular", "regular")
+    dash_duo.wait_for_text_to_equal("#c", "c0")
+    dash_duo.wait_for_text_to_equal("#d", "d0")
+
+    dash_duo.find_element("#btn-all").click()
+    dash_duo.wait_for_text_to_equal("#side-all", "wildcard")
+    dash_duo.wait_for_text_to_equal("[id='{\"w\":1}']", "w0")
+
+    dash_duo.find_element("#btn-stream").click()
+    dash_duo.wait_for_text_to_equal("#side-stream", "stream-start", timeout=3)
+    dash_duo.wait_for_text_to_equal("#a", "a0")
+    dash_duo.wait_for_text_to_equal("#b", "b0")
+    dash_duo.wait_for_text_to_equal("#a", "a1", timeout=8)
+    dash_duo.wait_for_text_to_equal("#b", "b0")
     assert dash_duo.get_logs() == []
 
 
