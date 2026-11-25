@@ -239,18 +239,16 @@ const getNewRevision = (layout, revisionAttr) => {
     return layout.uirevision;
 };
 
+// Only sets inside existing containers, never creates them
 const setPath = (container, keys, value) => {
-    let parent = container;
-    for (let i = 0; i < keys.length - 1; i++) {
-        if (typeof parent[keys[i]] !== 'object' || parent[keys[i]] === null) {
-            if (value === undefined) {
-                return;
-            }
-            parent[keys[i]] = typeof keys[i + 1] === 'number' ? [] : {};
-        }
-        parent = parent[keys[i]];
+    const parent = path(keys.slice(0, -1), container);
+    if (typeof parent !== 'object' || parent === null) {
+        return;
     }
     const last = keys[keys.length - 1];
+    if (Array.isArray(parent) && last >= parent.length) {
+        return;
+    }
     if (value === undefined && !Array.isArray(parent)) {
         delete parent[last];
     } else {
@@ -488,7 +486,7 @@ class PlotlyGraph extends Component {
         if (!layout || !preGUI) {
             return;
         }
-        for (const [attr, synced] of Object.entries(this._syncedEdits)) {
+        for (const [attr, syncedValues] of Object.entries(this._syncedEdits)) {
             if (!(attr in preGUI)) {
                 delete this._syncedEdits[attr];
                 continue;
@@ -506,9 +504,20 @@ class PlotlyGraph extends Component {
             const original = preGUI[attr] ?? undefined;
             if (animating) {
                 if (equals(value, original)) {
-                    setPath(layout, keys, clone(synced));
+                    setPath(
+                        layout,
+                        keys,
+                        clone(syncedValues[syncedValues.length - 1])
+                    );
                 }
-            } else if (equals(value, synced)) {
+                continue;
+            }
+            // Earlier syncs may still be queued for plotting
+            const index = syncedValues.findIndex(synced =>
+                equals(value, synced)
+            );
+            if (index !== -1) {
+                this._syncedEdits[attr] = syncedValues.slice(index);
                 setPath(layout, keys, original);
             }
         }
@@ -519,7 +528,10 @@ class PlotlyGraph extends Component {
         for (const attr of Object.keys(preGUI)) {
             const keys = toPath(attr);
             if (keys[0] in updates && getRevisionAttr(attr)) {
-                this._syncedEdits[attr] = path(keys, updates);
+                this._syncedEdits[attr] = [
+                    ...(this._syncedEdits[attr] ?? []),
+                    path(keys, updates),
+                ];
             }
         }
     }

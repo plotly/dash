@@ -127,8 +127,25 @@ describe('synced GUI edits under uirevision', () => {
     });
 
     it('animates to the edit when the figure has the pre-edit value', () => {
-        const layout: Record<string, unknown> = {uirevision: true};
+        const layout = {uirevision: true, xaxis: {range: [undefined, 9]}};
         zoomed().applySyncedEdits(layout, true);
-        expect(layout.xaxis).toEqual({range: [2, 4], autorange: false});
+        expect(layout.xaxis).toEqual({range: [2, 9], autorange: false});
+    });
+
+    it('restores values from syncs that are still queued', () => {
+        const graph = zoomed();
+        graph.trackSyncedEdits({xaxis: {range: [3, 5], autorange: false}});
+        const first = {
+            uirevision: true,
+            xaxis: {range: [2, 4], autorange: false},
+        };
+        graph.applySyncedEdits(first, false);
+        expect(first.xaxis).toEqual({range: [undefined, undefined]});
+        const second = {
+            uirevision: true,
+            xaxis: {range: [3, 5], autorange: false},
+        };
+        graph.applySyncedEdits(second, false);
+        expect(second.xaxis).toEqual({range: [undefined, undefined]});
     });
 });

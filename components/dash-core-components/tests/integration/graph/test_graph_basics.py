@@ -896,6 +896,7 @@ def test_grbs014_graph_hover_points(dash_dcc, trace_type):
     point = hover_data["points"][0]
     assert {key: point[key] for key in expected} == expected
     assert not {"data", "fullData", "xaxis", "yaxis"}.intersection(point)
+    assert dash_dcc.get_logs() == []
 
 
 def _rendered_xrange(dash_dcc):
