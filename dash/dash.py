@@ -254,7 +254,7 @@ async def execute_async_function(func, *args, **kwargs):
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
 class Dash(ObsoleteChecker):
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
@@ -528,7 +528,7 @@ class Dash(ObsoleteChecker):
         include_assets_files: bool = True,
         include_pages_meta: bool = True,
         title: str = "Dash",
-        update_title: str = "Updating...",
+        update_title: Optional[str] = "Updating...",
         description: Optional[str] = None,
         image: Optional[str] = None,
         url_base_pathname: Optional[str] = None,

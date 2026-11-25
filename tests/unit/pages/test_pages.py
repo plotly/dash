@@ -23,6 +23,9 @@ THIS_DIR = Path(__file__).parent
             str(THIS_DIR / "custom_pages"),
             "/chapter-1/page-1",
         ),
+        ("pages.landing_pages", None, str(THIS_DIR / "pages"), "/landing-pages"),
+        ("pages.subpages.report", None, str(THIS_DIR / "pages"), "/subpages/report"),
+        ("views.overviews", None, str(THIS_DIR / "views"), "/overviews"),
         # can this even be called with  CONFIG.pages_folder set to None?
         ("dir.my_page", None, None, "/dir/my-page"),
         # is this behaviour right? why is filename ignored when template has a value?

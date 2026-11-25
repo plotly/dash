@@ -1,8 +1,9 @@
 from dash import Dash, html, dcc, Input, Output
-from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
+
+from dropdown_utils import wait_for_focused_option, wait_for_search_focus
 
 
 def test_ddso001_search_preserves_custom_order(dash_duo):
@@ -39,10 +40,6 @@ def test_ddso001_search_preserves_custom_order(dash_duo):
     assert dash_duo.get_logs() == []
 
 
-# Keyboard nav here goes through ActionChains (document.activeElement); the
-# selection depends on the menu input having focus, which can lag menu-open under
-# CI load and drop a keystroke. Retry the whole test when that happens.
-@flaky(max_runs=3)
 def test_ddso002_multi_search_preserves_custom_order(dash_duo):
     def send_keys(key):
         ActionChains(dash_duo.driver).send_keys(key).perform()
@@ -69,31 +66,27 @@ def test_ddso002_multi_search_preserves_custom_order(dash_duo):
 
     dropdown = dash_duo.find_element("#dropdown")
     dropdown.click()
-    dash_duo.wait_for_element(".dash-dropdown-options")
+    wait_for_search_focus(dash_duo)
 
     # Select '12' (second option)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
+    wait_for_focused_option(dash_duo, "12")
     send_keys(Keys.SPACE)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['12']")
-    sleep(0.2)
 
     # Select '111' (fourth option)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
     send_keys(Keys.ARROW_DOWN)
-    sleep(0.2)
+    wait_for_focused_option(dash_duo, "111")
     send_keys(Keys.SPACE)
     dash_duo.wait_for_text_to_equal("#output", "Selected: ['12', '111']")
-    sleep(0.2)
 
     # Search for '1'
     send_keys(Keys.HOME)
-    sleep(0.2)
+    wait_for_search_focus(dash_duo)
     send_keys("1")
-    sleep(0.2)
+    dash_duo.wait_for_text_to_equal(".dash-dropdown-search", "1")
 
     # Presents selected options first and rest in original order
     options = dash_duo.find_elements(".dash-dropdown-option")

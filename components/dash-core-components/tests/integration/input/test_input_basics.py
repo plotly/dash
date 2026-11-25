@@ -173,3 +173,34 @@ def test_inbs004_cursor_position_on_invalid_input(
     ), f"Cursor should be at position {expected_cursor_position}"
 
     assert dash_dcc.get_logs() == []
+
+
+def test_inbs005_color_type(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [dcc.Input(id="color", type="color", value="#ff0000"), html.Div(id="out")]
+    )
+
+    @app.callback(Output("out", "children"), Input("color", "value"))
+    def show(value):
+        return value
+
+    # The prop check needs the dev bundles: proptypes.js is dev_only.
+    dash_dcc.start_server(
+        app, dev_tools_props_check=True, dev_tools_serve_dev_bundles=True
+    )
+
+    assert dash_dcc.find_element("#color").get_attribute("type") == "color"
+    dash_dcc.wait_for_text_to_equal("#out", "#ff0000")
+
+    # A color picker cannot be typed into, so set the value the way the
+    # browser does: through the native setter, then an input event for React.
+    dash_dcc.driver.execute_script(
+        "const el = document.getElementById('color');"
+        "Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')"
+        ".set.call(el, '#00ff00');"
+        "el.dispatchEvent(new Event('input', {bubbles: true}));"
+    )
+    dash_dcc.wait_for_text_to_equal("#out", "#00ff00")
+
+    assert dash_dcc.get_logs() == []

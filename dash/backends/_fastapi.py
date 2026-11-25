@@ -28,7 +28,7 @@ try:
     from starlette.exceptions import HTTPException
     from starlette.requests import HTTPConnection
     from starlette.types import ASGIApp, Scope, Receive, Send
-    from starlette.websockets import WebSocket, WebSocketDisconnect
+    from starlette.websockets import WebSocket, WebSocketDisconnect, WebSocketState
     import uvicorn
 except ImportError as _err:
     raise ImportError(
@@ -976,7 +976,9 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
             )
 
             try:
-                while True:
+                # The sender task may have already seen the disconnect, and
+                # receive_json then raises RuntimeError, not WebSocketDisconnect.
+                while websocket.application_state == WebSocketState.CONNECTED:
                     message = await websocket.receive_json()
 
                     # Call websocket_message hooks
@@ -987,7 +989,10 @@ class FastAPIDashServer(BaseDashServer[FastAPI]):
                         default_reason="Message rejected",
                     )
                     if rejection:
-                        await websocket.close(code=rejection[0], reason=rejection[1])
+                        if websocket.application_state == WebSocketState.CONNECTED:
+                            await websocket.close(
+                                code=rejection[0], reason=rejection[1]
+                            )
                         return
 
                     msg_type = message.get("type")
