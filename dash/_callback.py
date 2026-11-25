@@ -77,7 +77,7 @@ Params = ParamSpec("Params")
 ReturnVar = TypeVar("ReturnVar")
 
 
-# pylint: disable=too-many-locals,too-many-arguments
+# pylint: disable=too-many-locals, too-many-arguments, too-many-positional-arguments
 def callback(
     *_args,
     background: bool = False,
@@ -337,7 +337,7 @@ def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs
     )
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def insert_callback(
     callback_list,
     callback_map,

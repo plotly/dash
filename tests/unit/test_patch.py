@@ -263,3 +263,68 @@ def test_pat021_patch_iter():
     with pytest.raises(TypeError):
         for _ in p["invalid"]:
             print("invalid iteration")
+
+
+def test_pat022_patch_update_shared_mapping():
+    common = {"currency": "USD"}
+    p = Patch()
+    p["jan"].update(common, amount=100)
+    p["feb"].update(common, amount=200)
+
+    assert patch_to_dict(p)["operations"] == [
+        {
+            "operation": "Merge",
+            "location": ["jan"],
+            "params": {"value": {"currency": "USD", "amount": 100}},
+        },
+        {
+            "operation": "Merge",
+            "location": ["feb"],
+            "params": {"value": {"currency": "USD", "amount": 200}},
+        },
+    ]
+    assert common == {"currency": "USD"}
+
+
+def test_pat023_patch_update_keywords_and_shallow_values():
+    nested = {"retained": 1}
+    common = {"amount": 0, "nested": nested}
+    p = Patch()
+    p.update(common, amount=100)
+
+    value = p.to_plotly_json()["operations"][0]["params"]["value"]
+    assert value == {"amount": 100, "nested": {"retained": 1}}
+    assert value["nested"] is nested
+    assert common == {"amount": 0, "nested": {"retained": 1}}
+
+
+@pytest.mark.parametrize("args", [(), (None,), ({},)])
+@pytest.mark.parametrize("kwargs", [{}, {"currency": "USD"}])
+def test_pat024_patch_update_empty(args, kwargs):
+    p = Patch()
+    p.update(*args, **kwargs)
+
+    assert patch_to_dict(p)["operations"] == [
+        {"operation": "Merge", "location": [], "params": {"value": kwargs}}
+    ]
+
+
+def test_pat025_patch_update_union():
+    common = {"currency": "USD"}
+    p = Patch()
+    p |= common
+    p["jan"] |= common
+
+    assert patch_to_dict(p)["operations"] == [
+        {
+            "operation": "Merge",
+            "location": [],
+            "params": {"value": {"currency": "USD"}},
+        },
+        {
+            "operation": "Merge",
+            "location": ["jan"],
+            "params": {"value": {"currency": "USD"}},
+        },
+    ]
+    assert common == {"currency": "USD"}

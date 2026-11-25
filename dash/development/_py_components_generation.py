@@ -543,7 +543,7 @@ def fix_keywords(txt):
     return txt
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-many-locals
 def create_prop_docstring(
     prop_name,

@@ -36,7 +36,7 @@ class _CombinedFormatter(
     pass
 
 
-# pylint: disable=too-many-locals, too-many-arguments, too-many-branches, too-many-statements
+# pylint: disable=too-many-locals, too-many-arguments, too-many-positional-arguments, too-many-branches, too-many-statements
 def generate_components(
     components_source,
     project_shortname,
