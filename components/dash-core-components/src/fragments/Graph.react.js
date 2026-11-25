@@ -197,6 +197,7 @@ class PlotlyGraph extends Component {
         this._hasPlotted = false;
         this._prevGd = null;
         this._queue = Promise.resolve();
+        this._pendingFigures = [];
 
         this.parentElement = React.createRef();
 
@@ -505,7 +506,12 @@ class PlotlyGraph extends Component {
             // copy and the figure prop (used as the base for Patch
             // updates) would otherwise go stale.
             if (eventData && gd.layout) {
-                const {figure = {}} = this.props;
+                // React may batch several relayouts before delivering props.
+                // Build on the latest sync rather than losing its changes.
+                const figure =
+                    this._pendingFigures[this._pendingFigures.length - 1] ??
+                    this.props.figure ??
+                    {};
                 const updates = {};
                 for (const eventKey of Object.keys(eventData)) {
                     // 'xaxis.range[0]' -> 'xaxis', 'shapes[1].x0' -> 'shapes'
@@ -521,15 +527,15 @@ class PlotlyGraph extends Component {
                     }
                 }
                 if (Object.keys(updates).length) {
-                    setProps({
-                        figure: {
-                            ...figure,
-                            layout: {
-                                ...figure?.layout,
-                                ...updates,
-                            },
+                    const syncedFigure = {
+                        ...figure,
+                        layout: {
+                            ...figure?.layout,
+                            ...updates,
                         },
-                    });
+                    };
+                    this._pendingFigures.push(syncedFigure);
+                    setProps({figure: syncedFigure});
                 }
             }
         });
@@ -571,11 +577,22 @@ class PlotlyGraph extends Component {
     UNSAFE_componentWillReceiveProps(nextProps) {
         const idChanged = this.props.id !== nextProps.id;
         if (idChanged) {
+            this._pendingFigures = [];
             /*
              * then the dom needs to get re-rendered with a new ID.
              * the graph will get updated in componentDidUpdate
              */
             return;
+        }
+
+        if (this.props.figure !== nextProps.figure) {
+            // An acknowledgement may skip batched figures or arrive before
+            // a later sync. An external figure supersedes all pending syncs.
+            const syncedIndex = this._pendingFigures.indexOf(nextProps.figure);
+            this._pendingFigures =
+                syncedIndex === -1
+                    ? []
+                    : this._pendingFigures.slice(syncedIndex + 1);
         }
 
         let p = this._queue;
