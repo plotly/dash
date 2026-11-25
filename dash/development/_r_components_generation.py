@@ -454,7 +454,7 @@ def write_help_file(name, props, description, prefix, rpkg_data):
                 fa.write(result + "\n")
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def write_class_file(
     name,
     props,
@@ -575,23 +575,18 @@ def generate_rpkg(
     package_rauthors = ""
     lib_name = pkg_data.get("name")
 
+    package_title = pkg_data.get("description", "")
+    package_description = package_title
+
     if rpkg_data is not None:
-        if rpkg_data.get("pkg_help_title"):
-            package_title = rpkg_data.get(
-                "pkg_help_title", pkg_data.get("description", "")
-            )
-        if rpkg_data.get("pkg_help_description"):
-            package_description = rpkg_data.get(
-                "pkg_help_description", pkg_data.get("description", "")
-            )
+        package_title = rpkg_data.get("pkg_help_title") or package_title
+        package_description = (
+            rpkg_data.get("pkg_help_description") or package_description
+        )
         if rpkg_data.get("pkg_copyright"):
             package_copyright = "\nCopyright: {}".format(
                 rpkg_data.get("pkg_copyright", "")
             )
-    else:
-        # fall back to using description in package.json, if present
-        package_title = pkg_data.get("description", "")
-        package_description = pkg_data.get("description", "")
 
     package_version = pkg_data.get("version", "0.0.1")
 
@@ -945,7 +940,7 @@ def print_r_type(typedata):
     return typestring
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def create_prop_docstring_r(
     prop_name, type_object, required, description, indent_num, is_flow_type=False
 ):
