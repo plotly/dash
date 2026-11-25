@@ -10,6 +10,7 @@ function setup() {
     const events: Record<string, (data: object) => void> = {};
     const gd = {
         layout: {...figure.layout} as Record<string, object>,
+        _fullLayout: undefined as object | undefined,
         on: (name: string, handler: (data: object) => void) => {
             events[name] = handler;
         },
@@ -31,7 +32,7 @@ function setup() {
         graph.UNSAFE_componentWillReceiveProps(nextProps);
         Object.assign(graph, {props: nextProps});
     };
-    return {figure, graph, props, relayout, receive};
+    return {figure, gd, graph, props, relayout, receive};
 }
 
 describe('relayout figure synchronization', () => {
@@ -75,5 +76,59 @@ describe('relayout figure synchronization', () => {
         expect(synced.data).toBe(external.data);
         expect(synced.layout.title.text).toBe('external');
         expect(synced.layout.yaxis).toBeUndefined();
+    });
+});
+
+describe('synced GUI edits under uirevision', () => {
+    function zoomed() {
+        const {gd, graph, relayout} = setup();
+        gd._fullLayout = {
+            uirevision: true,
+            xaxis: {uirevision: true},
+            legend: {},
+            _preGUI: {
+                'xaxis.range[0]': null,
+                'xaxis.range[1]': null,
+                'xaxis.autorange': null,
+                'legend.title.text': 'original',
+            },
+        };
+        relayout('xaxis', {range: [2, 4], autorange: false});
+        relayout('legend', {title: {text: 'edited'}});
+        return graph;
+    }
+
+    it('gives plotly.js the pre-edit value of each synced path', () => {
+        const layout = {
+            uirevision: true,
+            xaxis: {range: [2, 4], autorange: false, title: {text: 'patched'}},
+            legend: {title: {text: 'edited'}},
+        };
+        zoomed().applySyncedEdits(layout, false);
+        expect(layout.xaxis).toEqual({
+            range: [undefined, undefined],
+            title: {text: 'patched'},
+        });
+        expect(layout.legend.title.text).toBe('edited');
+    });
+
+    it('keeps values the figure changed or a new uirevision', () => {
+        const changed = {uirevision: true, xaxis: {range: [0, 1]}};
+        const graph = zoomed();
+        graph.applySyncedEdits(changed, false);
+        expect(changed.xaxis).toEqual({range: [0, 1]});
+
+        const newRevision = {
+            uirevision: 'new',
+            xaxis: {range: [2, 4], autorange: false},
+        };
+        graph.applySyncedEdits(newRevision, false);
+        expect(newRevision.xaxis).toEqual({range: [2, 4], autorange: false});
+    });
+
+    it('animates to the edit when the figure has the pre-edit value', () => {
+        const layout: Record<string, unknown> = {uirevision: true};
+        zoomed().applySyncedEdits(layout, true);
+        expect(layout.xaxis).toEqual({range: [2, 4], autorange: false});
     });
 });

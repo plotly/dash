@@ -8,6 +8,7 @@ import {
     isNil,
     mergeDeepRight,
     omit,
+    path,
     type,
     clone,
 } from 'ramda';
@@ -184,32 +185,78 @@ const filterEventData = (gd, eventData, event) => {
     return filteredEventData;
 };
 
-// Layout edits that plotly.js keeps across figure updates while uirevision is
-// unchanged (layoutUIControlPatterns in plotly.js src/plot_api/plot_api.js)
-const UIREVISION_LAYOUT_EDITS = [
-    /^hiddenlabels/,
-    /^(x|y)axis\d*\.((auto)?range|title\.text)/,
-    /axis\d*\.showspikes$/,
-    /(hover|drag)mode$/,
-    /^scene\d*\.camera/,
-    /^geo\d*\.(projection|center|fitbounds)/,
-    /^ternary\d*\.[abc]axis\.(min|title\.text)$/,
-    /^polar\d*\.radialaxis\.((auto)?range|angle|title\.text)/,
-    /^polar\d*\.angularaxis\.rotation/,
-    /^map\d*\.(center|zoom|bearing|pitch)/,
-    /^legend\.(x|y)$/,
-    /^(shapes|annotations)/,
-    /^selections/,
-    /^title\.text$/,
+// layoutUIControlPatterns in plotly.js src/plot_api/plot_api.js: the GUI
+// edits plotly.js keeps across figure updates while their uirevision holds
+const UIREVISION_PATTERNS = [
+    {pattern: /^hiddenlabels/, attr: 'legend.uirevision'},
+    {pattern: /^((x|y)axis\d*)\.((auto)?range|title\.text)/},
+    {pattern: /axis\d*\.showspikes$/, attr: 'modebar.uirevision'},
+    {pattern: /(hover|drag)mode$/, attr: 'modebar.uirevision'},
+    {pattern: /^(scene\d*)\.camera/},
+    {pattern: /^(geo\d*)\.(projection|center|fitbounds)/},
+    {pattern: /^(ternary\d*\.[abc]axis)\.(min|title\.text)$/},
+    {pattern: /^(polar\d*\.radialaxis)\.((auto)?range|angle|title\.text)/},
+    {pattern: /^(polar\d*\.angularaxis)\.rotation/},
+    {pattern: /^(map\d*)\.(center|zoom|bearing|pitch)/},
+    {pattern: /^legend\.(x|y)$/, attr: 'editrevision'},
+    {pattern: /^(shapes|annotations)/, attr: 'editrevision'},
+    {pattern: /^selections/, attr: 'selectionrevision'},
+    {pattern: /^title\.text$/, attr: 'editrevision'},
 ];
 
-// Keys like 'map._derived' carry computed state, not user edits
-const isKeptByUirevision = eventKey =>
-    eventKey.includes('._') ||
-    UIREVISION_LAYOUT_EDITS.some(pattern => pattern.test(eventKey));
+const getRevisionAttr = attr => {
+    for (const {pattern, attr: revisionAttr} of UIREVISION_PATTERNS) {
+        const match = attr.match(pattern);
+        if (match) {
+            return revisionAttr || `${match[1]}.uirevision`;
+        }
+    }
+    return null;
+};
 
-const getUirevision = (layout, key) =>
-    layout?.[key]?.uirevision ?? layout?.uirevision;
+// 'shapes[1].x0' -> ['shapes', 1, 'x0']
+const toPath = attr =>
+    attr.split('.').flatMap(part =>
+        part
+            .split(/\[(\d+)\]/)
+            .filter(segment => segment !== '')
+            .map((segment, i) => (i ? Number(segment) : segment))
+    );
+
+// Same inheritance as getNewRev in plotly.js
+const getNewRevision = (layout, revisionAttr) => {
+    const keys = toPath(revisionAttr);
+    const revision = path(keys, layout);
+    if (revision !== undefined) {
+        return revision;
+    }
+    for (let depth = keys.length - 2; depth > 0; depth--) {
+        const inherited = path([...keys.slice(0, depth), 'uirevision'], layout);
+        if (inherited !== undefined) {
+            return inherited;
+        }
+    }
+    return layout.uirevision;
+};
+
+const setPath = (container, keys, value) => {
+    let parent = container;
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (typeof parent[keys[i]] !== 'object' || parent[keys[i]] === null) {
+            if (value === undefined) {
+                return;
+            }
+            parent[keys[i]] = typeof keys[i + 1] === 'number' ? [] : {};
+        }
+        parent = parent[keys[i]];
+    }
+    const last = keys[keys.length - 1];
+    if (value === undefined && !Array.isArray(parent)) {
+        delete parent[last];
+    } else {
+        parent[last] = value;
+    }
+};
 
 /**
  * Graph can be used to render any plotly.js-powered data visualization.
@@ -238,7 +285,7 @@ class PlotlyGraph extends Component {
         this.amendTraces = this.amendTraces.bind(this);
 
         this.state = {override: {}, originals: {}};
-        this._guiEdits = {};
+        this._syncedEdits = {};
     }
 
     plot(props) {
@@ -253,8 +300,13 @@ class PlotlyGraph extends Component {
         // add typesetMath | not exposed to the dash API
         configClone.typesetMath = mathjax;
 
+        const animating =
+            animate &&
+            this._hasPlotted &&
+            figure.data.length === gd.data.length;
+
         const layout = this.getLayout(figure?.layout, responsive);
-        this.restoreGuiEditOrigins(layout);
+        this.applySyncedEdits(layout, animating);
 
         const figureClone = {
             data: figure?.data,
@@ -263,11 +315,7 @@ class PlotlyGraph extends Component {
             config: configClone,
         };
 
-        if (
-            animate &&
-            this._hasPlotted &&
-            figure.data.length === gd.data.length
-        ) {
+        if (animating) {
             // in case we've have figure frames,
             // we need to recreate frames before animation
             if (figure.frames) {
@@ -425,31 +473,53 @@ class PlotlyGraph extends Component {
     }
 
     /*
-     * The plotly_relayout handler copies user edits (pan, zoom, ...) into the
-     * figure prop. If they reach Plotly.react as figure input, plotly.js takes
-     * them as the new starting point and drops them from its uirevision
-     * bookkeeping, so the next figure without them resets the view. While the
-     * figure still holds the synced value and the same uirevision, give
-     * plotly.js the value from before the edit instead, and plotly.js keeps
-     * the edit itself.
+     * The plotly_relayout handler copies GUI edits (zoom, pan, ...) into the
+     * figure prop. If Plotly.react gets them as input, plotly.js takes them as
+     * the new starting point and drops them from its uirevision bookkeeping
+     * (_preGUI), so a later figure without them resets the view. While a
+     * synced value is still in the figure and its uirevision is unchanged,
+     * give plotly.js the value from before the edit so it keeps the edit
+     * itself. Plotly.animate does not apply uirevision, so there the value
+     * from before the edit is replaced by the edit instead.
      */
-    restoreGuiEditOrigins(layout) {
-        for (const key of Object.keys(this._guiEdits)) {
-            const {original, synced, uirevision, keptByPlotly} =
-                this._guiEdits[key];
+    applySyncedEdits(layout, animating) {
+        const fullLayout = this.gd.current?._fullLayout;
+        const preGUI = fullLayout?._preGUI;
+        if (!layout || !preGUI) {
+            return;
+        }
+        for (const [attr, synced] of Object.entries(this._syncedEdits)) {
+            if (!(attr in preGUI)) {
+                delete this._syncedEdits[attr];
+                continue;
+            }
+            const revisionAttr = getRevisionAttr(attr);
+            const oldRevision = path(toPath(revisionAttr), fullLayout);
             if (
-                keptByPlotly &&
-                uirevision &&
-                getUirevision(layout, key) === uirevision &&
-                equals(layout[key], synced)
+                !oldRevision ||
+                getNewRevision(layout, revisionAttr) !== oldRevision
             ) {
-                if (original === undefined) {
-                    delete layout[key];
-                } else {
-                    layout[key] = clone(original);
+                continue;
+            }
+            const keys = toPath(attr);
+            const value = path(keys, layout);
+            const original = preGUI[attr] ?? undefined;
+            if (animating) {
+                if (equals(value, original)) {
+                    setPath(layout, keys, clone(synced));
                 }
-            } else {
-                delete this._guiEdits[key];
+            } else if (equals(value, synced)) {
+                setPath(layout, keys, original);
+            }
+        }
+    }
+
+    trackSyncedEdits(updates) {
+        const preGUI = this.gd.current?._fullLayout?._preGUI ?? {};
+        for (const attr of Object.keys(preGUI)) {
+            const keys = toPath(attr);
+            if (keys[0] in updates && getRevisionAttr(attr)) {
+                this._syncedEdits[attr] = path(keys, updates);
             }
         }
     }
@@ -585,23 +655,10 @@ class PlotlyGraph extends Component {
                         !equals(figure?.layout?.[key], gd.layout[key])
                     ) {
                         updates[key] = clone(gd.layout[key]);
-                        if (!(key in this._guiEdits)) {
-                            this._guiEdits[key] = {
-                                original: figure?.layout?.[key],
-                                uirevision: getUirevision(figure?.layout, key),
-                                keptByPlotly: true,
-                            };
-                        }
-                        this._guiEdits[key].synced = updates[key];
-                    }
-                    if (
-                        key in this._guiEdits &&
-                        !isKeptByUirevision(eventKey)
-                    ) {
-                        this._guiEdits[key].keptByPlotly = false;
                     }
                 }
                 if (Object.keys(updates).length) {
+                    this.trackSyncedEdits(updates);
                     const syncedFigure = {
                         ...figure,
                         layout: {
@@ -653,6 +710,7 @@ class PlotlyGraph extends Component {
         const idChanged = this.props.id !== nextProps.id;
         if (idChanged) {
             this._pendingFigures = [];
+            this._syncedEdits = {};
             /*
              * then the dom needs to get re-rendered with a new ID.
              * the graph will get updated in componentDidUpdate
