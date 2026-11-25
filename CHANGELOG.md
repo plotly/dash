@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Fixed
+- [#4169](https://github.com/plotly/dash/pull/4169) Fix the inferred path of a page whose module name contains the pages folder name: `pages/landing_pages.py` no longer gets `/` and `pages/subpages/report.py` no longer gets `/report`. Fixes [#4168](https://github.com/plotly/dash/issues/4168).
 - [#4174](https://github.com/plotly/dash/pull/4174) Fix `dcc.Graph` discarding earlier layout changes when multiple `Plotly.relayout` calls run before React delivers the updated figure prop. Fixes [#4172](https://github.com/plotly/dash/issues/4172).
 - [#4175](https://github.com/plotly/dash/pull/4175) Fix clientside callbacks dispatching empty property updates and unnecessarily rendering components whose outputs all return `dash_clientside.no_update`. Fixes [#4173](https://github.com/plotly/dash/issues/4173).
 - [#4171](https://github.com/plotly/dash/pull/4171) Hot reload no longer stops for the rest of the session when the assets watcher finds a file it cannot stat, such as a dangling symlink (an Emacs lock file) or a temp file deleted mid-scan. Fixes [#4170](https://github.com/plotly/dash/issues/4170).
