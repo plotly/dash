@@ -4,6 +4,8 @@ Lets LLMs inspect a component's current properties and their relationships
 to callbacks (which tools write/read each prop).
 """
 
+import json
+
 from dash import Dash, Input, Output, dcc, html
 
 from tests.unit.mcp.conftest import _call_tool, _make_app, _tools_list
@@ -123,3 +125,48 @@ def test_mcpg006_missing_id_returns_hint():
     assert "nonexistent" in text
     assert "not found" in text
     assert "dash://components" in text
+
+
+def test_mcpg007_nested_children_are_serializable_on_mcp_wire():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Div(
+                id="container",
+                children=[
+                    html.H1("Heading"),
+                    html.Div([html.Span("Nested"), " suffix"]),
+                ],
+            )
+        ]
+    )
+
+    result = _call_tool(app, "get_dash_component", {"component_id": "container"})
+
+    # This is the Pydantic JSON-mode conversion used by the MCP dispatcher.
+    wire = result.model_dump(exclude_none=True, mode="json")
+    structured = wire["structuredContent"]
+    children = structured["properties"]["children"]["initial_value"]
+    assert children[0]["type"] == "H1"
+    assert children[0]["props"]["children"] == "Heading"
+    assert children[1]["type"] == "Div"
+    assert children[1]["props"]["children"][0]["type"] == "Span"
+    assert children[1]["props"]["children"][0]["props"]["children"] == "Nested"
+    assert children[1]["props"]["children"][1] == " suffix"
+    assert json.loads(result.content[0].text) == structured
+
+
+def test_mcpg008_single_component_child_and_prop_filter_are_serializable():
+    app = Dash(__name__)
+    app.layout = html.Div([html.Div(html.H2("Title"), id="container")])
+
+    result = _call_tool(
+        app, "get_dash_component", {"component_id": "container", "property": "children"}
+    )
+
+    wire = result.model_dump(exclude_none=True, mode="json")
+    properties = wire["structuredContent"]["properties"]
+    assert list(properties) == ["children"]
+    assert properties["children"]["initial_value"]["type"] == "H2"
+    assert properties["children"]["initial_value"]["props"]["children"] == "Title"
+    assert json.loads(result.content[0].text) == wire["structuredContent"]

@@ -7,6 +7,7 @@ from time import sleep
 import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html
+from selenium.webdriver.common.action_chains import ActionChains
 
 import dash.testing.wait as wait
 
@@ -167,7 +168,6 @@ def test_grbs004_graph_loading_state_updates(dash_dcc):
     assert dash_dcc.get_logs() == []
 
 
-@pytest.mark.skip(reason="customdata has broken with plotly.py 6")
 def test_grbs005_graph_customdata(dash_dcc):
     app = Dash(__name__)
 
@@ -199,12 +199,79 @@ def test_grbs005_graph_customdata(dash_dcc):
 
     dash_dcc.find_elements("g .slice")[0].click()
 
-    data = dash_dcc.wait_for_element("#text-area").get_attribute("value")
-    assert data != "", "graph clickData must contain data"
-
-    data = json.loads(data)
+    dash_dcc.wait_for_contains_text("#text-area", '"points"', timeout=3)
+    data = json.loads(dash_dcc.find_element("#text-area").get_attribute("value"))
     assert "customdata" in data["points"][0], "graph clickData must contain customdata"
-    assert data["points"][0]["customdata"][0] == data["points"][0]["pointNumbers"][0]
+    assert data["points"][0]["customdata"] == data["points"][0]["pointNumbers"]
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("trace_type", [go.Scatter, go.Scattergl])
+@pytest.mark.parametrize("as_array", [False, True], ids=["list", "numpy"])
+@pytest.mark.parametrize("row_data", [False, True], ids=["scalar", "row"])
+def test_grbs013_graph_numeric_customdata(dash_dcc, trace_type, as_array, row_data):
+    customdata = [[11, 110], [22, 220], [33, 330]] if row_data else [11, 22, 33]
+    expected = customdata[1]
+    if as_array:
+        customdata = np.array(customdata, dtype=np.int32)
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure=go.Figure(
+                    data=[
+                        go.Scatter(x=[0, 2], y=[2, 0], mode="markers"),
+                        trace_type(
+                            x=[0, 1, 2],
+                            y=[0, 1, 2],
+                            mode="markers",
+                            customdata=customdata,
+                        ),
+                    ],
+                    layout={
+                        "xaxis": {"range": [-0.5, 2.5]},
+                        "yaxis": {"range": [-0.5, 2.5]},
+                        "showlegend": False,
+                        "clickmode": "event+select",
+                    },
+                ),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="click-data"),
+            html.Div(id="hover-data"),
+            html.Div(id="selected-data"),
+        ]
+    )
+
+    @app.callback(
+        Output("click-data", "children"),
+        Output("hover-data", "children"),
+        Output("selected-data", "children"),
+        Input("graph", "clickData"),
+        Input("graph", "hoverData"),
+        Input("graph", "selectedData"),
+        prevent_initial_call=True,
+    )
+    def show_event_data(click_data, hover_data, selected_data):
+        return (
+            json.dumps(click_data),
+            json.dumps(hover_data),
+            json.dumps(selected_data),
+        )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .nsewdrag").click()
+
+    for output in ("click-data", "hover-data", "selected-data"):
+        dash_dcc.wait_for_contains_text(f"#{output}", '"points"')
+        point = json.loads(dash_dcc.find_element(f"#{output}").text)["points"][0]
+        assert point["curveNumber"] == 1
+        assert point["pointNumber"] == 1
+        assert point.get("customdata") == expected
+
+    assert dash_dcc.get_logs() == []
 
 
 def test_grbs006_graph_update_frames(dash_dcc):
@@ -708,4 +775,125 @@ def test_grbs012_graph_patch_keeps_relayout_ranges(dash_dcc):
     )
     assert rendered_range() == [3, 5]
 
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs013_parcoords_hover(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                clear_on_unhover=True,
+                config={"plotGlPixelRatio": 1},
+                figure={
+                    "data": [
+                        {
+                            "type": "parcoords",
+                            "dimensions": [
+                                {
+                                    "label": label,
+                                    "range": [0, 4],
+                                    "values": [0.5, 3.5, 2],
+                                }
+                                for label in ["A", "B", "C"]
+                            ],
+                        }
+                    ],
+                    "layout": {
+                        "width": 600,
+                        "height": 400,
+                        "margin": {"l": 80, "r": 80, "t": 60, "b": 60},
+                    },
+                },
+            ),
+            html.Pre(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("graph", "hoverData"))
+    def show_hover(data):
+        return json.dumps(data)
+
+    dash_dcc.driver.set_window_size(1000, 800)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .js-plotly-plot:not(.dash-graph--pending)")
+    dash_dcc.wait_for_text_to_equal("#output", "null")
+    canvas = dash_dcc.find_element("#graph .gl-canvas-pick")
+
+    # Hover line 2 of the only trace: curveNumber is the trace index and
+    # pointNumber the line index, as for other trace types.
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(canvas, -110, 0).perform()
+    dash_dcc.wait_for_contains_text("#output", '"points"')
+    hover_data = json.loads(dash_dcc.find_element("#output").text)
+    assert len(hover_data["points"]) == 1
+    point = hover_data["points"][0]
+    assert point["curveNumber"] == 0
+    assert point["pointNumber"] == 2
+    # Coordinates depend on layout and pixel ratio, so only check they are sent.
+    assert {"x", "y", "clientX", "clientY"} <= set(point)
+
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(
+        canvas, -110, -40
+    ).perform()
+    dash_dcc.wait_for_text_to_equal("#output", "null")
+    assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize("trace_type", ["scatter", "sankey"])
+def test_grbs014_graph_hover_points(dash_dcc, trace_type):
+    app = Dash(__name__)
+    if trace_type == "scatter":
+        trace = {
+            "type": "scatter",
+            "x": [1, 2, 3],
+            "y": [1, 2, 3],
+            "mode": "markers",
+            "customdata": ["a", "b", "c"],
+        }
+        selector = ".scatterlayer .point"
+        expected = {
+            "curveNumber": 0,
+            "pointNumber": 0,
+            "x": 1,
+            "y": 1,
+            "customdata": "a",
+        }
+    else:
+        trace = {
+            "type": "sankey",
+            "node": {"label": ["A", "B"]},
+            "link": {"source": [0], "target": [1], "value": [2]},
+        }
+        selector = ".sankey-node"
+        expected = {"curveNumber": 0, "pointNumber": 0, "label": "A", "value": 2}
+
+    app.layout = html.Div(
+        [
+            dcc.Graph(
+                id="graph",
+                figure={"data": [trace]},
+                style={"width": 600, "height": 400},
+                clear_on_unhover=True,
+            ),
+            html.Pre(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("graph", "hoverData"))
+    def show_hover(data):
+        return json.dumps(data)
+
+    dash_dcc.driver.set_window_size(1000, 800)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .js-plotly-plot:not(.dash-graph--pending)")
+    ActionChains(dash_dcc.driver).move_to_element(
+        dash_dcc.find_element(f"#graph {selector}")
+    ).perform()
+    dash_dcc.wait_for_contains_text("#output", '"points"')
+    hover_data = json.loads(dash_dcc.find_element("#output").text)
+    assert len(hover_data["points"]) == 1
+    point = hover_data["points"][0]
+    assert {key: point[key] for key in expected} == expected
+    assert not {"data", "fullData", "xaxis", "yaxis"}.intersection(point)
     assert dash_dcc.get_logs() == []
