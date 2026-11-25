@@ -359,7 +359,7 @@ pytest tests/compliance/
 # Run pyright directly
 pyright dash/
 
-# Run mypy directly (Python 3.10+)
+# Run mypy directly
 mypy dash/
 ```
 
@@ -368,7 +368,7 @@ mypy dash/
 | Checker | Python Version | Notes |
 |---------|---------------|-------|
 | pyright | All | Primary checker, always runs |
-| mypy | 3.10+ | Runs on Python 3.10 and above |
+| mypy | All | Always runs |
 
 ## Common Patterns
 

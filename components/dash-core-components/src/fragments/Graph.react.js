@@ -55,6 +55,16 @@ const UNRESPONSIVE_CONFIG = {
     responsive: false,
 };
 
+const toPlainArray = value => {
+    if (ArrayBuffer.isView(value)) {
+        return Array.from(value);
+    }
+    if (Array.isArray(value)) {
+        return value.map(toPlainArray);
+    }
+    return value;
+};
+
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
     if (includes(event, ['click', 'hover', 'selected'])) {
@@ -73,9 +83,22 @@ const filterEventData = (gd, eventData, event) => {
          * into the event object
          */
         const data = gd.data;
+        // Parcoords sends one flat point instead of a points array. Its
+        // curveNumber is the line index and dataIndex is the trace index, so
+        // reshape it to match other traces: curveNumber is the trace and
+        // pointNumber is the line.
+        const eventPoints = Array.isArray(eventData.points)
+            ? eventData.points
+            : [
+                  {
+                      ...eventData,
+                      curveNumber: eventData.dataIndex,
+                      pointNumber: eventData.curveNumber,
+                  },
+              ];
 
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
+        for (let i = 0; i < eventPoints.length; i++) {
+            const fullPoint = eventPoints[i];
             const pointData = filter(function (o) {
                 return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
@@ -89,26 +112,30 @@ const filterEventData = (gd, eventData, event) => {
                 has('curveNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
+                const customdata = data[pointData.curveNumber].customdata;
+                // Binary (typed array) customdata is only decoded in the full
+                // trace, so read it from there and fall back to the input.
+                const customdataArray =
+                    fullPoint.fullData?.customdata ?? customdata;
                 if (has('pointNumber', fullPoint)) {
                     if (typeof fullPoint.pointNumber === 'number') {
                         pointData.customdata =
-                            data[pointData.curveNumber].customdata[
-                                fullPoint.pointNumber
-                            ];
+                            customdataArray[fullPoint.pointNumber];
                     } else if (
                         !fullPoint.pointNumber &&
                         fullPoint.data.mode.includes('lines')
                     ) {
-                        pointData.customdata =
-                            data[pointData.curveNumber].customdata;
+                        pointData.customdata = customdataArray;
                     }
                 } else if (has('pointNumbers', fullPoint)) {
                     pointData.customdata = fullPoint.pointNumbers.map(function (
                         point
                     ) {
-                        return data[pointData.curveNumber].customdata[point];
+                        return customdataArray[point];
                     });
                 }
+                // Typed arrays would serialize as objects, so send plain arrays.
+                pointData.customdata = toPlainArray(pointData.customdata);
             }
 
             // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
@@ -197,6 +224,7 @@ class PlotlyGraph extends Component {
         this._hasPlotted = false;
         this._prevGd = null;
         this._queue = Promise.resolve();
+        this._pendingFigures = [];
 
         this.parentElement = React.createRef();
 
@@ -539,7 +567,12 @@ class PlotlyGraph extends Component {
             // copy and the figure prop (used as the base for Patch
             // updates) would otherwise go stale.
             if (eventData && gd.layout) {
-                const {figure = {}} = this.props;
+                // React may batch several relayouts before delivering props.
+                // Build on the latest sync rather than losing its changes.
+                const figure =
+                    this._pendingFigures[this._pendingFigures.length - 1] ??
+                    this.props.figure ??
+                    {};
                 const updates = {};
                 for (const eventKey of Object.keys(eventData)) {
                     // 'xaxis.range[0]' -> 'xaxis', 'shapes[1].x0' -> 'shapes'
@@ -569,15 +602,15 @@ class PlotlyGraph extends Component {
                     }
                 }
                 if (Object.keys(updates).length) {
-                    setProps({
-                        figure: {
-                            ...figure,
-                            layout: {
-                                ...figure?.layout,
-                                ...updates,
-                            },
+                    const syncedFigure = {
+                        ...figure,
+                        layout: {
+                            ...figure?.layout,
+                            ...updates,
                         },
-                    });
+                    };
+                    this._pendingFigures.push(syncedFigure);
+                    setProps({figure: syncedFigure});
                 }
             }
         });
@@ -619,11 +652,22 @@ class PlotlyGraph extends Component {
     UNSAFE_componentWillReceiveProps(nextProps) {
         const idChanged = this.props.id !== nextProps.id;
         if (idChanged) {
+            this._pendingFigures = [];
             /*
              * then the dom needs to get re-rendered with a new ID.
              * the graph will get updated in componentDidUpdate
              */
             return;
+        }
+
+        if (this.props.figure !== nextProps.figure) {
+            // An acknowledgement may skip batched figures or arrive before
+            // a later sync. An external figure supersedes all pending syncs.
+            const syncedIndex = this._pendingFigures.indexOf(nextProps.figure);
+            this._pendingFigures =
+                syncedIndex === -1
+                    ? []
+                    : this._pendingFigures.slice(syncedIndex + 1);
         }
 
         let p = this._queue;

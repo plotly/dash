@@ -77,7 +77,7 @@ Params = ParamSpec("Params")
 ReturnVar = TypeVar("ReturnVar")
 
 
-# pylint: disable=too-many-locals,too-many-arguments
+# pylint: disable=too-many-locals, too-many-arguments, too-many-positional-arguments
 def callback(
     *_args,
     background: bool = False,
@@ -337,7 +337,7 @@ def clientside_callback(clientside_function: ClientsideFuncType, *args, **kwargs
     )
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def insert_callback(
     callback_list,
     callback_map,
@@ -994,6 +994,8 @@ def register_callback(
                 else:
                     output_value = _invoke_callback(func, *func_args, **func_kwargs)  # type: ignore[reportArgumentType]
             except PreventUpdate:
+                if _set_side_update(callback_ctx, response):
+                    return to_json(response)
                 raise
             except Exception as err:  # pylint: disable=broad-exception-caught
                 if error_handler:
@@ -1044,6 +1046,7 @@ def register_callback(
             )
 
             response: CallbackExecutionResponse = {"multi": True}
+            jsonResponse: Optional[str] = None
 
             try:
                 if background is not None:
@@ -1074,6 +1077,8 @@ def register_callback(
                         func, *func_args, **func_kwargs
                     )
             except PreventUpdate:
+                if _set_side_update(callback_ctx, response):
+                    return to_json(response)
                 raise
             except Exception as err:  # pylint: disable=broad-exception-caught
                 if error_handler:
