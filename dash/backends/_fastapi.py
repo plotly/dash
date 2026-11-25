@@ -27,7 +27,7 @@ try:
     from starlette.datastructures import Headers, MutableHeaders
     from starlette.exceptions import HTTPException
     from starlette.requests import HTTPConnection
-    from starlette.types import ASGIApp, Scope, Receive, Send
+    from starlette.types import ASGIApp, Message, Scope, Receive, Send
     from starlette.websockets import WebSocket, WebSocketDisconnect, WebSocketState
     import uvicorn
 except ImportError as _err:
@@ -74,7 +74,7 @@ from .ws import (
     make_stream_frame_emitter,
     shutdown_ws_connection,
 )
-from ._utils import format_traceback_html
+from ._utils import call_after_request_hook, format_traceback_html
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from dash import Dash
@@ -247,12 +247,50 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
                 return result
         return None
 
-    async def _run_after_hooks(self) -> None:
-        """Run all after-request hooks in LIFO order."""
+    async def _run_after_hooks(self, response: StarletteResponse) -> Any:
         for func in reversed(self.after_request_funcs):
-            result = func(Response)
-            if inspect.isawaitable(result):
-                await result
+            response = await call_after_request_hook(func, response)
+        return response
+
+    def _after_hooks_send(
+        self, request: Request, scope: Scope, receive: Receive, send: Send
+    ) -> Send:
+        """Wrap ``send`` so the after_request hooks see the response before its
+        headers go out, and can edit it or swap it for another one."""
+        if not self.after_request_funcs:
+            return send
+        hooks_ran = replaced = False
+
+        async def hooked_send(message: Message) -> None:
+            nonlocal hooks_ran, replaced
+            if replaced:
+                return
+            # Hooks run once: an error response sent after a hook raised
+            # goes out as is.
+            if message["type"] != "http.response.start" or hooks_ran:
+                await send(message)
+                return
+            hooks_ran = True
+            original = Response(status_code=message["status"])
+            original.raw_headers = list(message.get("headers", []))
+            token = set_current_request(request)
+            try:
+                response = await self._run_after_hooks(original)
+            finally:
+                reset_current_request(token)
+            if response is not original:
+                replaced = True
+                await _hook_response(response)(scope, receive, send)
+                return
+            await send(
+                {
+                    **message,
+                    "status": response.status_code,
+                    "headers": response.raw_headers,
+                }
+            )
+
+        return hooked_send
 
     def _finalize_timing(self, request: Request) -> dict | None:
         """Calculate final timing information and return headers to add."""
@@ -328,6 +366,7 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         is_dash_route = self._is_dash_route(scope)
         request = Request(scope, receive=receive)
         token = set_current_request(request)
+        hooked_send = self._after_hooks_send(request, scope, receive, send)
 
         try:
             body = None
@@ -338,26 +377,25 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
 
             denied = await self._run_before_hooks()
             if denied is not None:
-                await _hook_response(denied)(scope, receive, send)
+                await _hook_response(denied)(scope, receive, hooked_send)
                 return
 
             if not is_dash_route:
                 # User routes keep their own error handling.
                 reset_current_request(token)
                 token = None
-                await self.app(scope, receive, send)
+                await self.app(scope, receive, hooked_send)
                 return
 
             if body is not None:
                 # The body stream is consumed, replay it for handlers reading it.
                 receive = _replay_body(body, receive)
-            await self.app(scope, receive, send)
+            await self.app(scope, receive, hooked_send)
 
-            await self._run_after_hooks()
             self._finalize_timing(request)
 
         except Exception as e:  # pylint: disable=W0718
-            await self._handle_error(e, scope, receive, send)
+            await self._handle_error(e, scope, receive, hooked_send)
         finally:
             if token is not None:
                 reset_current_request(token)

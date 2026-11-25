@@ -77,7 +77,7 @@ from .ws import (
     make_stream_frame_emitter,
     shutdown_ws_connection,
 )
-from ._utils import format_traceback_html
+from ._utils import call_after_request_hook, format_traceback_html
 
 if TYPE_CHECKING:
     from dash import Dash
@@ -261,11 +261,9 @@ class QuartDashServer(BaseDashServer[Quart]):
     def after_request(self, func: _t.Callable[[], _t.Any]):
         @self.server.after_request
         async def _after(response):
-            if func is not None:
-                result = func()
-                if inspect.iscoroutine(result):  # Allow async hooks
-                    await result
-            return response
+            if func is None:
+                return response
+            return await call_after_request_hook(func, response)
 
     def has_request_context(self) -> bool:
         if has_request_context is None:
