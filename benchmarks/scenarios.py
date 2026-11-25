@@ -17,7 +17,9 @@ apply + React render - without selenium's per-poll latency leaking in.
 Thresholds are deliberately generous (see ``warn_ms`` / ``fail_ms``): this is a
 signal for "something got materially slower", not a microbenchmark. ``fail_ms``
 is meant to catch an order-of-magnitude regression; ``warn_ms`` flags a smaller
-drift that is worth a look and gets surfaced as a PR comment.
+drift that is worth a look and gets surfaced as a PR comment. ``max_growth``
+fails a scenario whose per-click cost grows faster than its workload does, which
+is how an O(N^2) shows up when the absolute times still look tolerable.
 """
 from __future__ import annotations
 
@@ -59,6 +61,8 @@ class Scenario:
     # Thresholds keyed by metric name. Missing metric => not gated.
     warn_ms: dict = field(default_factory=dict)
     fail_ms: dict = field(default_factory=dict)
+    # Ceiling on the "growth" stat (late-third / early-third per-op time).
+    max_growth: dict = field(default_factory=dict)
     # How many times to repeat the measured interaction (per process launch)
     # and how many leading runs to discard as warm-up.
     repeats: int = 12
@@ -241,17 +245,74 @@ def _drive_full_replace(b, params):
 
 
 scenario(
-    # Intentionally the slow path: returning the whole list is O(total) every
-    # click, unlike Patch. Kept as a reference contrast, so its thresholds are
-    # loose - we only want to catch it getting *even* slower.
+    # Each click returns a list `batch` longer than the last, so the cost per
+    # click is linear in the list size and growth lands near 3x over a run. An
+    # O(N^2) renderer path shows up here as growth well above that (#4121).
     name="full_children_replace",
     description="Rebuild the whole children list from a callback each click",
     params={"batch": 200},
-    warn_ms={"replace_ms": 6000},
-    fail_ms={"replace_ms": 12000},
+    warn_ms={"replace_ms": 400},
+    fail_ms={"replace_ms": 1500},
+    max_growth={"replace_ms": 6},
     repeats=10,
     warmup=1,
 )((_build_full_replace, _drive_full_replace))
+
+
+# ===========================================================================
+# 4b. Re-render a subtree that is already on the page
+# ===========================================================================
+
+
+def _build_rerender(params):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button("go", id="btn", n_clicks=0), html.Div(id="container"), READY]
+    )
+
+    @app.callback(Output("container", "children"), Input("btn", "n_clicks"))
+    def render(n):
+        return [
+            html.Div(
+                [html.Span(f"label {i}"), html.Span(f"value {i} @ {n}")],
+                className="row",
+            )
+            for i in range(params["rows"])
+        ]
+
+    return app
+
+
+def _rendered(click):
+    return (
+        "document.getElementById('container').lastElementChild"
+        f"?.lastElementChild?.textContent.endsWith('@ {click}')"
+    )
+
+
+def _drive_rerender(b, params):
+    click = b.state.get("click", 0) + 1
+    if click == 1:
+        b.timed("", _rendered(0))
+    ms = b.timed("document.getElementById('btn').click()", _rendered(click))
+    b.state["click"] = click
+    return {"rerender_ms": ms}
+
+
+scenario(
+    # Same-size subtree every click, so the cost should be flat. Each wrapper
+    # in a re-rendered subtree used to dispatch a store update, making this
+    # O(N^2): ~1200 ms at 400 rows against ~50 ms now (#4121). The size never
+    # changes, so growth can't see that; fail_ms is what catches it.
+    name="rerender_existing_subtree",
+    description="Re-render a 400-row (1200 component) subtree already on the page",
+    params={"rows": 400},
+    warn_ms={"rerender_ms": 400},
+    fail_ms={"rerender_ms": 800},
+    max_growth={"rerender_ms": 3},
+    repeats=12,
+    warmup=2,
+)((_build_rerender, _drive_rerender))
 
 
 # ===========================================================================
