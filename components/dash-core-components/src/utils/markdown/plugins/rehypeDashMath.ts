@@ -24,8 +24,9 @@ function rewriteRawMath(value: string): string {
     });
 }
 
-// remark-math emits `<span class="math math-inline">` / `<div class="math
-// math-display">`; report which (if either) an element is.
+// remark-math emits `<code class="language-math math-inline">` and
+// `<pre><code class="language-math math-display">`; report which (if either)
+// an element is.
 function mathKind(node: Element): 'inline' | 'display' | null {
     const className = node.properties?.className;
     if (Array.isArray(className)) {
@@ -55,6 +56,18 @@ const rehypeDashMath: Plugin<[], Root> = () => tree => {
             return;
         }
         if (node.type === 'element') {
+            const [first] = node.children;
+            if (
+                node.tagName === 'pre' &&
+                node.children.length === 1 &&
+                first.type === 'element' &&
+                mathKind(first) === 'display'
+            ) {
+                node.tagName = 'dashmathjax';
+                node.properties = {inline: 'false'};
+                node.children = first.children;
+                return;
+            }
             const kind = mathKind(node);
             if (kind) {
                 node.tagName = 'dashmathjax';

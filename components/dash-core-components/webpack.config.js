@@ -1,15 +1,16 @@
 const path = require('path');
 const webpack = require('webpack');
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 
 const packagejson = require('./package.json');
-const {jsxRuntimeExternal} = require('../../dash/dash-renderer/jsx-runtime-external');
+const {
+    jsxRuntimeExternal,
+} = require('../../dash/dash-renderer/jsx-runtime-external');
 
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 module.exports = (env, argv) => {
-
     let mode;
 
     const overrides = module.exports || {};
@@ -34,15 +35,18 @@ module.exports = (env, argv) => {
         filename = `${dashLibraryName}.js`;
     }
 
-    const entry = overrides.entry || { main: './src/index.ts' };
+    const entry = overrides.entry || {main: './src/index.ts'};
 
-    const externals = ('externals' in overrides) ? overrides.externals : ({
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        'react/jsx-runtime': jsxRuntimeExternal,
-        'react/jsx-dev-runtime': jsxRuntimeExternal,
-        'prop-types': 'PropTypes'
-    });
+    const externals =
+        'externals' in overrides
+            ? overrides.externals
+            : {
+                  react: 'React',
+                  'react-dom': 'ReactDOM',
+                  'react/jsx-runtime': jsxRuntimeExternal,
+                  'react/jsx-dev-runtime': jsxRuntimeExternal,
+                  'prop-types': 'PropTypes',
+              };
 
     return {
         mode,
@@ -55,11 +59,11 @@ module.exports = (env, argv) => {
             library: {
                 name: dashLibraryName,
                 type: 'window',
-            }
+            },
         },
         externals,
         resolve: {
-            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
+            extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
         },
         module: {
             noParse: /node_modules[\\\/]plotly.js-dist-min/,
@@ -74,36 +78,42 @@ module.exports = (env, argv) => {
                             presets: [
                                 '@babel/preset-env',
                                 '@babel/preset-react',
-                                '@babel/preset-typescript'
-                            ]
-                        }
-                    }
+                                '@babel/preset-typescript',
+                            ],
+                        },
+                    },
                 },
                 {
                     test: /\.jsx?$/,
                     exclude: /node_modules/,
                     use: {
-                        loader: 'babel-loader'
-                    }
+                        loader: 'babel-loader',
+                    },
                 },
                 {
                     test: /\.(jsx?|mjs)$/,
-                    include: /node_modules[\\\/](highlight[.]js|react-markdown|remark-math|is-plain-obj|color|date-fns|@radix-ui|@floating-ui|react-window)[\\\/]/,
+                    include:
+                        /node_modules[\\\/](highlight[.]js|react-markdown|remark-math|is-plain-obj|entities|vfile-location|style-to-object|color|date-fns|@radix-ui|@floating-ui|react-window)[\\\/]/,
                     use: {
                         loader: 'babel-loader',
                         options: {
                             babelrc: false,
                             configFile: false,
                             presets: [
-                                ['@babel/preset-env', {
-                                    targets: {
-                                        browsers: ['last 10 years and not dead']
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        targets: {
+                                            browsers: [
+                                                'last 10 years and not dead',
+                                            ],
+                                        },
+                                        modules: false,
                                     },
-                                    modules: false
-                                }]
-                            ]
-                        }
-                    }
+                                ],
+                            ],
+                        },
+                    },
                 },
                 {
                     test: /\.css$/,
@@ -118,17 +128,26 @@ module.exports = (env, argv) => {
                                         window._lastElementInsertedByStyleLoader;
 
                                     if (!lastInsertedElement) {
-                                        parent.insertBefore(element, parent.firstChild);
-                                    } else if (lastInsertedElement.nextSibling) {
-                                        parent.insertBefore(element, lastInsertedElement.nextSibling);
+                                        parent.insertBefore(
+                                            element,
+                                            parent.firstChild
+                                        );
+                                    } else if (
+                                        lastInsertedElement.nextSibling
+                                    ) {
+                                        parent.insertBefore(
+                                            element,
+                                            lastInsertedElement.nextSibling
+                                        );
                                     } else {
                                         parent.appendChild(element);
                                     }
 
                                     // eslint-disable-next-line no-underscore-dangle
-                                    window._lastElementInsertedByStyleLoader = element;
-                                }
-                            }
+                                    window._lastElementInsertedByStyleLoader =
+                                        element;
+                                },
+                            },
                         },
                         {
                             loader: 'css-loader',
@@ -146,24 +165,24 @@ module.exports = (env, argv) => {
                         minSize: 0,
                         name(module, chunks, cacheGroupKey) {
                             return `${cacheGroupKey}-${chunks[0].name}`;
-                        }
+                        },
                     },
                     shared: {
                         chunks: 'all',
                         minSize: 0,
                         minChunks: 2,
-                        name: 'dash_core_components-shared'
-                    }
-                }
-            }
+                        name: 'dash_core_components-shared',
+                    },
+                },
+            },
         },
         plugins: [
             new WebpackDashDynamicImport(),
             new webpack.SourceMapDevToolPlugin({
                 filename: '[file].map',
-                exclude: ['async-plotlyjs', 'async-mathjax']
+                exclude: ['async-plotlyjs', 'async-mathjax'],
             }),
-            new NodePolyfillPlugin()
-        ]
-    }
+            new NodePolyfillPlugin(),
+        ],
+    };
 };
