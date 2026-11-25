@@ -2,7 +2,8 @@ import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
 import {
     getComponentLayout,
     stringifyPath,
-    checkDashChildrenUpdate
+    checkDashChildrenUpdate,
+    isPathOrDescendant
 } from './wrapping';
 import {pathOr} from 'ramda';
 
@@ -24,20 +25,16 @@ const NOT_FIRST_LEVEL_CHILD: [boolean, string[]] = [false, []];
 
 const isFirstLevelPropsChild = (
     updatedPath: string,
-    strPath: string
+    strPath: string,
+    descendantPrefix: string
 ): [boolean, string[]] => {
-    // This runs for every layoutHashes entry and most are unrelated, so reject
-    // them before splitting. strPath must end on a segment boundary.
-    if (
-        !updatedPath.startsWith(strPath) ||
-        (updatedPath.length > strPath.length &&
-            updatedPath[strPath.length] !== ',')
-    ) {
+    if (!isPathOrDescendant(updatedPath, strPath, descendantPrefix)) {
         return NOT_FIRST_LEVEL_CHILD;
     }
 
-    // Get the remaining path after the prefix
-    const remainingSegments = updatedPath.slice(strPath.length + 1).split(',');
+    const remainingSegments = updatedPath
+        .slice(descendantPrefix.length)
+        .split(',');
 
     const propsCount = remainingSegments.filter(s => s === 'props').length;
 
@@ -51,10 +48,12 @@ function determineChangedProps(
     let combinedHash = 0;
     let renderType: any; // Default render type, adjust as needed
     const changedProps: Record<string, any> = {};
+    const descendantPrefix = strPath + ',';
     Object.keys(state.layoutHashes).forEach(updatedPath => {
         const [descendant, remainingSegments] = isFirstLevelPropsChild(
             updatedPath,
-            strPath
+            strPath,
+            descendantPrefix
         );
         if (descendant) {
             const pathHash = state.layoutHashes[updatedPath];

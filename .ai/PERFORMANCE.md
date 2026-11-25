@@ -223,9 +223,11 @@ path whose props ever changed and never shrinks: O(flagged components x changed
 paths) per store update. `callback_fanout_children_update` covers it.
 
 `isFirstLevelPropsChild` used to split both paths for each entry, and was the
-top frame of that scenario (with `determineChangedProps`, 51% of CPU). It now
-rejects unrelated paths with `startsWith` before any allocation, which brings
-that down to 9%. It is still a scan, just a cheap one. A prefix index would make
+top frame of that scenario (with `determineChangedProps`, 51% of CPU with 50
+tabs). It now rejects unrelated paths with `isPathOrDescendant` before any
+allocation, which brings that down to 9%. It is still a scan, just a cheap one.
+The scenario mounts 200 tabs so that going back to the old scan (about 4x
+slower there) fails the baseline gate. A prefix index would make
 it O(1) per component, but rebuilding it whenever `layoutHashes` changes costs
 about twice one scan, so it would slow down the common case of a single
 `dcc.Tabs`. An index maintained incrementally in the reducer would avoid that.

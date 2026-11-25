@@ -448,8 +448,8 @@ def _build_fanout_children_update(params):
 
 scenario(
     name="callback_fanout_children_update",
-    description="One Input drives 300 Outputs with 50 dcc.Tabs mounted",
-    params={"n": 300, "tabs": 50},
+    description="One Input drives 300 Outputs with 200 dcc.Tabs mounted",
+    params={"n": 300, "tabs": 200},
     warn_ms={"fanout_ms": 1000},
     fail_ms={"fanout_ms": 5000},
     repeats=12,
