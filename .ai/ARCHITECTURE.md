@@ -669,7 +669,7 @@ Handles messages:
 - `base_url_request` → responds with JupyterLab server config
 - `show` → creates dedicated tab with IFrame widget
 
-Compatible with JupyterLab 2.x, 3.x, and 4.x.
+Shipped as a prebuilt extension (built with `@jupyterlab/builder` 3, installed to `share/jupyter/labextensions/@plotly/dash-jupyterlab`). Compatible with JupyterLab 3.x and 4.x: the `jupyterlab.sharedPackages` ranges in its `package.json` cover both majors.
 
 ### Proxy Configuration
 
