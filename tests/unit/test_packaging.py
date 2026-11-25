@@ -1,8 +1,7 @@
-import runpy
 from pathlib import Path
-from unittest import mock
 
-import setuptools
+from setuptools.config.pyprojecttoml import apply_configuration
+from setuptools.dist import Distribution
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -12,10 +11,9 @@ def test_only_dash_is_packaged(monkeypatch):
     # harness) shadows a directory of the same name in every project that
     # installs dash.
     monkeypatch.chdir(ROOT)
-    with mock.patch.object(setuptools, "setup") as setup:
-        runpy.run_path(str(ROOT / "setup.py"))
+    dist = apply_configuration(Distribution(), ROOT / "pyproject.toml")
 
-    packages = setup.call_args.kwargs["packages"]
+    packages = dist.packages
     assert "dash" in packages
     assert "dash.testing" in packages
     assert [p for p in packages if p != "dash" and not p.startswith("dash.")] == []

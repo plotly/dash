@@ -1,0 +1,160 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dash"
+dynamic = ["version"]
+description = "A Python framework for building reactive web-apps. Developed by Plotly."
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Chris Parmer", email = "chris@plotly.com" }]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Dash",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Widget Sets",
+]
+dependencies = [
+    "Flask>=1.0.4,<3.2",
+    "Werkzeug<3.2",
+    "plotly>=5.0.0",
+    "importlib-metadata",
+    "typing_extensions>=4.1.1",
+    "requests",
+    "retrying",
+    "nest-asyncio",
+    "setuptools",
+    "janus>=1.0.0",
+    "pydantic>=2.10",
+    "comm",
+]
+
+[project.optional-dependencies]
+async = ["flask[async]"]
+# Dependencies used by CI on github.com/plotly/dash
+ci = [
+    "black==22.3.0",
+    "flake8==7.3.0",
+    "flaky==3.8.1",
+    "flask-talisman==1.1.0",
+    "httpx",  # fastapi.testclient (tests/websocket/test_ws_stream.py)
+    "ipython<9.0.0",
+    "mimesis<=22.2.0",
+    "mock==5.2.0",
+    "msgspec",  # dash[shared_storage]
+    "numpy<=2.5.4",
+    "orjson>=3.10.11",
+    "openpyxl",
+    "pandas>=1.4.0",
+    "pyarrow",
+    "pylint==4.0.9",
+    "pytest-mock",
+    "pytest-split",
+    "pytest-sugar==1.1.1",
+    "pyzmq>=26.0.0",
+    "xlrd>=2.0.1",
+    "pytest-rerunfailures",
+    "pytest-timeout",
+    "jupyterlab<4.0.0",
+    "pyright==1.1.414",
+    "mypy==1.15.0",
+]
+# Dependencies used for developing new Dash components
+dev = [
+    "coloredlogs>=15.0.1",
+    "fire>=0.4.0",
+    "PyYAML>=5.4.1",
+]
+# Dependencies necessary for utilizing Dash provided testing utilities
+testing = [
+    "beautifulsoup4>=4.8.2",
+    "cryptography",
+    "lxml>=4.6.2",
+    "percy-python-selenium>=1.0.0",
+    "pytest>=6.0.2",
+    "requests[security]>=2.21.0",
+    "selenium>=4.11.0,<=4.52.0",
+    "waitress>=1.4.4",
+    "multiprocess>=0.70.12",
+    "psutil>=5.8.0",
+    "dash_testing_stub>=0.0.2",
+]
+# Used by the CeleryLongCallbackManager
+celery = [
+    "redis>=3.5.3,<=8.1.0",
+    "kombu<5.7.0",
+    "celery[redis]>=5.1.2,<5.7.0",
+]
+# Used by the DiskcacheLongCallbackManager
+diskcache = [
+    "diskcache>=5.2.1",
+    "multiprocess>=0.70.12",
+    "psutil>=5.8.0",
+    "msgspec",  # DiskcacheSharedStorage
+]
+# Used by RedisSharedStorage. Keep the redis pin in sync with celery; in
+# Dash 5.0 redis will be removed from the celery extra and live here only.
+redis = [
+    "redis>=3.5.3,<=8.1.0",
+    "msgspec",
+]
+compress = ["flask-compress"]
+fastapi = [
+    "fastapi",
+    "uvicorn[standard]",
+]
+quart = ["quart"]
+cloud = ["plotly-cloud"]
+ag-grid = ["dash-ag-grid"]
+shared_storage = ["msgspec"]
+
+[project.urls]
+Homepage = "https://plotly.com/dash"
+Documentation = "https://dash.plotly.com"
+Source = "https://github.com/plotly/dash"
+"Issue Tracker" = "https://github.com/plotly/dash/issues"
+
+[project.scripts]
+dash-generate-components = "dash.development.component_generator:cli"
+renderer = "dash.development.build_process:renderer"
+dash-update-components = "dash.development.update_components:cli"
+plotly = "dash._plotly_cli:cli"
+
+[project.entry-points.pytest11]
+dash = "dash.testing.plugin"
+
+[tool.setuptools.dynamic]
+version = { attr = "dash.version.__version__" }
+
+# Only dash: a stray top-level package (for example the benchmarks harness)
+# would shadow a directory of the same name in every project that installs dash.
+[tool.setuptools.packages.find]
+include = ["dash", "dash.*"]
+namespaces = false
+
+# Like `jupyter nbextension install/enable --sys-prefix` and the jupyterlab
+# extension directory.
+[tool.setuptools.data-files]
+"share/jupyter/nbextensions/dash" = ["dash/nbextension/main.js"]
+"etc/jupyter/nbconfig/notebook.d" = ["dash/nbextension/dash.json"]
+"share/jupyter/lab/extensions" = ["dash/labextension/dist/dash-jupyterlab.tgz"]

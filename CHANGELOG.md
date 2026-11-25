@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Removed
 - [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
 
+### Changed
+- [#4159](https://github.com/plotly/dash/pull/4159) Package metadata and dependencies move from `setup.py` and `requirements/*.txt` to `pyproject.toml`. The installed package and its extras are unchanged.
+
 ### Fixed
 - [#4162](https://github.com/plotly/dash/pull/4162) Fix the FastAPI websocket handler logging an `Exception in ASGI application` traceback when the client disconnects while messages are being sent. Fixes [#4157](https://github.com/plotly/dash/issues/4157).
 - [#4160](https://github.com/plotly/dash/pull/4160) Fix R package generation crashing when the R package settings have no `pkg_help_title` or `pkg_help_description`; it now falls back to the `package.json` description.
