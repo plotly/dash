@@ -141,7 +141,7 @@ def test_stcb008_flask_ndjson_frames():
         yield "start"
         patch = Patch()
         patch += " token"
-        yield set_props("side", {"children": "side-value"})
+        set_props("side", {"children": "side-value"})
         yield patch
         yield "final"
 
@@ -151,11 +151,11 @@ def test_stcb008_flask_ndjson_frames():
     # and cleared so it is not resent with the next frame.
     assert frames[1]["sideUpdate"] == {"side": {"children": "side-value"}}
     assert (
-        frames[2]["response"]["out"]["children"]["__dash_patch_update"]
+        frames[1]["response"]["out"]["children"]["__dash_patch_update"]
         == "__dash_patch_update"
     )
-    assert frames[3] == {"multi": True, "response": {"out": {"children": "final"}}}
-    assert frames[4] == {"done": True}
+    assert frames[2] == {"multi": True, "response": {"out": {"children": "final"}}}
+    assert frames[3] == {"done": True}
 
 
 def test_stcb009_stream_error_frame():
@@ -254,6 +254,65 @@ def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
     }
     assert frames[2]["response"] == {"out": {"children": "done"}}
     assert frames[3] == {"done": True}
+
+
+def test_stcb011c_set_props_after_last_yield_sent_once():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button(id="btn"), html.Div(id="out"), html.Div(id="side")]
+    )
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
+    async def stream_cb(n):
+        yield "start"
+        set_props("side", {"children": "end"})
+
+    frames = post_stream(app, make_body("out", "children"))
+    assert frames == [
+        {"multi": True, "response": {"out": {"children": "start"}}},
+        {"multi": True, "sideUpdate": {"side": {"children": "end"}}},
+        {"done": True},
+    ]
+
+
+def test_stcb011d_yield_set_props_with_dict_outputs():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="btn"),
+            html.Div(id="a"),
+            html.Div(id="b"),
+            html.Div(id="side"),
+        ]
+    )
+
+    @app.callback(
+        output=dict(x=Output("a", "children"), y=Output("b", "children")),
+        inputs=dict(n=Input("btn", "n_clicks")),
+    )
+    async def stream_cb(n):
+        yield set_props("side", {"children": "loading"})
+        yield dict(x="a1", y=no_update)
+
+    body = {
+        "output": "..a.children...b.children..",
+        "outputs": [
+            {"id": "a", "property": "children"},
+            {"id": "b", "property": "children"},
+        ],
+        "inputs": [{"id": "btn", "property": "n_clicks", "value": 1}],
+        "changedPropIds": ["btn.n_clicks"],
+    }
+    frames = post_stream(app, body)
+    assert frames == [
+        {
+            "multi": True,
+            "sideUpdate": {"side": {"children": "loading"}},
+            "response": {},
+        },
+        {"multi": True, "response": {"a": {"children": "a1"}}},
+        {"done": True},
+    ]
 
 
 def test_stcb012_sync_iter_asyncgen():
