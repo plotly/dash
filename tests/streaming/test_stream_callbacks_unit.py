@@ -315,6 +315,50 @@ def test_stcb011d_yield_set_props_with_dict_outputs():
     ]
 
 
+def test_stcb011e_set_props_return_value_in_no_output_callbacks():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button(id="btn"), html.Button(id="btn2"), html.Div(id="side")]
+    )
+
+    @app.callback(Input("btn", "n_clicks"))
+    def regular_cb(n):
+        return set_props("side", {"children": "regular"})
+
+    @app.callback(Input("btn2", "n_clicks"))
+    async def stream_cb(n):
+        yield set_props("side", {"children": "stream"})
+
+    client = app.server.test_client()
+    client.get("/")
+    keys = {v["inputs"][0]["id"]: k for k, v in app.callback_map.items()}
+
+    def body(btn):
+        return {
+            "output": keys[btn],
+            "outputs": [],
+            "inputs": [{"id": btn, "property": "n_clicks", "value": 1}],
+            "changedPropIds": [f"{btn}.n_clicks"],
+        }
+
+    resp = client.post("/_dash-update-component", json=body("btn"))
+    assert resp.status_code == 200
+    assert resp.get_json() == {
+        "multi": True,
+        "sideUpdate": {"side": {"children": "regular"}},
+        "response": {},
+    }
+
+    assert post_stream(app, body("btn2")) == [
+        {
+            "multi": True,
+            "sideUpdate": {"side": {"children": "stream"}},
+            "response": {},
+        },
+        {"done": True},
+    ]
+
+
 def test_stcb012_sync_iter_asyncgen():
     var = contextvars.ContextVar("stcb012")
 

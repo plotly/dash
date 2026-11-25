@@ -829,7 +829,7 @@ def _prepare_response(
                     component_ids[id_str][prop] = vali
 
     else:
-        if output_value is not None:
+        if output_value is not None and not NoUpdate.is_no_update(output_value):
             raise InvalidCallbackReturnValue(
                 f"No-output callback received return value: {output_value}"
             )

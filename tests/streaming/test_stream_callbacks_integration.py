@@ -132,15 +132,13 @@ def test_stst007_yield_set_props_renders_before_stream_ends(dash_duo):
         yield set_props(
             "output", {"children": html.Div(id="output2", children="Loading...")}
         )
-        await asyncio.sleep(3)
+        await asyncio.sleep(5)
         set_props("output2", {"children": f"You entered: {value}"})
 
     dash_duo.start_server(app)
     dash_duo.find_element("#input").click()
-    start = time.time()
-    dash_duo.wait_for_text_to_equal("#output2", "Loading...", timeout=2.5)
-    assert time.time() - start < 3
-    dash_duo.wait_for_text_to_equal("#output2", "You entered: 1", timeout=6)
+    dash_duo.wait_for_text_to_equal("#output2", "Loading...", timeout=3)
+    dash_duo.wait_for_text_to_equal("#output2", "You entered: 1", timeout=8)
     assert dash_duo.get_logs() == []
 
 
@@ -169,7 +167,7 @@ def test_stst008_returned_set_props_keeps_dict_and_wildcard_outputs(dash_duo):
     )
     async def stream_cb(n):
         yield set_props("side-stream", {"children": "stream-start"})
-        await asyncio.sleep(3)
+        await asyncio.sleep(5)
         yield dict(x="a1", y=no_update)
 
     @app.callback(
@@ -200,12 +198,10 @@ def test_stst008_returned_set_props_keeps_dict_and_wildcard_outputs(dash_duo):
     dash_duo.wait_for_text_to_equal("[id='{\"w\":1}']", "w0")
 
     dash_duo.find_element("#btn-stream").click()
-    start = time.time()
-    dash_duo.wait_for_text_to_equal("#side-stream", "stream-start", timeout=2.5)
-    assert time.time() - start < 3
+    dash_duo.wait_for_text_to_equal("#side-stream", "stream-start", timeout=3)
     dash_duo.wait_for_text_to_equal("#a", "a0")
     dash_duo.wait_for_text_to_equal("#b", "b0")
-    dash_duo.wait_for_text_to_equal("#a", "a1", timeout=6)
+    dash_duo.wait_for_text_to_equal("#a", "a1", timeout=8)
     dash_duo.wait_for_text_to_equal("#b", "b0")
     assert dash_duo.get_logs() == []
 
