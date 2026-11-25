@@ -340,3 +340,18 @@ def test_hook012_get_app_available_in_hooks_on_routes(hook_cleanup, dash_duo):
     assert hook_access_results[
         "error_hook"
     ], "get_app() should be accessible in error hook when dispatch route has @with_app_context"
+
+
+def test_hook013_public_api_has_docstrings():
+    assert type(hooks).__doc__
+    public = [
+        name
+        for name in dir(hooks)
+        if not name.startswith("_") and callable(getattr(hooks, name))
+    ]
+    missing = [
+        name
+        for name in public
+        if name not in ("add_hook", "get_hooks") and not getattr(hooks, name).__doc__
+    ]
+    assert not missing
