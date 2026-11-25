@@ -57,24 +57,28 @@ def test_grls001_consecutive_relayouts(dash_duo, nested):
         """,
         nested,
     )
-    ranges = dash_duo.driver.execute_script("""
+    ranges = dash_duo.driver.execute_script(
+        """
         const gd = document.querySelector('#graph .js-plotly-plot');
         const figure = window.dash_component_api.getLayout('graph').props.figure;
         return [gd._fullLayout.yaxis.range, gd._fullLayout.xaxis.range,
                 figure.layout.yaxis?.range, figure.layout.xaxis?.range];
-        """)
+        """
+    )
     assert ranges == [[0, 5], [0, 1], [0, 5], [0, 1]]
 
     dash_duo.find_element("#replace").click()
     dash_duo.wait_for_text_to_equal("#graph .gtitle", "Replacement")
-    dash_duo.driver.execute_async_script("""
+    dash_duo.driver.execute_async_script(
+        """
         const done = arguments[arguments.length - 1];
         const gd = document.querySelector('#graph .js-plotly-plot');
         Plotly.relayout(gd, {'xaxis.range': [1, 2]});
         gd.once('plotly_afterplot', () => {
             requestAnimationFrame(() => requestAnimationFrame(done));
         });
-        """)
+        """
+    )
     figure = dash_duo.driver.execute_script(
         "return window.dash_component_api.getLayout('graph').props.figure;"
     )
