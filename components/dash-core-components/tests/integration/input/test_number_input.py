@@ -53,7 +53,7 @@ def test_inni003_invalid_numbers_range(dash_dcc, input_range_app):
 
     elem_range = dash_dcc.find_element("#range")
     elem_range.send_keys("1999")
-    assert dash_dcc.find_element("#out").text == "1999"
+    dash_dcc.wait_for_text_to_equal("#out", "1999")
 
     for invalid_number in ("0.0", "12", "10e10"):
         elem_range.send_keys(invalid_number)

@@ -1,6 +1,5 @@
 """Type compliance tests for callback with strict mypy/pyright settings."""
 import os
-import sys
 
 import pytest  # type: ignore
 
@@ -97,9 +96,7 @@ def complex_callback(value: str) -> tuple[Union[str, int], list[str]]:
 """
 
 
-typing_modules = ["pyright"]
-if sys.version_info.minor >= 10:
-    typing_modules.append("mypy")
+typing_modules = ["pyright", "mypy"]
 
 
 @pytest.mark.parametrize("typing_module", typing_modules)
