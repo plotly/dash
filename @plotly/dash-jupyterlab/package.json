@@ -73,16 +73,6 @@
         "singleton": true,
         "requiredVersion": "^3.0.0 || ^4.0.0"
       },
-      "@jupyterlab/services": {
-        "bundled": false,
-        "singleton": true,
-        "requiredVersion": "^6.0.0 || ^7.0.0"
-      },
-      "@lumino/messaging": {
-        "bundled": false,
-        "singleton": true,
-        "requiredVersion": "^1.0.0 || ^2.0.0"
-      },
       "@lumino/widgets": {
         "bundled": false,
         "singleton": true,
