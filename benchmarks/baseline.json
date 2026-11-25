@@ -89,6 +89,16 @@
       "growth": 0.87
     }
   },
+  "callback_fanout_children_update": {
+    "fanout_ms": {
+      "n": 12,
+      "min": 146.1,
+      "median": 158.7,
+      "p90": 164.8,
+      "max": 174.4,
+      "growth": 0.94
+    }
+  },
   "wildcard_all_resolve": {
     "wildcard_ms": {
       "n": 12,
