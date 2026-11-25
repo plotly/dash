@@ -699,40 +699,7 @@ Special handling for Colab:
 
 ### Dash() Constructor Parameters
 
-**Basic Setup:**
-- `name` - Application name (default: infers from `__name__`)
-- `server` - Server instance (Flask, Quart, or FastAPI) or `True` to create Flask (default: `True`)
-- `title` - Browser tab title (default: `"Dash"`)
-- `update_title` - Title during callbacks (default: `"Updating..."`)
-
-**Assets & Resources:**
-- `assets_folder` - Path to assets directory (default: `"assets"`)
-- `assets_url_path` - URL path for assets (default: `"assets"`)
-- `assets_ignore` - Regex to exclude assets (default: `""`)
-- `serve_locally` - Serve from local vs CDN (default: `True`)
-- `external_scripts` - Additional JS URLs
-- `external_stylesheets` - Additional CSS URLs
-
-**Routing:**
-- `url_base_pathname` - Base URL prefix for entire app
-- `requests_pathname_prefix` - Prefix for AJAX requests
-- `routes_pathname_prefix` - Prefix for API routes
-
-**Multi-Page:**
-- `use_pages` - Enable pages system (default: auto-detect)
-- `pages_folder` - Path to pages directory (default: `"pages"`)
-
-**Behavior:**
-- `suppress_callback_exceptions` - Skip callback validation (default: `False`)
-- `prevent_initial_callbacks` - Skip callbacks on load (default: `False`)
-- `background_callback_manager` - DiskcacheManager or CeleryManager
-- `on_error` - Global callback error handler
-- `shared_storage` - Cross-process state + pub/sub backend (default: off). Pass `LocalSharedStorage` to enable, or a `BaseSharedStorage` subclass/instance to swap. See [Shared Storage](#shared-storage).
-
-**WebSocket Callbacks:**
-- `websocket_callbacks` - Enable WebSocket for all callbacks (default: `False`). Requires FastAPI backend.
-- `websocket_allowed_origins` - List of allowed origins for WebSocket connections
-- `websocket_inactivity_timeout` - Disconnect WebSocket after inactivity period in ms (default: `300000` = 5 minutes). Set to `0` to disable.
+Read the `Dash.__init__` signature and docstring in `dash/dash.py`. They are the source of truth; a copied list here would drift.
 
 ### app.run() Parameters
 
@@ -1606,16 +1573,28 @@ Talisman(app.server, content_security_policy={
 
 ### Meta Tag Sanitization
 
-Meta tag values are HTML-escaped to prevent injection:
+`Dash.index()` builds the `<meta>` tags of the index page from three sources, in this order:
+
+1. **Social media tags** (`_page_meta_tags` in `dash/_pages.py`): `description`, `twitter:*` and `og:*`. Added when `include_pages_meta=True` (the default) and the app uses pages or sets `description` or `image`. With pages, the matched page's `title`, `description` and `image` (from `register_page`) override the app values. `title` and `description` can be functions, called with the path variables. `image` is an asset filename or a URL; `image_url` on a page wins over both.
+2. **Defaults** (`Dash._generate_meta`): `X-UA-Compatible`, `charset` and `viewport`. Each is skipped when `meta_tags` already has one, so `meta_tags=[{"name": "viewport", ...}]` replaces the default.
+3. **`meta_tags`** from the constructor, as given.
+
+Duplicates are not merged: a `description` in `meta_tags` is emitted next to the generated one, not instead of it.
+
+Every tag goes through `format_tag(..., sanitize=True)` in `dash/_utils.py`, which runs attribute values through `html.escape` (quotes included), so a value cannot close the attribute or inject markup. Attribute names are not escaped and must come from trusted code. This covers `register_page` values and `twitter:url`, which is the request URL. `index_string` and `index` hooks run after this step and are not sanitized.
 
 ```python
 app = Dash(__name__, meta_tags=[
-    {"name": "description", "content": "Safe <content>"}
+    {"name": "description", "content": 'Safe "<content>"'}
 ])
+# <meta name="description" content="Safe &quot;&lt;content&gt;&quot;">
 ```
+
+Tests: `test_inin005` to `test_inin007` in `tests/integration/test_integration.py`, `test_pala002`/`test_pala003` in `tests/integration/multi_page/test_pages_layout.py`.
 
 ### Key Files
 
 - `dash/dash-renderer/src/utils/clientsideFunctions.ts` - URL sanitization (`clean_url`)
 - `dash/dash.py:csp_hashes()` - CSP hash generation
+- `dash/_utils.py:format_tag()` - Meta tag escaping
 - `tests/integration/security/` - Security test coverage
