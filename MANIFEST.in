@@ -10,5 +10,5 @@ include dash/html/*
 include dash/dash_table/*
 include dash/dash-renderer/build/*.js
 include dash/dash-renderer/build/*.map
-include dash/labextension/*
+graft dash/labextension
 include dash/py.typed

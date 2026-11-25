@@ -33,9 +33,13 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@jupyterlab/application": "^2.0.0 || ^3.0.0 || ^4.0.0",
-    "@jupyterlab/console": "^2.0.0 || ^3.0.0 || ^4.0.0",
-    "@jupyterlab/notebook": "^2.0.0 || ^3.0.0 || ^4.0.0"
+    "@jupyterlab/application": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/console": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/coreutils": "^5.0.0 || ^6.0.0",
+    "@jupyterlab/notebook": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/services": "^6.0.0 || ^7.0.0",
+    "@lumino/messaging": "^1.0.0 || ^2.0.0",
+    "@lumino/widgets": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.6.8",
@@ -47,7 +51,44 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "../../dash/labextension"
+    "outputDir": "../../dash/labextension",
+    "sharedPackages": {
+      "@jupyterlab/application": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@jupyterlab/console": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@jupyterlab/coreutils": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^5.0.0 || ^6.0.0"
+      },
+      "@jupyterlab/notebook": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@jupyterlab/services": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^6.0.0 || ^7.0.0"
+      },
+      "@lumino/messaging": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^1.0.0 || ^2.0.0"
+      },
+      "@lumino/widgets": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^1.0.0 || ^2.0.0"
+      }
+    }
   },
   "resolutions": {
     "webpack": "5.106.2"

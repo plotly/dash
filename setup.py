@@ -11,6 +11,7 @@ def read_req_file(req_type):
         requires = (line.strip() for line in fp)
         return [req for req in requires if req and not req.startswith("#")]
 
+
 setup(
     name="dash",
     version=main_ns["__version__"],

@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Changed
+- [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
+
 ### Fixed
 - [#4167](https://github.com/plotly/dash/pull/4167) `dash-generate-components` no longer crashes when generating an R package from a `package.json` whose `author` is an object or includes a URL, and a missing author email now gets the intended error message. Fixes [#1577](https://github.com/plotly/dash/issues/1577).
 - [#4169](https://github.com/plotly/dash/pull/4169) Fix the inferred path of a page whose module name contains the pages folder name: `pages/landing_pages.py` no longer gets `/` and `pages/subpages/report.py` no longer gets `/report`. Fixes [#4168](https://github.com/plotly/dash/issues/4168).
