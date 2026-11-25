@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Added
+- Add a Copy button to each error in the debug toolbar, which copies the error message and its traceback to the clipboard. Closes [#3624](https://github.com/plotly/dash/issues/3624).
+
 ### Fixed
 - [#4103](https://github.com/plotly/dash/pull/4103) Speed up components that use `dashChildrenUpdate` (`dcc.Tabs` and others): unrelated paths are now rejected before any allocation on each store update. Addresses [#4032](https://github.com/plotly/dash/issues/4032).
 - [#4167](https://github.com/plotly/dash/pull/4167) `dash-generate-components` no longer crashes when generating an R package from a `package.json` whose `author` is an object or includes a URL, and a missing author email now gets the intended error message. Fixes [#1577](https://github.com/plotly/dash/issues/1577).
