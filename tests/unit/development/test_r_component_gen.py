@@ -7,6 +7,7 @@ from textwrap import dedent
 
 import pytest
 
+from dash.development import _r_components_generation
 from dash.development._r_components_generation import (
     generate_rpkg,
     make_namespace_exports,
@@ -145,3 +146,37 @@ def test_r_author_without_email(author, tmp_path, monkeypatch, capsys):
         generate_description(author, tmp_path, monkeypatch)
 
     assert "email" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "rpkg_data, title, description",
+    [
+        (None, "From package.json", "From package.json"),
+        ({}, "From package.json", "From package.json"),
+        ({"pkg_help_title": "R title"}, "R title", "From package.json"),
+        (
+            {"pkg_help_title": "R title", "pkg_help_description": "R desc"},
+            "R title",
+            "R desc",
+        ),
+    ],
+)
+def test_r_description_title_fallback(
+    tmp_path, monkeypatch, rpkg_data, title, description
+):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(_r_components_generation, "write_js_metadata", lambda *a: None)
+    os.makedirs("man")
+    pkg_data = {
+        "name": "my-pkg",
+        "version": "1.0.0",
+        "description": "From package.json",
+        "author": "Jane Doe <jane@example.com>",
+        "license": "MIT",
+    }
+
+    generate_rpkg(pkg_data, rpkg_data, "my_pkg", "", "", "", "", False)
+
+    content = (tmp_path / "DESCRIPTION").read_text()
+    assert "Title: {}\n".format(title) in content
+    assert "Description: {}\n".format(description) in content

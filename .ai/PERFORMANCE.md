@@ -138,7 +138,8 @@ function dominates), not the absolute ms.
 | callback_fanout (1 -> 300) | ~45 ms | 1.0x | fine |
 | callback_chain (100 deep) | ~440 ms | 1.0x | ~100 sequential dispatches; inherent |
 | wildcard_all_resolve (ALL over 400) | ~140 ms | 1.0x | was ~580 ms (O(n²)); now O(n), see below |
-| full_children_replace (contrast) | ~850 ms | ~18x | O(total) every click *by design* - why Patch exists |
+| full_children_replace (200 -> 2000) | ~50 ms | ~3x | linear in the list it rebuilds; was ~18x (O(n^2)), see below |
+| rerender_existing_subtree (400 rows) | ~50 ms | 1.0x | was ~1200 ms (O(n^2)); see below |
 
 ### 1. Wildcard (ALL / MATCH) resolution — was O(n²), now O(n) [fixed]
 
@@ -189,11 +190,22 @@ equivalent to the curried `path`, just without the dispatch and placeholder
 checks. When touching these traversals, prefer direct access over curried
 ramda - the per-node multiplier makes it matter.
 
-### 4. Full children replacement is the O(total) baseline
+### 4. Re-rendering callback children was O(n^2) [fixed]
 
-`full_children_replace` grows ~18x across a run and is ~15x slower than the
-equivalent `Patch().extend()`. This is expected and is the reason `Patch`
-exists for growing containers; it is kept as a contrast with loose thresholds.
+`full_children_replace` used to grow ~18x across a run and was written off as
+the expected cost of not using `Patch`. It was not: every wrapper in a
+re-rendered subtree dispatched `resetComponentState` from its `_newRender`
+effect, and each dispatch re-runs every mounted wrapper's selector. 400 rows (1200
+components) took 1219 store updates per click and ~1200 ms (#4121).
+
+**Fix:** `resetDescendantHashes` checks `layoutHashes` first and only dispatches
+when there is a hash under the wrapper's path to clear. The reducer also returns
+the same object when nothing matches, and matches path segments, so resetting
+`children,1` no longer clears `children,10`. Now 19 updates and ~50 ms.
+
+`rerender_existing_subtree` covers the same-size case, which the first-render
+guard from #3929 does not skip. `max_growth` on `full_children_replace` fails
+the run when the per-click cost grows faster than the list (linear is ~3x).
 
 ### 5. Layouts deeper than ~250 nested components fail to serialize
 

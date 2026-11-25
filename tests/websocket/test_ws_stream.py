@@ -7,6 +7,7 @@ full renderer round-trip.
 """
 import asyncio
 import json
+import threading
 
 import pytest
 
@@ -127,6 +128,7 @@ def test_wsst004_browser_stream_over_websocket(dash_duo):
             html.Div(id="out", children="idle"),
         ]
     )
+    release = threading.Event()
 
     @app.callback(
         Output("out", "children"),
@@ -135,6 +137,10 @@ def test_wsst004_browser_stream_over_websocket(dash_duo):
     )
     async def stream_cb(n):
         yield "streaming"
+        # Hold the stream until the test has seen the first frame: on a slow
+        # runner a timed gap can pass between two polls of the text.
+        while not release.is_set():
+            await asyncio.sleep(0.05)
         for token in ["a", "b", "c"]:
             await asyncio.sleep(0.2)
             patch = Patch()
@@ -146,6 +152,7 @@ def test_wsst004_browser_stream_over_websocket(dash_duo):
     dash_duo.find_element("#btn").click()
     # Intermediate frame renders before the stream finishes.
     dash_duo.wait_for_text_to_equal("#out", "streaming")
+    release.set()
     # Patch frames appended exactly once each.
     dash_duo.wait_for_text_to_equal("#out", "streamingabc")
     assert dash_duo.get_logs() == []
