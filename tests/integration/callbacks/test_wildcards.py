@@ -631,6 +631,44 @@ def test_cbwc008_running_match(dash_duo):
         )
 
 
+def test_cbwc015_running_all_absent_page(dash_duo):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Location(id="url"),
+            dcc.Link("Other", href="/other", id="link"),
+            html.Button("Go", id="btn"),
+            html.Div(id="out"),
+            html.Div(id="page"),
+        ]
+    )
+
+    @app.callback(Output("page", "children"), Input("url", "pathname"))
+    def render_page(pathname):
+        if pathname == "/other":
+            return html.Div("other page", id="other")
+        return [html.Div(id={"type": "loading", "index": i}) for i in range(2)]
+
+    @app.callback(
+        Output("out", "children"),
+        Input("btn", "n_clicks"),
+        running=[(Output({"type": "loading", "index": ALL}, "children"), "on", "off")],
+        prevent_initial_call=True,
+    )
+    def on_click(n_clicks):
+        return f"clicked {n_clicks}"
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element('[id*="loading"]')
+
+    dash_duo.find_element("#link").click()
+    dash_duo.wait_for_text_to_equal("#other", "other page")
+
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal("#out", "clicked 1")
+    assert dash_duo.get_logs() == []
+
+
 def test_cbwc009_match_input_fixed_output(dash_duo):
     # Issue #2462: allow MATCH in Input with a fixed-id Output.
     app = Dash(__name__)
