@@ -248,6 +248,22 @@ def test_stale_socket_probe(tmp_path, monkeypatch):
     assert local._unix_is_stale(sock_path, addr_path)
 
 
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_starting_owner_is_not_stale(tmp_path):
+    """An owner that has bound its socket but is still recovering its data
+    before serving is alive, so a re-election must not take its socket over."""
+    from dash._shared_storage import local
+
+    sock_path = str(tmp_path / "s.sock")
+    addr_path = str(tmp_path / "s.addr")
+    listen_sock, _, _ = local._try_bind("unused", sock_path, addr_path)
+    try:
+        assert not local._unix_is_stale(sock_path, addr_path)
+        assert local._try_bind("unused", sock_path, addr_path) is None
+    finally:
+        listen_sock.close()
+
+
 def test_reelection_recovers_persisted_data(tmp_path):
     """With mode='persist', a re-elected owner recovers the killed owner's data
     from disk instead of coming up cold."""

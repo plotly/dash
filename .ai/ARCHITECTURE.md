@@ -945,7 +945,8 @@ socket. An owner too busy to accept (full backlog, probe timeout) is alive:
 taking its socket over started a second, empty store at 4000 streaming
 browsers. macOS and the BSDs also refuse on a full backlog, so there a refused
 probe means dead only once the owner's pid (in the `.addr` advertisement) is
-gone. A single-process
+gone. The owner listens as soon as it binds, before it recovers persisted data,
+so a starting owner queues connections instead of looking dead. A single-process
 deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 (defaults to a hash of cwd + argv[0]), `buffer_size` (default 32 — small on
 purpose, since each topic retains that many arbitrary payloads; raise it for a

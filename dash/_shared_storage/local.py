@@ -153,6 +153,9 @@ def _try_bind(namespace: str, sock_path: str, addr_path: Optional[str] = None):
                 s.close()
                 return None
         os.chmod(sock_path, 0o600)
+        # Listen now, not once the owner is ready to serve: a probe refused
+        # while a starting owner recovers its data would take it for stale.
+        s.listen(128)
         return s, socket.AF_UNIX, sock_path
 
     port = _tcp_port(namespace)
@@ -163,6 +166,7 @@ def _try_bind(namespace: str, sock_path: str, addr_path: Optional[str] = None):
     except OSError:
         s.close()
         return None
+    s.listen(128)
     return s, socket.AF_INET, ("127.0.0.1", port)
 
 
