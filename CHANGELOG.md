@@ -4,7 +4,26 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Changed
+- [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
+
 ### Fixed
+- [#3957](https://github.com/plotly/dash/pull/3957) Fix `running=` with a pattern-matching `ALL`/`ALLSMALLER` id crashing the renderer when none of the matching components are on the current page. Fixes [#3297](https://github.com/plotly/dash/issues/3297).
+- [#4144](https://github.com/plotly/dash/pull/4144) Fix `Patch.update` changing the caller's dictionary, so reusing one dictionary across `update` calls with different keywords no longer changes earlier queued merges. Fixes [#4143](https://github.com/plotly/dash/issues/4143).
+- [#4197](https://github.com/plotly/dash/pull/4197) Fix `dcc.Input` with `type="number"` and `debounce` sometimes putting back an old value over what the user typed after using the stepper buttons.
+- [#4102](https://github.com/plotly/dash/pull/4102) Fix `dcc.Graph` zoom, pan and other edits being reset by a new figure or a `Patch` while `uirevision` is unchanged, a regression from #3882. Fixes [#4093](https://github.com/plotly/dash/issues/4093).
+- [#4103](https://github.com/plotly/dash/pull/4103) Speed up components that use `dashChildrenUpdate` (`dcc.Tabs` and others): unrelated paths are now rejected before any allocation on each store update. Addresses [#4032](https://github.com/plotly/dash/issues/4032).
+- [#4167](https://github.com/plotly/dash/pull/4167) `dash-generate-components` no longer crashes when generating an R package from a `package.json` whose `author` is an object or includes a URL, and a missing author email now gets the intended error message. Fixes [#1577](https://github.com/plotly/dash/issues/1577).
+- [#4169](https://github.com/plotly/dash/pull/4169) Fix the inferred path of a page whose module name contains the pages folder name: `pages/landing_pages.py` no longer gets `/` and `pages/subpages/report.py` no longer gets `/report`. Fixes [#4168](https://github.com/plotly/dash/issues/4168).
+- [#4174](https://github.com/plotly/dash/pull/4174) Fix `dcc.Graph` discarding earlier layout changes when multiple `Plotly.relayout` calls run before React delivers the updated figure prop. Fixes [#4172](https://github.com/plotly/dash/issues/4172).
+- [#4175](https://github.com/plotly/dash/pull/4175) Fix clientside callbacks dispatching empty property updates and unnecessarily rendering components whose outputs all return `dash_clientside.no_update`. Fixes [#4173](https://github.com/plotly/dash/issues/4173).
+- [#4171](https://github.com/plotly/dash/pull/4171) Hot reload no longer stops for the rest of the session when the assets watcher finds a file it cannot stat, such as a dangling symlink (an Emacs lock file) or a temp file deleted mid-scan. Fixes [#4170](https://github.com/plotly/dash/issues/4170).
+- [#4165](https://github.com/plotly/dash/pull/4165) Use `@pytest.hookimpl(tryfirst=True)` on `pytest_addhooks` in `dash.testing.plugin` to eliminate `PytestRemovedIn10Warning` during pytest plugin registration and preserve compatibility with pytest 10. Fixes [#2420](https://github.com/plotly/dash/issues/2420).
+- [#4104](https://github.com/plotly/dash/pull/4104) Allow `update_title=None` in the `Dash` constructor type hints.
+- [#4129](https://github.com/plotly/dash/pull/4129) `set_props` now returns `no_update`, so `yield set_props(...)` in a streaming callback sends the side update right away, and a `set_props` called after the last yield is no longer dropped. Fixes [#4127](https://github.com/plotly/dash/issues/4127).
+- [#4137](https://github.com/plotly/dash/pull/4137) Fix FastAPI `after_request` hooks to match Flask: multiple hooks run in LIFO order on every route, get the response and can return a new one. Quart `after_request` hooks get the response too.
+- [#4184](https://github.com/plotly/dash/pull/4184) Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
+- [#4185](https://github.com/plotly/dash/pull/4185) Fix `RedisSharedStorage` streaming callbacks failing under load with redis-py 8 (`MaxConnectionsError: Too many connections`): calls now wait for a free connection.
 - [#4186](https://github.com/plotly/dash/pull/4186) Fix `LocalSharedStorage` electing a second, empty owner under load when the owner was too busy to accept connections, which reset every open stream.
 
 ## [4.5.1] - 2026-11-19
@@ -13,6 +32,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4136](https://github.com/plotly/dash/pull/4136) Drop Python 3.9 support: Dash now requires Python 3.10 or later, and is tested on 3.10 through 3.14.
 
 ### Fixed
+- [#4126](https://github.com/plotly/dash/pull/4126) Fix the `dcc.Upload` `contents` and `dcc.Geolocation` `position` docstrings: `contents` is a base64 data URL, and unavailable `position` fields are `None`, not NaN. Fixes [#4125](https://github.com/plotly/dash/issues/4125).
 - [#4162](https://github.com/plotly/dash/pull/4162) Fix the FastAPI websocket handler logging an `Exception in ASGI application` traceback when the client disconnects while messages are being sent. Fixes [#4157](https://github.com/plotly/dash/issues/4157).
 - [#4160](https://github.com/plotly/dash/pull/4160) Fix R package generation crashing when the R package settings have no `pkg_help_title` or `pkg_help_description`; it now falls back to the `package.json` description.
 - [#4148](https://github.com/plotly/dash/pull/4148) The wheel no longer installs the repository's `benchmarks` harness as a top-level `benchmarks` package (included since 4.5.0), which shadowed a `benchmarks` directory in projects that install dash.

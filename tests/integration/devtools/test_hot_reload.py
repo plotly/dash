@@ -1,5 +1,8 @@
 import os
+import sys
 from time import sleep
+
+import pytest
 
 from dash.testing.wait import until
 
@@ -129,3 +132,35 @@ def test_dvhr001_hot_reload(dash_duo_mp):
     # rerenders with debug menu closed after reload
     # reopen and check that server is now available
     dash_duo_mp.find_element(".dash-debug-menu__button--available")
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges")
+def test_dvhr002_hot_reload_survives_dangling_symlink(dash_duo_mp, tmp_path):
+    assets = tmp_path / "assets"
+    assets.mkdir()
+    css = assets / "style.css"
+    css.write_text("#hot-reload-content { background-color: blue; }")
+
+    app = Dash(__name__, assets_folder=str(assets))
+    app.layout = html.Div("Hot reload", id="hot-reload-content")
+
+    dash_duo_mp.start_server(
+        app,
+        dev_tools_hot_reload=True,
+        dev_tools_hot_reload_interval=0.1,
+        dev_tools_hot_reload_watch_interval=0.1,
+        dev_tools_hot_reload_max_retry=100,
+    )
+    dash_duo_mp.wait_for_style_to_equal(
+        "#hot-reload-content", "background-color", "rgba(0, 0, 255, 1)"
+    )
+
+    # Editor lock files such as Emacs' `.#style.css` are dangling symlinks,
+    # so `os.stat` raises FileNotFoundError on them.
+    os.symlink(str(assets / "missing"), str(assets / ".#style.css"))
+    sleep(1)  # let the watcher see it, and ensure a new mod time
+
+    css.write_text("#hot-reload-content { background-color: red; }")
+    dash_duo_mp.wait_for_style_to_equal(
+        "#hot-reload-content", "background-color", "rgba(255, 0, 0, 1)"
+    )

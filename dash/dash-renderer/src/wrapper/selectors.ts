@@ -2,7 +2,8 @@ import {DashLayoutPath, DashComponent, BaseDashProps} from '../types/component';
 import {
     getComponentLayout,
     stringifyPath,
-    checkDashChildrenUpdate
+    checkDashChildrenUpdate,
+    isPathOrDescendant
 } from './wrapping';
 import {pathOr} from 'ramda';
 
@@ -20,22 +21,20 @@ interface Hashes {
 
 const previousHashes: Hashes = {};
 
+const NOT_FIRST_LEVEL_CHILD: [boolean, string[]] = [false, []];
+
 const isFirstLevelPropsChild = (
     updatedPath: string,
-    strPath: string
+    strPath: string,
+    descendantPrefix: string
 ): [boolean, string[]] => {
-    const updatedSegments = updatedPath.split(',');
-    const fullSegments = strPath.split(',');
+    if (!isPathOrDescendant(updatedPath, strPath, descendantPrefix)) {
+        return NOT_FIRST_LEVEL_CHILD;
+    }
 
-    // Check that strPath actually starts with updatedPath
-    const startsWithPath = fullSegments.every(
-        (seg, i) => updatedSegments[i] === seg
-    );
-
-    if (!startsWithPath) return [false, []];
-
-    // Get the remaining path after the prefix
-    const remainingSegments = updatedSegments.slice(fullSegments.length);
+    const remainingSegments = updatedPath
+        .slice(descendantPrefix.length)
+        .split(',');
 
     const propsCount = remainingSegments.filter(s => s === 'props').length;
 
@@ -49,12 +48,15 @@ function determineChangedProps(
     let combinedHash = 0;
     let renderType: any; // Default render type, adjust as needed
     const changedProps: Record<string, any> = {};
-    Object.entries(state.layoutHashes).forEach(([updatedPath, pathHash]) => {
+    const descendantPrefix = strPath + ',';
+    Object.keys(state.layoutHashes).forEach(updatedPath => {
         const [descendant, remainingSegments] = isFirstLevelPropsChild(
             updatedPath,
-            strPath
+            strPath,
+            descendantPrefix
         );
         if (descendant) {
+            const pathHash = state.layoutHashes[updatedPath];
             const previousHash: any = pathOr({}, [updatedPath], previousHashes);
             combinedHash += pathOr(0, ['hash'], pathHash);
             if (previousHash !== pathHash) {

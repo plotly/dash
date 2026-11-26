@@ -669,7 +669,7 @@ Handles messages:
 - `base_url_request` → responds with JupyterLab server config
 - `show` → creates dedicated tab with IFrame widget
 
-Compatible with JupyterLab 2.x, 3.x, and 4.x.
+Shipped as a prebuilt extension (built with `@jupyterlab/builder` 3, installed to `share/jupyter/labextensions/@plotly/dash-jupyterlab`). Compatible with JupyterLab 3.x and 4.x: the `jupyterlab.sharedPackages` ranges in its `package.json` cover both majors.
 
 ### Proxy Configuration
 
@@ -1013,7 +1013,11 @@ multi-stream `XREAD`; a new subscription interrupts it through a private wake
 stream. Never park a blocking read in the executor per subscription: at a dozen
 open downlinks that starved every other store call in the worker (25-50% failed
 streams at 25 browsers on uvicorn `--workers 4`). Diskcache's async
-subscriptions likewise poll without blocking and sleep on the loop.
+subscriptions likewise poll without blocking and sleep on the loop. The sync
+client and each loop's client use a `BlockingConnectionPool` of 100 that waits
+up to 20s for a free connection: redis-py 8 caps a plain pool at 100 and raises
+past it, which failed 7% of streams at 2000 browsers on 4 uvicorn workers. A
+passed client keeps its own pool; the async clients built from it copy its size.
 
 ### Deployment Topology and Shared Storage
 
@@ -1515,6 +1519,18 @@ latency, never the stream). A tab closing while other tabs keep the shared
 downlink sends `streamCancel: {requestId}` per stream instead;
 the same pump check picks up the per-request key. A pump that stops publishes
 a terminal `{"done": true}` so a late-reconnecting client resolves.
+
+A downlink's close reads the record (is it still mine?) and then writes it
+closed: two round trips. When the browser's next downlink opens between them,
+the stale close overwrites a live record. On a busy store that happened to
+1-2% of streams at 4000 browsers, each cancelled at 10s. The rule now: the
+newest downlink of a page owns its record (records carry `opened`). A close
+writes closed over its own record or an older downlink's. An open async
+downlink reads the record every `DOWNLINK_GRACE / 2` and writes it open again
+only when an older downlink closed it, never over an open record or a newer
+downlink's: a relay whose client vanished unnoticed must not keep the page
+alive. Its close waits for a repair in flight. `opened` is wall-clock time, so
+across hosts it assumes clocks agree to well under a round trip.
 
 **Shutdown.** ASGI servers drain in-flight responses before stopping and a
 long-lived downlink never ends by itself, so `_stream_hub` installs a
