@@ -79,15 +79,20 @@ def _append(history, entry, key):
 def capacity(setup, metric="latency_p95_ms"):
     """Highest measured browser count the setup served interactively, and
     whether the real limit is higher (the sweep ended, or the clients ran out
-    of CPU, before the server fell behind)."""
+    of CPU, before the server fell behind). A point where browsers never
+    loaded, or a sweep that broke, says nothing past the last good point."""
     best = 0
     for p in setup["points"]:
         if p["client_bound"]:
             return best, True
-        if p["error_rate"] > 0.01 or (p[metric] or 1e9) > CAPACITY_P95_MS:
+        if (
+            p["error_rate"] > 0.01
+            or p.get("failed_browsers")
+            or (p[metric] or 1e9) > CAPACITY_P95_MS
+        ):
             return best, False
         best = p["browsers"]
-    return best, bool(setup["points"])
+    return best, bool(setup["points"]) and "failed" not in setup
 
 
 def _setup_trace(setup, metric, unit, dash=None):
@@ -218,7 +223,8 @@ CPU_AT_BROWSERS = 1000
 
 def _where(meta):
     return (
-        f"Server on {meta['server_cpus']} of {meta['cores']} cores ({meta['cpu']}),"
+        f"Server on {meta['server_cpus']} of {meta['cores']} cores"
+        f"{'' if meta.get('cpus_pinned', True) else ' (not pinned)'} ({meta['cpu']}),"
         f" Dash {meta['dash_version']} ({meta['commit']}), measured {meta['date'][:10]}"
     )
 
@@ -384,7 +390,7 @@ def _median_series(history, name):
 
 
 def renderer_charts(entry, history):
-    desc = _descriptions()
+    desc = entry.get("descriptions") or _descriptions()
     rows = []
     for scenario, metrics in entry["results"].items():
         for metric, stats in metrics.items():
@@ -434,7 +440,7 @@ def renderer_charts(entry, history):
 
 
 def renderer_table(entry):
-    desc = _descriptions()
+    desc = entry.get("descriptions") or _descriptions()
     rows = []
     for scenario, metrics in entry["results"].items():
         for metric, s in metrics.items():
@@ -1090,6 +1096,11 @@ def main(argv=None):
     parser.add_argument("--readme", default=os.path.join(REPO_ROOT, "README.md"))
     parser.add_argument("--renderer", help="results.json from benchmarks.run")
     parser.add_argument(
+        "--renderer-descriptions",
+        help="scenario descriptions from benchmarks.run --descriptions"
+        " (default: import benchmarks.scenarios, which needs built components)",
+    )
+    parser.add_argument(
         "--streaming", help="results.json from benchmarks.streaming.load"
     )
     parser.add_argument(
@@ -1135,7 +1146,12 @@ def main(argv=None):
         moved = median_changes("renderer", old, results, RENDERER_CHANGE_MS)
         if moved or not args.only_significant:
             changes += moved
-            _publish_medians("renderer", {**stamp, "results": results}, out)
+            descriptions = _read(args.renderer_descriptions) or _descriptions()
+            _publish_medians(
+                "renderer",
+                {**stamp, "descriptions": descriptions, "results": results},
+                out,
+            )
 
     changes += _publish_serialization(
         _read(args.serialization), out, stamp, args.only_significant

@@ -63,11 +63,23 @@ jobs:
           sudo apt-get install -y xvfb
           sudo Xvfb :99 -ac -screen 0 1400x1000x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
-      - run: python -m benchmarks.run --out benchmarks/results.json
+      # Exit 1 is a gate failure after every scenario ran: publish it, then
+      # fail. Exit 2 means some scenarios did not run: publish nothing.
+      - id: run
+        run: |
+          set +e
+          python -m benchmarks.run --out benchmarks/results.json \
+            --descriptions benchmarks/descriptions.json
+          echo "status=$?" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
+        if: steps.run.outputs.status == '0' || steps.run.outputs.status == '1'
         with:
           name: renderer-results
-          path: benchmarks/results.json
+          path: |
+            benchmarks/results.json
+            benchmarks/descriptions.json
+      - if: steps.run.outputs.status != '0'
+        run: exit 1
 
   streaming:
     name: Streaming load sweep
@@ -172,7 +184,8 @@ jobs:
     # Only dev's numbers are committed, even when a dispatch runs elsewhere.
     if: >-
       always() && github.ref == 'refs/heads/dev' &&
-      (needs.renderer.result == 'success' || needs.streaming.result == 'success' ||
+      (needs.renderer.result == 'success' || needs.renderer.result == 'failure' ||
+       needs.streaming.result == 'success' ||
        needs.callbacks.result == 'success' || needs.serialization.result == 'success')
     runs-on: ubuntu-latest
     permissions:
@@ -194,6 +207,7 @@ jobs:
         run: |
           args=""
           [ -f results/renderer-results/results.json ] && args="$args --renderer results/renderer-results/results.json"
+          [ -f results/renderer-results/descriptions.json ] && args="$args --renderer-descriptions results/renderer-results/descriptions.json"
           [ -f results/streaming-results/results.json ] && args="$args --streaming results/streaming-results/results.json"
           [ -f results/callbacks-results/results.json ] && args="$args --callbacks results/callbacks-results/results.json"
           [ -f results/serialization-results/results.json ] && args="$args --serialization results/serialization-results/results.json"

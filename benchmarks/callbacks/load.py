@@ -142,7 +142,9 @@ def main(argv=None):
         },
         "setups": [],
     }
-    loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields)
+    if not loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields):
+        print("some sweeps broke: see the errors above", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -519,3 +519,41 @@ def test_only_significant_runs_are_committed(tmp_path):
     assert changes.read_text() == "- streaming a: 100+ -> 500+ browsers\n"
     assert "| a | - | - | 500+ |" in readme.read_text()
     assert len(json.loads((out / "streaming-history.json").read_text())) == 2
+
+
+def test_capacity_stops_where_browsers_never_loaded():
+    lost = {**_point(500, 20), "failed_browsers": 3}
+    setup = _setup("a", [_point(100, 10), lost, _point(1000, 20)])
+    assert publish.capacity(setup) == (100, False)
+
+
+def test_capacity_of_a_broken_sweep_is_not_a_lower_bound():
+    setup = {
+        **_setup("a", [_point(100, 10)]),
+        "failed": {"browsers": 500, "error": "clients still running"},
+    }
+    assert publish.capacity(setup) == (100, False)
+
+
+def test_renderer_descriptions_come_from_the_run(tmp_path, monkeypatch):
+    # The publish job has no built components, so the import finds nothing.
+    monkeypatch.setattr(publish, "_descriptions", dict)
+    descriptions = tmp_path / "descriptions.json"
+    descriptions.write_text(json.dumps({"callback_fanout": "One Input, 300 Outputs"}))
+    out = tmp_path / "results"
+    publish.main(
+        [
+            "--dir",
+            str(out),
+            "--readme",
+            str(_readme(tmp_path)),
+            "--renderer",
+            str(_renderer_results(tmp_path)),
+            "--renderer-descriptions",
+            str(descriptions),
+        ]
+    )
+
+    latest = json.loads((out / "renderer-latest.json").read_text())
+    assert latest["descriptions"] == {"callback_fanout": "One Input, 300 Outputs"}
+    assert "One Input, 300 Outputs" in (out / "report.json").read_text()

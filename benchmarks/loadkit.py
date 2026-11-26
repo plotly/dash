@@ -59,13 +59,30 @@ def configure(args):
     # Every browser holds sockets in both the server and its client process.
     _soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
     resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
-    cores = psutil.cpu_count()
+    allowed = usable_cpus()
     args.server_cpus = (
-        parse_cpus(args.server_cpus) if args.server_cpus else list(range(cores // 2))
+        parse_cpus(args.server_cpus)
+        if args.server_cpus
+        else allowed[: max(1, len(allowed) // 2)]
     )
+    if not set(args.server_cpus) <= set(allowed):
+        raise SystemExit(f"--server-cpus must be within this process's CPUs {allowed}")
     args.client_cpus = [
-        c for c in range(cores) if c not in args.server_cpus
+        c for c in allowed if c not in args.server_cpus
     ] or args.server_cpus
+
+
+def usable_cpus():
+    """The CPUs this process may run on: a container or taskset can allow
+    fewer than the host has, and pinning to any other CPU fails."""
+    try:
+        return sorted(psutil.Process().cpu_affinity())
+    except AttributeError:
+        return list(range(psutil.cpu_count()))
+
+
+def can_pin():
+    return hasattr(psutil.Process, "cpu_affinity")
 
 
 def server_cmd(setup, app, port):
@@ -130,10 +147,10 @@ def serve(setup, app_dir, app, env, server_cpus):
         stderr=subprocess.DEVNULL,
         start_new_session=True,
     )
-    with contextlib.suppress(AttributeError):
-        psutil.Process(proc.pid).cpu_affinity(server_cpus)
     url = f"http://127.0.0.1:{port}"
     try:
+        if can_pin():
+            psutil.Process(proc.pid).cpu_affinity(server_cpus)
         deadline = time.monotonic() + 60
         while time.monotonic() < deadline:
             if proc.poll() is not None:
@@ -290,9 +307,7 @@ def run_clients(
     try:
         server_procs = _tree(server.pid)
         client_procs = [psutil.Process(c[0].pid) for c in clients]
-        for p in server_procs + client_procs:
-            with contextlib.suppress(psutil.Error):
-                p.cpu_percent(None)
+        primed = False
         server_cpu: List[float] = []
         client_cpu: List[float] = []
         rss: List[int] = []
@@ -302,8 +317,18 @@ def run_clients(
         while any(c[0].poll() is None for c in clients):
             if time.time() > hard_deadline:
                 raise RuntimeError(f"clients still running {grace}s after the window")
+            if not primed:
+                time.sleep(max(0.0, min(1.0, measure_from - time.time())))
+                if time.time() >= measure_from:
+                    # cpu_percent counts from its previous call: start it at
+                    # the window so client startup and the ramp stay out.
+                    for p in server_procs + client_procs:
+                        with contextlib.suppress(psutil.Error):
+                            p.cpu_percent(None)
+                    primed = True
+                continue
             time.sleep(1)
-            if not measure_from <= time.time() <= measure_to:
+            if time.time() > measure_to + 1:
                 continue
             cores, mem, client = _sample(
                 server_procs, client_procs, len(args.client_cpus)
@@ -354,6 +379,7 @@ def machine_info(args):
         "memory_gb": round(psutil.virtual_memory().total / 2**30),
         "server_cpus": len(args.server_cpus),
         "client_cpus": len(args.client_cpus),
+        "cpus_pinned": can_pin(),
         "runner": os.environ.get("BENCH_RUNNER", "local"),
     }
 
@@ -367,7 +393,11 @@ def sweep(results, setups, args, run_point, describe, entry_fields):
     A setup stops climbing once a point saturates or is client-bound: a
     saturated server only gets worse, and client-bound numbers are the load
     generator's, not the server's.
+
+    Returns whether every setup's sweep ran to its end: a run that broke
+    measured nothing past its last point and must not be published.
     """
+    complete = True
     for setup in setups:
         fields = entry_fields(setup)
         if fields is None:
@@ -379,6 +409,8 @@ def sweep(results, setups, args, run_point, describe, entry_fields):
         }
         results["setups"].append(entry)
         _climb(setup, entry, results, args, run_point, describe)
+        complete = complete and "failed" not in entry
+    return complete
 
 
 def _climb(setup, entry, results, args, run_point, describe):
@@ -387,13 +419,21 @@ def _climb(setup, entry, results, args, run_point, describe):
             point = run_point(setup, browsers, args)
         except RuntimeError as err:
             print(f"{setup.name} @ {browsers}: {err}", flush=True)
+            # A run that broke measured nothing: keep it from reading as a
+            # sweep that ended before the server did.
+            entry["failed"] = {"browsers": browsers, "error": str(err)}
+            _save(results, args)
             return
         entry["points"].append(point)
         _log(setup, browsers, point, describe)
-        with open(args.out, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=1)
+        _save(results, args)
         if point["saturated"] or point["client_bound"]:
             return
+
+
+def _save(results, args):
+    with open(args.out, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=1)
 
 
 def _log(setup, browsers, point, describe):

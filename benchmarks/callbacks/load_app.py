@@ -26,9 +26,11 @@ app.layout = html.Div([html.Button("go", id="btn", n_clicks=0), html.Div(id="out
 
 
 def _burn(seconds):
-    end = time.perf_counter() + seconds
+    # CPU time, not wall time: under contention for the GIL a wall-clock
+    # deadline passes while other threads run, and each call gets cheaper.
+    end = time.thread_time() + seconds
     spins = 0
-    while time.perf_counter() < end:
+    while time.thread_time() < end:
         spins += 1
     return spins
 

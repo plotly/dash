@@ -21,6 +21,7 @@ import random
 import re
 import sys
 import time
+import uuid
 
 import aiohttp
 
@@ -79,6 +80,9 @@ class Browser:
         self.expected = frames
         self.think = think
         self.cursor = 0
+        self.downlink_id = ""
+        # Unique across client processes too, unlike id(self).
+        self.local_id = uuid.uuid4().hex[:12]
         # Set from the page config by load_page().
         self.end_id = ""
         self.mode = "stream"
@@ -99,7 +103,7 @@ class Browser:
         self.poll_interval = stream.get("poll_interval", 100) / 1000
 
     def _url(self):
-        return f"{self.base}{UPDATE}?endId={self.end_id}"
+        return f"{self.base}{UPDATE}?endId={self.end_id}&downlinkId={self.downlink_id}"
 
     def _frame(self, frame, clicked, state):
         now = time.time()
@@ -163,7 +167,11 @@ class Browser:
             await asyncio.sleep(self.poll_interval * factor)
 
     async def one_stream(self, n):
-        rid = f"{id(self)}-{n}"
+        rid = f"{self.local_id}-{n}"
+        # One stream at a time, so every click starts from idle: like the
+        # renderer, read a fresh topic from its start.
+        self.downlink_id = f"{self.local_id}-d{n}"
+        self.cursor = 0
         clicked = time.time()
         async with self.session.post(
             self._url(), json={**CLICK, "streamConnection": {"requestId": rid}}

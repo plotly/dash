@@ -453,6 +453,10 @@ def main():
     ap.add_argument("--scenario", nargs="*", help="subset of scenarios to run")
     ap.add_argument("--out", default="benchmarks/results.json")
     ap.add_argument("--summary-md", help="write a markdown summary here")
+    ap.add_argument(
+        "--descriptions",
+        help="write the scenario descriptions here, for benchmarks.publish",
+    )
     ap.add_argument("--baseline", help="results.json to compare against")
     ap.add_argument("--profile", help="CPU-profile this one scenario and exit")
     ap.add_argument("--profile-out", default="benchmarks/profile.cpuprofile")
@@ -497,6 +501,9 @@ def main():
     with open(args.out, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nwrote {args.out}")
+    if args.descriptions:
+        with open(args.descriptions, "w") as f:
+            json.dump({n: SCENARIOS[n].description for n in names}, f, indent=2)
 
     baseline = None
     if args.baseline and os.path.exists(args.baseline):
@@ -526,6 +533,10 @@ def main():
             f.write(md + "\n")
     print("\n" + md)
 
+    # 2: a scenario did not run, so the results are partial and must not be
+    # published. 1: every scenario ran and a gate failed.
+    if errors:
+        return 2
     return 1 if worst == "fail" else 0
 
 

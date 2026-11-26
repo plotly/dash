@@ -98,7 +98,10 @@ def run_point(setup, browsers, args):
         **resources,
     }
     point["saturated"] = bool(
-        error_rate > 0.01 or (point["latency_p95_ms"] or math.inf) > args.max_p95
+        error_rate > 0.01
+        or (point["latency_p95_ms"] or math.inf) > args.max_p95
+        # Browsers that never loaded took their load away from the point.
+        or counts["failed_browsers"]
     )
     return point
 
@@ -136,7 +139,9 @@ def main(argv=None):
         },
         "setups": [],
     }
-    loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields)
+    if not loadkit.sweep(results, setups, args, run_point, _describe, _entry_fields):
+        print("some sweeps broke: see the errors above", file=sys.stderr)
+        return 1
     return 0
 
 
