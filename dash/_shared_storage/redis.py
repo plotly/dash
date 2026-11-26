@@ -45,6 +45,11 @@ _POLL_TIMEOUT = 5.0
 _READER_BLOCK_MS = 5000
 _WAKE_TTL_MS = 60_000
 _DEFAULT_URL = "redis://localhost:6379"
+# Connections per client we build (the sync one and each event loop's async
+# one), and how long a call waits for a free one before it fails. redis-py 8
+# caps a plain pool at 100 and raises past that; a blocking pool waits instead.
+_POOL_SIZE = 100
+_POOL_WAIT = 20.0
 
 # A topic's keys live this many ttls past its last publish or poll. A poll on a
 # topic with a ttl blocks for at most a third of that lifetime, so a waiting
@@ -392,7 +397,11 @@ class RedisSharedStorage(BaseSharedStorage):
             self._owns_client = False
         else:
             url = url or os.environ.get("REDIS_URL") or _DEFAULT_URL
-            self._redis = redis.Redis.from_url(url)
+            self._redis = redis.Redis(
+                connection_pool=redis.BlockingConnectionPool.from_url(
+                    url, max_connections=_POOL_SIZE, timeout=_POOL_WAIT
+                )
+            )
             self._owns_client = True
         self._url = url if client is None else None
         self._block_cap = _block_cap_ms(self._redis)
@@ -412,10 +421,11 @@ class RedisSharedStorage(BaseSharedStorage):
 
     def close(self) -> None:
         if self._owns_client:
-            try:
-                self._redis.close()
-            except Exception:  # pylint: disable=broad-except
-                pass
+            for shut in (self._redis.close, self._redis.connection_pool.disconnect):
+                try:
+                    shut()
+                except Exception:  # pylint: disable=broad-except
+                    pass
         with self._loops_lock:
             states = list(self._loops.items())
             self._loops.clear()
@@ -432,17 +442,28 @@ class RedisSharedStorage(BaseSharedStorage):
         from redis import asyncio as aredis  # type: ignore[import-not-found,import-untyped] # pylint: disable=import-outside-toplevel,import-error
 
         if self._url is not None:
-            return aredis.Redis.from_url(self._url)
-        # Same server and options as the client we were handed.
-        pool = self._redis.connection_pool
-        connection_class = getattr(
-            aredis.connection, pool.connection_class.__name__, aredis.Connection
-        )
-        return aredis.Redis(
-            connection_pool=aredis.ConnectionPool(
-                connection_class=connection_class, **pool.connection_kwargs
+            pool = aredis.BlockingConnectionPool.from_url(
+                self._url, max_connections=_POOL_SIZE, timeout=_POOL_WAIT
             )
-        )
+        else:
+            # Same server and options as the client we were handed, its pool
+            # size included. redis-py before 8 defaults that to 2**31: no cap.
+            sync_pool = self._redis.connection_pool
+            size = getattr(sync_pool, "max_connections", None)
+            if not size or size >= 2**31:
+                size = _POOL_SIZE
+            connection_class = getattr(
+                aredis.connection,
+                sync_pool.connection_class.__name__,
+                aredis.Connection,
+            )
+            pool = aredis.BlockingConnectionPool(
+                connection_class=connection_class,
+                max_connections=size,
+                timeout=_POOL_WAIT,
+                **sync_pool.connection_kwargs,
+            )
+        return aredis.Redis(connection_pool=pool)
 
     def _loop_state(self) -> "_LoopState":
         loop = asyncio.get_running_loop()

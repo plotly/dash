@@ -939,7 +939,14 @@ transport and stream over HTTP, one connection per stream.
 worker races to become the single **owner** for the machine by binding a stable
 address (`AF_UNIX` on POSIX, `127.0.0.1` loopback on Windows); the winner hosts
 the engine, losers proxy over the socket. The bind *is* the lease — when the
-owner dies the address frees and a survivor re-elects. A single-process
+owner dies the address frees and a survivor re-elects. A leftover unix socket
+counts as dead only when a connect is refused, the file is gone or it is not a
+socket. An owner too busy to accept (full backlog, probe timeout) is alive:
+taking its socket over started a second, empty store at 4000 streaming
+browsers. macOS and the BSDs also refuse on a full backlog, so there a refused
+probe means dead only once the owner's pid (in the `.addr` advertisement) is
+gone. The owner listens as soon as it binds, before it recovers persisted data,
+so a starting owner queues connections instead of looking dead. A single-process
 deployment is its own owner and pays no socket overhead. Knobs: `namespace`
 (defaults to a hash of cwd + argv[0]), `buffer_size` (default 32 — small on
 purpose, since each topic retains that many arbitrary payloads; raise it for a
@@ -1006,7 +1013,11 @@ multi-stream `XREAD`; a new subscription interrupts it through a private wake
 stream. Never park a blocking read in the executor per subscription: at a dozen
 open downlinks that starved every other store call in the worker (25-50% failed
 streams at 25 browsers on uvicorn `--workers 4`). Diskcache's async
-subscriptions likewise poll without blocking and sleep on the loop.
+subscriptions likewise poll without blocking and sleep on the loop. The sync
+client and each loop's client use a `BlockingConnectionPool` of 100 that waits
+up to 20s for a free connection: redis-py 8 caps a plain pool at 100 and raises
+past it, which failed 7% of streams at 2000 browsers on 4 uvicorn workers. A
+passed client keeps its own pool; the async clients built from it copy its size.
 
 ### Deployment Topology and Shared Storage
 
