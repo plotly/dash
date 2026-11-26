@@ -20,7 +20,6 @@ def check_graph_config_shape(dash_dcc):
         "notifyOnLogging",
         "role",
         "typesetMath",
-        "displayNotifier",
     ]
 
     def crawl(schema, props):
@@ -50,13 +49,12 @@ def test_grco001_graph_config_matches_plotly_schema(dash_dcc):
         [
             dcc.Graph(
                 id="graph",
-                figure={
-                    "data": [{"x": [1, 2, 3], "y": [3, 1, 2], "type": "bar"}]
-                },
+                figure={"data": [{"x": [1, 2, 3], "y": [3, 1, 2], "type": "bar"}]},
             )
         ]
     )
 
     dash_dcc.start_server(app)
+    dash_dcc.wait_for_element(".js-plotly-plot")
     check_graph_config_shape(dash_dcc)
     assert dash_dcc.get_logs() == []
