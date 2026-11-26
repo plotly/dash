@@ -218,20 +218,31 @@ class _Coordinator:
         if bound:
             listen_sock, family, address = bound
             token = secrets.token_hex(16)
-            _write_advertisement(self._addr_path, family, address, token)
             engine = StoreEngine(self._buffer_size)
-            if self._mode != "memory":
-                assert self._path is not None
-                persistence = _Persistence(
-                    self._path, self._mode, self._flush_interval, engine
-                )
-                # Recover before serving (so clients see the restored state) and
-                # before attaching (so restored keys are not re-marked dirty).
-                persistence.recover()
-                engine.attach_persistence(persistence)
-                persistence.start()
-            server = OwnerServer(engine, listen_sock, token)
-            server.start()
+            try:
+                _write_advertisement(self._addr_path, family, address, token)
+                if self._mode != "memory":
+                    assert self._path is not None
+                    persistence = _Persistence(
+                        self._path, self._mode, self._flush_interval, engine
+                    )
+                    # Recover before serving (so clients see the restored state)
+                    # and before attaching (so restored keys are not re-marked
+                    # dirty).
+                    persistence.recover()
+                    engine.attach_persistence(persistence)
+                    persistence.start()
+                server = OwnerServer(engine, listen_sock, token)
+                server.start()
+            except BaseException:
+                # The socket already listens: left open, it would pass for a
+                # live owner that never answers.
+                listen_sock.close()
+                engine.close()
+                for path in (self._sock_path, self._addr_path):
+                    with contextlib.suppress(OSError):
+                        os.unlink(path)
+                raise
             self._engine, self._server = engine, server
             self._family, self._address, self._token = family, address, token
             self._role = "owner"

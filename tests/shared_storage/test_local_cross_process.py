@@ -264,6 +264,39 @@ def test_starting_owner_is_not_stale(tmp_path):
         listen_sock.close()
 
 
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_failed_election_releases_the_socket(tmp_path, monkeypatch):
+    """An election that fails after binding (here, recovering persisted data)
+    must not leave a listening socket that would pass for a live owner."""
+    from dash._shared_storage import local
+
+    pytest.importorskip("msgspec")
+    real_recover = local._Persistence.recover
+
+    def broken(self):
+        raise OSError("disk unreadable")
+
+    monkeypatch.setattr(local._Persistence, "recover", broken)
+    store = LocalSharedStorage(
+        namespace=f"t-{uuid.uuid4().hex[:8]}",
+        mode="persist",
+        path=str(tmp_path / "store"),
+    )
+    # Keep the traceback alive, as a logged or stored error would: its frames
+    # must not be what holds the socket open.
+    with pytest.raises(OSError, match="disk unreadable") as failure:
+        store.start()
+    assert failure.traceback
+    assert local._unix_is_stale(store._coord._sock_path, store._coord._addr_path)
+
+    monkeypatch.setattr(local._Persistence, "recover", real_recover)
+    store._coord.ensure()
+    assert store._coord.is_owner()
+    store.set("k", "v")
+    assert store.get("k") == "v"
+    store.close()
+
+
 def test_reelection_recovers_persisted_data(tmp_path):
     """With mode='persist', a re-elected owner recovers the killed owner's data
     from disk instead of coming up cold."""
