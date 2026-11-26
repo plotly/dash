@@ -29,6 +29,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4184](https://github.com/plotly/dash/pull/4184) Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
 - [#4185](https://github.com/plotly/dash/pull/4185) Fix `RedisSharedStorage` streaming callbacks failing under load with redis-py 8 (`MaxConnectionsError: Too many connections`): calls now wait for a free connection.
 - [#4186](https://github.com/plotly/dash/pull/4186) Fix `LocalSharedStorage` electing a second, empty owner under load when the owner was too busy to accept connections, which reset every open stream.
+- [#4194](https://github.com/plotly/dash/pull/4194) Fix `dcc.Markdown` rendering numeric character references above U+FFFF, such as `&#x1F600;` emoji, as blank (regression in 4.5.0). Upgrades to react-markdown 10.
 
 ## [4.5.1] - 2026-11-19
 
