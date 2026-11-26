@@ -168,8 +168,8 @@ def test_get_relative_path(
 @pytest.mark.parametrize(
     "requests_pathname_prefix, expected",
     [
-        (None, "/app/page2"),
-        ("/app/", "/page2"),
+        (None, "app/page2"),
+        ("/app/", "page2"),
     ],
 )
 def test_strip_relative_path(
@@ -293,7 +293,7 @@ def test_invalid_get_relative_path(prefix, partial_path):
         ),
     ],
 )
-def test_strip_relative_path(prefix, partial_path, expected):
+def test_app_strip_relative_path(prefix, partial_path, expected):
     path = app_strip_relative_path(prefix, partial_path)
     assert path == expected
 
