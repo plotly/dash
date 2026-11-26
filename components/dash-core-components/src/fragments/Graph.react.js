@@ -8,6 +8,7 @@ import {
     isNil,
     mergeDeepRight,
     omit,
+    path,
     type,
     clone,
 } from 'ramda';
@@ -55,6 +56,16 @@ const UNRESPONSIVE_CONFIG = {
     responsive: false,
 };
 
+const toPlainArray = value => {
+    if (ArrayBuffer.isView(value)) {
+        return Array.from(value);
+    }
+    if (Array.isArray(value)) {
+        return value.map(toPlainArray);
+    }
+    return value;
+};
+
 const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
     if (includes(event, ['click', 'hover', 'selected'])) {
@@ -73,9 +84,22 @@ const filterEventData = (gd, eventData, event) => {
          * into the event object
          */
         const data = gd.data;
+        // Parcoords sends one flat point instead of a points array. Its
+        // curveNumber is the line index and dataIndex is the trace index, so
+        // reshape it to match other traces: curveNumber is the trace and
+        // pointNumber is the line.
+        const eventPoints = Array.isArray(eventData.points)
+            ? eventData.points
+            : [
+                  {
+                      ...eventData,
+                      curveNumber: eventData.dataIndex,
+                      pointNumber: eventData.curveNumber,
+                  },
+              ];
 
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
+        for (let i = 0; i < eventPoints.length; i++) {
+            const fullPoint = eventPoints[i];
             const pointData = filter(function (o) {
                 return !includes(type(o), ['Object', 'Array']);
             }, fullPoint);
@@ -89,26 +113,30 @@ const filterEventData = (gd, eventData, event) => {
                 has('curveNumber', fullPoint) &&
                 has('customdata', data[pointData.curveNumber])
             ) {
+                const customdata = data[pointData.curveNumber].customdata;
+                // Binary (typed array) customdata is only decoded in the full
+                // trace, so read it from there and fall back to the input.
+                const customdataArray =
+                    fullPoint.fullData?.customdata ?? customdata;
                 if (has('pointNumber', fullPoint)) {
                     if (typeof fullPoint.pointNumber === 'number') {
                         pointData.customdata =
-                            data[pointData.curveNumber].customdata[
-                                fullPoint.pointNumber
-                            ];
+                            customdataArray[fullPoint.pointNumber];
                     } else if (
                         !fullPoint.pointNumber &&
                         fullPoint.data.mode.includes('lines')
                     ) {
-                        pointData.customdata =
-                            data[pointData.curveNumber].customdata;
+                        pointData.customdata = customdataArray;
                     }
                 } else if (has('pointNumbers', fullPoint)) {
                     pointData.customdata = fullPoint.pointNumbers.map(function (
                         point
                     ) {
-                        return data[pointData.curveNumber].customdata[point];
+                        return customdataArray[point];
                     });
                 }
+                // Typed arrays would serialize as objects, so send plain arrays.
+                pointData.customdata = toPlainArray(pointData.customdata);
             }
 
             // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
@@ -157,6 +185,77 @@ const filterEventData = (gd, eventData, event) => {
     return filteredEventData;
 };
 
+// layoutUIControlPatterns in plotly.js src/plot_api/plot_api.js: the GUI
+// edits plotly.js keeps across figure updates while their uirevision holds
+const UIREVISION_PATTERNS = [
+    {pattern: /^hiddenlabels/, attr: 'legend.uirevision'},
+    {pattern: /^((x|y)axis\d*)\.((auto)?range|title\.text)/},
+    {pattern: /axis\d*\.showspikes$/, attr: 'modebar.uirevision'},
+    {pattern: /(hover|drag)mode$/, attr: 'modebar.uirevision'},
+    {pattern: /^(scene\d*)\.camera/},
+    {pattern: /^(geo\d*)\.(projection|center|fitbounds)/},
+    {pattern: /^(ternary\d*\.[abc]axis)\.(min|title\.text)$/},
+    {pattern: /^(polar\d*\.radialaxis)\.((auto)?range|angle|title\.text)/},
+    {pattern: /^(polar\d*\.angularaxis)\.rotation/},
+    {pattern: /^(map\d*)\.(center|zoom|bearing|pitch)/},
+    {pattern: /^legend\.(x|y)$/, attr: 'editrevision'},
+    {pattern: /^(shapes|annotations)/, attr: 'editrevision'},
+    {pattern: /^selections/, attr: 'selectionrevision'},
+    {pattern: /^title\.text$/, attr: 'editrevision'},
+];
+
+const getRevisionAttr = attr => {
+    for (const {pattern, attr: revisionAttr} of UIREVISION_PATTERNS) {
+        const match = attr.match(pattern);
+        if (match) {
+            return revisionAttr || `${match[1]}.uirevision`;
+        }
+    }
+    return null;
+};
+
+// 'shapes[1].x0' -> ['shapes', 1, 'x0']
+const toPath = attr =>
+    attr.split('.').flatMap(part =>
+        part
+            .split(/\[(\d+)\]/)
+            .filter(segment => segment !== '')
+            .map((segment, i) => (i ? Number(segment) : segment))
+    );
+
+// Same inheritance as getNewRev in plotly.js
+const getNewRevision = (layout, revisionAttr) => {
+    const keys = toPath(revisionAttr);
+    const revision = path(keys, layout);
+    if (revision !== undefined) {
+        return revision;
+    }
+    for (let depth = keys.length - 2; depth > 0; depth--) {
+        const inherited = path([...keys.slice(0, depth), 'uirevision'], layout);
+        if (inherited !== undefined) {
+            return inherited;
+        }
+    }
+    return layout.uirevision;
+};
+
+// Only sets inside existing containers, never creates them
+const setPath = (container, keys, value) => {
+    const parent = path(keys.slice(0, -1), container);
+    if (typeof parent !== 'object' || parent === null) {
+        return;
+    }
+    const last = keys[keys.length - 1];
+    if (Array.isArray(parent) && last >= parent.length) {
+        return;
+    }
+    if (value === undefined && !Array.isArray(parent)) {
+        delete parent[last];
+    } else {
+        parent[last] = value;
+    }
+};
+
 /**
  * Graph can be used to render any plotly.js-powered data visualization.
  *
@@ -170,6 +269,7 @@ class PlotlyGraph extends Component {
         this._hasPlotted = false;
         this._prevGd = null;
         this._queue = Promise.resolve();
+        this._pendingFigures = [];
 
         this.parentElement = React.createRef();
 
@@ -183,6 +283,7 @@ class PlotlyGraph extends Component {
         this.amendTraces = this.amendTraces.bind(this);
 
         this.state = {override: {}, originals: {}};
+        this._syncedEdits = {};
     }
 
     plot(props) {
@@ -197,18 +298,22 @@ class PlotlyGraph extends Component {
         // add typesetMath | not exposed to the dash API
         configClone.typesetMath = mathjax;
 
+        const animating =
+            animate &&
+            this._hasPlotted &&
+            figure.data.length === gd.data.length;
+
+        const layout = this.getLayout(figure?.layout, responsive);
+        this.applySyncedEdits(layout, animating);
+
         const figureClone = {
             data: figure?.data,
-            layout: this.getLayout(figure?.layout, responsive),
+            layout,
             frames: figure?.frames,
             config: configClone,
         };
 
-        if (
-            animate &&
-            this._hasPlotted &&
-            figure.data.length === gd.data.length
-        ) {
+        if (animating) {
             // in case we've have figure frames,
             // we need to recreate frames before animation
             if (figure.frames) {
@@ -365,6 +470,72 @@ class PlotlyGraph extends Component {
         return layout;
     }
 
+    /*
+     * The plotly_relayout handler copies GUI edits (zoom, pan, ...) into the
+     * figure prop. If Plotly.react gets them as input, plotly.js takes them as
+     * the new starting point and drops them from its uirevision bookkeeping
+     * (_preGUI), so a later figure without them resets the view. While a
+     * synced value is still in the figure and its uirevision is unchanged,
+     * give plotly.js the value from before the edit so it keeps the edit
+     * itself. Plotly.animate does not apply uirevision, so there the value
+     * from before the edit is replaced by the edit instead.
+     */
+    applySyncedEdits(layout, animating) {
+        const fullLayout = this.gd.current?._fullLayout;
+        const preGUI = fullLayout?._preGUI;
+        if (!layout || !preGUI) {
+            return;
+        }
+        for (const [attr, syncedValues] of Object.entries(this._syncedEdits)) {
+            if (!(attr in preGUI)) {
+                delete this._syncedEdits[attr];
+                continue;
+            }
+            const revisionAttr = getRevisionAttr(attr);
+            const oldRevision = path(toPath(revisionAttr), fullLayout);
+            if (
+                !oldRevision ||
+                getNewRevision(layout, revisionAttr) !== oldRevision
+            ) {
+                continue;
+            }
+            const keys = toPath(attr);
+            const value = path(keys, layout);
+            const original = preGUI[attr] ?? undefined;
+            if (animating) {
+                if (equals(value, original)) {
+                    setPath(
+                        layout,
+                        keys,
+                        clone(syncedValues[syncedValues.length - 1])
+                    );
+                }
+                continue;
+            }
+            // Earlier syncs may still be queued for plotting
+            const index = syncedValues.findIndex(synced =>
+                equals(value, synced)
+            );
+            if (index !== -1) {
+                this._syncedEdits[attr] = syncedValues.slice(index);
+                setPath(layout, keys, original);
+            }
+        }
+    }
+
+    trackSyncedEdits(updates) {
+        const preGUI = this.gd.current?._fullLayout?._preGUI ?? {};
+        for (const attr of Object.keys(preGUI)) {
+            const keys = toPath(attr);
+            if (keys[0] in updates && getRevisionAttr(attr)) {
+                this._syncedEdits[attr] = [
+                    ...(this._syncedEdits[attr] ?? []),
+                    path(keys, updates),
+                ];
+            }
+        }
+    }
+
     getConfigOverride(responsive) {
         switch (responsive) {
             case false:
@@ -478,7 +649,12 @@ class PlotlyGraph extends Component {
             // copy and the figure prop (used as the base for Patch
             // updates) would otherwise go stale.
             if (eventData && gd.layout) {
-                const {figure = {}} = this.props;
+                // React may batch several relayouts before delivering props.
+                // Build on the latest sync rather than losing its changes.
+                const figure =
+                    this._pendingFigures[this._pendingFigures.length - 1] ??
+                    this.props.figure ??
+                    {};
                 const updates = {};
                 for (const eventKey of Object.keys(eventData)) {
                     // 'xaxis.range[0]' -> 'xaxis', 'shapes[1].x0' -> 'shapes'
@@ -494,15 +670,16 @@ class PlotlyGraph extends Component {
                     }
                 }
                 if (Object.keys(updates).length) {
-                    setProps({
-                        figure: {
-                            ...figure,
-                            layout: {
-                                ...figure?.layout,
-                                ...updates,
-                            },
+                    this.trackSyncedEdits(updates);
+                    const syncedFigure = {
+                        ...figure,
+                        layout: {
+                            ...figure?.layout,
+                            ...updates,
                         },
-                    });
+                    };
+                    this._pendingFigures.push(syncedFigure);
+                    setProps({figure: syncedFigure});
                 }
             }
         });
@@ -544,11 +721,23 @@ class PlotlyGraph extends Component {
     UNSAFE_componentWillReceiveProps(nextProps) {
         const idChanged = this.props.id !== nextProps.id;
         if (idChanged) {
+            this._pendingFigures = [];
+            this._syncedEdits = {};
             /*
              * then the dom needs to get re-rendered with a new ID.
              * the graph will get updated in componentDidUpdate
              */
             return;
+        }
+
+        if (this.props.figure !== nextProps.figure) {
+            // An acknowledgement may skip batched figures or arrive before
+            // a later sync. An external figure supersedes all pending syncs.
+            const syncedIndex = this._pendingFigures.indexOf(nextProps.figure);
+            this._pendingFigures =
+                syncedIndex === -1
+                    ? []
+                    : this._pendingFigures.slice(syncedIndex + 1);
         }
 
         let p = this._queue;

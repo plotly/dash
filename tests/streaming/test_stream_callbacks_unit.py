@@ -228,6 +228,137 @@ def test_stcb011_prevent_update_and_no_update_yields():
     assert len(frames) == 3
 
 
+def test_stcb011b_stream_set_props_flushes_with_yielded_set_props():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="btn"),
+            html.Div(id="out"),
+            html.Div(id="side", children="idle"),
+        ]
+    )
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
+    async def stream_cb(n):
+        yield "start"
+        yield set_props("side", {"children": "loading"})
+        await asyncio.sleep(0.05)
+        yield "done"
+
+    frames = post_stream(app, make_body("out", "children"))
+    assert frames[0]["response"] == {"out": {"children": "start"}}
+    assert frames[1] == {
+        "multi": True,
+        "sideUpdate": {"side": {"children": "loading"}},
+        "response": {},
+    }
+    assert frames[2]["response"] == {"out": {"children": "done"}}
+    assert frames[3] == {"done": True}
+
+
+def test_stcb011c_set_props_after_last_yield_sent_once():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button(id="btn"), html.Div(id="out"), html.Div(id="side")]
+    )
+
+    @app.callback(Output("out", "children"), Input("btn", "n_clicks"))
+    async def stream_cb(n):
+        yield "start"
+        set_props("side", {"children": "end"})
+
+    frames = post_stream(app, make_body("out", "children"))
+    assert frames == [
+        {"multi": True, "response": {"out": {"children": "start"}}},
+        {"multi": True, "sideUpdate": {"side": {"children": "end"}}},
+        {"done": True},
+    ]
+
+
+def test_stcb011d_yield_set_props_with_dict_outputs():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button(id="btn"),
+            html.Div(id="a"),
+            html.Div(id="b"),
+            html.Div(id="side"),
+        ]
+    )
+
+    @app.callback(
+        output=dict(x=Output("a", "children"), y=Output("b", "children")),
+        inputs=dict(n=Input("btn", "n_clicks")),
+    )
+    async def stream_cb(n):
+        yield set_props("side", {"children": "loading"})
+        yield dict(x="a1", y=no_update)
+
+    body = {
+        "output": "..a.children...b.children..",
+        "outputs": [
+            {"id": "a", "property": "children"},
+            {"id": "b", "property": "children"},
+        ],
+        "inputs": [{"id": "btn", "property": "n_clicks", "value": 1}],
+        "changedPropIds": ["btn.n_clicks"],
+    }
+    frames = post_stream(app, body)
+    assert frames == [
+        {
+            "multi": True,
+            "sideUpdate": {"side": {"children": "loading"}},
+            "response": {},
+        },
+        {"multi": True, "response": {"a": {"children": "a1"}}},
+        {"done": True},
+    ]
+
+
+def test_stcb011e_set_props_return_value_in_no_output_callbacks():
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [html.Button(id="btn"), html.Button(id="btn2"), html.Div(id="side")]
+    )
+
+    @app.callback(Input("btn", "n_clicks"))
+    def regular_cb(n):
+        return set_props("side", {"children": "regular"})
+
+    @app.callback(Input("btn2", "n_clicks"))
+    async def stream_cb(n):
+        yield set_props("side", {"children": "stream"})
+
+    client = app.server.test_client()
+    client.get("/")
+    keys = {v["inputs"][0]["id"]: k for k, v in app.callback_map.items()}
+
+    def body(btn):
+        return {
+            "output": keys[btn],
+            "outputs": [],
+            "inputs": [{"id": btn, "property": "n_clicks", "value": 1}],
+            "changedPropIds": [f"{btn}.n_clicks"],
+        }
+
+    resp = client.post("/_dash-update-component", json=body("btn"))
+    assert resp.status_code == 200
+    assert resp.get_json() == {
+        "multi": True,
+        "sideUpdate": {"side": {"children": "regular"}},
+        "response": {},
+    }
+
+    assert post_stream(app, body("btn2")) == [
+        {
+            "multi": True,
+            "sideUpdate": {"side": {"children": "stream"}},
+            "response": {},
+        },
+        {"done": True},
+    ]
+
+
 def test_stcb012_sync_iter_asyncgen():
     var = contextvars.ContextVar("stcb012")
 

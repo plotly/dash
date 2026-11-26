@@ -1,0 +1,64 @@
+name: Branch Policy
+
+# RFD #142: fixes and chores target dev, features target next.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - dev
+      - next
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  no-features-on-dev:
+    name: No features on dev
+    if: github.base_ref == 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check CHANGELOG for new Added entries
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          base=$(git merge-base "$HEAD_SHA" origin/dev)
+          git show "$base:CHANGELOG.md" > "$RUNNER_TEMP/base.md"
+          git show "$HEAD_SHA:CHANGELOG.md" > "$RUNNER_TEMP/head.md"
+          python3 .github/scripts/changelog_added.py "$RUNNER_TEMP/base.md" "$RUNNER_TEMP/head.md"
+
+  forward-merge-clean:
+    name: Forward merge not conflicted
+    if: >
+      github.base_ref == 'next' &&
+      !(github.head_ref == 'dev-into-next' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail while the dev into next PR has conflicts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const [open] = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', base: 'next', head: `${owner}:dev-into-next`,
+            });
+            if (!open) return;
+            // GitHub computes mergeable lazily, so the first reads can be null.
+            let pr;
+            for (let i = 0; i < 10; i++) {
+              ({data: pr} = await github.rest.pulls.get({owner, repo, pull_number: open.number}));
+              if (pr.mergeable !== null) break;
+              await new Promise(r => setTimeout(r, 3000));
+            }
+            if (pr.mergeable === null) {
+              core.setFailed(`GitHub has not computed whether ${pr.html_url} merges cleanly yet. Re-run this check.`);
+            } else if (pr.mergeable === false) {
+              core.setFailed(
+                `${pr.html_url} has conflicts. Resolve them before merging more into next, then re-run this check.`);
+            }

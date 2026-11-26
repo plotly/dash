@@ -643,3 +643,120 @@ def test_mkdw018_markdown_table(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#md td:nth-child(2)", "$2")
 
     assert dash_dcc.get_logs() == []
+
+
+@pytest.mark.parametrize(
+    "markdown,allow_html",
+    [
+        ("Smile &#x1F600; party &#127881;", False),
+        ("Smile <b>&#x1F600;</b> party &#127881;", True),
+    ],
+    ids=["markdown", "raw_html"],
+)
+def test_mkdw019_astral_character_references(dash_dcc, markdown, allow_html):
+    # Character references above U+FFFF (emoji) must decode to the full code
+    # point, not a truncated one.
+    app = Dash()
+
+    app.layout = dcc.Markdown(markdown, dangerously_allow_html=allow_html, id="md")
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#md", "Smile \U0001F600 party \U0001F389")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw020_only_code_blocks_are_highlighted(dash_dcc):
+    app = Dash()
+
+    app.layout = dcc.Markdown(
+        """
+        Inline `x = 1` here.
+
+        ```python
+        y = 2
+        ```
+        """,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element("#md pre code.hljs")
+    dash_dcc.wait_for_text_to_equal("#md p code", "x = 1")
+    assert "hljs" not in dash_dcc.find_element("#md p code").get_attribute("class")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw021_block_math_is_not_wrapped_in_pre(dash_dcc):
+    app = Dash()
+
+    app.layout = dcc.Markdown(BLOCK_MATH, mathjax=True, id="md")
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_element("#md svg")
+    dash_dcc.wait_for_no_elements("#md pre")
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw022_link_target_applies_to_raw_html_links(dash_dcc):
+    app = Dash()
+
+    app.layout = dcc.Markdown(
+        '[md](https://example.com) <a href="https://example.com">raw</a>',
+        link_target="_blank",
+        dangerously_allow_html=True,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#md a:nth-of-type(2)", "raw")
+    for link in dash_dcc.find_elements("#md a"):
+        assert link.get_attribute("target") == "_blank"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw023_tel_links_are_kept(dash_dcc):
+    app = Dash()
+
+    app.layout = dcc.Markdown(
+        '[md](tel:+15551234) <a href="tel:+15551234">raw</a>',
+        dangerously_allow_html=True,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#md a:nth-of-type(2)", "raw")
+    for link in dash_dcc.find_elements("#md a"):
+        assert link.get_attribute("href") == "tel:+15551234"
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw024_renders_without_es2022_builtins(dash_dcc):
+    # Simulate an older browser (Safari < 15.4) that lacks these builtins.
+    app = Dash()
+    app.index_string = app.index_string.replace(
+        "{%metas%}",
+        "{%metas%}<script>delete Object.hasOwn; delete Array.prototype.at;</script>",
+    )
+
+    app.layout = dcc.Markdown(
+        "# Title\n\nSome <b>raw</b> text &#x1F600;",
+        dangerously_allow_html=True,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+
+    dash_dcc.wait_for_text_to_equal("#md b", "raw")
+    dash_dcc.wait_for_text_to_equal("#md h1", "Title")
+
+    assert dash_dcc.get_logs() == []

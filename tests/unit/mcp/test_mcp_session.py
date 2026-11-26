@@ -1,14 +1,8 @@
 """MCP session management — ``Mcp-Session-Id`` header and hot-reload hash."""
 
 import json
-import sys
 
-import pytest
-
-if sys.version_info < (3, 10):
-    pytest.skip("MCP requires Python 3.10+", allow_module_level=True)
-
-from tests.unit.mcp.conftest import _make_app  # pylint: disable=wrong-import-position
+from tests.unit.mcp.conftest import _make_app
 
 
 def _make_mcp_app(**kwargs):

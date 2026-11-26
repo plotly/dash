@@ -158,7 +158,7 @@ class Patch:
 
     def update(self, E: Any = None, **F) -> None:
         """Merge a dict or keyword arguments with another dictionary"""
-        value = E or {}
+        value = dict(E or {})
         value.update(F)
         self._operations.append(_operation("Merge", self._location, value=value))
 
