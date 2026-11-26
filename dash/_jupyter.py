@@ -250,11 +250,8 @@ class JupyterDash:
         by running the following command:
             $ jupyter nbextension list
 
-        In JupyterLab, this method requires the `@plotly/dash-jupyterlab` labextension. This
-        extension should be installed automatically with the installation of the
-        jupyter-dash Python package, but JupyterLab must be allowed to rebuild before
-        the extension is activated (JupyterLab should automatically detect the
-        extension and produce a popup dialog asking for permission to rebuild). You can
+        In JupyterLab, this method requires the `@plotly/dash-jupyterlab` labextension,
+        which is installed as a prebuilt extension with the dash Python package. You can
         see what JupyterLab extensions are installed by running the following command:
             $ jupyter labextension list
         """

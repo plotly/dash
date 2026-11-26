@@ -222,7 +222,7 @@ updates:
       # eslint 8 / prettier 2 toolchain. Take minors and patches only.
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
-      # dash-jupyterlab supports JupyterLab 2, 3 and 4 via a wide range;
+      # dash-jupyterlab supports JupyterLab 3 and 4 via a wide range;
       # Dependabot narrows it to the latest 4.x and the lockfile bump breaks tsc.
       - dependency-name: "@jupyterlab/*"
       # react-docgen is pinned for legacy metadata extraction (extract-meta.js uses
