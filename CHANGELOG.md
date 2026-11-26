@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Added
-- Add `DASH_HOST` and `DASH_PORT` environment variables to set the listen address for `Dash.run`, taking precedence over the generic `HOST` and `PORT` variables. Fixes [#3400](https://github.com/plotly/dash/issues/3400).
+- [#4204](https://github.com/plotly/dash/pull/4204) Add `DASH_HOST` and `DASH_PORT` environment variables to set the listen address for `Dash.run`, taking precedence over the generic `HOST` and `PORT` variables. Fixes [#3400](https://github.com/plotly/dash/issues/3400).
 
 ### Changed
 - [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
