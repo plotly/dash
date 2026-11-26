@@ -1,4 +1,4 @@
-// The react-markdown 9 stack calls these at render time. They need Safari 15.4
+// The react-markdown 10 stack calls these at render time. They need Safari 15.4
 // / Chrome 93, newer than our browserslist floor, and babel does not polyfill
 // builtins.
 const ObjectWithHasOwn = Object as ObjectConstructor & {
