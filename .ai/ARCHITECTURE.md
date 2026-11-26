@@ -1006,7 +1006,11 @@ multi-stream `XREAD`; a new subscription interrupts it through a private wake
 stream. Never park a blocking read in the executor per subscription: at a dozen
 open downlinks that starved every other store call in the worker (25-50% failed
 streams at 25 browsers on uvicorn `--workers 4`). Diskcache's async
-subscriptions likewise poll without blocking and sleep on the loop.
+subscriptions likewise poll without blocking and sleep on the loop. The sync
+client and each loop's client use a `BlockingConnectionPool` of 100 that waits
+up to 20s for a free connection: redis-py 8 caps a plain pool at 100 and raises
+past it, which failed 7% of streams at 2000 browsers on 4 uvicorn workers. A
+passed client keeps its own pool; the async clients built from it copy its size.
 
 ### Deployment Topology and Shared Storage
 
