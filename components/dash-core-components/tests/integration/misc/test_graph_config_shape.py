@@ -21,9 +21,19 @@ def check_graph_config_shape(dash_dcc):
         "role",
         "typesetMath",
     ]
+    # Removed in plotly.js 3, still accepted so existing app configs validate.
+    removed_from_plotly = [
+        "showLink",
+        "sendData",
+        "linkText",
+        "showEditInChartStudio",
+        "mapboxAccessToken",
+    ]
 
     def crawl(schema, props):
         for prop_name in props:
+            if prop_name in removed_from_plotly:
+                continue
             assert prop_name in schema, (
                 f"Prop {prop_name!r} is in DCC metadata"
                 " but not in Plotly.PlotSchema config"
