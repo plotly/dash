@@ -212,19 +212,33 @@ class Downlink:
         self._key = connection_key(connection_id)
         self._token = secrets.token_hex(8)
         self._closed = False
+        self._opened = 0.0
+        self._refresh: Optional["asyncio.Future[None]"] = None
         with _registry_lock:
             _active_subscriptions.add(self.subscription)
 
     def _record(self, is_open: bool) -> Any:
+        now = time.time()
+        if not self._opened:
+            self._opened = now
         return {
             "mode": "stream",
             "open": is_open,
-            "at": time.time(),
+            "at": now,
             "token": self._token,
+            "opened": self._opened,
         }
 
     def _is_mine(self, record: Any) -> bool:
         return isinstance(record, dict) and record.get("token") == self._token
+
+    def _owns(self, record: Any) -> bool:
+        """The newest downlink of a page owns its record: this one's, or an
+        older downlink's that this one replaced."""
+        if self._is_mine(record):
+            return True
+        opened = record.get("opened") if isinstance(record, dict) else None
+        return opened is not None and opened < self._opened
 
     def _release(self) -> bool:
         """End the subscription; False if this downlink was already closed."""
@@ -246,12 +260,39 @@ class Downlink:
         if not self._release():
             return
         with contextlib.suppress(Exception):
-            if self._is_mine(self.storage.get(self._key)):
+            if self._owns(self.storage.get(self._key)):
                 self.storage.set(self._key, self._record(False))
 
-    async def _arecord_closed(self) -> None:
+    async def _akeep_open(self) -> None:
+        # An older downlink of this connection closing late reads the record,
+        # then writes it closed: two round trips, between which this one may
+        # have opened. Checking well inside the grace repairs that before any
+        # pump counts the browser as gone.
+        while True:
+            await asyncio.sleep(DOWNLINK_GRACE / 2)
+            self._refresh = asyncio.ensure_future(self._arepair())
+            with contextlib.suppress(Exception):
+                await asyncio.shield(self._refresh)
+
+    async def _arepair(self) -> None:
+        record = await self.storage.aget(self._key)
+        if isinstance(record, dict) and (record.get("open") or not self._owns(record)):
+            # Open, or closed by a newer downlink: this one may be a relay
+            # whose client is gone, and must not mark the connection alive.
+            return
+        await self.aopen()
+
+    async def _arecord_closed(self, keep_open: Optional[asyncio.Task]) -> None:
+        if keep_open is not None:
+            keep_open.cancel()
+            await asyncio.wait({keep_open})
+        if self._refresh is not None:
+            # A refresh already sent would otherwise land after the closed
+            # record and mark this downlink open again.
+            with contextlib.suppress(Exception):
+                await self._refresh
         with contextlib.suppress(Exception):
-            if self._is_mine(await self.storage.aget(self._key)):
+            if self._owns(await self.storage.aget(self._key)):
                 await self.storage.aset(self._key, self._record(False))
 
     def envelopes(self) -> Iterator[Any]:
@@ -270,8 +311,10 @@ class Downlink:
 
     async def aenvelopes(self) -> AsyncIterator[Any]:
         """Async counterpart of :meth:`envelopes` for ASGI backends."""
+        keep_open = None
         try:
             await self.aopen()
+            keep_open = asyncio.ensure_future(self._akeep_open())
             async for seq, message in self.subscription.aiter_with_seq():
                 yield {**message, "seq": seq}
         except SharedStorageGap:
@@ -285,9 +328,11 @@ class Downlink:
                 # leaving the record open so the pumps never learn the browser
                 # left.
                 with contextlib.suppress(RuntimeError):  # the loop is gone
-                    task = asyncio.ensure_future(self._arecord_closed())
+                    task = asyncio.ensure_future(self._arecord_closed(keep_open))
                     _closing_downlinks.add(task)
                     task.add_done_callback(_closing_downlinks.discard)
+            elif keep_open is not None:
+                keep_open.cancel()
 
 
 def _log_downlink_failure(exc: Exception) -> None:

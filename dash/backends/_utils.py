@@ -1,3 +1,4 @@
+import inspect
 import traceback
 import re
 
@@ -106,3 +107,27 @@ def format_traceback_html(error, error_handling_mode, title, backend):
     </html>
     """
     return html
+
+
+def _accepts_response(func):
+    try:
+        inspect.signature(func).bind(None)
+    except TypeError:
+        return False
+    except ValueError:
+        return True
+    return True
+
+
+async def call_after_request_hook(func, response):
+    """Run an after_request hook Flask style: it gets the response and may
+    return a new one. Hooks that take no arguments are still called bare."""
+    if not _accepts_response(func):
+        result = func()
+        if inspect.isawaitable(result):
+            await result
+        return response
+    result = func(response)
+    if inspect.isawaitable(result):
+        result = await result
+    return response if result is None else result

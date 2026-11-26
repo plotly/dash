@@ -140,7 +140,7 @@ deployed app, on as many machines as needed. Pitfalls it guards against:
 `to_json_plotly`) on one large figure, alone and next to a small value orjson
 cannot serialize, plus the figure inside a layout. Each engine runs in its own
 process; the stdlib one blocks the orjson import, so it is a real install
-without orjson, not just a config switch. See finding 6.
+without orjson, not just a config switch. See finding 7.
 
 `benchmarks/publish.py` commits results to `benchmarks/results/` (read by the
 docs) and the table in `README.md`. `.github/workflows/benchmarks-publish.yml`
@@ -263,7 +263,25 @@ limit) for a component tree nested deeper than ~254. The `deep_nesting`
 scenario is capped at 120 to stay clear. Worth remembering before recommending
 deeply-recursive layouts.
 
-### 6. One non-native value sends the whole response down plotly's slow path (#4065)
+### 6. Components with `dashChildrenUpdate` scan every changed path [reduced]
+
+`selectDashProps` runs for every mounted component on every store update. For a
+component type that sets `dashChildrenUpdate` (`dcc.Tabs`, several DMC types),
+`determineChangedProps` walks all of `layoutHashes`, which gains one entry per
+path whose props ever changed and never shrinks: O(flagged components x changed
+paths) per store update. `callback_fanout_children_update` covers it.
+
+`isFirstLevelPropsChild` used to split both paths for each entry, and was the
+top frame of that scenario (with `determineChangedProps`, 51% of CPU with 50
+tabs). It now rejects unrelated paths with `isPathOrDescendant` before any
+allocation, which brings that down to 9%. It is still a scan, just a cheap one.
+The scenario mounts 200 tabs so that going back to the old scan (about 4x
+slower there) fails the baseline gate. A prefix index would make
+it O(1) per component, but rebuilding it whenever `layoutHashes` changes costs
+about twice one scan, so it would slow down the common case of a single
+`dcc.Tabs`. An index maintained incrementally in the reducer would avoid that.
+
+### 7. One non-native value sends the whole response down plotly's slow path (#4065)
 
 With orjson, `to_json_plotly` tries `orjson.dumps` on the whole response. If
 any value is not orjson-native (a component, a `go.Figure` object, a

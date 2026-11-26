@@ -3,6 +3,7 @@ import re
 import flask
 import pytest
 from flaky import flaky
+from selenium.common.exceptions import WebDriverException
 
 from dash import (
     Dash,
@@ -23,12 +24,22 @@ debugging = dict(
 )
 
 
+def _error_titles(dash_duo, cnt):
+    try:
+        titles = [el.text for el in dash_duo.find_elements(".dash-fe-error__title")]
+    except WebDriverException:
+        return False
+    return len(titles) == cnt and all(titles)
+
+
 def check_errors(dash_duo, specs):
     # Order-agnostic check of all the errors shown.
     # This is not fully general - despite the selectors below, it only applies
     # to front-end errors with no back-end errors in the list.
     cnt = len(specs)
     dash_duo.wait_for_text_to_equal(dash_duo.devtools_error_count_locator, str(cnt))
+    # The error card fades in from opacity 0 and selenium reads hidden text as "".
+    wait.until(lambda: _error_titles(dash_duo, cnt), timeout=4)
 
     found = []
     for i in range(cnt):
@@ -76,7 +87,10 @@ def check_errors(dash_duo, specs):
             )
 
     # ensure the errors didn't leave items in the pendingCallbacks queue
-    assert dash_duo.driver.execute_script("return document.title") == "Dash"
+    wait.until(
+        lambda: dash_duo.driver.execute_script("return document.title") == "Dash",
+        timeout=4,
+    )
 
 
 def test_dvcv001_blank(dash_duo):
