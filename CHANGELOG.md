@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4129](https://github.com/plotly/dash/pull/4129) `set_props` now returns `no_update`, so `yield set_props(...)` in a streaming callback sends the side update right away, and a `set_props` called after the last yield is no longer dropped. Fixes [#4127](https://github.com/plotly/dash/issues/4127).
 - [#4137](https://github.com/plotly/dash/pull/4137) Fix FastAPI `after_request` hooks to match Flask: multiple hooks run in LIFO order on every route, get the response and can return a new one. Quart `after_request` hooks get the response too.
 - [#4184](https://github.com/plotly/dash/pull/4184) Fix ASGI streaming callbacks being cancelled after 10 seconds under load, when a browser's previous downlink closed late and marked its new one closed.
+- [#4185](https://github.com/plotly/dash/pull/4185) Fix `RedisSharedStorage` streaming callbacks failing under load with redis-py 8 (`MaxConnectionsError: Too many connections`): calls now wait for a free connection.
 
 ## [4.5.1] - 2026-11-19
 
