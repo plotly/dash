@@ -2602,11 +2602,11 @@ class Dash(ObsoleteChecker):
         too. Values provided here take precedence over environment variables.
 
         :param host: Host IP used to serve the application, default to "127.0.0.1"
-            env: ``HOST``
+            env: ``DASH_HOST``, falling back to ``HOST``
         :type host: string
 
         :param port: Port used to serve the application, default to "8050"
-            env: ``PORT``
+            env: ``DASH_PORT``, falling back to ``PORT``
         :type port: int
 
         :param proxy: If this application will be served to a different URL
@@ -2734,11 +2734,13 @@ class Dash(ObsoleteChecker):
             # Some conda systems has issue with setting the host environment
             # to an invalid hostname.
             # Related issue: https://github.com/plotly/dash/issues/3069
-            host = host or "127.0.0.1"
+            # DASH_HOST is still honored here: it is specific to Dash, so
+            # unlike the generic HOST it cannot come from another service.
+            host = host or os.getenv("DASH_HOST", "127.0.0.1")
         else:
-            host = host or os.getenv("HOST", "127.0.0.1")
+            host = host or os.getenv("DASH_HOST", os.getenv("HOST", "127.0.0.1"))
         assert host
-        port = port or os.getenv("PORT", "8050")
+        port = port or os.getenv("DASH_PORT", os.getenv("PORT", "8050"))
         proxy = proxy or os.getenv("DASH_PROXY")
 
         # Verify port value
