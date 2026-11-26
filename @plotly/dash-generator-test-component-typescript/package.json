@@ -17,7 +17,7 @@
   "author": "Chris Parmer <chris@plotly.com>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-env": "^7.29.14",
     "@babel/preset-react": "^7.29.7",
     "@types/jest": "^29.2.0",
     "@types/react": "^17.0.39",
