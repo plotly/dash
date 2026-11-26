@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
 
 ### Fixed
+- [#4197](https://github.com/plotly/dash/pull/4197) Fix `dcc.Input` with `type="number"` and `debounce` sometimes putting back an old value over what the user typed after using the stepper buttons.
 - [#4102](https://github.com/plotly/dash/pull/4102) Fix `dcc.Graph` zoom, pan and other edits being reset by a new figure or a `Patch` while `uirevision` is unchanged, a regression from #3882. Fixes [#4093](https://github.com/plotly/dash/issues/4093).
 - [#4103](https://github.com/plotly/dash/pull/4103) Speed up components that use `dashChildrenUpdate` (`dcc.Tabs` and others): unrelated paths are now rejected before any allocation on each store update. Addresses [#4032](https://github.com/plotly/dash/issues/4032).
 - [#4167](https://github.com/plotly/dash/pull/4167) `dash-generate-components` no longer crashes when generating an R package from a `package.json` whose `author` is an object or includes a URL, and a missing author email now gets the intended error message. Fixes [#1577](https://github.com/plotly/dash/issues/1577).
