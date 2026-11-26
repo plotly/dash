@@ -420,6 +420,16 @@ const Dropdown = (props: DropdownProps) => {
     const positioningContainerRef = useRef<HTMLDivElement>(null);
     const canClearValues = clearable && !disabled && !!sanitizedValues.length;
 
+    const setFocusTargetTabIndex = (
+        button: HTMLButtonElement,
+        tabIndex: number
+    ) => {
+        const dummyInput = button.previousElementSibling;
+        if (dummyInput instanceof HTMLElement) {
+            dummyInput.tabIndex = tabIndex;
+        }
+    };
+
     const popover = (
         <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
             {/* Safari skips <button> in the Tab order; this hidden
@@ -446,13 +456,13 @@ const Dropdown = (props: DropdownProps) => {
                     disabled={disabled}
                     type="button"
                     tabIndex={-1}
-                    onBlur={e => {
-                        const dummyInput =
-                            e.currentTarget.previousElementSibling;
-                        if (dummyInput instanceof HTMLElement) {
-                            dummyInput.tabIndex = 0;
-                        }
-                    }}
+                    onFocus={e => setFocusTargetTabIndex(e.currentTarget, -1)}
+                    onBlur={e =>
+                        setFocusTargetTabIndex(
+                            e.currentTarget,
+                            disabled ? -1 : 0
+                        )
+                    }
                     onKeyDown={e => {
                         if (['ArrowDown', 'Enter'].includes(e.key)) {
                             e.preventDefault();
