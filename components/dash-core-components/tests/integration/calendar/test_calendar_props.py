@@ -125,21 +125,17 @@ def test_cdpr002_updatemodes(dash_dcc):
     wait.until(lambda: eday.is_displayed() and eday.is_enabled(), timeout=2)
     eday.click()
 
-    date_tokens = set(start_date.get_attribute("value").split("/"))
-    date_tokens.update(end_date.get_attribute("value").split("/"))
-
-    assert (
-        set(
-            itertools.chain(
-                *[
-                    _.split("-")
-                    for _ in dash_dcc.find_element(
-                        "#date-picker-range-output"
-                    ).text.split(" - ")
-                ]
-            )
+    def output_matches_inputs():
+        date_tokens = set(start_date.get_attribute("value").split("/"))
+        date_tokens.update(end_date.get_attribute("value").split("/"))
+        output = dash_dcc.find_element("#date-picker-range-output").text
+        output_tokens = set(
+            itertools.chain(*[_.split("-") for _ in output.split(" - ")])
         )
-        == date_tokens
-    ), "date should match the callback output"
+        return output_tokens == date_tokens
+
+    wait.until(
+        output_matches_inputs, timeout=4, msg="date should match the callback output"
+    )
 
     assert dash_dcc.get_logs() == []

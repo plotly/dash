@@ -3,8 +3,10 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 
+import rehypeBlockCode from './rehypeBlockCode';
 import rehypeDashMath from './rehypeDashMath';
 import rehypeDccComponents from './rehypeDccComponents';
+import rehypeLinkTarget from './rehypeLinkTarget';
 import rehypeStripTags from './rehypeStripTags';
 
 // remark plugin for GitHub Flavored Markdown: tables, strikethrough,
@@ -25,4 +27,10 @@ export const rawHtmlPlugins: PluggableList = [
     rehypeRaw,
     rehypeStripTags,
     rehypeDccComponents,
+];
+
+// Always last, so they also see elements that rehype-raw parsed from raw HTML.
+export const rehypeBlockCodePlugins: PluggableList = [rehypeBlockCode];
+export const linkTargetPlugins = (target: string): PluggableList => [
+    [rehypeLinkTarget, target],
 ];

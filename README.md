@@ -52,7 +52,7 @@ Low-Code Features: Low-code Dash app capabilities that supercharge developer pro
 
 Enterprise AI Features: Everything that your data science team needs to rapidly deliver AI/ML research and business initiatives.
 - [**AI App Marketplace**](https://plotly.com/dash/ai-and-ml-templates/) Dash Enterprise ships with dozens of Dash app templates for business problems where AI/ML is having the greatest impact.
-- [**Big Data for Pything**](https://plotly.com/dash/big-data-for-python/) Connect to Python's most popular big data back ends: Dask, Databricks, NVIDIA RAPIDS, Snowflake, Postgres, Vaex, and more.
+- [**Big Data for Python**](https://plotly.com/dash/big-data-for-python/) Connect to Python's most popular big data back ends: Dask, Databricks, NVIDIA RAPIDS, Snowflake, Postgres, Vaex, and more.
 - [**GPU & Dask Acceleration**](https://plotly.com/dash/gpu-dask-acceleration/) Dash Enterprise puts Python’s most popular HPC stack for GPU and parallel CPU computing in the hands of business users.
 - [**Data Science Workspaces**](https://plotly.com/dash/workspaces/) Be productive from Day 1. Write and execute Python, R, & Julia code from Dash Enterprise's onboard code editor.
 

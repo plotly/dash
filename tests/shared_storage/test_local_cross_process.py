@@ -6,6 +6,12 @@ client reconnect-with-replay across a forced socket drop -- all over the real
 socket transport, not the in-process fast path.
 """
 import multiprocessing as mp
+import os
+import signal
+import json
+import socket
+import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -174,6 +180,121 @@ def test_reelection_after_owner_killed(owner):
     assert client.get("after") == "fresh"
     assert client._coord.is_owner()  # we are the new owner
     client.close()
+
+
+@pytest.mark.skipif(
+    not hasattr(socket, "AF_UNIX") or not hasattr(signal, "SIGSTOP"),
+    reason="needs unix sockets and SIGSTOP",
+)
+def test_busy_owner_is_not_replaced(owner):
+    """An owner too busy to accept (its backlog full) is alive. A client that
+    re-elects must not take its socket over and start a second, empty store."""
+    ns, o = owner
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    o.do("set", "before", "value")
+    assert client.get("before") == "value"
+
+    os.kill(o.proc.pid, signal.SIGSTOP)
+    held = []
+    try:
+        for _ in range(200):
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock.setblocking(False)
+            try:
+                sock.connect(client._coord._sock_path)
+            except OSError:
+                pass
+            held.append(sock)
+        client._coord.on_owner_lost()
+        assert not client._coord.is_owner()
+    finally:
+        os.kill(o.proc.pid, signal.SIGCONT)
+        for sock in held:
+            sock.close()
+
+    assert client.get("before") == "value"
+    client.close()
+
+
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_stale_socket_probe(tmp_path, monkeypatch):
+    from dash._shared_storage import local
+
+    sock_path = str(tmp_path / "s.sock")
+    addr_path = str(tmp_path / "s.addr")
+    assert local._unix_is_stale(sock_path, addr_path)  # no file
+
+    leftover = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    leftover.bind(sock_path)
+    leftover.close()  # the file stays, nobody listens
+    assert local._unix_is_stale(sock_path, addr_path)
+
+    stray = tmp_path / "stray"
+    stray.write_text("not a socket")
+    assert local._unix_is_stale(str(stray), addr_path)
+
+    # macOS and the BSDs also refuse when the backlog is full: there a refused
+    # probe means stale only once the advertised owner process is gone.
+    monkeypatch.setattr(local.sys, "platform", "darwin")
+    assert local._unix_is_stale(sock_path, addr_path)  # no advertisement
+    with open(addr_path, "w", encoding="utf-8") as f:
+        json.dump({"pid": os.getpid()}, f)
+    assert not local._unix_is_stale(sock_path, addr_path)
+    gone = subprocess.Popen([sys.executable, "-c", ""])
+    gone.wait()
+    with open(addr_path, "w", encoding="utf-8") as f:
+        json.dump({"pid": gone.pid}, f)
+    assert local._unix_is_stale(sock_path, addr_path)
+
+
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_starting_owner_is_not_stale(tmp_path):
+    """An owner that has bound its socket but is still recovering its data
+    before serving is alive, so a re-election must not take its socket over."""
+    from dash._shared_storage import local
+
+    sock_path = str(tmp_path / "s.sock")
+    addr_path = str(tmp_path / "s.addr")
+    listen_sock, _, _ = local._try_bind("unused", sock_path, addr_path)
+    try:
+        assert not local._unix_is_stale(sock_path, addr_path)
+        assert local._try_bind("unused", sock_path, addr_path) is None
+    finally:
+        listen_sock.close()
+
+
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs unix sockets")
+def test_failed_election_releases_the_socket(tmp_path, monkeypatch):
+    """An election that fails after binding (here, recovering persisted data)
+    must not leave a listening socket that would pass for a live owner."""
+    from dash._shared_storage import local
+
+    pytest.importorskip("msgspec")
+    real_recover = local._Persistence.recover
+
+    def broken(self):
+        raise OSError("disk unreadable")
+
+    monkeypatch.setattr(local._Persistence, "recover", broken)
+    store = LocalSharedStorage(
+        namespace=f"t-{uuid.uuid4().hex[:8]}",
+        mode="persist",
+        path=str(tmp_path / "store"),
+    )
+    # Keep the traceback alive, as a logged or stored error would: its frames
+    # must not be what holds the socket open.
+    with pytest.raises(OSError, match="disk unreadable") as failure:
+        store.start()
+    assert failure.traceback
+    assert local._unix_is_stale(store._coord._sock_path, store._coord._addr_path)
+
+    monkeypatch.setattr(local._Persistence, "recover", real_recover)
+    store._coord.ensure()
+    assert store._coord.is_owner()
+    store.set("k", "v")
+    assert store.get("k") == "v"
+    store.close()
 
 
 def test_reelection_recovers_persisted_data(tmp_path):

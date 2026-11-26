@@ -17,7 +17,7 @@ setup(
     version=main_ns["__version__"],
     author="Chris Parmer",
     author_email="chris@plotly.com",
-    packages=find_packages(exclude=["tests*"]),
+    packages=find_packages(include=["dash", "dash.*"]),
     include_package_data=True,
     license="MIT",
     description=(
@@ -94,8 +94,12 @@ setup(
             "dash/nbextension/dash.json"
         ]),
         # Place jupyterlab extension in extension directory
-        ("share/jupyter/lab/extensions", [
-            "dash/labextension/dist/dash-jupyterlab.tgz"
-        ]),
+        *[
+            (os.path.normpath(os.path.join("share/jupyter/labextensions/@plotly/dash-jupyterlab", os.path.relpath(directory, "dash/labextension/"))), [
+                os.path.join(directory, filename)
+                for filename in filenames
+            ])
+            for directory, _, filenames in os.walk("dash/labextension") if filenames
+        ],
     ],
 )

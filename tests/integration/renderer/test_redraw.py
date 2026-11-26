@@ -169,3 +169,45 @@ def test_rdraw004_explicit_remount(dash_duo):
     dash_duo.wait_for_text_to_equal("#counter", "1")
 
     assert dash_duo.get_logs() == []
+
+
+def test_rdraw005_children_update_store_dispatches(dash_duo):
+    # Re-rendering a callback-returned subtree used to dispatch one store
+    # update per component in it, each re-running every wrapper's selector:
+    # O(N^2) in the subtree size. Regression test for #4121.
+    app = Dash()
+    n_rows = 100
+
+    app.layout = html.Div(
+        [
+            html.Button("Re-render", id="btn", n_clicks=0),
+            html.Div(id="content"),
+        ]
+    )
+
+    @app.callback(Output("content", "children"), Input("btn", "n_clicks"))
+    def render(n):
+        return [
+            html.Div(
+                [html.Span(f"Field {i}"), html.Span(f"value {i} @ click {n}")],
+                className="row",
+            )
+            for i in range(n_rows)
+        ]
+
+    dash_duo.start_server(app)
+    last = "#content .row:last-child span:last-child"
+    dash_duo.wait_for_text_to_equal(last, f"value {n_rows - 1} @ click 0")
+
+    dash_duo.driver.execute_script(
+        "window.__updates = 0;" "window.store.subscribe(() => window.__updates++);"
+    )
+    dash_duo.find_element("#btn").click()
+    dash_duo.wait_for_text_to_equal(last, f"value {n_rows - 1} @ click 1")
+    # Wrapper effects run after paint, so let a couple of frames pass.
+    updates = dash_duo.driver.execute_async_script(
+        "const done = arguments[0];"
+        "requestAnimationFrame(() => requestAnimationFrame("
+        "() => setTimeout(() => done(window.__updates), 50)));"
+    )
+    assert updates < 40, updates

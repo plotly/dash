@@ -305,8 +305,7 @@ class OrderedSet(abc.MutableSet):
         return len(self._data)
 
     def __iter__(self):
-        for i in self._data:
-            yield i
+        yield from self._data
 
 
 def coerce_to_list(obj):

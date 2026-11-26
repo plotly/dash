@@ -12,6 +12,7 @@ import uuid
 import pytest
 
 from dash import Dash, Input, Output, ctx, html
+from dash.testing.wait import until
 from dash._shared_storage import (
     DiskcacheSharedStorage,
     LocalSharedStorage,
@@ -156,8 +157,8 @@ def test_disabled_shared_storage_errors_the_callback(dash_duo):
     dash_duo.start_server(app)
     dash_duo.find_element("#go").click()
     # The output never fills in, and the server logged the SharedStorageError.
-    dash_duo.wait_for_text_to_equal("#out", "")
-    assert dash_duo.get_logs()  # an error was logged
+    until(dash_duo.get_logs, timeout=4)
+    assert dash_duo.find_element("#out").text == ""
 
     with pytest.raises(SharedStorageError):
         app.shared_storage  # noqa: B018
