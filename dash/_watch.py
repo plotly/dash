@@ -17,8 +17,12 @@ def watch(folders, on_change, pattern=None, sleep_time=0.1):
                         continue
                     path = os.path.join(current, f)
 
-                    info = os.stat(path)
-                    new_time = info.st_mtime
+                    try:
+                        new_time = os.stat(path).st_mtime
+                    except OSError:
+                        # Gone since os.walk listed it, or a dangling symlink
+                        # such as an editor lock file.
+                        continue
 
                     if new_time > watched[path] > 0:
                         on_change(path, new_time, False)

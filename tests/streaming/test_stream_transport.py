@@ -345,6 +345,143 @@ def test_replaced_downlink_does_not_mark_the_new_one_closed():
     assert storage.get(hub.connection_key(cid))["open"] is False
 
 
+def test_stale_close_does_not_end_a_live_downlink(monkeypatch):
+    """Under load, a downlink closing late reads the record before the
+    browser's next downlink opens and writes it closed after. The pumps must
+    still see the live downlink once the grace has passed."""
+    from dash import _stream_hub as hub
+
+    monkeypatch.setattr(hub, "DOWNLINK_GRACE", 0.6)
+    storage = _storage("stale-close")
+    cid = "c-stale"
+    stale = hub.Downlink(storage, cid)
+    stale.open()
+    assert stale._is_mine(storage.get(hub.connection_key(cid)))
+
+    async def scenario():
+        live = hub.Downlink(storage, cid, replay_from=0)
+
+        async def relay():
+            async for _env in live.aenvelopes():
+                pass
+
+        task = asyncio.ensure_future(relay())
+        await asyncio.sleep(0.1)
+        stop = hub._stop_check(storage, cid, "r-stale")
+        await storage.aset(hub.connection_key(cid), stale._record(False))
+        await asyncio.sleep(1.0)
+        gone = await stop()
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+        await asyncio.gather(*hub._closing_downlinks)
+        return gone
+
+    assert not asyncio.run(scenario())
+    assert storage.get(hub.connection_key(cid))["open"] is False
+    storage.close()
+
+
+def test_refresh_in_flight_does_not_reopen_a_closed_downlink(monkeypatch):
+    from dash import _stream_hub as hub
+
+    monkeypatch.setattr(hub, "DOWNLINK_GRACE", 0.03)
+    storage = _storage("refresh-close")
+    cid = "c-refresh"
+    real_aset = storage.aset
+
+    async def slow_aset(key, value, ttl=None):
+        if value.get("open"):
+            await asyncio.sleep(0.15)
+        await real_aset(key, value, ttl)
+
+    monkeypatch.setattr(storage, "aset", slow_aset)
+
+    stale = hub.Downlink(storage, cid)
+    stale.open()
+
+    async def scenario():
+        downlink = hub.Downlink(storage, cid)
+
+        async def relay():
+            async for _env in downlink.aenvelopes():
+                pass
+
+        task = asyncio.ensure_future(relay())
+        await asyncio.sleep(0.2)
+        await real_aset(hub.connection_key(cid), stale._record(False))
+        await asyncio.sleep(0.05)
+        assert downlink._refresh is not None and not downlink._refresh.done()
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
+        await asyncio.gather(*hub._closing_downlinks)
+        await asyncio.sleep(0.2)
+
+    asyncio.run(scenario())
+    assert storage.get(hub.connection_key(cid))["open"] is False
+    storage.close()
+
+
+def test_relay_of_a_gone_client_does_not_keep_the_connection_alive(monkeypatch):
+    """A replaced downlink whose client vanished without the server noticing
+    keeps relaying. Once the newer downlink closes, the pumps must still see
+    the browser as gone."""
+    from dash import _stream_hub as hub
+
+    monkeypatch.setattr(hub, "DOWNLINK_GRACE", 0.3)
+    storage = _storage("zombie")
+    cid = "c-zombie"
+
+    async def scenario():
+        zombie = hub.Downlink(storage, cid)
+        newer = hub.Downlink(storage, cid, replay_from=0)
+
+        async def relay(downlink):
+            async for _env in downlink.aenvelopes():
+                pass
+
+        zombie_task = asyncio.ensure_future(relay(zombie))
+        await asyncio.sleep(0.05)
+        newer_task = asyncio.ensure_future(relay(newer))
+        await asyncio.sleep(0.05)
+        # The zombie's own write lands over the newer open record.
+        await zombie.aopen()
+        newer_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await newer_task
+        await asyncio.gather(*hub._closing_downlinks)
+        stop = hub._stop_check(storage, cid, "r-zombie")
+        await asyncio.sleep(0.6)
+        gone = await stop()
+        zombie_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await zombie_task
+        await asyncio.gather(*hub._closing_downlinks)
+        return gone
+
+    assert asyncio.run(scenario())
+    storage.close()
+
+
+def test_closed_record_from_an_older_dash_is_left_alone():
+    from dash import _stream_hub as hub
+
+    storage = _storage("legacy")
+    cid = "c-legacy"
+
+    async def scenario():
+        downlink = hub.Downlink(storage, cid)
+        await downlink.aopen()
+        legacy = {"mode": "stream", "open": False, "at": time.time(), "token": "x"}
+        await storage.aset(hub.connection_key(cid), legacy)
+        await downlink._arepair()
+        return await storage.aget(hub.connection_key(cid))
+
+    assert asyncio.run(scenario())["token"] == "x"
+    storage.close()
+
+
 def test_cancelled_async_downlink_still_records_closed():
     """A client disconnect cancels the ASGI response mid-relay; the closed record
     must still be written, or pumps never learn the browser left."""

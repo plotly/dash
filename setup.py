@@ -94,8 +94,12 @@ setup(
             "dash/nbextension/dash.json"
         ]),
         # Place jupyterlab extension in extension directory
-        ("share/jupyter/lab/extensions", [
-            "dash/labextension/dist/dash-jupyterlab.tgz"
-        ]),
+        *[
+            (os.path.normpath(os.path.join("share/jupyter/labextensions/@plotly/dash-jupyterlab", os.path.relpath(directory, "dash/labextension/"))), [
+                os.path.join(directory, filename)
+                for filename in filenames
+            ])
+            for directory, _, filenames in os.walk("dash/labextension") if filenames
+        ],
     ],
 )

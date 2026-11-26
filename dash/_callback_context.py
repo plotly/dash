@@ -8,6 +8,7 @@ from dash.backends.ws import DashWebsocketCallback
 
 from . import exceptions
 from ._get_app import get_app
+from ._no_update import NoUpdate
 from ._utils import AttributeDict, stringify_id
 
 context_value: contextvars.ContextVar[
@@ -386,3 +387,4 @@ def set_props(component_id: typing.Union[str, dict], props: dict):
     else:
         # Batch for response (existing behavior)
         callback_context.set_props(component_id, props)
+    return NoUpdate()

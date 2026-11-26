@@ -796,6 +796,7 @@ def _prepare_response(
     component_ids: dict = collections.defaultdict(dict)
 
     if has_output:
+        is_no_update = NoUpdate.is_no_update(output_value)
         if not multi:
             output_value, output_spec = [output_value], [output_spec]
             flat_output_values = output_value
@@ -804,13 +805,13 @@ def _prepare_response(
                 # For multi-output, allow top-level collection to be
                 # list or tuple
                 output_value = list(output_value)
-            if NoUpdate.is_no_update(output_value):
+            if is_no_update:
                 flat_output_values = [output_value]
             else:
                 # Flatten grouping and validate grouping structure
                 flat_output_values = flatten_grouping(output_value, output)
 
-        if not NoUpdate.is_no_update(output_value):
+        if not is_no_update:
             _validate.validate_multi_return(
                 output_spec, flat_output_values, callback_id
             )
@@ -828,7 +829,7 @@ def _prepare_response(
                     component_ids[id_str][prop] = vali
 
     else:
-        if output_value is not None:
+        if output_value is not None and not NoUpdate.is_no_update(output_value):
             raise InvalidCallbackReturnValue(
                 f"No-output callback received return value: {output_value}"
             )
@@ -1205,6 +1206,9 @@ def register_callback(
                         return
                     if frame is not None:
                         yield frame
+                response = {"multi": True}
+                if _set_side_update(callback_ctx, response):
+                    yield response
                 yield {"done": True}
             finally:
                 await user_gen.aclose()
