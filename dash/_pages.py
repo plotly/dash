@@ -68,8 +68,10 @@ def _infer_path(module_name, template):
     if template is None:
         if CONFIG.pages_folder:
             pages_module = str(Path(CONFIG.pages_folder).name)
+            # Match the folder name as whole dotted parts, not as a substring.
             path = (
-                module_name.split(pages_module)[-1]
+                f".{module_name}.".rpartition(f".{pages_module}.")[-1]
+                .strip(".")
                 .replace("_", "-")
                 .replace(".", "/")
                 .lower()
