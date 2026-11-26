@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Added
+- Add a Copy button to each error in the debug toolbar, which copies the error message and its traceback to the clipboard. Closes [#3624](https://github.com/plotly/dash/issues/3624).
+
 ### Changed
 - [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
 

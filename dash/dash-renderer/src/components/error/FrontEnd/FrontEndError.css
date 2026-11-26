@@ -44,10 +44,10 @@
 }
 .dash-fe-error-top__group:first-child {
     /*
-     * 77% is the maximum space allowed based off of the other elements
-     * in the top part of the error container (timestamp & collapse arrow).
-     * this was manually determined */
-    width: 77%;
+     * 65% is the maximum space allowed based off of the other elements
+     * in the top part of the error container (copy button, timestamp &
+     * collapse arrow). this was manually determined */
+    width: 65%;
 }
 .dash-fe-error-top__group {
     display: inline-flex;
@@ -67,6 +67,21 @@
 }
 .dash-fe-error__timestamp {
     margin-right: 20px;
+}
+.dash-fe-error__copy {
+    white-space: nowrap;
+    margin-right: 12px;
+    padding: 0 8px;
+    font-size: 11px;
+    line-height: 18px;
+    color: #506784;
+    background-color: white;
+    border: 1px solid #dfe8f3;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.dash-fe-error__copy:hover {
+    background-color: #f3f6fa;
 }
 .dash-fe-error__collapse--flipped {
     -webkit-transform: rotate(180deg);
