@@ -26,11 +26,11 @@ function HighlightedCode({className, children}: ReactMarkdownCodeProps) {
 }
 
 export default function CodeRenderer({
-    inline,
+    node,
     className,
     children,
 }: ReactMarkdownCodeProps) {
-    if (inline) {
+    if (!node?.data?.block) {
         return <code className={className}>{children}</code>;
     }
     return <HighlightedCode className={className}>{children}</HighlightedCode>;
