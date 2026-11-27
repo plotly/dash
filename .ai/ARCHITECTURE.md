@@ -1028,7 +1028,13 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
 - *Network.* Client sockets time out after 10s and long polls last 5s (20s
   locally), since a vanished pod does not close its sockets; a caller's longer
   `poll(timeout)` is cut to one cycle. The async handshake has the same
-  timeout. TCP keepalive is on.
+  timeout. TCP keepalive is on. A request that failed or was cancelled
+  closes its connection with a reset (`SO_LINGER` 0, `_transport.abort`):
+  a plain close keeps retransmitting what is queued, so after a partition
+  healed the old owner applied a write the caller had already retried on the
+  new owner, over newer writes (caught by `tests/cluster_harness`). A request
+  that reached the old owner before the cut can still land twice (at least
+  once, like any retry after a lost answer).
 - *Auth.* `secret` (default `$DASH_SECRET_KEY`, run through HMAC so the signing
   key is not reused as is) is proven both ways with an HMAC challenge and never
   sent. Views are MACed. Without TLS the data channel and its token travel in

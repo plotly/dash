@@ -347,6 +347,122 @@ def test_async_connect_times_out_on_a_silent_owner():
         silent.close()
 
 
+class _SilentOwner:
+    """Takes the handshake and the first request, never answers, and records
+    how the client let go. Loopback cannot drop packets, so a reset (instead
+    of a clean close) stands in for "the queued request was thrown away"."""
+
+    def __init__(self):
+        self._server = socket.create_server(("127.0.0.1", 0))
+        self._server.settimeout(5)
+        self.addr = self._server.getsockname()
+        self.closed_by = None
+        self._thread = threading.Thread(target=self._serve, daemon=True)
+        self._thread.start()
+
+    def _serve(self):
+        from dash._shared_storage._transport import OK, recv_frame, send_frame
+
+        conn, _ = self._server.accept()
+        conn.settimeout(5)
+        with conn:
+            recv_frame(conn)
+            send_frame(conn, OK)
+            recv_frame(conn)
+            try:
+                self.closed_by = "close" if conn.recv(1) == b"" else "data"
+            except ConnectionResetError:
+                self.closed_by = "reset"
+
+    def wait(self):
+        self._thread.join(10)
+        return self.closed_by
+
+    def close(self):
+        self._server.close()
+        self._thread.join(10)
+
+
+class _SilentCoord:
+    token = "t"
+    recv_timeout = 0.3
+
+    def __init__(self, addr):
+        self.addr = addr
+
+    def needs_election(self):
+        return False
+
+    def close(self):
+        pass
+
+    def connect(self):
+        from dash._shared_storage._transport import connect_to_owner
+
+        sock = connect_to_owner(socket.AF_INET, self.addr, self.token)
+        sock.settimeout(self.recv_timeout)
+        return sock, self.token
+
+    async def aconnect(self):
+        from dash._shared_storage._transport import aconnect_to_owner
+
+        streams = await aconnect_to_owner(socket.AF_INET, self.addr, self.token)
+        return streams, self.token
+
+
+def test_a_timed_out_request_is_dropped_not_left_queued():
+    # Across a partition a plain close keeps retransmitting the request, and
+    # the old owner applies it once the network heals, after the caller
+    # retried it on the new owner.
+    owner = _SilentOwner()
+    try:
+        store = ClusterSharedStorage(host="peers", secret="s", port=_port_pair())
+        store._coord.close()  # pylint: disable=protected-access
+        store._coord = _SilentCoord(owner.addr)  # pylint: disable=protected-access
+        with pytest.raises(OSError):
+            store._remote(["set", "k", 1])  # pylint: disable=protected-access
+        store.close()
+        assert owner.wait() == "reset"
+    finally:
+        owner.close()
+
+
+def test_a_timed_out_async_request_is_dropped_not_left_queued():
+    from dash._shared_storage.local import _AsyncConn
+
+    owner = _SilentOwner()
+    try:
+        conn = _AsyncConn(_SilentCoord(owner.addr))
+        with pytest.raises(asyncio.TimeoutError):
+            asyncio.run(conn.call(["set", "k", 1]))
+        assert owner.wait() == "reset"
+    finally:
+        owner.close()
+
+
+def test_a_cancelled_async_request_is_dropped_too():
+    from dash._shared_storage.local import _AsyncConn
+
+    owner = _SilentOwner()
+    try:
+        coord = _SilentCoord(owner.addr)
+        coord.recv_timeout = 30
+        conn = _AsyncConn(coord)
+
+        async def run():
+            task = asyncio.ensure_future(conn.call(["set", "k", 1]))
+            await asyncio.sleep(0.3)
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+
+        asyncio.run(run())
+        assert owner.wait() == "reset"
+        assert conn._streams is None  # pylint: disable=protected-access
+    finally:
+        owner.close()
+
+
 def test_long_client_poll_returns_within_a_cycle(pods):
     a, b = pods.add_pod(), pods.add_pod()
     pods.worker(a).start()

@@ -31,6 +31,8 @@ from ._persistence import _Persistence, default_store_dir
 from ._transport import (
     EOF,
     OwnerServer,
+    aabort,
+    abort,
     aconnect_to_owner,
     arecv_frame,
     asend_frame,
@@ -542,9 +544,11 @@ class _AsyncConn:
                 )
                 if resp is EOF:
                     raise ConnectionError("owner closed the connection")
-            except (OSError, EOFError, ConnectionError, asyncio.TimeoutError):
+            except BaseException:
+                # Cancelled included: the request may still be queued, and
+                # its answer would reach the next call.
                 with contextlib.suppress(Exception):
-                    writer.close()
+                    aabort(writer)
                 self._streams = None
                 raise
         status, val = resp
@@ -687,11 +691,8 @@ class LocalSharedStorage(BaseSharedStorage):
                 resp = recv_frame(self._conn)
                 if resp is EOF:
                     raise ConnectionError("owner closed the connection")
-            except (OSError, EOFError, ConnectionError):
-                try:
-                    self._conn.close()
-                except OSError:
-                    pass
+            except BaseException:
+                abort(self._conn)
                 self._conn = None
                 raise
         status, val = resp

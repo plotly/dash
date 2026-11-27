@@ -22,6 +22,7 @@ import asyncio
 import socket
 import ssl
 import struct
+import sys
 import threading
 from typing import Any, Callable, Optional, Set, Tuple
 
@@ -218,6 +219,36 @@ async def aconnect_to_owner(
         writer.close()
         raise ConnectionError("shared-storage owner rejected the handshake")
     return reader, writer
+
+
+# l_onoff=1, l_linger=0: close() resets the connection and drops what is queued.
+_ABORT_LINGER = struct.pack("HH" if sys.platform == "win32" else "ii", 1, 0)
+
+
+def _drop_unsent(sock) -> None:
+    try:
+        if sock is not None and sock.family != getattr(socket, "AF_UNIX", None):
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, _ABORT_LINGER)
+    except OSError:
+        pass
+
+
+def abort(sock: socket.socket) -> None:
+    """Close a connection to the owner that failed, dropping any request the
+    kernel still holds. A plain close keeps retransmitting it, so after a
+    partition heals the old owner would apply a write the caller has since
+    retried on the new owner, over newer writes."""
+    _drop_unsent(sock)
+    try:
+        sock.close()
+    except OSError:
+        pass
+
+
+def aabort(writer: asyncio.StreamWriter) -> None:
+    """``abort`` for an asyncio stream."""
+    _drop_unsent(writer.get_extra_info("socket"))
+    writer.transport.abort()
 
 
 def connect_to_owner(
