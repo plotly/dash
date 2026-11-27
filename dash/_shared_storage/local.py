@@ -59,6 +59,16 @@ def _default_namespace() -> str:
     return hashlib.sha1(raw).hexdigest()[:16]
 
 
+def _file_id(path: str) -> Optional[Tuple[int, int, int]]:
+    """Which file is at ``path``: a socket file taken over and rebound there
+    is a different one, even on a reused inode (bind and chmod set ctime)."""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return st.st_dev, st.st_ino, st.st_ctime_ns
+
+
 def _paths(namespace: str):
     base = os.path.join(tempfile.gettempdir(), f"dash-shared-{namespace}")
     return base + ".sock", base + ".addr"
@@ -207,6 +217,7 @@ class _Coordinator:
         self._family = None
         self._address = None
         self._token: Optional[str] = None
+        self._sock_id: Optional[Tuple[int, int, int]] = None
 
     @property
     def engine(self) -> Optional[StoreEngine]:
@@ -268,6 +279,11 @@ class _Coordinator:
                 raise
             self._engine, self._server = engine, server
             self._family, self._address, self._token = family, address, token
+            self._sock_id = (
+                _file_id(address)
+                if family == getattr(socket, "AF_UNIX", None)
+                else None
+            )
             self._role = "owner"
             # Best-effort cleanup of the socket/advertisement on clean exit; a
             # crash leaves them stale, which the next election self-heals.
@@ -316,12 +332,19 @@ class _Coordinator:
                 if self._engine is not None:
                     # Triggers the persistence final flush (save-on-exit).
                     self._engine.close()
-                for path in (self._sock_path, self._addr_path):
-                    try:
-                        os.unlink(path)
-                    except OSError:
-                        pass
+                self._unlink_own_files()
             self._role = None
+
+    def _unlink_own_files(self) -> None:
+        # Clients see the owner go before the final flush is done, and one may
+        # have taken over by now: leave its socket and advertisement alone.
+        with contextlib.suppress(OSError, ValueError, KeyError, TypeError):
+            with open(self._addr_path, "rb") as f:
+                if json.loads(f.read().decode("utf-8"))["token"] == self._token:
+                    os.unlink(self._addr_path)
+        if self._sock_id is not None and _file_id(self._sock_path) == self._sock_id:
+            with contextlib.suppress(OSError):
+                os.unlink(self._sock_path)
 
 
 class _LocalSubscription(Subscription):
@@ -585,7 +608,10 @@ class _AsyncConn:
                 self._streams, self._token = await self._coord.aconnect()
             reader, writer = self._streams
             try:
-                await asend_frame(writer, req)
+                # An owner that stops reading would block drain() forever.
+                await asyncio.wait_for(
+                    asend_frame(writer, req), self._coord.recv_timeout
+                )
                 resp = await asyncio.wait_for(
                     arecv_frame(reader), self._coord.recv_timeout
                 )
@@ -747,11 +773,18 @@ class LocalSharedStorage(BaseSharedStorage):
             raise SharedStorageError(val)
         return val
 
-    async def _acall(self, req):
+    def _aconn(self) -> _AsyncConn:
         loop = asyncio.get_running_loop()
         conn = self._aconns.get(loop)
         if conn is None:
+            # Each asyncio.run() is a new loop: let go of the finished ones.
+            for old in list(self._aconns):
+                if old.is_closed():
+                    self._aconns.pop(old, None)
             conn = self._aconns[loop] = _AsyncConn(self._coord)
+        return conn
+
+    async def _acall(self, req):
         last_err: Optional[Exception] = None
         deadline = time.monotonic() + self._coord.failover_window
         attempt = 0
@@ -760,7 +793,7 @@ class LocalSharedStorage(BaseSharedStorage):
                 await _aelect(self._coord)
                 if self._coord.is_owner():
                     return self._local(req)
-                return await conn.call(req)
+                return await self._aconn().call(req)
             except (OSError, EOFError, ConnectionError, asyncio.TimeoutError) as err:
                 last_err = err
             attempt += 1

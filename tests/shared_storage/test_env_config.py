@@ -114,6 +114,8 @@ def test_cluster_tls_path_keeps_plus(monkeypatch, make_cert, tmp_path):
 
 
 def test_cluster_replicas_from_url(monkeypatch):
+    # Majority mode starts at boot; this test only reads the URL.
+    monkeypatch.setattr(Dash, "_start_shared_storage_at_boot", lambda self: None)
     storage = _built(_app(monkeypatch, "cluster://:pw@app-peers?replicas=3"))
     coord = storage._coord
     assert coord._replicas == 3

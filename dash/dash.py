@@ -770,6 +770,9 @@ class Dash(ObsoleteChecker):
             )
         self._shared_storage_arg = shared_storage
         self._shared_storage_instance: Optional[BaseSharedStorage] = None
+        # Set while start() runs, so a fork meanwhile (a preload master's
+        # boot thread electing) still reaches it.
+        self._shared_storage_starting: Optional[BaseSharedStorage] = None
         self._shared_storage_lock = threading.Lock()
 
         self.logger = logging.getLogger(__name__)
@@ -1056,22 +1059,25 @@ class Dash(ObsoleteChecker):
         app_ref = weakref.ref(self)
 
         def after_fork_in_child():
-            # pylint: disable=protected-access
             app = app_ref()
-            if app is None:
-                return
-            app._shared_storage_lock = threading.Lock()
-            started = app._shared_storage_instance
-            app._shared_storage_instance = None
-            for storage in {
-                id(s): s for s in (started, app._shared_storage_arg)
-            }.values():
-                if hasattr(storage, "after_fork") and not isinstance(storage, type):
-                    storage.after_fork()
+            if app is not None:
+                app._shared_storage_after_fork()  # pylint: disable=protected-access
 
         if hasattr(os, "register_at_fork"):
             os.register_at_fork(after_in_child=after_fork_in_child)
         self._boot_shared_storage()
+
+    def _shared_storage_after_fork(self) -> None:
+        self._shared_storage_lock = threading.Lock()
+        found = (
+            self._shared_storage_instance,
+            self._shared_storage_starting,
+            self._shared_storage_arg,
+        )
+        self._shared_storage_instance = self._shared_storage_starting = None
+        for storage in {id(s): s for s in found}.values():
+            if hasattr(storage, "after_fork") and not isinstance(storage, type):
+                storage.after_fork()
 
     def _boot_shared_storage(self) -> None:
         def run():
@@ -1115,7 +1121,11 @@ class Dash(ObsoleteChecker):
                     storage = self._shared_storage_arg
                     if isinstance(storage, (type, functools.partial)):
                         storage = storage()
-                    storage.start()
+                    self._shared_storage_starting = storage
+                    try:
+                        storage.start()
+                    finally:
+                        self._shared_storage_starting = None
                     self._shared_storage_instance = storage
         return self._shared_storage_instance
 

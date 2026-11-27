@@ -206,3 +206,33 @@ def test_disabled_shared_storage_errors_the_callback(dash_duo):
 
     with pytest.raises(SharedStorageError):
         app.shared_storage  # noqa: B018
+
+
+def test_a_fork_while_shared_storage_starts_reaches_it():
+    # A preload master's boot thread may still be electing when gunicorn
+    # forks: the child must drop that half-started backend's sockets too.
+    import functools
+    import threading
+
+    starting, release = threading.Event(), threading.Event()
+    forked = []
+
+    class Slow:
+        def start(self):
+            starting.set()
+            release.wait(10)
+
+        def after_fork(self):
+            forked.append(self)
+
+    app = Dash(shared_storage=functools.partial(Slow))
+    thread = threading.Thread(target=lambda: app.shared_storage, daemon=True)
+    thread.start()
+    try:
+        assert starting.wait(10)
+        app._shared_storage_after_fork()
+        assert len(forked) == 1 and isinstance(forked[0], Slow)
+        assert app._shared_storage_starting is None
+    finally:
+        release.set()
+        thread.join(10)

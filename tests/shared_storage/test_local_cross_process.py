@@ -432,3 +432,52 @@ def test_async_ops_across_processes(owner):
     asyncio.run(scenario())
     assert client.get("k7") == 7  # landed in the owner, visible over the sync path
     client.close()
+
+
+@pytest.mark.skipif(not hasattr(socket, "AF_UNIX"), reason="needs AF_UNIX")
+def test_closing_owner_leaves_a_successors_files_alone():
+    # Clients see the owner go before its final flush ends; one may have
+    # taken over by the time it cleans up.
+    from dash._shared_storage.local import _write_advertisement
+
+    store = LocalSharedStorage(namespace=f"succ-{uuid.uuid4().hex[:8]}")
+    store.start()
+    coord = store._coord
+    assert coord.is_owner()
+    successor = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        os.unlink(coord._sock_path)
+        successor.bind(coord._sock_path)
+        _write_advertisement(
+            coord._addr_path, socket.AF_UNIX, coord._sock_path, "successor"
+        )
+        store.close()
+        assert os.path.exists(coord._sock_path)
+        assert os.path.exists(coord._addr_path)
+    finally:
+        successor.close()
+        for path in (coord._sock_path, coord._addr_path):
+            if os.path.exists(path):
+                os.unlink(path)
+
+
+def test_async_calls_keep_no_connection_per_finished_loop():
+    # Under Flask every async callback runs on a new event loop.
+    import asyncio
+
+    ns = f"loops-{uuid.uuid4().hex[:8]}"
+    owner = LocalSharedStorage(namespace=ns)
+    owner.start()
+    client = LocalSharedStorage(namespace=ns)
+    client.start()
+    try:
+        assert owner._coord.is_owner() and not client._coord.is_owner()
+        for i in range(3):
+            asyncio.run(owner.aset("k", i))
+            asyncio.run(client.aset("k", i))
+        assert client.get("k") == 2
+        assert not owner._aconns
+        assert len(client._aconns) <= 1
+    finally:
+        client.close()
+        owner.close()

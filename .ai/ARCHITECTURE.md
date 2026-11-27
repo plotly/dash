@@ -1019,6 +1019,14 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
   reachable peers claims a fresh term; a higher id waits for it at most `miss_limit` (3)
   probes. A follower gives up on an owner after 3 missed probes, so a dead
   owner is replaced in about 5 to 6 seconds (measured with 3 Docker containers).
+- *Lock changes* are applied by a `dash-cluster-changes` thread, not in the
+  probe thread's `on_change`: a request electing holds the coordinator lock
+  while it waits for the probe thread to settle, so the probe thread must
+  never wait on that lock (it deadlocked until `settle_timeout`).
+- *Resign.* An elected replica that cannot serve the store (`port + 1` taken)
+  calls `ClusterLock.resign`: it steps down, shows `resigned` in its view, and
+  stays out of elections for 3 leases, so peers skip it as the lowest id or
+  candidate instead of following an owner that serves nothing.
 - *Failover.* Calls retry for up to 10s (`failover_window`) while followers
   notice a dead owner, so a write during a failover waits instead of failing.
   `_local` raises `_OwnerGone` when the engine closed under it, and the call
@@ -1041,7 +1049,13 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
   healed the old owner applied a write the caller had already retried on the
   new owner, over newer writes (caught by `tests/cluster_harness`). A request
   that reached the old owner before the cut can still land twice (at least
-  once, like any retry after a lost answer).
+  once, like any retry after a lost answer). The data port is reachable
+  from other hosts, so before a connection shows the token it gets 5s, one
+  frame of at most 1 KB, and one of 64 handshake slots (accept waits for a
+  slot rather than refuse a client, which would take the owner for dead).
+  The accept loop survives errors such as running out of descriptors. Lock
+  messages are JSON whatever the store codec, so replicas with and without
+  msgspec still see each other.
 - *Auth.* `secret` (default `$DASH_SECRET_KEY`, run through HMAC so the signing
   key is not reused as is) is proven both ways with an HMAC challenge and never
   sent. Views are MACed. Without TLS the data channel and its token travel in
@@ -1090,7 +1104,14 @@ with no external service and no consensus (`_shared_storage/cluster.py`,
     (`starts_at_boot`), unlike the lazy default. A forked child (gunicorn
     `--preload`) drops the parent's objects through `os.register_at_fork`
     (`after_fork`, closing inherited sockets without shutting them down)
-    and reaches the parent's lock on loopback.
+    and reaches the parent's lock on loopback. It reaches a backend still
+    starting too (`_shared_storage_starting`), since gunicorn forks while
+    the boot thread is still electing. `forget` also unregisters the
+    inherited `atexit` close: run in a child that exits normally, it
+    flushed the parent's store as of the fork over newer data.
+  - *Claim timing.* A backer's run counts up to the probe round's start,
+    where the claim's lease starts, not up to when the votes are counted:
+    after a stall in between, a voter could have gone back to the old owner.
   - *Cost.* No owner without a majority up: calls fail after
     `settle_timeout` (30s here). Failover takes 10 to 20s (measured 10s for
     a killed owner, 20s for a cut-off one with 3 containers), so

@@ -4,10 +4,12 @@ A single owner process serves one :class:`StoreEngine` over a stream socket
 (AF_UNIX where available, TCP loopback otherwise). Messages are length-prefixed:
 a 4-byte big-endian length followed by a body encoded by ``_codec`` (msgspec
 msgpack, or JSON without the ``dash[shared_storage]`` extra). The codec is
-data-only -- the socket is localhost-only, but deserializing untrusted bytes off
-a socket is a remote-code-execution hazard, so the transport carries only data. The channel is
-additionally gated by a per-owner random token; only same-host clients that read
-the owner's advertisement file (written 0600) can attach.
+data-only: deserializing untrusted bytes off a socket is a remote-code-execution
+hazard, so the transport carries only data. The channel is additionally gated by
+a per-owner random token. Locally only same-host clients that read the owner's
+advertisement file (written 0600) can attach; a cluster owner's socket is
+reachable from the other replicas, so what a connection may do before it shows
+the token is bounded in time, size and number.
 
 The consequence is that stored values and published messages must be
 JSON-serializable -- the same constraint as ``dcc.Store`` and callback outputs.
@@ -24,12 +26,17 @@ import ssl
 import struct
 import sys
 import threading
+import time
 from typing import Any, Callable, Optional, Set, Tuple
 
 from ._codec import decode, encode
 
 EOF = object()  # returned by recv_frame on a clean close
 _HANDSHAKE_TIMEOUT = 5.0
+# Connections that have not shown the token yet, and the largest frame one may
+# send before it does.
+_MAX_HANDSHAKES = 64
+_MAX_TOKEN_FRAME = 1024
 OK = ["ok", None]
 
 
@@ -50,11 +57,44 @@ def _recv_exactly(sock: socket.socket, n: int) -> Optional[bytes]:
     return b"".join(chunks)
 
 
-def recv_frame(sock: socket.socket) -> Any:
+class _Expiry:
+    """Shuts ``sock`` down after the handshake timeout unless stopped first."""
+
+    def __init__(self, sock: socket.socket):
+        self._sock = sock
+        self._lock = threading.Lock()
+        self._done = False
+        self._timer = threading.Timer(_HANDSHAKE_TIMEOUT, self._expire)
+        self._timer.daemon = True
+        self._timer.start()
+
+    def _expire(self) -> None:
+        with self._lock:
+            if self._done:
+                return
+            self._done = True
+        try:
+            self._sock.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+
+    def stop(self) -> bool:
+        """Whether it was stopped in time (the socket was not shut down)."""
+        self._timer.cancel()
+        with self._lock:
+            if self._done:
+                return False
+            self._done = True
+            return True
+
+
+def recv_frame(sock: socket.socket, max_size: Optional[int] = None) -> Any:
     header = _recv_exactly(sock, 4)
     if header is None:
         return EOF
     (length,) = struct.unpack("!I", header)
+    if max_size is not None and length > max_size:
+        raise ValueError("frame too large")
     body = _recv_exactly(sock, length)
     if body is None:
         return EOF
@@ -101,6 +141,7 @@ class OwnerServer:
         self._closed = threading.Event()
         self._conns: Set[socket.socket] = set()
         self._conns_lock = threading.Lock()
+        self._handshakes = threading.BoundedSemaphore(_MAX_HANDSHAKES)
         self._accept_thread = threading.Thread(
             target=self._accept_loop, name="dash-shared-owner", daemon=True
         )
@@ -111,30 +152,62 @@ class OwnerServer:
 
     def _accept_loop(self) -> None:
         while not self._closed.is_set():
+            # Wait for a slot rather than turn a client away: a refused client
+            # takes the owner for dead.
+            if not self._handshakes.acquire(  # pylint: disable=consider-using-with
+                timeout=0.5
+            ):
+                continue
             try:
                 conn, _ = self._sock.accept()
             except OSError:
-                break
+                self._handshakes.release()
+                if self._closed.is_set():
+                    break
+                # Out of file descriptors or similar: an owner that stops
+                # accepting still looks alive to its peers, so keep trying.
+                time.sleep(0.1)
+                continue
             threading.Thread(target=self._handle, args=(conn,), daemon=True).start()
 
     def _serving(self) -> bool:
         return not self._closed.is_set() and (self._guard is None or self._guard())
 
-    def _handle(self, conn: socket.socket) -> None:
-        if self._ssl is not None:
-            try:
-                conn.settimeout(_HANDSHAKE_TIMEOUT)
+    def _handshake(self, conn: socket.socket):
+        """The connection, TLS wrapped if need be, once it showed the token;
+        None (and closed) otherwise."""
+        # A socket timeout bounds each read, not the whole handshake: a client
+        # dripping a byte at a time would keep its slot forever.
+        expiry = _Expiry(conn)
+        try:
+            conn.settimeout(_HANDSHAKE_TIMEOUT)
+            if self._ssl is not None:
                 conn = self._ssl.wrap_socket(conn, server_side=True)
+            if recv_frame(conn, _MAX_TOKEN_FRAME) == self._token and expiry.stop():
                 conn.settimeout(None)
-            except (OSError, ValueError):
-                return  # a failed handshake closes the socket
+                return conn
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass  # garbage, a timeout, a failed TLS handshake
+        finally:
+            expiry.stop()
+            self._handshakes.release()
+        try:
+            conn.close()
+        except OSError:
+            pass
+        return None
+
+    def _handle(self, conn: socket.socket) -> None:
+        conn = self._handshake(conn)
+        if conn is None:
+            return
         with self._conns_lock:
             if self._closed.is_set():
                 conn.close()
                 return
             self._conns.add(conn)
         try:
-            if recv_frame(conn) != self._token or not self._serving():
+            if not self._serving():
                 return
             send_frame(conn, OK)
             while True:

@@ -698,3 +698,62 @@ def test_quorum_passes_over_a_candidate_that_cannot_claim(cluster):
     owner = cluster.wait_settled(timeout=30, locks=others)
     assert owner is not cluster.locks[low]
     assert cluster.locks[low].state.role == ELECTING
+
+
+def test_a_claim_counts_backing_only_up_to_the_round_start():
+    # The lease runs from the round start: backing seen in that round but
+    # counted after a stall must not stretch past it, or a voter that went back
+    # to the old owner meanwhile sits in two majorities.
+    lock = ClusterLock(peers=list, secret=SECRET, bind=("127.0.0.1", 0), replicas=3)
+    try:
+        now = time.monotonic()
+        lock._ballot = (lock.id, 1)
+        lock._ballot_since = now - 2 * lock.lease
+        lock._backers = {"peer": (1, now - lock.lease - 0.5)}
+        assert not lock._may_claim(now - 1.0)
+        assert lock._may_claim(now)
+    finally:
+        lock.close()
+
+
+def test_a_round_judges_the_claim_at_its_start():
+    def slow_peers():
+        time.sleep(0.3)
+        return []
+
+    lock = ClusterLock(
+        peers=slow_peers, secret=SECRET, bind=("127.0.0.1", 0), replicas=3
+    )
+    seen = []
+    lock._may_claim = lambda started: seen.append(started) or False
+    try:
+        before = time.monotonic()
+        lock._tick()
+        assert seen and seen[0] - before < 0.2
+    finally:
+        lock.close()
+
+
+def test_lock_messages_are_json_whatever_the_store_codec():
+    # A replica with msgspec and one without must still understand each other.
+    lock = ClusterLock(peers=list, secret=SECRET, bind=("127.0.0.1", 0)).start()
+    try:
+        with socket.create_connection(("127.0.0.1", lock.port), timeout=5) as conn:
+            body = json.dumps("nonce").encode()
+            conn.sendall(struct.pack("!I", len(body)) + body)
+            (length,) = struct.unpack("!I", conn.recv(4, socket.MSG_WAITALL))
+            challenge, proof = json.loads(conn.recv(length, socket.MSG_WAITALL))
+        assert proof == _mac(SECRET, b"server", "nonce")
+        assert isinstance(challenge, str)
+    finally:
+        lock.close()
+
+
+def test_a_resigned_owner_leaves_the_election_to_the_others(cluster):
+    a = cluster.add()
+    until(lambda: a.state.role == OWNER, message="a never claimed")
+    b = cluster.add()
+    until(lambda: b.state.role == FOLLOWER, message="b never followed a")
+    a.resign(a.state.term)
+    until(lambda: b.state.role == OWNER, message="b never took over")
+    until(lambda: a.state.role == FOLLOWER, message="a never followed b")

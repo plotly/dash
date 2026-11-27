@@ -8,6 +8,7 @@ finds the owner through the pod's lock process. ``peers`` stands in for DNS.
 import asyncio
 import os
 import socket
+import struct
 import threading
 import time
 
@@ -772,3 +773,254 @@ def test_lapsed_lease_never_restarts_the_store_under_the_same_term(pods):
         assert coord._engine in (None, engine)
     finally:
         stall.set()
+
+
+def test_an_election_waiting_on_a_lapsed_lease_lets_the_lock_step_down(pods):
+    # The request elects under the coordinator lock and waits on the probe
+    # thread; the probe thread must not wait on that lock to step down.
+    a = pods.add_pod()
+    store = pods.worker(a, replicas=1)
+    store.start()
+    coord = store._coord
+    lock = coord._cluster
+    tick = lock._tick
+    stall = threading.Event()
+
+    def stalled():
+        stall.wait()
+        tick()
+
+    lock._tick = stalled
+    time.sleep(lock.lease + 0.2)
+    result = {}
+
+    def elect():
+        try:
+            result["owner"] = coord.is_owner()
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            result["err"] = err
+
+    thread = threading.Thread(target=elect)
+    thread.start()
+    time.sleep(0.3)
+    stall.set()
+    thread.join(15)
+    assert result.get("owner") is True, result
+
+
+def test_a_replica_that_cannot_serve_leaves_ownership_to_another(pods):
+    a, b = pods.add_pod(), pods.add_pod()
+    blocker = socket.create_server(("", pods.ports[a] + 1))
+    try:
+        sa = pods.worker(a)
+        started = {}
+
+        def start_a():
+            try:
+                sa.start()
+                started["ok"] = True
+            except Exception as err:  # pylint: disable=broad-exception-caught
+                started["err"] = err
+
+        thread = threading.Thread(target=start_a)
+        thread.start()
+        until(lambda: sa._coord._cluster is not None, message="a never ran its lock")
+        until(lambda: sa._coord._cluster._resigned(), message="a never resigned")
+        sb = pods.worker(b)
+        sb.start()
+        thread.join(15)
+        assert started == {"ok": True}, started
+        sa.set("k", "from-a")
+        assert sb.get("k") == "from-a"
+        assert sb._coord.is_owner()
+    finally:
+        blocker.close()
+
+
+FORGET_SCRIPT = """
+import os, sys
+from dash._shared_storage import ClusterSharedStorage
+from dash._shared_storage._persistence import ChunkedStore
+
+port, path = int(sys.argv[1]), sys.argv[2]
+store = ClusterSharedStorage(
+    port=port, secret="s", peers=lambda: [("127.0.0.1", port)],
+    probe_interval=0.05, mode="persist-reset", path=path, flush_interval=3600,
+)
+store.start()
+store.set("k", "before-fork")
+r, w = os.pipe()
+pid = os.fork()
+if pid == 0:
+    store.after_fork()
+    os.read(r, 1)
+    import atexit
+    atexit._run_exitfuncs()  # what a worker that exits normally runs
+    os._exit(0)
+store.set("k", "after-fork")
+store.close()
+os.write(w, b"x")
+_, status = os.waitpid(pid, 0)
+assert status == 0, status
+print(ChunkedStore(path).load_all()["k"][0])
+"""
+
+
+@pytest.mark.skipif(not hasattr(os, "fork"), reason="needs fork")
+def test_a_forked_child_exiting_never_flushes_the_parents_store(tmp_path):
+    import subprocess
+    import sys
+
+    import dash
+
+    script = tmp_path / "forget.py"
+    script.write_text(FORGET_SCRIPT)
+    root = os.path.dirname(os.path.dirname(dash.__file__))
+    out = subprocess.run(
+        [sys.executable, str(script), str(_port_pair()), str(tmp_path / "store")],
+        env={**os.environ, "PYTHONPATH": root},
+        capture_output=True, text=True, timeout=60, check=False,
+    )  # fmt: skip
+    assert out.stdout.strip() == "after-fork", out.stdout + out.stderr
+
+
+def _owner_server(monkeypatch, timeout=0.3):
+    from dash._shared_storage import _transport
+    from dash._shared_storage._engine import StoreEngine
+
+    monkeypatch.setattr(_transport, "_HANDSHAKE_TIMEOUT", timeout)
+    sock = socket.create_server(("127.0.0.1", 0))
+    server = _transport.OwnerServer(StoreEngine(16), sock, "tok")
+    return server, sock.getsockname()
+
+
+def _closed_by_peer(conn):
+    try:
+        return conn.recv(1) == b""
+    except ConnectionResetError:
+        return True
+
+
+def test_owner_drops_a_connection_that_never_shows_its_token(monkeypatch):
+    server, addr = _owner_server(monkeypatch)
+    server.start()
+    try:
+        with socket.create_connection(addr, timeout=3) as idle:
+            assert _closed_by_peer(idle)
+        with socket.create_connection(addr, timeout=3) as huge:
+            huge.sendall(struct.pack("!I", 1 << 30))
+            assert _closed_by_peer(huge)
+        # A byte at a time, each well within the timeout of a single read.
+        with socket.create_connection(addr, timeout=3) as drip:
+            drip.sendall(struct.pack("!I", 200))
+            started = time.monotonic()
+            with pytest.raises(OSError):
+                while time.monotonic() - started < 3:
+                    drip.sendall(b"x")
+                    time.sleep(0.1)
+            assert time.monotonic() - started < 1.5
+    finally:
+        server.close()
+
+
+def test_owner_keeps_accepting_after_an_accept_error(monkeypatch):
+    import errno
+
+    from dash._shared_storage._transport import (
+        connect_to_owner,
+        recv_frame,
+        send_frame,
+    )
+
+    server, addr = _owner_server(monkeypatch)
+
+    class Flaky:
+        def __init__(self, sock):
+            self._sock = sock
+            self.failed = False
+
+        def accept(self):
+            if not self.failed:
+                self.failed = True
+                raise OSError(errno.EMFILE, "Too many open files")
+            return self._sock.accept()
+
+        def __getattr__(self, name):
+            return getattr(self._sock, name)
+
+    server._sock = Flaky(server._sock)
+    server.start()
+    try:
+        conn = connect_to_owner(socket.AF_INET, addr, "tok", timeout=3)
+        with conn:
+            send_frame(conn, ["set", "k", 1])
+            assert recv_frame(conn) == ["ok", None]
+        assert server._sock.failed
+    finally:
+        server.close()
+
+
+class _DeafOwner:
+    """Takes the handshake, then never reads again."""
+
+    def __init__(self):
+        self._server = socket.create_server(("127.0.0.1", 0))
+        self.addr = self._server.getsockname()
+        self._done = threading.Event()
+        self._thread = threading.Thread(target=self._serve, daemon=True)
+        self._thread.start()
+
+    def _serve(self):
+        from dash._shared_storage._transport import OK, recv_frame, send_frame
+
+        conn, _ = self._server.accept()
+        with conn:
+            recv_frame(conn)
+            send_frame(conn, OK)
+            self._done.wait(30)
+
+    def close(self):
+        self._done.set()
+        self._server.close()
+        self._thread.join(10)
+
+
+def test_an_async_request_to_an_owner_that_stops_reading_times_out():
+    from dash._shared_storage.local import _AsyncConn
+
+    owner = _DeafOwner()
+    try:
+        conn = _AsyncConn(_SilentCoord(owner.addr))
+        started = time.monotonic()
+
+        async def run():
+            await asyncio.wait_for(conn.call(["set", "k", "x" * (64 << 20)]), 10)
+
+        with pytest.raises(asyncio.TimeoutError):
+            asyncio.run(run())
+        assert time.monotonic() - started < 5
+        assert conn._streams is None
+    finally:
+        owner.close()
+
+
+def test_a_failed_lock_change_does_not_stop_later_ones(pods):
+    a = pods.add_pod()
+    store = pods.worker(a)
+    store.start()
+    coord = store._coord
+    applied = threading.Event()
+    calls = []
+
+    def serve(term):
+        calls.append(term)
+        if len(calls) == 1:
+            raise RuntimeError("boom")
+        applied.set()
+        return True
+
+    coord._serve_or_resign = serve
+    coord._on_change(None)
+    until(lambda: calls, message="the change was never applied")
+    coord._on_change(None)
+    assert applied.wait(5), "the change thread died"

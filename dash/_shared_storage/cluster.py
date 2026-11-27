@@ -20,6 +20,7 @@ import errno
 import functools
 import hashlib
 import hmac
+import logging
 import os
 import socket
 import ssl
@@ -63,6 +64,8 @@ _FAILOVER_WINDOW = 10.0
 _QUORUM_FAILOVER_WINDOW = 30.0
 _ADDR_IN_USE = {errno.EADDRINUSE, getattr(errno, "WSAEADDRINUSE", errno.EADDRINUSE)}
 
+logger = logging.getLogger(__name__)
+
 
 def _derive_secret(secret: str) -> bytes:
     # The app's signing secret signs other things too: never use it as is.
@@ -96,7 +99,7 @@ def starts_at_boot(storage: Any) -> bool:
     return isinstance(storage, ClusterSharedStorage) and storage.starts_at_boot
 
 
-class _ClusterCoordinator(_Coordinator):
+class _ClusterCoordinator(_Coordinator):  # pylint: disable=too-many-instance-attributes
     """Elects the owner across replicas with a ClusterLock instead of a local
     socket bind. Role and token follow the lock: owner while it holds a term,
     client of the current owner otherwise."""
@@ -132,6 +135,8 @@ class _ClusterCoordinator(_Coordinator):
         self._cluster: Optional[ClusterLock] = None
         self._term: Optional[str] = None
         self._closed = False
+        self._forgotten = False
+        self._changed = threading.Event()
         self._tls = tls
         self.client_ssl = tls.client if tls is not None else None
         self._probe_timeout = _PROBE_TIMEOUT if tls is None else _TLS_PROBE_TIMEOUT
@@ -208,6 +213,9 @@ class _ClusterCoordinator(_Coordinator):
             raise SharedStorageError(
                 f"cannot listen on the cluster port {self._port}: {err}"
             ) from err
+        threading.Thread(
+            target=self._apply_changes, name="dash-cluster-changes", daemon=True
+        ).start()
         atexit.register(self.close)
 
     def _follow_local(self) -> bool:
@@ -231,8 +239,7 @@ class _ClusterCoordinator(_Coordinator):
             # would start an empty store under the same term.
             if self._cluster is None or not self._cluster.is_owner(state.term):
                 return False
-            self._serve(state.term)
-            return True
+            return self._serve_or_resign(state.term)
         if state.role == FOLLOWER and state.owner_addr is not None:
             return self._follow(state.owner_addr[0], state.advert, state.term)
         return False
@@ -255,19 +262,42 @@ class _ClusterCoordinator(_Coordinator):
             return
         self._stop_serving()
         sock = self._listen_data()
-        engine = self._new_engine()
-        server = OwnerServer(
-            engine,
-            sock,
-            term,
-            guard=lambda: self._guard(term),
-            ssl_context=self._tls.server if self._tls is not None else None,
-        )
-        server.start()
+        engine = None
+        try:
+            engine = self._new_engine()
+            server = OwnerServer(
+                engine,
+                sock,
+                term,
+                guard=lambda: self._guard(term),
+                ssl_context=self._tls.server if self._tls is not None else None,
+            )
+            server.start()
+        except BaseException:
+            sock.close()
+            if engine is not None:
+                engine.close()
+            raise
         self._engine, self._server, self._term = engine, server, term
         self._family, self._address = socket.AF_INET, ("127.0.0.1", self._data_port)
         self._token = term
         self._role = "owner"
+
+    def _serve_or_resign(self, term: str) -> bool:
+        try:
+            self._serve(term)
+            return True
+        except Exception as err:  # pylint: disable=broad-exception-caught
+            # Followers would keep following an owner that serves nothing.
+            logger.warning(
+                "dash cluster: cannot serve the store (data port %s), leaving "
+                "it to another replica: %r",
+                self._data_port,
+                err,
+            )
+            if self._cluster is not None:
+                self._cluster.resign(term)
+            return False
 
     def _guard(self, term: str) -> bool:
         return self._cluster is not None and self._cluster.is_owner(term)
@@ -296,24 +326,49 @@ class _ClusterCoordinator(_Coordinator):
             server.close()
         self._term = None
 
-    def _on_change(self, state: LockState) -> None:
+    def _on_change(self, _state: LockState) -> None:
+        # Runs on the probe thread. A request electing under self._lock waits
+        # for that thread to settle the lock, so it must not wait on the lock.
+        self._changed.set()
+
+    def _apply_changes(self) -> None:
+        while True:
+            self._changed.wait()
+            self._changed.clear()
+            try:
+                if not self._apply_change():
+                    return
+            except Exception:  # pylint: disable=broad-exception-caught
+                logger.exception("dash cluster: applying a lock change failed")
+
+    def _apply_change(self) -> bool:
+        """Apply the lock's current state; False once there is no lock."""
         with self._lock:
-            if self._closed:
-                return
+            cluster = self._cluster
+            if self._closed or cluster is None:
+                return False
+            state = cluster.state
             if state.role == OWNER:
                 # Serve at once: followers start connecting as soon as they
-                # see this replica as owner.
-                self._serve(state.term)
+                # see this replica as owner. Never serve a lapsed lease, a
+                # step down follows.
+                if cluster.is_owner(state.term):
+                    self._serve_or_resign(state.term)
             elif self._role == "owner" or (
                 self._role == "client" and state.term != self._token
             ):
                 self._stop_serving()
                 self._role = None
+            return True
 
     def forget(self) -> None:
         """In a forked child: let go of the parent's sockets without shutting
         them down, which would stop them in the parent too. Threads do not
         survive a fork, so nothing else here is live."""
+        # Its close() would flush the parent's store as of the fork over newer
+        # data, or hang on a lock some parent thread held.
+        self._forgotten = True
+        atexit.unregister(self.close)
         server = self._server
         for sock in (
             getattr(self._cluster, "_sock", None),
@@ -327,8 +382,11 @@ class _ClusterCoordinator(_Coordinator):
                     pass
 
     def close(self) -> None:
+        if self._forgotten:
+            return
         with self._lock:
             self._closed = True
+            self._changed.set()
             self._stop_serving()
             if self._cluster is not None:
                 self._cluster.close()

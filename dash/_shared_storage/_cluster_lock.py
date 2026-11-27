@@ -42,8 +42,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple
 
-from ._codec import decode, encode
-
 Addr = Tuple[str, int]
 
 ELECTING = "electing"
@@ -122,8 +120,10 @@ def _mac(secret: bytes, label: bytes, *parts: str) -> str:
     ).hexdigest()
 
 
+# JSON, not the store's codec: whether msgspec is installed must not split
+# replicas that differ only in that extra (a rolling update adding it).
 def _send(conn: socket.socket, obj: Any) -> None:
-    data = encode(obj)
+    data = json.dumps(obj).encode()
     conn.sendall(struct.pack("!I", len(data)) + data)
 
 
@@ -148,7 +148,7 @@ def _recv(conn: socket.socket, deadline: float) -> Any:
     (length,) = struct.unpack("!I", exactly(4))
     if length > _MAX_FRAME:
         raise ValueError("cluster lock frame too large")
-    return decode(exactly(length))
+    return json.loads(exactly(length))
 
 
 # Peers whose TLS handshake failed, so the warning is logged once per peer
@@ -283,6 +283,7 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
         self._ballot_since = time.monotonic()
         self._banned: Dict[str, float] = {}
         self._backers: Dict[str, Tuple[int, float]] = {}
+        self._resigned_until = 0.0
         self._state = LockState(ELECTING)
         self._cond = threading.Condition()
         self._closed = threading.Event()
@@ -339,6 +340,17 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             self._majority is None or time.monotonic() - self._quorum_at <= self.lease
         )
 
+    def resign(self, term: Optional[str]) -> None:
+        """Give up ``term`` and stay out of elections for a while: this
+        replica cannot serve the store, and its peers would keep following it."""
+        self._resigned_until = time.monotonic() + 3 * self.lease
+        state = self._state
+        if state.role == OWNER and state.term == term:
+            self._step_down()
+
+    def _resigned(self) -> bool:
+        return time.monotonic() < self._resigned_until
+
     def wait_settled(self, timeout: Optional[float] = None) -> LockState:
         """Block until this replica is an owner or a follower, or the timeout
         passes. Returns the state either way."""
@@ -357,6 +369,8 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
         view = {"id": self.id, "role": state.role, "term": state.term}
         if state.role == ELECTING and self._majority is not None:
             view["ballot"] = list(self._ballot)
+        if state.role == ELECTING and self._resigned():
+            view["resigned"] = True
         if state.role == OWNER:
             view["age"] = time.monotonic() - self._owned_since
             view["advert"] = self._advert
@@ -432,7 +446,8 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
                 logger.exception("dash cluster lock probe failed")
             self._closed.wait(self._interval)
 
-    def _tick(self) -> None:  # pylint: disable=too-many-branches
+    def _tick(self) -> None:
+        # pylint: disable=too-many-branches,too-many-return-statements
         started = time.monotonic()
         peers = list(self._peers())
         views = {}
@@ -485,8 +500,12 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             self._follow(owner_id, *owners[owner_id])
             return
 
+        if self._resigned():
+            self._set(LockState(ELECTING))
+            return
+
         if self._majority is not None:
-            if self._may_claim():
+            if self._may_claim(started):
                 self._claim(started)
             else:
                 self._set(LockState(ELECTING))
@@ -494,15 +513,19 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
 
         # No owner anywhere: the lowest id claims. Wait on a lower one only so
         # long, in case it follows an owner this replica cannot reach.
-        if all(self.id < other for other in views) or (
-            self._deferred >= self._miss_limit
-        ):
+        if all(
+            self.id < other
+            for other, (_, view) in views.items()
+            if not view.get("resigned")
+        ) or (self._deferred >= self._miss_limit):
             self._claim(started)
         else:
             self._deferred += 1
             self._set(LockState(ELECTING))
 
     def _claim(self, started: float) -> None:
+        if self._resigned():  # resigned while this round ran
+            return
         self._deferred = 0
         self._misses = 0
         self._owned_since = time.monotonic()
@@ -526,11 +549,19 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             electing = [
                 view_id
                 for view_id, (_, view) in views.items()
-                if view["role"] == ELECTING and view_id not in self._banned
+                if view["role"] == ELECTING
+                and view_id not in self._banned
+                and not view.get("resigned")
             ]
-            candidate = min([self.id, *electing])
+            if not self._resigned():
+                electing.append(self.id)
+            candidate = min(electing) if electing else None
             stuck = now - self._ballot_since > 3 * self.lease
-            if candidate == self._ballot[0] != self.id and stuck:
+            if (
+                candidate is not None
+                and candidate == self._ballot[0] != self.id
+                and stuck
+            ):
                 self._banned[candidate] = now + 3 * self.lease
         if candidate != self._ballot[0]:
             self._ballot = (candidate, self._ballot[1] + 1)
@@ -545,9 +576,10 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
             backers[view_id] = seen if same else (ballot[1], now)
         self._backers = backers
 
-    def _may_claim(self) -> bool:
+    def _may_claim(self, started: float) -> bool:
         """A majority, this replica included, that has backed it without a
-        break for longer than a lease.
+        break for longer than a lease, up to ``started``: the lease runs from
+        then, and a voter may have switched since it answered.
 
         A ballot stands for one candidate; any change, following an owner
         included, bumps its counter and restarts the run. An owner renews only
@@ -558,11 +590,10 @@ class ClusterLock:  # pylint: disable=too-many-instance-attributes
         assert self._majority is not None
         if self._state.role == FOLLOWER:
             return False
-        now = time.monotonic()
-        if self._ballot[0] != self.id or now - self._ballot_since <= self.lease:
+        if self._ballot[0] != self.id or started - self._ballot_since <= self.lease:
             return False
         backed = [
-            since for _, since in self._backers.values() if now - since > self.lease
+            since for _, since in self._backers.values() if started - since > self.lease
         ]
         return 1 + len(backed) >= self._majority
 
