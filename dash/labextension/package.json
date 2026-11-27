@@ -1,0 +1,90 @@
+{
+  "name": "@plotly/dash-jupyterlab",
+  "version": "0.4.3",
+  "description": "A JupyterLab extension for rendering Plotly Dash apps",
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/plotly/dash",
+  "bugs": {
+    "url": "https://github.com/plotly/dash/issues"
+  },
+  "license": "MIT",
+  "author": "Plotly",
+  "files": [
+    "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+    "style/**/*.{css,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plotly/dash.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:pack": "jlpm run prepare && jupyter labextension build . && jlpm run build:copy",
+    "build:copy": "cp install.json ../../dash/labextension",
+    "clean": "rimraf lib",
+    "prepare": "mkdirp ../../dash/labextension && jlpm run clean && jlpm run build",
+    "prettier": "prettier --write '{!(package),src/**,!(lib)/**}{.js,.jsx,.ts,.tsx,.css,.json,.md}'",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@jupyterlab/application": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/console": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/coreutils": "^5.0.0 || ^6.0.0",
+    "@jupyterlab/notebook": "^3.0.0 || ^4.0.0",
+    "@jupyterlab/services": "^6.0.0 || ^7.0.0",
+    "@lumino/messaging": "^1.0.0 || ^2.0.0",
+    "@lumino/widgets": "^1.0.0 || ^2.0.0"
+  },
+  "devDependencies": {
+    "@jupyterlab/builder": "^3.6.8",
+    "@types/json-schema": "^7.0.15",
+    "mkdirp": "^0.5.1",
+    "prettier": "2.8.8",
+    "rimraf": "3.0.2",
+    "typescript": "5.9.3"
+  },
+  "jupyterlab": {
+    "extension": true,
+    "outputDir": "../../dash/labextension",
+    "sharedPackages": {
+      "@jupyterlab/application": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@jupyterlab/console": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@jupyterlab/coreutils": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^5.0.0 || ^6.0.0"
+      },
+      "@jupyterlab/notebook": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^3.0.0 || ^4.0.0"
+      },
+      "@lumino/widgets": {
+        "bundled": false,
+        "singleton": true,
+        "requiredVersion": "^1.0.0 || ^2.0.0"
+      }
+    },
+    "_build": {
+      "load": "static/remoteEntry.1be6ee42c6daa22f9f45.js",
+      "extension": "./extension"
+    }
+  },
+  "resolutions": {
+    "webpack": "5.106.2"
+  }
+}

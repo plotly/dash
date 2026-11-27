@@ -1,6 +1,6 @@
 {
   "name": "dash-core-components",
-  "version": "4.5.4",
+  "version": "4.5.5",
   "description": "Core component suite for Dash",
   "repository": {
     "type": "git",
@@ -61,13 +61,13 @@
     "react-dropzone": "^4.1.2",
     "react-fast-compare": "^3.2.2",
     "react-input-autosize": "^3.0.0",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^10.1.0",
     "react-window": "^1.8.11",
-    "rehype-raw": "^6.1.1",
-    "remark-math": "^5.1.1",
-    "remark-gfm":  "^3.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "uniqid": "^5.4.0",
-    "unist-util-visit": "^4.1.2"
+    "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",
