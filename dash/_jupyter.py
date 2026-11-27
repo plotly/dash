@@ -14,6 +14,9 @@ from typing import Optional, Any, Literal
 from werkzeug.serving import make_server
 
 try:
+    if "IPython" not in sys.modules:
+        # Not inside IPython: skip the heavy imports, they double the cost of `import dash`.
+        raise ImportError
     from IPython import get_ipython  # type: ignore[attr-defined]
     from IPython.display import IFrame, display, Javascript  # type: ignore[import-not-found]
     from IPython.core.display import HTML  # type: ignore[import-not-found]
