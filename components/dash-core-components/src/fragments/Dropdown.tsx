@@ -441,7 +441,6 @@ const Dropdown = (props: DropdownProps) => {
                 aria-hidden="true"
                 onFocus={e => {
                     if (e.relatedTarget !== dropdownContainerRef.current) {
-                        e.currentTarget.tabIndex = -1;
                         dropdownContainerRef.current?.focus();
                     }
                 }}

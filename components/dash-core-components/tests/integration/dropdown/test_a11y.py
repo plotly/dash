@@ -728,6 +728,71 @@ def test_a11y012c_shift_tab_between_dropdowns(dash_duo):
     assert dash_duo.get_logs() == []
 
 
+def test_a11y012d_shift_tab_after_escape_or_enter(dash_duo):
+    """Shift+Tab after closing a clicked dropdown with Escape or Enter should
+    move focus to the previous element rather than trapping on the focus target."""
+    from dash.html import Button as HtmlButton
+
+    def send_keys(key):
+        actions = ActionChains(dash_duo.driver)
+        actions.send_keys(key)
+        actions.perform()
+
+    def shift_tab():
+        actions = ActionChains(dash_duo.driver)
+        actions.key_down(Keys.SHIFT).send_keys(Keys.TAB).key_up(Keys.SHIFT)
+        actions.perform()
+
+    app = Dash(__name__)
+    app.layout = Div(
+        [
+            HtmlButton("before", id="before"),
+            Dropdown(
+                id="dd",
+                options=["Apple", "Banana"],
+            ),
+            HtmlButton("after", id="after"),
+            Div(id="output"),
+        ]
+    )
+
+    @app.callback(Output("output", "children"), Input("dd", "value"))
+    def update_output(value):
+        return f"Selected: {value}"
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_element("#dd")
+
+    # Click dropdown, press Escape, then Shift+Tab should reach #before
+    dash_duo.find_element("#dd").click()
+    dash_duo.wait_for_element(".dash-dropdown-options")
+    send_keys(Keys.ESCAPE)
+    with pytest.raises(TimeoutException):
+        dash_duo.wait_for_element(".dash-dropdown-options", timeout=0.25)
+    shift_tab()
+    until(
+        lambda: dash_duo.driver.execute_script("return document.activeElement.id;")
+        == "before",
+        timeout=2,
+    )
+
+    # Click dropdown, pick an option with Enter, then Shift+Tab should reach #before
+    dash_duo.find_element("#dd").click()
+    dash_duo.wait_for_element(".dash-dropdown-options")
+    send_keys(Keys.ARROW_DOWN)
+    sleep(0.1)
+    send_keys(Keys.ENTER)
+    dash_duo.wait_for_text_to_equal("#output", "Selected: Apple")
+    shift_tab()
+    until(
+        lambda: dash_duo.driver.execute_script("return document.activeElement.id;")
+        == "before",
+        timeout=2,
+    )
+
+    assert dash_duo.get_logs() == []
+
+
 def test_a11y013_enter_on_search_after_reopen_selects_correctly(dash_duo):
     def send_keys(key):
         actions = ActionChains(dash_duo.driver)
