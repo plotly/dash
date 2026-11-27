@@ -212,8 +212,8 @@ class QuartDashServer(BaseDashServer[Quart]):
             return "", 204
 
         @self.server.errorhandler(InvalidResourceError)
-        async def _invalid_resource(err):
-            return err.args[0], 404
+        async def _invalid_resource(_):
+            return "", 404
 
     def _html_response_wrapper(self, view_func: _t.Callable[..., _t.Any] | str):
         async def wrapped(*_args, **_kwargs):

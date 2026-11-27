@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Fixed
+- [#4216](https://github.com/plotly/dash/pull/4216) A request for an unregistered package or file under `/_dash-component-suites/` now returns 404 instead of 500 on the Flask, Quart and FastAPI backends. The error is raised as `InvalidResourceError` instead of `DependencyException`. Fixes [#4211](https://github.com/plotly/dash/issues/4211).
+
 ## [4.5.2] - 2026-11-27
 
 ### Changed
