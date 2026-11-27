@@ -760,3 +760,64 @@ def test_mkdw024_renders_without_es2022_builtins(dash_dcc):
     dash_dcc.wait_for_text_to_equal("#md h1", "Title")
 
     assert dash_dcc.get_logs() == []
+
+
+def test_mkdw025_escaped_dollar_stays_inline(dash_dcc):
+    app = Dash(__name__)
+    app.layout = dcc.Markdown(
+        r"a $x=\$3$ b",
+        mathjax=True,
+        id="md",
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#md .MathJax svg")
+
+    result = dash_dcc.driver.execute_script(
+        """
+        const root = document.getElementById("md");
+        const paragraph = root.querySelector("p");
+        const math = paragraph.querySelector("mjx-container.MathJax");
+
+        return {
+            paragraphCount: root.querySelectorAll("p").length,
+            inline: Boolean(math) && !math.hasAttribute("display"),
+            svgCount: math ? math.querySelectorAll("svg").length : 0,
+            text: paragraph.textContent
+        };
+        """
+    )
+
+    assert result == {
+        "paragraphCount": 1,
+        "inline": True,
+        "svgCount": 1,
+        "text": "a x=$3 b",
+    }
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_mkdw026_escaped_dollars_outside_math(dash_dcc):
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Markdown(r"`$x=\$3$`", mathjax=True, id="inline-code"),
+            dcc.Markdown("```\n$x=\\$3$\n```", mathjax=True, id="fenced-code"),
+            dcc.Markdown(
+                r"[link](https://example.org/$x=\$3$)",
+                mathjax=True,
+                id="link",
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+
+    assert dash_dcc.wait_for_element("#inline-code code").text == r"$x=\$3$"
+    assert dash_dcc.wait_for_element("#fenced-code pre code").text == r"$x=\$3$"
+    assert (
+        dash_dcc.wait_for_element("#link a").get_attribute("href")
+        == "https://example.org/$x=$3$"
+    )
+    assert dash_dcc.get_logs() == []
