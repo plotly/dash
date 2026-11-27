@@ -1,5 +1,8 @@
 from multiprocessing import Lock
 from dash import Dash, Input, Output, dcc, html
+from dash.testing.wait import until
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 
 
 def test_slsl001_always_visible_slider(dash_dcc):
@@ -760,4 +763,153 @@ def test_slsl020_empty_mark_labels_keep_tick_alignment(dash_dcc):
 
     assert labeled_mark.size["height"] == 12
     assert empty_mark.size["height"] == labeled_mark.size["height"]
+    assert dash_dcc.get_logs() == []
+
+
+def test_slsl021_tooltip_above_next_slider(dash_dcc):
+    def tooltip(always_visible):
+        return {"placement": "bottom", "always_visible": always_visible}
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Slider(0, 100, 1, value=10, id="first", tooltip=tooltip(True)),
+            # same value as the slider above, so its thumb is under that tooltip
+            dcc.Slider(0, 100, 1, value=10, id="under-first"),
+            dcc.RangeSlider(
+                0, 100, 1, value=[50, 70], id="range", tooltip=tooltip(True)
+            ),
+            dcc.Slider(0, 100, 1, value=30, id="hover", tooltip=tooltip(False)),
+            dcc.Slider(0, 100, 1, value=30, id="under-hover"),
+            # in a form, Radix adds a hidden input next to each thumb
+            html.Form(
+                dcc.Slider(0, 100, 1, value=80, id="in-form", tooltip=tooltip(False))
+            ),
+        ]
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#first-tooltip-1-content", "10")
+
+    # Tooltips ignore the pointer, which also hides them from elementFromPoint
+    dash_dcc.driver.execute_script(
+        """
+        const style = document.createElement('style');
+        style.textContent = '.dash-slider-tooltip { pointer-events: auto; }';
+        document.head.appendChild(style);
+        """
+    )
+
+    def covered_points(content_id):
+        # Sample a grid of points inside the tooltip and count the ones where
+        # another element is painted on top of it.
+        return dash_dcc.driver.execute_script(
+            """
+            const tip = document.getElementById(arguments[0]).parentElement;
+            const rect = tip.getBoundingClientRect();
+            let covered = 0;
+            for (let fx = 0.1; fx < 1; fx += 0.2) {
+                for (let fy = 0.1; fy < 1; fy += 0.2) {
+                    const el = document.elementFromPoint(
+                        rect.left + rect.width * fx,
+                        rect.top + rect.height * fy
+                    );
+                    if (!tip.contains(el)) {
+                        covered += 1;
+                    }
+                }
+            }
+            return covered;
+            """,
+            content_id,
+        )
+
+    assert covered_points("first-tooltip-1-content") == 0
+    assert covered_points("range-tooltip-1-content") == 0
+    assert covered_points("range-tooltip-2-content") == 0
+
+    hover_tooltip = dash_dcc.find_element("#hover .dash-slider-tooltip")
+    assert not hover_tooltip.is_displayed()
+
+    thumb = dash_dcc.find_element("#hover .dash-slider-thumb")
+    ActionChains(dash_dcc.driver).move_to_element(thumb).perform()
+    until(hover_tooltip.is_displayed, 3)
+    assert covered_points("hover-tooltip-1-content") == 0
+
+    thumb.send_keys(Keys.ARROW_RIGHT)
+    ActionChains(dash_dcc.driver).move_to_element(
+        dash_dcc.find_element("#first")
+    ).perform()
+    dash_dcc.wait_for_text_to_equal("#hover-tooltip-1-content", "31")
+    assert hover_tooltip.is_displayed()
+    assert covered_points("hover-tooltip-1-content") == 0
+
+    form_tooltip = dash_dcc.find_element("#in-form .dash-slider-tooltip")
+    assert not form_tooltip.is_displayed()
+    ActionChains(dash_dcc.driver).move_to_element(
+        dash_dcc.find_element("#in-form .dash-slider-thumb")
+    ).perform()
+    until(form_tooltip.is_displayed, 3)
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_slsl022_tooltip_follows_thumb(dash_dcc):
+    tooltip = {"always_visible": True}
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            dcc.Slider(0, 100, 1, value=10, id="plain", tooltip=tooltip),
+            dcc.Slider(
+                0, 100, 1, value=10, id="reverse", reverse=True, tooltip=tooltip
+            ),
+            dcc.RangeSlider(0, 100, 1, value=[0, 100], id="range", tooltip=tooltip),
+            html.Div(
+                [
+                    dcc.Slider(
+                        0,
+                        100,
+                        1,
+                        value=20,
+                        id="vertical",
+                        vertical=True,
+                        tooltip=tooltip,
+                    ),
+                    dcc.Slider(
+                        0,
+                        100,
+                        1,
+                        value=20,
+                        id="vertical-reverse",
+                        vertical=True,
+                        reverse=True,
+                        tooltip=tooltip,
+                    ),
+                ],
+                style={"display": "flex", "height": "300px"},
+            ),
+        ],
+        style={"padding": "60px"},
+    )
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_text_to_equal("#vertical-reverse-tooltip-1-content", "20")
+
+    def rects(selector):
+        return dash_dcc.driver.execute_script(
+            """
+            return [...document.querySelectorAll(arguments[0])].map(el => {
+                const {x, y, width, height} = el.getBoundingClientRect();
+                return [x, y, width, height];
+            });
+            """,
+            selector,
+        )
+
+    # Radix sets the thumb offset one render late, once it has measured the thumb
+    until(
+        lambda: rects(".dash-slider-thumb") == rects(".dash-slider-tooltip-anchor"), 3
+    )
+    assert len(rects(".dash-slider-thumb")) == 6
+
     assert dash_dcc.get_logs() == []

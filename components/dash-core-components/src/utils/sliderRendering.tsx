@@ -54,6 +54,37 @@ const getRadixThumbPosition = (
     return {percentage, offset: thumbInBoundsOffset};
 };
 
+// Same box Radix measures on the thumb: 16px plus a 2px border on each side
+const THUMB_OUTER_SIZE = 20;
+
+// The inset Radix gives the span around a thumb, for content that has to
+// follow a thumb without being inside it
+export const getThumbInset = (
+    value: number,
+    minMaxValues: {min_mark: number; max_mark: number},
+    vertical: boolean,
+    reverse: boolean
+): React.CSSProperties => {
+    const percentage = convertValueToPercentage(
+        value,
+        minMaxValues.min_mark,
+        minMaxValues.max_mark
+    );
+    const offset = getThumbInBoundsOffset(
+        THUMB_OUTER_SIZE,
+        percentage,
+        reverse ? -1 : 1
+    );
+    const startEdge = vertical
+        ? reverse
+            ? 'top'
+            : 'bottom'
+        : reverse
+        ? 'right'
+        : 'left';
+    return {[startEdge]: `calc(${percentage}% + ${offset}px)`};
+};
+
 export const renderSliderMarks = (
     renderedMarks: SliderMarks,
     vertical: boolean,
