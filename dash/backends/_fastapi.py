@@ -58,7 +58,7 @@ from dash._stream_hub import (
     shutdown_active_streams,
     spawn_async_pump,
 )
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate, InvalidResourceError
 from dash._compression import decompress_payload
 from .base_server import (
     BaseDashServer,
@@ -310,6 +310,8 @@ class DashMiddleware:  # pylint: disable=too-few-public-methods
         """Handle exceptions during request processing."""
         if isinstance(error, PreventUpdate):
             response = Response(status_code=204)
+        elif isinstance(error, InvalidResourceError):
+            response = Response(status_code=404)
         elif isinstance(error, HTTPException):
             response = JSONResponse(
                 status_code=error.status_code,

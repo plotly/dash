@@ -122,8 +122,8 @@ class FlaskDashServer(BaseDashServer[Flask]):
             return "", 204
 
         @self.server.errorhandler(InvalidResourceError)
-        def _invalid_resources_handler(err):
-            return err.args[0], 404
+        def _invalid_resources_handler(_):
+            return "", 404
 
     def _get_traceback(self, secret, error: Exception):
         def _get_skip(error):
