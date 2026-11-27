@@ -27,6 +27,7 @@ from dash._get_paths import (
 
 
 def test_dash_env_vars(empty_environ):
+    """Verify all DASH_ENV_VARS entries default to None when unset."""
     assert {None} == {
         val for _, val in DASH_ENV_VARS.items()
     }, "initial var values are None without extra OS environ setting"
@@ -44,16 +45,20 @@ def test_dash_env_vars(empty_environ):
 def test_valid_pathname_prefix_init(
     empty_environ, route_prefix, req_prefix, expected_route, expected_req
 ):
+    """Verify valid routes and requests pathname prefix combinations."""
     _, routes, req = pathname_configs(
         routes_pathname_prefix=route_prefix, requests_pathname_prefix=req_prefix
     )
 
+    # Skip asserting routes when only routes_pathname_prefix was provided.
     if expected_route is not None:
         assert routes == expected_route
     assert req == expected_req
 
 
 def test_invalid_pathname_prefix(empty_environ):
+    """Verify pathname_configs rejects ambiguous or malformed prefixes."""
+    # url_base_pathname conflicts with explicit requests/routes prefixes.
     with pytest.raises(_exc.InvalidConfig, match="url_base_pathname"):
         _, _, _ = pathname_configs("/my-path", "/another-path")
 
@@ -69,6 +74,7 @@ def test_invalid_pathname_prefix(empty_environ):
         )
     assert str(excinfo.value).split(".")[0].endswith("`requests_pathname_prefix`")
 
+    # url_base_pathname and routes_pathname_prefix must start and end with "/".
     with pytest.raises(_exc.InvalidConfig, match="start with `/`"):
         _, _, _ = pathname_configs("my-path")
 
@@ -77,6 +83,7 @@ def test_invalid_pathname_prefix(empty_environ):
 
 
 def test_pathname_prefix_from_environ_app_name(empty_environ):
+    """Verify DASH_APP_NAME sets requests prefix without changing routes."""
     os.environ["DASH_APP_NAME"] = "my-dash-app"
     _, routes, req = pathname_configs()
     assert req == "/my-dash-app/"
@@ -84,12 +91,14 @@ def test_pathname_prefix_from_environ_app_name(empty_environ):
 
 
 def test_pathname_prefix_environ_routes(empty_environ):
+    """Verify DASH_ROUTES_PATHNAME_PREFIX sets routes_pathname_prefix."""
     os.environ["DASH_ROUTES_PATHNAME_PREFIX"] = "/routes/"
     _, routes, _ = pathname_configs()
     assert routes == "/routes/"
 
 
 def test_pathname_prefix_environ_requests(empty_environ):
+    """Verify DASH_REQUESTS_PATHNAME_PREFIX sets requests_pathname_prefix."""
     os.environ["DASH_REQUESTS_PATHNAME_PREFIX"] = "/requests/"
     _, _, req = pathname_configs()
     assert req == "/requests/"
@@ -104,6 +113,7 @@ def test_pathname_prefix_environ_requests(empty_environ):
     ],
 )
 def test_pathname_prefix_assets(empty_environ, req, expected):
+    """Verify app_get_asset_url joins external path, url path, and asset."""
     config = AttributeDict(assets_external_path=req, assets_url_path="assets")
     path = app_get_asset_url(config, "reset.css")
     assert path == expected
@@ -132,6 +142,7 @@ def test_asset_url(
     assets_url_path,
     expected,
 ):
+    """Verify app.get_asset_url and get_asset_url match across prefix configs."""
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -156,6 +167,7 @@ def test_get_relative_path(
     requests_pathname_prefix,
     expected,
 ):
+    """Verify app.get_relative_path and get_relative_path prepend prefix."""
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -177,6 +189,7 @@ def test_strip_relative_path(
     requests_pathname_prefix,
     expected,
 ):
+    """Verify app.strip_relative_path and strip_relative_path remove prefix."""
     app = Dash(
         "Dash",
         requests_pathname_prefix=requests_pathname_prefix,
@@ -187,6 +200,7 @@ def test_strip_relative_path(
 
 
 def test_get_combined_config_dev_tools_ui(empty_environ):
+    """Verify config precedence (init > environ > default) for ui."""
     val1 = get_combined_config("ui", None, default=False)
     assert (
         not val1
@@ -201,6 +215,7 @@ def test_get_combined_config_dev_tools_ui(empty_environ):
 
 
 def test_get_combined_config_props_check(empty_environ):
+    """Verify config precedence (init > environ > default) for props_check."""
     val1 = get_combined_config("props_check", None, default=False)
     assert (
         not val1
@@ -215,6 +230,7 @@ def test_get_combined_config_props_check(empty_environ):
 
 
 def test_load_dash_env_vars_refects_to_os_environ(empty_environ):
+    """Verify load_dash_env_vars reflects os.environ updates for every key."""
     for var in DASH_ENV_VARS.keys():
         os.environ[var] = "true"
         vars = load_dash_env_vars()
@@ -236,6 +252,7 @@ def test_load_dash_env_vars_refects_to_os_environ(empty_environ):
     ],
 )
 def test_app_name_server(empty_environ, name, server, expected):
+    """Verify app.config.name resolution across name and server inputs."""
     app = Dash(name=name, server=server)
     assert app.config.name == expected
 
@@ -256,6 +273,7 @@ def test_app_name_server(empty_environ, name, server, expected):
     ],
 )
 def test_pathname_prefix_relative_url(prefix, partial_path, expected):
+    """Verify app_get_relative_path formats root and nested relative URLs."""
     path = app_get_relative_path(prefix, partial_path)
     assert path == expected
 
@@ -265,6 +283,7 @@ def test_pathname_prefix_relative_url(prefix, partial_path, expected):
     [("/", "relative-page-1"), ("/my-dash-app/", "relative-page-1")],
 )
 def test_invalid_get_relative_path(prefix, partial_path):
+    """Verify app_get_relative_path rejects paths without a leading slash."""
     with pytest.raises(_exc.UnsupportedRelativePath):
         app_get_relative_path(prefix, partial_path)
 
@@ -294,6 +313,7 @@ def test_invalid_get_relative_path(prefix, partial_path):
     ],
 )
 def test_app_strip_relative_path(prefix, partial_path, expected):
+    """Verify app_strip_relative_path strips prefix and outer slashes."""
     path = app_strip_relative_path(prefix, partial_path)
     assert path == expected
 
@@ -307,11 +327,13 @@ def test_app_strip_relative_path(prefix, partial_path, expected):
     ],
 )
 def test_invalid_strip_relative_path(prefix, partial_path):
+    """Verify app_strip_relative_path rejects non-matching or relative paths."""
     with pytest.raises(_exc.UnsupportedRelativePath):
         app_strip_relative_path(prefix, partial_path)
 
 
 def test_port_env_fail_str(empty_environ):
+    """Verify app.run raises ValueError when port is not an integer."""
     app = Dash()
     with pytest.raises(Exception) as excinfo:
         app.run(port="garbage")
@@ -322,6 +344,7 @@ def test_port_env_fail_str(empty_environ):
 
 
 def test_port_env_fail_range(empty_environ):
+    """Verify app.run raises AssertionError for ports outside 1 to 65535."""
     app = Dash()
     with pytest.raises(Exception) as excinfo:
         app.run(port="0")
@@ -343,6 +366,7 @@ def test_port_env_fail_range(empty_environ):
     [False, True],
 )
 def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
+    """Verify app.run logs the startup URL only at INFO level or lower."""
     app = Dash()
 
     if setlevel_warning:
@@ -371,8 +395,10 @@ def test_no_proxy_success(mocker, caplog, empty_environ, setlevel_warning):
     ],
 )
 def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
+    """Verify app.run logs the external proxy URL when proxy matches server."""
     proxystr = "http://{}:{}::{}".format(host, port, proxy)
     app = Dash(url_base_pathname=path)
+    # Prevent starting the HTTP server while testing startup logging.
     mocker.patch.object(app.server, "run")
 
     app.run(proxy=proxystr, host=host, port=port)
@@ -381,6 +407,7 @@ def test_proxy_success(mocker, caplog, empty_environ, proxy, host, port, path):
 
 
 def test_proxy_jupyter_server_url(mocker, empty_environ):
+    """Verify app.run forwards the external proxy URL to jupyter_dash."""
     # The app is served on host:port but reached through the proxy, so the
     # notebook must be given the proxied url.
     proxy = "https://daash.plot.ly"
@@ -396,6 +423,7 @@ def test_proxy_jupyter_server_url(mocker, empty_environ):
 
 
 def test_proxy_failure(mocker, empty_environ):
+    """Verify app.run raises ProxyError on protocol, host, or port mismatch."""
     app = Dash()
 
     # if the tests work we'll never get to server.run, but keep the mock
@@ -423,6 +451,7 @@ def test_proxy_failure(mocker, empty_environ):
 
 
 def test_title():
+    """Verify app.index renders default, updated, and init-supplied titles."""
     app = Dash()
     assert "<title>Dash</title>" in app.index()
     app = Dash()
@@ -433,16 +462,19 @@ def test_title():
 
 
 def test_app_delayed_config():
+    """Verify init_app applies delayed config and keeps config read-only."""
     app = Dash(server=False)
     app.init_app(app=Flask("test"), requests_pathname_prefix="/dash/")
 
     assert app.config.requests_pathname_prefix == "/dash/"
 
+    # Config attributes are locked against mutation after initialization.
     with pytest.raises(AttributeError):
         app.config.name = "cannot update me"
 
 
 def test_app_invalid_delayed_config():
+    """Verify init_app raises AttributeError when trying to overwrite name."""
     app = Dash(server=False)
     with pytest.raises(AttributeError):
         app.init_app(app=Flask("test"), name="too late 2 update")
@@ -463,9 +495,11 @@ def test_app_invalid_delayed_config():
     ],
 )
 def test_debug_mode_run(empty_environ, debug_env, debug, expected):
+    """Verify app.run sets _dev_tools.ui from debug arg and DASH_DEBUG."""
     if debug_env:
         os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
+    # Invalid port aborts before starting the server after dev tools setup.
     with pytest.raises(AssertionError):
         app.run(debug=debug, port=-1)
     assert app._dev_tools.ui == expected
@@ -486,6 +520,7 @@ def test_debug_mode_run(empty_environ, debug_env, debug, expected):
     ],
 )
 def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
+    """Verify enable_dev_tools defaults ui to True unless overridden."""
     if debug_env:
         os.environ["DASH_DEBUG"] = debug_env
     app = Dash()
@@ -494,11 +529,13 @@ def test_debug_mode_enable_dev_tools(empty_environ, debug_env, debug, expected):
 
 
 def test_missing_flask_compress_raises():
+    """Verify Dash(compress=True) raises ImportError if flask_compress is absent."""
     with pytest.raises(ImportError):
         Dash(compress=True)
 
 
 def test_csrf_config_defaults():
+    """Verify default CSRF token and header names in config and _config()."""
     app = Dash()
     assert app.config.csrf_token_name == "_csrf_token"
     assert app.config.csrf_header_name == "X-CSRFToken"
@@ -509,6 +546,7 @@ def test_csrf_config_defaults():
 
 
 def test_csrf_config_custom():
+    """Verify custom CSRF token and header names propagate to _config()."""
     app = Dash(csrf_token_name="csrftoken", csrf_header_name="X-CSRF-Token")
     assert app.config.csrf_token_name == "csrftoken"
     assert app.config.csrf_header_name == "X-CSRF-Token"
@@ -519,6 +557,7 @@ def test_csrf_config_custom():
 
 
 def test_csrf_config_in_index():
+    """Verify CSRF token and header names appear in generated config HTML."""
     app = Dash(csrf_token_name="csrftoken")
     config_html = app._generate_config_html()
     assert '"csrf_token_name":"csrftoken"' in config_html
@@ -530,11 +569,13 @@ def test_csrf_config_in_index():
     [("", "X-CSRFToken"), ("csrftoken", ""), ("  ", "X-CSRFToken")],
 )
 def test_csrf_config_validation(token_name, header_name):
+    """Verify Dash rejects empty or whitespace-only CSRF config values."""
     with pytest.raises(ValueError):
         Dash(csrf_token_name=token_name, csrf_header_name=header_name)
 
 
 def test_csrf_config_read_only():
+    """Verify CSRF config fields on app.config cannot be mutated."""
     app = Dash()
     with pytest.raises(AttributeError):
         app.config.csrf_token_name = "something_else"
