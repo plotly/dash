@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
 
 ### Fixed
-- [#XXXX](https://github.com/plotly/dash/pull/XXXX) Fix `dcc.Slider` and `dcc.RangeSlider` tooltips being drawn underneath a slider placed right after them. The tooltip element is now a sibling of the thumb, not a child of it. Fixes [#3632](https://github.com/plotly/dash/issues/3632).
+- [#4209](https://github.com/plotly/dash/pull/4209) Fix `dcc.Slider` and `dcc.RangeSlider` tooltips being drawn underneath a slider placed right after them. The tooltip element is now a sibling of the thumb, not a child of it. Fixes [#3632](https://github.com/plotly/dash/issues/3632).
 - [#3957](https://github.com/plotly/dash/pull/3957) Fix `running=` with a pattern-matching `ALL`/`ALLSMALLER` id crashing the renderer when none of the matching components are on the current page. Fixes [#3297](https://github.com/plotly/dash/issues/3297).
 - [#4144](https://github.com/plotly/dash/pull/4144) Fix `Patch.update` changing the caller's dictionary, so reusing one dictionary across `update` calls with different keywords no longer changes earlier queued merges. Fixes [#4143](https://github.com/plotly/dash/issues/4143).
 - [#4197](https://github.com/plotly/dash/pull/4197) Fix `dcc.Input` with `type="number"` and `debounce` sometimes putting back an old value over what the user typed after using the stepper buttons.
