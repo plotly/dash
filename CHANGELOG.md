@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+## [4.5.2] - 2026-11-27
+
 ### Changed
 - [#4118](https://github.com/plotly/dash/pull/4118) The JupyterLab extension now ships prebuilt, so JupyterLab 3 and 4 load it without asking for a rebuild. JupyterLab 2 is no longer supported. Fixes [#3828](https://github.com/plotly/dash/issues/3828).
 
