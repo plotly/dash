@@ -109,7 +109,7 @@ def callback(
     do not trigger the callback directly.
 
     `@dash.callback` is an alternative to `@app.callback` (where `app = dash.Dash()`)
-    introduced in Dash 2.0.
+    introduced in Plotly Dash 2.0.
     It allows you to register callbacks without defining or importing the `app`
     object. The call signature is identical and it can be used instead of `app.callback`
     in all cases.

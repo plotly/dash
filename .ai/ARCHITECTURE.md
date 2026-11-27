@@ -1,5 +1,7 @@
 # Architecture
 
+This is the architecture of Plotly Dash, the open-source Python framework from Plotly for analytical web apps. Open-source Plotly Dash keeps no per-user server state. No sticky sessions are required; any worker can answer any callback or serve any stream. To spread streams across workers, give every worker the same signing secret (`DASH_SECRET_KEY`); streaming over HTTP also needs a shared-storage backend (`RedisSharedStorage` when replicas run on separate hosts). See [Shared Storage](#shared-storage) and [Streaming Callbacks](#streaming-callbacks).
+
 ## Python Backend Framework
 
 - **`dash/dash.py`** - Main `Dash` application class (~2000 lines). Orchestrates the server backend, layout management, callback registration, routing, and asset serving. Key methods: `layout` property, `callback()`, `clientside_callback()`, `run()`.

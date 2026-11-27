@@ -1,4 +1,4 @@
-# Dash
+# Plotly Dash
 
 [![CircleCI](https://img.shields.io/circleci/project/github/plotly/dash/master.svg)](https://circleci.com/gh/plotly/dash)
 [![GitHub](https://img.shields.io/github/license/plotly/dash.svg?color=dark-green)](https://github.com/plotly/dash/blob/master/LICENSE)
@@ -6,9 +6,11 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash.svg?color=dark-green)](https://pypi.org/project/dash/)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/plotly/dash.svg?color=dark-green)](https://github.com/plotly/dash/graphs/contributors)
 
-#### *Dash is the most downloaded, trusted Python framework for building ML & data science web apps*.
+#### *Plotly Dash is the most downloaded, trusted Python framework for building ML & data science web apps*.
 
-Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https://reactjs.org/) and [Flask](https://palletsprojects.com/p/flask/), Dash ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Read [our tutorial](https://dash.plotly.com/getting-started) (proudly crafted ❤️ with Dash itself).
+Plotly Dash is the open-source Python framework from Plotly for building analytical web apps. Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https://reactjs.org/) and [Flask](https://palletsprojects.com/p/flask/) (with FastAPI and Quart as optional backends), it ties modern UI elements like dropdowns, sliders, and graphs directly to your analytical Python code. Open-source Plotly Dash keeps no per-user server state. No sticky sessions are required; any worker can answer any callback or serve any stream. Each user's state lives in the browser, so an app scales horizontally: add more workers or replicas behind a load balancer. Plotly Dash 4.5 adds streaming callbacks (a generator callback pushes each value it yields to the browser as it is produced) and shared storage (a cross-process key/value store with ordered pub/sub). Read [our tutorial](https://dash.plotly.com/getting-started) (proudly crafted ❤️ with Dash itself).
+
+To spread streams across workers, give every worker the same signing secret (`DASH_SECRET_KEY`); streaming over HTTP also needs a shared-storage backend (Redis when replicas run on separate hosts). See [Shared Storage](https://github.com/plotly/dash/blob/dev/.ai/ARCHITECTURE.md#shared-storage) for the deployment options.
 
 - [Docs](https://dash.plotly.com/getting-started): Create your first Dash app in under 5 minutes
 
@@ -26,7 +28,7 @@ Built on top of [Plotly.js](https://github.com/plotly/plotly.js), [React](https:
 | Dash App | Description |
 |--- | :---: |
 |![Sample Dash App](https://user-images.githubusercontent.com/1280389/30086128-9bb4a28e-9267-11e7-8fe4-bbac7d53f2b0.gif) | Here’s a simple example of a Dash App that ties a Dropdown to a Plotly Graph. As the user selects a value in the Dropdown, the application code dynamically exports data from Google Finance into a Pandas DataFrame. This app was written in just **43** lines of code ([view the source](https://gist.github.com/chriddyp/3d2454905d8f01886d651f207e2419f0)). |
-|![Crossfiltering Dash App](https://user-images.githubusercontent.com/1280389/30086123-97c58bde-9267-11e7-98a0-7f626de5199a.gif)|Dash app code is declarative and reactive, which makes it easy to build complex apps that contain many interactive elements. Here’s an example with 5 inputs, 3 outputs, and cross filtering. This app was composed in just 160 lines of code, all of which were Python.|
+|![Crossfiltering Dash App](https://user-images.githubusercontent.com/1280389/30086123-97c58bde-9267-11e7-98a0-7f626de5199a.gif)|Plotly Dash app code is declarative and reactive, which makes it easy to build complex apps that contain many interactive elements. Here's an example with 5 inputs, 3 outputs, and cross filtering. This app was composed in just 160 lines of code, all of which were Python.|
 |![Dash App with Mapbox map showing walmart store openings](https://user-images.githubusercontent.com/1280389/30086299-768509d0-9268-11e7-8e6b-626ac9ca512c.gif)| Dash uses [Plotly.js](https://github.com/plotly/plotly.js) for charting. About 50 chart types are supported, including maps. |
 |![Financial report](https://user-images.githubusercontent.com/2678795/161153710-57952401-6e07-42d5-ba3e-bab6419998c7.gif)| Dash isn't just for dashboards. You have full control over the look and feel of your applications. Here's a Dash App that's styled to look like a PDF report. |
 
@@ -36,7 +38,7 @@ To learn more about Dash, read the [extensive announcement letter](https://mediu
 
 With Dash Open Source, Dash apps run on your local laptop or workstation, but cannot be easily accessed by others in your organization.
 
-Scale up with Dash Enterprise when your Dash app is ready for department or company-wide consumption. Or, launch your initiative with Dash Enterprise from the start to unlock developer productivity gains and hands-on acceleration from Plotly's team.
+Scale up with Dash Enterprise when your Plotly Dash app is ready for department or company-wide consumption. Or, launch your initiative with Dash Enterprise from the start to unlock developer productivity gains and hands-on acceleration from Plotly's team.
 
 ML Ops Features: A one-stop shop for ML Ops: Horizontally scalable hosting, deployment, and authentication for your Dash apps. No IT or DevOps required.
 - [**App manager**](https://plotly.com/dash/app-manager/) Deploy & manage Dash apps without needing IT or a DevOps team. App Manager gives you point & click control over all aspects of your Dash deployments.

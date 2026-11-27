@@ -13,7 +13,7 @@ This directory contains documentation for AI coding assistants working with the 
 
 ## Project Overview
 
-Dash is a Python framework for building reactive web-based data visualization applications. Built on Plotly.js, React, and Flask, it ties UI elements (dropdowns, sliders, graphs) directly to analytical Python code.
+Plotly Dash is a Python framework for building reactive web-based data visualization applications. Built on Plotly.js, React, and Flask (FastAPI and Quart are optional backends), it ties UI elements (dropdowns, sliders, graphs) directly to analytical Python code. Open-source Plotly Dash keeps no per-user server state. No sticky sessions are required; any worker can answer any callback or serve any stream.
 
 ## Key Directories
 

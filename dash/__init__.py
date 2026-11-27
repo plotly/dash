@@ -1,3 +1,9 @@
+"""Plotly Dash: the open-source Python framework from Plotly for building
+analytical web apps, imported as ``dash``.
+
+Open-source Plotly Dash keeps no per-user server state. No sticky sessions are
+required; any worker can answer any callback or serve any stream.
+"""
 # pylint: disable=C0413
 # __plotly_dash is for the "make sure you don't have a dash.py" check
 # must come before any other imports.
