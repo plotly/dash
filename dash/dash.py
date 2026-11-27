@@ -179,6 +179,12 @@ try:
 except:  # noqa: E722
     page_container = None
 
+_ASSET_TYPES = {".js": "js", ".mjs": "mjs", ".css": "css"}
+
+
+def _asset_type(filename):
+    return _ASSET_TYPES.get(os.path.splitext(filename)[1])
+
 
 def _get_traceback(secret, error: Exception):
     try:
@@ -250,7 +256,7 @@ async def execute_async_function(func, *args, **kwargs):
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-locals
+# pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
 class Dash(ObsoleteChecker):
     """Dash is a framework for building analytical web applications.
     No JavaScript required.
@@ -524,7 +530,7 @@ class Dash(ObsoleteChecker):
         include_assets_files: bool = True,
         include_pages_meta: bool = True,
         title: str = "Dash",
-        update_title: str = "Updating...",
+        update_title: Optional[str] = "Updating...",
         description: Optional[str] = None,
         image: Optional[str] = None,
         url_base_pathname: Optional[str] = None,
@@ -786,10 +792,6 @@ class Dash(ObsoleteChecker):
         self._got_first_request = {"pages": False, "setup_server": False}
         # Serialize the before_request hooks so a raced-in worker cannot see
         # the guard flag while the work behind it is still in flight (gh-3971).
-        # The async lock is created inside router_async so it binds to the
-        # running event loop; on 3.9 asyncio.Lock captures the loop at
-        # construction, which for a Dash instance built in module scope is
-        # the wrong one.
         self._setup_server_lock = threading.Lock()
         self._pages_lock = threading.Lock()
         self._pages_async_lock: Optional[asyncio.Lock] = None
@@ -1474,7 +1476,7 @@ class Dash(ObsoleteChecker):
                 static_url = self.get_asset_url(resource["asset_path"])
                 url_with_cache = static_url + f"?m={resource['ts']}"
                 # Import .mjs files with type=module script tag
-                if static_url.endswith(".mjs"):
+                if _asset_type(resource["asset_path"]) == "mjs":
                     attrs = {url_attr: url_with_cache, "type": "module"}
                     if "attributes" in resource:
                         attrs.update(resource["attributes"])
@@ -2033,17 +2035,21 @@ class Dash(ObsoleteChecker):
         self._assets_files.append(file_path)
         return res
 
+    def _is_ignored_asset(self, folders, filename):
+        # folders: the folder names between the assets folder and the file.
+        ignore_str = self.config.assets_ignore
+        if ignore_str and re.search(ignore_str, filename):
+            return True
+        return any(
+            re.search(ignore_path, folder)
+            for ignore_path in (self.config.assets_path_ignore or [])
+            if ignore_path
+            for folder in folders
+        )
+
     def _walk_assets_directory(self):
         walk_dir = self.config.assets_folder
         slash_splitter = re.compile(r"[\\/]+")
-        ignore_str = self.config.assets_ignore
-        ignore_path_list = self.config.assets_path_ignore
-        ignore_filter = re.compile(ignore_str) if ignore_str else None
-        ignore_path_filters = [
-            re.compile(ignore_path)
-            for ignore_path in (ignore_path_list or [])
-            if ignore_path
-        ]
 
         for current, _, files in sorted(os.walk(walk_dir)):
             if current == walk_dir:
@@ -2057,32 +2063,23 @@ class Dash(ObsoleteChecker):
                 else:
                     base = splitted[0]
 
-            # Check if any level of current path matches ignore path
-            if s and any(
-                ignore_path_filter.search(x)
-                for ignore_path_filter in ignore_path_filters
-                for x in s.split(os.path.sep)
-            ):
-                pass
-            else:
-                if ignore_filter:
-                    files_gen = (x for x in files if not ignore_filter.search(x))
-                else:
-                    files_gen = files
+            folders = s.split(os.path.sep) if s else []
 
-                for f in sorted(files_gen):
-                    path = "/".join([base, f]) if base else f
+            for f in sorted(files):
+                if self._is_ignored_asset(folders, f):
+                    continue
 
-                    full = os.path.join(current, f)
+                path = "/".join([base, f]) if base else f
 
-                    if f.endswith("js"):
-                        self.scripts.append_script(
-                            self._add_assets_resource(path, full)
-                        )
-                    elif f.endswith("css"):
-                        self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
-                    elif f == "favicon.ico":
-                        self._favicon = path
+                full = os.path.join(current, f)
+                asset_type = _asset_type(f)
+
+                if asset_type in ("js", "mjs"):
+                    self.scripts.append_script(self._add_assets_resource(path, full))
+                elif asset_type == "css":
+                    self.css.append_css(self._add_assets_resource(path, full))  # type: ignore[reportArgumentType]
+                elif f == "favicon.ico":
+                    self._favicon = path
 
     @staticmethod
     def _invalid_resources_handler(err):
@@ -2562,33 +2559,41 @@ class Dash(ObsoleteChecker):
     # noinspection PyProtectedMember
     def _on_assets_change(self, filename, modified, deleted):
         _reload = self._hot_reload
+        in_assets = self.config.assets_folder in filename
+        asset_path = ""
+        if in_assets:
+            asset_path = (
+                os.path.relpath(
+                    filename,
+                    os.path.commonprefix([self.config.assets_folder, filename]),
+                )
+                .replace("\\", "/")
+                .lstrip("/")
+            )
+            *folders, name = asset_path.split("/")
+            if self._is_ignored_asset(folders, name):
+                return
+
         with _reload.lock:
             _reload.hard = True
             _reload.hash = generate_hash()
 
-            if self.config.assets_folder in filename:
-                asset_path = (
-                    os.path.relpath(
-                        filename,
-                        os.path.commonprefix([self.config.assets_folder, filename]),
-                    )
-                    .replace("\\", "/")
-                    .lstrip("/")
-                )
+            if in_assets:
+                asset_type = _asset_type(filename)
 
                 _reload.changed_assets.append(
                     {
                         "url": self.get_asset_url(asset_path),
                         "modified": int(modified),
-                        "is_css": filename.endswith("css"),
+                        "type": asset_type,
                     }
                 )
 
                 if filename not in self._assets_files and not deleted:
                     res = self._add_assets_resource(asset_path, filename)
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         self.scripts.append_script(res)
-                    elif filename.endswith("css"):
+                    elif asset_type == "css":
                         self.css.append_css(res)  # type: ignore[reportArgumentType]
 
                 if deleted:
@@ -2604,10 +2609,10 @@ class Dash(ObsoleteChecker):
                         if to_delete:
                             resources.remove(to_delete)
 
-                    if filename.endswith("js"):
+                    if asset_type in ("js", "mjs"):
                         # pylint: disable=protected-access
                         delete_resource(self.scripts._resources._resources)
-                    elif filename.endswith("css"):
+                    elif asset_type == "css":
                         # pylint: disable=protected-access
                         delete_resource(self.css._resources._resources)
 
@@ -2643,11 +2648,11 @@ class Dash(ObsoleteChecker):
         too. Values provided here take precedence over environment variables.
 
         :param host: Host IP used to serve the application, default to "127.0.0.1"
-            env: ``HOST``
+            env: ``DASH_HOST``, falling back to ``HOST``
         :type host: string
 
         :param port: Port used to serve the application, default to "8050"
-            env: ``PORT``
+            env: ``DASH_PORT``, falling back to ``PORT``
         :type port: int
 
         :param proxy: If this application will be served to a different URL
@@ -2775,11 +2780,13 @@ class Dash(ObsoleteChecker):
             # Some conda systems has issue with setting the host environment
             # to an invalid hostname.
             # Related issue: https://github.com/plotly/dash/issues/3069
-            host = host or "127.0.0.1"
+            # DASH_HOST is still honored here: it is specific to Dash, so
+            # unlike the generic HOST it cannot come from another service.
+            host = host or os.getenv("DASH_HOST", "127.0.0.1")
         else:
-            host = host or os.getenv("HOST", "127.0.0.1")
+            host = host or os.getenv("DASH_HOST", os.getenv("HOST", "127.0.0.1"))
         assert host
-        port = port or os.getenv("PORT", "8050")
+        port = port or os.getenv("DASH_PORT", os.getenv("PORT", "8050"))
         proxy = proxy or os.getenv("DASH_PROXY")
 
         # Verify port value

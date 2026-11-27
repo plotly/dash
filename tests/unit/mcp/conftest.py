@@ -1,24 +1,16 @@
 """Shared helpers for MCP unit tests."""
 
-import sys
-
 from dash import Dash, Input, Output, html
 from dash._get_app import app_context
 
-collect_ignore_glob = []
-if sys.version_info < (3, 10):
-    collect_ignore_glob.append("*")
-else:
-    from dash.mcp._decorator import (  # pylint: disable=wrong-import-position
-        MCP_DECORATED_FUNCTIONS,
-    )
-    from dash.mcp.primitives.tools import (  # pylint: disable=wrong-import-position
-        call_tool,
-        list_tools,
-    )
-    from dash.mcp.primitives.tools.callback_adapter_collection import (  # pylint: disable=wrong-import-position
-        CallbackAdapterCollection,
-    )
+from dash.mcp._decorator import MCP_DECORATED_FUNCTIONS
+from dash.mcp.primitives.tools import (
+    call_tool,
+    list_tools,
+)
+from dash.mcp.primitives.tools.callback_adapter_collection import (
+    CallbackAdapterCollection,
+)
 
 BUILTINS = {"get_dash_component"}
 

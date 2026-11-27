@@ -1,5 +1,9 @@
+import '../utils/markdown/polyfills';
 import React, {useCallback, useMemo} from 'react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, {
+    defaultUrlTransform,
+    type UrlTransform,
+} from 'react-markdown';
 import type {PluggableList} from 'unified';
 
 import LoadingElement from '../utils/_LoadingElement';
@@ -7,12 +11,18 @@ import {MarkdownContentProps, MarkdownProps} from '../types';
 import {components} from '../utils/markdown/components';
 import {MarkdownContext} from '../utils/markdown/context';
 import {
+    linkTargetPlugins,
     rawHtmlPlugins,
+    rehypeBlockCodePlugins,
     rehypeMathPlugins,
     remarkMathPlugins,
     remarkGfmPlugins,
 } from '../utils/markdown/plugins';
 import {dedentText} from '../utils/markdown/text';
+
+// react-markdown 9 dropped `tel:` from its safe protocols; v8 allowed it.
+const urlTransform: UrlTransform = url =>
+    /^tel:/i.test(url) ? url : defaultUrlTransform(url);
 
 const MarkdownContent = React.memo(function MarkdownContent({
     children,
@@ -32,11 +42,15 @@ const MarkdownContent = React.memo(function MarkdownContent({
     if (dangerously_allow_html) {
         rehypePlugins.push(...rawHtmlPlugins);
     }
+    rehypePlugins.push(...rehypeBlockCodePlugins);
+    if (link_target) {
+        rehypePlugins.push(...linkTargetPlugins(link_target));
+    }
 
     return (
         <ReactMarkdown
-            linkTarget={link_target}
             remarkPlugins={remarkPlugins}
+            urlTransform={urlTransform}
             rehypePlugins={rehypePlugins}
             components={components}
         >

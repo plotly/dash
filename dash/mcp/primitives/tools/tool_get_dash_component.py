@@ -10,6 +10,7 @@ from typing_extensions import NotRequired, TypedDict
 
 from dash import get_app
 from dash._layout_utils import find_component
+from dash._utils import to_json
 from dash.mcp.types import (
     CallToolResult,
     ComponentPropertyInfo,
@@ -131,9 +132,11 @@ class GetDashComponentTool(MCPToolProvider):
             properties=properties,
         )
 
+        # Dash components (including children nested in lists or dicts) are
+        # not directly JSON-serializable. Use Dash's own encoder so both the
+        # structured MCP result and its text fallback contain the same values.
+        serialized = json.loads(to_json(structured))
         return CallToolResult(
-            content=[
-                TextContent(type="text", text=json.dumps(structured, default=str))
-            ],
-            structuredContent=dict(structured),
+            content=[TextContent(type="text", text=json.dumps(serialized))],
+            structuredContent=serialized,
         )

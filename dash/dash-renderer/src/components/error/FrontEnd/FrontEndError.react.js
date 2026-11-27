@@ -5,6 +5,7 @@ import CollapseIcon from '../icons/CollapseIcon.svg';
 import PropTypes from 'prop-types';
 import '../Percy.css';
 import {urlBase} from '../../../actions/utils';
+import {errorToText, copyToClipboard} from './errorText';
 
 import werkzeugCss from '../werkzeugcss';
 
@@ -12,13 +13,36 @@ class FrontEndError extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            collapsed: this.props.isListItem
+            collapsed: this.props.isListItem,
+            copyStatus: null
         };
+        this.copyTimeout = null;
+        this.copyError = this.copyError.bind(this);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.copyTimeout);
+    }
+
+    async copyError(event) {
+        event.stopPropagation();
+        let copyStatus = 'copied';
+        try {
+            await copyToClipboard(errorToText(this.props.e.error));
+        } catch (err) {
+            copyStatus = 'failed';
+        }
+        this.setState({copyStatus});
+        clearTimeout(this.copyTimeout);
+        this.copyTimeout = setTimeout(
+            () => this.setState({copyStatus: null}),
+            1500
+        );
     }
 
     render() {
         const {e, inAlertsTray} = this.props;
-        const {collapsed} = this.state;
+        const {collapsed, copyStatus} = this.state;
 
         const cardClasses =
             'dash-error-card__content' +
@@ -36,6 +60,18 @@ class FrontEndError extends Component {
                     </span>
                 </span>
                 <span className='dash-fe-error-top__group'>
+                    <button
+                        type='button'
+                        className='dash-fe-error__copy test-devtools-error-copy'
+                        title='Copy this error to the clipboard'
+                        onClick={this.copyError}
+                    >
+                        {copyStatus === 'copied'
+                            ? 'Copied'
+                            : copyStatus === 'failed'
+                            ? 'Copy failed'
+                            : 'Copy'}
+                    </button>
                     <span className='dash-fe-error__timestamp percy-hide'>
                         {`${e.timestamp.toLocaleTimeString()}`}
                     </span>

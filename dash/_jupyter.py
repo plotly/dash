@@ -14,6 +14,9 @@ from typing import Optional, Any, Literal
 from werkzeug.serving import make_server
 
 try:
+    if "IPython" not in sys.modules:
+        # Not inside IPython: skip the heavy imports, they double the cost of `import dash`.
+        raise ImportError
     from IPython import get_ipython  # type: ignore[attr-defined]
     from IPython.display import IFrame, display, Javascript  # type: ignore[import-not-found]
     from IPython.core.display import HTML  # type: ignore[import-not-found]
@@ -250,11 +253,8 @@ class JupyterDash:
         by running the following command:
             $ jupyter nbextension list
 
-        In JupyterLab, this method requires the `@plotly/dash-jupyterlab` labextension. This
-        extension should be installed automatically with the installation of the
-        jupyter-dash Python package, but JupyterLab must be allowed to rebuild before
-        the extension is activated (JupyterLab should automatically detect the
-        extension and produce a popup dialog asking for permission to rebuild). You can
+        In JupyterLab, this method requires the `@plotly/dash-jupyterlab` labextension,
+        which is installed as a prebuilt extension with the dash Python package. You can
         see what JupyterLab extensions are installed by running the following command:
             $ jupyter labextension list
         """
