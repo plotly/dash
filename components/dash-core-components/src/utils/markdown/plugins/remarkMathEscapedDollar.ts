@@ -2,9 +2,9 @@ import type {Processor} from 'unified';
 import type {Code, Construct, Extension, State} from 'micromark-util-types';
 import {math} from 'micromark-extension-math';
 
-const DOLLAR = '$'.charCodeAt(0);
-const BACKSLASH = '\\'.charCodeAt(0);
-const ORDINARY_CHAR = 'A'.charCodeAt(0);
+const DOLLAR = '$'.codePointAt(0) as number;
+const BACKSLASH = '\\'.codePointAt(0) as number;
+const ORDINARY_CHAR = 'A'.codePointAt(0) as number;
 
 const original = math().text?.[DOLLAR] as Construct;
 
@@ -13,7 +13,11 @@ export default function remarkMathEscapedDollar(this: Processor) {
     // eslint-disable-next-line no-invalid-this
     const data = this.data() as {micromarkExtensions?: Extension[]};
 
-    (data.micromarkExtensions ||= []).push({
+    if (!data.micromarkExtensions) {
+        data.micromarkExtensions = [];
+    }
+
+    data.micromarkExtensions.push({
         text: {
             36: {
                 ...original,
