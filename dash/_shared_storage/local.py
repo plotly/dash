@@ -14,6 +14,7 @@ own owner) pays no socket overhead at all; only extra worker processes proxy.
 import asyncio
 import atexit
 import contextlib
+import errno
 import hashlib
 import json
 import os
@@ -68,7 +69,12 @@ def _tcp_port(namespace: str) -> int:
 
 def _write_advertisement(addr_path, family, address, token) -> None:
     payload = json.dumps(
-        {"family": int(family), "address": address, "token": token}
+        {
+            "family": int(family),
+            "address": address,
+            "token": token,
+            "pid": os.getpid(),
+        }
     ).encode("utf-8")
     tmp = f"{addr_path}.{os.getpid()}.tmp"
     fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
@@ -92,26 +98,51 @@ def _read_advertisement(addr_path, retries=100, delay=0.05):
     raise ConnectionError("shared-storage owner advertisement not found")
 
 
-def _unix_is_stale(path: str) -> bool:
+def _owner_alive(addr_path: str) -> bool:
+    try:
+        with open(addr_path, "rb") as f:
+            pid = json.loads(f.read().decode("utf-8"))["pid"]
+        os.kill(pid, 0)
+    except PermissionError:
+        return True  # the process exists, it is just not ours
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return True
+
+
+def _unix_is_stale(path: str, addr_path: Optional[str] = None) -> bool:
+    """Whether the socket file at ``path`` has no owner behind it. An owner
+    too busy to accept is alive: taking its socket over would start a second,
+    empty store."""
     probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     probe.settimeout(0.5)
     try:
         probe.connect(path)
         return False  # a live owner answered
-    except OSError:
-        return True  # refused / no listener -> stale socket file
+    except FileNotFoundError:
+        return True
+    except ConnectionRefusedError:
+        # Linux refuses only when nobody listens. macOS and the BSDs also
+        # refuse when the backlog is full, so there the owner's process
+        # decides.
+        if sys.platform.startswith("linux") or addr_path is None:
+            return True
+        return not _owner_alive(addr_path)
+    except OSError as exc:
+        # Not a socket at all, or (a timeout, a full backlog) a busy owner.
+        return exc.errno == errno.ENOTSOCK
     finally:
         probe.close()
 
 
-def _try_bind(namespace: str, sock_path: str):
+def _try_bind(namespace: str, sock_path: str, addr_path: Optional[str] = None):
     """Try to become the owner. Returns (listen_sock, family, address) or None."""
     if _HAS_AF_UNIX:
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
             s.bind(sock_path)
         except OSError:
-            if _unix_is_stale(sock_path):
+            if _unix_is_stale(sock_path, addr_path):
                 try:
                     os.unlink(sock_path)
                     s.bind(sock_path)
@@ -122,6 +153,9 @@ def _try_bind(namespace: str, sock_path: str):
                 s.close()
                 return None
         os.chmod(sock_path, 0o600)
+        # Listen now, not once the owner is ready to serve: a probe refused
+        # while a starting owner recovers its data would take it for stale.
+        s.listen(128)
         return s, socket.AF_UNIX, sock_path
 
     port = _tcp_port(namespace)
@@ -132,6 +166,7 @@ def _try_bind(namespace: str, sock_path: str):
     except OSError:
         s.close()
         return None
+    s.listen(128)
     return s, socket.AF_INET, ("127.0.0.1", port)
 
 
@@ -179,24 +214,35 @@ class _Coordinator:
         return self._role == "owner"
 
     def _elect(self) -> None:
-        bound = _try_bind(self._namespace, self._sock_path)
+        bound = _try_bind(self._namespace, self._sock_path, self._addr_path)
         if bound:
             listen_sock, family, address = bound
             token = secrets.token_hex(16)
-            _write_advertisement(self._addr_path, family, address, token)
             engine = StoreEngine(self._buffer_size)
-            if self._mode != "memory":
-                assert self._path is not None
-                persistence = _Persistence(
-                    self._path, self._mode, self._flush_interval, engine
-                )
-                # Recover before serving (so clients see the restored state) and
-                # before attaching (so restored keys are not re-marked dirty).
-                persistence.recover()
-                engine.attach_persistence(persistence)
-                persistence.start()
-            server = OwnerServer(engine, listen_sock, token)
-            server.start()
+            try:
+                _write_advertisement(self._addr_path, family, address, token)
+                if self._mode != "memory":
+                    assert self._path is not None
+                    persistence = _Persistence(
+                        self._path, self._mode, self._flush_interval, engine
+                    )
+                    # Recover before serving (so clients see the restored state)
+                    # and before attaching (so restored keys are not re-marked
+                    # dirty).
+                    persistence.recover()
+                    engine.attach_persistence(persistence)
+                    persistence.start()
+                server = OwnerServer(engine, listen_sock, token)
+                server.start()
+            except BaseException:
+                # The socket already listens: left open, it would pass for a
+                # live owner that never answers.
+                listen_sock.close()
+                engine.close()
+                for path in (self._sock_path, self._addr_path):
+                    with contextlib.suppress(OSError):
+                        os.unlink(path)
+                raise
             self._engine, self._server = engine, server
             self._family, self._address, self._token = family, address, token
             self._role = "owner"

@@ -897,3 +897,325 @@ def test_grbs014_graph_hover_points(dash_dcc, trace_type):
     assert {key: point[key] for key in expected} == expected
     assert not {"data", "fullData", "xaxis", "yaxis"}.intersection(point)
     assert dash_dcc.get_logs() == []
+
+
+def _rendered_xrange(dash_dcc):
+    return dash_dcc.driver.execute_script(
+        "return document.querySelector('#graph .js-plotly-plot')"
+        "._fullLayout.xaxis.range.slice()"
+    )
+
+
+def _drag_zoom(dash_dcc):
+    # Plotly.relayout is not a GUI edit for uirevision, so zoom with the mouse
+    initial = _rendered_xrange(dash_dcc)
+    drag = dash_dcc.find_element("#graph .nsewdrag")
+    width = drag.size["width"]
+    ActionChains(dash_dcc.driver).move_to_element_with_offset(
+        drag, -width // 4, 0
+    ).click_and_hold().move_by_offset(width // 4, 5).release().perform()
+    wait.until(lambda: _rendered_xrange(dash_dcc) != initial, timeout=3)
+    return _rendered_xrange(dash_dcc)
+
+
+def test_grbs015_graph_uirevision_keeps_zoom(dash_dcc):
+    """A zoom must survive new figures and Patches while uirevision is unchanged.
+
+    Regression test for https://github.com/plotly/dash/issues/4093 - syncing
+    the zoom into the figure prop must not make plotly.js forget it.
+    """
+    from dash import Patch
+
+    def make_figure(showlegend):
+        return {
+            "data": [{"x": list(range(10)), "y": [x**2 for x in range(10)]}],
+            "layout": {"showlegend": showlegend, "uirevision": True},
+        }
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("figure", id="figure-btn", n_clicks=0),
+            html.Button("patch", id="patch-btn", n_clicks=0),
+            dcc.Graph(
+                id="graph",
+                figure=make_figure(True),
+                style={"width": 600, "height": 400},
+            ),
+            html.Div(id="range-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure", allow_duplicate=True),
+        Input("figure-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def new_figure(n_clicks):
+        return make_figure(n_clicks % 2 == 0)
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("patch-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_figure(n_clicks):
+        p = Patch()
+        p.data[0].y = [(n_clicks + 1) * x**2 for x in range(10)]
+        return p
+
+    @app.callback(Output("range-output", "children"), Input("graph", "figure"))
+    def show_range(figure):
+        return json.dumps(figure["layout"].get("xaxis", {}).get("range"))
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+    dash_dcc.wait_for_text_to_equal("#range-output", "null")
+
+    zoomed = _drag_zoom(dash_dcc)
+    # The zoom is synced into the figure prop
+    wait.until(lambda: dash_dcc.find_element("#range-output").text != "null", timeout=3)
+
+    dash_dcc.find_element("#figure-btn").click()
+    dash_dcc.wait_for_text_to_equal("#range-output", "null")
+    sleep(0.5)
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    dash_dcc.find_element("#patch-btn").click()
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[9]"
+        )
+        == 162,
+        timeout=3,
+    )
+    dash_dcc.find_element("#figure-btn").click()
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[9]"
+        )
+        == 81,
+        timeout=3,
+    )
+    sleep(0.5)
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs016_graph_uirevision_keeps_untracked_edit(dash_dcc):
+    """An edit that uirevision does not track must not be undone by the sync.
+
+    plotly.js only keeps some layout edits under uirevision (axis ranges,
+    shapes, ...). The fix for #4093 must leave the others, like an edited
+    legend title, as the user left them.
+    """
+    from dash import Patch
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("patch", id="patch-btn", n_clicks=0),
+            dcc.Graph(
+                id="graph",
+                figure={
+                    "data": [{"y": [1, 3, 2]}, {"y": [2, 1, 3]}],
+                    "layout": {
+                        "uirevision": True,
+                        "showlegend": True,
+                        "legend": {"title": {"text": "original"}},
+                    },
+                },
+                config={"editable": True},
+            ),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("patch-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_figure(n_clicks):
+        p = Patch()
+        p.data[0].y = [n_clicks, 3, 2]
+        return p
+
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    def legend_title():
+        return dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot')"
+            "._fullLayout.legend.title.text"
+        )
+
+    # Same as plotly.js's own guiEdit wrapper for an edit made in the graph
+    dash_dcc.driver.execute_script(
+        "var gd = document.querySelector('#graph .js-plotly-plot');"
+        "gd._fullLayout._guiEditing = true;"
+        "Plotly.relayout(gd, {'legend.title.text': 'edited'});"
+        "gd._fullLayout._guiEditing = false;"
+    )
+    wait.until(lambda: legend_title() == "edited", timeout=3)
+    sleep(0.5)
+    assert legend_title() == "edited"
+
+    dash_dcc.find_element("#patch-btn").click()
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[0]"
+        )
+        == 1,
+        timeout=3,
+    )
+    assert legend_title() == "edited"
+
+    assert dash_dcc.get_logs() == []
+
+
+def _uirevision_app(make_figure, **graph_kwargs):
+    from dash import Patch
+
+    app = Dash(__name__)
+    app.layout = html.Div(
+        [
+            html.Button("figure", id="figure-btn", n_clicks=0),
+            html.Button("title", id="title-btn", n_clicks=0),
+            dcc.Graph(
+                id="graph",
+                figure=make_figure(0),
+                style={"width": 600, "height": 400},
+                **graph_kwargs,
+            ),
+            html.Div(id="range-output"),
+        ]
+    )
+
+    @app.callback(
+        Output("graph", "figure", allow_duplicate=True),
+        Input("figure-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def new_figure(n_clicks):
+        return make_figure(n_clicks)
+
+    @app.callback(
+        Output("graph", "figure"),
+        Input("title-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def patch_title(n_clicks):
+        p = Patch()
+        p.layout.xaxis.title.text = f"title {n_clicks}"
+        return p
+
+    @app.callback(Output("range-output", "children"), Input("graph", "figure"))
+    def show_range(figure):
+        return json.dumps(figure["layout"].get("xaxis", {}).get("range"))
+
+    return app
+
+
+def _wait_for_y9(dash_dcc, value):
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot').data[0].y[9]"
+        )
+        == value,
+        timeout=3,
+    )
+
+
+def test_grbs017_graph_uirevision_keeps_zoom_animate(dash_dcc):
+    def make_figure(n):
+        return {
+            "data": [{"x": list(range(10)), "y": [(n + 1) * x for x in range(10)]}],
+            "layout": {"xaxis": {"range": [0, 9]}, "uirevision": True},
+        }
+
+    app = _uirevision_app(make_figure, animate=True)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+    dash_dcc.wait_for_text_to_equal("#range-output", "[0, 9]")
+
+    zoomed = _drag_zoom(dash_dcc)
+    wait.until(
+        lambda: dash_dcc.find_element("#range-output").text != "[0, 9]", timeout=3
+    )
+    sleep(1)
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    dash_dcc.find_element("#figure-btn").click()
+    _wait_for_y9(dash_dcc, 18)
+    sleep(1)
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs018_graph_uirevision_keeps_zoom_after_axis_patch(dash_dcc):
+    def make_figure(n):
+        return {
+            "data": [{"x": list(range(10)), "y": [(n + 1) * x for x in range(10)]}],
+            "layout": {"uirevision": True},
+        }
+
+    app = _uirevision_app(make_figure)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+    dash_dcc.wait_for_text_to_equal("#range-output", "null")
+
+    zoomed = _drag_zoom(dash_dcc)
+    wait.until(lambda: dash_dcc.find_element("#range-output").text != "null", timeout=3)
+
+    dash_dcc.find_element("#title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#graph .g-xtitle", "title 1")
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    dash_dcc.find_element("#figure-btn").click()
+    _wait_for_y9(dash_dcc, 18)
+    sleep(0.5)
+    assert _rendered_xrange(dash_dcc) == zoomed
+
+    assert dash_dcc.get_logs() == []
+
+
+def test_grbs019_graph_uirevision_keeps_programmatic_relayout(dash_dcc):
+    def make_figure(n):
+        return {
+            "data": [{"x": list(range(10)), "y": [(n + 1) * x for x in range(10)]}],
+            "layout": {"uirevision": True},
+        }
+
+    app = _uirevision_app(make_figure)
+    dash_dcc.start_server(app)
+    dash_dcc.wait_for_element("#graph .main-svg")
+
+    def shape_count():
+        return dash_dcc.driver.execute_script(
+            "return document.querySelector('#graph .js-plotly-plot')"
+            "._fullLayout.shapes.length"
+        )
+
+    # Not a GUI edit, so plotly.js does not track it for uirevision
+    dash_dcc.driver.execute_script(
+        "Plotly.relayout(document.querySelector('#graph .js-plotly-plot'),"
+        "{shapes: [{type: 'line', x0: 2, x1: 2, y0: 0, y1: 1, yref: 'paper'}]})"
+    )
+    wait.until(
+        lambda: dash_dcc.driver.execute_script(
+            "return window.dash_component_api.getLayout('graph')"
+            ".props.figure.layout.shapes?.length"
+        )
+        == 1,
+        timeout=3,
+    )
+    sleep(0.5)
+    assert shape_count() == 1
+
+    dash_dcc.find_element("#title-btn").click()
+    dash_dcc.wait_for_text_to_equal("#graph .g-xtitle", "title 1")
+    assert shape_count() == 1
+
+    assert dash_dcc.get_logs() == []

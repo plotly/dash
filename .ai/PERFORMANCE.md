@@ -213,3 +213,21 @@ the run when the per-click cost grows faster than the list (linear is ~3x).
 limit) for a component tree nested deeper than ~254. The `deep_nesting`
 scenario is capped at 120 to stay clear. Worth remembering before recommending
 deeply-recursive layouts.
+
+### 6. Components with `dashChildrenUpdate` scan every changed path [reduced]
+
+`selectDashProps` runs for every mounted component on every store update. For a
+component type that sets `dashChildrenUpdate` (`dcc.Tabs`, several DMC types),
+`determineChangedProps` walks all of `layoutHashes`, which gains one entry per
+path whose props ever changed and never shrinks: O(flagged components x changed
+paths) per store update. `callback_fanout_children_update` covers it.
+
+`isFirstLevelPropsChild` used to split both paths for each entry, and was the
+top frame of that scenario (with `determineChangedProps`, 51% of CPU with 50
+tabs). It now rejects unrelated paths with `isPathOrDescendant` before any
+allocation, which brings that down to 9%. It is still a scan, just a cheap one.
+The scenario mounts 200 tabs so that going back to the old scan (about 4x
+slower there) fails the baseline gate. A prefix index would make
+it O(1) per component, but rebuilding it whenever `layoutHashes` changes costs
+about twice one scan, so it would slow down the common case of a single
+`dcc.Tabs`. An index maintained incrementally in the reducer would avoid that.
