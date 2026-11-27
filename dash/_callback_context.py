@@ -121,7 +121,9 @@ class CallbackContext:
     @has_context
     def triggered_id(self):
         """
-        Returns the component id (str or dict) of the Input component that triggered the callback.
+        Returns the component id of the Input that triggered the callback. The id is a string
+        for a regular component and a dictionary for a pattern-matching component.
+        Returns None when no Input triggered the callback, such as on an initial call.
 
         Note - use `triggered_prop_ids` if you need both the component id and the prop that triggered the callback or if
         multiple Inputs triggered the callback.
@@ -129,6 +131,11 @@ class CallbackContext:
         Example usage:
         `if "btn-1" == ctx.triggered_id:
             do_something()`
+
+        Example - read a key from a pattern-matching id:
+        `triggered_id = ctx.triggered_id
+        if isinstance(triggered_id, dict):
+            index = triggered_id.get("index")`
 
         """
         component_id = None
