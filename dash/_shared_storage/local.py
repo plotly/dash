@@ -32,6 +32,8 @@ from ._persistence import _Persistence, default_store_dir
 from ._transport import (
     EOF,
     OwnerServer,
+    aabort,
+    abort,
     aconnect_to_owner,
     arecv_frame,
     asend_frame,
@@ -55,6 +57,16 @@ _OWNER_POLL_TIMEOUT = 1.0  # local poll cycle; short so close() stays responsive
 def _default_namespace() -> str:
     raw = f"{os.getcwd()}|{sys.argv[0] if sys.argv else ''}".encode()
     return hashlib.sha1(raw).hexdigest()[:16]
+
+
+def _file_id(path: str) -> Optional[Tuple[int, int, int]]:
+    """Which file is at ``path``: a socket file taken over and rebound there
+    is a different one, even on a reused inode (bind and chmod set ctime)."""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return None
+    return st.st_dev, st.st_ino, st.st_ctime_ns
 
 
 def _paths(namespace: str):
@@ -173,6 +185,17 @@ def _try_bind(namespace: str, sock_path: str, addr_path: Optional[str] = None):
 class _Coordinator:
     """Owns this worker's role (owner or client) and re-elects on owner loss."""
 
+    # Long-poll cycle for remote subscribers, and how long a client waits on
+    # the owner's answer (None: as long as it takes; a local owner that dies
+    # closes its sockets).
+    client_poll_timeout = _CLIENT_POLL_TIMEOUT
+    recv_timeout: Optional[float] = None
+    # How long a call keeps retrying while a new owner is found. Locally the
+    # next owner is a bind away; a cluster needs a few probes to notice.
+    failover_window = 0.0
+    # TLS context for client connections to the owner (cluster only).
+    client_ssl: Optional[Any] = None
+
     def __init__(
         self,
         namespace: str,
@@ -194,6 +217,7 @@ class _Coordinator:
         self._family = None
         self._address = None
         self._token: Optional[str] = None
+        self._sock_id: Optional[Tuple[int, int, int]] = None
 
     @property
     def engine(self) -> Optional[StoreEngine]:
@@ -213,38 +237,53 @@ class _Coordinator:
         self.ensure()
         return self._role == "owner"
 
+    def needs_election(self) -> bool:
+        """Whether the next is_owner() may elect, which can block: asyncio
+        callers run it in the executor then."""
+        return self._role is None
+
+    def _new_engine(self) -> StoreEngine:
+        engine = StoreEngine(self._buffer_size)
+        if self._mode != "memory":
+            assert self._path is not None
+            persistence = _Persistence(
+                self._path, self._mode, self._flush_interval, engine
+            )
+            # Recover before serving (so clients see the restored state) and
+            # before attaching (so restored keys are not re-marked dirty).
+            persistence.recover()
+            engine.attach_persistence(persistence)
+            persistence.start()
+        return engine
+
     def _elect(self) -> None:
         bound = _try_bind(self._namespace, self._sock_path, self._addr_path)
         if bound:
             listen_sock, family, address = bound
             token = secrets.token_hex(16)
-            engine = StoreEngine(self._buffer_size)
+            engine = None
             try:
                 _write_advertisement(self._addr_path, family, address, token)
-                if self._mode != "memory":
-                    assert self._path is not None
-                    persistence = _Persistence(
-                        self._path, self._mode, self._flush_interval, engine
-                    )
-                    # Recover before serving (so clients see the restored state)
-                    # and before attaching (so restored keys are not re-marked
-                    # dirty).
-                    persistence.recover()
-                    engine.attach_persistence(persistence)
-                    persistence.start()
+                engine = self._new_engine()
                 server = OwnerServer(engine, listen_sock, token)
                 server.start()
             except BaseException:
                 # The socket already listens: left open, it would pass for a
                 # live owner that never answers.
                 listen_sock.close()
-                engine.close()
+                if engine is not None:
+                    engine.close()
                 for path in (self._sock_path, self._addr_path):
                     with contextlib.suppress(OSError):
                         os.unlink(path)
                 raise
             self._engine, self._server = engine, server
             self._family, self._address, self._token = family, address, token
+            self._sock_id = (
+                _file_id(address)
+                if family == getattr(socket, "AF_UNIX", None)
+                else None
+            )
             self._role = "owner"
             # Best-effort cleanup of the socket/advertisement on clean exit; a
             # crash leaves them stale, which the next election self-heals.
@@ -255,14 +294,28 @@ class _Coordinator:
             )
             self._role = "client"
 
-    def connect(self) -> socket.socket:
-        self.ensure()
-        assert self._family is not None and self._token is not None
-        return connect_to_owner(self._family, self._address, self._token)
+    def _target(self):
+        with self._lock:
+            self.ensure()
+            return self._family, self._address, self._token
+
+    def connect(self) -> Tuple[socket.socket, str]:
+        """A connection to the current owner, and the owner's token: the owner
+        it belongs to, which may differ from the caller's last one."""
+        family, address, token = self._target()
+        assert family is not None and token is not None
+        return (
+            connect_to_owner(family, address, token, ssl_context=self.client_ssl),
+            token,
+        )
 
     async def aconnect(self):
-        self.ensure()
-        return await aconnect_to_owner(self._family, self._address, self._token)
+        """Async :meth:`connect`. Call after an election, never during one."""
+        family, address, token = self._target()
+        streams = await aconnect_to_owner(
+            family, address, token, ssl_context=self.client_ssl
+        )
+        return streams, token
 
     def on_owner_lost(self) -> None:
         """The owner became unreachable; re-elect (may promote us to owner)."""
@@ -279,12 +332,19 @@ class _Coordinator:
                 if self._engine is not None:
                     # Triggers the persistence final flush (save-on-exit).
                     self._engine.close()
-                for path in (self._sock_path, self._addr_path):
-                    try:
-                        os.unlink(path)
-                    except OSError:
-                        pass
+                self._unlink_own_files()
             self._role = None
+
+    def _unlink_own_files(self) -> None:
+        # Clients see the owner go before the final flush is done, and one may
+        # have taken over by now: leave its socket and advertisement alone.
+        with contextlib.suppress(OSError, ValueError, KeyError, TypeError):
+            with open(self._addr_path, "rb") as f:
+                if json.loads(f.read().decode("utf-8"))["token"] == self._token:
+                    os.unlink(self._addr_path)
+        if self._sock_id is not None and _file_id(self._sock_path) == self._sock_id:
+            with contextlib.suppress(OSError):
+                os.unlink(self._sock_path)
 
 
 class _LocalSubscription(Subscription):
@@ -293,11 +353,16 @@ class _LocalSubscription(Subscription):
     cursor on reconnect so no buffered message is missed.
     """
 
-    def __init__(self, coord: _Coordinator, topic: str, start_seq: int, call):
+    def __init__(  # pylint: disable=too-many-arguments
+        self, coord: _Coordinator, topic: str, start_seq: int, call, token
+    ):
         self._coord = coord
         self._topic = topic
         self._cursor = start_seq
         self._call = call  # the storage's short request/response channel
+        # The owner this cursor belongs to. Another owner numbers topics from
+        # scratch, so reading on from this cursor there would be wrong.
+        self._token = token
         self._conn: Optional[socket.socket] = None
         # Async (ASGI) client-role connection: reader/writer + its loop, so
         # close() from another thread can shut it via the loop.
@@ -319,10 +384,18 @@ class _LocalSubscription(Subscription):
             with contextlib.suppress(RuntimeError):
                 self._aloop.call_soon_threadsafe(writer.close)
 
+    def _check_owner(self, token: Optional[str] = None) -> None:
+        if (token or self._coord.token) != self._token:
+            raise SharedStorageGap(
+                "shared-storage owner changed; buffered messages were lost"
+            )
+
     def _poll_once(self, timeout: Optional[float] = None) -> PollResult:
         """One poll cycle. ``timeout`` overrides the role's long-poll default
         (``0`` never blocks)."""
-        if self._coord.is_owner():
+        is_owner = self._coord.is_owner()
+        self._check_owner()
+        if is_owner:
             engine = self._coord.engine
             if engine is None or engine.closed:
                 self._closed.set()  # owner gone -> end iteration, don't busy-loop
@@ -330,16 +403,22 @@ class _LocalSubscription(Subscription):
             if timeout is None:
                 timeout = _OWNER_POLL_TIMEOUT
             return engine.poll(self._topic, self._cursor, timeout)
-        return self._client_poll(_CLIENT_POLL_TIMEOUT if timeout is None else timeout)
+        cycle = self._coord.client_poll_timeout
+        # Longer waits than a cycle would outlast the client's receive
+        # timeout; the caller polls again.
+        return self._client_poll(cycle if timeout is None else min(timeout, cycle))
 
     def _client_poll(self, timeout: float) -> PollResult:
         for attempt in range(4):
             if self._closed.is_set():
                 return PollResult([], self._cursor, False)
             if self._conn is None:
-                prev_token = self._coord.token
+                prev_token = self._token
                 try:
-                    self._conn = self._coord.connect()
+                    self._conn, token = self._coord.connect()
+                    if token != self._token:
+                        self._close_conn()
+                        self._check_owner(token)
                 except OSError as exc:
                     # Owner unreachable: brief retries to the same owner, then
                     # re-elect. A changed owner means its buffer is gone -> gap.
@@ -365,13 +444,16 @@ class _LocalSubscription(Subscription):
                     raise SharedStorageError(val)
                 return PollResult(*val)
             except (OSError, EOFError, ConnectionError):
-                if self._conn is not None:
-                    try:
-                        self._conn.close()
-                    except OSError:
-                        pass
-                self._conn = None  # reconnect on the next attempt
+                self._close_conn()  # reconnect on the next attempt
         return PollResult([], self._cursor, False)
+
+    def _close_conn(self) -> None:
+        conn, self._conn = self._conn, None
+        if conn is not None:
+            try:
+                conn.close()
+            except OSError:
+                pass
 
     @staticmethod
     def _with_seq(res: PollResult):
@@ -387,7 +469,9 @@ class _LocalSubscription(Subscription):
             # to the owner, like get/set -- no dedicated socket (and no thread
             # on the owner) per poll. Blocking polls keep their own connection
             # so they don't hold the shared one.
+            self._check_owner()
             res = PollResult(*self._call(["poll", self._topic, self._cursor, 0.0]))
+            self._check_owner()
         else:
             res = self._poll_once(timeout)
         if res.gap:
@@ -416,13 +500,16 @@ class _LocalSubscription(Subscription):
         """One long-poll cycle without leaving the event loop: the owner engine's
         ``apoll`` (owner role) or an asyncio-streams connection to the owner
         (client role) -- no executor thread per subscription either way."""
-        if self._coord.is_owner():
+        await _aelect(self._coord)
+        is_owner = self._coord.is_owner()
+        self._check_owner()
+        if is_owner:
             engine = self._coord.engine
             if engine is None or engine.closed:
                 self._closed.set()
                 return PollResult([], self._cursor, False)
             return await engine.apoll(self._topic, self._cursor, _OWNER_POLL_TIMEOUT)
-        return await self._aclient_poll(_CLIENT_POLL_TIMEOUT)
+        return await self._aclient_poll(self._coord.client_poll_timeout)
 
     async def _aclient_poll(self, timeout: float) -> PollResult:
         self._aloop = asyncio.get_running_loop()
@@ -431,12 +518,17 @@ class _LocalSubscription(Subscription):
                 return PollResult([], self._cursor, False)
             aconn = self._aconn
             if aconn is None:
-                prev_token = self._coord.token
+                prev_token = self._token
                 try:
-                    aconn = await self._coord.aconnect()
+                    await _aelect(self._coord)
+                    aconn, token = await self._coord.aconnect()
+                    if token != self._token:
+                        with contextlib.suppress(Exception):
+                            aconn[1].close()
+                        self._check_owner(token)
                 except (OSError, asyncio.TimeoutError) as exc:
                     if attempt >= 2:
-                        self._coord.on_owner_lost()
+                        await _aowner_lost(self._coord)
                         if self._coord.token != prev_token:
                             raise SharedStorageGap(
                                 "shared-storage owner changed; buffered "
@@ -448,14 +540,16 @@ class _LocalSubscription(Subscription):
             reader, writer = aconn
             try:
                 await asend_frame(writer, ["poll", self._topic, self._cursor, timeout])
-                resp = await arecv_frame(reader)
+                resp = await asyncio.wait_for(
+                    arecv_frame(reader), self._coord.recv_timeout
+                )
                 if resp is EOF:
                     raise ConnectionError("owner closed the connection")
                 status, val = resp
                 if status == "err":
                     raise SharedStorageError(val)
                 return PollResult(*val)
-            except (OSError, EOFError, ConnectionError):
+            except (OSError, EOFError, ConnectionError, asyncio.TimeoutError):
                 with contextlib.suppress(Exception):
                     writer.close()
                 self._aconn = None  # reconnect on the next attempt
@@ -476,6 +570,21 @@ class _LocalSubscription(Subscription):
             self.close()
 
 
+async def _aelect(coord: _Coordinator) -> None:
+    """Run an election that may block (a cluster waits on its peers) in the
+    executor, so it never stalls the event loop."""
+    if coord.needs_election():
+        await asyncio.get_running_loop().run_in_executor(None, coord.is_owner)
+
+
+async def _aowner_lost(coord: _Coordinator) -> None:
+    await asyncio.get_running_loop().run_in_executor(None, coord.on_owner_lost)
+
+
+class _OwnerGone(ConnectionError):
+    """This process stopped owning the store mid-call: retry on the new one."""
+
+
 class _AsyncConn:
     """A client worker's asyncio-streams request/response channel to the owner,
     serialized by an asyncio.Lock (one request in flight per connection)."""
@@ -483,23 +592,36 @@ class _AsyncConn:
     def __init__(self, coord: _Coordinator):
         self._coord = coord
         self._streams = None
+        self._token: Optional[str] = None
         self._lock: Optional[asyncio.Lock] = None
 
     async def call(self, req):
         if self._lock is None:
             self._lock = asyncio.Lock()
         async with self._lock:
+            if self._streams is not None and self._token != self._coord.token:
+                with contextlib.suppress(Exception):
+                    self._streams[1].close()
+                self._streams = None
             if self._streams is None:
-                self._streams = await self._coord.aconnect()
+                await _aelect(self._coord)
+                self._streams, self._token = await self._coord.aconnect()
             reader, writer = self._streams
             try:
-                await asend_frame(writer, req)
-                resp = await arecv_frame(reader)
+                # An owner that stops reading would block drain() forever.
+                await asyncio.wait_for(
+                    asend_frame(writer, req), self._coord.recv_timeout
+                )
+                resp = await asyncio.wait_for(
+                    arecv_frame(reader), self._coord.recv_timeout
+                )
                 if resp is EOF:
                     raise ConnectionError("owner closed the connection")
-            except (OSError, EOFError, ConnectionError, asyncio.TimeoutError):
+            except BaseException:
+                # Cancelled included: the request may still be queued, and
+                # its answer would reach the next call.
                 with contextlib.suppress(Exception):
-                    writer.close()
+                    aabort(writer)
                 self._streams = None
                 raise
         status, val = resp
@@ -554,13 +676,19 @@ class LocalSharedStorage(BaseSharedStorage):
         ns = namespace or _default_namespace()
         if mode != "memory" and path is None:
             path = default_store_dir(ns)
-        self._coord = _Coordinator(ns, buffer_size, mode, path, flush_interval)
+        self._coord = self._new_coordinator(ns, buffer_size, mode, path, flush_interval)
         self._conn: Optional[socket.socket] = None
+        self._conn_token: Optional[str] = None
         self._conn_lock = threading.Lock()
         # Client role, asyncio callers: one asyncio-streams connection per
         # event loop (with its own asyncio.Lock), so a loop never blocks on the
         # sync connection or contends with request threads for it.
         self._aconns: "dict[asyncio.AbstractEventLoop, _AsyncConn]" = {}
+
+    def _new_coordinator(  # pylint: disable=too-many-arguments
+        self, namespace, buffer_size, mode, path, flush_interval
+    ) -> "_Coordinator":
+        return _Coordinator(namespace, buffer_size, mode, path, flush_interval)
 
     def start(self) -> None:
         self._coord.ensure()
@@ -578,19 +706,36 @@ class LocalSharedStorage(BaseSharedStorage):
     # --- key/value + publish (short request/response) ----------------------
     def _call(self, req):
         last_err: Optional[Exception] = None
-        for _ in range(3):
-            if self._coord.is_owner():
-                return self._local(req)
+        deadline = time.monotonic() + self._coord.failover_window
+        attempt = 0
+        while True:
             try:
+                if self._coord.is_owner():
+                    return self._local(req)
                 return self._remote(req)
             except (OSError, EOFError, ConnectionError) as err:
                 last_err = err
-                self._coord.on_owner_lost()
+            attempt += 1
+            if attempt >= 3 and time.monotonic() >= deadline:
+                break
+            self._coord.on_owner_lost()
+            if attempt >= 3:
+                time.sleep(0.2)
         raise SharedStorageError(f"shared-storage owner unreachable: {last_err}")
 
     def _local(self, req):
         engine = self._coord.engine
-        assert engine is not None
+        if engine is None or engine.closed:
+            raise _OwnerGone("this process stopped owning the store")
+        result = self._apply(engine, req)
+        if engine.closed:
+            # Lost ownership while applying it: the write may be lost with the
+            # old store, so the caller retries on the new owner.
+            raise _OwnerGone("this process stopped owning the store")
+        return result
+
+    @staticmethod
+    def _apply(engine: StoreEngine, req):  # pylint: disable=too-many-return-statements
         op = req[0]
         if op == "get":
             return engine.get(req[1], req[2])
@@ -606,18 +751,21 @@ class LocalSharedStorage(BaseSharedStorage):
 
     def _remote(self, req):
         with self._conn_lock:
+            if self._conn is not None and self._conn_token != self._coord.token:
+                try:
+                    self._conn.close()
+                except OSError:
+                    pass
+                self._conn = None
             if self._conn is None:
-                self._conn = self._coord.connect()
+                self._conn, self._conn_token = self._coord.connect()
             try:
                 send_frame(self._conn, req)
                 resp = recv_frame(self._conn)
                 if resp is EOF:
                     raise ConnectionError("owner closed the connection")
-            except (OSError, EOFError, ConnectionError):
-                try:
-                    self._conn.close()
-                except OSError:
-                    pass
+            except BaseException:
+                abort(self._conn)
                 self._conn = None
                 raise
         status, val = resp
@@ -625,22 +773,35 @@ class LocalSharedStorage(BaseSharedStorage):
             raise SharedStorageError(val)
         return val
 
-    async def _acall(self, req):
-        if self._coord.is_owner():
-            return self._local(req)
+    def _aconn(self) -> _AsyncConn:
         loop = asyncio.get_running_loop()
         conn = self._aconns.get(loop)
         if conn is None:
+            # Each asyncio.run() is a new loop: let go of the finished ones.
+            for old in list(self._aconns):
+                if old.is_closed():
+                    self._aconns.pop(old, None)
             conn = self._aconns[loop] = _AsyncConn(self._coord)
+        return conn
+
+    async def _acall(self, req):
         last_err: Optional[Exception] = None
-        for _ in range(3):
+        deadline = time.monotonic() + self._coord.failover_window
+        attempt = 0
+        while True:
             try:
-                return await conn.call(req)
-            except (OSError, EOFError, ConnectionError, asyncio.TimeoutError) as err:
-                last_err = err
-                self._coord.on_owner_lost()
+                await _aelect(self._coord)
                 if self._coord.is_owner():
                     return self._local(req)
+                return await self._aconn().call(req)
+            except (OSError, EOFError, ConnectionError, asyncio.TimeoutError) as err:
+                last_err = err
+            attempt += 1
+            if attempt >= 3 and time.monotonic() >= deadline:
+                break
+            await _aowner_lost(self._coord)
+            if attempt >= 3:
+                await asyncio.sleep(0.2)
         raise SharedStorageError(f"shared-storage owner unreachable: {last_err}")
 
     async def aget(self, key: str, default: Any = None) -> Any:
@@ -676,5 +837,8 @@ class LocalSharedStorage(BaseSharedStorage):
 
     def subscribe(self, topic: str, replay_from: Optional[int] = None) -> Subscription:
         self._coord.ensure()
+        # Taken before the head: if the owner changes in between, the first
+        # poll gaps instead of reading the new owner with the old one's cursor.
+        token = self._coord.token
         start = replay_from if replay_from is not None else self._head(topic)
-        return _LocalSubscription(self._coord, topic, start, self._call)
+        return _LocalSubscription(self._coord, topic, start, self._call, token)

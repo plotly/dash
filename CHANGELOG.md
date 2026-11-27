@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [UNRELEASED]
 
 ### Added
+- [#4116](https://github.com/plotly/dash/pull/4116) Add `ClusterSharedStorage` (`DASH_SHARED_STORAGE=cluster://:secret@host:port`): shared storage across pods or containers with no external service, the replicas electing one owner among themselves, with optional mutual TLS and majority mode (`?replicas=3`). An owner change loses its data, like a local re-election.
 - [#4203](https://github.com/plotly/dash/pull/4203) Add a Copy button to each error in the debug toolbar, which copies the error message and its traceback to the clipboard. Closes [#3624](https://github.com/plotly/dash/issues/3624).
 - [#4204](https://github.com/plotly/dash/pull/4204) Add `DASH_HOST` and `DASH_PORT` environment variables to set the listen address for `Dash.run`, taking precedence over the generic `HOST` and `PORT` variables. Fixes [#3400](https://github.com/plotly/dash/issues/3400).
 

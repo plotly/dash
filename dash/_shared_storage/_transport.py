@@ -4,10 +4,12 @@ A single owner process serves one :class:`StoreEngine` over a stream socket
 (AF_UNIX where available, TCP loopback otherwise). Messages are length-prefixed:
 a 4-byte big-endian length followed by a body encoded by ``_codec`` (msgspec
 msgpack, or JSON without the ``dash[shared_storage]`` extra). The codec is
-data-only -- the socket is localhost-only, but deserializing untrusted bytes off
-a socket is a remote-code-execution hazard, so the transport carries only data. The channel is
-additionally gated by a per-owner random token; only same-host clients that read
-the owner's advertisement file (written 0600) can attach.
+data-only: deserializing untrusted bytes off a socket is a remote-code-execution
+hazard, so the transport carries only data. The channel is additionally gated by
+a per-owner random token. Locally only same-host clients that read the owner's
+advertisement file (written 0600) can attach; a cluster owner's socket is
+reachable from the other replicas, so what a connection may do before it shows
+the token is bounded in time, size and number.
 
 The consequence is that stored values and published messages must be
 JSON-serializable -- the same constraint as ``dcc.Store`` and callback outputs.
@@ -20,13 +22,21 @@ connection), which is what makes long-poll subscriptions cheap.
 
 import asyncio
 import socket
+import ssl
 import struct
+import sys
 import threading
-from typing import Any, Optional, Tuple
+import time
+from typing import Any, Callable, Optional, Set, Tuple
 
 from ._codec import decode, encode
 
 EOF = object()  # returned by recv_frame on a clean close
+_HANDSHAKE_TIMEOUT = 5.0
+# Connections that have not shown the token yet, and the largest frame one may
+# send before it does.
+_MAX_HANDSHAKES = 64
+_MAX_TOKEN_FRAME = 1024
 OK = ["ok", None]
 
 
@@ -47,11 +57,44 @@ def _recv_exactly(sock: socket.socket, n: int) -> Optional[bytes]:
     return b"".join(chunks)
 
 
-def recv_frame(sock: socket.socket) -> Any:
+class _Expiry:
+    """Shuts ``sock`` down after the handshake timeout unless stopped first."""
+
+    def __init__(self, sock: socket.socket):
+        self._sock = sock
+        self._lock = threading.Lock()
+        self._done = False
+        self._timer = threading.Timer(_HANDSHAKE_TIMEOUT, self._expire)
+        self._timer.daemon = True
+        self._timer.start()
+
+    def _expire(self) -> None:
+        with self._lock:
+            if self._done:
+                return
+            self._done = True
+        try:
+            self._sock.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+
+    def stop(self) -> bool:
+        """Whether it was stopped in time (the socket was not shut down)."""
+        self._timer.cancel()
+        with self._lock:
+            if self._done:
+                return False
+            self._done = True
+            return True
+
+
+def recv_frame(sock: socket.socket, max_size: Optional[int] = None) -> Any:
     header = _recv_exactly(sock, 4)
     if header is None:
         return EOF
     (length,) = struct.unpack("!I", header)
+    if max_size is not None and length > max_size:
+        raise ValueError("frame too large")
     body = _recv_exactly(sock, length)
     if body is None:
         return EOF
@@ -75,13 +118,30 @@ async def arecv_frame(reader: asyncio.StreamReader) -> Any:
 
 
 class OwnerServer:
-    """Serves one StoreEngine to client workers over ``listen_sock``."""
+    """Serves one StoreEngine to client workers over ``listen_sock``.
 
-    def __init__(self, engine, listen_sock: socket.socket, token: str):
+    ``guard``, when given, is checked before every request; once it returns
+    False the server drops the connection instead of answering, so a cluster
+    owner that lost its term stops taking writes.
+    """
+
+    def __init__(
+        self,
+        engine,
+        listen_sock: socket.socket,
+        token: str,
+        guard: Optional[Callable[[], bool]] = None,
+        ssl_context: Optional[ssl.SSLContext] = None,
+    ):
         self._engine = engine
+        self._ssl = ssl_context
         self._sock = listen_sock
         self._token = token
+        self._guard = guard
         self._closed = threading.Event()
+        self._conns: Set[socket.socket] = set()
+        self._conns_lock = threading.Lock()
+        self._handshakes = threading.BoundedSemaphore(_MAX_HANDSHAKES)
         self._accept_thread = threading.Thread(
             target=self._accept_loop, name="dash-shared-owner", daemon=True
         )
@@ -92,25 +152,74 @@ class OwnerServer:
 
     def _accept_loop(self) -> None:
         while not self._closed.is_set():
+            # Wait for a slot rather than turn a client away: a refused client
+            # takes the owner for dead.
+            if not self._handshakes.acquire(  # pylint: disable=consider-using-with
+                timeout=0.5
+            ):
+                continue
             try:
                 conn, _ = self._sock.accept()
             except OSError:
-                break
+                self._handshakes.release()
+                if self._closed.is_set():
+                    break
+                # Out of file descriptors or similar: an owner that stops
+                # accepting still looks alive to its peers, so keep trying.
+                time.sleep(0.1)
+                continue
             threading.Thread(target=self._handle, args=(conn,), daemon=True).start()
 
-    def _handle(self, conn: socket.socket) -> None:
+    def _serving(self) -> bool:
+        return not self._closed.is_set() and (self._guard is None or self._guard())
+
+    def _handshake(self, conn: socket.socket):
+        """The connection, TLS wrapped if need be, once it showed the token;
+        None (and closed) otherwise."""
+        # A socket timeout bounds each read, not the whole handshake: a client
+        # dripping a byte at a time would keep its slot forever.
+        expiry = _Expiry(conn)
         try:
-            if recv_frame(conn) != self._token:
+            conn.settimeout(_HANDSHAKE_TIMEOUT)
+            if self._ssl is not None:
+                conn = self._ssl.wrap_socket(conn, server_side=True)
+            if recv_frame(conn, _MAX_TOKEN_FRAME) == self._token and expiry.stop():
+                conn.settimeout(None)
+                return conn
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass  # garbage, a timeout, a failed TLS handshake
+        finally:
+            expiry.stop()
+            self._handshakes.release()
+        try:
+            conn.close()
+        except OSError:
+            pass
+        return None
+
+    def _handle(self, conn: socket.socket) -> None:
+        conn = self._handshake(conn)
+        if conn is None:
+            return
+        with self._conns_lock:
+            if self._closed.is_set():
+                conn.close()
+                return
+            self._conns.add(conn)
+        try:
+            if not self._serving():
                 return
             send_frame(conn, OK)
-            while not self._closed.is_set():
+            while True:
                 req = recv_frame(conn)
-                if req is EOF:
+                if req is EOF or not self._serving():
                     break
                 send_frame(conn, self._dispatch(req))
         except (OSError, EOFError, ValueError):
             pass
         finally:
+            with self._conns_lock:
+                self._conns.discard(conn)
             try:
                 conn.close()
             except OSError:
@@ -140,37 +249,104 @@ class OwnerServer:
 
     def close(self) -> None:
         self._closed.set()
-        try:
-            self._sock.close()
-        except OSError:
-            pass
+        # close() alone does not wake a thread blocked in accept() on Linux,
+        # and clients of a closed owner must notice now, not on their next
+        # request.
+        with self._conns_lock:
+            conns = list(self._conns)
+        for sock in [self._sock, *conns]:
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            try:
+                sock.close()
+            except OSError:
+                pass
         self._engine.close()
 
 
 async def aconnect_to_owner(
-    family: int, address, token: str, timeout: float = 5.0
+    family: int,
+    address,
+    token: str,
+    timeout: float = 5.0,
+    ssl_context: Optional[ssl.SSLContext] = None,
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
-    """Async counterpart of :func:`connect_to_owner` (asyncio streams)."""
-    if family == socket.AF_INET:
-        host, port = address
-        opener = asyncio.open_connection(host, port)
-    else:
+    """Async counterpart of :func:`connect_to_owner` (asyncio streams). The
+    timeout covers the handshake too: an owner that accepts but never answers
+    must not hang the caller."""
+    if family == getattr(socket, "AF_UNIX", None):
         opener = asyncio.open_unix_connection(address)
+    else:
+        host, port = address
+        opener = asyncio.open_connection(host, port, ssl=ssl_context)
     reader, writer = await asyncio.wait_for(opener, timeout)
-    await asend_frame(writer, token)
-    if await arecv_frame(reader) != OK:
+    try:
+        await asyncio.wait_for(asend_frame(writer, token), timeout)
+        ok = await asyncio.wait_for(arecv_frame(reader), timeout) == OK
+    except BaseException:
+        writer.close()
+        raise
+    if not ok:
         writer.close()
         raise ConnectionError("shared-storage owner rejected the handshake")
     return reader, writer
 
 
-def connect_to_owner(family: int, address, token: str, timeout: float = 5.0):
+# l_onoff=1, l_linger=0: close() resets the connection and drops what is queued.
+_ABORT_LINGER = struct.pack("HH" if sys.platform == "win32" else "ii", 1, 0)
+
+
+def _drop_unsent(sock) -> None:
+    try:
+        if sock is not None and sock.family != getattr(socket, "AF_UNIX", None):
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, _ABORT_LINGER)
+    except OSError:
+        pass
+
+
+def abort(sock: socket.socket) -> None:
+    """Close a connection to the owner that failed, dropping any request the
+    kernel still holds. A plain close keeps retransmitting it, so after a
+    partition heals the old owner would apply a write the caller has since
+    retried on the new owner, over newer writes."""
+    _drop_unsent(sock)
+    try:
+        sock.close()
+    except OSError:
+        pass
+
+
+def aabort(writer: asyncio.StreamWriter) -> None:
+    """``abort`` for an asyncio stream."""
+    _drop_unsent(writer.get_extra_info("socket"))
+    writer.transport.abort()
+
+
+def connect_to_owner(
+    family: int,
+    address,
+    token: str,
+    timeout: float = 5.0,
+    ssl_context: Optional[ssl.SSLContext] = None,
+):
     """Open a client connection and complete the token handshake."""
-    sock = socket.socket(family, socket.SOCK_STREAM)
-    sock.settimeout(timeout)
-    sock.connect(address)
-    send_frame(sock, token)
-    if recv_frame(sock) != OK:
+    if family == getattr(socket, "AF_UNIX", None):
+        sock = socket.socket(family, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        sock.connect(address)
+    else:
+        sock = socket.create_connection(tuple(address), timeout=timeout)
+        if ssl_context is not None:
+            sock = ssl_context.wrap_socket(sock)
+    try:
+        send_frame(sock, token)
+        ok = recv_frame(sock) == OK
+    except BaseException:
+        sock.close()
+        raise
+    if not ok:
         sock.close()
         raise ConnectionError("shared-storage owner rejected the handshake")
     sock.settimeout(None)
