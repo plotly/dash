@@ -10,9 +10,16 @@ type TooltipProps = {
     index: number;
     value: number;
     tooltip: SliderTooltip;
+    anchorStyle: React.CSSProperties;
 };
 
-export const Tooltip = ({tooltip, value, index: key, id}: TooltipProps) => {
+export const Tooltip = ({
+    tooltip,
+    value,
+    index: key,
+    id,
+    anchorStyle,
+}: TooltipProps) => {
     const formatTooltipContent = (value: number, index: number) => {
         let displayValue: string | number = value;
         if (tooltip?.transform) {
@@ -58,8 +65,14 @@ export const Tooltip = ({tooltip, value, index: key, id}: TooltipProps) => {
     }
 
     return (
-        <div className={classNames.join(' ')} style={position}>
-            {formatTooltipContent(value, key)}
+        <div
+            className="dash-slider-tooltip-anchor"
+            style={anchorStyle}
+            aria-hidden="true"
+        >
+            <div className={classNames.join(' ')} style={position}>
+                {formatTooltipContent(value, key)}
+            </div>
         </div>
     );
 };

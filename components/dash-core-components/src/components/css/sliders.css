@@ -1,6 +1,5 @@
 .dash-slider-root {
     position: relative;
-    z-index: 0;
     display: flex;
     align-items: center;
     user-select: none;
@@ -78,11 +77,6 @@
     outline: 2px solid var(--Dash-Fill-Interactive-Strong);
 }
 
-.dash-slider-thumb:focus .dash-slider-tooltip,
-.dash-slider-thumb:hover .dash-slider-tooltip {
-    display: block;
-}
-
 .dash-slider-thumb[data-disabled],
 .dash-range-slider-input:disabled {
     cursor: not-allowed;
@@ -136,6 +130,21 @@
     background-color: var(--Dash-Fill-Disabled);
 }
 
+/*
+ * Stands in for the thumb: same box and same position, so the tooltip is laid
+ * out against it. The z-index only reaches past the slider while the root is
+ * not a stacking context.
+ */
+.dash-slider-tooltip-anchor {
+    position: absolute;
+    z-index: 1;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    transform: var(--radix-slider-thumb-transform);
+    pointer-events: none;
+}
+
 .dash-slider-tooltip {
     display: none;
     position: absolute;
@@ -146,11 +155,32 @@
     box-shadow: 0 0 8px var(--Dash-Shading-Strong);
     background-color: var(--Dash-Fill-Inverse-Strong);
     user-select: none;
-    z-index: 1000;
     fill: var(--Dash-Fill-Inverse-Strong);
 }
 
 .dash-slider-tooltip.always-visible {
+    display: block;
+}
+
+/*
+ * The anchor comes right after the span Radix renders around its thumb. In a
+ * form, Radix puts a hidden input between the two.
+ */
+.dash-slider-root > span:hover + .dash-slider-tooltip-anchor,
+.dash-slider-root > span:hover + input + .dash-slider-tooltip-anchor,
+.dash-slider-root > span:focus-within + .dash-slider-tooltip-anchor,
+.dash-slider-root > span:focus-within + input + .dash-slider-tooltip-anchor {
+    z-index: 2;
+}
+
+.dash-slider-root > span:hover + .dash-slider-tooltip-anchor > *,
+.dash-slider-root > span:hover + input + .dash-slider-tooltip-anchor > *,
+.dash-slider-root > span:focus-within + .dash-slider-tooltip-anchor > *,
+.dash-slider-root
+    > span:focus-within
+    + input
+    + .dash-slider-tooltip-anchor
+    > * {
     display: block;
 }
 

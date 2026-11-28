@@ -8,7 +8,11 @@ import {
     setUndefined,
 } from '../utils/computeSliderMarkers';
 import {snapToNearestMark} from '../utils/sliderSnapToMark';
-import {renderSliderMarks, renderSliderDots} from '../utils/sliderRendering';
+import {
+    renderSliderMarks,
+    renderSliderDots,
+    getThumbInset,
+} from '../utils/sliderRendering';
 import LoadingElement from '../utils/_LoadingElement';
 import {Tooltip} from '../utils/sliderTooltip';
 import {RangeSliderProps} from '../types';
@@ -476,20 +480,29 @@ export default function RangeSlider(props: RangeSliderProps) {
                                     index + 1
                                 }`;
 
+                                // The tooltip is a sibling of the thumb, not a child. Radix
+                                // wraps the thumb in a transformed span, and nothing inside
+                                // that span can be drawn above another slider's thumb.
                                 return (
-                                    <RadixSlider.Thumb
-                                        key={'thumb' + index}
-                                        className={thumbClassName}
-                                    >
+                                    <React.Fragment key={'thumb' + index}>
+                                        <RadixSlider.Thumb
+                                            className={thumbClassName}
+                                        />
                                         {tooltip && (
                                             <Tooltip
                                                 id={id}
                                                 index={index}
                                                 value={val}
                                                 tooltip={tooltip}
+                                                anchorStyle={getThumbInset(
+                                                    val,
+                                                    minMaxValues,
+                                                    !!vertical,
+                                                    !!reverse
+                                                )}
                                             />
                                         )}
-                                    </RadixSlider.Thumb>
+                                    </React.Fragment>
                                 );
                             })}
                         </RadixSlider.Root>
