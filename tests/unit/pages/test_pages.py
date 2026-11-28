@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -59,6 +60,21 @@ def test_module_name_is_package(module_name, expected):
     ],
 )
 def test_path_to_module_name(path, expected):
+    assert _pages._path_to_module_name(path) == expected
+
+
+@pytest.mark.parametrize(
+    "path, expected",
+    [
+        (r"\sub_dir/custom_pages", "sub_dir.custom_pages"),
+        (r"\src/pages\home.py", "src.pages.home"),
+        (r"\sub_dir\custom_pages", "sub_dir.custom_pages"),
+    ],
+)
+def test_path_to_module_name_windows_mixed_separators(monkeypatch, path, expected):
+    # a pages_folder written as "src/pages" on Windows mixes "/" and "\\"
+    monkeypatch.setattr(os, "sep", "\\")
+    monkeypatch.setattr(os, "altsep", "/")
     assert _pages._path_to_module_name(path) == expected
 
 
