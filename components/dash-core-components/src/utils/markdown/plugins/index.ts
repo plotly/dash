@@ -1,6 +1,7 @@
 import type {PluggableList} from 'unified';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import remarkMathEscapedDollar from './remarkMathEscapedDollar';
 import rehypeRaw from 'rehype-raw';
 
 import rehypeBlockCode from './rehypeBlockCode';
@@ -13,9 +14,11 @@ import rehypeStripTags from './rehypeStripTags';
 // task lists, autolinks, etc.
 export const remarkGfmPlugins: PluggableList = [remarkGfm];
 
-// remark plugin for the `mathjax` prop: remark-math parses `$...$`/`$$...$$` in
-// Markdown at the token level, so it leaves `\$` and `&#36;` as literal dollars.
-export const remarkMathPlugins: PluggableList = [remarkMath];
+// Parse Markdown math and keep escaped dollars inside math expressions.
+export const remarkMathPlugins: PluggableList = [
+    remarkMath,
+    remarkMathEscapedDollar,
+];
 
 // rehype plugin for the `mathjax` prop: routes both Markdown and raw-HTML math
 // into <dashmathjax>. Must run before rehype-raw.
