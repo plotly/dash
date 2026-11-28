@@ -94,7 +94,11 @@ def _module_name_is_package(module_name):
 
 
 def _path_to_module_name(path):
-    return str(path).replace(".py", "").strip(os.sep).replace(os.sep, ".")
+    path = str(path)
+    if os.altsep:
+        # On Windows a folder given as "app/pages" mixes "/" with "\\"
+        path = path.replace(os.altsep, os.sep)
+    return path.replace(".py", "").strip(os.sep).replace(os.sep, ".")
 
 
 def _infer_module_name(page_path):

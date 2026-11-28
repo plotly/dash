@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [UNRELEASED]
 
+### Fixed
+- [#4218](https://github.com/plotly/dash/pull/4218) Fix `pages_folder` written with `/` on Windows, such as `pages_folder="src/pages"`: page modules were named `src/pages.home` and their inferred paths kept the folder (`/src/pages/home` instead of `/home`). Fixes [#4217](https://github.com/plotly/dash/issues/4217).
+
 ## [4.5.2] - 2026-11-27
 
 ### Changed
