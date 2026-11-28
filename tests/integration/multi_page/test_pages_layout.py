@@ -295,3 +295,21 @@ def test_pala007_app_title_discription(dash_duo, clear_pages_state):
     assert dash.page_registry["page1"]["title"] == "Page 1 Title"
     assert dash.page_registry["home"]["description"] == "App Description"
     assert dash.page_registry["page1"]["description"] == "Page 1 Description"
+
+
+def test_pala008_empty_layout_uses_page_container(dash_duo, clear_pages_state):
+    # An empty placeholder layout still counts as unset with use_pages, so
+    # Dash fills in page_container and the registered pages render.
+    # The pages folder has callbacks on ids that only exist in other tests'
+    # layouts, so callback exceptions are suppressed here.
+    app = Dash(__name__, use_pages=True, suppress_callback_exceptions=True)
+    dash.register_page(
+        "empty_layout_home",
+        layout=html.Div("Home for empty layout", id="contents"),
+        path="/",
+    )
+    app.layout = html.Div()
+
+    dash_duo.start_server(app)
+    dash_duo.wait_for_text_to_equal("#contents", "Home for empty layout")
+    assert dash_duo.get_logs() == []
